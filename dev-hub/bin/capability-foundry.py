@@ -4,6 +4,7 @@ import argparse,json,re,hashlib
 from pathlib import Path
 
 import technology_watch_runtime as tw
+import planning_memory_runtime as pmr
 
 def load(p):
     x=json.loads(Path(p).read_text(encoding="utf-8"))
@@ -52,8 +53,10 @@ def main():
     ap.add_argument("--domain-overlay")
     ap.add_argument("--capability-overlay")
     ap.add_argument("--routing-overlay")
+    ap.add_argument("--memory-brief")
     a=ap.parse_args()
     req,policy,domains,caps=map(load,[a.request,a.policy,a.domains,a.capabilities])
+    memory_brief=load(a.memory_brief) if a.memory_brief else {}
     existing_domains=domains.get("domains") or {}
     existing_caps=caps.get("capabilities") or {}
     project=str(req.get("project_id") or "unknown")
@@ -69,12 +72,20 @@ def main():
             domain=owner_hint,
             capabilities=[cid],
         )
+        memory_pkg={"id":"capability:"+cid,"domain":owner_hint,"kind":"capability-gap",
+                    "capabilities":[cid],"roles":[],"toolchain":[]}
+        advice=pmr.package_advice(memory_brief,memory_pkg)
+        avoid_ids=pmr.avoid_ids(advice)
         already=cid in existing_caps
         if owner_hint in existing_domains:
             owner=owner_hint;create_domain=False;role=None;domain_def=None
         else:
             owner,role,domain_def=generated_domain(owner_hint,cid);create_domain=not already
-        candidates=gap.get("architecture_candidates") or []
+        candidates=[
+          x for x in (gap.get("architecture_candidates") or [])
+          if not (isinstance(x,dict) and str(x.get("id") or "") in avoid_ids)
+        ]
+        memory_reuse=advice.get("reuse_candidates") or []
         if create_domain and domain_def:
             domain_overlay[owner]=domain_def
             roles[role]={"capabilities":[cid],"default_risk":"medium","generated_by":"capability-foundry","promotion_state":"PROJECT_LOCAL"}
@@ -96,8 +107,12 @@ def main():
             "selection_rule":watch.get("selection_rule"),
             "automatic_external_spend_eur":0
           },
-          "architecture_competition_required":len(candidates)>=2,
+          "architecture_competition_required":(len(candidates)+len(memory_reuse))>=2,
           "architecture_candidates":candidates,
+          "memory_reuse_proposals":memory_reuse,
+          "memory_guided_planning":advice,
+          "memory_avoid_components":sorted(avoid_ids),
+          "memory_guided_candidate_count":len(memory_reuse),
           "sandbox_required":not already,
           "generic_collector":f"generic-domain-collector:{owner}",
           "project_domain_collector":f"project-domain-collector:{project}:{owner}",
@@ -110,6 +125,9 @@ def main():
       "domain_overlay":domain_overlay,"capability_overlay":cap_overlay,"role_overlay":roles,
       "created_domain_count":len(domain_overlay),"created_capability_count":len(cap_overlay),
       "technology_watch_consulted":True,
+      "central_memory_recall_consumed":bool(memory_brief),
+      "central_memory_brief_digest":memory_brief.get("brief_digest"),
+      "memory_guided_plans":sum(1 for x in plans if x.get("memory_guided_candidate_count") or x.get("memory_avoid_components")),
       "core_replan_required":bool(cap_overlay or domain_overlay),
       "agent_foundry_rerun_required":bool(cap_overlay or domain_overlay),
       "promotion_requires_qualification":True
@@ -125,5 +143,7 @@ def main():
     print("CHACHA_CAPABILITY_FOUNDRY_TECHNOLOGY_WATCH=CONSULTED")
     print("CAPABILITY_FOUNDRY_NEW="+str(result["created_capability_count"]))
     print("CAPABILITY_FOUNDRY_DOMAINS="+str(result["created_domain_count"]))
+    print("CHACHA_CAPABILITY_FOUNDRY_CENTRAL_MEMORY_RECALL="+("CONSUMED" if result.get("central_memory_recall_consumed") else "ABSENT"))
+    print("MEMORY_GUIDED_PLANS="+str(result["memory_guided_plans"]))
     print("CAPABILITY_FOUNDRY_PROJECT_LOCAL_OVERLAY=YES")
 if __name__=="__main__":main()
