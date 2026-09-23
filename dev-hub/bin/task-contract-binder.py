@@ -41,18 +41,19 @@ def bind_task(task:dict[str,Any],project_id:str,agents:dict[str,Any],components:
     selected=None
     mode="STATIC_ROLE"
     subject=role
+    subject_kind=""
     if explicit_agent:
         selected=agents.get(explicit_agent)
         if selected is None:errors.append("EXPLICIT_AGENT_CONTRACT_NOT_FOUND:"+explicit_agent)
-        else: mode="DYNAMIC_AGENT";subject=explicit_agent
+        else: mode="DYNAMIC_AGENT";subject=explicit_agent;subject_kind="agent"
     elif explicit_component:
         selected=components.get(explicit_component)
         if selected is None:errors.append("EXPLICIT_COMPONENT_CONTRACT_NOT_FOUND:"+explicit_component)
-        else: mode="DYNAMIC_COMPONENT";subject=explicit_component
+        else: mode="DYNAMIC_COMPONENT";subject=explicit_component;subject_kind=str(selected.get("component_kind") or "component")
     elif role in agents:
-        selected=agents[role];mode="DYNAMIC_AGENT";subject=role
+        selected=agents[role];mode="DYNAMIC_AGENT";subject=role;subject_kind="agent"
     elif role in components:
-        selected=components[role];mode="DYNAMIC_COMPONENT";subject=role
+        selected=components[role];mode="DYNAMIC_COMPONENT";subject=role;subject_kind=str(selected.get("component_kind") or "component")
 
     caps=[str(x) for x in task.get("capabilities") or []]
     if selected is not None:
@@ -64,7 +65,9 @@ def bind_task(task:dict[str,Any],project_id:str,agents:dict[str,Any],components:
         binding={
           "mode":mode,
           "subject_role":subject,
+          "subject_kind":subject_kind or "component",
           "policy_contract_ref":str(selected.get("template_contract_id") or ""),
+          "policy_contract_version":str(roles.get("version") or ""),
           "dynamic_contract_id":str(selected.get("contract_id") or ""),
           "dynamic_contract_version":str(selected.get("version") or ""),
           "project_id":project_id,
@@ -73,10 +76,18 @@ def bind_task(task:dict[str,Any],project_id:str,agents:dict[str,Any],components:
           "capabilities":caps
         }
     else:
+        lower=role.lower()
+        static_kind=("foundry" if "foundry" in lower else
+                     "orchestrator" if "orchestrator" in lower else
+                     "agent" if (lower.endswith("-agent") or lower=="agent") else
+                     "connector" if ("connector" in lower or "adapter" in lower) else
+                     "runtime" if "runtime" in lower else "component")
         binding={
           "mode":"STATIC_ROLE",
           "subject_role":subject,
+          "subject_kind":static_kind,
           "policy_contract_ref":role_contract_ref(role,roles),
+          "policy_contract_version":str(roles.get("version") or ""),
           "dynamic_contract_id":None,
           "dynamic_contract_version":None,
           "project_id":project_id,
