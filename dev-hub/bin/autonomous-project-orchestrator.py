@@ -289,6 +289,8 @@ def main():
             "--guardian-policy",cfg/"guardian-runtime-policy.v1.json",
             "--sentinel-client",bin_dir/"sentinel-client.py",
             "--sentinel-policy",cfg/"sentinel-runtime-policy.v1.json",
+            "--exchange-client",bin_dir/"assurance-exchange-client.py",
+            "--exchange-policy",cfg/"assurance-exchange-runtime-policy.v1.json",
             "--registration",out/"project-assurance-identity-registration.json",
             "--receipt",assurance_identity_receipt,
             "--bundle",assurance_bundle
@@ -494,7 +496,7 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.32.0",
+      "version":"6.33.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
@@ -503,6 +505,11 @@ def main():
       "embedded_assurance_required":True,
       "guardian_local_enabled":bool((assurance_manifest.get("guardian_local") or {}).get("enabled")),
       "sentinel_local_enabled":bool((assurance_manifest.get("sentinel_local") or {}).get("enabled")),
+      "curator_local_enabled":bool((assurance_manifest.get("curator_local") or {}).get("enabled")),
+      "bastion_local_enabled":bool((assurance_manifest.get("bastion_local") or {}).get("enabled")),
+      "intendant_local_enabled":bool((assurance_manifest.get("intendant_local") or {}).get("enabled")),
+      "five_local_probes_enabled":all(bool((assurance_manifest.get(role+"_local") or {}).get("enabled"))
+                                      for role in ("guardian","sentinel","curator","bastion","intendant")),
       "project_assurance_identity_active":bool((assurance_manifest.get("production_readiness") or {}).get("relay_identity_active")),
       "embedded_assurance_production_ready":bool((assurance_manifest.get("production_readiness") or {}).get("ready")),
       "embedded_assurance_raw_user_content":False,
@@ -584,6 +591,9 @@ def main():
     print("PROJECT_EMBEDDED_ASSURANCE=REQUIRED")
     print("GUARDIAN_LOCAL="+("ENABLED" if state["guardian_local_enabled"] else "DISABLED"))
     print("SENTINEL_LOCAL="+("ENABLED" if state["sentinel_local_enabled"] else "DISABLED"))
+    print("CURATOR_LOCAL="+("ENABLED" if state["curator_local_enabled"] else "DISABLED"))
+    print("BASTION_LOCAL="+("ENABLED" if state["bastion_local_enabled"] else "DISABLED"))
+    print("INTENDANT_LOCAL="+("ENABLED" if state["intendant_local_enabled"] else "DISABLED"))
     print("PROJECT_ASSURANCE_IDENTITY="+("ACTIVE" if state["project_assurance_identity_active"] else "PENDING"))
     print("EXTERNAL_SPEND_EUR="+str(state["external_spend_eur"]))
 
