@@ -134,9 +134,20 @@ assert "required_gate_blockers(rule, ledger)" in lifecycle_engine
 
 guardian=(ROOT/"dev-hub/guardian/worker.js").read_text(encoding="utf-8")
 sentinel=(ROOT/"dev-hub/sentinel/worker.js").read_text(encoding="utf-8")
+sentinel_workflow=(ROOT/".github/workflows/dev-hub-sentinel-technical-assurance.yml").read_text(encoding="utf-8")
 exchange=(ROOT/"dev-hub/assurance-exchange/worker.js").read_text(encoding="utf-8")
 specialists=(ROOT/"dev-hub/specialists/core.js").read_text(encoding="utf-8")
 controller=(BIN/"seven-agent-final-compromise-controller.py").read_text(encoding="utf-8")
+
+assert "technical_workflow_attestations" in sentinel
+assert "storedWorkflowAttestation" in sentinel
+assert "D1_WORKFLOW_ATTESTATION" in sentinel
+assert "GITHUB_API_FALLBACK" in sentinel
+assert "stored_workflow_attestation_verification:true" in sentinel
+assert "github_api_fallback_only:true" in sentinel
+assert "Persist exact-revision Sentinel attestation" in sentinel_workflow
+assert "technical_workflow_attestations" in sentinel_workflow
+assert "CLOUDFLARE_API_TOKEN" in sentinel_workflow
 
 for body in [guardian,sentinel]:
     assert "/v1/final-review" in body
@@ -162,6 +173,8 @@ for marker in [
 print("CHACHA_DEV_V636_LOGICIAN_SECOND_READ=PASS")
 print("CHACHA_DEV_V636_ERGONOMIST_SECOND_READ=PASS")
 print("CHACHA_DEV_V636_FIVE_EXTERNAL_SOURCE_REVERIFICATION=PASS")
+print("CHACHA_DEV_V636_SENTINEL_STORED_ATTESTATION_PRIMARY=PASS")
+print("CHACHA_DEV_V636_GITHUB_API_FALLBACK_ONLY=PASS")
 print("CHACHA_DEV_V636_SEVEN_AGENT_RELEASE_GATE=PASS")
 print("CHACHA_DEV_V636_UNVERIFIED_EXTERNAL_REVIEW_BLOCKED=PASS")
 print("CHACHA_DEV_V636_LOCAL_ACCEPTANCE_PROVISIONAL=PASS")
