@@ -19,6 +19,7 @@ on:
       - 'dev-hub/tests/test_v628_trusted_dispatch_lineage.py'
       - 'dev-hub/tests/test_v627_verified_evidence_learning.py'
       - 'dev-hub/tests/test_v623_contextual_memory_recall.py'
+      - 'dev-hub/tests/test_v623_contextual_memory_recall.py'
       - 'dev-hub/bin/install-v631-assurance-exchange.sh'
       - '.github/workflows/dev-hub-v631-assurance-exchange-qualification.yml'
       - '.github/workflows/dev-hub-v631-assurance-exchange-deploy.yml'
