@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/compromise-release-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "required_agents": [
     {
       "id": "logician",
@@ -56,7 +56,11 @@
     "direct_mutation": false,
     "central_orchestrator_owns_remediation": true,
     "technology_watch_required_for_architecture_change": true,
-    "architecture_council_final_authority": true
+    "architecture_council_final_authority": true,
+    "external_reviews_must_be_source_reverified": true,
+    "internal_reviews_must_reference_original_proposal": true,
+    "final_delivery_receipt_is_only_delivery_authority": true,
+    "local_acceptance_is_provisional": true
   },
   "automatic_external_spend_eur": 0
 }
