@@ -216,6 +216,69 @@ async function delivered(req,env){
   }
   return json({schema:"chacha.dev/sentinel-directive-delivery/v1",status:"DELIVERED",count});
 }
+
+async function publishFinalReviewRef(env,source,reviewId){
+  if(!env.ASSURANCE_EXCHANGE_SERVICE)return {status:"NOT_CONFIGURED"};
+  const body=JSON.stringify({schema:"chacha.dev/final-review-ref/v1",source,receipt_id:reviewId});
+  let r;try{
+    r=await env.ASSURANCE_EXCHANGE_SERVICE.fetch(new Request("https://assurance-exchange.internal/v1/final-reviews",{
+      method:"POST",headers:{"content-type":"application/json"},body
+    }));
+  }catch{return {status:"DEFERRED",reason:"EXCHANGE_UNAVAILABLE"};}
+  return {status:r.ok?"DELIVERED":"DEFERRED",http_status:r.status};
+}
+
+async function finalAgentReview(req,env){
+  const body=await req.text();const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(p.schema!=="chacha.dev/final-agent-review-request/v1")return json({error:"final_review_schema_invalid"},400);
+  const projectId=String(p.project_id||""),revision=String(p.revision||""),compromise=String(p.compromise_digest||"");
+  const sourceReceiptId=String(p.source_receipt_id||"");
+  if(!projectId||!/^[0-9a-f]{40}$/.test(revision)||!compromise||!sourceReceiptId)
+    return json({error:"final_review_identity_invalid"},400);
+  const row=await env.DB.prepare(
+    "SELECT project_id,revision,verdict FROM technical_release_receipts WHERE receipt_id=?1"
+  ).bind(sourceReceiptId).first();
+  const hard=[];const soft=[];
+  if(!row)hard.push("SOURCE_RECEIPT_UNKNOWN");
+  else{
+    if(String(row.project_id||"")!==projectId)hard.push("SOURCE_RECEIPT_PROJECT_MISMATCH");
+    if(String(row.revision||"")!==revision)hard.push("SOURCE_RECEIPT_REVISION_MISMATCH");
+    if(String(row.verdict||"")!=="PASS")hard.push("SOURCE_RECEIPT_NOT_PASS");
+  }
+  if(p.implementation_verified!==true)hard.push("IMPLEMENTATION_NOT_VERIFIED");
+  const verdict=hard.length?"REVISE":"ACCEPT";
+  const evidence=sourceReceiptId?["sentinel-source-receipt:"+sourceReceiptId]:[];
+  const reviewId="sentinel-final-"+(await sha256Hex(projectId+"\n"+revision+"\n"+compromise+"\n"+sourceReceiptId+"\n"+verdict)).slice(0,32);
+  await env.DB.prepare(
+    `INSERT OR REPLACE INTO final_agent_reviews
+      (review_id,project_id,revision,compromise_digest,source_receipt_id,verdict,hard_objections_json,soft_objections_json,evidence_refs_json,implementation_verified,created_at)
+      VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,datetime('now'))`
+  ).bind(reviewId,projectId,revision,compromise,sourceReceiptId,verdict,JSON.stringify(hard),JSON.stringify(soft),
+         JSON.stringify(evidence),p.implementation_verified===true?1:0).run();
+  const publication=await publishFinalReviewRef(env,"SENTINEL",reviewId);
+  return json({
+    schema:"chacha.dev/compromise-agent-review/v1",receipt_id:reviewId,agent:"sentinel",
+    project_id:projectId,revision,compromise_digest:compromise,verdict,
+    hard_objections:hard,soft_objections:soft,evidence_refs:evidence,
+    implementation_verified:p.implementation_verified===true,source_authority:"EXTERNAL",
+    source_reverified:false,post_implementation_second_read:true,
+    assurance_exchange_delivery:publication,direct_mutation:false,reviewed_at:new Date().toISOString()
+  },verdict==="ACCEPT"?200:409);
+}
+async function publicFinalAgentReview(req,env,id){
+  const row=await env.DB.prepare("SELECT * FROM final_agent_reviews WHERE review_id=?1").bind(id).first();
+  if(!row)return json({error:"review_not_found"},404);
+  return json({
+    schema:"chacha.dev/compromise-agent-review/v1",receipt_id:row.review_id,agent:"sentinel",
+    project_id:row.project_id,revision:row.revision,compromise_digest:row.compromise_digest,verdict:row.verdict,
+    hard_objections:JSON.parse(row.hard_objections_json||"[]"),soft_objections:JSON.parse(row.soft_objections_json||"[]"),
+    evidence_refs:JSON.parse(row.evidence_refs_json||"[]"),implementation_verified:Boolean(row.implementation_verified),
+    source_authority:"EXTERNAL",source_reverified:false,post_implementation_second_read:true,
+    direct_mutation:false,reviewed_at:row.created_at
+  });
+}
+
 export default{
   async fetch(req,env){
     const u=new URL(req.url);
@@ -227,10 +290,14 @@ export default{
       assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL||env.ASSURANCE_EXCHANGE_SERVICE),
       assurance_exchange_service_binding:Boolean(env.ASSURANCE_EXCHANGE_SERVICE),
       technical_receipt_exchange_publish:true,
+      seven_agent_final_review:true,post_implementation_second_read:true,
       direct_code_mutation:false,direct_application_mutation:false,
       central_orchestrator_owns_remediation:true,automatic_external_spend_eur:0
     });
     if(req.method==="POST"&&u.pathname==="/v1/release-check")return releaseCheck(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/final-review")return finalAgentReview(req,env);
+    if(req.method==="GET"&&u.pathname.startsWith("/v1/final-reviews/"))
+      return publicFinalAgentReview(req,env,decodeURIComponent(u.pathname.slice("/v1/final-reviews/".length)));
     if(req.method==="POST"&&u.pathname==="/v1/project-assurance-identities/register")
       return registerProjectAssuranceIdentity(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/project-events")return projectEvents(req,env);
