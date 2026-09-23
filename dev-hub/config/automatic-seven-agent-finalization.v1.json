@@ -1,0 +1,43 @@
+{
+  "schema": "chacha.dev/automatic-seven-agent-finalization-policy/v1",
+  "version": "1.0.0",
+  "trigger": {
+    "from_stage": "PREVIEW",
+    "to_stage": "RELEASE",
+    "automatic": true,
+    "run_only_when_non_finalization_blockers_clear": true,
+    "approval_blockers_may_remain": true
+  },
+  "source_of_truth": {
+    "evidence_ledger_authoritative": true,
+    "finalization_bundle_artifact_id": "seven-agent-finalization-inputs",
+    "bundle_schema": "chacha.dev/seven-agent-finalization-inputs/v1",
+    "exact_project_required": true,
+    "exact_revision_required": true,
+    "exact_compromise_digest_required": true,
+    "ambiguous_source_forbidden": true
+  },
+  "required_inputs": [
+    "logic_report",
+    "ux_report",
+    "compromise",
+    "architecture_council",
+    "implementation_manifest",
+    "implementation_verification",
+    "guardian_functional_receipt_id",
+    "sentinel_technical_receipt_id"
+  ],
+  "outputs": [
+    "compromise-release-receipt",
+    "seven-agent-final-delivery-receipt"
+  ],
+  "behavior": {
+    "idempotent": true,
+    "existing_valid_final_receipt_skips_external_calls": true,
+    "central_remediation_before_agent_renegotiation": true,
+    "renegotiate_only_if_existing_compromise_infeasible": true,
+    "fail_closed": true,
+    "direct_mutation": false
+  },
+  "automatic_external_spend_eur": 0
+}
