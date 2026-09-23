@@ -19,7 +19,10 @@
     "external_guardian_realtime_verdict_required_for_every_dispatch": true,
     "task_guardian_binding_required_for_execute": true,
     "task_guardian_binding_digest_must_match_graph_and_plan": true,
-    "dynamic_contract_identity_must_match_pre_and_post": true
+    "dynamic_contract_identity_must_match_pre_and_post": true,
+    "trusted_learning_lineage_is_controller_owned": true,
+    "provider_cannot_self_assign_learning_context": true,
+    "adapter_identity_is_content_addressed_for_learning": true
   },
   "locking": {
     "strategy": "project-file-lock",
@@ -95,7 +98,8 @@
     "controller_may_not_mark_result_verified": true,
     "default_verification_status": "UNVERIFIED",
     "default_verification_method": "none",
-    "independent_evidence_collector_required": true
+    "independent_evidence_collector_required": true,
+    "trusted_dispatch_context_attached_only_after_independent_verification": true
   },
   "safety": {
     "allow_arbitrary_shell": false,
@@ -124,5 +128,5 @@
     "all_actions_fail_closed_when_unverified": true,
     "task_contract_binding_required_in_execute_mode": true
   },
-  "version": "1.3.0"
+  "version": "1.4.0"
 }
