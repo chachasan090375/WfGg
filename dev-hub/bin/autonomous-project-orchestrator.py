@@ -289,6 +289,7 @@ def main():
        "--request",gapreq,"--policy",cfg/"capability-foundry.v1.json",
        "--domains",cfg/"domain-orchestration.v1.json",
        "--capabilities",cfg/"capability-registry.v1.json",
+       "--memory-brief",initial_memory_brief,
        "--output",foundry_plan,
        "--domain-overlay",dom_overlay,
        "--capability-overlay",cap_overlay,
@@ -461,7 +462,7 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.26.0",
+      "version":"6.29.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
@@ -472,6 +473,8 @@ def main():
       "central_memory_trusted_count":int(load(memory_brief).get("trusted_memory_count") or 0),
       "central_memory_caution_count":int(load(memory_brief).get("caution_count") or 0),
       "central_memory_current_best_reuse_count":int(load(memory_brief).get("reuse_candidate_count") or 0),
+      "central_memory_trusted_component_candidate_count":int(load(memory_brief).get("trusted_component_candidate_count") or 0),
+      "central_memory_caution_component_candidate_count":int(load(memory_brief).get("caution_component_candidate_count") or 0),
       "component_confidence_available":bool((load(memory_brief).get("component_confidence") or {}).get("available")),
       "component_confidence_snapshot_digest":(load(memory_brief).get("component_confidence") or {}).get("snapshot_digest"),
       "agent_topology":str(agent_topology),
@@ -491,6 +494,10 @@ def main():
       "runtime_wave_count":int(wave_v.get("wave_count") or 0),
       "runtime_schedulable":bool(wave_v.get("schedulable")),
       "capability_foundry":str(foundry_plan),
+      "agent_foundry_memory_guided_decisions":int((agent_topology_v.get("summary") or {}).get("memory_guided_decisions") or 0),
+      "branch_foundry_memory_guided_decisions":int((branch_v.get("summary") or {}).get("memory_guided_decisions") or 0),
+      "capability_foundry_memory_guided_plans":int(foundry_v.get("memory_guided_plans") or 0),
+      "memory_guided_foundry_planning":True,
       "final_plan":str(final),
       "architecture_decision_council":str(architecture_council),
       "architecture_decision_allowed":bool(architecture_council_v.get("dispatch_allowed")),
@@ -520,6 +527,10 @@ def main():
     print("MATERIALIZED_BRANCHES="+str(state["runtime_materialized_branches"]))
     print("RUNTIME_WAVES="+str(state["runtime_wave_count"]))
     print("RUNTIME_MEMORY_MB="+str(state["runtime_memory_hard_limit_mb"]))
+    print("MEMORY_GUIDED_FOUNDRY_PLANNING=YES")
+    print("AGENT_FOUNDRY_MEMORY_GUIDED_DECISIONS="+str(state["agent_foundry_memory_guided_decisions"]))
+    print("BRANCH_FOUNDRY_MEMORY_GUIDED_DECISIONS="+str(state["branch_foundry_memory_guided_decisions"]))
+    print("CAPABILITY_FOUNDRY_MEMORY_GUIDED_PLANS="+str(state["capability_foundry_memory_guided_plans"]))
     print("EXTERNAL_SPEND_EUR="+str(state["external_spend_eur"]))
 
 if __name__=="__main__":main()
