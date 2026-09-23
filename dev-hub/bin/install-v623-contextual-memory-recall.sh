@@ -19,7 +19,7 @@ rollback(){
   rc=$?
   if [ "$rc" -ne 0 ]; then
     echo "CHACHA_DEV_V623_FAILURE_STAGE=$STAGE"
-    for f in "$WORK"/recall-1.out "$WORK"/recall-2.out "$WORK"/agent.out "$WORK"/branch.out "$WORK"/guardian-recall-pre.out "$WORK"/guardian-recall-post.out "$WORK"/guardian-arch-pre.out "$WORK"/guardian-arch-post.out "$WORK"/coverage.out; do
+    for f in "$WORK"/recall-1.out "$WORK"/recall-2.out "$WORK"/agent.out "$WORK"/branch.out "$WORK"/coverage-bootstrap.out "$WORK"/guardian-recall-pre.out "$WORK"/guardian-recall-post.out "$WORK"/guardian-arch-pre.out "$WORK"/guardian-arch-post.out "$WORK"/coverage.out; do
       if [ -s "$f" ]; then echo "=== $(basename "$f") ==="; cat "$f"; fi
     done
     if [ -n "$PREVIOUS" ] && [ -e "$PREVIOUS" ]; then
@@ -86,6 +86,14 @@ echo "CHACHA_DEV_V623_EXTERNAL_GUARDIAN_MEMORY_GATE=PASS"
 
 stage activate-release
 ln -sfn "$RELEASE" "$CURRENT"
+
+# V6.23.1: publish Guardian coverage before the new governed role executes.
+# This also lets Guardian auto-resolve stale coverage holds from an interrupted/rolled-back pilot.
+stage guardian-coverage-bootstrap
+python3 "$CURRENT/dev-hub/bin/guardian-coverage-heartbeat.py"   --repo-root "$CURRENT"   --manifest "$CURRENT/dev-hub/config/guardian-coverage-manifest.v1.json"   --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json"   --client "$CURRENT/dev-hub/bin/guardian-client.py"   --output /opt/chacha-dev/runtime/guardian/coverage-latest.json >"$WORK/coverage-bootstrap.out"
+grep -Fq 'CHACHA_DEV_GUARDIAN_COVERAGE_HEARTBEAT=PASS' "$WORK/coverage-bootstrap.out"
+grep -Fq 'ALL_HOOKS_ACTIVE=YES' "$WORK/coverage-bootstrap.out"
+echo "CHACHA_DEV_V623_GUARDIAN_COVERAGE_BOOTSTRAP=PASS"
 
 stage build-real-context
 python3 - "$CURRENT/dev-hub/config/domain-orchestration.v1.json" "$WORK/intent.json" <<'PY'
