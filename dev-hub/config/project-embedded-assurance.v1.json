@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/project-embedded-assurance-policy/v1",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "scope": "PLATFORM_GLOBAL",
   "mandatory_for_all_projects": true,
   "bundle": {
@@ -41,6 +41,7 @@
     "curator": {
       "role": "visual-ux-observer",
       "allowed_event_types": [
+        "visual-health",
         "visual-regression",
         "layout-break",
         "responsive-regression",
@@ -56,6 +57,7 @@
     "bastion": {
       "role": "security-data-observer",
       "allowed_event_types": [
+        "security-health",
         "auth-anomaly",
         "permission-drift",
         "secret-exposure-signal",
@@ -71,6 +73,7 @@
     "intendant": {
       "role": "cost-resource-observer",
       "allowed_event_types": [
+        "resource-health",
         "resource-budget-drift",
         "external-cost-signal",
         "request-amplification",
@@ -168,16 +171,16 @@
         "path": "/v1/project-events"
       },
       "curator": {
-        "base_key": "exchange_url",
-        "path": "/v1/peripheral-events"
+        "base_key": "curator_url",
+        "path": "/v1/project-events"
       },
       "bastion": {
-        "base_key": "exchange_url",
-        "path": "/v1/peripheral-events"
+        "base_key": "bastion_url",
+        "path": "/v1/project-events"
       },
       "intendant": {
-        "base_key": "exchange_url",
-        "path": "/v1/peripheral-events"
+        "base_key": "intendant_url",
+        "path": "/v1/project-events"
       }
     }
   },
@@ -186,9 +189,12 @@
     "sentinel_url": "https://chacha-dev-sentinel.chachasan090375.workers.dev",
     "assurance_exchange_remains_correlation_plane": true,
     "exchange_url": "https://chacha-dev-assurance-exchange.chachasan090375.workers.dev",
-    "curator_status": "CENTRAL_AUTHORITY_NEXT",
-    "bastion_status": "CENTRAL_AUTHORITY_NEXT",
-    "intendant_status": "CENTRAL_AUTHORITY_NEXT"
+    "curator_status": "ACTIVE",
+    "bastion_status": "ACTIVE",
+    "intendant_status": "ACTIVE",
+    "curator_url": "https://chacha-dev-curator.chachasan090375.workers.dev",
+    "bastion_url": "https://chacha-dev-bastion.chachasan090375.workers.dev",
+    "intendant_url": "https://chacha-dev-intendant.chachasan090375.workers.dev"
   },
   "remediation": {
     "local_agents_may_apply_fix": false,
@@ -206,6 +212,8 @@
     "source_evidence_preserved": true,
     "direct_mutation": false,
     "central_orchestrator_owns_remediation": true,
-    "all_five_local_probes_incremental": true
+    "all_five_local_probes_incremental": true,
+    "specialist_authorities_publish_reviews_to_exchange": true,
+    "local_specialist_probes_report_to_specialist_authorities": true
   }
 }
