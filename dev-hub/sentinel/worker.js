@@ -60,17 +60,22 @@ async function githubRuns(repository,revision,workflowName,env){
 }
 async function publishAssuranceObservation(env,source,receiptId){
   const base=String(env.ASSURANCE_EXCHANGE_URL||"").replace(/\/$/,"");
-  if(!base)return {status:"NOT_CONFIGURED"};
+  if(!base&&!env.ASSURANCE_EXCHANGE_SERVICE)return {status:"NOT_CONFIGURED"};
   const payload={schema:"chacha.dev/assurance-exchange-observation-ref/v1",source,receipt_id:receiptId};
+  const init={
+    method:"POST",
+    headers:{"content-type":"application/json","user-agent":"ChaCha-DEV-Sentinel/1.1"},
+    body:JSON.stringify(payload)
+  };
   let r;
   try{
-    r=await fetch(base+"/v1/observations",{
-      method:"POST",headers:{"content-type":"application/json","user-agent":"ChaCha-DEV-Sentinel/1.0"},
-      body:JSON.stringify(payload)
-    });
+    r=env.ASSURANCE_EXCHANGE_SERVICE
+      ?await env.ASSURANCE_EXCHANGE_SERVICE.fetch(new Request("https://assurance-exchange.internal/v1/observations",init))
+      :await fetch(base+"/v1/observations",init);
   }catch{return {status:"DEFERRED",reason:"EXCHANGE_UNAVAILABLE"};}
   let x={};try{x=await r.json();}catch{}
-  return {status:r.ok?"DELIVERED":"DEFERRED",http_status:r.status,correlation:x.correlation||null};
+  return {status:r.ok?"DELIVERED":"DEFERRED",transport:env.ASSURANCE_EXCHANGE_SERVICE?"SERVICE_BINDING":"PUBLIC_HTTP",
+          http_status:r.status,correlation:x.correlation||null};
 }
 
 async function releaseCheck(req,env){
@@ -148,7 +153,9 @@ export default{
       status:"ok",service:"chacha-dev-sentinel",external_technical_assurance:true,
       technical_scope_only:true,continuous_commit_assurance:true,preproduction_release_gate:true,
       github_workflow_verification:true,public_receipt_verification:true,
-      assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL),technical_receipt_exchange_publish:true,
+      assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL||env.ASSURANCE_EXCHANGE_SERVICE),
+      assurance_exchange_service_binding:Boolean(env.ASSURANCE_EXCHANGE_SERVICE),
+      technical_receipt_exchange_publish:true,
       direct_code_mutation:false,direct_application_mutation:false,
       central_orchestrator_owns_remediation:true,automatic_external_spend_eur:0
     });
