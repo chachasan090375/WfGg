@@ -15,6 +15,8 @@ on:
       - 'dev-hub/bin/qualify-cloudflare-pages-provider-health.py'
       - 'dev-hub/evidence/v639/cloudflare-pages-production-contract-ok-to-pilot-evidence.json'
       - 'dev-hub/evidence/v639/cloudflare-pages-production-pilot-promotion-receipt.json'
+      - 'dev-hub/evidence/v639/cloudflare-pages-production-pilot-to-enabled-evidence.json'
+      - 'dev-hub/evidence/v639/cloudflare-pages-production-enabled-promotion-receipt.json'
       - 'dev-hub/bin/adapter-provision.py'
       - 'dev-hub/evidence/v639/cloudflare-pages-production-contract-ok-evidence.json'
       - 'dev-hub/evidence/v639/cloudflare-pages-production-contract-ok-promotion-receipt.json'
@@ -181,7 +183,7 @@ jobs:
             echo OPERATE_ADVANCED=NO
             echo REAL_PRODUCTION_TARGET=NO
             echo VPS_SANDBOX_PILOT=AVAILABLE
-            echo CLOUDFLARE_PAGES_PRODUCTION_ADAPTER=PILOT
+            echo CLOUDFLARE_PAGES_PRODUCTION_ADAPTER=ENABLED
             echo CLOUDFLARE_PAGES_PRODUCTION_EXECUTION=BLOCKED
             echo CLOUDFLARE_PAGES_ROLLBACK_CONTRACT=YES
             echo CLOUDFLARE_PAGES_PROVISIONING_PROBE=NON_MUTATING
@@ -194,8 +196,11 @@ jobs:
             echo CLOUDFLARE_PAGES_PROVIDER_HEALTH_CREDENTIALS=NONE
             echo CLOUDFLARE_PAGES_ENABLEMENT_APPROVAL=HUMAN_REQUIRED
             echo CLOUDFLARE_PAGES_ENABLEMENT_READINESS=SCRIPTED
-            echo CLOUDFLARE_PAGES_ENABLEMENT_APPLY=HUMAN_APPROVAL_REQUIRED
+            echo CLOUDFLARE_PAGES_ENABLEMENT_APPLY=PASS
+            echo CLOUDFLARE_PAGES_ENABLEMENT_APPROVAL=RECORDED
+            echo CLOUDFLARE_PAGES_RUNTIME_IDEMPOTENCE=PASS
             echo REAL_PRODUCTION_DEPLOYMENT_AUTHORIZED=NO
+            echo CLOUDFLARE_PAGES_PRODUCTION_EXECUTION=BLOCKED_AFTER_ENABLE
             echo CLOUDFLARE_PAGES_PILOT_PROMOTION_APPLIED=YES
             echo V638_REGRESSION=YES
             echo RESULT=success
