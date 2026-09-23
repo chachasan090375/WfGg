@@ -58,6 +58,21 @@ async function githubRuns(repository,revision,workflowName,env){
   if(run.conclusion!=="success")return {state:"BLOCK",reason:"SENTINEL_WORKFLOW_NOT_SUCCESS",run};
   return {state:"PASS",run};
 }
+async function publishAssuranceObservation(env,source,receiptId){
+  const base=String(env.ASSURANCE_EXCHANGE_URL||"").replace(/\/$/,"");
+  if(!base)return {status:"NOT_CONFIGURED"};
+  const payload={schema:"chacha.dev/assurance-exchange-observation-ref/v1",source,receipt_id:receiptId};
+  let r;
+  try{
+    r=await fetch(base+"/v1/observations",{
+      method:"POST",headers:{"content-type":"application/json","user-agent":"ChaCha-DEV-Sentinel/1.0"},
+      body:JSON.stringify(payload)
+    });
+  }catch{return {status:"DEFERRED",reason:"EXCHANGE_UNAVAILABLE"};}
+  let x={};try{x=await r.json();}catch{}
+  return {status:r.ok?"DELIVERED":"DEFERRED",http_status:r.status,correlation:x.correlation||null};
+}
+
 async function releaseCheck(req,env){
   const body=await req.text();const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
   let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
@@ -86,13 +101,16 @@ async function releaseCheck(req,env){
        VALUES(?1,?2,?3,?4,'BLOCK','CENTRAL_ORCHESTRATOR_REPLAN_REPAIR_RETEST',?5,'OPEN',datetime('now'))`
     ).bind(directiveId,receiptId,projectId,revision,JSON.stringify([...new Set(reasons)])).run();
   }
+  const exchangeDelivery=await publishAssuranceObservation(env,"SENTINEL",receiptId);
   return json({
     schema:"chacha.dev/sentinel-technical-receipt/v1",receipt_id:receiptId,project_id:projectId,
     repository,revision,workflow_name:workflowName,workflow_run_id:gh.run?String(gh.run.id):null,
     workflow_url:gh.run?String(gh.run.html_url||""):null,verdict,reason_codes:[...new Set(reasons)],
     audit_digest:claimedAudit,advisory_count:advisory,directive_id:directiveId,
     sentinel:"external-worker",technical_scope_only:true,direct_code_mutation:false,
-    central_orchestrator_owns_remediation:true,checked_at:new Date().toISOString()
+    central_orchestrator_owns_remediation:true,
+    assurance_exchange_delivery:exchangeDelivery,
+    checked_at:new Date().toISOString()
   },verdict==="PASS"?200:409);
 }
 async function receipt(req,env,id){
@@ -130,6 +148,7 @@ export default{
       status:"ok",service:"chacha-dev-sentinel",external_technical_assurance:true,
       technical_scope_only:true,continuous_commit_assurance:true,preproduction_release_gate:true,
       github_workflow_verification:true,public_receipt_verification:true,
+      assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL),technical_receipt_exchange_publish:true,
       direct_code_mutation:false,direct_application_mutation:false,
       central_orchestrator_owns_remediation:true,automatic_external_spend_eur:0
     });
