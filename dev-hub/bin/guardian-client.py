@@ -253,6 +253,21 @@ def dual_release_gate(policy_path:Path,project_id:str,revision:str,functional_re
     if x.get("verdict")=="CRITICAL":return 21
     return 30
 
+def final_review(policy_path:Path,project_id:str,revision:str,compromise_digest:str,source_receipt_id:str,implementation_verified:bool)->int:
+    _,url,key=policy_values(policy_path)
+    if not key.is_file():return 30
+    payload={"schema":"chacha.dev/final-agent-review-request/v1","project_id":project_id,"revision":revision,
+             "compromise_digest":compromise_digest,"source_receipt_id":source_receipt_id,
+             "implementation_verified":implementation_verified}
+    body=json.dumps(payload,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
+    try:status,x=http_json(signed_request("POST",url+"/v1/final-review",key,body))
+    except Exception as exc:
+        print(json.dumps({"schema":"chacha.dev/guardian-client-result/v1","status":"UNAVAILABLE","reason":str(exc)[:300]}));return 30
+    print(json.dumps(x,ensure_ascii=False))
+    if x.get("schema")=="chacha.dev/compromise-agent-review/v1":
+        return 0 if x.get("verdict")=="ACCEPT" and status==200 else 20
+    return 30
+
 def main()->int:
     ap=argparse.ArgumentParser()
     ap.add_argument("--policy",type=Path,default=DEFAULT_POLICY)
@@ -270,6 +285,9 @@ def main()->int:
     fa=sub.add_parser("functional-acceptance");fa.add_argument("--project-id",required=True);fa.add_argument("--revision",required=True)
     fa.add_argument("--contract",type=Path,required=True);fa.add_argument("--acceptance",type=Path,required=True)
     dg=sub.add_parser("dual-release-gate");dg.add_argument("--project-id",required=True);dg.add_argument("--revision",required=True)
+    fr=sub.add_parser("final-review");fr.add_argument("--project-id",required=True);fr.add_argument("--revision",required=True)
+    fr.add_argument("--compromise-digest",required=True);fr.add_argument("--source-receipt-id",required=True)
+    fr.add_argument("--implementation-verified",action="store_true")
     dg.add_argument("--guardian-functional-receipt-id",required=True);dg.add_argument("--sentinel-technical-receipt-id",required=True)
     sub.add_parser("watchdog-sweep")
     args=ap.parse_args()
@@ -284,6 +302,7 @@ def main()->int:
     if args.cmd=="register-project-assurance-identity":return register_project_assurance_identity(args.policy,args.registration)
     if args.cmd=="functional-acceptance":return functional_acceptance(args.policy,args.project_id,args.revision,args.contract,args.acceptance)
     if args.cmd=="dual-release-gate":return dual_release_gate(args.policy,args.project_id,args.revision,args.guardian_functional_receipt_id,args.sentinel_technical_receipt_id)
+    if args.cmd=="final-review":return final_review(args.policy,args.project_id,args.revision,args.compromise_digest,args.source_receipt_id,args.implementation_verified)
     if args.cmd=="watchdog-sweep":return watchdog_sweep(args.policy)
     return ack(args.policy,args.alert_id)
 
