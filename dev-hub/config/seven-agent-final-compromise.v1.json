@@ -1,0 +1,41 @@
+{
+  "schema": "chacha.dev/seven-agent-final-compromise-policy/v1",
+  "version": "1.0.0",
+  "required_agents": [
+    "logician",
+    "ergonomist",
+    "guardian",
+    "sentinel",
+    "curator",
+    "bastion",
+    "intendant"
+  ],
+  "internal_agents": [
+    "logician",
+    "ergonomist"
+  ],
+  "external_agents": [
+    "guardian",
+    "sentinel",
+    "curator",
+    "bastion",
+    "intendant"
+  ],
+  "rules": {
+    "post_implementation_second_read_required": true,
+    "same_project_revision_compromise_required": true,
+    "external_reviews_must_be_source_reverified": true,
+    "internal_reviews_must_reference_original_proposal": true,
+    "all_seven_verdicts_must_be_accept": true,
+    "unresolved_hard_objection_blocks": true,
+    "revise_or_block_returns_to_compromise_loop": true,
+    "no_majority_vote": true,
+    "unanimous_preferences_not_required": true,
+    "final_delivery_receipt_is_only_delivery_authority": true,
+    "local_acceptance_is_provisional": true,
+    "architecture_change_requires_technology_watch": true,
+    "architecture_council_final_authority": true,
+    "direct_mutation": false
+  },
+  "automatic_external_spend_eur": 0
+}
