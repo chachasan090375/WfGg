@@ -149,10 +149,29 @@ def main():
     ap.add_argument("--architecture-memory-db",type=Path,default=Path("/opt/chacha-dev/runtime/knowledge/reusable-architectures.db"))
     ap.add_argument("--comparative-pilot-result",type=Path)
     ap.add_argument("--memory-brief",type=Path)
+    ap.add_argument("--challenge-dossier",type=Path)
     ap.add_argument("--output",type=Path,required=True)
     a=ap.parse_args()
     root=a.repo_root.resolve()
     pre=load(a.preplan);branch=load(a.branch_topology);agent=load(a.agent_topology);cap=load(a.capability_foundry);policy=load(a.policy)
+    challenge=load(a.challenge_dossier) if a.challenge_dossier and a.challenge_dossier.is_file() else None
+    challenge_required=challenge is not None
+    challenge_ok=bool(
+      challenge and
+      challenge.get("schema")=="chacha.dev/multi-agent-compromise/v1" and
+      challenge.get("central_compromise_search_attempted") is True and
+      challenge.get("central_compromise_found") is True and
+      challenge.get("continuation_allowed") is True and
+      challenge.get("revision_request_only_after_failed_compromise") is True
+    ) if challenge_required else True
+    compromise=(challenge or {}).get("compromise") or {}
+    logic_proposal=compromise.get("logic_proposal") or {}
+    logic_routes={
+      str(x.get("package_id")):x for x in (logic_proposal.get("candidate") or {}).get("package_routes") or []
+      if isinstance(x,dict) and x.get("package_id")
+    }
+    ux_proposal=compromise.get("ux_proposal") or {}
+    mandatory_advisors=list(MANDATORY)+(["logic-ux-compromise"] if challenge_required else [])
     bm=by_package(branch);am=by_package(agent);cm=capability_plan_map(cap)
     max_age=int((policy.get("reuse") or {}).get("maximum_technology_revalidation_age_minutes",60))
     memory=central_memory_assimilation()
@@ -257,7 +276,9 @@ def main():
           "constraint-policy":"PASS" if constraints_pass else "BLOCKED",
           "technology-watch-final":"PASS" if finalwatch else "MISSING"
         }
-        missing=[x for x in MANDATORY if advisor_state.get(x)!="PASS"]
+        if challenge_required:
+            advisor_state["logic-ux-compromise"]="PASS" if challenge_ok else "BLOCKED"
+        missing=[x for x in mandatory_advisors if advisor_state.get(x)!="PASS"]
         d={
           "package_id":pid,"domain":domain,"capabilities":caps,
           "mandatory_advisors":advisor_state,
@@ -296,6 +317,15 @@ def main():
             "contextual_priority_applied":bool(recall_branch_rank or recall_arch_rank)
           },
           "technology_watch_final":finalwatch,
+          "logic_ux_compromise":{
+            "required":challenge_required,
+            "status":"PASS" if challenge_ok else "BLOCKED" if challenge_required else "NOT_REQUIRED",
+            "dossier_digest":(challenge or {}).get("dossier_digest"),
+            "logic_package_directive":logic_routes.get(pid),
+            "ux_contract":ux_proposal.get("ux_contract"),
+            "current_plan_has_no_incumbency_privilege":bool((challenge or {}).get("current_plan_has_no_incumbency_privilege")),
+            "revision_request_only_after_failed_compromise":bool((challenge or {}).get("revision_request_only_after_failed_compromise"))
+          },
           "architecture_source":architecture_source,
           "architecture":architecture,
           "decision_ready":not missing,
@@ -305,8 +335,8 @@ def main():
         if missing: blocked.append({"package_id":pid,"reasons":missing})
     out={
       "schema":"chacha.dev/architecture-decision-council/v1",
-      "version":"6.25.0",
-      "mandatory_advisors":list(MANDATORY),
+      "version":"6.34.0" if challenge_required else "6.25.0",
+      "mandatory_advisors":mandatory_advisors,
       "decision_rule":"CENTRAL_ORCHESTRATOR_DECIDES_ONLY_AFTER_CONTEXTUAL_MEMORY_COMPONENT_CONFIDENCE_ALL_MANDATORY_ADVISORS_AND_FINAL_TECHNOLOGY_REVALIDATION",
       "dynamic_expert_domains":sorted(x for x in experts if x),
       "architecture_memory":{"candidate_count":len(architecture_memory.get("candidates") or []),"selected":({"architecture_id":selected_architecture_memory.get("architecture_id"),"version":selected_architecture_memory.get("version")} if selected_architecture_memory else None)},
@@ -325,6 +355,14 @@ def main():
         "negative_state_count":int((memory.get("component_confidence") or {}).get("negative_state_count") or 0),
         "negative_states_excluded_from_current_best":bool((memory.get("component_confidence") or {}).get("negative_states_excluded_from_current_best")),
         "authority":"ADVISORY"
+      },
+      "logic_ux_compromise":{
+        "required":challenge_required,
+        "valid":challenge_ok,
+        "dossier_digest":(challenge or {}).get("dossier_digest"),
+        "central_compromise_found":bool((challenge or {}).get("central_compromise_found")) if challenge_required else None,
+        "continuation_allowed":bool((challenge or {}).get("continuation_allowed")) if challenge_required else None,
+        "revision_request_only_after_failed_compromise":bool((challenge or {}).get("revision_request_only_after_failed_compromise")) if challenge_required else None
       },
       "central_memory_recall":{
         "valid":bool(recall_ok),
@@ -345,5 +383,6 @@ def main():
     a.output.write_text(json.dumps(out,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
     print("CHACHA_DEV_V615_ARCHITECTURE_DECISION_COUNCIL=PASS")
     print("DISPATCH_ALLOWED="+("YES" if out["dispatch_allowed"] else "NO"))
-    print("ADVISORS="+str(len(MANDATORY)))
+    print("ADVISORS="+str(len(mandatory_advisors)))
+    print("LOGIC_UX_COMPROMISE="+("PASS" if challenge_ok else "BLOCKED" if challenge_required else "NOT_REQUIRED"))
 if __name__=="__main__":main()
