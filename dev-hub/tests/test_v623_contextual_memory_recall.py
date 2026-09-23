@@ -1,4 +1,3 @@
-import re
 #!/usr/bin/env python3
 from __future__ import annotations
 import importlib.util,json,re,sys,tempfile
