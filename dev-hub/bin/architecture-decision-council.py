@@ -5,12 +5,44 @@ from pathlib import Path
 from typing import Any
 import technology_watch_runtime as tw
 
-MANDATORY=("technology-watch-pre","architecture-memory","architecture-portfolio","reuse-memory","branch-foundry","agent-foundry","capability-foundry","constraint-policy","technology-watch-final")
+MANDATORY=("technology-watch-pre","central-memory-assimilation","architecture-memory","architecture-portfolio","reuse-memory","branch-foundry","agent-foundry","capability-foundry","constraint-policy","technology-watch-final")
 
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding="utf-8"))
     if not isinstance(x,dict): raise SystemExit("JSON_ROOT_NOT_OBJECT")
     return x
+
+def central_memory_assimilation() -> dict[str,Any]:
+    path=Path("/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json")
+    if not path.is_file():
+        if not Path("/opt/chacha-dev/runtime").exists():
+            return {"available":True,"bootstrap_empty":True,"snapshot_digest":None,
+                    "single_observation_never_trusted":True,
+                    "technology_revalidation_required_before_reuse":True,
+                    "reuse_catalog":{"branches":[],"architectures":[]}}
+        return {"available":False,"bootstrap_empty":False,"reason":"CENTRAL_MEMORY_ASSIMILATION_MISSING",
+                "reuse_catalog":{"branches":[],"architectures":[]}}
+    try:
+        x=load(path)
+    except Exception as exc:
+        return {"available":False,"bootstrap_empty":False,"reason":"CENTRAL_MEMORY_ASSIMILATION_INVALID:"+str(exc),
+                "reuse_catalog":{"branches":[],"architectures":[]}}
+    return {
+      "available":True,"bootstrap_empty":False,"snapshot_digest":x.get("snapshot_digest"),
+      "generated_at":x.get("generated_at"),"state_counts":x.get("state_counts") or {},
+      "trusted_generalizable_count":int(x.get("trusted_generalizable_count") or 0),
+      "single_observation_never_trusted":bool(x.get("single_observation_never_trusted") is True),
+      "technology_revalidation_required_before_reuse":bool(x.get("technology_revalidation_required_before_reuse") is True),
+      "reuse_catalog":x.get("reuse_catalog") or {"branches":[],"architectures":[]}
+    }
+
+def current_branch_versions(memory:dict[str,Any])->set[tuple[str,str]]:
+    return {(str(x.get("branch_id")),str(x.get("version"))) for x in (memory.get("reuse_catalog") or {}).get("branches") or []
+            if isinstance(x,dict) and str(x.get("version_status"))=="CURRENT_BEST"}
+
+def current_architecture_versions(memory:dict[str,Any])->set[tuple[str,str]]:
+    return {(str(x.get("architecture_id")),str(x.get("version"))) for x in (memory.get("reuse_catalog") or {}).get("architectures") or []
+            if isinstance(x,dict) and str(x.get("version_status"))=="CURRENT_BEST"}
 
 def search_reuse(script:Path,db:Path,domain:str,caps:list[str],max_age:int)->dict[str,Any]:
     cmd=[sys.executable,str(script),"--db",str(db),"search","--domain",domain,"--limit","5","--max-revalidation-age-minutes",str(max_age)]
@@ -121,11 +153,18 @@ def main():
     pre=load(a.preplan);branch=load(a.branch_topology);agent=load(a.agent_topology);cap=load(a.capability_foundry);policy=load(a.policy)
     bm=by_package(branch);am=by_package(agent);cm=capability_plan_map(cap)
     max_age=int((policy.get("reuse") or {}).get("maximum_technology_revalidation_age_minutes",60))
+    memory=central_memory_assimilation()
+    if not memory.get("available"):
+        print("CHACHA_DEV_ARCHITECTURE_COUNCIL_BLOCKED=CENTRAL_MEMORY_ASSIMILATION_UNAVAILABLE",file=sys.stderr)
+    current_branch=current_branch_versions(memory)
+    current_arch=current_architecture_versions(memory)
     decisions=[];blocked=[];experts=set()
     registry_script=root/"dev-hub/bin/reusable-branch-registry.py"
     architecture_registry_script=root/"dev-hub/bin/reusable-architecture-registry.py"
     architecture_memory=search_architecture_memory(architecture_registry_script,a.architecture_memory_db,a.preplan,max_age)
     architecture_memory_ready=[x for x in architecture_memory.get("candidates") or [] if x.get("reuse_ready") is True]
+    if current_arch:
+        architecture_memory_ready=[x for x in architecture_memory_ready if (str(x.get("architecture_id")),str(x.get("version"))) in current_arch]
     selected_architecture_memory=architecture_memory_ready[0] if architecture_memory_ready else None
     portfolio_path=a.output.with_name(a.output.stem+"-portfolio.json")
     portfolio_policy=root/"dev-hub/config/architecture-portfolio-optimizer.v1.json"
@@ -161,6 +200,8 @@ def main():
         finalwatch=tw.consult(root,consumer="architecture-decision-council",domain=domain,capabilities=caps)
         reuse_candidates=reuse.get("candidates") or []
         reuse_ready=[x for x in reuse_candidates if x.get("reuse_ready") is True]
+        if current_branch:
+            reuse_ready=[x for x in reuse_ready if (str(x.get("branch_id")),str(x.get("version"))) in current_branch]
         architecture_memory_package_match=architecture_memory_package(selected_architecture_memory or {},domain,caps,kind) if selected_architecture_memory else None
         if reuse_ready:
             architecture_source="REUSE_REVALIDATED_BRANCH"
@@ -177,6 +218,7 @@ def main():
             selected_reuse=None
         advisor_state={
           "technology-watch-pre":"PASS" if prewatch else "MISSING",
+          "central-memory-assimilation":"PASS" if memory.get("available") and memory.get("single_observation_never_trusted") and memory.get("technology_revalidation_required_before_reuse") else "BLOCKED",
           "architecture-memory":"PASS",
           "architecture-portfolio":"PASS" if portfolio.get("decision_ready") is True else "BLOCKED",
           "reuse-memory":"PASS",
@@ -199,6 +241,13 @@ def main():
           "capability_foundry_opinion":{"gaps_for_package":gaps},
           "constraint_policy":constraints,
           "technology_watch_pre":prewatch,
+          "central_memory_assimilation":{
+            "snapshot_digest":memory.get("snapshot_digest"),
+            "state_counts":memory.get("state_counts") or {},
+            "trusted_generalizable_count":int(memory.get("trusted_generalizable_count") or 0),
+            "bootstrap_empty":bool(memory.get("bootstrap_empty")),
+            "reuse_current_best_filter_applied":bool(current_branch or current_arch)
+          },
           "technology_watch_final":finalwatch,
           "architecture_source":architecture_source,
           "architecture":architecture,
@@ -209,12 +258,19 @@ def main():
         if missing: blocked.append({"package_id":pid,"reasons":missing})
     out={
       "schema":"chacha.dev/architecture-decision-council/v1",
-      "version":"6.15.0",
+      "version":"6.22.0",
       "mandatory_advisors":list(MANDATORY),
-      "decision_rule":"CENTRAL_ORCHESTRATOR_DECIDES_ONLY_AFTER_ALL_MANDATORY_ADVISORS_AND_FINAL_TECHNOLOGY_REVALIDATION",
+      "decision_rule":"CENTRAL_ORCHESTRATOR_DECIDES_ONLY_AFTER_ASSIMILATED_MEMORY_ALL_MANDATORY_ADVISORS_AND_FINAL_TECHNOLOGY_REVALIDATION",
       "dynamic_expert_domains":sorted(x for x in experts if x),
       "architecture_memory":{"candidate_count":len(architecture_memory.get("candidates") or []),"selected":({"architecture_id":selected_architecture_memory.get("architecture_id"),"version":selected_architecture_memory.get("version")} if selected_architecture_memory else None)},
       "architecture_portfolio":portfolio,
+      "central_memory_assimilation":{
+        "available":bool(memory.get("available")),
+        "bootstrap_empty":bool(memory.get("bootstrap_empty")),
+        "snapshot_digest":memory.get("snapshot_digest"),
+        "state_counts":memory.get("state_counts") or {},
+        "trusted_generalizable_count":int(memory.get("trusted_generalizable_count") or 0)
+      },
       "decisions":decisions,
       "blocked":blocked,
       "dispatch_allowed":not blocked,
