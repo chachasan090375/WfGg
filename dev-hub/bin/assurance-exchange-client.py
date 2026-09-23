@@ -56,6 +56,17 @@ def http(req:urllib.request.Request)->tuple[int,dict[str,Any]]:
         return e.code,x
 def policy_values(path:Path)->tuple[dict[str,Any],str,Path]:
     p=load(path);return p,str(p["external_url"]).rstrip("/"),Path(p["private_key"])
+def register_project_assurance_identity(policy_path:Path,registration:Path)->int:
+    _,url,key=policy_values(policy_path)
+    if not key.is_file():return 30
+    payload=load(registration)
+    body=json.dumps(payload,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
+    try:status,x=http(signed_request("POST",url+"/v1/project-assurance-identities/register",key,body))
+    except Exception as exc:
+        print(json.dumps({"schema":"chacha.dev/assurance-exchange-client-result/v1","status":"UNAVAILABLE","reason":str(exc)[:300]}));return 30
+    print(json.dumps(x,ensure_ascii=False))
+    return 0 if status==200 and x.get("status")=="PASS" else 30
+
 def recommendations(a)->int:
     _,url,key=policy_values(a.policy)
     q={"status":a.status}
@@ -82,10 +93,12 @@ def main()->int:
     ap=argparse.ArgumentParser();ap.add_argument("--policy",type=Path,default=DEFAULT_POLICY)
     sub=ap.add_subparsers(dest="cmd",required=True)
     r=sub.add_parser("recommendations");r.add_argument("--status",default="OPEN");r.add_argument("--project-id")
+    pi=sub.add_parser("register-project-assurance-identity");pi.add_argument("--registration",type=Path,required=True)
     d=sub.add_parser("mark-delivered");d.add_argument("--correlation-id",action="append",required=True)
     o=sub.add_parser("observe");o.add_argument("--source",choices=["guardian","sentinel"],required=True);o.add_argument("--receipt-id",required=True)
     a=ap.parse_args()
     if a.cmd=="recommendations":return recommendations(a)
+    if a.cmd=="register-project-assurance-identity":return register_project_assurance_identity(a.policy,a.registration)
     if a.cmd=="mark-delivered":return delivered(a)
     return observe(a)
 if __name__=="__main__":raise SystemExit(main())
