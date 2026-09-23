@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-role-contracts/v1",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "scope": "PLATFORM_GLOBAL",
   "principles": {
     "guardian_is_external_to_central_brain": true,
@@ -244,7 +244,8 @@
         "constraint_policy",
         "central_memory_assimilation",
         "central_memory_recall",
-        "component_confidence"
+        "component_confidence",
+        "logic_ux_compromise"
       ]
     },
     {
@@ -585,6 +586,66 @@
       "allowed_permissions": [
         "workspace-write",
         "read"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:logician",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "SEARCH_ALTERNATIVES",
+        "REPORT_PLAN"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MUTATE_APPLICATION",
+        "PRODUCTION_DEPLOY"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:ergonomist",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "PLAN_USER_EXPERIENCE",
+        "REPORT_PLAN"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MUTATE_APPLICATION",
+        "PRODUCTION_DEPLOY"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:compromise-release-gate",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "VERIFY_RELEASE_COMPROMISE",
+        "REPORT_DECISION"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MUTATE_APPLICATION",
+        "PRODUCTION_DEPLOY"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
       ],
       "required_evidence": []
     }
