@@ -621,6 +621,15 @@ def advance_operation(project: str, target: str | None, actor: str, policy: dict
             automatic_finalization=run_automatic_finalization(project,actor,policy,repo_root,p)
             if automatic_finalization.get("status")=="PASS":
                 ledger=load(p["ledger"])
+                projection=load(p["state"])
+                current=str(((projection.get("state") or {}).get("lifecycle") or {}).get("stage") or current)
+                if current!="PREVIEW":
+                    return response(
+                        project,"advance","BLOCKED",
+                        "Control-plane lifecycle changed unexpectedly during automatic finalization.",
+                        {"automatic_finalization":automatic_finalization,"current_stage":current},
+                        ["AUTOMATIC_FINALIZATION_CONTROL_PLANE_STAGE_CHANGED"]
+                    )
                 values, blockers, rc_check, err_check = lifecycle_check(
                     project, target, projection, p["ledger"], lifecycle_path,
                     resolve_repo(repo_root, refs["quality_gates"]),
