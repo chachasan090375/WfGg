@@ -10,6 +10,7 @@ import uuid
 from pathlib import Path
 
 import guardian_remediation_runtime as grr
+import assurance_exchange_runtime as aer
 import universal_learning_runtime as ulr
 
 def load(p):
@@ -452,6 +453,8 @@ def main():
 
     fast_path=(not bool(final_v.get("implementation_allowed"))
                and int((branch_v.get("summary") or {}).get("materialized") or 0)==0)
+    assurance_recommendations=aer.recommendations(project_id=pid)
+
     if fast_path:
         next_stage="KNOWLEDGE_FAST_PATH"
     elif final_v.get("dispatch_allowed"):
@@ -463,7 +466,7 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.29.0",
+      "version":"6.31.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
@@ -518,6 +521,12 @@ def main():
       "external_spend_eur":float((branch_v.get("summary") or {}).get("external_spend_eur") or 0),
       "guardian_external_enabled":bool(_GUARDIAN_CONTEXT.get("enabled")),
       "guardian_event_dir":str(_GUARDIAN_CONTEXT.get("event_dir")),
+      "assurance_exchange_recommendations":assurance_recommendations,
+      "assurance_exchange_recommendation_count":len(assurance_recommendations),
+      "assurance_exchange_blocker_count":sum(1 for x in assurance_recommendations if x.get("priority")=="BLOCKER"),
+      "assurance_exchange_optimize_count":sum(1 for x in assurance_recommendations if x.get("priority")=="OPTIMIZE"),
+      "assurance_exchange_direct_mutation_allowed":False,
+      "assurance_exchange_remediation_owner":"central-orchestrator",
       "next_stage":next_stage
     }
     save(out/"bootstrap-result.json",state)
@@ -532,6 +541,9 @@ def main():
     print("AGENT_FOUNDRY_MEMORY_GUIDED_DECISIONS="+str(state["agent_foundry_memory_guided_decisions"]))
     print("BRANCH_FOUNDRY_MEMORY_GUIDED_DECISIONS="+str(state["branch_foundry_memory_guided_decisions"]))
     print("CAPABILITY_FOUNDRY_MEMORY_GUIDED_PLANS="+str(state["capability_foundry_memory_guided_plans"]))
+    print("ASSURANCE_EXCHANGE_RECOMMENDATIONS="+str(state["assurance_exchange_recommendation_count"]))
+    print("ASSURANCE_EXCHANGE_BLOCKERS="+str(state["assurance_exchange_blocker_count"]))
+    print("ASSURANCE_EXCHANGE_OPTIMIZE="+str(state["assurance_exchange_optimize_count"]))
     print("EXTERNAL_SPEND_EUR="+str(state["external_spend_eur"]))
 
 if __name__=="__main__":main()
