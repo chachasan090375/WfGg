@@ -145,9 +145,14 @@ assert "D1_WORKFLOW_ATTESTATION" in sentinel
 assert "GITHUB_API_FALLBACK" in sentinel
 assert "stored_workflow_attestation_verification:true" in sentinel
 assert "github_api_fallback_only:true" in sentinel
-assert "Persist exact-revision Sentinel attestation" in sentinel_workflow
+assert "Persist and verify exact-revision Sentinel attestation" in sentinel_workflow
 assert "technical_workflow_attestations" in sentinel_workflow
 assert "CLOUDFLARE_API_TOKEN" in sentinel_workflow
+assert "technical_workflow_attestations" in sentinel_workflow
+assert "/d1/database/" in sentinel_workflow
+assert "SENTINEL_ATTESTATION_WRITE_FAILED" in sentinel_workflow
+assert "SENTINEL_ATTESTATION_VERIFY_MISSING" in sentinel_workflow
+assert "continue-on-error" not in sentinel_workflow[sentinel_workflow.index("Persist and verify exact-revision Sentinel attestation"):]
 
 for body in [guardian,sentinel]:
     assert "/v1/final-review" in body
