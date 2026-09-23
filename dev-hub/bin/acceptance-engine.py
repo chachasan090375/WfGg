@@ -15,6 +15,8 @@ def main():
     ap.add_argument("--reusable-registry");ap.add_argument("--reusable-registry-db");ap.add_argument("--learning-output")
     ap.add_argument("--metrics");ap.add_argument("--incidents");ap.add_argument("--learning-nas-mode",choices=["REQUIRED","OPTIONAL","DISABLED"],default="REQUIRED")
     ap.add_argument("--architecture-council");ap.add_argument("--agent-topology");ap.add_argument("--capability-foundry");ap.add_argument("--runtime-wave-plan")
+    ap.add_argument("--component-lineage");ap.add_argument("--confidence-project-id");ap.add_argument("--confidence-deployment-id")
+    ap.add_argument("--confidence-source-id",default="acceptance-confidence-bridge");ap.add_argument("--confidence-output")
     ap.add_argument("--architecture-registry");ap.add_argument("--architecture-registry-db");ap.add_argument("--architecture-learning-output")
     a=ap.parse_args();contract=load(a.contract);evidence=load(a.evidence)
     emap={str(x.get("criterion_id")):x for x in evidence.get("criteria") or []}
@@ -32,6 +34,23 @@ def main():
     result={"schema":"chacha.dev/acceptance-result/v1","accepted":ok,"criteria":rows,
             "return_to_factories":routes,"delivery_allowed":ok}
     Path(a.output).write_text(json.dumps(result,indent=2,ensure_ascii=False)+"\n")
+    confidence_args=[a.component_lineage,a.confidence_project_id,a.confidence_deployment_id]
+    if any(confidence_args) and not all(confidence_args):
+        raise SystemExit("ACCEPTANCE_CONFIDENCE_CONTEXT_INCOMPLETE")
+    if all(confidence_args):
+        bridge=Path(__file__).with_name("acceptance-confidence-bridge.py")
+        confidence_out=a.confidence_output or str(Path(a.output).with_name(Path(a.output).stem+"-component-confidence.json"))
+        cmd=[sys.executable,str(bridge),"--repo-root",str(Path(__file__).resolve().parents[2]),
+             "--acceptance",str(a.output),"--lineage",a.component_lineage,
+             "--project-id",a.confidence_project_id,"--deployment-id",a.confidence_deployment_id,
+             "--source-id",a.confidence_source_id,"--output",confidence_out]
+        p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=60)
+        if p.returncode!=0:raise SystemExit("ACCEPTANCE_CONFIDENCE_BRIDGE_FAILED:"+p.stderr+p.stdout)
+        confidence_result=load(confidence_out)
+        result["component_confidence_learning"]=confidence_result
+        result["component_confidence_learning_output"]=confidence_out
+        Path(a.output).write_text(json.dumps(result,indent=2,ensure_ascii=False)+"\n")
+        print("CHACHA_DEV_V626_ACCEPTANCE_TO_COMPONENT_CONFIDENCE=PASS")
     learning_requested=all([a.branch_topology,a.preplan,a.technology_snapshot,a.reusable_registry,a.reusable_registry_db,a.learning_output])
     if ok and learning_requested:
         learner=Path(__file__).with_name("reusable-branch-learning.py")
