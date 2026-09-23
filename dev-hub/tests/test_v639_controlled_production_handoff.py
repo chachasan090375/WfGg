@@ -281,6 +281,7 @@ with tempfile.TemporaryDirectory(prefix="v639-cf-pages-") as tmp:
       "transition":"RELEASE->OPERATE",
       "run_id":"v639-cf-pages-contract",
       "wave":1,
+      "task":{"id":"cf-pages-contract","permission":"read"},
       "bindings":[{
         "capability":"cloud-deploy-static","provider":"cloudflare-pages-production",
         "adapter":"cloudflare-pages-production-adapter",
