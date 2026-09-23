@@ -486,13 +486,14 @@ def main()->int:
     ap=argparse.ArgumentParser()
     ap.add_argument("--repo-root",type=Path,default=Path.cwd())
     ap.add_argument("--policy",type=Path,default=Path("dev-hub/config/autonomous-golden-path.v1.json"))
-    ap.add_argument("--intent",required=True,type=Path)
+    ap.add_argument("--intent",type=Path)
     ap.add_argument("--revision",required=True)
     ap.add_argument("--output-dir",required=True,type=Path)
-    ap.add_argument("--signing-private-key",required=True,type=Path)
-    ap.add_argument("--signing-public-key",required=True,type=Path)
+    ap.add_argument("--signing-private-key",type=Path)
+    ap.add_argument("--signing-public-key",type=Path)
     ap.add_argument("--human-approval-id")
     ap.add_argument("--human-actor")
+    ap.add_argument("--resume-from-awaiting-approval",action="store_true")
     a=ap.parse_args()
     repo=a.repo_root.resolve()
     policy_path=a.policy if a.policy.is_absolute() else repo/a.policy
@@ -503,6 +504,90 @@ def main()->int:
     out.mkdir(parents=True,exist_ok=True)
     plan_dir=out/"planning";plan_dir.mkdir(parents=True,exist_ok=True)
     lifecycle_results=out/"lifecycle-results";lifecycle_results.mkdir(parents=True,exist_ok=True)
+
+    # V6.38 true two-phase resume: the second invocation must reuse the exact
+    # project that already reached PREVIEW/AWAITING_APPROVAL. It must not replay
+    # planning, materialization, or any earlier Lifecycle transition.
+    if a.resume_from_awaiting_approval:
+        if not a.human_approval_id or not a.human_actor:
+            raise SystemExit("V638_RESUME_REQUIRES_EXPLICIT_HUMAN_APPROVAL")
+        result_path=out/"golden-path-result.json"
+        if not result_path.is_file():
+            raise SystemExit("V638_RESUME_RESULT_MISSING")
+        result=load(result_path)
+        if result.get("schema")!=RESULT_SCHEMA:
+            raise SystemExit("V638_RESUME_RESULT_SCHEMA_INVALID")
+        if result.get("revision")!=a.revision:
+            raise SystemExit("V638_RESUME_REVISION_MISMATCH")
+        if result.get("status")!="AWAITING_APPROVAL" or result.get("lifecycle_stage")!="PREVIEW":
+            raise SystemExit("V638_RESUME_NOT_AWAITING_APPROVAL")
+        if result.get("human_boundary_proven") is not True or result.get("seven_agent_finalization")!="PASS":
+            raise SystemExit("V638_RESUME_BOUNDARY_PROOF_MISSING")
+        project=str(result.get("project_id") or "")
+        if not project:
+            raise SystemExit("V638_RESUME_PROJECT_ID_MISSING")
+
+        pc_policy_path=repo/"dev-hub/config/project-control.v1.json"
+        pc_policy=load(pc_policy_path)
+        pp=project_paths(pc_policy,project)
+        integrity_before=pc(repo,pc_policy_path,["verify-state","--project",project])
+        if integrity_before.get("status")!="OK":
+            raise SystemExit("V638_RESUME_PREAPPROVAL_INTEGRITY_FAILED:"+json.dumps(integrity_before))
+        state=load(pp["state"])
+        stage=str(((state.get("state") or {}).get("lifecycle") or {}).get("stage") or "")
+        if stage!="PREVIEW":
+            raise SystemExit("V638_RESUME_STAGE_NOT_PREVIEW:"+stage)
+        ledger=load(pp["evidence"])
+        existing=((ledger.get("approvals") or {}).get("production-release") or {})
+        if existing.get("status")=="APPROVED":
+            raise SystemExit("V638_RESUME_APPROVAL_ALREADY_PRESENT")
+
+        approval=pc(repo,pc_policy_path,["record-approval","--project",project,
+                    "--approval-id","production-release","--actor",a.human_actor,
+                    "--evidence",a.human_approval_id],timeout=180)
+        if approval.get("status")!="OK":
+            raise SystemExit("V638_PROTECTED_APPROVAL_FAILED:"+json.dumps(approval))
+
+        final=advance(repo,pc_policy_path,project,"RELEASE")
+        integrity=pc(repo,pc_policy_path,["verify-state","--project",project])
+        if integrity.get("status")!="OK":
+            raise SystemExit("V638_FINAL_INTEGRITY_FAILED:"+json.dumps(integrity))
+        state=load(pp["state"])
+        stage=str(((state.get("state") or {}).get("lifecycle") or {}).get("stage") or "")
+        if stage!="RELEASE":
+            raise SystemExit("V638_FINAL_STAGE_NOT_RELEASE:"+stage)
+
+        result.update({
+          "status":"PASS","lifecycle_stage":"RELEASE",
+          "human_approval_id":a.human_approval_id,
+          "human_approval_actor":a.human_actor,
+          "approval_transaction":approval.get("details"),
+          "release_transaction":final.get("details"),
+          "control_plane_integrity":"PASS","completed_at":now_iso()
+        })
+        save(result_path,result)
+        print("CHACHA_DEV_V638_LIFECYCLE_STAGED_MATERIALIZATION=PASS")
+        print("CHACHA_DEV_V638_FULL_AUTONOMOUS_GOLDEN_PATH=PASS")
+        print("CHACHA_DEV_V638_IDEA_TO_RELEASE=PASS")
+        print("CHACHA_DEV_V638_HUMAN_BOUNDARY_PROVEN=PASS")
+        print("CHACHA_DEV_V638_PROTECTED_APPROVAL_TRANSACTION=PASS")
+        print("CHACHA_DEV_V638_SEVEN_AGENT_AUTO_FINALIZATION=PASS")
+        print("CHACHA_DEV_V638_CONTROL_PLANE_INTEGRITY=PASS")
+        print("CHACHA_DEV_V638_RESUMED_SAME_PROJECT=PASS")
+        print("CHACHA_DEV_V638_HUMAN_APPROVAL_AFTER_BOUNDARY=PASS")
+        print("CHACHA_DEV_V638_DIRECT_LEDGER_MUTATION=NO")
+        print("CHACHA_DEV_V638_DIRECT_LIFECYCLE_MUTATION=NO")
+        print("CHACHA_DEV_V638_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
+        print("PROJECT_ID="+project)
+        print("RESULT="+str(result_path.resolve()))
+        return 0
+
+    if a.human_approval_id or a.human_actor:
+        raise SystemExit("V638_INITIAL_RUN_MUST_NOT_PRELOAD_APPROVAL")
+    if a.intent is None:
+        raise SystemExit("V638_INITIAL_INTENT_REQUIRED")
+    if a.signing_private_key is None or a.signing_public_key is None:
+        raise SystemExit("V638_INITIAL_SIGNING_KEYS_REQUIRED")
 
     # 1. Existing central brain performs the complete governed planning path.
     p=run([sys.executable,str(repo/"dev-hub/bin/autonomous-project-orchestrator.py"),
@@ -600,53 +685,16 @@ def main()->int:
       "observed_at":now_iso()
     }
 
-    # No approval supplied: persist resumable state and stop correctly.
-    if not a.human_approval_id:
-        save(out/"golden-path-result.json",result)
-        print("CHACHA_DEV_V638_IDEA_TO_PREVIEW_AUTONOMOUS=PASS")
-        print("CHACHA_DEV_V638_SEVEN_AGENT_AUTO_FINALIZATION=PASS")
-        print("CHACHA_DEV_V638_HUMAN_BOUNDARY=AWAITING_APPROVAL")
-        print("PROJECT_ID="+project)
-        print("RESULT="+str((out/"golden-path-result.json").resolve()))
-        return 4
-    if not a.human_actor:
-        raise SystemExit("V638_HUMAN_ACTOR_REQUIRED_WITH_APPROVAL")
-
-    approval=pc(repo,pc_policy_path,["record-approval","--project",project,
-               "--approval-id","production-release","--actor",a.human_actor,
-               "--evidence",a.human_approval_id],timeout=180)
-    if approval.get("status")!="OK":
-        raise SystemExit("V638_PROTECTED_APPROVAL_FAILED:"+json.dumps(approval))
-
-    final=advance(repo,pc_policy_path,project,"RELEASE")
-    integrity=pc(repo,pc_policy_path,["verify-state","--project",project])
-    if integrity.get("status")!="OK": raise SystemExit("V638_FINAL_INTEGRITY_FAILED:"+json.dumps(integrity))
-    state=load(pp["state"])
-    stage=str(((state.get("state") or {}).get("lifecycle") or {}).get("stage") or "")
-    if stage!="RELEASE": raise SystemExit("V638_FINAL_STAGE_NOT_RELEASE:"+stage)
-
-    result.update({
-      "status":"PASS","lifecycle_stage":"RELEASE",
-      "human_approval_id":a.human_approval_id,
-      "human_approval_actor":a.human_actor,
-      "approval_transaction":approval.get("details"),
-      "release_transaction":final.get("details"),
-      "control_plane_integrity":"PASS","completed_at":now_iso()
-    })
+    # Genuine human boundary: the initial invocation always stops here.
+    # A separate invocation with --resume-from-awaiting-approval is required.
     save(out/"golden-path-result.json",result)
-    print("CHACHA_DEV_V638_LIFECYCLE_STAGED_MATERIALIZATION=PASS")
-    print("CHACHA_DEV_V638_FULL_AUTONOMOUS_GOLDEN_PATH=PASS")
-    print("CHACHA_DEV_V638_IDEA_TO_RELEASE=PASS")
-    print("CHACHA_DEV_V638_HUMAN_BOUNDARY_PROVEN=PASS")
-    print("CHACHA_DEV_V638_PROTECTED_APPROVAL_TRANSACTION=PASS")
+    print("CHACHA_DEV_V638_IDEA_TO_PREVIEW_AUTONOMOUS=PASS")
     print("CHACHA_DEV_V638_SEVEN_AGENT_AUTO_FINALIZATION=PASS")
-    print("CHACHA_DEV_V638_CONTROL_PLANE_INTEGRITY=PASS")
-    print("CHACHA_DEV_V638_DIRECT_LEDGER_MUTATION=NO")
-    print("CHACHA_DEV_V638_DIRECT_LIFECYCLE_MUTATION=NO")
-    print("CHACHA_DEV_V638_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
+    print("CHACHA_DEV_V638_HUMAN_BOUNDARY=AWAITING_APPROVAL")
+    print("CHACHA_DEV_V638_TWO_PHASE_RESUME_REQUIRED=YES")
     print("PROJECT_ID="+project)
     print("RESULT="+str((out/"golden-path-result.json").resolve()))
-    return 0
+    return 4
 
 if __name__=="__main__":
     raise SystemExit(main())
