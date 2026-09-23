@@ -796,6 +796,28 @@ async function dualReleaseGate(req,env){
   },verdict==="PASS"?200:409);
 }
 
+async function registerProjectAssuranceIdentity(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(p.schema!=="chacha.dev/project-assurance-identity-registration/v1")
+    return json({error:"project_assurance_identity_schema_invalid"},400);
+  const projectId=String(p.project_id||""),keyId=String(p.key_id||""),pub=String(p.public_key_spki_b64||"");
+  if(!projectId||!/^project-[a-f0-9]{16}$/.test(keyId)||!pub)
+    return json({error:"project_assurance_identity_invalid"},400);
+  await env.DB.prepare(
+    `INSERT INTO project_assurance_identities(key_id,project_id,status,public_key_spki_b64,created_at)
+     VALUES(?1,?2,'ACTIVE',?3,datetime('now'))
+     ON CONFLICT(key_id) DO UPDATE SET project_id=excluded.project_id,status='ACTIVE',
+       public_key_spki_b64=excluded.public_key_spki_b64,revoked_at=NULL`
+  ).bind(keyId,projectId,pub).run();
+  return json({
+    schema:"chacha.dev/project-assurance-identity-registration-result/v1",
+    status:"PASS",project_id:projectId,key_id:keyId,scope:"PROJECT_ASSURANCE_ONLY",
+    direct_mutation:false,client_secret_allowed:false
+  });
+}
+
 async function projectEvents(req,env){
   const body=await req.text();
   let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
@@ -1087,7 +1109,7 @@ export default {
       coverage_remediation_auto_resolution:true,coverage_remediation_batched:true,
       remediation_dependency_auto_resolution:true,remediation_cascade_suppression:true,
       functional_acceptance_gate:true,external_dual_release_gate:true,functional_contract_source_of_truth:true,
-      embedded_guardian_local_ingest:true,project_event_project_identity_required:true,project_event_raw_user_content:false,
+      embedded_guardian_local_ingest:true,project_assurance_identity_registration:true,project_event_project_identity_required:true,project_event_raw_user_content:false,
       original_functional_contract_pinned:true,dual_external_assurance_required_for_production:true,
       sentinel_receipt_verified_externally:true,sentinel_external_url_configured:Boolean(env.SENTINEL_URL),
       assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL||env.ASSURANCE_EXCHANGE_SERVICE),
@@ -1096,6 +1118,8 @@ export default {
       functional_receipt_exchange_publish:true,functional_direct_mutation:false
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/project-assurance-identities/register")
+      return registerProjectAssuranceIdentity(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/project-events")return projectEvents(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/functional-acceptance")return functionalAcceptance(req,env);
     if(req.method==="GET"&&u.pathname.startsWith("/v1/functional-receipts/"))
