@@ -1,0 +1,30 @@
+{
+  "schema": "chacha.dev/adapter-promotion-evidence/v1",
+  "adapter": "cloudflare-pages-production-adapter",
+  "observed_at": "2026-09-23T15:55:00Z",
+  "evidence": {
+    "static-contract-pass": {
+      "status": "PASS",
+      "source": "vps://ChaChaVPS/v639/cloudflare-pages-static-contract",
+      "observed_at": "2026-09-23T15:55:00Z",
+      "details": {
+        "source_revision": "ea470e9852af4d7911a7da2e646e18accb6bd069",
+        "screenshot_digest": "sha256:df0445153ce578f4566987ad3b5aed396c1fb1e79e6ef2f6604e9214859f6acb",
+        "markers": [
+          "CHACHA_DEV_V639_CF_PAGES_STATIC_CONTRACT=PASS",
+          "CHACHA_DEV_V639_CF_PAGES_CONTRACT_OK_ELIGIBLE=PASS",
+          "CHACHA_DEV_V639_CF_PAGES_REGISTRY_MUTATION=NO",
+          "CHACHA_DEV_V639_CLOUDFLARE_PAGES_PRODUCTION_EXECUTION=BLOCKED",
+          "CHACHA_DEV_V639_PRODUCTION_MUTATION=NO",
+          "CHACHA_DEV_V639_REAL_PRODUCTION_TARGET=NO",
+          "CHACHA_DEV_V639_DRY_RUN_PILOT=PASS"
+        ],
+        "production_mutation": false,
+        "real_production_target": false,
+        "network_write_test": false,
+        "automatic_external_spend_eur": 0
+      }
+    }
+  },
+  "approvals": []
+}
