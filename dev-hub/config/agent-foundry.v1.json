@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-foundry/v1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "branch": "agent-foundry",
   "mandatory_preflight": true,
   "invocation_point": "after-core-intent-understanding-before-domain-dispatch",
@@ -41,7 +41,11 @@
     "guardian_contract_is_versioned": true,
     "guardian_contract_is_least_privilege": true,
     "guardian_contract_cannot_grant_production_permissions": true,
-    "every_created_agent_has_learning_uplink": true
+    "every_created_agent_has_learning_uplink": true,
+    "central_memory_guides_existing_agent_candidate_order": true,
+    "negative_component_confidence_excludes_fast_agent_reuse": true,
+    "memory_cannot_expand_agent_capabilities_or_permissions": true,
+    "memory_never_skips_technology_watch": true
   },
   "scoring": {
     "capability_fit": 30,
