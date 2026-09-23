@@ -46,6 +46,11 @@ def db_open(path:Path):
       PRIMARY KEY(architecture_id,version)
     )""")
     db.execute("CREATE INDEX IF NOT EXISTS idx_arch_sig ON reusable_architectures(functional_signature,qualification_status,state)")
+    db.execute("""CREATE TABLE IF NOT EXISTS reusable_architecture_feedback(
+      event_id TEXT NOT NULL, architecture_id TEXT NOT NULL, version TEXT NOT NULL,
+      observed_at TEXT, action TEXT NOT NULL, severity TEXT, payload TEXT NOT NULL,
+      PRIMARY KEY(event_id,architecture_id,version)
+    )""")
     db.commit()
     return db
 
@@ -123,6 +128,38 @@ def search(args):
         })
     print(json.dumps({"schema":"chacha.dev/reusable-architecture-search/v1","functional_signature":sig,"candidates":out},indent=2,ensure_ascii=False))
 
+def apply_feedback(args):
+    db=db_open(args.db)
+    row=db.execute("SELECT state FROM reusable_architectures WHERE architecture_id=? AND version=?",
+                   (args.architecture_id,args.version)).fetchone()
+    if not row:
+        print(json.dumps({"status":"NOT_FOUND","architecture_id":args.architecture_id,"version":args.version},indent=2))
+        return
+    payload={"event_id":args.event_id,"action":args.action,"severity":args.severity,
+             "observed_at":args.observed_at,"source":"production-lineage-feedback"}
+    with db:
+        cur=db.execute("""INSERT OR IGNORE INTO reusable_architecture_feedback
+          (event_id,architecture_id,version,observed_at,action,severity,payload)
+          VALUES(?,?,?,?,?,?,?)""",
+          (args.event_id,args.architecture_id,args.version,args.observed_at,args.action,args.severity,canon(payload)))
+        if cur.rowcount==0:
+            print(json.dumps({"status":"DEDUPLICATED","architecture_id":args.architecture_id,"version":args.version,
+                              "event_id":args.event_id},indent=2));return
+        state=str(row[0] or "CATALOG_CANDIDATE")
+        if args.action=="INCIDENT":
+            state="QUARANTINED" if str(args.severity).lower()=="critical" else "DEGRADED"
+            db.execute("""UPDATE reusable_architectures
+              SET failure_count=failure_count+1,incident_count=incident_count+1,last_incident_at=?,
+                  state=? WHERE architecture_id=? AND version=?""",
+              (args.observed_at or now_iso(),state,args.architecture_id,args.version))
+        elif args.action=="VERIFIED_RECOVERY":
+            state="RECOVERY_CANDIDATE"
+            db.execute("UPDATE reusable_architectures SET state=? WHERE architecture_id=? AND version=?",
+                       (state,args.architecture_id,args.version))
+    print(json.dumps({"status":"APPLIED","architecture_id":args.architecture_id,"version":args.version,
+                      "event_id":args.event_id,"action":args.action,"severity":args.severity,
+                      "state":state},indent=2))
+
 def main():
     ap=argparse.ArgumentParser();ap.add_argument("--db",type=Path,default=DEFAULT_DB)
     sub=ap.add_subparsers(dest="cmd",required=True)
@@ -130,8 +167,11 @@ def main():
     s=sub.add_parser("search");s.add_argument("--preplan",type=Path,required=True);s.add_argument("--limit",type=int,default=5)
     s.add_argument("--max-revalidation-age-minutes",type=int,default=60)
     s.add_argument("--min-success-rate",type=float,default=0.95);s.add_argument("--max-incidents",type=int,default=0)
+    f=sub.add_parser("apply-feedback");f.add_argument("--event-id",required=True);f.add_argument("--architecture-id",required=True);f.add_argument("--version",required=True)
+    f.add_argument("--action",choices=["INCIDENT","VERIFIED_RECOVERY"],required=True);f.add_argument("--severity");f.add_argument("--observed-at")
     a=ap.parse_args()
     if a.cmd=="register": register(a)
+    elif a.cmd=="apply-feedback": apply_feedback(a)
     else: search(a)
 
 if __name__=="__main__": main()
