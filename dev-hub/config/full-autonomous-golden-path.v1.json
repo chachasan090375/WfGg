@@ -1,0 +1,48 @@
+{
+  "schema": "chacha.dev/full-autonomous-golden-path-policy/v1",
+  "version": "1.0.0",
+  "scope": "CANONICAL_STATIC_WEB_ZERO_DEPENDENCY",
+  "objective": "cahier_des_charges_to_release_without_manual_intermediate_artifact_preparation",
+  "lifecycle": [
+    "IDEA",
+    "DESIGN",
+    "READY",
+    "BUILD",
+    "VERIFY",
+    "PREVIEW",
+    "RELEASE"
+  ],
+  "invariants": {
+    "autonomous_bootstrap_required": true,
+    "technology_watch_required": true,
+    "central_memory_recall_required": true,
+    "foundries_required": true,
+    "logician_required": true,
+    "ergonomist_required": true,
+    "architecture_council_required": true,
+    "real_materialization_required": true,
+    "real_tests_required": true,
+    "real_preview_required": true,
+    "seven_agent_finalization_v637_required": true,
+    "nondelegable_human_approval_preserved": true,
+    "production_deployment_not_part_of_v638": true,
+    "zero_external_spend_default": true,
+    "direct_application_mutation_outside_workspace": false
+  },
+  "canonical_project": {
+    "kind": "static-web",
+    "dependencies": "NONE",
+    "network_dependency_during_build": false,
+    "runtime": "browser-static",
+    "test_runtime": "node-built-in",
+    "preview_runtime": "python-http-server-loopback",
+    "materialization_strategy": "DETERMINISTIC_TEMPLATE_FROM_VALIDATED_INTENT_AND_COMPROMISE"
+  },
+  "release_boundary": {
+    "production_release_approval_required": true,
+    "pilot_approval_must_be_explicit": true,
+    "pilot_signing_key_may_be_ephemeral_only_when_explicitly_enabled": true,
+    "release_is_not_production_deployment": true
+  },
+  "automatic_external_spend_eur": 0
+}
