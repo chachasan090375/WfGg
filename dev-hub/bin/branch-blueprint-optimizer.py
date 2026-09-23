@@ -75,6 +75,13 @@ def build_candidates(package:dict[str,Any],preplan:dict[str,Any],branch_policy:d
     agent_mode=str(agent_decision.get("decision") or "TOOL_ONLY")
     created_agent=agent_mode.startswith("CREATE_")
     composed=agent_mode=="COMPOSE_EXISTING_AGENTS"
+    memory_reuse=[x for x in package.get("memory_reuse_candidates") or [] if isinstance(x,dict)]
+    memory_avoid=[x for x in package.get("memory_avoid_components") or [] if isinstance(x,dict)]
+    memory_reuse_available=bool(memory_reuse)
+    memory_negative_fast_reuse_block=any(
+        str(x.get("component_kind") or x.get("kind") or "") in {"branch","architecture"}
+        for x in memory_avoid
+    )
 
     common_hard={
         "functional_coverage":True,
@@ -109,10 +116,13 @@ def build_candidates(package:dict[str,Any],preplan:dict[str,Any],branch_policy:d
       "component_strategy":"REUSE_QUALIFIED_FIRST",
       "resources":{"memory_mb":0,"disk_mb":32,"cpu_weight":5},
       "external_spend_eur":0,"model_units":1 if created_agent else 0.2,
-      "startup_ms":80,"maintenance":1,"reuse_credit":90,
+      "startup_ms":80,"maintenance":1,"reuse_credit":110 if memory_reuse_available else 90,
+      "memory_guided_reuse":memory_reuse_available,
+      "memory_reuse_candidates":memory_reuse[:5],
       "hard_constraints":{**common_hard,
         "functional_coverage":(not implementation or kind=="review"),
-        "required_quality":not heavy
+        "required_quality":not heavy,
+        "memory_confidence":not memory_negative_fast_reuse_block
       }
     })
 
@@ -125,7 +135,9 @@ def build_candidates(package:dict[str,Any],preplan:dict[str,Any],branch_policy:d
       "component_strategy":"REUSE_QUALIFIED_FIRST_BUILD_MISSING_ONLY",
       "resources":{"memory_mb":192 if not heavy else 320,"disk_mb":256 if not heavy else 512,"cpu_weight":35 if not heavy else 55},
       "external_spend_eur":0,"model_units":1.5 if created_agent else (0.8 if composed else 0.3),
-      "startup_ms":250,"maintenance":2,"reuse_credit":85,
+      "startup_ms":250,"maintenance":2,"reuse_credit":95 if memory_reuse_available else 85,
+      "memory_guided_reuse":memory_reuse_available,
+      "memory_reuse_candidates":memory_reuse[:5],
       "hard_constraints":dict(common_hard)
     })
 
@@ -200,6 +212,8 @@ def optimize(package:dict[str,Any],preplan:dict[str,Any],branch_policy:dict[str,
         "chosen_cost":candidate_cost(chosen),
         "pareto_frontier":frontier,
         "candidates":candidates,
+        "memory_reuse_candidates_considered":len(memory_reuse),
+        "memory_negative_fast_reuse_block":memory_negative_fast_reuse_block,
         "rejected":[{
             "id":c["id"],
             "reason":(
