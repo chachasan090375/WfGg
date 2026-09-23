@@ -33,7 +33,12 @@ def main():
             routes.setdefault(str(c.get("owner") or "core"),[]).append(cid)
     ok=not routes
     result={"schema":"chacha.dev/acceptance-result/v1","accepted":ok,"criteria":rows,
-            "return_to_factories":routes,"delivery_allowed":ok}
+            "return_to_factories":routes,
+            "delivery_allowed":ok,
+            "local_acceptance_candidate":ok,
+            "final_delivery_allowed":False,
+            "final_delivery_gate":"seven-agent-final-compromise",
+            "final_delivery_receipt_required":True}
     Path(a.output).write_text(json.dumps(result,indent=2,ensure_ascii=False)+"\n")
     confidence_args=[a.component_lineage,a.confidence_project_id,a.confidence_deployment_id]
     if any(confidence_args) and not all(confidence_args):
@@ -100,4 +105,6 @@ def main():
         raise SystemExit("ACCEPTANCE_ARCHITECTURE_LEARNING_CONTEXT_INCOMPLETE")
     print("CHACHA_ACCEPTANCE_ENGINE=PASS")
     print("ACCEPTED="+("YES" if ok else "NO"))
+    print("LOCAL_ACCEPTANCE_CANDIDATE="+("YES" if ok else "NO"))
+    print("FINAL_DELIVERY_ALLOWED=NO_PENDING_SEVEN_AGENT_COMPROMISE")
 if __name__=="__main__":main()
