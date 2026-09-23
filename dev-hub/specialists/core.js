@@ -197,6 +197,18 @@ export function makeAuthority(config){
           failover_status:"RESERVED_INACTIVE",direct_application_mutation:false});
       }
 
+      if(config.role==="bastion"&&req.method==="POST"&&u.pathname==="/v1/incidents/directives/delivered"){
+        const body=await req.text();const auth=await requireSigned(req,env,"authority_identities",body);if(!auth.ok)return auth.response;
+        let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+        const ids=Array.isArray(p.directive_ids)?p.directive_ids.map(String).slice(0,100):[];
+        let count=0;
+        for(const id of ids){
+          const r=await env.DB.prepare("UPDATE response_directives SET status='DELIVERED' WHERE directive_id=?1 AND status='OPEN'").bind(id).run();
+          count+=r.meta.changes||0;
+        }
+        return json({schema:"chacha.dev/bastion-response-directive-delivery/v1",status:"PASS",count});
+      }
+
       return json({error:"not_found"},404);
     }
   };
