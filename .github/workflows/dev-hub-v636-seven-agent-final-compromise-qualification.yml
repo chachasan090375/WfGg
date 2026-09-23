@@ -1,0 +1,158 @@
+name: ChaCha DEV V6.36 seven-agent final compromise qualification
+
+on:
+  push:
+    branches: [dev-hub-v636-seven-agent-final-compromise]
+    paths:
+      - 'dev-hub/bin/internal-final-review.py'
+      - 'dev-hub/bin/seven-agent-final-compromise-controller.py'
+      - 'dev-hub/bin/compromise-release-gate.py'
+      - 'dev-hub/bin/acceptance-engine.py'
+      - 'dev-hub/bin/lifecycle-engine.py'
+      - 'dev-hub/bin/guardian-client.py'
+      - 'dev-hub/bin/sentinel-client.py'
+      - 'dev-hub/bin/assurance-exchange-client.py'
+      - 'dev-hub/guardian/**'
+      - 'dev-hub/sentinel/**'
+      - 'dev-hub/specialists/**'
+      - 'dev-hub/assurance-exchange/**'
+      - 'dev-hub/config/seven-agent-final-compromise.v1.json'
+      - 'dev-hub/config/compromise-release-gate.v1.json'
+      - 'dev-hub/config/acceptance-engine.v1.json'
+      - 'dev-hub/config/lifecycle.v1.json'
+      - 'dev-hub/config/project-control.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/config/sentinel-technical-policy.v1.json'
+      - 'dev-hub/tests/test_v636_seven_agent_final_compromise.py'
+      - 'dev-hub/tests/test_v635_central_specialist_authorities.py'
+      - 'dev-hub/tests/test_v634_logic_ux_compromise_release.py'
+      - 'dev-hub/tests/test_v633_five_agent_embedded_probes.py'
+      - 'dev-hub/tests/test_v632_project_embedded_assurance.py'
+      - 'dev-hub/tests/test_v631_assurance_exchange.py'
+      - 'dev-hub/tests/test_v630_external_dual_assurance.py'
+      - 'dev-hub/tests/test_v629_memory_guided_foundry_planning.py'
+      - 'dev-hub/tests/test_v628_trusted_dispatch_lineage.py'
+      - 'dev-hub/tests/test_v627_verified_evidence_learning.py'
+      - 'dev-hub/tests/test_v623_contextual_memory_recall.py'
+      - 'dev-hub/bin/install-v636-seven-agent-final-compromise.sh'
+      - '.github/workflows/dev-hub-v636-seven-agent-final-compromise-qualification.yml'
+      - '.github/workflows/dev-hub-v636-seven-agent-final-compromise-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v636-seven-agent-final-compromise
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          node --check dev-hub/guardian/worker.js
+          node --check dev-hub/sentinel/worker.js
+          node --check dev-hub/specialists/core.js
+          node --check dev-hub/assurance-exchange/worker.js
+          python3 -m py_compile             dev-hub/bin/internal-final-review.py             dev-hub/bin/seven-agent-final-compromise-controller.py             dev-hub/bin/compromise-release-gate.py             dev-hub/bin/acceptance-engine.py             dev-hub/bin/lifecycle-engine.py             dev-hub/bin/guardian-client.py             dev-hub/bin/sentinel-client.py             dev-hub/bin/assurance-exchange-client.py
+          for f in             dev-hub/config/seven-agent-final-compromise.v1.json             dev-hub/config/compromise-release-gate.v1.json             dev-hub/config/acceptance-engine.v1.json             dev-hub/config/lifecycle.v1.json             dev-hub/config/project-control.v1.json             dev-hub/config/guardian-coverage-manifest.v1.json; do
+            python3 -m json.tool "$f" >/dev/null
+          done
+          grep -Fq 'final_agent_reviews' dev-hub/guardian/migrations/0010_final_agent_reviews.sql
+          grep -Fq 'final_agent_reviews' dev-hub/sentinel/migrations/0004_final_agent_reviews.sql
+          grep -Fq 'external_final_reviews' dev-hub/assurance-exchange/migrations/0004_external_final_reviews.sql
+          if [ -f dev-hub/bin/install-v636-seven-agent-final-compromise.sh ]; then
+            bash -n dev-hub/bin/install-v636-seven-agent-final-compromise.sh
+          fi
+          echo CHACHA_DEV_V636_STATIC=PASS
+
+      - name: V6.36 seven-agent final compromise
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v636_seven_agent_final_compromise.py
+
+      - name: V6.35 specialist authority regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v635_central_specialist_authorities.py
+
+      - name: V6.34 compromise regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v634_logic_ux_compromise_release.py
+
+      - name: V6.33 five-agent probes regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v633_five_agent_embedded_probes.py
+
+      - name: V6.32 embedded assurance regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v632_project_embedded_assurance.py
+
+      - name: V6.31 Assurance Exchange regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v631_assurance_exchange.py
+
+      - name: V6.30 dual assurance regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v630_external_dual_assurance.py
+
+      - name: V6.29 memory guided Foundry regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v629_memory_guided_foundry_planning.py
+
+      - name: V6.28 trusted dispatch regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v628_trusted_dispatch_lineage.py
+
+      - name: V6.27 verified evidence regression
+        env:
+          CHACHA_DEV_TEST_TRUSTED_CONTEXT_BYPASS: '1'
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v627_verified_evidence_learning.py
+
+      - name: V6.23 contextual recall regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v623_contextual_memory_recall.py
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_SEVEN_AGENT_FINAL_COMPROMISE=V6.36
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo LOGICIAN_SECOND_READ=YES
+            echo ERGONOMIST_SECOND_READ=YES
+            echo FIVE_EXTERNAL_SOURCE_REVERIFICATION=YES
+            echo ALL_SEVEN_ACCEPT_REQUIRED=YES
+            echo LOCAL_ACCEPTANCE_PROVISIONAL=YES
+            echo FINAL_DELIVERY_AUTHORITY=seven-agent-final-receipt
+            echo CENTRAL_REMEDIATION_BEFORE_RENEGOTIATION=YES
+            echo NO_MAJORITY_VOTE=YES
+            echo DIRECT_MUTATION=NO
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V636_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v636-seven-agent-final-compromise
+          path: /tmp/CHACHA_DEV_V636_RECEIPT.txt
+          retention-days: 30
