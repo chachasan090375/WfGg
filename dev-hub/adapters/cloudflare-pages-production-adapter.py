@@ -85,7 +85,19 @@ def load(path:Path)->dict[str,Any]:
 
 def load_policy()->dict[str,Any]:
     raw=os.environ.get("CHACHA_CF_PAGES_PROD_POLICY","").strip()
-    path=Path(raw) if raw else Path(__file__).resolve().parents[1]/"config/cloudflare-pages-production-adapter.v1.json"
+    candidates=[]
+    if raw:
+        candidates.append(Path(raw))
+    # Source-tree execution (qualification / tests).
+    try:
+        candidates.append(Path(__file__).resolve().parents[1]/"config/cloudflare-pages-production-adapter.v1.json")
+    except Exception:
+        pass
+    # Provisioned VPS execution: policy stays authoritative in platform/current.
+    candidates.append(Path("/opt/chacha-dev/platform/current/dev-hub/config/cloudflare-pages-production-adapter.v1.json"))
+    path=next((p for p in candidates if p.is_file()),None)
+    if path is None:
+        raise ValueError("PRODUCTION_ADAPTER_POLICY_NOT_FOUND")
     x=load(path)
     if x.get("schema")!=POLICY_SCHEMA:
         raise ValueError("POLICY_SCHEMA_INVALID")
