@@ -95,6 +95,28 @@ async function publishAssuranceObservation(env,source,receiptId){
           http_status:r.status,correlation:x.correlation||null};
 }
 
+async function registerProjectAssuranceIdentity(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(p.schema!=="chacha.dev/project-assurance-identity-registration/v1")
+    return json({error:"project_assurance_identity_schema_invalid"},400);
+  const projectId=String(p.project_id||""),keyId=String(p.key_id||""),pub=String(p.public_key_spki_b64||"");
+  if(!projectId||!/^project-[a-f0-9]{16}$/.test(keyId)||!pub)
+    return json({error:"project_assurance_identity_invalid"},400);
+  await env.DB.prepare(
+    `INSERT INTO project_assurance_identities(key_id,project_id,status,public_key_spki_b64,created_at)
+     VALUES(?1,?2,'ACTIVE',?3,datetime('now'))
+     ON CONFLICT(key_id) DO UPDATE SET project_id=excluded.project_id,status='ACTIVE',
+       public_key_spki_b64=excluded.public_key_spki_b64,revoked_at=NULL`
+  ).bind(keyId,projectId,pub).run();
+  return json({
+    schema:"chacha.dev/project-assurance-identity-registration-result/v1",
+    status:"PASS",project_id:projectId,key_id:keyId,scope:"PROJECT_ASSURANCE_ONLY",
+    direct_mutation:false,client_secret_allowed:false
+  });
+}
+
 async function projectEvents(req,env){
   const body=await req.text();
   let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
@@ -200,7 +222,7 @@ export default{
     if(req.method==="GET"&&u.pathname==="/healthz")return json({
       status:"ok",service:"chacha-dev-sentinel",external_technical_assurance:true,
       technical_scope_only:true,continuous_commit_assurance:true,preproduction_release_gate:true,
-      embedded_sentinel_local_ingest:true,project_event_project_identity_required:true,project_event_raw_user_content:false,
+      embedded_sentinel_local_ingest:true,project_assurance_identity_registration:true,project_event_project_identity_required:true,project_event_raw_user_content:false,
       github_workflow_verification:true,public_receipt_verification:true,
       assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL||env.ASSURANCE_EXCHANGE_SERVICE),
       assurance_exchange_service_binding:Boolean(env.ASSURANCE_EXCHANGE_SERVICE),
@@ -209,6 +231,8 @@ export default{
       central_orchestrator_owns_remediation:true,automatic_external_spend_eur:0
     });
     if(req.method==="POST"&&u.pathname==="/v1/release-check")return releaseCheck(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/project-assurance-identities/register")
+      return registerProjectAssuranceIdentity(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/project-events")return projectEvents(req,env);
     if(req.method==="GET"&&u.pathname.startsWith("/v1/receipts/"))return receipt(req,env,decodeURIComponent(u.pathname.slice("/v1/receipts/".length)));
     if(req.method==="GET"&&u.pathname==="/v1/directives")return directives(req,env);
