@@ -1,0 +1,60 @@
+{
+  "schema": "chacha.dev/cloudflare-pages-production-adapter/v1",
+  "version": "1.0.0",
+  "provider": "cloudflare-pages-production",
+  "adapter": "cloudflare-pages-production-adapter",
+  "execution": "vps",
+  "status_required_for_execution": "ENABLED",
+  "production_capable": true,
+  "mutation_guard": {
+    "environment_switch": "CHACHA_DEV_V639_REAL_PRODUCTION_EXECUTION",
+    "required_value": "ENABLED",
+    "protected_approval_id": "production-deployment",
+    "project_control_receipt_required": true,
+    "explicit_target_allowlist_env": "CHACHA_CF_PAGES_PROD_ALLOWED_PROJECTS"
+  },
+  "credentials": {
+    "token_env": "CLOUDFLARE_API_TOKEN",
+    "account_id_env": "CLOUDFLARE_ACCOUNT_ID",
+    "secret_values_never_logged": true
+  },
+  "deployment": {
+    "mechanism": "wrangler-pages-deploy",
+    "wrangler_version": "4.45.0",
+    "exact_revision_required": true,
+    "production_branch_required": true,
+    "build_directory_required": true,
+    "project_creation_forbidden": true,
+    "project_settings_mutation_forbidden": true,
+    "custom_domain_mutation_forbidden": true,
+    "secrets_mutation_forbidden": true,
+    "production_data_write": false,
+    "destructive_migration": false
+  },
+  "rollback": {
+    "capture_current_production_before_deploy": true,
+    "previous_successful_production_deployment_required": true,
+    "api_method": "POST",
+    "api_path_template": "/accounts/{account_id}/pages/projects/{project_name}/deployments/{deployment_id}/rollback",
+    "verify_restored_deployment": true
+  },
+  "health": {
+    "canonical_https_url_required": true,
+    "expected_status_codes": [
+      200
+    ],
+    "redirects_allowed": false
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0,
+    "paid_change_requires_explicit_human_approval": true
+  },
+  "qualification": {
+    "real_production_execution": false,
+    "network_write_test": false,
+    "fail_closed_actions": [
+      "production-deploy",
+      "production-rollback"
+    ]
+  }
+}
