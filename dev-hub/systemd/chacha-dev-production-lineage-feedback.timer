@@ -1,0 +1,13 @@
+[Unit]
+Description=ChaCha DEV production lineage feedback schedule
+
+[Timer]
+OnBootSec=45s
+OnUnitActiveSec=5min
+AccuracySec=15s
+RandomizedDelaySec=15s
+Persistent=true
+Unit=chacha-dev-production-lineage-feedback.service
+
+[Install]
+WantedBy=timers.target
