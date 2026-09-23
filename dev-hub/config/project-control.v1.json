@@ -34,7 +34,10 @@
     "lazy_branch_materialization": true,
     "central_memory_survives_branch_teardown": true,
     "verified_evidence_learning_is_asynchronous": true,
-    "verified_success_requires_exact_lineage_for_confidence": true
+    "verified_success_requires_exact_lineage_for_confidence": true,
+    "learning_lineage_is_derived_from_trusted_dispatch": true,
+    "untrusted_provider_learning_context_is_never_ingested": true,
+    "verified_result_is_enriched_only_after_independent_verification": true
   },
   "interfaces": {
     "cli": {
@@ -128,7 +131,8 @@
     "autonomy_audit": "dev-hub/bin/autonomy-audit.py",
     "branch_foundry_planner": "dev-hub/bin/branch-foundry-planner.py",
     "branch_blueprint_optimizer": "dev-hub/bin/branch-blueprint-optimizer.py",
-    "verified_evidence_learning": "dev-hub/bin/verified-evidence-learning.py"
+    "verified_evidence_learning": "dev-hub/bin/verified-evidence-learning.py",
+    "trusted_dispatch_learning": "dev-hub/bin/trusted_dispatch_learning.py"
   },
   "status_model": [
     "READY",
