@@ -6,6 +6,7 @@ on:
     paths:
       - 'dev-hub/bin/controlled-production-handoff-controller.py'
       - 'dev-hub/bin/pilot-v639-controlled-production-handoff-dry-run.sh'
+      - 'dev-hub/bin/pilot-v639-cloudflare-pages-production-adapter-runtime.sh'
       - 'dev-hub/bin/controlled-production-adapter.py'
       - 'dev-hub/adapters/cloudflare-pages-production-adapter.py'
       - 'dev-hub/bin/qualify-cloudflare-pages-production-adapter.py'
@@ -80,6 +81,7 @@ jobs:
             bash -n dev-hub/bin/install-v638-full-autonomous-golden-path.sh
           fi
           bash -n dev-hub/bin/pilot-v639-controlled-production-handoff-dry-run.sh
+          bash -n dev-hub/bin/pilot-v639-cloudflare-pages-production-adapter-runtime.sh
           echo CHACHA_DEV_V639_STATIC=PASS
 
       - name: V6.39 controlled production handoff
@@ -173,6 +175,8 @@ jobs:
             echo CLOUDFLARE_PAGES_CONTRACT_OK_PROMOTION=RECORDED
             echo CLOUDFLARE_PAGES_SANDBOX_PROVISIONING=REQUIRED
             echo CLOUDFLARE_PAGES_REAL_VPS_PROVISIONING=NO
+            echo CLOUDFLARE_PAGES_RUNTIME_PILOT=AVAILABLE
+            echo CLOUDFLARE_PAGES_PILOT_PROMOTION_APPLIED=NO
             echo V638_REGRESSION=YES
             echo RESULT=success
             echo SOURCE_REV="$(git rev-parse HEAD)"
