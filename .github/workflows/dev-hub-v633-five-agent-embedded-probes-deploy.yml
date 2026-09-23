@@ -142,9 +142,15 @@ jobs:
             sleep 3
           done
           test "$ok" = 1
-          code="$(curl -sS -o /tmp/peripheral-probe.json -w '%{http_code}'             -X POST "$EXCHANGE/v1/peripheral-events"             -H 'content-type: application/json'             --data '{"schema":"invalid-probe"}')"
-          test "$code" = "400"
-          grep -Fq '"project_event_batch_schema_invalid"' /tmp/peripheral-probe.json
+          code="$(curl -sS -o /tmp/peripheral-probe.json -w '%{http_code}' \
+            -X POST "$EXCHANGE/v1/peripheral-events" \
+            -H 'content-type: application/json' \
+            --data '{"schema":"chacha.dev/project-assurance-event-batch/v1","project_id":"v633-route-probe","events":[{}]}')"
+          echo "PERIPHERAL_ROUTE_HTTP=$code"
+          cat /tmp/peripheral-probe.json
+          test "$code" = "401"
+          grep -Fq '"project_assurance_auth_invalid"' /tmp/peripheral-probe.json
           echo CHACHA_DEV_V633_FIVE_AGENT_EXCHANGE_INGRESS=PASS
+          echo CHACHA_DEV_V633_PROJECT_IDENTITY_GATE=PASS
           echo CHACHA_DEV_V633_DIRECT_MUTATION=NO
           echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
