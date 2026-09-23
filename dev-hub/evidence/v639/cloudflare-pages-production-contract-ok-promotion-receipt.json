@@ -1,0 +1,21 @@
+{
+  "schema": "chacha.dev/adapter-promotion-receipt/v1",
+  "adapter": "cloudflare-pages-production-adapter",
+  "transition": "DESIGNED->CONTRACT_OK",
+  "status": "COMMITTED",
+  "applied": true,
+  "actor": "central-orchestrator",
+  "evidence_source": "dev-hub/evidence/v639/cloudflare-pages-production-contract-ok-evidence.json",
+  "evidence_commit": "18e615e6f04399d1e24ce2b004f9635466d130e1",
+  "registry_commit": "ce6326e5267b9f25c5460921e59aaedc3e35a522",
+  "source_revision_qualified": "ea470e9852af4d7911a7da2e646e18accb6bd069",
+  "executable_before": null,
+  "executable_after": null,
+  "production_capable": true,
+  "production_execution_enabled": false,
+  "production_mutation": false,
+  "real_production_target": false,
+  "human_production_enablement_approval_required_later": true,
+  "automatic_external_spend_eur": 0,
+  "committed_at": "2026-09-23T15:56:00Z"
+}
