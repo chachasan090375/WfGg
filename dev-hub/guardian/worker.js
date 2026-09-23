@@ -572,39 +572,60 @@ async function check(req,env){
   },["PASS","WARNING"].includes(evaluation.verdict)?200:409);
 }
 
-async function resolveCoverageRemediations(env,componentId,snapshotId){
-  const alertIds=["coverage-missing-","coverage-inactive-","coverage-stale-"].map(p=>p+componentId);
+async function resolveCoverageRemediations(env,activeComponentIds,snapshotId){
+  const active=new Set((activeComponentIds||[]).map(String));
+  if(!active.size)return 0;
+  const roots=(await env.DB.prepare(
+    `SELECT directive_id,source_alert_id
+       FROM remediation_directives
+      WHERE status IN ('OPEN','DELIVERED')
+        AND (source_alert_id LIKE 'coverage-missing-%'
+          OR source_alert_id LIKE 'coverage-inactive-%'
+          OR source_alert_id LIKE 'coverage-stale-%')
+      ORDER BY created_at ASC`
+  ).all()).results||[];
+  const pending=roots.filter(row=>{
+    const aid=String(row.source_alert_id||"");
+    for(const prefix of ["coverage-missing-","coverage-inactive-","coverage-stale-"]){
+      if(aid.startsWith(prefix))return active.has(aid.slice(prefix.length));
+    }
+    return false;
+  });
+  if(!pending.length)return 0;
+
+  const dependents=(await env.DB.prepare(
+    "SELECT directive_id,source_alert_id,rule_codes_json FROM remediation_directives WHERE status IN ('OPEN','DELIVERED') AND rule_codes_json LIKE '%REMEDIATION_REQUIRED:%' ORDER BY created_at ASC"
+  ).all()).results||[];
+
   let resolved=0;
-  for(const alertId of alertIds){
-    const roots=(await env.DB.prepare(
-      "SELECT directive_id,source_alert_id FROM remediation_directives WHERE source_alert_id=?1 AND status IN ('OPEN','DELIVERED') ORDER BY created_at ASC"
-    ).bind(alertId).all()).results||[];
-    for(const row of roots){
-      const rid=String(row.directive_id);
+  for(const row of pending){
+    const rid=String(row.directive_id),aid=String(row.source_alert_id||"");
+    const componentId=["coverage-missing-","coverage-inactive-","coverage-stale-"]
+      .reduce((v,p)=>v||(aid.startsWith(p)?aid.slice(p.length):""),"");
+    await env.DB.prepare(
+      "UPDATE remediation_directives SET status='APPLIED',applied_at=datetime('now'),resolution_evidence_json=?2 WHERE directive_id=?1 AND status IN ('OPEN','DELIVERED')"
+    ).bind(rid,stable({source:"coverage-heartbeat",snapshot_id:snapshotId,component_id:componentId,hook_active:true})).run();
+    await env.DB.prepare(
+      "UPDATE remediation_holds SET active=0,cleared_at=datetime('now') WHERE directive_id=?1 AND active=1"
+    ).bind(rid).run();
+    await env.DB.prepare("UPDATE guardian_alerts SET status='ACKED' WHERE alert_id=?1 AND status='OPEN'").bind(aid).run();
+    resolved++;
+
+    for(const dep of dependents){
+      let rules=[];
+      try{rules=JSON.parse(dep.rule_codes_json||"[]");}catch{rules=[];}
+      if(!Array.isArray(rules)||!rules.includes("REMEDIATION_REQUIRED:"+rid))continue;
+      const did=String(dep.directive_id);
       await env.DB.prepare(
         "UPDATE remediation_directives SET status='APPLIED',applied_at=datetime('now'),resolution_evidence_json=?2 WHERE directive_id=?1 AND status IN ('OPEN','DELIVERED')"
-      ).bind(rid,stable({source:"coverage-heartbeat",snapshot_id:snapshotId,component_id:componentId,hook_active:true})).run();
+      ).bind(did,stable({source:"upstream-coverage-remediation-resolved",upstream_directive_id:rid,snapshot_id:snapshotId,component_id:componentId})).run();
       await env.DB.prepare(
         "UPDATE remediation_holds SET active=0,cleared_at=datetime('now') WHERE directive_id=?1 AND active=1"
-      ).bind(rid).run();
-      await env.DB.prepare("UPDATE guardian_alerts SET status='ACKED' WHERE alert_id=?1 AND status='OPEN'").bind(alertId).run();
+      ).bind(did).run();
+      if(dep.source_alert_id)await env.DB.prepare(
+        "UPDATE guardian_alerts SET status='ACKED' WHERE alert_id=?1 AND status='OPEN'"
+      ).bind(String(dep.source_alert_id)).run();
       resolved++;
-      const dependents=(await env.DB.prepare(
-        "SELECT directive_id,source_alert_id FROM remediation_directives WHERE status IN ('OPEN','DELIVERED') AND rule_codes_json LIKE ?1 ORDER BY created_at ASC"
-      ).bind("%REMEDIATION_REQUIRED:"+rid+"%").all()).results||[];
-      for(const dep of dependents){
-        const did=String(dep.directive_id);
-        await env.DB.prepare(
-          "UPDATE remediation_directives SET status='APPLIED',applied_at=datetime('now'),resolution_evidence_json=?2 WHERE directive_id=?1 AND status IN ('OPEN','DELIVERED')"
-        ).bind(did,stable({source:"upstream-coverage-remediation-resolved",upstream_directive_id:rid,snapshot_id:snapshotId,component_id:componentId})).run();
-        await env.DB.prepare(
-          "UPDATE remediation_holds SET active=0,cleared_at=datetime('now') WHERE directive_id=?1 AND active=1"
-        ).bind(did).run();
-        if(dep.source_alert_id)await env.DB.prepare(
-          "UPDATE guardian_alerts SET status='ACKED' WHERE alert_id=?1 AND status='OPEN'"
-        ).bind(String(dep.source_alert_id)).run();
-        resolved++;
-      }
     }
   }
   return resolved;
@@ -639,9 +660,6 @@ async function coverage(req,env){
        ON CONFLICT(component_id) DO UPDATE SET snapshot_id=excluded.snapshot_id,last_seen=datetime('now'),
        hook_active=excluded.hook_active,details_json=excluded.details_json`
     ).bind(String(e.component_id),snapshotId,active?1:0,stable(c)).run();
-    if(active){
-      resolvedRemediations+=await resolveCoverageRemediations(env,String(e.component_id),snapshotId);
-    }
     if(!active){
       inactive.push(String(e.component_id));
       if(order(String(e.criticality))>order(severity))severity=String(e.criticality);
@@ -650,6 +668,8 @@ async function coverage(req,env){
         reasons:["GUARDIAN_HOOK_INACTIVE"],payload:c});
     }
   }
+  const activeIds=components.filter(x=>x&&x.component_id&&x.hook_active===true).map(x=>String(x.component_id));
+  resolvedRemediations=await resolveCoverageRemediations(env,activeIds,snapshotId);
   for(const id of got.keys())if(!expected.some(e=>String(e.component_id)===id))unknown.push(id);
   if(unknown.length&&order("WARNING")>order(severity))severity="WARNING";
   const verdict=verdictFromSeverity(severity);
@@ -773,7 +793,7 @@ export default {
       corrective_enforcement:true,remediation_holds:true,remediation_retry_limit:3,
       production_learning_anomaly_bridge:true,production_anomaly_direct_mutation:false,
       central_memory_assimilation_evidence_required:true,contextual_memory_recall_evidence_required:true,
-      coverage_remediation_auto_resolution:true,remediation_cascade_suppression:true
+      coverage_remediation_auto_resolution:true,coverage_remediation_batched:true,remediation_cascade_suppression:true
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/learning-anomalies/report")return reportLearningAnomaly(req,env);
