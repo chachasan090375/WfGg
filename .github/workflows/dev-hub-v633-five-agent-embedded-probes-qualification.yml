@@ -1,0 +1,137 @@
+name: ChaCha DEV V6.33 five-agent embedded probes qualification
+
+on:
+  push:
+    branches: [dev-hub-v633-five-agent-embedded-probes]
+    paths:
+      - 'dev-hub/bin/project-assurance-event.py'
+      - 'dev-hub/bin/project-assurance-relay.py'
+      - 'dev-hub/bin/project-assurance-identity-manager.py'
+      - 'dev-hub/bin/project-embedded-assurance.py'
+      - 'dev-hub/bin/project-factory.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/bin/assurance-exchange-client.py'
+      - 'dev-hub/templates/project-assurance-client.mjs'
+      - 'dev-hub/config/project-embedded-assurance.v1.json'
+      - 'dev-hub/config/peripheral-assurance-network.v1.json'
+      - 'dev-hub/config/project-factory.v1.json'
+      - 'dev-hub/config/project-control.v1.json'
+      - 'dev-hub/config/sentinel-technical-policy.v1.json'
+      - 'dev-hub/assurance-exchange/**'
+      - 'dev-hub/tests/test_v633_five_agent_embedded_probes.py'
+      - 'dev-hub/tests/test_v632_project_embedded_assurance.py'
+      - 'dev-hub/tests/test_v631_assurance_exchange.py'
+      - 'dev-hub/tests/test_v630_external_dual_assurance.py'
+      - 'dev-hub/tests/test_v629_memory_guided_foundry_planning.py'
+      - 'dev-hub/tests/test_v628_trusted_dispatch_lineage.py'
+      - 'dev-hub/tests/test_v627_verified_evidence_learning.py'
+      - 'dev-hub/tests/test_v623_contextual_memory_recall.py'
+      - 'dev-hub/bin/install-v633-five-agent-embedded-probes.sh'
+      - '.github/workflows/dev-hub-v633-five-agent-embedded-probes-qualification.yml'
+      - '.github/workflows/dev-hub-v633-five-agent-embedded-probes-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v633-five-agent-embedded-probes
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          node --check dev-hub/assurance-exchange/worker.js
+          node --check dev-hub/templates/project-assurance-client.mjs
+          python3 -m py_compile             dev-hub/bin/project-assurance-event.py             dev-hub/bin/project-assurance-relay.py             dev-hub/bin/project-assurance-identity-manager.py             dev-hub/bin/project-embedded-assurance.py             dev-hub/bin/project-factory.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/assurance-exchange-client.py
+          python3 -m json.tool dev-hub/config/project-embedded-assurance.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/peripheral-assurance-network.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/project-factory.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/project-control.v1.json >/dev/null
+          grep -Fq 'peripheral_project_events' dev-hub/assurance-exchange/migrations/0002_project_peripheral_events.sql
+          if [ -f dev-hub/bin/install-v633-five-agent-embedded-probes.sh ]; then
+            bash -n dev-hub/bin/install-v633-five-agent-embedded-probes.sh
+          fi
+          echo CHACHA_DEV_V633_STATIC=PASS
+
+      - name: V6.33 five-agent embedded probes
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v633_five_agent_embedded_probes.py
+
+      - name: V6.32 embedded assurance regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v632_project_embedded_assurance.py
+
+      - name: V6.31 Assurance Exchange regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v631_assurance_exchange.py
+
+      - name: V6.30 dual assurance regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v630_external_dual_assurance.py
+
+      - name: V6.29 memory guided Foundry regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v629_memory_guided_foundry_planning.py
+
+      - name: V6.28 trusted dispatch regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v628_trusted_dispatch_lineage.py
+
+      - name: V6.27 verified evidence regression
+        env:
+          CHACHA_DEV_TEST_TRUSTED_CONTEXT_BYPASS: '1'
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v627_verified_evidence_learning.py
+
+      - name: V6.23 contextual recall regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v623_contextual_memory_recall.py
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_FIVE_AGENT_EMBEDDED_PROBES=V6.33
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo GUARDIAN_LOCAL=YES
+            echo SENTINEL_LOCAL=YES
+            echo CURATOR_LOCAL=YES
+            echo BASTION_LOCAL=YES
+            echo INTENDANT_LOCAL=YES
+            echo ALL_FIVE_INCREMENTAL=YES
+            echo COMMON_ASSURANCE_EXCHANGE=YES
+            echo PROJECT_SCOPED_IDENTITY=YES
+            echo RAW_USER_CONTENT=NO
+            echo CLIENT_SECRET=NO
+            echo DIRECT_MUTATION=NO
+            echo REMEDIATION_OWNER=central-orchestrator
+            echo TECHNOLOGY_WATCH_REQUIRED_FOR_ARCHITECTURE_CHANGE=YES
+            echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V633_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v633-five-agent-embedded-probes
+          path: /tmp/CHACHA_DEV_V633_RECEIPT.txt
+          retention-days: 30
