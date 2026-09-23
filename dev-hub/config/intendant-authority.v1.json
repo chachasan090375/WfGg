@@ -1,0 +1,25 @@
+{
+  "schema": "chacha.dev/intendant-authority-policy/v1",
+  "version": "1.0.0",
+  "role": "intendant",
+  "scope": "COST_RESOURCES",
+  "local_probe_role": "intendant",
+  "accept_severities": [
+    "INFO",
+    "WARNING"
+  ],
+  "revise_severities": [
+    "BLOCK"
+  ],
+  "block_severities": [
+    "CRITICAL"
+  ],
+  "review_rules": {
+    "automatic_external_spend_eur": 0,
+    "cost_signal_is_advisory_until_verified": true,
+    "resource_exhaustion_can_block": true,
+    "cheaper_option_must_remain_technically_admissible": true,
+    "technology_watch_used_for_material_cost_architecture_tradeoff": true
+  },
+  "direct_mutation": false
+}
