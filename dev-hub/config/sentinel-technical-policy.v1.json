@@ -1,0 +1,55 @@
+{
+  "schema": "chacha.dev/sentinel-technical-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "principles": {
+    "external_technical_assurance": true,
+    "observer_and_tester_only": true,
+    "direct_code_mutation": false,
+    "direct_application_mutation": false,
+    "central_orchestrator_owns_remediation": true,
+    "exact_revision_required": true,
+    "evidence_over_declaration": true,
+    "preproduction_gate_required": true,
+    "continuous_commit_assurance": true
+  },
+  "blocking_checks": [
+    "merge-conflict-markers",
+    "syntax",
+    "mandatory-tests",
+    "test-plan-execution",
+    "release-revision-match"
+  ],
+  "advisory_checks": [
+    "long-lines",
+    "large-files",
+    "large-python-functions",
+    "trailing-whitespace",
+    "todo-fixme-density"
+  ],
+  "thresholds": {
+    "max_line_length_warning": 240,
+    "max_file_lines_warning": 2500,
+    "max_python_function_lines_warning": 180,
+    "max_todo_fixme_per_1000_lines_warning": 25
+  },
+  "mandatory_platform_tests": [
+    "dev-hub/tests/test_v629_memory_guided_foundry_planning.py",
+    "dev-hub/tests/test_v628_trusted_dispatch_lineage.py",
+    "dev-hub/tests/test_v627_verified_evidence_learning.py",
+    "dev-hub/tests/test_v623_contextual_memory_recall.py"
+  ],
+  "test_environment": {
+    "PYTHONPATH": "dev-hub/bin",
+    "CHACHA_DEV_TEST_TRUSTED_CONTEXT_BYPASS": "1"
+  },
+  "release_gate": {
+    "github_workflow_name": "ChaCha DEV Sentinel technical assurance",
+    "required_conclusion": "success",
+    "guardian_requires_sentinel_receipt": true,
+    "receipt_ttl_minutes": 1440
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}
