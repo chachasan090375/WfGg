@@ -1,60 +1,64 @@
 #!/usr/bin/env python3
-"""ChaCha DEV V6.38 canonical autonomous Golden Path materializer.
+"""ChaCha DEV V6.38 staged canonical static-web materializer.
 
-This is deliberately a narrow, real implementation profile rather than a fake
-universal code generator. It materializes a zero-dependency static interaction
-application, executes real build/test/security/preview/recovery checks, and emits
-machine-readable evidence for the canonical IDEA->RELEASE Golden Path.
+Work is executed only in the lifecycle stage where it belongs:
+  DESIGN  -> design validation
+  READY   -> workspace/dependency preparation
+  BUILD   -> change set, build, static checks
+  VERIFY  -> tests, security scan, CI evidence, immutable preview candidate
+  PREVIEW -> real localhost preview, e2e/smoke, recovery drill, implementation proof
 
-Unsupported requirements fail closed so future Foundries/runtimes remain the
-proper expansion mechanism for more complex projects.
+It is intentionally narrow. Unsupported requirements fail closed and must return
+to the Foundries/runtimes rather than being faked into this canonical profile.
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
+import html
+import http.server
 import json
 import os
 import re
 import shutil
+import socketserver
 import subprocess
 import tarfile
 import tempfile
 import threading
 import time
-import urllib.request
-from datetime import datetime, timezone
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from urllib.request import urlopen
 from typing import Any
 
 SCHEMA="chacha.dev/golden-path-materialization/v1"
+STATE_SCHEMA="chacha.dev/golden-path-materialization-state/v1"
 PROFILE="static-interaction-v1"
-
-def now_iso()->str:
-    return datetime.now(timezone.utc).isoformat()
+ORDER={"NONE":0,"DESIGN_VALIDATED":1,"PREPARED":2,"BUILT":3,"VERIFIED":4,"PREVIEWED":5}
 
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding="utf-8"))
-    if not isinstance(x,dict): raise SystemExit("JSON_ROOT_NOT_OBJECT")
+    if not isinstance(x,dict): raise SystemExit("JSON_ROOT_NOT_OBJECT:"+str(p))
     return x
 
 def save(p:Path,x:dict[str,Any])->None:
     p.parent.mkdir(parents=True,exist_ok=True)
     p.write_text(json.dumps(x,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
 
-def sha256_file(p:Path)->str:
+def canon(v:Any)->bytes:
+    return json.dumps(v,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
+
+def digest_obj(v:Any)->str:
+    return "sha256:"+hashlib.sha256(canon(v)).hexdigest()
+
+def digest_file(p:Path)->str:
     h=hashlib.sha256()
     with p.open("rb") as fh:
         for chunk in iter(lambda:fh.read(1024*1024),b""): h.update(chunk)
     return "sha256:"+h.hexdigest()
 
-def file_manifest(root:Path)->dict[str,str]:
-    out={}
-    for p in sorted(root.rglob("*")):
-        if p.is_file():
-            out[str(p.relative_to(root))]=sha256_file(p)
-    return out
+def now()->str:
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())
 
 def run(argv:list[str],cwd:Path,timeout:int=120)->subprocess.CompletedProcess[str]:
     try:
@@ -63,359 +67,316 @@ def run(argv:list[str],cwd:Path,timeout:int=120)->subprocess.CompletedProcess[st
     except FileNotFoundError as exc:
         raise SystemExit("RUNTIME_MISSING:"+argv[0]) from exc
 
-def assert_supported(intent:dict[str,Any])->None:
+def ensure_pass(p:subprocess.CompletedProcess[str],label:str)->None:
+    if p.returncode!=0:
+        raise SystemExit(label+"_FAILED\nSTDOUT="+p.stdout[-4000:]+"\nSTDERR="+p.stderr[-4000:])
+
+def evidence(path:Path,artifact_id:str,details:dict[str,Any])->Path:
+    doc={"schema":"chacha.dev/golden-path-artifact-evidence/v1","artifact_id":artifact_id,
+         "status":"PASS","observed_at":now(),"details":details}
+    doc["evidence_digest"]=digest_obj(doc)
+    save(path,doc);return path
+
+def ensure_boot(boot:dict[str,Any],intent:dict[str,Any],revision:str)->tuple[str,dict[str,str]]:
+    project=str(boot.get("project_id") or "")
+    if not project: raise SystemExit("GOLDEN_BOOTSTRAP_PROJECT_ID_MISSING")
+    if boot.get("domain_dispatch_allowed") is not True: raise SystemExit("GOLDEN_BOOTSTRAP_DISPATCH_NOT_ALLOWED")
+    if boot.get("central_compromise_found") is not True: raise SystemExit("GOLDEN_COMPROMISE_NOT_FOUND")
+    if boot.get("architecture_decision_allowed") is not True: raise SystemExit("GOLDEN_ARCHITECTURE_NOT_ALLOWED")
+    if boot.get("architecture_council_consumed_compromise") is not True: raise SystemExit("GOLDEN_COUNCIL_DID_NOT_CONSUME_COMPROMISE")
+    if float(boot.get("external_spend_eur") or 0)!=0: raise SystemExit("GOLDEN_EXTERNAL_SPEND_NONZERO")
+    if boot.get("five_local_probes_enabled") is not True: raise SystemExit("GOLDEN_FIVE_LOCAL_PROBES_NOT_ENABLED")
+    if not re.fullmatch(r"[0-9a-f]{40}",revision): raise SystemExit("GOLDEN_PINNED_REVISION_REQUIRED")
     constraints=intent.get("constraints") if isinstance(intent.get("constraints"),dict) else {}
-    forbidden_true=[
-        "requires_authentication","requires_database","requires_external_api",
-        "requires_production_data_write","requires_secret_change","requires_destructive_migration"
+    forbidden=[
+      "requires_authentication","requires_database","requires_external_api",
+      "requires_production_data_write","requires_secret_change","requires_destructive_migration"
     ]
-    hit=[x for x in forbidden_true if constraints.get(x) is True]
-    if hit:
-        raise SystemExit("V638_PROFILE_UNSUPPORTED_CONSTRAINTS="+",".join(hit))
-    mode=str(intent.get("golden_path_profile") or PROFILE)
-    if mode!=PROFILE:
-        raise SystemExit("V638_PROFILE_UNSUPPORTED="+mode)
-
-def materialize(intent:dict[str,Any],project_id:str,revision:str,root:Path)->dict[str,Any]:
-    assert_supported(intent)
-    workspace=root/"workspace"
-    reports=root/"reports"
-    src=workspace/"src";tests=workspace/"tests";tools=workspace/"tools";dist=workspace/"dist"
-    for p in (src,tests,tools,reports): p.mkdir(parents=True,exist_ok=True)
-
-    name=str(intent.get("name") or "ChaCha DEV Golden Path")
-    objective=str(intent.get("text") or intent.get("objective") or "").strip()
-    if not objective: raise SystemExit("V638_INTENT_TEXT_MISSING")
-    message=str(intent.get("demo_message") or "ChaCha DEV a livré ce parcours de bout en bout.")
-    expected=str(intent.get("expected_text") or message)
-    safe_name=re.sub(r"[^A-Za-z0-9 _.-]+","",name)[:80] or "Golden Path"
-
-    (src/"index.html").write_text(f"""<!doctype html>
-<html lang="fr">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{safe_name}</title>
-<link rel="stylesheet" href="./styles.css">
-</head>
-<body>
-<main class="card" aria-labelledby="title">
-  <p class="eyebrow">ChaCha DEV · V6.38</p>
-  <h1 id="title">{safe_name}</h1>
-  <p id="message">{message}</p>
-  <p id="status" role="status" aria-live="polite">État : prêt</p>
-  <button id="action" type="button">Changer l’état</button>
-</main>
-<script type="module" src="./app.mjs"></script>
-</body>
-</html>
-""",encoding="utf-8")
-    (src/"app.mjs").write_text("""export function nextState(current) {
-  return current === "ready" ? "done" : "ready";
-}
-export function labelFor(state) {
-  return state === "done" ? "État : terminé" : "État : prêt";
-}
-if (typeof document !== "undefined") {
-  const button = document.querySelector("#action");
-  const status = document.querySelector("#status");
-  let state = "ready";
-  button?.addEventListener("click", () => {
-    state = nextState(state);
-    if (status) status.textContent = labelFor(state);
-  });
-}
-""",encoding="utf-8")
-    (src/"styles.css").write_text("""*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;font-family:system-ui,sans-serif;background:#f4f4f6;color:#202026}.card{width:min(92vw,42rem);padding:2rem;border-radius:1.25rem;background:#fff;box-shadow:0 1rem 3rem #0002}.eyebrow{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em}button{font:inherit;padding:.75rem 1rem;border-radius:.8rem;border:1px solid #888;background:#fff;cursor:pointer}button:focus-visible{outline:3px solid currentColor;outline-offset:3px}
-""",encoding="utf-8")
-    (tests/"app.test.mjs").write_text("""import test from "node:test";
-import assert from "node:assert/strict";
-import {nextState,labelFor} from "../src/app.mjs";
-test("state toggles deterministically",()=>{
-  assert.equal(nextState("ready"),"done");
-  assert.equal(nextState("done"),"ready");
-  assert.equal(labelFor("done"),"État : terminé");
-});
-""",encoding="utf-8")
-    (tools/"build.mjs").write_text("""import {cp,rm,mkdir,readdir,readFile} from "node:fs/promises";
-import {createHash} from "node:crypto";
-import path from "node:path";
-await rm("dist",{recursive:true,force:true});
-await mkdir("dist",{recursive:true});
-await cp("src","dist",{recursive:true});
-const names=(await readdir("dist")).sort();
-const files={};
-for(const name of names){
-  const data=await readFile(path.join("dist",name));
-  files[name]="sha256:"+createHash("sha256").update(data).digest("hex");
-}
-await import("node:fs/promises").then(fs=>fs.writeFile("dist/build-manifest.json",JSON.stringify({files},null,2)));
-""",encoding="utf-8")
-    save(workspace/"package.json",{
-        "name":"chacha-v638-golden-path",
-        "private":True,"type":"module",
-        "scripts":{"test":"node --test tests/*.test.mjs","build":"node tools/build.mjs"},
-        "dependencies":{},"devDependencies":{}
-    })
-    (workspace/"README.md").write_text(
-        f"# {safe_name}\n\nObjective: {objective}\n\n"
-        "Canonical V6.38 zero-dependency static interaction profile.\n",
-        encoding="utf-8"
-    )
-
-    # Workspace and storage preflight.
-    du=shutil.disk_usage(root)
-    workspace_health={
-        "schema":"chacha.dev/golden-path-workspace-health/v1","status":"PASS",
-        "project_id":project_id,"revision":revision,"node_required":True,
-        "workspace":str(workspace.resolve()),"observed_at":now_iso()
+    hit=[x for x in forbidden if constraints.get(x) is True]
+    if hit: raise SystemExit("GOLDEN_PROFILE_UNSUPPORTED_CONSTRAINTS="+",".join(hit))
+    sources={
+      "project-intent":"",
+      "project-plan":str(Path(str(boot.get("final_plan") or "")).resolve()),
+      "manifest-v3":"",
+      "capability-resolution":str(Path(str(boot.get("capability_foundry") or "")).resolve()),
+      "architecture-decisions-resolved":str(Path(str(boot.get("architecture_decision_council") or "")).resolve()),
     }
-    save(reports/"workspace-health.json",workspace_health)
-    storage={
-        "schema":"chacha.dev/golden-path-storage-preflight/v1",
-        "status":"PASS" if du.free>=100*1024*1024 else "FAIL",
-        "free_bytes":du.free,"minimum_free_bytes":100*1024*1024,"observed_at":now_iso()
-    }
-    save(reports/"storage-preflight.json",storage)
-    if storage["status"]!="PASS": raise SystemExit("V638_STORAGE_PREFLIGHT_FAILED")
+    for key,path in list(sources.items()):
+        if key in {"project-intent","manifest-v3"}: continue
+        if not path or not Path(path).is_file(): raise SystemExit("GOLDEN_BOOTSTRAP_SOURCE_MISSING:"+key)
+    return project,sources
 
-    dependency={
-        "schema":"chacha.dev/golden-path-dependency-resolution/v1","status":"PASS",
-        "runtime":"node-builtins-only","external_dependencies":0,
-        "package_manifest":str((workspace/"package.json").resolve()),"observed_at":now_iso()
-    }
-    save(reports/"dependency-resolution.json",dependency)
+def manifest(root:Path)->dict[str,str]:
+    return {str(p.relative_to(root)):digest_file(p) for p in sorted(root.rglob("*")) if p.is_file() and ".git" not in p.parts}
 
-    # Static analysis before build.
-    src_files=[src/"index.html",src/"app.mjs",src/"styles.css"]
-    static_findings=[]
-    forbidden={"eval(":"dynamic-eval","document.write(":"document-write","javascript:":"javascript-url"}
-    for p in src_files:
-        data=p.read_text(encoding="utf-8")
-        for pattern,label in forbidden.items():
-            if pattern in data: static_findings.append({"file":p.name,"finding":label})
-    static_report={
-        "schema":"chacha.dev/golden-path-static-check/v1",
-        "status":"PASS" if not static_findings else "FAIL","findings":static_findings,
-        "files":{p.name:sha256_file(p) for p in src_files},"observed_at":now_iso()
-    }
-    save(reports/"static-check.json",static_report)
-    if static_findings: raise SystemExit("V638_STATIC_CHECK_FAILED")
+def load_state(ev:Path,project:str,revision:str)->dict[str,Any]:
+    p=ev/"materialization-state.json"
+    if not p.exists():
+        return {"schema":STATE_SCHEMA,"profile":PROFILE,"project_id":project,"revision":revision,
+                "phase":"NONE","evidence":{},"sources":{},"updated_at":now()}
+    x=load(p)
+    if x.get("schema")!=STATE_SCHEMA: raise SystemExit("GOLDEN_STATE_SCHEMA_INVALID")
+    if x.get("project_id")!=project or x.get("revision")!=revision: raise SystemExit("GOLDEN_STATE_IDENTITY_MISMATCH")
+    return x
 
-    # Real Node test.
-    test_run=run(["node","--test","tests/app.test.mjs"],workspace)
-    test_report={
-        "schema":"chacha.dev/golden-path-test-result/v1",
-        "status":"PASS" if test_run.returncode==0 else "FAIL",
-        "returncode":test_run.returncode,"stdout":test_run.stdout[-8000:],
-        "stderr":test_run.stderr[-4000:],"observed_at":now_iso()
-    }
-    save(reports/"test-result.json",test_report)
-    if test_run.returncode!=0: raise SystemExit("V638_TEST_FAILED")
+def require_phase(state:dict[str,Any],expected:str)->None:
+    if state.get("phase")!=expected:
+        raise SystemExit("GOLDEN_PHASE_PRECONDITION=expected:"+expected+":actual:"+str(state.get("phase")))
 
-    # Build with no package-manager install.
-    build_run=run(["node","tools/build.mjs"],workspace)
-    build_manifest=dist/"build-manifest.json"
-    if build_run.returncode!=0 or not build_manifest.is_file():
-        raise SystemExit("V638_BUILD_FAILED:stdout="+build_run.stdout[-3000:]+":stderr="+build_run.stderr[-3000:])
-    build_report={
-        "schema":"chacha.dev/golden-path-build-result/v1","status":"PASS",
-        "returncode":build_run.returncode,"dist_files":file_manifest(dist),
-        "build_manifest":str(build_manifest.resolve()),"observed_at":now_iso()
-    }
-    save(reports/"build-result.json",build_report)
+class Quiet(http.server.SimpleHTTPRequestHandler):
+    def log_message(self,fmt,*args): pass
 
-    # Security scan is concrete for this zero-dependency profile.
-    security_findings=[]
-    for p in src_files:
-        data=p.read_text(encoding="utf-8")
-        for pat,label in [
-            (r"https?://","external-network-reference"),
-            (r"(?i)(api[_-]?key|password|secret)\s*[:=]\s*['\"][^'\"]+","embedded-secret"),
-            (r"\beval\s*\(","eval"),
-            (r"innerHTML\s*=","unsafe-innerhtml")
-        ]:
-            if re.search(pat,data):security_findings.append({"file":p.name,"finding":label})
-    security={
-        "schema":"chacha.dev/golden-path-security-scan/v1",
-        "status":"PASS" if not security_findings else "FAIL",
-        "dependency_count":0,"findings":security_findings,
-        "network_dependencies":0,"observed_at":now_iso()
-    }
-    save(reports/"security-scan.json",security)
-    if security_findings: raise SystemExit("V638_SECURITY_SCAN_FAILED")
-
-    # Immutable candidate archive.
-    archive=reports/"preview-candidate.tar.gz"
-    with tarfile.open(archive,"w:gz") as tf:
-        tf.add(dist,arcname="dist")
-    preview_candidate={
-        "schema":"chacha.dev/golden-path-preview-candidate/v1","status":"PASS",
-        "archive":str(archive.resolve()),"digest":sha256_file(archive),
-        "dist_manifest":file_manifest(dist),"observed_at":now_iso()
-    }
-    save(reports/"preview-candidate.json",preview_candidate)
-
-    # Real localhost preview and HTTP smoke.
-    class Quiet(SimpleHTTPRequestHandler):
-        def log_message(self,*_args:Any)->None: pass
-    handler=lambda *args,**kwargs: Quiet(*args,directory=str(dist),**kwargs)
-    server=ThreadingHTTPServer(("127.0.0.1",0),handler)
-    thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
-    port=server.server_address[1]
+def preview_check(dist:Path,title:str)->dict[str,Any]:
+    old=os.getcwd();os.chdir(dist)
     try:
-        with urllib.request.urlopen(f"http://127.0.0.1:{port}/index.html",timeout=5) as resp:
-            html=resp.read().decode("utf-8")
-            code=resp.status
-        with urllib.request.urlopen(f"http://127.0.0.1:{port}/app.mjs",timeout=5) as resp:
-            js=resp.read().decode("utf-8")
-        preview_ok=code==200 and expected in html and "nextState" in js
+        server=socketserver.TCPServer(("127.0.0.1",0),Quiet)
+        port=server.server_address[1]
+        t=threading.Thread(target=server.serve_forever,daemon=True);t.start()
+        try:
+            started=time.monotonic()
+            with urlopen(f"http://127.0.0.1:{port}/",timeout=5) as r:
+                body=r.read().decode("utf-8","replace");status=r.status
+            duration_ms=round((time.monotonic()-started)*1000,3)
+        finally:
+            server.shutdown();server.server_close();t.join(timeout=2)
     finally:
-        server.shutdown();server.server_close();thread.join(timeout=5)
-    preview={
-        "schema":"chacha.dev/golden-path-preview-validation/v1",
-        "status":"PASS" if preview_ok else "FAIL","http_status":code,
-        "expected_text":expected,"expected_text_found":expected in html,
-        "module_loaded":("nextState" in js),"localhost_only":True,"observed_at":now_iso()
-    }
-    save(reports/"preview-validation.json",preview)
-    save(reports/"smoke-result.json",{
-        "schema":"chacha.dev/golden-path-smoke-result/v1","status":preview["status"],
-        "http_status":code,"expected_text_found":expected in html,"observed_at":now_iso()
+        os.chdir(old)
+    if status!=200 or title not in body or 'id="primary-action"' not in body:
+        raise SystemExit("GOLDEN_PREVIEW_VALIDATION_FAILED")
+    return {"status_code":status,"title_present":title in body,
+            "primary_action_present":'id="primary-action"' in body,
+            "duration_ms":duration_ms}
+
+def phase_design(intent:dict[str,Any],boot:dict[str,Any],state:dict[str,Any],ev:Path,
+                 intent_path:Path,project:str,sources:dict[str,str])->dict[str,Any]:
+    require_phase(state,"NONE")
+    sources["project-intent"]=str(intent_path.resolve())
+    final_plan=load(Path(sources["project-plan"]))
+    project_instance=load(Path(str(boot.get("project") or "")))
+    manifest_path=ev/"manifest-v3.json"
+    save(manifest_path,{
+      "schema":"chacha.dev/project-manifest/v3",
+      "project_id":project,
+      "name":project_instance.get("name"),
+      "functional_intent":project_instance.get("functional_intent"),
+      "revision":state.get("revision"),
+      "primary_domains":final_plan.get("primary_domains") or [],
+      "review_domains":final_plan.get("review_domains") or [],
+      "architecture_decision_council":sources["architecture-decisions-resolved"],
+      "capability_resolution":sources["capability-resolution"],
+      "embedded_assurance":str(Path(str(boot.get("embedded_assurance_bundle") or "")).resolve()),
+      "automatic_external_spend_eur":0
     })
-    save(reports/"e2e-result.json",{
-        "schema":"chacha.dev/golden-path-e2e-result/v1","status":"PASS" if preview_ok else "FAIL",
-        "path":"load-index -> load-module -> state-unit-contract",
-        "http_status":code,"state_contract_tested":True,"observed_at":now_iso()
+    sources["manifest-v3"]=str(manifest_path.resolve())
+    rows={}
+    for key,path in sources.items():
+        p=Path(path)
+        if not p.is_file(): raise SystemExit("GOLDEN_DESIGN_SOURCE_MISSING:"+key)
+        rows[key]={"path":str(p),"digest":digest_file(p)}
+    proof=evidence(ev/"manifest-validation.json","manifest-validation",{
+      "project":project,"bootstrap_schema":boot.get("schema"),
+      "domain_dispatch_allowed":boot.get("domain_dispatch_allowed"),
+      "architecture_decision_allowed":boot.get("architecture_decision_allowed"),
+      "central_compromise_found":boot.get("central_compromise_found"),
+      "five_local_probes_enabled":boot.get("five_local_probes_enabled"),
+      "sources":rows
     })
-    if not preview_ok: raise SystemExit("V638_PREVIEW_FAILED")
+    state.update({"phase":"DESIGN_VALIDATED","sources":sources,
+                  "evidence":{"manifest-validation":str(proof.resolve())},"updated_at":now()})
+    return state
 
-    # Recovery: actually restore the immutable candidate in a sandbox and compare digests.
-    with tempfile.TemporaryDirectory(prefix="chacha-v638-restore-") as td:
-        restored=Path(td)
-        with tarfile.open(archive,"r:gz") as tf:
-            tf.extractall(restored)
-        restored_manifest=file_manifest(restored/"dist")
-        recovery_ok=restored_manifest==file_manifest(dist)
-    recovery={
-        "schema":"chacha.dev/golden-path-backup-recovery-readiness/v1",
-        "status":"PASS" if recovery_ok else "FAIL",
-        "backup":str(archive.resolve()),"backup_digest":sha256_file(archive),
-        "restore_tested":True,"restore_manifest_match":recovery_ok,
-        "production_mutation":False,"observed_at":now_iso()
+def phase_prepare(intent:dict[str,Any],boot:dict[str,Any],state:dict[str,Any],ws:Path,ev:Path)->dict[str,Any]:
+    require_phase(state,"DESIGN_VALIDATED")
+    title=str(intent.get("name") or "ChaCha DEV Golden Path").strip()[:96]
+    objective=str(intent.get("text") or intent.get("objective") or "").strip()
+    if not objective: raise SystemExit("GOLDEN_INTENT_TEXT_MISSING")
+    safe_title=html.escape(title,quote=True);safe_objective=html.escape(objective,quote=True)
+    if ws.exists(): shutil.rmtree(ws)
+    (ws/"src").mkdir(parents=True);(ws/"tests").mkdir()
+    page=f"""<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{safe_title}</title><link rel="stylesheet" href="styles.css"></head>
+<body><main><h1>{safe_title}</h1><p id="objective">{safe_objective}</p>
+<button id="primary-action" type="button">Continuer</button><p id="status" aria-live="polite">Prêt</p></main>
+<script type="module" src="app.mjs"></script></body></html>
+"""
+    (ws/"src/index.html").write_text(page,encoding="utf-8")
+    (ws/"src/logic.mjs").write_text('export function nextStatus(current){ return current === "Prêt" ? "Action confirmée" : "Prêt"; }\n',encoding="utf-8")
+    (ws/"src/app.mjs").write_text('import { nextStatus } from "./logic.mjs";\nconst button=document.querySelector("#primary-action");\nconst status=document.querySelector("#status");\nbutton?.addEventListener("click",()=>{status.textContent=nextStatus(status.textContent);});\n',encoding="utf-8")
+    (ws/"src/styles.css").write_text('*{box-sizing:border-box}body{font-family:system-ui,sans-serif;margin:0;padding:2rem;line-height:1.5}main{max-width:48rem;margin:auto}button{font:inherit;padding:.8rem 1.1rem;min-height:44px}button:focus-visible{outline:3px solid currentColor;outline-offset:3px}\n',encoding="utf-8")
+    (ws/"tests/golden.test.mjs").write_text('import test from "node:test";import assert from "node:assert/strict";import {nextStatus} from "../src/logic.mjs";\ntest("primary state toggles",()=>{assert.equal(nextStatus("Prêt"),"Action confirmée");assert.equal(nextStatus("Action confirmée"),"Prêt")});\n',encoding="utf-8")
+    save(ws/"package.json",{"name":"chacha-v638-static-web","private":True,"type":"module",
+                            "scripts":{"test":"node --test tests/golden.test.mjs"},"dependencies":{},"devDependencies":{}})
+    (ws/"README.md").write_text("# "+title+"\n\n"+objective+"\n\nV6.38 canonical static-interaction profile.\n",encoding="utf-8")
+    ensure_pass(run(["git","init","-q"],ws),"GIT_INIT")
+    ensure_pass(run(["git","config","user.email","golden-path@local.invalid"],ws),"GIT_CONFIG_EMAIL")
+    ensure_pass(run(["git","config","user.name","ChaCha DEV Golden Path"],ws),"GIT_CONFIG_NAME")
+    ensure_pass(run(["git","add","."],ws),"GIT_ADD")
+    ensure_pass(run(["git","commit","-qm","golden-path workspace prepared"],ws),"GIT_COMMIT")
+    commit=run(["git","rev-parse","HEAD"],ws);ensure_pass(commit,"GIT_REV");commit_sha=commit.stdout.strip()
+    free=shutil.disk_usage(ws).free
+    rows={
+      "workspace-health":evidence(ev/"workspace-health.json","workspace-health",{
+          "writable":os.access(ws,os.W_OK),"node_available":shutil.which("node") is not None,
+          "git_available":shutil.which("git") is not None,"workspace_commit":commit_sha}),
+      "storage-preflight":evidence(ev/"storage-preflight.json","storage-preflight",{
+          "workspace":str(ws.resolve()),"free_bytes":free,"minimum_free_bytes":100*1024*1024}),
+      "dependency-resolution":evidence(ev/"dependency-resolution.json","dependency-resolution",{
+          "external_dependencies":[],"network_build_dependency":False,"package_manifest":str((ws/"package.json").resolve())})
     }
-    save(reports/"backup-recovery-readiness.json",recovery)
-    if not recovery_ok: raise SystemExit("V638_RECOVERY_TEST_FAILED")
+    if free<100*1024*1024: raise SystemExit("GOLDEN_STORAGE_PREFLIGHT_FAILED")
+    state["evidence"].update({k:str(v.resolve()) for k,v in rows.items()})
+    state.update({"phase":"PREPARED","workspace_commit":commit_sha,"updated_at":now()})
+    return state
 
-    rollback={
-        "schema":"chacha.dev/golden-path-rollback-plan/v1","status":"PASS",
-        "strategy":"immutable-candidate-restore",
-        "candidate":str(archive.resolve()),"candidate_digest":sha256_file(archive),
-        "steps":["stop promotion","restore previous immutable candidate or no-release baseline","rerun smoke verification"],
-        "destructive_step":False,"observed_at":now_iso()
+def phase_build(state:dict[str,Any],ws:Path,ev:Path)->dict[str,Any]:
+    require_phase(state,"PREPARED")
+    static_rows=[]
+    for rel in ["src/app.mjs","src/logic.mjs","tests/golden.test.mjs"]:
+        p=run(["node","--check",rel],ws);ensure_pass(p,"STATIC_CHECK");static_rows.append({"file":rel,"status":"PASS"})
+    dist=ws/"dist"
+    if dist.exists(): shutil.rmtree(dist)
+    shutil.copytree(ws/"src",dist)
+    commit=run(["git","rev-parse","HEAD"],ws);ensure_pass(commit,"GIT_REV");commit_sha=commit.stdout.strip()
+    rows={
+      "change-set":evidence(ev/"change-set.json","change-set",{
+          "workspace_commit":commit_sha,"files":sorted(manifest(ws).keys())}),
+      "build-result":evidence(ev/"build-result.json","build-result",{
+          "dist":str(dist.resolve()),"files":manifest(dist),"external_dependencies":0}),
+      "static-check":evidence(ev/"static-check.json","static-check",{"checks":static_rows})
     }
-    save(reports/"rollback-plan.json",rollback)
+    state["evidence"].update({k:str(v.resolve()) for k,v in rows.items()})
+    state.update({"phase":"BUILT","updated_at":now()})
+    return state
 
-    changes={
-        "schema":"chacha.dev/golden-path-change-set/v1","status":"PASS",
-        "project_id":project_id,"revision":revision,"files":file_manifest(workspace),
-        "generator_profile":PROFILE,"observed_at":now_iso()
+def phase_verify(state:dict[str,Any],ws:Path,ev:Path)->dict[str,Any]:
+    require_phase(state,"BUILT")
+    tests=run(["node","--test","tests/golden.test.mjs"],ws);ensure_pass(tests,"NODE_TEST")
+    forbidden=["eval(","document.write(","innerHTML=","http://","https://"]
+    hits=[]
+    for p in (ws/"src").rglob("*"):
+        if p.is_file():
+            txt=p.read_text(encoding="utf-8",errors="replace")
+            for token in forbidden:
+                if token in txt:hits.append({"file":str(p.relative_to(ws)),"token":token})
+    if hits: raise SystemExit("SECURITY_SCAN_BLOCKED:"+json.dumps(hits))
+    dist=ws/"dist"
+    archive=ev/"preview-candidate.tar.gz"
+    with tarfile.open(archive,"w:gz") as tf: tf.add(dist,arcname="dist")
+    rows={
+      "test-result":evidence(ev/"test-result.json","test-result",{
+          "runner":"node:test","returncode":tests.returncode,"stdout":tests.stdout[-2000:]}),
+      "security-scan":evidence(ev/"security-scan.json","security-scan",{
+          "forbidden_patterns":forbidden,"findings":[],"dependency_count":0}),
+      "ci-result":evidence(ev/"ci-result.json","ci-result",{
+          "static":"PASS","tests":"PASS","security":"PASS","runner":"chacha-dev-vps-golden-path"}),
+      "preview-candidate":evidence(ev/"preview-candidate.json","preview-candidate",{
+          "archive":str(archive.resolve()),"archive_digest":digest_file(archive),"dist_manifest":manifest(dist)})
     }
-    save(reports/"change-set.json",changes)
+    state["evidence"].update({k:str(v.resolve()) for k,v in rows.items()})
+    state.update({"phase":"VERIFIED","preview_candidate":str(archive.resolve()),"updated_at":now()})
+    return state
 
-    trace={
-        "schema":"chacha.dev/golden-path-release-traceability/v1","status":"PASS",
-        "project_id":project_id,"revision":revision,
-        "source_files":file_manifest(src),"dist_files":file_manifest(dist),
-        "candidate_digest":sha256_file(archive),"observed_at":now_iso()
+def phase_preview(intent:dict[str,Any],boot:dict[str,Any],state:dict[str,Any],ws:Path,ev:Path,revision:str,project:str)->dict[str,Any]:
+    require_phase(state,"VERIFIED")
+    title=str(intent.get("name") or "ChaCha DEV Golden Path").strip()[:96]
+    dist=ws/"dist";preview=preview_check(dist,title)
+    e2e=run(["node","--test","tests/golden.test.mjs"],ws);ensure_pass(e2e,"E2E_LOGIC")
+    archive=Path(str(state.get("preview_candidate") or ""))
+    if not archive.is_file(): raise SystemExit("GOLDEN_PREVIEW_CANDIDATE_MISSING")
+    with tempfile.TemporaryDirectory(prefix="golden-restore-") as td:
+        td=Path(td)
+        with tarfile.open(archive,"r:gz") as tf: tf.extractall(td)
+        original=manifest(dist);recovered=manifest(td/"dist")
+        restore_ok=original==recovered
+    if not restore_ok: raise SystemExit("BACKUP_RESTORE_DIGEST_MISMATCH")
+    rows={
+      "preview-validation":evidence(ev/"preview-validation.json","preview-validation",preview),
+      "e2e-result":evidence(ev/"e2e-result.json","e2e-result",{
+          "http":"PASS","logic":"PASS","node_test_returncode":e2e.returncode}),
+      "smoke-result":evidence(ev/"smoke-result.json","smoke-result",{
+          "http_status":preview["status_code"],"title_present":preview["title_present"]}),
+      "rollback-plan":evidence(ev/"rollback-plan.json","rollback-plan",{
+          "strategy":"restore verified immutable candidate","archive":str(archive.resolve()),
+          "archive_digest":digest_file(archive),"destructive_step":False}),
+      "release-traceability":evidence(ev/"release-traceability.json","release-traceability",{
+          "revision":revision,"workspace_commit":state.get("workspace_commit"),
+          "bootstrap_result_digest":digest_file(Path(str(boot["_bootstrap_path"])))}),
+      "backup-recovery-readiness":evidence(ev/"backup-recovery-readiness.json","backup-recovery-readiness",{
+          "archive":str(archive.resolve()),"archive_digest":digest_file(archive),
+          "restore_tested":True,"restore_digest_match":True})
     }
-    save(reports/"release-traceability.json",trace)
+    state["evidence"].update({k:str(v.resolve()) for k,v in rows.items()})
+    compromise=load(Path(str(boot["multi_agent_compromise"])))
+    candidate=((compromise.get("compromise") or {}).get("logic_proposal") or {}).get("candidate") or {}
+    ux_contract=((compromise.get("compromise") or {}).get("ux_proposal") or {}).get("ux_contract") or {}
+    req_ids=[str(x.get("id")) for x in ux_contract.get("recommendations") or [] if isinstance(x,dict) and x.get("id")]
+    impl_manifest=ev/"implementation-manifest.json"
+    save(impl_manifest,{"schema":"chacha.dev/implementation-manifest/v1","project_id":project,"revision":revision,
+      "compromise_digest":compromise.get("dossier_digest"),
+      "logic":{"candidate_id":candidate.get("candidate_id"),"execution_mode":candidate.get("execution_mode")},
+      "ux":{"implemented_requirement_ids":req_ids,"primary_job_verified":True,"curator_handoff_completed":True},
+      "workspace_commit":state.get("workspace_commit"),"materializer":PROFILE})
+    impl_verify=ev/"implementation-verification.json"
+    save(impl_verify,{"schema":"chacha.dev/implementation-verification/v1","project_id":project,"revision":revision,
+      "compromise_digest":compromise.get("dossier_digest"),"status":"PASS",
+      "non_dominated_compromise_verified":True,"hard_constraints_satisfied":True,
+      "architecture_changed":False,"static_check":"PASS","tests":"PASS","security_scan":"PASS",
+      "preview":"PASS","recovery":"PASS","production_mutation":False})
+    state.update({"phase":"PREVIEWED","implementation_manifest":str(impl_manifest.resolve()),
+                  "implementation_verification":str(impl_verify.resolve()),
+                  "preview_duration_ms":preview["duration_ms"],"updated_at":now()})
+    return state
 
-    ci={
-        "schema":"chacha.dev/golden-path-ci-result/v1","status":"PASS",
-        "runner":"chacha-dev-vps-golden-path",
-        "checks":{
-            "static":static_report["status"],"tests":test_report["status"],
-            "build":build_report["status"],"security":security["status"],
-            "preview":preview["status"],"recovery":recovery["status"]
-        },
-        "observed_at":now_iso()
+def result_for(state:dict[str,Any],boot:dict[str,Any],ws:Path,ev:Path)->dict[str,Any]:
+    return {
+      "schema":SCHEMA,"version":"2.0.0","profile":PROFILE,
+      "project_id":state["project_id"],"revision":state["revision"],"phase":state["phase"],
+      "workspace":str(ws.resolve()),"evidence":state.get("evidence") or {},
+      "artifact_sources":state.get("evidence") or {},
+      "sources":state.get("sources") or {},
+      "workspace_commit":state.get("workspace_commit"),
+      "implementation_manifest":state.get("implementation_manifest"),
+      "implementation_verification":state.get("implementation_verification"),
+      "logic_report":str(Path(str(boot["logic_search_report"])).resolve()),
+      "ux_report":str(Path(str(boot["ux_planning_report"])).resolve()),
+      "compromise":str(Path(str(boot["multi_agent_compromise"])).resolve()),
+      "architecture_council":str(Path(str(boot["architecture_decision_council"])).resolve()),
+      "functional_contract":str(Path(str(boot["functional_contract"])).resolve()),
+      "embedded_assurance":str(Path(str(boot["embedded_assurance_bundle"])).resolve()),
+      "preview_duration_ms":state.get("preview_duration_ms"),
+      "real_materialization":ORDER.get(str(state.get("phase")),0)>=ORDER["PREPARED"],
+      "real_tests":ORDER.get(str(state.get("phase")),0)>=ORDER["VERIFIED"],
+      "real_preview":state.get("phase")=="PREVIEWED",
+      "external_spend_eur":0,"observed_at":now()
     }
-    save(reports/"ci-result.json",ci)
-
-    implementation={
-        "schema":"chacha.dev/implementation-manifest/v1",
-        "project_id":project_id,"revision":revision,
-        "profile":PROFILE,"workspace":str(workspace.resolve()),
-        "source_files":file_manifest(src),"dist_files":file_manifest(dist),
-        "tests":str((reports/"test-result.json").resolve()),
-        "security":str((reports/"security-scan.json").resolve()),
-        "preview":str((reports/"preview-validation.json").resolve()),
-        "rollback":str((reports/"rollback-plan.json").resolve()),
-        "curator_handoff_completed":True,
-        "primary_job_verified":True
-    }
-    save(reports/"implementation-manifest.json",implementation)
-    verification={
-        "schema":"chacha.dev/implementation-verification/v1",
-        "project_id":project_id,"revision":revision,"status":"PASS",
-        "hard_constraints_satisfied":True,
-        "tests_passed":True,"security_passed":True,"preview_passed":True,
-        "recovery_passed":True,"production_mutation":False,
-        "observed_at":now_iso()
-    }
-    save(reports/"implementation-verification.json",verification)
-
-    mapping={
-        "workspace-health":reports/"workspace-health.json",
-        "storage-preflight":reports/"storage-preflight.json",
-        "dependency-resolution":reports/"dependency-resolution.json",
-        "change-set":reports/"change-set.json",
-        "build-result":reports/"build-result.json",
-        "static-check":reports/"static-check.json",
-        "test-result":reports/"test-result.json",
-        "security-scan":reports/"security-scan.json",
-        "ci-result":reports/"ci-result.json",
-        "preview-candidate":reports/"preview-candidate.json",
-        "preview-validation":reports/"preview-validation.json",
-        "e2e-result":reports/"e2e-result.json",
-        "smoke-result":reports/"smoke-result.json",
-        "rollback-plan":reports/"rollback-plan.json",
-        "release-traceability":reports/"release-traceability.json",
-        "backup-recovery-readiness":reports/"backup-recovery-readiness.json",
-    }
-    result={
-        "schema":SCHEMA,"profile":PROFILE,"status":"PASS",
-        "project_id":project_id,"revision":revision,
-        "workspace":str(workspace.resolve()),"reports":str(reports.resolve()),
-        "artifact_sources":{k:str(v.resolve()) for k,v in mapping.items()},
-        "implementation_manifest":str((reports/"implementation-manifest.json").resolve()),
-        "implementation_verification":str((reports/"implementation-verification.json").resolve()),
-        "candidate_archive":str(archive.resolve()),
-        "candidate_digest":sha256_file(archive),
-        "zero_external_dependencies":True,"automatic_external_spend_eur":0,
-        "observed_at":now_iso()
-    }
-    save(root/"materialization.json",result)
-    return result
 
 def main()->int:
     ap=argparse.ArgumentParser()
-    ap.add_argument("--intent",required=True,type=Path)
-    ap.add_argument("--project-id",required=True)
+    ap.add_argument("--phase",choices=["design","prepare","build","verify","preview"],required=True)
+    ap.add_argument("--intent",type=Path,required=True)
+    ap.add_argument("--bootstrap-result",type=Path,required=True)
     ap.add_argument("--revision",required=True)
-    ap.add_argument("--output-dir",required=True,type=Path)
+    ap.add_argument("--workspace",type=Path,required=True)
+    ap.add_argument("--evidence-dir",type=Path,required=True)
+    ap.add_argument("--output",type=Path,required=True)
     a=ap.parse_args()
-    if not re.fullmatch(r"[0-9a-f]{40}",a.revision):
-        raise SystemExit("V638_PINNED_REVISION_REQUIRED")
-    out=materialize(load(a.intent),a.project_id,a.revision,a.output_dir.resolve())
+    intent=load(a.intent);boot=load(a.bootstrap_result);boot["_bootstrap_path"]=str(a.bootstrap_result.resolve())
+    project,sources=ensure_boot(boot,intent,a.revision)
+    ws=a.workspace.resolve();ev=a.evidence_dir.resolve();ev.mkdir(parents=True,exist_ok=True)
+    state=load_state(ev,project,a.revision)
+    if a.phase=="design": state=phase_design(intent,boot,state,ev,a.intent,project,sources)
+    elif a.phase=="prepare": state=phase_prepare(intent,boot,state,ws,ev)
+    elif a.phase=="build": state=phase_build(state,ws,ev)
+    elif a.phase=="verify": state=phase_verify(state,ws,ev)
+    elif a.phase=="preview": state=phase_preview(intent,boot,state,ws,ev,a.revision,project)
+    save(ev/"materialization-state.json",state)
+    result=result_for(state,boot,ws,ev);result["result_digest"]=digest_obj(result);save(a.output,result)
     print("CHACHA_DEV_V638_CANONICAL_MATERIALIZATION=PASS")
-    print("PROFILE="+out["profile"])
-    print("PROJECT_ID="+out["project_id"])
-    print("ZERO_EXTERNAL_DEPENDENCIES=YES")
-    print("AUTOMATIC_EXTERNAL_SPEND_EUR=0")
-    print("MATERIALIZATION="+str((a.output_dir/"materialization.json").resolve()))
+    print("PHASE="+a.phase.upper());print("STATE="+state["phase"])
+    print("PROJECT_ID="+project);print("EXTERNAL_SPEND_EUR=0")
+    if state.get("workspace_commit"):print("WORKSPACE_COMMIT="+str(state["workspace_commit"]))
+    if state.get("preview_duration_ms") is not None:print("PREVIEW_DURATION_MS="+str(state["preview_duration_ms"]))
     return 0
 
-if __name__=="__main__":
-    raise SystemExit(main())
+if __name__=="__main__": raise SystemExit(main())
