@@ -17,6 +17,7 @@ def main():
     ap.add_argument("--architecture-council");ap.add_argument("--agent-topology");ap.add_argument("--capability-foundry");ap.add_argument("--runtime-wave-plan")
     ap.add_argument("--component-lineage");ap.add_argument("--confidence-project-id");ap.add_argument("--confidence-deployment-id")
     ap.add_argument("--confidence-source-id",default="acceptance-confidence-bridge");ap.add_argument("--confidence-output")
+    ap.add_argument("--confidence-marker-root");ap.add_argument("--confidence-outbox-root");ap.add_argument("--confidence-state-root")
     ap.add_argument("--architecture-registry");ap.add_argument("--architecture-registry-db");ap.add_argument("--architecture-learning-output")
     a=ap.parse_args();contract=load(a.contract);evidence=load(a.evidence)
     emap={str(x.get("criterion_id")):x for x in evidence.get("criteria") or []}
@@ -44,6 +45,9 @@ def main():
              "--acceptance",str(a.output),"--lineage",a.component_lineage,
              "--project-id",a.confidence_project_id,"--deployment-id",a.confidence_deployment_id,
              "--source-id",a.confidence_source_id,"--output",confidence_out]
+        if a.confidence_marker_root:cmd+=["--marker-root",a.confidence_marker_root]
+        if a.confidence_outbox_root:cmd+=["--outbox-root",a.confidence_outbox_root]
+        if a.confidence_state_root:cmd+=["--state-root",a.confidence_state_root]
         p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=60)
         if p.returncode!=0:raise SystemExit("ACCEPTANCE_CONFIDENCE_BRIDGE_FAILED:"+p.stderr+p.stdout)
         confidence_result=load(confidence_out)
