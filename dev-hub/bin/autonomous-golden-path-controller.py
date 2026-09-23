@@ -500,7 +500,7 @@ def main()->int:
     policy=load(policy_path)
     if policy.get("schema")!=POLICY_SCHEMA: raise SystemExit("V638_POLICY_SCHEMA_INVALID")
     if not re.fullmatch(r"[0-9a-f]{40}",a.revision): raise SystemExit("V638_PINNED_REVISION_REQUIRED")
-    intent=a.intent.resolve();out=a.output_dir.resolve()
+    intent=a.intent.resolve() if a.intent is not None else None;out=a.output_dir.resolve()
     out.mkdir(parents=True,exist_ok=True)
     plan_dir=out/"planning";plan_dir.mkdir(parents=True,exist_ok=True)
     lifecycle_results=out/"lifecycle-results";lifecycle_results.mkdir(parents=True,exist_ok=True)
