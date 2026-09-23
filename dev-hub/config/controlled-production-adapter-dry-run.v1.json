@@ -1,0 +1,33 @@
+{
+  "schema": "chacha.dev/controlled-production-adapter-profile/v1",
+  "version": "1.0.0",
+  "profile": "dry-run-v1",
+  "target_scheme": "dry-run",
+  "production_capable": false,
+  "real_production_target": false,
+  "reversible": true,
+  "explicit_human_approval_required": true,
+  "approval_id": "production-deployment",
+  "allowed_actions": [
+    "plan",
+    "deploy",
+    "health",
+    "rollback"
+  ],
+  "filesystem_sandbox_only": true,
+  "network_mutation": false,
+  "production_data_write": false,
+  "secret_change": false,
+  "destructive_migration": false,
+  "external_spend_eur": 0,
+  "required_receipt_fields": [
+    "schema",
+    "project_id",
+    "revision",
+    "target",
+    "action",
+    "status",
+    "production_mutation",
+    "observed_at"
+  ]
+}
