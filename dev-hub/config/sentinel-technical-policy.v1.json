@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/sentinel-technical-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scope": "PLATFORM_GLOBAL",
   "principles": {
     "external_technical_assurance": true,
@@ -34,6 +34,10 @@
     "max_todo_fixme_per_1000_lines_warning": 25
   },
   "mandatory_platform_tests": [
+    {
+      "path": "dev-hub/tests/test_v631_assurance_exchange.py",
+      "env": {}
+    },
     {
       "path": "dev-hub/tests/test_v630_external_dual_assurance.py",
       "env": {}
