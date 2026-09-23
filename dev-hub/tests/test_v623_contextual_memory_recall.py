@@ -81,7 +81,7 @@ assert "recall_branch_rank" in council and "recall_arch_rank" in council
 orch=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
 assert orch.count('"central-memory-recall.py"')>=3,orch.count('"central-memory-recall.py"')
 assert orch.count('"--memory-brief"')>=5,orch.count('"--memory-brief"')
-assert any(v in orch for v in ['"version":"6.23.0"','"version":"6.26.0"'])
+assert any(v in orch for v in ['"version":"6.23.0"','"version":"6.26.0"','"version":"6.29.0"'])
 assert '"central_memory_brief"' in orch
 
 guardian=(ROOT/"dev-hub/guardian/worker.js").read_text(encoding="utf-8")
