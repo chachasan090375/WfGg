@@ -32,7 +32,9 @@
     "core_replan_required_after_foundry": true,
     "branch_foundry_parallel_with_agent_foundry": true,
     "lazy_branch_materialization": true,
-    "central_memory_survives_branch_teardown": true
+    "central_memory_survives_branch_teardown": true,
+    "verified_evidence_learning_is_asynchronous": true,
+    "verified_success_requires_exact_lineage_for_confidence": true
   },
   "interfaces": {
     "cli": {
@@ -90,7 +92,8 @@
     "recovery_orchestrator": "dev-hub/config/recovery-orchestrator.v1.json",
     "uncertainty_policy": "dev-hub/config/uncertainty-policy.v1.json",
     "autonomy_definition": "dev-hub/config/autonomy-definition.v1.json",
-    "branch_foundry": "dev-hub/config/branch-foundry.v1.json"
+    "branch_foundry": "dev-hub/config/branch-foundry.v1.json",
+    "verified_evidence_learning": "dev-hub/config/verified-evidence-learning.v1.json"
   },
   "engine_paths": {
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
@@ -124,7 +127,8 @@
     "recovery_orchestrator": "dev-hub/bin/recovery-orchestrator.py",
     "autonomy_audit": "dev-hub/bin/autonomy-audit.py",
     "branch_foundry_planner": "dev-hub/bin/branch-foundry-planner.py",
-    "branch_blueprint_optimizer": "dev-hub/bin/branch-blueprint-optimizer.py"
+    "branch_blueprint_optimizer": "dev-hub/bin/branch-blueprint-optimizer.py",
+    "verified_evidence_learning": "dev-hub/bin/verified-evidence-learning.py"
   },
   "status_model": [
     "READY",
