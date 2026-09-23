@@ -55,13 +55,25 @@ function sourceUrl(env,source,receiptId){
 }
 async function fetchReceipt(env,source,receiptId){
   const url=sourceUrl(env,source,receiptId);
-  if(!url)return {ok:false,reason:source+"_URL_MISSING"};
+  const path=source==="GUARDIAN"
+    ?"/v1/functional-receipts/"+encodeURIComponent(receiptId)
+    :"/v1/receipts/"+encodeURIComponent(receiptId);
+  const binding=source==="GUARDIAN"?env.GUARDIAN_SERVICE:env.SENTINEL_SERVICE;
   let r;
-  try{r=await fetch(url,{headers:{"accept":"application/json","user-agent":"ChaCha-DEV-Assurance-Exchange/1.0"}});}
-  catch{return {ok:false,reason:source+"_RECEIPT_UNAVAILABLE"};}
+  try{
+    if(binding){
+      r=await binding.fetch(new Request("https://assurance-source.internal"+path,{
+        method:"GET",
+        headers:{"accept":"application/json","user-agent":"ChaCha-DEV-Assurance-Exchange/1.1"}
+      }));
+    }else{
+      if(!url)return {ok:false,reason:source+"_URL_MISSING"};
+      r=await fetch(url,{headers:{"accept":"application/json","user-agent":"ChaCha-DEV-Assurance-Exchange/1.1"}});
+    }
+  }catch{return {ok:false,reason:source+"_RECEIPT_UNAVAILABLE"};}
   if(!r.ok)return {ok:false,reason:source+"_RECEIPT_UNKNOWN"};
   let x;try{x=await r.json();}catch{return {ok:false,reason:source+"_RECEIPT_INVALID"};}
-  return {ok:true,receipt:x,url};
+  return {ok:true,receipt:x,url:url||("service://"+source.toLowerCase()+path)};
 }
 function receiptSignals(source,x){
   const signals=[];
@@ -222,6 +234,8 @@ export default{
     if(req.method==="GET"&&u.pathname==="/healthz")return json({
       status:"ok",service:"chacha-dev-assurance-exchange",external_control_plane:true,
       guardian_sentinel_correlation:true,evidence_preserving:true,causality_not_invented:true,
+      guardian_service_binding:Boolean(env.GUARDIAN_SERVICE),
+      sentinel_service_binding:Boolean(env.SENTINEL_SERVICE),
       direct_mutation:false,central_orchestrator_owns_remediation:true,
       technology_watch_guard:true,architecture_council_guard:true,
       automatic_external_spend_eur:0
