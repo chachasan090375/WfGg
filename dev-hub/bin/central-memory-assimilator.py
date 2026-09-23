@@ -250,7 +250,7 @@ def assimilate(args)->dict[str,Any]:
                x["evidence_count"],x["positive_count"],x["negative_count"],x["neutral_count"],
                x["high_anomaly_count"],x["critical_anomaly_count"],x["distinct_projects"],x["confidence"],
                x["state"],1 if x["generalizable"] else 0,x["latest_observed_at"],x["evidence_digest"],canon(x)))
-    confidence=confidence_snapshot(args.component_confidence)
+    confidence=confidence_snapshot(getattr(args,"component_confidence",DEFAULT_CONFIDENCE))
     catalog=reuse_catalog(args.branch_db,args.architecture_db,confidence)
     counts=defaultdict(int)
     for x in rows:counts[x["state"]]+=1
