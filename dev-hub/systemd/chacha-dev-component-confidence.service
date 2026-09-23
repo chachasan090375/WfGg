@@ -1,7 +1,7 @@
 [Unit]
 Description=ChaCha DEV Guardian-governed component confidence engine
 Wants=network-online.target
-After=network-online.target chacha-dev-production-lineage-feedback.service
+After=network-online.target
 
 [Service]
 Type=oneshot
