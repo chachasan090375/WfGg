@@ -160,6 +160,11 @@
       "adapter": "platform-selftest-adapter",
       "kind": "local-runtime",
       "execution": "vps"
+    },
+    "cloudflare-pages-production": {
+      "adapter": "cloudflare-pages-production-adapter",
+      "kind": "provider-api",
+      "execution": "vps"
     }
   },
   "adapters": {
@@ -343,6 +348,14 @@
       "executable": "/opt/chacha-dev/platform/current/dev-hub/adapters/platform-selftest-adapter.py",
       "supports": [
         "read"
+      ]
+    },
+    "cloudflare-pages-production-adapter": {
+      "status": "DESIGNED",
+      "executable": null,
+      "supports": [
+        "read",
+        "production-deploy"
       ]
     }
   }
