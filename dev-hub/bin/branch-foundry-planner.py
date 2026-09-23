@@ -35,7 +35,8 @@ def profile_for(chosen:dict[str,Any])->str:
     return "BURST"
 
 def build(preplan:dict[str,Any],cfg:dict[str,Any],project_id:str,
-          agent_topology:dict[str,Any]|None=None)->dict[str,Any]:
+          agent_topology:dict[str,Any]|None=None,
+          memory_brief:dict[str,Any]|None=None)->dict[str,Any]:
     if cfg.get("schema")!=SCHEMA:raise SystemExit("BRANCH_FOUNDRY_SCHEMA_INVALID")
     if preplan.get("schema")!="chacha.dev/domain-plan/v1":raise SystemExit("PREPLAN_SCHEMA_INVALID")
     optimizer=load_optimizer()
@@ -62,6 +63,9 @@ def build(preplan:dict[str,Any],cfg:dict[str,Any],project_id:str,
             blocked.append({"package_id":pid,"reason":opt.get("reason"),"optimization":opt})
             continue
         chosen=opt["chosen"]
+        mem=memory_brief or {}
+        domain_reuse=[x for x in mem.get("current_best_reuse_candidates") or []
+                      if isinstance(x,dict) and (str(x.get("kind"))=="architecture" or str(x.get("domain") or "")==domain)]
         profile=profile_for(chosen)
         runtime=chosen.get("branch_mode")=="MATERIALIZE_EPHEMERAL_BRANCH"
         branch_id=f"{project_id}:{domain}:{'review' if pkg.get('kind')=='review' else 'primary'}"
@@ -82,6 +86,18 @@ def build(preplan:dict[str,Any],cfg:dict[str,Any],project_id:str,
             "pareto_frontier":opt.get("pareto_frontier"),
             "candidate_count":len(opt.get("candidates") or []),
             "rejected_candidates":opt.get("rejected") or [],
+            "central_memory_recall":{
+                "consumed":bool(memory_brief),
+                "brief_digest":mem.get("brief_digest"),
+                "source_memory_snapshot_digest":mem.get("source_memory_snapshot_digest"),
+                "trusted_memory_count":int(mem.get("trusted_memory_count") or 0),
+                "caution_count":int(mem.get("caution_count") or 0),
+                "current_best_reuse_candidates":domain_reuse[:5],
+                "memory_authority":mem.get("memory_authority") or "ADVISORY",
+                "previous_solution_is_default":False,
+                "technology_revalidation_required":True,
+                "automatic_external_spend_eur":0
+            },
             "technology_watch":{
                 "consulted":True,
                 "snapshot_freshness":watch.get("snapshot_freshness"),
@@ -128,6 +144,8 @@ def build(preplan:dict[str,Any],cfg:dict[str,Any],project_id:str,
         "intent":preplan.get("intent"),
         "mandatory_preflight":True,
         "technology_watch_consulted":True,
+        "central_memory_recall_consumed":bool(memory_brief),
+        "central_memory_brief_digest":(memory_brief or {}).get("brief_digest"),
         "optimization_strategy":"CONSTRAINT_FIRST_ZERO_SPEND_THEN_MIN_TOTAL_COST",
         "decisions":decisions,
         "blocked":blocked,
@@ -152,13 +170,16 @@ def main():
     ap.add_argument("--config",required=True,type=Path)
     ap.add_argument("--project-id",required=True)
     ap.add_argument("--agent-topology",type=Path)
+    ap.add_argument("--memory-brief",type=Path)
     ap.add_argument("--output",required=True,type=Path)
     a=ap.parse_args()
     topo=load(a.agent_topology) if a.agent_topology else None
-    out=build(load(a.preplan),load(a.config),a.project_id,topo)
+    mem=load(a.memory_brief) if a.memory_brief else None
+    out=build(load(a.preplan),load(a.config),a.project_id,topo,mem)
     a.output.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("CHACHA_BRANCH_FOUNDRY=PASS")
     print("CHACHA_BRANCH_FOUNDRY_TECHNOLOGY_WATCH=CONSULTED")
+    print("CHACHA_BRANCH_FOUNDRY_CENTRAL_MEMORY_RECALL="+("CONSUMED" if out.get("central_memory_recall_consumed") else "ABSENT"))
     print("BRANCHES="+str(out["summary"]["branches"]))
     print("MATERIALIZED="+str(out["summary"]["materialized"]))
     print("MEMORY_ONLY="+str(out["summary"]["memory_only"]))
