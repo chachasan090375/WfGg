@@ -181,6 +181,10 @@ def gate_blockers(
         return required_gate_blockers(rule, ledger)
     if policy == "release":
         return release_gate_blockers(lifecycle, quality, ledger)
+    if policy == "release+compromise":
+        blockers=release_gate_blockers(lifecycle, quality, ledger)
+        blockers.extend(required_gate_blockers(rule, ledger))
+        return sorted(set(blockers))
     return [f"UNKNOWN_GATE_POLICY:{policy}"]
 
 
