@@ -9,6 +9,7 @@ from typing import Any
 
 import technology_watch_runtime as tw
 import agent_role_contracts as arc
+import planning_memory_runtime as pmr
 
 SCHEMA="chacha.dev/agent-foundry/v1"
 OUT="chacha.dev/agent-topology/v1"
@@ -58,10 +59,16 @@ def task_score(pkg:dict[str,Any],role_fit:float,reusable:bool)->float:
     )
     return round(max(0,min(100,score)),2)
 
-def decide_package(pkg:dict[str,Any],routing:dict[str,Any],cfg:dict[str,Any],project_id:str)->dict[str,Any]:
+def decide_package(pkg:dict[str,Any],routing:dict[str,Any],cfg:dict[str,Any],project_id:str,
+                   memory_advice:dict[str,Any]|None=None)->dict[str,Any]:
     domain=str(pkg["domain"])
     caps=[str(x) for x in pkg.get("capabilities") or []]
-    roles=[str(x) for x in pkg.get("roles") or []]
+    original_roles=[str(x) for x in pkg.get("roles") or []]
+    advice=memory_advice or {"preferred_components":[],"avoid_components":[]}
+    avoid=pmr.avoid_ids(advice,{"agent","orchestrator"})
+    preferred=pmr.preferred_ids(advice,{"agent","orchestrator"})
+    roles=[r for r in original_roles if r not in avoid]
+    roles.sort(key=lambda r:(0 if r in preferred else 1,original_roles.index(r)))
     covered=role_capabilities(routing,roles)
     fit=100.0*(len(set(caps)&covered)/max(1,len(set(caps))))
     deterministic_ratio=sum(1 for c in caps if c in DETERMINISTIC_TOOL_CAPS)/max(1,len(caps))
@@ -72,8 +79,23 @@ def decide_package(pkg:dict[str,Any],routing:dict[str,Any],cfg:dict[str,Any],pro
     ephemeral_min=float(th.get("ephemeral_agent_min_score",65))
     reusable_min=float(th.get("reusable_agent_min_score",78))
 
+    preferred_full=[]
+    for role in roles:
+        if role not in preferred:
+            continue
+        one=role_capabilities(routing,[role])
+        one_fit=100.0*(len(set(caps)&one)/max(1,len(set(caps))))
+        if one_fit>=existing_min:
+            preferred_full.append(role)
+
     if caps and deterministic_ratio==1.0 and not roles:
         decision="TOOL_ONLY"
+    elif preferred_full:
+        roles=[preferred_full[0]]
+        covered=role_capabilities(routing,roles)
+        fit=100.0*(len(set(caps)&covered)/max(1,len(set(caps))))
+        score=task_score(pkg,fit,reusable)
+        decision="REUSE_EXISTING_AGENT"
     elif fit>=existing_min and len(roles)==1:
         decision="REUSE_EXISTING_AGENT"
     elif fit>=existing_min and len(roles)>1:
@@ -140,6 +162,11 @@ def decide_package(pkg:dict[str,Any],routing:dict[str,Any],cfg:dict[str,Any],pro
         "decision":decision,
         "agent_id":agent_id,
         "existing_roles":roles,
+        "original_existing_roles":original_roles,
+        "memory_preferred_roles":[x for x in roles if x in preferred],
+        "memory_excluded_roles":[x for x in original_roles if x in avoid],
+        "memory_guided_decision":bool((set(original_roles)&avoid) or preferred_full),
+        "memory_advice_digest":advice.get("advice_digest"),
         "capabilities":caps,
         "existing_role_fit":round(fit,2),
         "agent_creation_score":score,
@@ -160,9 +187,11 @@ def build(preplan:dict[str,Any],cfg:dict[str,Any],routing:dict[str,Any],project_
             domain=str(p.get("domain") or ""),
             capabilities=[str(x) for x in p.get("capabilities") or []],
         )
-        decision=decide_package(p,routing,cfg,project_id)
-        providers=watch.get("eligible_provider_candidates") or []
         mem=memory_brief or {}
+        advice=pmr.package_advice(mem,p)
+        decision=decide_package(p,routing,cfg,project_id,advice)
+        providers=watch.get("eligible_provider_candidates") or []
+        decision["memory_guided_planning"]=advice
         domain_reuse=[x for x in mem.get("current_best_reuse_candidates") or []
                       if isinstance(x,dict) and (str(x.get("kind"))=="architecture" or str(x.get("domain") or "")==str(p.get("domain") or ""))]
         decision["central_memory_recall"]={
@@ -192,6 +221,9 @@ def build(preplan:dict[str,Any],cfg:dict[str,Any],routing:dict[str,Any],project_
                 "brief_digest":mem.get("brief_digest"),
                 "trusted_memory_count":int(mem.get("trusted_memory_count") or 0),
                 "caution_count":int(mem.get("caution_count") or 0),
+                "preferred_components":[x.get("component_id") for x in advice.get("preferred_components") or []],
+                "avoid_components":[x.get("component_id") for x in advice.get("avoid_components") or []],
+                "advice_digest":advice.get("advice_digest"),
                 "technology_revalidation_required":True
             }
         decisions.append(decision)
@@ -212,7 +244,8 @@ def build(preplan:dict[str,Any],cfg:dict[str,Any],routing:dict[str,Any],project_
             "packages":len(decisions),
             "created_agents":len(created),
             "compositions":len(composed),
-            "tool_only":len(tools)
+            "tool_only":len(tools),
+            "memory_guided_decisions":sum(1 for x in decisions if x.get("memory_guided_decision"))
         },
         "replan_required":True,
         "return_to":"chacha-core-orchestrator",
@@ -235,6 +268,7 @@ def main():
     print("CHACHA_AGENT_FOUNDRY_TECHNOLOGY_WATCH=CONSULTED")
     print("CHACHA_AGENT_FOUNDRY_CENTRAL_MEMORY_RECALL="+("CONSUMED" if out.get("central_memory_recall_consumed") else "ABSENT"))
     print("CREATED_AGENTS="+str(out["summary"]["created_agents"]))
+    print("MEMORY_GUIDED_DECISIONS="+str(out["summary"]["memory_guided_decisions"]))
     print("REPLAN_REQUIRED=YES")
 
 if __name__=="__main__":main()
