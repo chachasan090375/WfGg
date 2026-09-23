@@ -135,8 +135,24 @@ json.dump(v,open(out,"w",encoding="utf-8"),indent=2)
 print("CHACHA_DEV_V639_PREDEPLOY_SITE_HASH=PASS")
 PY
 
-# Validate the dedicated token can run Wrangler before opening the mutation switch.
-npx --yes wrangler@4.45.0 --version >/dev/null
+# Validate the policy-pinned Wrangler before opening the mutation switch.
+WRANGLER_VERSION="$(python3 - "$ADAPTER_POLICY" <<'PY'
+import json,sys
+x=json.load(open(sys.argv[1],encoding="utf-8"))
+v=str((x.get("deployment") or {}).get("wrangler_version") or "")
+assert v=="3.114.17",v
+print(v)
+PY
+)"
+NODE_VERSION="$(node --version)"
+case "$NODE_VERSION" in
+  v18.*) ;;
+  *) fail "unexpected_node_version:$NODE_VERSION" ;;
+esac
+npx --yes "wrangler@$WRANGLER_VERSION" --version | tee "$WORK/wrangler-version.out"
+grep -Fq "$WRANGLER_VERSION" "$WORK/wrangler-version.out"
+echo "CHACHA_DEV_V639_NODE18_RUNTIME=PASS"
+echo "CHACHA_DEV_V639_WRANGLER_VERSION=$WRANGLER_VERSION"
 echo "CHACHA_DEV_V639_WRANGLER_PREFLIGHT=PASS"
 
 echo "CHACHA_DEV_V639_REAL_STAGE=project-control-approval"
