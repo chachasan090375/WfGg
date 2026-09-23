@@ -32,24 +32,39 @@ def db_open(path:Path)->sqlite3.Connection:
     db.execute("""CREATE TABLE IF NOT EXISTS component_reputation(
       component_kind TEXT NOT NULL, component_id TEXT NOT NULL, version TEXT NOT NULL,
       observations INTEGER NOT NULL DEFAULT 0,
+      verified_success_count INTEGER NOT NULL DEFAULT 0,
+      verified_failure_count INTEGER NOT NULL DEFAULT 0,
       anomaly_count INTEGER NOT NULL DEFAULT 0,
       high_anomaly_count INTEGER NOT NULL DEFAULT 0,
       critical_anomaly_count INTEGER NOT NULL DEFAULT 0,
       verified_recovery_count INTEGER NOT NULL DEFAULT 0,
       state TEXT NOT NULL DEFAULT 'OBSERVED',
-      last_seen_at TEXT, last_anomaly_at TEXT,
+      last_seen_at TEXT, last_success_at TEXT, last_failure_at TEXT, last_anomaly_at TEXT,
       PRIMARY KEY(component_kind,component_id,version)
     )""")
+    cols={str(r[1]) for r in db.execute("PRAGMA table_info(component_reputation)").fetchall()}
+    for name,ddl in [
+      ("verified_success_count","INTEGER NOT NULL DEFAULT 0"),
+      ("verified_failure_count","INTEGER NOT NULL DEFAULT 0"),
+      ("last_success_at","TEXT"),
+      ("last_failure_at","TEXT")
+    ]:
+        if name not in cols:db.execute(f"ALTER TABLE component_reputation ADD COLUMN {name} {ddl}")
     return db
 
 def classify(delta:dict[str,Any])->tuple[str,str|None]:
     anomaly=delta.get("anomaly")
-    if not isinstance(anomaly,dict):return "OBSERVE_ONLY",None
-    sev=str(anomaly.get("severity") or "").lower()
-    if anomaly.get("resolution_verified") is True or str(anomaly.get("status") or "").lower() in {"resolved","verified-resolved"}:
-        return "VERIFIED_RECOVERY",sev or None
-    if sev in {"high","critical"}:return "INCIDENT",sev
-    return "OBSERVE_ONLY",sev or None
+    if isinstance(anomaly,dict):
+        sev=str(anomaly.get("severity") or "").lower()
+        if anomaly.get("resolution_verified") is True or str(anomaly.get("status") or "").lower() in {"resolved","verified-resolved"}:
+            return "VERIFIED_RECOVERY",sev or None
+        if sev in {"high","critical"}:return "INCIDENT",sev
+    evaluation=delta.get("evaluation")
+    if isinstance(evaluation,dict) and evaluation.get("schema")=="chacha.dev/component-evaluation/v1" and evaluation.get("verified") is True:
+        outcome=str(evaluation.get("outcome") or "")
+        if outcome in {"PASS","SUCCESS","ACCEPTED","HEALTHY"}:return "VERIFIED_SUCCESS",None
+        if outcome in {"FAIL","FAILED","REJECTED","ERROR"}:return "VERIFIED_FAILURE",None
+    return "OBSERVE_ONLY",None
 
 def lineage_rows(delta:dict[str,Any])->list[dict[str,Any]]:
     lin=delta.get("lineage")
@@ -83,28 +98,47 @@ def registry_feedback(kind:str,row:dict[str,Any],action:str,severity:str|None,ob
     return x
 
 def update_reputation(db:sqlite3.Connection,row:dict[str,Any],action:str,severity:str|None,observed_at:str)->None:
-    old=db.execute("""SELECT observations,anomaly_count,high_anomaly_count,critical_anomaly_count,
-                     verified_recovery_count,state FROM component_reputation
+    old=db.execute("""SELECT observations,verified_success_count,verified_failure_count,
+                     anomaly_count,high_anomaly_count,critical_anomaly_count,
+                     verified_recovery_count,state,last_success_at,last_failure_at,last_anomaly_at
+                     FROM component_reputation
                      WHERE component_kind=? AND component_id=? AND version=?""",
                    (row["kind"],row["component_id"],row["version"])).fetchone()
-    obs=(old[0] if old else 0)+1;an=(old[1] if old else 0);hi=(old[2] if old else 0);cr=(old[3] if old else 0);rec=(old[4] if old else 0)
-    state=str(old[5] if old else "OBSERVED");last_anom=None
+    obs=(old[0] if old else 0)+1
+    suc=(old[1] if old else 0);fail=(old[2] if old else 0);an=(old[3] if old else 0)
+    hi=(old[4] if old else 0);cr=(old[5] if old else 0);rec=(old[6] if old else 0)
+    state=str(old[7] if old else "OBSERVED")
+    last_success=(old[8] if old else None);last_failure=(old[9] if old else None);last_anom=(old[10] if old else None)
     if action=="INCIDENT":
         an+=1;last_anom=observed_at
         if severity=="critical":cr+=1;state="QUARANTINED"
         elif severity=="high":hi+=1;state="DEGRADED"
+    elif action=="VERIFIED_FAILURE":
+        fail+=1;last_failure=observed_at
+        if state!="QUARANTINED":state="DEGRADED"
+    elif action=="VERIFIED_SUCCESS":
+        suc+=1;last_success=observed_at
+        if state=="OBSERVED":state="PROVISIONAL"
     elif action=="VERIFIED_RECOVERY":
         rec+=1;state="RECOVERY_CANDIDATE"
     db.execute("""INSERT INTO component_reputation(
-      component_kind,component_id,version,observations,anomaly_count,high_anomaly_count,critical_anomaly_count,
-      verified_recovery_count,state,last_seen_at,last_anomaly_at)
-      VALUES(?,?,?,?,?,?,?,?,?,?,?)
+      component_kind,component_id,version,observations,verified_success_count,verified_failure_count,
+      anomaly_count,high_anomaly_count,critical_anomaly_count,verified_recovery_count,state,
+      last_seen_at,last_success_at,last_failure_at,last_anomaly_at)
+      VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
       ON CONFLICT(component_kind,component_id,version) DO UPDATE SET
-      observations=excluded.observations,anomaly_count=excluded.anomaly_count,
-      high_anomaly_count=excluded.high_anomaly_count,critical_anomaly_count=excluded.critical_anomaly_count,
-      verified_recovery_count=excluded.verified_recovery_count,state=excluded.state,
-      last_seen_at=excluded.last_seen_at,last_anomaly_at=COALESCE(excluded.last_anomaly_at,component_reputation.last_anomaly_at)""",
-      (row["kind"],row["component_id"],row["version"],obs,an,hi,cr,rec,state,observed_at,last_anom))
+      observations=excluded.observations,
+      verified_success_count=excluded.verified_success_count,
+      verified_failure_count=excluded.verified_failure_count,
+      anomaly_count=excluded.anomaly_count,
+      high_anomaly_count=excluded.high_anomaly_count,
+      critical_anomaly_count=excluded.critical_anomaly_count,
+      verified_recovery_count=excluded.verified_recovery_count,
+      state=excluded.state,last_seen_at=excluded.last_seen_at,
+      last_success_at=excluded.last_success_at,last_failure_at=excluded.last_failure_at,
+      last_anomaly_at=excluded.last_anomaly_at""",
+      (row["kind"],row["component_id"],row["version"],obs,suc,fail,an,hi,cr,rec,state,
+       observed_at,last_success,last_failure,last_anom))
 
 def publish_nas(report:dict[str,Any])->dict[str,Any]:
     if not NAS_ADAPTER.is_file():return {"status":"DEFERRED","reason":"NAS_ADAPTER_MISSING"}
@@ -152,7 +186,7 @@ def reconcile(args)->dict[str,Any]:
             if exists:dedup+=1;continue
             update_reputation(db,row,action,severity,str(observed_at))
             reg={"status":"NOT_APPLICABLE"}
-            if action in {"INCIDENT","VERIFIED_RECOVERY"} and row["kind"] in {"branch","architecture"}:
+            if action in {"INCIDENT","VERIFIED_FAILURE","VERIFIED_SUCCESS","VERIFIED_RECOVERY"} and row["kind"] in {"branch","architecture"}:
                 reg=registry_feedback(row["kind"],row,action,severity,str(observed_at),str(delta_id),args.branch_db,args.architecture_db)
                 if reg.get("status")=="APPLIED":reuse_updates+=1
             detail={"lineage":row,"action":action,"severity":severity,"registry":reg,
@@ -168,6 +202,8 @@ def reconcile(args)->dict[str,Any]:
             "exact_lineage_required_for_reuse_mutation":True,
             "missing_lineage_still_learns_centrally":True,
             "positive_success_inferred_from_absence_of_anomaly":False,
+            "verified_success_requires_explicit_evaluation":True,
+            "verified_failure_requires_explicit_evaluation_or_incident":True,
             "verified_recovery_auto_adopt":False,
             "technology_revalidation_required":True,
             "automatic_external_spend_eur":0}
@@ -194,6 +230,6 @@ def main()->int:
       "deltas_scanned":out["deltas_scanned"],"lineage_components":out["lineage_components"],
       "reuse_updates":out["reuse_updates"],"missing_lineage":out["missing_lineage"],
       "deduplicated":out.get("deduplicated",0),"nas":out["nas"],"automatic_external_spend_eur":0},indent=2))
-    print("CHACHA_DEV_V624_PRODUCTION_LINEAGE_FEEDBACK=PASS")
+    print("CHACHA_DEV_V625_PRODUCTION_LINEAGE_FEEDBACK=PASS")
     return 0
 if __name__=="__main__":raise SystemExit(main())
