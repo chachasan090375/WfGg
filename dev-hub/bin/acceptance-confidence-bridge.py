@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import Any
 import universal_learning_runtime as ul
 
-REPO_ROOT=Path(__file__).resolve().parents[2]\nDEFAULT_POLICY=REPO_ROOT/"dev-hub/config/acceptance-confidence.v1.json"
+REPO_ROOT=Path(__file__).resolve().parents[2]
+DEFAULT_POLICY=REPO_ROOT/"dev-hub/config/acceptance-confidence.v1.json"
 DEFAULT_MARKERS=Path("/opt/chacha-dev/runtime/knowledge/acceptance-confidence-applied")
 DEFAULT_OUTBOX=Path("/opt/chacha-dev/runtime/learning/outbox")
 DEFAULT_STATE=Path("/opt/chacha-dev/runtime/learning/producer-state")
