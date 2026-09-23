@@ -191,12 +191,43 @@ def api_json(method:str,path:str,body:dict[str,Any]|None=None,timeout:int=30)->d
         raise RuntimeError("CLOUDFLARE_API_NOT_SUCCESS")
     return payload
 
-def list_production(project:str)->list[dict[str,Any]]:
+def get_project(project:str)->dict[str,Any]:
     aid=urllib.parse.quote(account_id(),safe="")
     pname=urllib.parse.quote(project,safe="")
-    p=api_json("GET",f"/accounts/{aid}/pages/projects/{pname}/deployments?env=production")
-    rows=p.get("result") or []
-    return [x for x in rows if isinstance(x,dict)]
+    p=api_json("GET",f"/accounts/{aid}/pages/projects/{pname}")
+    row=p.get("result") or {}
+    if not isinstance(row,dict):
+        raise RuntimeError("CLOUDFLARE_PROJECT_RESPONSE_INVALID")
+    return row
+
+def get_deployment(project:str,deployment:str)->dict[str,Any]:
+    aid=urllib.parse.quote(account_id(),safe="")
+    pname=urllib.parse.quote(project,safe="")
+    did=urllib.parse.quote(deployment,safe="")
+    p=api_json("GET",f"/accounts/{aid}/pages/projects/{pname}/deployments/{did}")
+    row=p.get("result") or {}
+    if not isinstance(row,dict):
+        raise RuntimeError("CLOUDFLARE_DEPLOYMENT_RESPONSE_INVALID")
+    return row
+
+def canonical_production(project:str)->dict[str,Any]:
+    row=(get_project(project).get("canonical_deployment") or {})
+    if not isinstance(row,dict) or not row.get("id"):
+        raise RuntimeError("CANONICAL_PRODUCTION_DEPLOYMENT_MISSING")
+    return row
+
+def wait_canonical(project:str,expected_id:str|None,forbid_id:str|None,timeout:int=90)->dict[str,Any]:
+    end=time.monotonic()+timeout
+    last={}
+    while time.monotonic()<end:
+        last=canonical_production(project)
+        did=str(last.get("id") or "")
+        if expected_id is not None and did==expected_id and successful(last):
+            return last
+        if forbid_id is not None and did and did!=forbid_id and successful(last):
+            return last
+        time.sleep(2)
+    raise RuntimeError("CANONICAL_PRODUCTION_CHANGE_NOT_OBSERVED")
 
 def successful(row:dict[str,Any])->bool:
     latest=(row.get("latest_stage") or {})
@@ -256,10 +287,9 @@ def do_deploy(req:dict[str,Any],cf:dict[str,Any],policy:dict[str,Any])->int:
     try:
         project,branch,revision,build=validate_target(cf)
         approval=require_mutation_authority(req,cf,policy)
-        before=[x for x in list_production(project) if successful(x)]
-        if not before or not deployment_id(before[0]):
+        previous=canonical_production(project)
+        if not successful(previous) or not deployment_id(previous):
             raise ValueError("PREVIOUS_SUCCESSFUL_PRODUCTION_DEPLOYMENT_REQUIRED")
-        previous=before[0]
     except Exception as exc:
         return blocked(req,str(exc))
 
@@ -274,10 +304,7 @@ def do_deploy(req:dict[str,Any],cf:dict[str,Any],policy:dict[str,Any])->int:
                            [{"kind":"command","source":"local://wrangler-pages-deploy",
                              "digest":sha256_bytes(proc.stdout[:65536]+proc.stderr[:65536]),"details":details}]))
     try:
-        after=[x for x in list_production(project) if successful(x)]
-        if not after or deployment_id(after[0])==deployment_id(previous):
-            raise RuntimeError("NEW_PRODUCTION_DEPLOYMENT_NOT_OBSERVED")
-        current=after[0]
+        current=wait_canonical(project,None,deployment_id(previous),90)
     except Exception as exc:
         return emit(result(req,"FAILED",str(exc)))
 
@@ -329,16 +356,14 @@ def do_rollback(req:dict[str,Any],cf:dict[str,Any],policy:dict[str,Any])->int:
         previous=str(cf.get("previous_deployment_id") or "").strip()
         if not previous:
             raise ValueError("PREVIOUS_DEPLOYMENT_ID_REQUIRED")
-        rows=[x for x in list_production(project) if successful(x)]
-        if not any(deployment_id(x)==previous for x in rows):
+        target=get_deployment(project,previous)
+        if not successful(target):
             raise ValueError("ROLLBACK_TARGET_NOT_SUCCESSFUL_PRODUCTION")
         aid=urllib.parse.quote(account_id(),safe="")
         pname=urllib.parse.quote(project,safe="")
         did=urllib.parse.quote(previous,safe="")
         api_json("POST",f"/accounts/{aid}/pages/projects/{pname}/deployments/{did}/rollback",{})
-        after=[x for x in list_production(project) if successful(x)]
-        if not after or deployment_id(after[0])!=previous:
-            raise RuntimeError("ROLLBACK_NOT_OBSERVED")
+        wait_canonical(project,previous,None,90)
     except Exception as exc:
         return blocked(req,str(exc))
     details={"project_name":project,"restored_deployment_id":previous,
