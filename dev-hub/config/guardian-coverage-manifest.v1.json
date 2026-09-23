@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 180,
   "action_lease_default_seconds": 300,
@@ -366,6 +366,28 @@
       "proof": {
         "file": "dev-hub/intendant/worker.js",
         "marker": "role:\"intendant\""
+      }
+    },
+    {
+      "component_id": "internal-final-review",
+      "role": "orchestrator",
+      "kind": "post-implementation-review",
+      "enforcement_point": "final-compromise",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/internal-final-review.py",
+        "marker": "POST_IMPLEMENTATION_SECOND_READ"
+      }
+    },
+    {
+      "component_id": "seven-agent-final-compromise-controller",
+      "role": "orchestrator",
+      "kind": "final-delivery-gate",
+      "enforcement_point": "preview-to-release",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/seven-agent-final-compromise-controller.py",
+        "marker": "CHACHA_DEV_V636_SEVEN_AGENT_FINAL_COMPROMISE"
       }
     }
   ],
