@@ -816,17 +816,18 @@ def record_approval_operation(project: str, approval_id: str, actor: str, eviden
             "old_ledger_digest":old_digest,"new_ledger_digest":new_digest
         })
         payload=txdir/"payload.json"
+        patch_path=txdir/"state-patch.json"
         save(payload,{
             "approval_id":approval_id,"status":"APPROVED","actor":actor,
             "observed_at":stamp,"evidence":evidence or None,
-            "state_patch":{"approvals":{approval_id:{
-                "status":"APPROVED","actor":actor,"observed_at":stamp,
-                "evidence":evidence or None
-            }}},
             "ledger_digest":new_digest
         })
+        save(patch_path,{"approvals":{approval_id:{
+            "status":"APPROVED","actor":actor,"observed_at":stamp,
+            "evidence":evidence or None
+        }}})
         rc_evt,event_values,out_evt,err_evt=store_record(
-            project,"APPROVAL_RECORDED",actor,payload,None,None,policy,repo_root
+            project,"APPROVAL_RECORDED",actor,payload,patch_path,None,policy,repo_root
         )
         if rc_evt!=0:
             write_receipt(receipt,{
