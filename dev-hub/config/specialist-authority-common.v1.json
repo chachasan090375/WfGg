@@ -1,0 +1,28 @@
+{
+  "schema": "chacha.dev/specialist-authority-common/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "review_contract": {
+    "request_schema": "chacha.dev/specialist-review-request/v1",
+    "response_schema": "chacha.dev/compromise-agent-review/v1",
+    "exact_project_required": true,
+    "exact_revision_required": true,
+    "exact_compromise_digest_required": true,
+    "implementation_verification_required": true
+  },
+  "identity": {
+    "project_scoped": true,
+    "central_admin_scoped": true,
+    "client_secret_allowed": false,
+    "private_key_exported": false
+  },
+  "governance": {
+    "direct_application_mutation": false,
+    "direct_architecture_mutation": false,
+    "central_orchestrator_owns_remediation": true,
+    "reviews_publish_to_assurance_exchange": true,
+    "architecture_change_requires_technology_watch": true,
+    "architecture_council_final_authority": true,
+    "automatic_external_spend_eur": 0
+  }
+}
