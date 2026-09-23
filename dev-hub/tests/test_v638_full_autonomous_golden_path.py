@@ -165,6 +165,31 @@ with tempfile.TemporaryDirectory(prefix="v638-approval-") as td:
     save(ledger,{"schema":"chacha.dev/evidence-ledger/v1","project":project,
                  "artifacts":{},"gates":{},"approvals":{},"risk_acceptances":[],"history":[]})
 
+    # Real verification + transactional ingestion without a Run Controller envelope.
+    graph=td/"release-graph.json"
+    p=run([sys.executable,BIN/"task-graph-engine.py","--project",project,
+           "--transition","PREVIEW->RELEASE","--lifecycle",CFG/"lifecycle.v1.json",
+           "--quality",CFG/"quality-gates.v1.json","--catalog",CFG/"evidence-catalog.v1.json",
+           "--orchestration",CFG/"orchestration-policy.v1.json","--output",graph])
+    assert p.returncode==0,(p.stdout,p.stderr)
+    gv=load(graph)
+    for artifact_id,method in (("preview-validation","machine"),("rollback-plan","independent-agent")):
+        task=next(x for x in gv["tasks"] if x["id"]=="artifact:"+artifact_id)
+        source=td/(artifact_id+".json");save(source,{"artifact_id":artifact_id,"status":"PASS"})
+        import hashlib
+        h="sha256:"+hashlib.sha256(source.read_bytes()).hexdigest()
+        result=td/(artifact_id+".result.json")
+        save(result,{
+          "schema":"chacha.dev/task-result/v1","project":project,"task_id":task["id"],
+          "status":"OK","producer":"v638-test-producer","observed_at":"2026-09-23T00:00:00Z",
+          "summary":"test","evidence":[{"kind":"file","source":str(source.resolve()),"digest":h}],
+          "verification":{"status":"UNVERIFIED","method":"none","verifier":"none","observed_at":"2026-09-23T00:00:00Z"},
+          "outputs":[{"type":"artifact","id":artifact_id,"status":"OK"}]
+        })
+        vr=pc.verify_result_operation(project,result,graph,method,"v638-independent-verifier",True,policy,ROOT)
+        assert vr["status"]=="OK",(artifact_id,vr)
+        assert (load(ledger)["artifacts"][artifact_id]["status"])=="OK"
+
     r=pc.record_approval_operation(project,"production-release","human-v638-test","approval-evidence-1",policy,ROOT)
     assert r["status"]=="OK",r
     lv=load(ledger);assert lv["approvals"]["production-release"]["status"]=="APPROVED"
@@ -203,6 +228,7 @@ print("CHACHA_DEV_V638_CANONICAL_MATERIALIZER_REAL=PASS")
 print("CHACHA_DEV_V638_REAL_NODE_TEST_BUILD_PREVIEW_RESTORE=PASS")
 print("CHACHA_DEV_V638_RELEASE_QUALITY_GATES_COMPLETE=PASS")
 print("CHACHA_DEV_V638_COMPROMISE_FINAL_GATE_SEPARATION=PASS")
+print("CHACHA_DEV_V638_REAL_VERIFICATION_BROKER_INGEST=PASS")
 print("CHACHA_DEV_V638_PROTECTED_HUMAN_APPROVAL_TRANSACTION=PASS")
 print("CHACHA_DEV_V638_APPROVAL_IDEMPOTENCY=PASS")
 print("CHACHA_DEV_V638_AGENT_SELF_APPROVAL_BLOCKED=PASS")
