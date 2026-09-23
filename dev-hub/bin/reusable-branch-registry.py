@@ -157,6 +157,15 @@ def apply_feedback(args):
               SET failure_count=failure_count+1,incident_count=incident_count+1,last_incident_at=?,
                   state=? WHERE branch_id=? AND version=?""",
               (args.observed_at or now_iso(),state,args.branch_id,args.version))
+        elif args.action=="VERIFIED_FAILURE":
+            state="DEGRADED" if state!="QUARANTINED" else state
+            db.execute("""UPDATE reusable_branches
+              SET failure_count=failure_count+1,state=? WHERE branch_id=? AND version=?""",
+              (state,args.branch_id,args.version))
+        elif args.action=="VERIFIED_SUCCESS":
+            db.execute("""UPDATE reusable_branches
+              SET success_count=success_count+1 WHERE branch_id=? AND version=?""",
+              (args.branch_id,args.version))
         elif args.action=="VERIFIED_RECOVERY":
             state="RECOVERY_CANDIDATE"
             db.execute("UPDATE reusable_branches SET state=? WHERE branch_id=? AND version=?",
@@ -181,7 +190,7 @@ def main():
     s.add_argument("--min-success-rate",type=float,default=0.95);s.add_argument("--max-incidents",type=int,default=0)
     m=sub.add_parser("mark-used");m.add_argument("--branch-id",required=True);m.add_argument("--version",required=True)
     f=sub.add_parser("apply-feedback");f.add_argument("--event-id",required=True);f.add_argument("--branch-id",required=True);f.add_argument("--version",required=True)
-    f.add_argument("--action",choices=["INCIDENT","VERIFIED_RECOVERY"],required=True);f.add_argument("--severity");f.add_argument("--observed-at")
+    f.add_argument("--action",choices=["INCIDENT","VERIFIED_FAILURE","VERIFIED_SUCCESS","VERIFIED_RECOVERY"],required=True);f.add_argument("--severity");f.add_argument("--observed-at")
     a=ap.parse_args()
     if a.cmd=="register":register(a)
     elif a.cmd=="search":search(a)
