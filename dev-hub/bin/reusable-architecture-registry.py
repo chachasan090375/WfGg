@@ -152,6 +152,15 @@ def apply_feedback(args):
               SET failure_count=failure_count+1,incident_count=incident_count+1,last_incident_at=?,
                   state=? WHERE architecture_id=? AND version=?""",
               (args.observed_at or now_iso(),state,args.architecture_id,args.version))
+        elif args.action=="VERIFIED_FAILURE":
+            state="DEGRADED" if state!="QUARANTINED" else state
+            db.execute("""UPDATE reusable_architectures
+              SET failure_count=failure_count+1,state=? WHERE architecture_id=? AND version=?""",
+              (state,args.architecture_id,args.version))
+        elif args.action=="VERIFIED_SUCCESS":
+            db.execute("""UPDATE reusable_architectures
+              SET success_count=success_count+1 WHERE architecture_id=? AND version=?""",
+              (args.architecture_id,args.version))
         elif args.action=="VERIFIED_RECOVERY":
             state="RECOVERY_CANDIDATE"
             db.execute("UPDATE reusable_architectures SET state=? WHERE architecture_id=? AND version=?",
@@ -168,7 +177,7 @@ def main():
     s.add_argument("--max-revalidation-age-minutes",type=int,default=60)
     s.add_argument("--min-success-rate",type=float,default=0.95);s.add_argument("--max-incidents",type=int,default=0)
     f=sub.add_parser("apply-feedback");f.add_argument("--event-id",required=True);f.add_argument("--architecture-id",required=True);f.add_argument("--version",required=True)
-    f.add_argument("--action",choices=["INCIDENT","VERIFIED_RECOVERY"],required=True);f.add_argument("--severity");f.add_argument("--observed-at")
+    f.add_argument("--action",choices=["INCIDENT","VERIFIED_FAILURE","VERIFIED_SUCCESS","VERIFIED_RECOVERY"],required=True);f.add_argument("--severity");f.add_argument("--observed-at")
     a=ap.parse_args()
     if a.cmd=="register": register(a)
     elif a.cmd=="apply-feedback": apply_feedback(a)
