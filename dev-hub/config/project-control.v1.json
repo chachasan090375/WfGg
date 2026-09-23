@@ -78,7 +78,10 @@
     "automatic_finalization_is_transactional": true,
     "automatic_finalization_is_idempotent": true,
     "automatic_finalization_never_bypasses_non_finalization_release_blockers": true,
-    "automatic_finalization_failure_never_promotes_release": true
+    "automatic_finalization_failure_never_promotes_release": true,
+    "human_approval_recorded_only_via_protected_control_operation": true,
+    "autonomous_golden_path_stops_at_human_boundaries": true,
+    "autonomous_golden_path_resumes_after_recorded_approval": true
   },
   "interfaces": {
     "cli": {
@@ -322,6 +325,15 @@
       "mandatory_before_domain_dispatch": true,
       "parallel_with": "agent-foundry-plan",
       "returns_to_core_orchestrator": true
+    },
+    "record-approval": {
+      "class": "state-write",
+      "mutating": true,
+      "protected_event": "APPROVAL_RECORDED",
+      "human_actor_required": true,
+      "transactionally_updates_evidence_ledger": true,
+      "idempotent_same_actor_evidence": true,
+      "conflicting_replay_fail_closed": true
     }
   },
   "transaction_policy": {
