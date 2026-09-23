@@ -18,6 +18,8 @@ on:
       - 'dev-hub/config/guardian-role-contracts.v1.json'
       - 'dev-hub/config/guardian-coverage-manifest.v1.json'
       - 'dev-hub/config/project-control.v1.json'
+      - 'dev-hub/config/lifecycle.v1.json'
+      - 'dev-hub/config/quality-gates.v1.json'
       - 'dev-hub/config/sentinel-technical-policy.v1.json'
       - 'dev-hub/guardian/worker.js'
       - 'dev-hub/tests/test_v634_logic_ux_compromise_release.py'
@@ -57,7 +59,9 @@ jobs:
           set -euo pipefail
           node --check dev-hub/guardian/worker.js
           python3 -m py_compile             dev-hub/bin/logic-search-engine.py             dev-hub/bin/ux-planning-engine.py             dev-hub/bin/multi-agent-compromise-engine.py             dev-hub/bin/compromise-release-gate.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/architecture-decision-council.py
-          for f in             dev-hub/config/logic-search.v1.json             dev-hub/config/ux-planning.v1.json             dev-hub/config/decision-challenge.v1.json             dev-hub/config/compromise-release-gate.v1.json             dev-hub/config/architecture-decision-council.v1.json             dev-hub/config/guardian-role-contracts.v1.json             dev-hub/config/guardian-coverage-manifest.v1.json             dev-hub/config/project-control.v1.json; do
+          for f in             dev-hub/config/logic-search.v1.json             dev-hub/config/ux-planning.v1.json             dev-hub/config/decision-challenge.v1.json             dev-hub/config/compromise-release-gate.v1.json             dev-hub/config/architecture-decision-council.v1.json             dev-hub/config/guardian-role-contracts.v1.json             dev-hub/config/guardian-coverage-manifest.v1.json             dev-hub/config/project-control.v1.json \
+            dev-hub/config/lifecycle.v1.json \
+            dev-hub/config/quality-gates.v1.json; do
             python3 -m json.tool "$f" >/dev/null
           done
           if [ -f dev-hub/bin/install-v634-logic-ux-challenge-loop.sh ]; then
@@ -124,6 +128,7 @@ jobs:
             echo AGENT_REVISION_ONLY_AFTER_FAILED_COMPROMISE=YES
             echo ARCHITECTURE_COUNCIL_CONSUMES_COMPROMISE=YES
             echo SEVEN_AGENT_RELEASE_GATE=YES
+            echo RELEASE_LIFECYCLE_ENFORCEMENT=YES
             echo MISSING_AGENT_FAIL_CLOSED=YES
             echo NO_MAJORITY_VOTE=YES
             echo CURRENT_PLAN_INCUMBENCY_PRIVILEGE=NO
