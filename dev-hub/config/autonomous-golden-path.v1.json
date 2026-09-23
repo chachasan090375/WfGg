@@ -1,0 +1,70 @@
+{
+  "schema": "chacha.dev/autonomous-golden-path/v1",
+  "version": "6.38.0",
+  "profile": "static-interaction-v1",
+  "purpose": "Prove a real end-to-end IDEA->RELEASE path from one functional intent without manually preparing intermediate lifecycle evidence.",
+  "scope": {
+    "canonical_profile_only": true,
+    "universal_generator_claimed": false,
+    "unsupported_requirements_fail_closed": true,
+    "future_complex_projects_return_to_foundries": true
+  },
+  "source_of_truth": {
+    "functional_intent": "user-cahier-des-charges",
+    "planning": "autonomous-project-orchestrator",
+    "architecture_final_authority": "architecture-decision-council",
+    "evidence": "verified-task-results-only",
+    "final_delivery": "seven-agent-final-delivery-receipt"
+  },
+  "lifecycle": {
+    "start": "IDEA",
+    "target": "RELEASE",
+    "no_stage_skip": true,
+    "project_control_only": true,
+    "evidence_broker_required": true,
+    "finalization": "automatic-v637",
+    "first_release_attempt_without_approval_must_stop": "AWAITING_APPROVAL",
+    "resume_requires_protected_human_approval_transaction": true
+  },
+  "canonical_materialization": {
+    "generator": "dev-hub/bin/golden-path-materializer.py",
+    "external_dependencies": 0,
+    "localhost_preview_only": true,
+    "production_deploy": false,
+    "production_data_write": false,
+    "secret_change": false,
+    "destructive_migration": false
+  },
+  "external_assurance": {
+    "guardian_functional_receipt_required": true,
+    "sentinel_exact_revision_receipt_required": true,
+    "five_external_authorities_final_review_required": true,
+    "two_internal_specialists_final_read_required": true,
+    "direct_external_agent_mutation": false
+  },
+  "trust": {
+    "signed_release_checkpoint_required": true,
+    "checkpoint_signature_algorithm": "Ed25519",
+    "trust_anchor_quorum": 2,
+    "preferred_anchors": [
+      "nas-create-only",
+      "sentinel-external-receipt"
+    ],
+    "private_key_output": false,
+    "project_scoped_pilot_key_allowed": true,
+    "platform_key_activation_unchanged": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0,
+    "paid_provider_requires_explicit_human_approval": true,
+    "prefer_local_owned_included": true
+  },
+  "safety": {
+    "no_fake_pass": true,
+    "no_direct_ledger_write_by_controller": true,
+    "no_direct_lifecycle_mutation_by_controller": true,
+    "approval_cannot_be_self_issued_by_central_brain": true,
+    "no_bypass_for_non_finalization_blockers": true,
+    "failed_finalization_never_promotes_release": true
+  }
+}
