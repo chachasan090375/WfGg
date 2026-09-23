@@ -86,7 +86,10 @@
     "sentinel_path": "/v1/project-events",
     "incremental_batch_max_events": 50,
     "max_outbox_events": 5000,
-    "retry_is_non_destructive": true
+    "retry_is_non_destructive": true,
+    "relay_private_key_secret_ref": "CHACHA_PROJECT_ASSURANCE_PRIVATE_KEY",
+    "project_specific_identity_required_for_external_fleet": true,
+    "current_platform_pilot_may_use_central_identity": true
   },
   "central_authority": {
     "guardian_url": "https://chacha-dev-guardian.chachasan090375.workers.dev",
