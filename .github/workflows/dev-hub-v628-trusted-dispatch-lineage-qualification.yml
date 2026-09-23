@@ -1,0 +1,92 @@
+name: ChaCha DEV V6.28 trusted dispatch lineage qualification
+
+on:
+  push:
+    branches: [dev-hub-v628-trusted-dispatch-lineage]
+    paths:
+      - 'dev-hub/bin/trusted_dispatch_learning.py'
+      - 'dev-hub/bin/task-contract-binder.py'
+      - 'dev-hub/bin/run-controller.py'
+      - 'dev-hub/bin/project-control.py'
+      - 'dev-hub/bin/evidence-collector.py'
+      - 'dev-hub/config/run-controller.v1.json'
+      - 'dev-hub/config/project-control.v1.json'
+      - 'dev-hub/tests/test_v628_trusted_dispatch_lineage.py'
+      - 'dev-hub/tests/test_v627_verified_evidence_learning.py'
+      - 'dev-hub/tests/test_v626_acceptance_confidence_loop.py'
+      - 'dev-hub/tests/test_v619_task_contract_binding.py'
+      - 'dev-hub/bin/install-v628-trusted-dispatch-lineage.sh'
+      - '.github/workflows/dev-hub-v628-trusted-dispatch-lineage-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v628-trusted-dispatch-lineage
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/trusted_dispatch_learning.py             dev-hub/bin/task-contract-binder.py             dev-hub/bin/run-controller.py             dev-hub/bin/project-control.py             dev-hub/bin/evidence-collector.py
+          python3 -m json.tool dev-hub/config/run-controller.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/project-control.v1.json >/dev/null
+          if [ -f dev-hub/bin/install-v628-trusted-dispatch-lineage.sh ]; then
+            bash -n dev-hub/bin/install-v628-trusted-dispatch-lineage.sh
+          fi
+          echo CHACHA_DEV_V628_STATIC=PASS
+
+      - name: Trusted dispatch lineage
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v628_trusted_dispatch_lineage.py
+
+      - name: V6.27 verified evidence learning regression
+        env:
+          CHACHA_DEV_TEST_TRUSTED_CONTEXT_BYPASS: '1'
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v627_verified_evidence_learning.py
+
+      - name: V6.26 acceptance regression
+        run: |
+          set -euo pipefail
+          CHACHA_DEV_TEST_GUARDIAN_BYPASS=1 PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v626_acceptance_confidence_loop.py
+
+      - name: V6.19 task contract regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v619_task_contract_binding.py
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_TRUSTED_DISPATCH_LINEAGE=V6.28
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo LEARNING_LINEAGE_CONTROLLER_OWNED=YES
+            echo PROVIDER_SELF_ATTRIBUTION_ALLOWED=NO
+            echo DYNAMIC_AGENT_LINEAGE=YES
+            echo DYNAMIC_COMPONENT_LINEAGE=YES
+            echo FOUNDRY_LINEAGE=YES
+            echo CONNECTOR_RUNTIME_LINEAGE=YES
+            echo VERIFIED_RESULT_ENRICHMENT_AFTER_INDEPENDENT_VERIFICATION=YES
+            echo EVIDENCE_INGEST_TRUSTED_PROOF_REQUIRED=YES
+            echo UNTRUSTED_CONTEXT_CONFIDENCE_CHANGE=NO
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V628_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v628-trusted-dispatch-lineage
+          path: /tmp/CHACHA_DEV_V628_RECEIPT.txt
+          retention-days: 30
