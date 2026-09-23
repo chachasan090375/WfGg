@@ -1,0 +1,22 @@
+{
+  "schema": "chacha.dev/sentinel-runtime-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "external_url": "https://chacha-dev-sentinel.chachasan090375.workers.dev",
+  "private_key": "/opt/chacha-dev/runtime/secrets/central-learning-key.pem",
+  "github_repository": "chachasan090375/WfGg",
+  "required_workflow_name": "ChaCha DEV Sentinel technical assurance",
+  "fail_closed_on_unavailable": true,
+  "receipt_ttl_minutes": 1440,
+  "local_directive_dir": "/opt/chacha-dev/runtime/sentinel/directives",
+  "principles": {
+    "sentinel_external": true,
+    "technical_scope_only": true,
+    "no_functional_authority": true,
+    "no_architecture_authority": true,
+    "no_direct_code_mutation": true,
+    "no_direct_application_mutation": true,
+    "central_orchestrator_owns_remediation": true
+  },
+  "automatic_external_spend_eur": 0
+}
