@@ -1,0 +1,154 @@
+name: ChaCha DEV V6.38 full autonomous Golden Path qualification
+
+on:
+  push:
+    branches: [dev-hub-v638-full-autonomous-golden-path]
+    paths:
+      - 'dev-hub/bin/autonomous-golden-path-controller.py'
+      - 'dev-hub/bin/golden-path-materializer.py'
+      - 'dev-hub/bin/project-control.py'
+      - 'dev-hub/bin/task-graph-engine.py'
+      - 'dev-hub/config/autonomous-golden-path.v1.json'
+      - 'dev-hub/config/project-control.v1.json'
+      - 'dev-hub/config/evidence-catalog.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/config/sentinel-technical-policy.v1.json'
+      - 'dev-hub/tests/test_v638_full_autonomous_golden_path.py'
+      - 'dev-hub/tests/test_v637_automatic_seven_agent_finalization.py'
+      - 'dev-hub/tests/test_v636_seven_agent_final_compromise.py'
+      - 'dev-hub/tests/test_v635_central_specialist_authorities.py'
+      - 'dev-hub/tests/test_v634_logic_ux_compromise_release.py'
+      - 'dev-hub/tests/test_v633_five_agent_embedded_probes.py'
+      - 'dev-hub/tests/test_v632_project_embedded_assurance.py'
+      - 'dev-hub/tests/test_v631_assurance_exchange.py'
+      - 'dev-hub/tests/test_v630_external_dual_assurance.py'
+      - 'dev-hub/tests/test_v629_memory_guided_foundry_planning.py'
+      - 'dev-hub/tests/test_v628_trusted_dispatch_lineage.py'
+      - 'dev-hub/tests/test_v627_verified_evidence_learning.py'
+      - 'dev-hub/tests/test_v623_contextual_memory_recall.py'
+      - 'dev-hub/bin/install-v638-full-autonomous-golden-path.sh'
+      - '.github/workflows/dev-hub-v638-full-autonomous-golden-path-qualification.yml'
+      - '.github/workflows/dev-hub-v638-full-autonomous-golden-path-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v638-full-autonomous-golden-path
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/autonomous-golden-path-controller.py             dev-hub/bin/golden-path-materializer.py             dev-hub/bin/project-control.py             dev-hub/bin/task-graph-engine.py
+          for f in             dev-hub/config/autonomous-golden-path.v1.json             dev-hub/config/project-control.v1.json             dev-hub/config/evidence-catalog.v1.json             dev-hub/config/guardian-coverage-manifest.v1.json             dev-hub/config/sentinel-technical-policy.v1.json; do
+            python3 -m json.tool "$f" >/dev/null
+          done
+          if [ -f dev-hub/bin/install-v638-full-autonomous-golden-path.sh ]; then
+            bash -n dev-hub/bin/install-v638-full-autonomous-golden-path.sh
+          fi
+          echo CHACHA_DEV_V638_STATIC=PASS
+
+      - name: V6.38 full autonomous Golden Path
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v638_full_autonomous_golden_path.py
+
+      - name: V6.37 automatic finalization regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v637_automatic_seven_agent_finalization.py
+
+      - name: V6.36 seven-agent final compromise regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v636_seven_agent_final_compromise.py
+
+      - name: V6.35 specialist authority regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v635_central_specialist_authorities.py
+
+      - name: V6.34 compromise regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v634_logic_ux_compromise_release.py
+
+      - name: V6.33 five-agent probes regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v633_five_agent_embedded_probes.py
+
+      - name: V6.32 embedded assurance regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v632_project_embedded_assurance.py
+
+      - name: V6.31 Assurance Exchange regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v631_assurance_exchange.py
+
+      - name: V6.30 dual assurance regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v630_external_dual_assurance.py
+
+      - name: V6.29 memory-guided Foundry regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v629_memory_guided_foundry_planning.py
+
+      - name: V6.28 trusted dispatch regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v628_trusted_dispatch_lineage.py
+
+      - name: V6.27 verified evidence regression
+        env:
+          CHACHA_DEV_TEST_TRUSTED_CONTEXT_BYPASS: '1'
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v627_verified_evidence_learning.py
+
+      - name: V6.23 contextual recall regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v623_contextual_memory_recall.py
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_FULL_AUTONOMOUS_GOLDEN_PATH=V6.38
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo IDEA_TO_RELEASE=YES
+            echo MANUAL_INTERMEDIATE_ARTIFACT_PREPARATION=NO
+            echo VERIFIED_EVIDENCE_ONLY=YES
+            echo HUMAN_BOUNDARY_PRESERVED=YES
+            echo PROTECTED_APPROVAL_TRANSACTION=YES
+            echo SEVEN_AGENT_FINALIZATION=AUTOMATIC_V637
+            echo CANONICAL_PROFILE=static-interaction-v1
+            echo UNIVERSAL_GENERATOR_CLAIMED=NO
+            echo DIRECT_LEDGER_MUTATION=NO
+            echo DIRECT_LIFECYCLE_MUTATION=NO
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V638_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v638-full-autonomous-golden-path
+          path: /tmp/CHACHA_DEV_V638_RECEIPT.txt
+          retention-days: 30
