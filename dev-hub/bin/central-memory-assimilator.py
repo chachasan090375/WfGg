@@ -224,7 +224,7 @@ def assimilate(args)->dict[str,Any]:
     with db:
         db.execute("DELETE FROM knowledge_items")
         for x in rows:
-            db.execute("""INSERT INTO knowledge_items VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            db.execute("""INSERT INTO knowledge_items VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
               (x["item_key"],x["scope"],x["project_id"],x["subject_kind"],x["subject_id"],x["signal_key"],
                x["evidence_count"],x["positive_count"],x["negative_count"],x["neutral_count"],
                x["high_anomaly_count"],x["critical_anomaly_count"],x["distinct_projects"],x["confidence"],
