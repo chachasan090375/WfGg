@@ -88,6 +88,10 @@ guardian=(ROOT/"dev-hub/guardian/worker.js").read_text(encoding="utf-8")
 assert '"central_memory_assimilation","central_memory_recall"' in guardian
 assert "central_memory_assimilation_evidence_required:true" in guardian
 assert "contextual_memory_recall_evidence_required:true" in guardian
+assert "coverage_remediation_auto_resolution:true" in guardian
+assert "remediation_cascade_suppression:true" in guardian
+assert "storeEvent(env,event,evaluation,Boolean(hold))" in guardian
+assert "resolveCoverageRemediations" in guardian
 
 contracts=json.load(open(CFG/"guardian-role-contracts.v1.json",encoding="utf-8"))
 cc=next(x for x in contracts["contracts"] if x["contract_id"]=="role:architecture-decision-council")
@@ -102,6 +106,11 @@ print("CHACHA_DEV_V623_NEGATIVE_MEMORY_CAUTION=PASS")
 print("CHACHA_DEV_V623_CURRENT_BEST_REUSE_ONLY=PASS")
 print("CHACHA_DEV_V623_FOUNDRIES_CONSUME_MEMORY_BRIEF=PASS")
 print("CHACHA_DEV_V623_COUNCIL_CONTEXTUAL_MEMORY_ADVISOR=PASS")
+installer=(BIN/"install-v623-contextual-memory-recall.sh").read_text(encoding="utf-8")
+assert "guardian-coverage-bootstrap" in installer
+assert installer.index("guardian-coverage-bootstrap") < installer.index("guardian-central-memory-recall-contract")
 print("CHACHA_DEV_V623_GUARDIAN_MEMORY_EVIDENCE_GATE=PASS")
+print("CHACHA_DEV_V623_GUARDIAN_COVERAGE_BOOTSTRAP_ORDER=PASS")
+print("CHACHA_DEV_V623_REMEDIATION_CASCADE_SUPPRESSION=PASS")
 print("CHACHA_DEV_V623_TECHNOLOGY_REVALIDATION_REMAINS_REQUIRED=PASS")
 print("CHACHA_DEV_V623_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
