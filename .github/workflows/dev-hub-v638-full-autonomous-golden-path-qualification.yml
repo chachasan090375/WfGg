@@ -5,6 +5,7 @@ on:
     branches: [dev-hub-v638-full-autonomous-golden-path]
     paths:
       - 'dev-hub/bin/autonomous-golden-path-controller.py'
+      - 'dev-hub/bin/project-assurance-event.py'
       - 'dev-hub/bin/golden-path-materializer.py'
       - 'dev-hub/bin/project-control.py'
       - 'dev-hub/bin/task-graph-engine.py'
@@ -143,6 +144,7 @@ jobs:
             echo TRUE_TWO_PHASE_HUMAN_RESUME=YES
             echo RESUME_SAME_PROJECT=YES
             echo SENTINEL_D1_FIRST_RELEASE_ASSURANCE=YES
+            echo SPECIALIST_PROJECT_EVIDENCE=EXACT_REVISION_SIGNED_RELAY
             echo PROTECTED_APPROVAL_TRANSACTION=YES
             echo SEVEN_AGENT_FINALIZATION=AUTOMATIC_V637
             echo CANONICAL_PROFILE=static-interaction-v1
