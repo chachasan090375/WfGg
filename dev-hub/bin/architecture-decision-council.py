@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 import technology_watch_runtime as tw
 
-MANDATORY=("technology-watch-pre","central-memory-assimilation","architecture-memory","architecture-portfolio","reuse-memory","branch-foundry","agent-foundry","capability-foundry","constraint-policy","technology-watch-final")
+MANDATORY=("technology-watch-pre","central-memory-assimilation","central-memory-recall","architecture-memory","architecture-portfolio","reuse-memory","branch-foundry","agent-foundry","capability-foundry","constraint-policy","technology-watch-final")
 
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding="utf-8"))
@@ -147,6 +147,7 @@ def main():
     ap.add_argument("--reuse-db",type=Path,default=Path("/opt/chacha-dev/runtime/knowledge/reusable-branches.db"))
     ap.add_argument("--architecture-memory-db",type=Path,default=Path("/opt/chacha-dev/runtime/knowledge/reusable-architectures.db"))
     ap.add_argument("--comparative-pilot-result",type=Path)
+    ap.add_argument("--memory-brief",type=Path)
     ap.add_argument("--output",type=Path,required=True)
     a=ap.parse_args()
     root=a.repo_root.resolve()
@@ -158,6 +159,27 @@ def main():
         print("CHACHA_DEV_ARCHITECTURE_COUNCIL_BLOCKED=CENTRAL_MEMORY_ASSIMILATION_UNAVAILABLE",file=sys.stderr)
     current_branch=current_branch_versions(memory)
     current_arch=current_architecture_versions(memory)
+    if a.memory_brief and a.memory_brief.is_file():
+        recall=load(a.memory_brief)
+    elif not Path("/opt/chacha-dev/runtime").exists():
+        recall={"schema":"chacha.dev/central-memory-recall/v1","bootstrap_empty":True,
+                "source_memory_snapshot_digest":memory.get("snapshot_digest"),
+                "memory_authority":"ADVISORY","previous_solution_is_default":False,
+                "technology_revalidation_required":True,"current_best_reuse_candidates":[]}
+    else:
+        recall={"schema":"chacha.dev/central-memory-recall/v1","missing":True}
+    recall_ok=(
+      recall.get("schema")=="chacha.dev/central-memory-recall/v1" and
+      recall.get("memory_authority")=="ADVISORY" and
+      recall.get("previous_solution_is_default") is False and
+      recall.get("technology_revalidation_required") is True and
+      (bool(recall.get("bootstrap_empty")) or recall.get("source_memory_snapshot_digest")==memory.get("snapshot_digest"))
+    )
+    recall_candidates=[x for x in recall.get("current_best_reuse_candidates") or [] if isinstance(x,dict)]
+    recall_branch_rank={(str(x.get("branch_id")),str(x.get("version"))):i for i,x in enumerate(recall_candidates)
+                        if str(x.get("kind"))=="branch"}
+    recall_arch_rank={(str(x.get("architecture_id")),str(x.get("version"))):i for i,x in enumerate(recall_candidates)
+                      if str(x.get("kind"))=="architecture"}
     decisions=[];blocked=[];experts=set()
     registry_script=root/"dev-hub/bin/reusable-branch-registry.py"
     architecture_registry_script=root/"dev-hub/bin/reusable-architecture-registry.py"
@@ -165,6 +187,8 @@ def main():
     architecture_memory_ready=[x for x in architecture_memory.get("candidates") or [] if x.get("reuse_ready") is True]
     if current_arch:
         architecture_memory_ready=[x for x in architecture_memory_ready if (str(x.get("architecture_id")),str(x.get("version"))) in current_arch]
+    if recall_arch_rank:
+        architecture_memory_ready.sort(key=lambda x:recall_arch_rank.get((str(x.get("architecture_id")),str(x.get("version"))),10**9))
     selected_architecture_memory=architecture_memory_ready[0] if architecture_memory_ready else None
     portfolio_path=a.output.with_name(a.output.stem+"-portfolio.json")
     portfolio_policy=root/"dev-hub/config/architecture-portfolio-optimizer.v1.json"
@@ -202,6 +226,8 @@ def main():
         reuse_ready=[x for x in reuse_candidates if x.get("reuse_ready") is True]
         if current_branch:
             reuse_ready=[x for x in reuse_ready if (str(x.get("branch_id")),str(x.get("version"))) in current_branch]
+        if recall_branch_rank:
+            reuse_ready.sort(key=lambda x:recall_branch_rank.get((str(x.get("branch_id")),str(x.get("version"))),10**9))
         architecture_memory_package_match=architecture_memory_package(selected_architecture_memory or {},domain,caps,kind) if selected_architecture_memory else None
         if reuse_ready:
             architecture_source="REUSE_REVALIDATED_BRANCH"
@@ -219,6 +245,7 @@ def main():
         advisor_state={
           "technology-watch-pre":"PASS" if prewatch else "MISSING",
           "central-memory-assimilation":"PASS" if memory.get("available") and memory.get("single_observation_never_trusted") and memory.get("technology_revalidation_required_before_reuse") else "BLOCKED",
+          "central-memory-recall":"PASS" if recall_ok else "BLOCKED",
           "architecture-memory":"PASS",
           "architecture-portfolio":"PASS" if portfolio.get("decision_ready") is True else "BLOCKED",
           "reuse-memory":"PASS",
@@ -248,6 +275,16 @@ def main():
             "bootstrap_empty":bool(memory.get("bootstrap_empty")),
             "reuse_current_best_filter_applied":bool(current_branch or current_arch)
           },
+          "central_memory_recall":{
+            "brief_digest":recall.get("brief_digest"),
+            "source_memory_snapshot_digest":recall.get("source_memory_snapshot_digest"),
+            "trusted_memory_count":int(recall.get("trusted_memory_count") or 0),
+            "caution_count":int(recall.get("caution_count") or 0),
+            "reuse_candidate_count":int(recall.get("reuse_candidate_count") or 0),
+            "memory_authority":recall.get("memory_authority"),
+            "technology_revalidation_required":bool(recall.get("technology_revalidation_required")),
+            "contextual_priority_applied":bool(recall_branch_rank or recall_arch_rank)
+          },
           "technology_watch_final":finalwatch,
           "architecture_source":architecture_source,
           "architecture":architecture,
@@ -258,9 +295,9 @@ def main():
         if missing: blocked.append({"package_id":pid,"reasons":missing})
     out={
       "schema":"chacha.dev/architecture-decision-council/v1",
-      "version":"6.22.0",
+      "version":"6.23.0",
       "mandatory_advisors":list(MANDATORY),
-      "decision_rule":"CENTRAL_ORCHESTRATOR_DECIDES_ONLY_AFTER_ASSIMILATED_MEMORY_ALL_MANDATORY_ADVISORS_AND_FINAL_TECHNOLOGY_REVALIDATION",
+      "decision_rule":"CENTRAL_ORCHESTRATOR_DECIDES_ONLY_AFTER_CONTEXTUAL_MEMORY_ALL_MANDATORY_ADVISORS_AND_FINAL_TECHNOLOGY_REVALIDATION",
       "dynamic_expert_domains":sorted(x for x in experts if x),
       "architecture_memory":{"candidate_count":len(architecture_memory.get("candidates") or []),"selected":({"architecture_id":selected_architecture_memory.get("architecture_id"),"version":selected_architecture_memory.get("version")} if selected_architecture_memory else None)},
       "architecture_portfolio":portfolio,
@@ -270,6 +307,16 @@ def main():
         "snapshot_digest":memory.get("snapshot_digest"),
         "state_counts":memory.get("state_counts") or {},
         "trusted_generalizable_count":int(memory.get("trusted_generalizable_count") or 0)
+      },
+      "central_memory_recall":{
+        "valid":bool(recall_ok),
+        "brief_digest":recall.get("brief_digest"),
+        "source_memory_snapshot_digest":recall.get("source_memory_snapshot_digest"),
+        "trusted_memory_count":int(recall.get("trusted_memory_count") or 0),
+        "caution_count":int(recall.get("caution_count") or 0),
+        "reuse_candidate_count":int(recall.get("reuse_candidate_count") or 0),
+        "memory_authority":recall.get("memory_authority"),
+        "technology_revalidation_required":bool(recall.get("technology_revalidation_required"))
       },
       "decisions":decisions,
       "blocked":blocked,
