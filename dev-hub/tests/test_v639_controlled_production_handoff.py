@@ -239,13 +239,21 @@ provider=registry["providers"]["cloudflare-pages-production"]
 adapter_entry=registry["adapters"]["cloudflare-pages-production-adapter"]
 assert provider["adapter"]=="cloudflare-pages-production-adapter"
 assert provider["execution"]=="vps"
-assert adapter_entry["status"]=="CONTRACT_OK"
+assert adapter_entry["status"]=="PILOT"
 assert adapter_entry["executable"] is None
-promotion_receipt=load(ROOT/"dev-hub/evidence/v639/cloudflare-pages-production-contract-ok-promotion-receipt.json")
-assert promotion_receipt["transition"]=="DESIGNED->CONTRACT_OK"
+contract_receipt=load(ROOT/"dev-hub/evidence/v639/cloudflare-pages-production-contract-ok-promotion-receipt.json")
+assert contract_receipt["transition"]=="DESIGNED->CONTRACT_OK"
+assert contract_receipt["status"]=="COMMITTED"
+assert contract_receipt["applied"] is True
+assert contract_receipt["production_execution_enabled"] is False
+promotion_receipt=load(ROOT/"dev-hub/evidence/v639/cloudflare-pages-production-pilot-promotion-receipt.json")
+assert promotion_receipt["transition"]=="CONTRACT_OK->PILOT"
 assert promotion_receipt["status"]=="COMMITTED"
 assert promotion_receipt["applied"] is True
 assert promotion_receipt["production_execution_enabled"] is False
+assert promotion_receipt["network_write"] is False
+assert promotion_receipt["production_mutation"] is False
+assert promotion_receipt["executable_after"]==adapter_entry["executable"]
 assert set(adapter_entry["supports"])=={"read","production-deploy"}
 
 cf_policy=load(CFG/"cloudflare-pages-production-adapter.v1.json")
@@ -353,7 +361,7 @@ assert rb["from_status"]=="ENABLED"
 assert rb["target_status"]=="DISABLED"
 assert "production-rollback-failure" in rb["triggers"]
 
-print("CHACHA_DEV_V639_CLOUDFLARE_PAGES_PRODUCTION_ADAPTER=CONTRACT_OK")
+print("CHACHA_DEV_V639_CLOUDFLARE_PAGES_PRODUCTION_ADAPTER=PILOT")
 print("CHACHA_DEV_V639_CLOUDFLARE_PAGES_PRODUCTION_EXECUTION=BLOCKED")
 print("CHACHA_DEV_V639_CLOUDFLARE_PAGES_ROLLBACK_CONTRACT=PASS")
 print("CHACHA_DEV_V639_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
