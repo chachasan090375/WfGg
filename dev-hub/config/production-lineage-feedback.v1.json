@@ -1,0 +1,47 @@
+{
+  "schema": "chacha.dev/production-lineage-feedback-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "source_db": "/opt/chacha-dev/runtime/knowledge/learning-deltas.db",
+  "feedback_db": "/opt/chacha-dev/runtime/knowledge/production-lineage-feedback.db",
+  "exact_lineage_required_for_reuse_mutation": true,
+  "missing_lineage_still_learns_centrally": true,
+  "branch_and_architecture_feedback": {
+    "high_anomaly_state": "DEGRADED",
+    "critical_anomaly_state": "QUARANTINED",
+    "verified_recovery_state": "RECOVERY_CANDIDATE",
+    "verified_recovery_does_not_auto_adopt": true,
+    "promotion_requires_acceptance": true,
+    "technology_revalidation_required": true
+  },
+  "all_components": {
+    "reputation_index": true,
+    "supported_kinds": [
+      "architecture",
+      "branch",
+      "agent",
+      "orchestrator",
+      "connector",
+      "foundry",
+      "capability",
+      "adapter",
+      "runtime"
+    ],
+    "positive_success_inferred_from_absence_of_anomaly": false,
+    "negative_anomaly_recorded": true
+  },
+  "safety": {
+    "no_direct_architecture_rewrite": true,
+    "no_direct_application_mutation": true,
+    "no_automatic_paid_action": true,
+    "idempotent_feedback_required": true,
+    "guardian_governed": true
+  },
+  "persistence": {
+    "nas_authoritative": true,
+    "vps_hot_index": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}
