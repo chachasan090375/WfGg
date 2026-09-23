@@ -56,8 +56,11 @@ done
 
 echo "CHACHA_DEV_V639_REAL_STAGE=human-secret-entry"
 if [ -z "${CLOUDFLARE_PAGES_API_TOKEN:-}" ]; then
-  read -rsp "Cloudflare Pages API token: " CLOUDFLARE_PAGES_API_TOKEN </dev/tty
-  echo >/dev/tty
+  CLOUDFLARE_PAGES_API_TOKEN="$(python3 - <<'PY'
+import getpass
+print(getpass.getpass("Cloudflare Pages API token: "))
+PY
+)"
 fi
 if [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then
   read -rp "Cloudflare Account ID: " CLOUDFLARE_ACCOUNT_ID </dev/tty
