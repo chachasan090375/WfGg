@@ -50,15 +50,17 @@ def preview_check(dist:Path,title:str)->dict[str,Any]:
         port=server.server_address[1]
         t=threading.Thread(target=server.serve_forever,daemon=True);t.start()
         try:
+            started=time.monotonic()
             with urlopen(f"http://127.0.0.1:{port}/",timeout=5) as r:
                 body=r.read().decode("utf-8","replace");status=r.status
+            duration_ms=round((time.monotonic()-started)*1000,3)
         finally:
             server.shutdown();server.server_close();t.join(timeout=2)
     finally:
         os.chdir(old)
     if status!=200 or title not in body or 'id="primary-action"' not in body:
         raise SystemExit("GOLDEN_PREVIEW_VALIDATION_FAILED")
-    return {"status_code":status,"title_present":title in body,"primary_action_present":'id="primary-action"' in body}
+    return {"status_code":status,"title_present":title in body,"primary_action_present":'id="primary-action"' in body,"duration_ms":duration_ms}
 
 def main()->int:
     ap=argparse.ArgumentParser()
