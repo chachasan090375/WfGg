@@ -334,12 +334,16 @@ async function finalReviews(req,env){
   if(!project||!revision||!compromise)return json({error:"project_revision_compromise_required"},400);
   const rows=(await env.DB.prepare(
     `SELECT * FROM external_final_reviews
-     WHERE project_id=?1 AND revision=?2 AND compromise_digest=?3 ORDER BY source ASC`
+     WHERE project_id=?1 AND revision=?2 AND compromise_digest=?3
+     ORDER BY source ASC, created_at ASC, receipt_id ASC`
   ).bind(project,revision,compromise).all()).results||[];
+  const latest=new Map();
+  for(const row of rows)latest.set(String(row.source||""),row);
+  const selected=[...latest.values()].sort((a,b)=>String(a.source||"").localeCompare(String(b.source||"")));
   return json({
     schema:"chacha.dev/external-final-review-batch/v1",
     project_id:project,revision,compromise_digest:compromise,
-    items:rows.map(r=>({
+    items:selected.map(r=>({
       schema:"chacha.dev/compromise-agent-review/v1",
       agent:String(r.source||"").toLowerCase(),receipt_id:r.receipt_id,
       project_id:r.project_id,revision:r.revision,compromise_digest:r.compromise_digest,
@@ -351,7 +355,9 @@ async function finalReviews(req,env){
       source_payload_digest:r.source_payload_digest,post_implementation_second_read:true,
       direct_mutation:false,reviewed_at:r.created_at
     })),
-    count:rows.length,required_external_agents:["guardian","sentinel","curator","bastion","intendant"],
+    count:selected.length,total_historical_reviews:rows.length,
+    latest_review_per_source:true,
+    required_external_agents:["guardian","sentinel","curator","bastion","intendant"],
     source_reverified:true,direct_mutation:false
   });
 }
