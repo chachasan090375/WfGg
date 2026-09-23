@@ -101,7 +101,10 @@ with tempfile.TemporaryDirectory(prefix="v634-") as td:
                    "project_id":project,"revision":revision,"compromise_digest":digest,
                    "verdict":"ACCEPT","hard_objections":[],"soft_objections":[],
                    "evidence_refs":[f"evidence:{agent}"],"implementation_verified":True,
-                   "source_authority":"INTERNAL" if agent in {"logician","ergonomist"} else "EXTERNAL"})
+                   "source_authority":"INTERNAL" if agent in {"logician","ergonomist"} else "EXTERNAL",
+                   "source_reverified":agent not in {"logician","ergonomist"},
+                   "original_proposal_referenced":agent in {"logician","ergonomist"},
+                   "post_implementation_second_read":agent in {"logician","ergonomist"}})
     receipt=td/"release.json"
     cmd=[sys.executable,str(BIN/"compromise-release-gate.py"),"--project-id",project,"--revision",revision,
          "--policy",str(CFG/"compromise-release-gate.v1.json"),"--compromise",str(compromise),
