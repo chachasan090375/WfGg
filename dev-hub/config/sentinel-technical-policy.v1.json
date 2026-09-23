@@ -35,6 +35,10 @@
   },
   "mandatory_platform_tests": [
     {
+      "path": "dev-hub/tests/test_v635_central_specialist_authorities.py",
+      "env": {}
+    },
+    {
       "path": "dev-hub/tests/test_v634_logic_ux_compromise_release.py",
       "env": {}
     },
