@@ -114,6 +114,10 @@ jobs:
               "GUARDIAN_URL": "$GUARDIAN_URL",
               "SENTINEL_URL": "$SENTINEL_URL"
             },
+            "services": [
+              {"binding": "GUARDIAN_SERVICE", "service": "chacha-dev-guardian"},
+              {"binding": "SENTINEL_SERVICE", "service": "chacha-dev-sentinel"}
+            ],
             "d1_databases": [{
               "binding": "DB",
               "database_name": "chacha-dev-assurance-exchange",
@@ -132,6 +136,9 @@ jobs:
               "REQUIRED_WORKFLOW_NAME": "ChaCha DEV Sentinel technical assurance",
               "ASSURANCE_EXCHANGE_URL": "$EXCHANGE_URL"
             },
+            "services": [
+              {"binding": "ASSURANCE_EXCHANGE_SERVICE", "service": "chacha-dev-assurance-exchange"}
+            ],
             "d1_databases": [{
               "binding": "DB",
               "database_name": "chacha-dev-sentinel",
@@ -151,6 +158,10 @@ jobs:
               "SENTINEL_URL": "$SENTINEL_URL",
               "ASSURANCE_EXCHANGE_URL": "$EXCHANGE_URL"
             },
+            "services": [
+              {"binding": "SENTINEL_SERVICE", "service": "chacha-dev-sentinel"},
+              {"binding": "ASSURANCE_EXCHANGE_SERVICE", "service": "chacha-dev-assurance-exchange"}
+            ],
             "d1_databases": [{
               "binding": "DB",
               "database_name": "chacha-dev-guardian",
@@ -323,9 +334,14 @@ jobs:
                curl -fsS "$GUARDIAN/healthz" -o /tmp/guardian.json &&
                grep -Fq '"guardian_sentinel_correlation":true' /tmp/exchange.json &&
                grep -Fq '"causality_not_invented":true' /tmp/exchange.json &&
+               grep -Fq '"guardian_service_binding":true' /tmp/exchange.json &&
+               grep -Fq '"sentinel_service_binding":true' /tmp/exchange.json &&
                grep -Fq '"central_orchestrator_owns_remediation":true' /tmp/exchange.json &&
                grep -Fq '"assurance_exchange_enabled":true' /tmp/sentinel.json &&
-               grep -Fq '"assurance_exchange_enabled":true' /tmp/guardian.json; then
+               grep -Fq '"assurance_exchange_service_binding":true' /tmp/sentinel.json &&
+               grep -Fq '"assurance_exchange_enabled":true' /tmp/guardian.json &&
+               grep -Fq '"assurance_exchange_service_binding":true' /tmp/guardian.json &&
+               grep -Fq '"sentinel_service_binding":true' /tmp/guardian.json; then
               ok=1;break
             fi
             sleep 3
@@ -336,3 +352,17 @@ jobs:
           echo CHACHA_DEV_V631_EXTERNAL_AGENTS_DIRECT_MUTATION=NO
           echo CHACHA_DEV_V631_REMEDIATION_OWNER=central-orchestrator
           echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+
+      - name: Verify Assurance Exchange observation route
+        env:
+          SUBDOMAIN: ${{ steps.cf.outputs.workers_subdomain }}
+        run: |
+          set -euo pipefail
+          EXCHANGE="https://chacha-dev-assurance-exchange.$SUBDOMAIN.workers.dev"
+          code="$(curl -sS -o /tmp/exchange-observation-probe.json -w '%{http_code}' \
+            -X POST "$EXCHANGE/v1/observations" \
+            -H 'content-type: application/json' \
+            --data '{"schema":"invalid-probe"}')"
+          test "$code" = "400"
+          grep -Fq '"schema_invalid"' /tmp/exchange-observation-probe.json
+          echo CHACHA_DEV_V631_EXCHANGE_OBSERVATION_ROUTE=PASS
