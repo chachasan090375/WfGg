@@ -104,8 +104,10 @@ def main()->int:
     if not guardian_id:raise SystemExit("GUARDIAN_SOURCE_RECEIPT_ID_MISSING")
     if not sentinel_id:raise SystemExit("SENTINEL_SOURCE_RECEIPT_ID_MISSING")
 
-    a.output_dir.mkdir(parents=True,exist_ok=True)
-    final_output=a.output_dir/"seven-agent-final-delivery.json"
+    safe_digest=compromise_digest.replace("sha256:","").replace("/","-")[:24] or "unknown"
+    run_dir=a.output_dir/revision/safe_digest
+    run_dir.mkdir(parents=True,exist_ok=True)
+    final_output=run_dir/"seven-agent-final-delivery.json"
     controller=a.repo_root/"dev-hub/bin/seven-agent-final-compromise-controller.py"
     cmd=[sys.executable,str(controller),
       "--project-id",a.project,"--revision",revision,
@@ -118,7 +120,7 @@ def main()->int:
       "--guardian-functional-receipt-id",guardian_id,
       "--sentinel-technical-receipt-id",sentinel_id,
       "--repo-root",str(a.repo_root),
-      "--output-dir",str(a.output_dir/"reviews"),
+      "--output-dir",str(run_dir/"reviews"),
       "--final-output",str(final_output),
       "--evidence-ledger",str(a.ledger)]
     p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=180)
