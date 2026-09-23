@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 180,
   "action_lease_default_seconds": 300,
@@ -410,6 +410,39 @@
       "proof": {
         "file": "dev-hub/bin/project-control.py",
         "marker": "automatic_finalization_eligible"
+      }
+    },
+    {
+      "component_id": "autonomous-golden-path-controller",
+      "role": "orchestrator",
+      "kind": "full-autonomous-lifecycle",
+      "enforcement_point": "idea-to-release-project-control",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-golden-path-controller.py",
+        "marker": "CHACHA_DEV_V638_FULL_AUTONOMOUS_GOLDEN_PATH"
+      }
+    },
+    {
+      "component_id": "golden-path-materializer",
+      "role": "project-factory",
+      "kind": "canonical-materializer",
+      "enforcement_point": "v638-canonical-build",
+      "criticality": "HIGH",
+      "proof": {
+        "file": "dev-hub/bin/golden-path-materializer.py",
+        "marker": "CHACHA_DEV_V638_CANONICAL_MATERIALIZATION"
+      }
+    },
+    {
+      "component_id": "project-control-protected-approval",
+      "role": "orchestrator",
+      "kind": "human-approval-transaction",
+      "enforcement_point": "production-release-human-boundary",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/project-control.py",
+        "marker": "record_approval_operation"
       }
     }
   ],
