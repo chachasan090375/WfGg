@@ -1,0 +1,56 @@
+{
+  "schema": "chacha.dev/peripheral-assurance-network/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "participants": {
+    "guardian": {
+      "status": "ACTIVE",
+      "scope": "functional",
+      "local_probe": "guardian-local",
+      "central_authority": "guardian"
+    },
+    "sentinel": {
+      "status": "ACTIVE",
+      "scope": "technical",
+      "local_probe": "sentinel-local",
+      "central_authority": "sentinel"
+    },
+    "curator": {
+      "status": "PLANNED",
+      "scope": "visual-ux",
+      "local_probe": "curator-local",
+      "central_authority": "curator"
+    },
+    "bastion": {
+      "status": "PLANNED",
+      "scope": "security-data",
+      "local_probe": "bastion-local",
+      "central_authority": "bastion"
+    },
+    "intendant": {
+      "status": "PLANNED",
+      "scope": "cost-resources",
+      "local_probe": "intendant-local",
+      "central_authority": "intendant"
+    }
+  },
+  "communication": {
+    "peer_to_peer_decision_making": false,
+    "common_exchange": "assurance-exchange",
+    "source_evidence_preserved": true,
+    "correlation_does_not_create_primary_evidence": true,
+    "direct_mutation": false,
+    "central_orchestrator_owns_remediation": true,
+    "architecture_change_requires_technology_watch": true,
+    "architecture_council_final_authority": true
+  },
+  "learning": {
+    "incremental_feedback": true,
+    "exact_project_revision_lineage": true,
+    "raw_user_content": false,
+    "cross_project_learning": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}
