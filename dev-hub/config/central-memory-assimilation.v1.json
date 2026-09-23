@@ -1,0 +1,44 @@
+{
+  "schema": "chacha.dev/central-memory-assimilation-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "source_of_truth": {
+    "raw_learning_deltas": "/opt/chacha-dev/runtime/knowledge/learning-deltas.db",
+    "experience_ledger": "/opt/chacha-dev/runtime/knowledge/experience.db",
+    "authoritative_archive": "NAS"
+  },
+  "outputs": {
+    "hot_db": "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.db",
+    "snapshot": "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json"
+  },
+  "trust": {
+    "single_observation_never_trusted": true,
+    "minimum_positive_evidence_for_trusted": 3,
+    "maximum_negative_evidence_for_trusted": 0,
+    "critical_anomaly_suspends": true,
+    "high_anomaly_degrades": true,
+    "contradiction_positive_minimum": 2,
+    "contradiction_negative_minimum": 2
+  },
+  "generalization": {
+    "project_specific_by_default": true,
+    "minimum_distinct_projects": 2,
+    "minimum_positive_evidence": 3,
+    "maximum_negative_evidence": 0,
+    "never_generalize_critical_anomaly": true
+  },
+  "reuse": {
+    "trusted_memory_is_advisory_not_absolute": true,
+    "negative_memory_can_quarantine_candidate": true,
+    "technology_revalidation_required_before_reuse": true,
+    "previous_solution_is_candidate_not_default": true
+  },
+  "privacy": {
+    "raw_user_content_forbidden": true,
+    "secrets_forbidden": true,
+    "only_already_filtered_learning_sources": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}
