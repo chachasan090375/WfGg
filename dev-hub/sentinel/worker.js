@@ -78,7 +78,7 @@ async function storedWorkflowAttestation(env,repository,revision,workflowName){
 async function technicalAssuranceForRevision(repository,revision,workflowName,env){
   const stored=await storedWorkflowAttestation(env,repository,revision,workflowName);
   if(stored)return stored;
-  const gh=await technicalAssuranceForRevision(repository,revision,workflowName,env);
+  const gh=await githubRuns(repository,revision,workflowName,env);
   return {...gh,source:"GITHUB_API_FALLBACK"};
 }
 
@@ -178,7 +178,7 @@ async function releaseCheck(req,env){
   const projectId=String(p.project_id||""),repository=String(p.repository||""),revision=String(p.revision||"");
   const workflowName=String(p.workflow_name||env.REQUIRED_WORKFLOW_NAME||"ChaCha DEV Sentinel technical assurance");
   if(!projectId||!repoValid(repository)||!revValid(revision))return json({error:"project_repository_revision_invalid"},400);
-  const gh=await githubRuns(repository,revision,workflowName,env);
+  const gh=await technicalAssuranceForRevision(repository,revision,workflowName,env);
   const reasons=[];
   let verdict=gh.state;
   if(gh.reason)reasons.push(gh.reason);
