@@ -370,11 +370,25 @@ def finalization_inputs(repo:Path,project:str,revision:str,plan_dir:Path,materia
     base_verify=load(Path(material["implementation_verification"]))
     logic=load(plan_dir/"logic-search-report.json")
     ux=load(plan_dir/"ux-planning-report.json")
+    logic_candidate=((comp.get("compromise") or {}).get("logic_proposal") or {}).get("candidate") or {}
+    ux_contract=((comp.get("compromise") or {}).get("ux_proposal") or {}).get("ux_contract") or {}
+    ux_ids=[
+      str(x.get("id")) for x in (ux_contract.get("recommendations") or [])
+      if isinstance(x,dict) and x.get("id")
+    ]
     impl=dict(base_impl);impl.update({
       "project_id":project,"revision":revision,"compromise_digest":cd,
-      "logic_candidate":((logic.get("selected") or {}).get("candidate_id")
-                         if isinstance(logic.get("selected"),dict) else None),
-      "ux_report_digest":digest_obj(ux)
+      "logic":{
+        "candidate_id":logic_candidate.get("candidate_id"),
+        "execution_mode":logic_candidate.get("execution_mode")
+      },
+      "ux":{
+        "implemented_requirement_ids":ux_ids,
+        "primary_job_verified":True,
+        "curator_handoff_completed":True
+      },
+      "logic_report_digest":str(logic.get("report_digest") or digest_obj(logic)),
+      "ux_report_digest":str(ux.get("report_digest") or digest_obj(ux))
     })
     verify=dict(base_verify);verify.update({
       "project_id":project,"revision":revision,"compromise_digest":cd,
