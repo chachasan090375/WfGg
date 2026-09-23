@@ -22,7 +22,7 @@ def guardian_check(repo_root:Path,phase:str,action_id:str,evidence:dict[str,Any]
     client=repo_root/"dev-hub/bin/guardian-client.py";policy=repo_root/"dev-hub/config/guardian-runtime-policy.v1.json"
     if not client.is_file() or not policy.is_file():raise RuntimeError("GUARDIAN_UNAVAILABLE")
     event={"schema":"chacha.dev/governance-action/v1","event_id":"gov-"+uuid.uuid4().hex,
-           "action_id":action_id,"phase":phase,"actor":"central-orchestrator",
+           "action_id":action_id,"phase":phase,"actor":"acceptance-confidence-bridge",
            "subject_role":"acceptance-confidence-bridge","action":"WRITE_MEMORY",
            "task_kind":"acceptance-confidence-bridge","permission":"workspace-write",
            "project_id":"platform-global","run_id":action_id,"adapters":[],
