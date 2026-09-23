@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-role-contracts/v1",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "scope": "PLATFORM_GLOBAL",
   "principles": {
     "guardian_is_external_to_central_brain": true,
@@ -648,6 +648,86 @@
         "plan"
       ],
       "required_evidence": []
+    },
+    {
+      "contract_id": "role:curator",
+      "kind": "role",
+      "allowed_actions": [
+        "INGEST_LOCAL_PROBE",
+        "REVIEW_IMPLEMENTATION",
+        "PUBLISH_REVIEW",
+        "ISSUE_REMEDIATION_SIGNAL"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "MUTATE_APPLICATION_DIRECTLY",
+        "PRODUCTION_DEPLOY"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "required_evidence": [
+        "exact_project_revision",
+        "implementation_verification",
+        "compromise_digest"
+      ],
+      "authority_scope": "VISUAL_UX"
+    },
+    {
+      "contract_id": "role:bastion",
+      "kind": "role",
+      "allowed_actions": [
+        "INGEST_LOCAL_PROBE",
+        "REVIEW_IMPLEMENTATION",
+        "PUBLISH_REVIEW",
+        "ISSUE_REMEDIATION_SIGNAL",
+        "ISSUE_CONTAINMENT",
+        "ISSUE_QUARANTINE",
+        "ISSUE_REVOCATION",
+        "ISSUE_SURVIVAL",
+        "REQUEST_EMERGENCY_CONTROL"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "MUTATE_APPLICATION_DIRECTLY",
+        "PRODUCTION_DEPLOY"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "required_evidence": [
+        "exact_project_revision",
+        "implementation_verification",
+        "compromise_digest"
+      ],
+      "authority_scope": "SECURITY_DATA"
+    },
+    {
+      "contract_id": "role:intendant",
+      "kind": "role",
+      "allowed_actions": [
+        "INGEST_LOCAL_PROBE",
+        "REVIEW_IMPLEMENTATION",
+        "PUBLISH_REVIEW",
+        "ISSUE_REMEDIATION_SIGNAL"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "MUTATE_APPLICATION_DIRECTLY",
+        "PRODUCTION_DEPLOY"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "required_evidence": [
+        "exact_project_revision",
+        "implementation_verification",
+        "compromise_digest"
+      ],
+      "authority_scope": "COST_RESOURCES"
     }
   ]
 }
