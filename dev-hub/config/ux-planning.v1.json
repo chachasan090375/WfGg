@@ -1,0 +1,33 @@
+{
+  "schema": "chacha.dev/ux-planning-policy/v1",
+  "version": "1.0.0",
+  "user_facing_domains": [
+    "frontend",
+    "product-domain",
+    "frontend-web",
+    "frontend-mobile",
+    "desktop",
+    "web",
+    "mobile"
+  ],
+  "challenge_thresholds": {
+    "reconsider_user_facing_packages": 3,
+    "replan_user_facing_packages": 6,
+    "replan_primary_domains": 7
+  },
+  "principles": {
+    "user_goal_before_screen_structure": true,
+    "minimize_required_user_actions": true,
+    "progressive_disclosure": true,
+    "sensible_defaults": true,
+    "error_recovery_required": true,
+    "loading_empty_error_states_required": true,
+    "responsive_behavior_required": true,
+    "accessibility_required": true,
+    "curator_receives_visual_handoff": true,
+    "ux_challenge_must_be_answered": true,
+    "ux_does_not_self_modify_application": true,
+    "architecture_change_requires_technology_watch": true,
+    "architecture_council_final_authority": true
+  }
+}
