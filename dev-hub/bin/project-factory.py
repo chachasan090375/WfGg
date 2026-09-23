@@ -51,7 +51,21 @@ def make(intent,plan,cfg,fabric):
         "per_domain_artifacts":cfg.get("provision_per_active_domain") or [],
         "knowledge_gateway":(fabric.get("global_query_gateway") or {}).get("name"),
         "autonomy":cfg.get("autonomy") or {},
-        "delivery":cfg.get("delivery") or {}
+        "delivery":cfg.get("delivery") or {},
+        "embedded_assurance":{
+            "required":True,
+            "guardian_local":True,
+            "sentinel_local":True,
+            "policy":str((cfg.get("embedded_assurance") or {}).get("policy") or "dev-hub/config/project-embedded-assurance.v1.json"),
+            "bundle_required":True,
+            "server_side_relay_required":True,
+            "project_specific_identity_required_for_production":True,
+            "client_direct_to_central":False,
+            "client_side_secret_allowed":False,
+            "raw_user_content":False,
+            "direct_mutation":False,
+            "central_orchestrator_owns_remediation":True
+        }
     }
 
 def main():
@@ -68,5 +82,8 @@ def main():
     print("CHACHA_PROJECT_FACTORY=PASS")
     print("PROJECT_ID="+out["project_id"])
     print("PROJECT_DOMAIN_COUNT="+str(len(out["domains"])))
+    print("PROJECT_EMBEDDED_ASSURANCE=REQUIRED")
+    print("GUARDIAN_LOCAL=REQUIRED")
+    print("SENTINEL_LOCAL=REQUIRED")
 
 if __name__=="__main__":main()
