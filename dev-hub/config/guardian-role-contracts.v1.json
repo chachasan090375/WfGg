@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-role-contracts/v1",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "scope": "PLATFORM_GLOBAL",
   "principles": {
     "guardian_is_external_to_central_brain": true,
@@ -509,6 +509,25 @@
         "read",
         "plan",
         "workspace-write"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:acceptance-confidence-bridge",
+      "kind": "role",
+      "allowed_actions": [
+        "WRITE_MEMORY",
+        "REPORT_MEMORY"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MUTATE_APPLICATION",
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "workspace-write",
+        "read"
       ],
       "required_evidence": []
     }
