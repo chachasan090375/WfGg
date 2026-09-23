@@ -34,14 +34,31 @@
     "max_todo_fixme_per_1000_lines_warning": 25
   },
   "mandatory_platform_tests": [
-    "dev-hub/tests/test_v629_memory_guided_foundry_planning.py",
-    "dev-hub/tests/test_v628_trusted_dispatch_lineage.py",
-    "dev-hub/tests/test_v627_verified_evidence_learning.py",
-    "dev-hub/tests/test_v623_contextual_memory_recall.py"
+    {
+      "path": "dev-hub/tests/test_v630_external_dual_assurance.py",
+      "env": {}
+    },
+    {
+      "path": "dev-hub/tests/test_v629_memory_guided_foundry_planning.py",
+      "env": {}
+    },
+    {
+      "path": "dev-hub/tests/test_v628_trusted_dispatch_lineage.py",
+      "env": {}
+    },
+    {
+      "path": "dev-hub/tests/test_v627_verified_evidence_learning.py",
+      "env": {
+        "CHACHA_DEV_TEST_TRUSTED_CONTEXT_BYPASS": "1"
+      }
+    },
+    {
+      "path": "dev-hub/tests/test_v623_contextual_memory_recall.py",
+      "env": {}
+    }
   ],
   "test_environment": {
-    "PYTHONPATH": "dev-hub/bin",
-    "CHACHA_DEV_TEST_TRUSTED_CONTEXT_BYPASS": "1"
+    "PYTHONPATH": "dev-hub/bin"
   },
   "release_gate": {
     "github_workflow_name": "ChaCha DEV Sentinel technical assurance",
