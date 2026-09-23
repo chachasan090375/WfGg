@@ -32,6 +32,7 @@ python3 -m py_compile \
   "$SRC/dev-hub/bin/controlled-production-adapter.py" \
   "$SRC/dev-hub/bin/controlled-production-handoff-controller.py" \
   "$SRC/dev-hub/adapters/cloudflare-pages-production-adapter.py" \
+  "$SRC/dev-hub/bin/qualify-cloudflare-pages-production-adapter.py" \
   "$SRC/dev-hub/tests/test_v639_controlled_production_handoff.py"
 
 for f in \
@@ -46,6 +47,44 @@ for f in \
   python3 -m json.tool "$f" >/dev/null
 done
 echo "CHACHA_DEV_V639_STATIC=PASS"
+
+echo "CHACHA_DEV_V639_STAGE=cloudflare-pages-static-contract"
+python3 "$SRC/dev-hub/bin/qualify-cloudflare-pages-production-adapter.py" \
+  --evidence "$WORK/cloudflare-pages-static-contract-evidence.json" \
+  --report "$WORK/cloudflare-pages-static-contract-report.json" \
+  | tee "$WORK/cloudflare-pages-static-contract.out"
+grep -Fq "CHACHA_DEV_V639_CF_PAGES_STATIC_CONTRACT=PASS" "$WORK/cloudflare-pages-static-contract.out"
+grep -Fq "CHACHA_DEV_V639_CF_PAGES_NETWORK_WRITE_TEST=NO" "$WORK/cloudflare-pages-static-contract.out"
+grep -Fq "CHACHA_DEV_V639_CF_PAGES_PRODUCTION_MUTATION=NO" "$WORK/cloudflare-pages-static-contract.out"
+
+echo "CHACHA_DEV_V639_STAGE=contract-ok-promotion-plan"
+python3 "$SRC/dev-hub/bin/adapter-promotion.py" \
+  --registry "$SRC/dev-hub/config/provider-adapters.v1.json" \
+  --contract "$SRC/dev-hub/config/adapter-contract.v1.json" \
+  --policy "$SRC/dev-hub/config/adapter-promotion.v1.json" \
+  --evidence "$WORK/cloudflare-pages-static-contract-evidence.json" \
+  --report "$WORK/cloudflare-pages-contract-ok-plan.json" \
+  --json \
+  plan \
+  --adapter cloudflare-pages-production-adapter \
+  --target CONTRACT_OK \
+  > "$WORK/cloudflare-pages-contract-ok-plan.out"
+python3 - "$WORK/cloudflare-pages-contract-ok-plan.out" "$SRC/dev-hub/config/provider-adapters.v1.json" <<'PY'
+import json,sys
+plan=json.load(open(sys.argv[1],encoding="utf-8"))
+registry=json.load(open(sys.argv[2],encoding="utf-8"))
+assert plan["adapter"]=="cloudflare-pages-production-adapter",plan
+assert plan["current_status"]=="DESIGNED",plan
+assert plan["target_status"]=="CONTRACT_OK",plan
+assert plan["eligible"] is True,plan
+assert plan["applied"] is False,plan
+assert plan["approval_required"] is False,plan
+entry=registry["adapters"]["cloudflare-pages-production-adapter"]
+assert entry["status"]=="DESIGNED",entry
+assert entry["executable"] is None,entry
+print("CHACHA_DEV_V639_CF_PAGES_CONTRACT_OK_ELIGIBLE=PASS")
+print("CHACHA_DEV_V639_CF_PAGES_REGISTRY_MUTATION=NO")
+PY
 
 echo "CHACHA_DEV_V639_STAGE=sandbox-two-phase-pilot"
 (
@@ -79,5 +118,8 @@ echo "CHACHA_DEV_V639_PRODUCTION_MUTATION=NO"
 echo "CHACHA_DEV_V639_REAL_PRODUCTION_TARGET=NO"
 echo "CHACHA_DEV_V639_OPERATE_ADVANCED=NO"
 echo "CHACHA_DEV_V639_CLOUDFLARE_PAGES_PRODUCTION_EXECUTION=BLOCKED"
+echo "CHACHA_DEV_V639_CF_PAGES_STATIC_CONTRACT=PASS"
+echo "CHACHA_DEV_V639_CF_PAGES_CONTRACT_OK_ELIGIBLE=PASS"
+echo "CHACHA_DEV_V639_CF_PAGES_REGISTRY_MUTATION=NO"
 echo "CHACHA_DEV_V639_AUTOMATIC_EXTERNAL_SPEND_EUR=0"
 echo "CHACHA_DEV_V639_DRY_RUN_PILOT=PASS"
