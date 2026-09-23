@@ -55,7 +55,7 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
-          python3 -m py_compile             dev-hub/bin/autonomous-golden-path-controller.py             dev-hub/bin/golden-path-materializer.py             dev-hub/bin/project-control.py             dev-hub/bin/task-graph-engine.py
+          python3 -m py_compile             dev-hub/bin/autonomous-golden-path-controller.py             dev-hub/bin/golden-path-materializer.py             dev-hub/bin/project-assurance-event.py             dev-hub/bin/project-control.py             dev-hub/bin/task-graph-engine.py
           for f in             dev-hub/config/autonomous-golden-path.v1.json             dev-hub/config/project-control.v1.json             dev-hub/config/evidence-catalog.v1.json             dev-hub/config/guardian-coverage-manifest.v1.json             dev-hub/config/sentinel-technical-policy.v1.json; do
             python3 -m json.tool "$f" >/dev/null
           done
