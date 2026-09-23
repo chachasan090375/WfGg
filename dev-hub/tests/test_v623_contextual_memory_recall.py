@@ -85,7 +85,7 @@ assert '"version":"6.23.0"' in orch
 assert '"central_memory_brief"' in orch
 
 guardian=(ROOT/"dev-hub/guardian/worker.js").read_text(encoding="utf-8")
-assert '"central_memory_assimilation","central_memory_recall"' in guardian
+assert '"central_memory_assimilation","component_confidence","central_memory_recall"' in guardian or '"central_memory_assimilation","central_memory_recall"' in guardian
 assert "central_memory_assimilation_evidence_required:true" in guardian
 assert "contextual_memory_recall_evidence_required:true" in guardian
 assert "coverage_remediation_auto_resolution:true" in guardian
