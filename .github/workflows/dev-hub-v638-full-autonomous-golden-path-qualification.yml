@@ -27,6 +27,8 @@ on:
       - 'dev-hub/tests/test_v627_verified_evidence_learning.py'
       - 'dev-hub/tests/test_v623_contextual_memory_recall.py'
       - 'dev-hub/bin/install-v638-full-autonomous-golden-path.sh'
+      - 'dev-hub/sentinel/worker.js'
+      - '.github/workflows/dev-hub-v638-sentinel-d1-first-deploy.yml'
       - '.github/workflows/dev-hub-v638-full-autonomous-golden-path-qualification.yml'
       - '.github/workflows/dev-hub-v638-full-autonomous-golden-path-deploy.yml'
   workflow_dispatch:
@@ -140,6 +142,7 @@ jobs:
             echo HUMAN_BOUNDARY_PRESERVED=YES
             echo TRUE_TWO_PHASE_HUMAN_RESUME=YES
             echo RESUME_SAME_PROJECT=YES
+            echo SENTINEL_D1_FIRST_RELEASE_ASSURANCE=YES
             echo PROTECTED_APPROVAL_TRANSACTION=YES
             echo SEVEN_AGENT_FINALIZATION=AUTOMATIC_V637
             echo CANONICAL_PROFILE=static-interaction-v1
