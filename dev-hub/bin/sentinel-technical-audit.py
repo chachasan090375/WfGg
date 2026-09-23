@@ -88,15 +88,20 @@ def audit(root:Path,policy:dict[str,Any],base:str|None,head:str,run_tests:bool)-
     tests=[]
     if run_tests:
         env={str(k):str(v) for k,v in (policy.get("test_environment") or {}).items()}
-        for rel in policy.get("mandatory_platform_tests") or []:
-            p=root/str(rel)
-            if not p.is_file():
-                blocking.append({"check":"mandatory-tests","test":str(rel),"reason":"missing"})
+        for spec in policy.get("mandatory_platform_tests") or []:
+            if isinstance(spec,dict):
+                rel=str(spec.get("path") or "")
+                test_env=dict(env);test_env.update({str(k):str(v) for k,v in (spec.get("env") or {}).items()})
+            else:
+                rel=str(spec);test_env=dict(env)
+            p=root/rel
+            if not rel or not p.is_file():
+                blocking.append({"check":"mandatory-tests","test":rel,"reason":"missing"})
                 continue
-            r=run(["python3",str(rel)],root,env=env,timeout=240)
-            row={"test":str(rel),"status":"PASS" if r["returncode"]==0 else "FAIL","detail":r}
+            r=run(["python3",rel],root,env=test_env,timeout=240)
+            row={"test":rel,"status":"PASS" if r["returncode"]==0 else "FAIL","detail":r}
             tests.append(row)
-            if r["returncode"]!=0:blocking.append({"check":"mandatory-tests","test":str(rel),"detail":r})
+            if r["returncode"]!=0:blocking.append({"check":"mandatory-tests","test":rel,"detail":r})
     verdict="PASS" if not blocking else "BLOCK"
     result={
       "schema":"chacha.dev/sentinel-technical-audit/v1","generated_at":now(),"revision":head,
