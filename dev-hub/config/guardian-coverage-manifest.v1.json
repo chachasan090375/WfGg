@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "1.9.0",
+  "version": "2.0.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 180,
   "action_lease_default_seconds": 300,
@@ -289,6 +289,50 @@
       "proof": {
         "file": "dev-hub/bin/verified-evidence-learning.py",
         "marker": "CHACHA_DEV_V627_VERIFIED_EVIDENCE_LEARNING=PASS"
+      }
+    },
+    {
+      "component_id": "logician",
+      "role": "logician",
+      "kind": "internal-advisor",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "logic-search-engine.py"
+      }
+    },
+    {
+      "component_id": "ergonomist",
+      "role": "ergonomist",
+      "kind": "internal-advisor",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "ux-planning-engine.py"
+      }
+    },
+    {
+      "component_id": "multi-agent-compromise-engine",
+      "role": "orchestrator",
+      "kind": "decision-synthesis",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "multi-agent-compromise-engine.py"
+      }
+    },
+    {
+      "component_id": "compromise-release-gate",
+      "role": "compromise-release-gate",
+      "kind": "release-gate",
+      "enforcement_point": "release-finalization",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/compromise-release-gate.py",
+        "marker": "CHACHA_DEV_COMPROMISE_RELEASE_GATE"
       }
     }
   ],
