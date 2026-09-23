@@ -78,6 +78,34 @@ async function publishAssuranceObservation(env,source,receiptId){
           http_status:r.status,correlation:x.correlation||null};
 }
 
+async function projectEvents(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(p.schema!=="chacha.dev/project-assurance-event-batch/v1")return json({error:"project_event_batch_schema_invalid"},400);
+  const rows=Array.isArray(p.events)?p.events:[];
+  if(!rows.length||rows.length>50)return json({error:"project_event_batch_size_invalid"},400);
+  let accepted=0;
+  for(const e of rows){
+    if(!e||e.schema!=="chacha.dev/project-assurance-event/v1")return json({error:"project_event_schema_invalid"},400);
+    if(String(e.assurance_role||"")!=="sentinel")return json({error:"sentinel_role_required"},400);
+    if((e.privacy||{}).raw_user_content!==false)return json({error:"raw_user_content_denied"},400);
+    if(e.direct_mutation!==false)return json({error:"direct_mutation_denied"},400);
+    const eventId=String(e.event_id||""),projectId=String(e.project_id||""),version=String(e.application_version||"");
+    const fields=e.fields&&typeof e.fields==="object"&&!Array.isArray(e.fields)?e.fields:{};
+    const type=String(fields.event_type||""),severity=String(fields.severity||"INFO");
+    if(!eventId||!projectId||!version||!type)return json({error:"project_event_identity_invalid"},400);
+    await env.DB.prepare(
+      `INSERT OR IGNORE INTO project_technical_events
+       (event_id,project_id,application_version,assurance_role,event_type,severity,event_digest,fields_json,observed_at,received_at)
+       VALUES(?1,?2,?3,'sentinel',?4,?5,?6,?7,?8,datetime('now'))`
+    ).bind(eventId,projectId,version,type,severity,String(e.event_digest||""),JSON.stringify(fields),String(e.observed_at||"")).run();
+    accepted++;
+  }
+  return json({schema:"chacha.dev/project-assurance-event-ack/v1",role:"sentinel",accepted,
+               incremental:true,raw_user_content:false,direct_mutation:false});
+}
+
 async function releaseCheck(req,env){
   const body=await req.text();const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
   let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
@@ -152,6 +180,7 @@ export default{
     if(req.method==="GET"&&u.pathname==="/healthz")return json({
       status:"ok",service:"chacha-dev-sentinel",external_technical_assurance:true,
       technical_scope_only:true,continuous_commit_assurance:true,preproduction_release_gate:true,
+      embedded_sentinel_local_ingest:true,project_event_raw_user_content:false,
       github_workflow_verification:true,public_receipt_verification:true,
       assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL||env.ASSURANCE_EXCHANGE_SERVICE),
       assurance_exchange_service_binding:Boolean(env.ASSURANCE_EXCHANGE_SERVICE),
@@ -160,6 +189,7 @@ export default{
       central_orchestrator_owns_remediation:true,automatic_external_spend_eur:0
     });
     if(req.method==="POST"&&u.pathname==="/v1/release-check")return releaseCheck(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/project-events")return projectEvents(req,env);
     if(req.method==="GET"&&u.pathname.startsWith("/v1/receipts/"))return receipt(req,env,decodeURIComponent(u.pathname.slice("/v1/receipts/".length)));
     if(req.method==="GET"&&u.pathname==="/v1/directives")return directives(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/directives/delivered")return delivered(req,env);
