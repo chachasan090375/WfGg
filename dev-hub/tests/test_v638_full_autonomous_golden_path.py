@@ -24,27 +24,83 @@ assert gold["economics"]["automatic_external_spend_eur"]==0
 catalog=load(CFG/"evidence-catalog.v1.json")
 assert catalog["artifacts"]["architecture-decisions-resolved"]["verification"]=="independent-agent"
 
-# Real canonical materialization: files, Node tests, build, preview and restore.
-if shutil.which("node") is None:
-    raise SystemExit("NODE_REQUIRED_FOR_V638_TEST")
+# Real canonical materialization is lifecycle-staged: no BUILD/VERIFY/PREVIEW work is
+# executed before the authoritative phase that owns it.
+if shutil.which("node") is None or shutil.which("git") is None:
+    raise SystemExit("NODE_AND_GIT_REQUIRED_FOR_V638_TEST")
 with tempfile.TemporaryDirectory(prefix="v638-materialize-") as td:
-    td=Path(td)
+    td=Path(td);rev="a"*40;project="v638-test-project"
     intent=td/"intent.json"
     save(intent,{
       "name":"V638 Canonical App",
       "text":"Crée une petite application frontend accessible avec un bouton, tests, sécurité, preview et rollback.",
       "golden_path_profile":"static-interaction-v1",
-      "demo_message":"Golden Path V6.38 fonctionne",
-      "expected_text":"Golden Path V6.38 fonctionne",
       "constraints":{"requires_authentication":False,"requires_database":False,"requires_external_api":False}
     })
-    out=td/"out";rev="a"*40
-    p=run([sys.executable,BIN/"golden-path-materializer.py",
-           "--intent",intent,"--project-id","v638-test-project","--revision",rev,"--output-dir",out])
-    assert p.returncode==0,(p.stdout,p.stderr)
-    m=load(out/"materialization.json")
-    assert m["status"]=="PASS" and m["zero_external_dependencies"] is True,m
-    assert m["automatic_external_spend_eur"]==0,m
+    plan=td/"planning";plan.mkdir()
+    save(plan/"final-plan.json",{"primary_domains":["frontend"],"review_domains":[]})
+    save(plan/"project.json",{"schema":"chacha.dev/project-instance/v1","project_id":project,
+                              "name":"V638 Canonical App","functional_intent":"Canonical intent"})
+    save(plan/"capability-foundry.json",{"schema":"chacha.dev/capability-foundry/v1","created_capability_count":0})
+    save(plan/"architecture-decision-council.json",{"schema":"chacha.dev/architecture-decision-council/v1","dispatch_allowed":True})
+    save(plan/"logic-search-report.json",{"schema":"chacha.dev/logic-search-report/v1","report_digest":"sha256:logic"})
+    save(plan/"ux-planning-report.json",{"schema":"chacha.dev/ux-planning-report/v1","report_digest":"sha256:ux"})
+    save(plan/"multi-agent-compromise.json",{
+      "schema":"chacha.dev/multi-agent-compromise/v1","dossier_digest":"sha256:compromise",
+      "compromise":{
+        "logic_proposal":{"candidate":{"candidate_id":"canonical-static","execution_mode":"LOCAL"}},
+        "ux_proposal":{"ux_contract":{"primary_job_statement":"Use the main action",
+          "curator_handoff_required":True,
+          "recommendations":[{"id":"visible-status"},{"id":"focus-visible"}]}}
+      }
+    })
+    save(plan/"functional-contract.json",{"schema":"chacha.dev/functional-contract/v1","criteria":[]})
+    assurance=plan/"embedded-assurance";assurance.mkdir()
+    boot=plan/"bootstrap-result.json"
+    save(boot,{
+      "schema":"chacha.dev/autonomous-project-bootstrap/v1","project_id":project,
+      "domain_dispatch_allowed":True,"central_compromise_found":True,
+      "architecture_decision_allowed":True,"architecture_council_consumed_compromise":True,
+      "external_spend_eur":0,"five_local_probes_enabled":True,
+      "final_plan":str(plan/"final-plan.json"),"project":str(plan/"project.json"),
+      "capability_foundry":str(plan/"capability-foundry.json"),
+      "architecture_decision_council":str(plan/"architecture-decision-council.json"),
+      "logic_search_report":str(plan/"logic-search-report.json"),
+      "ux_planning_report":str(plan/"ux-planning-report.json"),
+      "multi_agent_compromise":str(plan/"multi-agent-compromise.json"),
+      "functional_contract":str(plan/"functional-contract.json"),
+      "embedded_assurance_bundle":str(assurance)
+    })
+    out=td/"materialization.json";ws=td/"workspace";ev=td/"evidence"
+    def phase(name):
+        return run([sys.executable,BIN/"golden-path-materializer.py","--phase",name,
+                    "--intent",intent,"--bootstrap-result",boot,"--revision",rev,
+                    "--workspace",ws,"--evidence-dir",ev,"--output",out])
+    p=phase("design"); assert p.returncode==0,(p.stdout,p.stderr)
+    m=load(out);assert m["phase"]=="DESIGN_VALIDATED",m
+    assert set(m["artifact_sources"])=={"manifest-validation"},m
+    manifest=load(Path(m["sources"]["manifest-v3"]))
+    assert manifest["schema"]=="chacha.dev/project-manifest/v3",manifest
+
+    skipped=phase("build")
+    assert skipped.returncode!=0 and "GOLDEN_PHASE_PRECONDITION" in skipped.stderr+skipped.stdout
+
+    p=phase("prepare"); assert p.returncode==0,(p.stdout,p.stderr)
+    m=load(out);assert m["phase"]=="PREPARED",m
+    assert {"workspace-health","storage-preflight","dependency-resolution"} <= set(m["artifact_sources"])
+
+    p=phase("build"); assert p.returncode==0,(p.stdout,p.stderr)
+    m=load(out);assert m["phase"]=="BUILT",m
+    assert {"change-set","build-result","static-check"} <= set(m["artifact_sources"])
+
+    p=phase("verify"); assert p.returncode==0,(p.stdout,p.stderr)
+    m=load(out);assert m["phase"]=="VERIFIED",m
+    assert {"test-result","security-scan","ci-result","preview-candidate"} <= set(m["artifact_sources"])
+    assert m["real_preview"] is False,m
+
+    p=phase("preview"); assert p.returncode==0,(p.stdout,p.stderr)
+    m=load(out);assert m["phase"]=="PREVIEWED" and m["real_preview"] is True,m
+    assert m["external_spend_eur"]==0,m
     for key in [
       "workspace-health","storage-preflight","dependency-resolution","change-set","build-result",
       "static-check","test-result","security-scan","ci-result","preview-candidate",
@@ -53,8 +109,14 @@ with tempfile.TemporaryDirectory(prefix="v638-materialize-") as td:
     ]:
         src=Path(m["artifact_sources"][key]); assert src.is_file(),(key,src)
         val=load(src); assert val.get("status")=="PASS",(key,val)
-    assert load(out/"reports"/"backup-recovery-readiness.json")["restore_tested"] is True
-    assert load(out/"reports"/"preview-validation.json")["localhost_only"] is True
+    recovery=load(Path(m["artifact_sources"]["backup-recovery-readiness"]))
+    assert recovery["details"]["restore_tested"] is True
+    preview=load(Path(m["artifact_sources"]["preview-validation"]))
+    assert preview["details"]["status_code"]==200
+    assert float(m["preview_duration_ms"])>=0
+    impl=load(Path(m["implementation_manifest"]))
+    assert impl["logic"]["candidate_id"]=="canonical-static",impl
+    assert set(impl["ux"]["implemented_requirement_ids"])=={"visible-status","focus-visible"},impl
 
 # Release graph must include every normal quality gate, but not compromise-release.
 with tempfile.TemporaryDirectory(prefix="v638-graph-") as td:
@@ -122,6 +184,7 @@ with tempfile.TemporaryDirectory(prefix="v638-approval-") as td:
 source=(BIN/"autonomous-golden-path-controller.py").read_text(encoding="utf-8")
 for marker in [
   "autonomous-project-orchestrator.py","golden-path-materializer.py",
+  "run_materializer_phase",
   "verify-result","record-approval","AWAITING_APPROVAL",
   "seven-agent-finalization-inputs.py","guardian-client.py","sentinel-client.py",
   "crypto-trust.py","nas-ssh-adapter"
@@ -129,7 +192,13 @@ for marker in [
     assert marker in source,marker
 assert "CHACHA_DEV_V638_DIRECT_LEDGER_MUTATION=NO" in source
 assert "CHACHA_DEV_V638_DIRECT_LIFECYCLE_MUTATION=NO" in source
+assert '"design":"DESIGN_VALIDATED"' in source
+assert '"prepare":"PREPARED"' in source
+assert '"build":"BUILT"' in source
+assert '"verify":"VERIFIED"' in source
+assert '"preview":"PREVIEWED"' in source
 
+print("CHACHA_DEV_V638_LIFECYCLE_STAGED_MATERIALIZATION=PASS")
 print("CHACHA_DEV_V638_CANONICAL_MATERIALIZER_REAL=PASS")
 print("CHACHA_DEV_V638_REAL_NODE_TEST_BUILD_PREVIEW_RESTORE=PASS")
 print("CHACHA_DEV_V638_RELEASE_QUALITY_GATES_COMPLETE=PASS")
