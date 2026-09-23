@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/project-embedded-assurance-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scope": "PLATFORM_GLOBAL",
   "mandatory_for_all_projects": true,
   "bundle": {
@@ -21,7 +21,8 @@
         "user-visible-failure",
         "functional-latency"
       ],
-      "direct_mutation": false
+      "direct_mutation": false,
+      "status": "ACTIVE"
     },
     "sentinel": {
       "role": "technical-observer",
@@ -34,7 +35,8 @@
         "resource-pressure",
         "runtime-regression"
       ],
-      "direct_mutation": false
+      "direct_mutation": false,
+      "status": "ACTIVE"
     }
   },
   "privacy": {
@@ -89,7 +91,17 @@
     "retry_is_non_destructive": true,
     "relay_private_key_secret_ref": "CHACHA_PROJECT_ASSURANCE_PRIVATE_KEY",
     "project_specific_identity_required_for_external_fleet": true,
-    "current_platform_pilot_may_use_central_identity": true
+    "current_platform_pilot_may_use_central_identity": true,
+    "role_endpoints": {
+      "guardian": {
+        "base_key": "guardian_url",
+        "path": "/v1/project-events"
+      },
+      "sentinel": {
+        "base_key": "sentinel_url",
+        "path": "/v1/project-events"
+      }
+    }
   },
   "central_authority": {
     "guardian_url": "https://chacha-dev-guardian.chachasan090375.workers.dev",
@@ -104,5 +116,27 @@
   },
   "economics": {
     "automatic_external_spend_eur": 0
+  },
+  "peripheral_assurance_network": "dev-hub/config/peripheral-assurance-network.v1.json",
+  "planned_local_agents": {
+    "curator": {
+      "status": "PLANNED",
+      "activation_version": "V6.33"
+    },
+    "bastion": {
+      "status": "PLANNED",
+      "activation_version": "V6.34"
+    },
+    "intendant": {
+      "status": "PLANNED",
+      "activation_version": "V6.34"
+    }
+  },
+  "communication": {
+    "common_exchange": "assurance-exchange",
+    "peer_decision_making": false,
+    "source_evidence_preserved": true,
+    "direct_mutation": false,
+    "central_orchestrator_owns_remediation": true
   }
 }
