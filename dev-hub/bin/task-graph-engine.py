@@ -165,10 +165,16 @@ def build_graph(project: str, transition: str, lifecycle: dict[str, Any], qualit
     else:
         gate_ids = []
 
+    gate_artifact_ids=list(artifact_ids)
+    if gate_policy=="release+compromise":
+        gate_artifact_ids=[
+            x for x in artifact_ids
+            if x not in {"compromise-release-receipt","seven-agent-final-delivery-receipt"}
+        ]
     for gate_id in gate_ids:
         if gate_id not in (quality.get("gates") or {}):
             raise SystemExit(f"QUALITY_GATE_UNKNOWN={gate_id}")
-        tasks.append(gate_task(gate_id, quality, artifact_ids))
+        tasks.append(gate_task(gate_id, quality, gate_artifact_ids))
 
     dependencies = [t["id"] for t in tasks]
     for approval_id in rule.get("required_approvals") or []:
