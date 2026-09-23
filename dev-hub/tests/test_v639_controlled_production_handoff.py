@@ -331,6 +331,16 @@ with tempfile.TemporaryDirectory(prefix="v639-cf-pages-") as tmp:
     assert blocked["status"]=="BLOCKED"
     assert blocked["summary"]=="REAL_PRODUCTION_EXECUTION_SWITCH_NOT_ENABLED"
 
+provisioning=load(CFG/"adapter-provisioning.v1.json")
+prov=provisioning["adapters"]["cloudflare-pages-production-adapter"]
+assert prov["source"]=="dev-hub/adapters/cloudflare-pages-production-adapter.py"
+assert prov["probe"]["expected_status"]=="OK"
+assert prov["probe"]["expected_producer"]=="cloudflare-pages-production-adapter"
+probe_input=prov["probe"]["input"]
+assert probe_input["task"]["permission"]=="read"
+assert probe_input["metadata"]["cloudflare_pages_production"]["action"]=="contract-status"
+assert probe_input["policy_context"]["human_approval_required"] is False
+
 rollback_registry=load(CFG/"adapter-rollbacks.v1.json")
 rb=rollback_registry["adapters"]["cloudflare-pages-production-adapter"]
 assert rb["enabled"] is True
