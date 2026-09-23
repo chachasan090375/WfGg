@@ -113,7 +113,7 @@ for marker in [
 assert "CENTRAL_ORCHESTRATOR_OWNS_REMEDIATION=YES" in controller
 assert "DIRECT_MUTATION=NO" in controller
 assert "assurance_exchange_recommendations" in orchestrator
-assert any(v in orchestrator for v in ['"version":"6.31.0"','"version":"6.32.0"'])
+assert any(v in orchestrator for v in ['"version":"6.31.0"','"version":"6.32.0"','"version":"6.33.0"'])
 assert project_control["principles"]["assurance_exchange_is_external_neutral_correlation_plane"] is True
 assert project_control["principles"]["guardian_sentinel_correlation_never_grants_mutation_authority"] is True
 assert project_control["principles"]["assurance_optimization_feedback_returns_to_central_orchestrator"] is True
