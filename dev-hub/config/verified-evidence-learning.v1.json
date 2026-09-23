@@ -1,0 +1,50 @@
+{
+  "schema": "chacha.dev/verified-evidence-learning/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "eligibility": {
+    "required_result_status": "OK",
+    "required_verification_status": "VERIFIED",
+    "require_learning_context": true,
+    "require_exact_component_lineage": true,
+    "require_deployment_id": true,
+    "missing_context_behavior": "NO_CONFIDENCE_NO_PENALTY",
+    "duplicate_result_behavior": "IDEMPOTENT"
+  },
+  "evaluation": {
+    "schema": "chacha.dev/component-evaluation/v1",
+    "verified": true,
+    "outcome": "PASS",
+    "acceptance_score": 1.0
+  },
+  "integration": {
+    "evidence_ledgers_root": "/opt/chacha-dev/runtime/evidence",
+    "marker_root": "/opt/chacha-dev/runtime/knowledge/verified-evidence-learning-applied",
+    "universal_learning_outbox": "/opt/chacha-dev/runtime/learning/outbox",
+    "producer_state_root": "/opt/chacha-dev/runtime/learning/producer-state",
+    "universal_learning_flush_remains_authoritative": true,
+    "production_lineage_feedback_consumes_delta": true,
+    "component_confidence_refreshes_after_feedback": true,
+    "central_memory_refreshes_after_confidence": true
+  },
+  "separation_of_concerns": {
+    "evidence_ledger_is_factual_truth": true,
+    "learning_is_advisory": true,
+    "learning_failure_does_not_rewrite_evidence": true,
+    "confidence_is_not_architecture_authority": true,
+    "technology_revalidation_required": true,
+    "architecture_council_final_authority": true
+  },
+  "safety": {
+    "guardian_governed": true,
+    "no_direct_application_mutation": true,
+    "no_automatic_re_adoption_after_recovery": true,
+    "emergency_stop_out_of_band": true
+  },
+  "privacy": {
+    "raw_user_content": false
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}
