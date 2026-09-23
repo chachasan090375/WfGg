@@ -27,6 +27,8 @@ _STAGE_ROLE={
     "specification-compiler.py":"specification-compiler",
     "functional-intent-orchestrator.py":"orchestrator",
     "project-factory.py":"project-factory",
+    "project-embedded-assurance.py":"project-factory",
+    "project-assurance-identity-manager.py":"orchestrator",
     "agent-foundry-planner.py":"agent-foundry",
     "agent-role-contract-manager.py":"agent-contract-registry",
     "component-role-contract-manager.py":"component-contract-registry",
@@ -267,6 +269,32 @@ def main():
     ])
     pid=load(project)["project_id"]
 
+    # V6.32: assurance is part of the project birth contract, never an optional plugin.
+    assurance_bundle=out/"embedded-assurance"
+    run(bin_dir/"project-embedded-assurance.py",[
+        "--project-id",pid,
+        "--application-version","UNRELEASED",
+        "--policy",cfg/"project-embedded-assurance.v1.json",
+        "--runtime-script",bin_dir/"project-assurance-event.py",
+        "--relay-script",bin_dir/"project-assurance-relay.py",
+        "--client-runtime",root/"dev-hub/templates/project-assurance-client.mjs",
+        "--functional-contract",contract,
+        "--output-dir",assurance_bundle
+    ])
+    assurance_identity_receipt=out/"project-assurance-identity-receipt.json"
+    if bool(_GUARDIAN_CONTEXT.get("enabled")):
+        run(bin_dir/"project-assurance-identity-manager.py",[
+            "--project-id",pid,
+            "--guardian-client",bin_dir/"guardian-client.py",
+            "--guardian-policy",cfg/"guardian-runtime-policy.v1.json",
+            "--sentinel-client",bin_dir/"sentinel-client.py",
+            "--sentinel-policy",cfg/"sentinel-runtime-policy.v1.json",
+            "--registration",out/"project-assurance-identity-registration.json",
+            "--receipt",assurance_identity_receipt,
+            "--bundle",assurance_bundle
+        ])
+    assurance_manifest=load(assurance_bundle/"embedded-assurance.json")
+
     # V6.23: the central brain recalls only context-relevant memory before asking the Foundries.
     # Recall is advisory; current Technology Watch and Council remain mandatory.
     initial_memory_brief=out/"central-memory-brief-initial.json"
@@ -466,10 +494,19 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.31.0",
+      "version":"6.32.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
+      "embedded_assurance_bundle":str(assurance_bundle),
+      "embedded_assurance_manifest":str(assurance_bundle/"embedded-assurance.json"),
+      "embedded_assurance_required":True,
+      "guardian_local_enabled":bool((assurance_manifest.get("guardian_local") or {}).get("enabled")),
+      "sentinel_local_enabled":bool((assurance_manifest.get("sentinel_local") or {}).get("enabled")),
+      "project_assurance_identity_active":bool((assurance_manifest.get("production_readiness") or {}).get("relay_identity_active")),
+      "embedded_assurance_production_ready":bool((assurance_manifest.get("production_readiness") or {}).get("ready")),
+      "embedded_assurance_raw_user_content":False,
+      "embedded_assurance_direct_mutation":False,
       "preplan":str(active_pre),
       "central_memory_brief":str(memory_brief),
       "central_memory_brief_digest":load(memory_brief).get("brief_digest"),
@@ -544,6 +581,10 @@ def main():
     print("ASSURANCE_EXCHANGE_RECOMMENDATIONS="+str(state["assurance_exchange_recommendation_count"]))
     print("ASSURANCE_EXCHANGE_BLOCKERS="+str(state["assurance_exchange_blocker_count"]))
     print("ASSURANCE_EXCHANGE_OPTIMIZE="+str(state["assurance_exchange_optimize_count"]))
+    print("PROJECT_EMBEDDED_ASSURANCE=REQUIRED")
+    print("GUARDIAN_LOCAL="+("ENABLED" if state["guardian_local_enabled"] else "DISABLED"))
+    print("SENTINEL_LOCAL="+("ENABLED" if state["sentinel_local_enabled"] else "DISABLED"))
+    print("PROJECT_ASSURANCE_IDENTITY="+("ACTIVE" if state["project_assurance_identity_active"] else "PENDING"))
     print("EXTERNAL_SPEND_EUR="+str(state["external_spend_eur"]))
 
 if __name__=="__main__":main()
