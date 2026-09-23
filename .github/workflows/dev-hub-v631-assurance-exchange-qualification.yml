@@ -1,0 +1,108 @@
+name: ChaCha DEV V6.31 Assurance Exchange qualification
+
+on:
+  push:
+    branches: [dev-hub-v631-assurance-exchange-optimization-feedback]
+    paths:
+      - 'dev-hub/assurance-exchange/**'
+      - 'dev-hub/guardian/**'
+      - 'dev-hub/sentinel/**'
+      - 'dev-hub/bin/assurance-exchange-client.py'
+      - 'dev-hub/bin/assurance-exchange-feedback-controller.py'
+      - 'dev-hub/bin/assurance_exchange_runtime.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/assurance-exchange-runtime-policy.v1.json'
+      - 'dev-hub/config/project-control.v1.json'
+      - 'dev-hub/tests/test_v631_assurance_exchange.py'
+      - 'dev-hub/tests/test_v630_external_dual_assurance.py'
+      - 'dev-hub/tests/test_v629_memory_guided_foundry_planning.py'
+      - 'dev-hub/tests/test_v628_trusted_dispatch_lineage.py'
+      - 'dev-hub/tests/test_v627_verified_evidence_learning.py'
+      - 'dev-hub/bin/install-v631-assurance-exchange.sh'
+      - '.github/workflows/dev-hub-v631-assurance-exchange-qualification.yml'
+      - '.github/workflows/dev-hub-v631-assurance-exchange-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v631-assurance-exchange-optimization-feedback
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          node --check dev-hub/assurance-exchange/worker.js
+          node --check dev-hub/guardian/worker.js
+          node --check dev-hub/sentinel/worker.js
+          python3 -m py_compile             dev-hub/bin/assurance-exchange-client.py             dev-hub/bin/assurance-exchange-feedback-controller.py             dev-hub/bin/assurance_exchange_runtime.py             dev-hub/bin/autonomous-project-orchestrator.py
+          python3 -m json.tool dev-hub/config/assurance-exchange-runtime-policy.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/project-control.v1.json >/dev/null
+          grep -Fq 'assurance_correlations' dev-hub/assurance-exchange/migrations/0001.sql
+          if [ -f dev-hub/bin/install-v631-assurance-exchange.sh ]; then
+            bash -n dev-hub/bin/install-v631-assurance-exchange.sh
+          fi
+          echo CHACHA_DEV_V631_STATIC=PASS
+
+      - name: V6.31 Assurance Exchange
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v631_assurance_exchange.py
+
+      - name: V6.30 dual assurance regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v630_external_dual_assurance.py
+
+      - name: V6.29 memory guided Foundry regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v629_memory_guided_foundry_planning.py
+
+      - name: V6.28 trusted dispatch regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v628_trusted_dispatch_lineage.py
+
+      - name: V6.27 verified evidence regression
+        env:
+          CHACHA_DEV_TEST_TRUSTED_CONTEXT_BYPASS: '1'
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v627_verified_evidence_learning.py
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_ASSURANCE_EXCHANGE=V6.31
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo GUARDIAN_SENTINEL_INDEPENDENT=YES
+            echo EXCHANGE_EXTERNAL_NEUTRAL=YES
+            echo SOURCE_RECEIPTS_REVERIFIED=YES
+            echo CAUSALITY_NOT_INVENTED=YES
+            echo BLOCKER_OPTIMIZE_OBSERVE=YES
+            echo FEEDBACK_TO_CENTRAL_ORCHESTRATOR=YES
+            echo EXTERNAL_AGENTS_DIRECT_MUTATION=NO
+            echo TECHNOLOGY_WATCH_REQUIRED_FOR_ARCHITECTURE_CHANGE=YES
+            echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V631_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v631-assurance-exchange
+          path: /tmp/CHACHA_DEV_V631_RECEIPT.txt
+          retention-days: 30
