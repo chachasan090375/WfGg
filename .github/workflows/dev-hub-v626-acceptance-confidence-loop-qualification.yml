@@ -1,0 +1,89 @@
+name: ChaCha DEV V6.26 acceptance confidence loop qualification
+
+on:
+  push:
+    branches: [dev-hub-v626-acceptance-confidence-loop]
+    paths:
+      - 'dev-hub/bin/acceptance-confidence-bridge.py'
+      - 'dev-hub/bin/acceptance-engine.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/acceptance-confidence.v1.json'
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/tests/test_v626_acceptance_confidence_loop.py'
+      - 'dev-hub/bin/install-v626-acceptance-confidence-loop.sh'
+      - '.github/workflows/dev-hub-v626-acceptance-confidence-loop-qualification.yml'
+      - '.github/workflows/dev-hub-v626-guardian-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v626-acceptance-confidence-loop
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/acceptance-confidence-bridge.py             dev-hub/bin/acceptance-engine.py             dev-hub/bin/autonomous-project-orchestrator.py
+          python3 -m json.tool dev-hub/config/acceptance-confidence.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
+          if [ -f dev-hub/bin/install-v626-acceptance-confidence-loop.sh ]; then
+            bash -n dev-hub/bin/install-v626-acceptance-confidence-loop.sh
+          fi
+          echo CHACHA_DEV_V626_STATIC=PASS
+
+      - name: Acceptance confidence loop
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v626_acceptance_confidence_loop.py
+
+      - name: V6.25 confidence regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v625_component_confidence.py
+
+      - name: V6.24 lineage regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v624_production_lineage_feedback.py
+
+      - name: V6.23 memory regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v623_contextual_memory_recall.py
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_ACCEPTANCE_CONFIDENCE_LOOP=V6.26
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo FULL_ACCEPTANCE_EMITS_VERIFIED_SUCCESS=YES
+            echo EXACT_COMPONENT_LINEAGE_REQUIRED=YES
+            echo ACCEPTANCE_DUPLICATE_IDEMPOTENT=YES
+            echo REJECTED_PROJECT_BROAD_COMPONENT_PENALTY=NO
+            echo REAL_ORCHESTRATOR_COMPONENT_CONFIDENCE_GUARDIAN_EVIDENCE=YES
+            echo TECHNOLOGY_REVALIDATION_REQUIRED=YES
+            echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V626_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v626-acceptance-confidence-loop
+          path: /tmp/CHACHA_DEV_V626_RECEIPT.txt
+          retention-days: 30
