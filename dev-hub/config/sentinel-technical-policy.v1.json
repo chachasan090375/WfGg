@@ -35,6 +35,10 @@
   },
   "mandatory_platform_tests": [
     {
+      "path": "dev-hub/tests/test_v632_project_embedded_assurance.py",
+      "env": {}
+    },
+    {
       "path": "dev-hub/tests/test_v631_assurance_exchange.py",
       "env": {}
     },
