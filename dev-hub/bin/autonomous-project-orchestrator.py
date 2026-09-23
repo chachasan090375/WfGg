@@ -335,6 +335,7 @@ def main():
     agent_topology=out/"agent-topology.json"
     branch_parallel=out/"branch-topology-parallel.json"
     run_parallel_foundries(bin_dir,cfg,active_pre,pid,active_routing,memory_brief,agent_topology,branch_parallel)
+    agent_topology_v=load(agent_topology)
 
     # V6.17: every newly created agent gets a precise, versioned Guardian contract.
     # Runtime registration is fail-closed and constrained by Guardian's immutable agent template.
