@@ -52,13 +52,20 @@ def main()->int:
     account=os.environ.get("CLOUDFLARE_ACCOUNT_ID","").strip()
     if not token:
         raise SystemExit("CLOUDFLARE_API_TOKEN_MISSING")
-    if not account:
-        raise SystemExit("CLOUDFLARE_ACCOUNT_ID_MISSING")
 
     verify=get_json("https://api.cloudflare.com/client/v4/user/tokens/verify",token)
     token_status=str(((verify.get("result") or {}).get("status") or "")).lower()
     if token_status!="active":
         raise SystemExit("CLOUDFLARE_API_TOKEN_NOT_ACTIVE")
+
+    account_source="secret"
+    if not account:
+        accounts=get_json("https://api.cloudflare.com/client/v4/accounts?per_page=50",token)
+        rows=accounts.get("result") or []
+        if not isinstance(rows,list) or len(rows)!=1 or not isinstance(rows[0],dict) or not rows[0].get("id"):
+            raise SystemExit("CLOUDFLARE_ACCOUNT_RESOLUTION_FAILED")
+        account=str(rows[0]["id"])
+        account_source="api-single-account"
 
     aid=urllib.parse.quote(account,safe="")
     projects=get_json(
@@ -76,6 +83,7 @@ def main()->int:
       "status":"PASS",
       "token_status":"active",
       "pages_api_read":"PASS",
+      "account_resolution":account_source,
       "returned_project_rows":len(result),
       "network_write":False,
       "production_mutation":False,
@@ -97,6 +105,7 @@ def main()->int:
           "details":{
             "token_status":"active",
             "pages_api_read":"PASS",
+            "account_resolution":account_source,
             "network_write":False,
             "production_mutation":False,
             "real_production_target":False
@@ -109,6 +118,7 @@ def main()->int:
 
     print("CHACHA_DEV_V639_CF_PAGES_PROVIDER_HEALTH=PASS")
     print("CHACHA_DEV_V639_CF_PAGES_PROVIDER_API_READ=PASS")
+    print("CHACHA_DEV_V639_CF_PAGES_ACCOUNT_RESOLUTION="+account_source)
     print("CHACHA_DEV_V639_CF_PAGES_PROVIDER_NETWORK_WRITE=NO")
     print("CHACHA_DEV_V639_CF_PAGES_PROVIDER_PRODUCTION_MUTATION=NO")
     return 0
