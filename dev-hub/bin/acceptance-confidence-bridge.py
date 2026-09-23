@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 import universal_learning_runtime as ul
 
-DEFAULT_POLICY=Path("dev-hub/config/acceptance-confidence.v1.json")
+REPO_ROOT=Path(__file__).resolve().parents[2]\nDEFAULT_POLICY=REPO_ROOT/"dev-hub/config/acceptance-confidence.v1.json"
 DEFAULT_MARKERS=Path("/opt/chacha-dev/runtime/knowledge/acceptance-confidence-applied")
 DEFAULT_OUTBOX=Path("/opt/chacha-dev/runtime/learning/outbox")
 DEFAULT_STATE=Path("/opt/chacha-dev/runtime/learning/producer-state")
@@ -101,7 +101,7 @@ def bridge(*,repo_root:Path,acceptance:dict[str,Any],lineage:dict[str,Any],proje
 
 def main()->int:
     ap=argparse.ArgumentParser()
-    ap.add_argument("--repo-root",type=Path,default=Path("."))
+    ap.add_argument("--repo-root",type=Path,default=REPO_ROOT)
     ap.add_argument("--policy",type=Path,default=DEFAULT_POLICY)
     ap.add_argument("--acceptance",type=Path,required=True)
     ap.add_argument("--lineage",type=Path,required=True)

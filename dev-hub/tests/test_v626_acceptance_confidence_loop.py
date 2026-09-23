@@ -76,7 +76,7 @@ with tempfile.TemporaryDirectory(prefix="v626-acceptance-confidence-") as td:
       "--component-lineage",str(lineage),"--confidence-project-id","p3","--confidence-deployment-id","d3",
       "--confidence-output",str(confidence_out),"--confidence-marker-root",str(td/"m3"),
       "--confidence-outbox-root",str(td/"o3"),"--confidence-state-root",str(td/"s3")],
-      stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False)
+      cwd=td,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False)
     assert p.returncode==0,(p.stdout,p.stderr)
     res=json.load(open(acceptance_out,encoding="utf-8"))
     assert res["accepted"] is True,res
