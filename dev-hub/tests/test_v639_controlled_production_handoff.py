@@ -233,13 +233,13 @@ print("CHACHA_DEV_V639_ROLLBACK_PROVEN=PASS")
 print("CHACHA_DEV_V639_OPERATE_ADVANCED=NO")
 print("CHACHA_DEV_V639_REAL_PRODUCTION_TARGET=NO")
 
-# Cloudflare Pages production adapter exists as a separate fail-closed DESIGNED adapter.
+# Cloudflare Pages production adapter is ENABLED as a separate fail-closed production-capable adapter.
 registry=load(CFG/"provider-adapters.v1.json")
 provider=registry["providers"]["cloudflare-pages-production"]
 adapter_entry=registry["adapters"]["cloudflare-pages-production-adapter"]
 assert provider["adapter"]=="cloudflare-pages-production-adapter"
 assert provider["execution"]=="vps"
-assert adapter_entry["status"]=="PILOT"
+assert adapter_entry["status"]=="ENABLED"
 assert adapter_entry["executable"]=="/opt/chacha-dev/adapters/cloudflare-pages-production/current/cloudflare-pages-production-adapter"
 assert Path(adapter_entry["executable"]).is_absolute()
 contract_receipt=load(ROOT/"dev-hub/evidence/v639/cloudflare-pages-production-contract-ok-promotion-receipt.json")
@@ -255,6 +255,19 @@ assert promotion_receipt["production_execution_enabled"] is False
 assert promotion_receipt["network_write"] is False
 assert promotion_receipt["production_mutation"] is False
 assert promotion_receipt["executable_after"]==adapter_entry["executable"]
+enabled_receipt=load(ROOT/"dev-hub/evidence/v639/cloudflare-pages-production-enabled-promotion-receipt.json")
+assert enabled_receipt["transition"]=="PILOT->ENABLED"
+assert enabled_receipt["status"]=="COMMITTED"
+assert enabled_receipt["applied"] is True
+assert enabled_receipt["approval_type"]=="adapter-production-enable"
+assert enabled_receipt["approval_scope"]=="ENABLE_ADAPTER_ONLY_NO_REAL_PRODUCTION_DEPLOYMENT"
+assert enabled_receipt["production_execution_enabled"] is False
+assert enabled_receipt["real_production_deployment_authorized"] is False
+assert enabled_receipt["production_mutation"] is False
+assert enabled_receipt["real_production_target"] is False
+assert enabled_receipt["operate_advanced"] is False
+assert enabled_receipt["runtime_idempotent_second_run"] is True
+assert enabled_receipt["executable_after"]==adapter_entry["executable"]
 assert set(adapter_entry["supports"])=={"read","production-deploy"}
 
 cf_policy=load(CFG/"cloudflare-pages-production-adapter.v1.json")
@@ -348,6 +361,7 @@ with tempfile.TemporaryDirectory(prefix="v639-cf-pages-") as tmp:
 provisioning=load(CFG/"adapter-provisioning.v1.json")
 prov=provisioning["adapters"]["cloudflare-pages-production-adapter"]
 assert prov["source"]=="dev-hub/adapters/cloudflare-pages-production-adapter.py"
+assert prov["version"]=="1.0.1"
 assert prov["probe"]["expected_status"]=="OK"
 assert prov["probe"]["expected_producer"]=="cloudflare-pages-production-adapter"
 probe_input=prov["probe"]["input"]
@@ -362,7 +376,8 @@ assert rb["from_status"]=="ENABLED"
 assert rb["target_status"]=="DISABLED"
 assert "production-rollback-failure" in rb["triggers"]
 
-print("CHACHA_DEV_V639_CLOUDFLARE_PAGES_PRODUCTION_ADAPTER=PILOT")
+print("CHACHA_DEV_V639_CLOUDFLARE_PAGES_PRODUCTION_ADAPTER=ENABLED")
 print("CHACHA_DEV_V639_CLOUDFLARE_PAGES_PRODUCTION_EXECUTION=BLOCKED")
+print("CHACHA_DEV_V639_CLOUDFLARE_PAGES_REAL_PRODUCTION_DEPLOYMENT_AUTHORIZED=NO")
 print("CHACHA_DEV_V639_CLOUDFLARE_PAGES_ROLLBACK_CONTRACT=PASS")
 print("CHACHA_DEV_V639_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
