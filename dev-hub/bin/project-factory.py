@@ -56,6 +56,11 @@ def make(intent,plan,cfg,fabric):
             "required":True,
             "guardian_local":True,
             "sentinel_local":True,
+            "curator_local":True,
+            "bastion_local":True,
+            "intendant_local":True,
+            "five_local_probes_required":True,
+            "incremental_feedback_for_all_five":True,
             "policy":str((cfg.get("embedded_assurance") or {}).get("policy") or "dev-hub/config/project-embedded-assurance.v1.json"),
             "bundle_required":True,
             "server_side_relay_required":True,
@@ -85,5 +90,8 @@ def main():
     print("PROJECT_EMBEDDED_ASSURANCE=REQUIRED")
     print("GUARDIAN_LOCAL=REQUIRED")
     print("SENTINEL_LOCAL=REQUIRED")
+    print("CURATOR_LOCAL=REQUIRED")
+    print("BASTION_LOCAL=REQUIRED")
+    print("INTENDANT_LOCAL=REQUIRED")
 
 if __name__=="__main__":main()
