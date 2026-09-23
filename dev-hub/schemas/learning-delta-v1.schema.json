@@ -98,6 +98,67 @@
           ]
         }
       }
+    },
+    "lineage": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "schema": {
+          "const": "chacha.dev/component-lineage/v1"
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "kind",
+              "component_id",
+              "version"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "architecture",
+                  "branch",
+                  "agent",
+                  "orchestrator",
+                  "connector",
+                  "foundry",
+                  "capability",
+                  "adapter",
+                  "runtime"
+                ]
+              },
+              "component_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "version": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "contract_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "maxLength": 240
+              },
+              "artifact_digest": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "maxLength": 256
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
