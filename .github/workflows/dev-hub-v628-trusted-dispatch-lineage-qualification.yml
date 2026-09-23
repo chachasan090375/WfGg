@@ -11,12 +11,15 @@ on:
       - 'dev-hub/bin/evidence-collector.py'
       - 'dev-hub/config/run-controller.v1.json'
       - 'dev-hub/config/project-control.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/adapters/platform-selftest-adapter.py'
       - 'dev-hub/tests/test_v628_trusted_dispatch_lineage.py'
       - 'dev-hub/tests/test_v627_verified_evidence_learning.py'
       - 'dev-hub/tests/test_v626_acceptance_confidence_loop.py'
       - 'dev-hub/tests/test_v619_task_contract_binding.py'
       - 'dev-hub/bin/install-v628-trusted-dispatch-lineage.sh'
       - '.github/workflows/dev-hub-v628-trusted-dispatch-lineage-qualification.yml'
+      - '.github/workflows/dev-hub-v628-guardian-deploy.yml'
   workflow_dispatch:
 
 permissions:
@@ -40,6 +43,7 @@ jobs:
           python3 -m py_compile             dev-hub/bin/trusted_dispatch_learning.py             dev-hub/bin/task-contract-binder.py             dev-hub/bin/run-controller.py             dev-hub/bin/project-control.py             dev-hub/bin/evidence-collector.py
           python3 -m json.tool dev-hub/config/run-controller.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/project-control.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
           if [ -f dev-hub/bin/install-v628-trusted-dispatch-lineage.sh ]; then
             bash -n dev-hub/bin/install-v628-trusted-dispatch-lineage.sh
           fi
