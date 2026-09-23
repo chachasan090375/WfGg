@@ -59,6 +59,29 @@ async function requireProjectAssurance(req,env,body,projectId){
 }
 function repoValid(v){return /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(String(v||""));}
 function revValid(v){return /^[0-9a-f]{40}$/.test(String(v||""));}
+async function storedWorkflowAttestation(env,repository,revision,workflowName){
+  const row=await env.DB.prepare(
+    `SELECT repository,revision,workflow_name,workflow_run_id,audit_digest,conclusion,attested_at
+     FROM technical_workflow_attestations
+     WHERE repository=?1 AND revision=?2 AND workflow_name=?3`
+  ).bind(repository,revision,workflowName).first();
+  if(!row)return null;
+  if(String(row.conclusion)!=="PASS")
+    return {state:"BLOCK",reason:"SENTINEL_STORED_ATTESTATION_NOT_PASS",attestation:row};
+  return {
+    state:"PASS",
+    source:"D1_WORKFLOW_ATTESTATION",
+    attestation:row,
+    run:{id:String(row.workflow_run_id),html_url:"",status:"completed",conclusion:"success",updated_at:row.attested_at}
+  };
+}
+async function technicalAssuranceForRevision(repository,revision,workflowName,env){
+  const stored=await storedWorkflowAttestation(env,repository,revision,workflowName);
+  if(stored)return stored;
+  const gh=await technicalAssuranceForRevision(repository,revision,workflowName,env);
+  return {...gh,source:"GITHUB_API_FALLBACK"};
+}
+
 async function githubRuns(repository,revision,workflowName,env){
   const url="https://api.github.com/repos/"+repository+"/actions/runs?head_sha="+encodeURIComponent(revision)+"&per_page=100";
   const headers={"accept":"application/vnd.github+json","user-agent":"ChaCha-DEV-Sentinel/1.0","x-github-api-version":"2022-11-28"};
@@ -159,7 +182,8 @@ async function releaseCheck(req,env){
   const reasons=[];
   let verdict=gh.state;
   if(gh.reason)reasons.push(gh.reason);
-  const claimedAudit=String(p.audit_digest||"") || (gh.run?"github-actions-run:"+String(gh.run.id):"");
+  const claimedAudit=String(gh.attestation?.audit_digest||p.audit_digest||"") ||
+    (gh.run?"github-actions-run:"+String(gh.run.id):"");
   const advisory=Math.max(0,Number(p.advisory_count||0));
   const seed=projectId+"\n"+repository+"\n"+revision+"\n"+workflowName+"\n"+String(gh.run?.id||"none")+"\n"+claimedAudit+"\n"+Date.now();
   const receiptId="sentinel-"+(await sha256Hex(seed)).slice(0,32);
@@ -185,6 +209,7 @@ async function releaseCheck(req,env){
     sentinel:"external-worker",technical_scope_only:true,direct_code_mutation:false,
     central_orchestrator_owns_remediation:true,
     assurance_exchange_delivery:exchangeDelivery,
+    technical_verification_source:gh.source||"UNKNOWN",
     checked_at:new Date().toISOString()
   },verdict==="PASS"?200:409);
 }
@@ -286,7 +311,8 @@ export default{
       status:"ok",service:"chacha-dev-sentinel",external_technical_assurance:true,
       technical_scope_only:true,continuous_commit_assurance:true,preproduction_release_gate:true,
       embedded_sentinel_local_ingest:true,project_assurance_identity_registration:true,project_event_project_identity_required:true,project_event_raw_user_content:false,
-      github_workflow_verification:true,public_receipt_verification:true,
+      github_workflow_verification:true,stored_workflow_attestation_verification:true,
+      github_api_fallback_only:true,public_receipt_verification:true,
       assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL||env.ASSURANCE_EXCHANGE_SERVICE),
       assurance_exchange_service_binding:Boolean(env.ASSURANCE_EXCHANGE_SERVICE),
       technical_receipt_exchange_publish:true,
