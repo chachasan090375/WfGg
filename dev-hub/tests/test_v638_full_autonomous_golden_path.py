@@ -247,6 +247,7 @@ assert "const stored=await storedWorkflowAttestation(env,repository,revision,wor
 assert "const gh=await githubRuns(repository,revision,workflowName,env);" in sentinel_worker
 assert "const gh=await technicalAssuranceForRevision(repository,revision,workflowName,env);" in sentinel_worker
 assert "technical_verification_source:gh.source||\"UNKNOWN\"" in sentinel_worker
+assert "release_check_d1_first_runtime:true" in sentinel_worker
 
 print("CHACHA_DEV_V638_TRUE_TWO_PHASE_HUMAN_RESUME=PASS")
 print("CHACHA_DEV_V638_LIFECYCLE_STAGED_MATERIALIZATION=PASS")
