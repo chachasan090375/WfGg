@@ -334,6 +334,39 @@ async function createRemediation(env,{alertId,eventId,severity,reasons,payload})
   return directiveId;
 }
 
+async function resolveSatisfiedRemediationDependencies(env){
+  const rows=(await env.DB.prepare(
+    "SELECT directive_id,source_alert_id,status,rule_codes_json FROM remediation_directives ORDER BY created_at ASC LIMIT 500"
+  ).all()).results||[];
+  const statusById=new Map(rows.map(r=>[String(r.directive_id),String(r.status||"")]));
+  let resolved=0,changed=true,passes=0;
+  while(changed&&passes<8){
+    changed=false;passes++;
+    for(const row of rows){
+      const did=String(row.directive_id),status=statusById.get(did)||String(row.status||"");
+      if(!["OPEN","DELIVERED"].includes(status))continue;
+      let rules=[];
+      try{rules=JSON.parse(row.rule_codes_json||"[]");}catch{rules=[];}
+      if(!Array.isArray(rules))continue;
+      const deps=rules.filter(x=>String(x).startsWith("REMEDIATION_REQUIRED:"))
+        .map(x=>String(x).slice("REMEDIATION_REQUIRED:".length)).filter(Boolean);
+      if(!deps.length)continue;
+      if(!deps.every(id=>["APPLIED","CANCELLED"].includes(statusById.get(id)||"")))continue;
+      await env.DB.prepare(
+        "UPDATE remediation_directives SET status='APPLIED',applied_at=datetime('now'),resolution_evidence_json=?2 WHERE directive_id=?1 AND status IN ('OPEN','DELIVERED')"
+      ).bind(did,stable({source:"upstream-remediation-resolved",upstream_directive_ids:deps})).run();
+      await env.DB.prepare(
+        "UPDATE remediation_holds SET active=0,cleared_at=datetime('now') WHERE directive_id=?1 AND active=1"
+      ).bind(did).run();
+      if(row.source_alert_id)await env.DB.prepare(
+        "UPDATE guardian_alerts SET status='ACKED' WHERE alert_id=?1 AND status='OPEN'"
+      ).bind(String(row.source_alert_id)).run();
+      statusById.set(did,"APPLIED");row.status="APPLIED";resolved++;changed=true;
+    }
+  }
+  return resolved;
+}
+
 async function activeRemediationHold(event,env){
   const actor=String(event.actor||""),subject=String(event.subject_role||""),project=String(event.project_id||"");
   return env.DB.prepare(
@@ -544,6 +577,7 @@ async function check(req,env){
   const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
   let event;try{event=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
   if(!event||typeof event!=="object")return json({error:"event_invalid"},400);
+  const resolvedDependencyRemediations=await resolveSatisfiedRemediationDependencies(env);
   const hold=await activeRemediationHold(event,env);
   const claimedDirective=String((event.context||{}).remediation_directive_id||"");
   let evaluation=await evaluate(event,env);
@@ -568,7 +602,9 @@ async function check(req,env){
     remediation_applied:progress.applied===true,
     remediation_escalated:progress.escalated===true,
     stop_recommended:evaluation.severity==="CRITICAL",guardian:"external-worker",
-    action_lease_protocol:true,corrective_enforcement:true,checked_at:new Date().toISOString()
+    action_lease_protocol:true,corrective_enforcement:true,
+    resolved_dependency_remediations:resolvedDependencyRemediations,
+    checked_at:new Date().toISOString()
   },["PASS","WARNING"].includes(evaluation.verdict)?200:409);
 }
 
@@ -793,7 +829,8 @@ export default {
       corrective_enforcement:true,remediation_holds:true,remediation_retry_limit:3,
       production_learning_anomaly_bridge:true,production_anomaly_direct_mutation:false,
       central_memory_assimilation_evidence_required:true,contextual_memory_recall_evidence_required:true,
-      coverage_remediation_auto_resolution:true,coverage_remediation_batched:true,remediation_cascade_suppression:true
+      coverage_remediation_auto_resolution:true,coverage_remediation_batched:true,
+      remediation_dependency_auto_resolution:true,remediation_cascade_suppression:true
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/learning-anomalies/report")return reportLearningAnomaly(req,env);
