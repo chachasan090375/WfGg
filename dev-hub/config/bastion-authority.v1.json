@@ -1,0 +1,45 @@
+{
+  "schema": "chacha.dev/bastion-authority-policy/v1",
+  "version": "1.0.0",
+  "role": "bastion",
+  "scope": "SECURITY_DATA",
+  "local_probe_role": "bastion",
+  "accept_severities": [
+    "INFO"
+  ],
+  "revise_severities": [
+    "WARNING"
+  ],
+  "block_severities": [
+    "BLOCK",
+    "CRITICAL"
+  ],
+  "incident_response": {
+    "actions": [
+      "OBSERVE",
+      "CONTAIN",
+      "QUARANTINE",
+      "REVOKE",
+      "SURVIVAL",
+      "E_STOP"
+    ],
+    "local_project_attack_max_without_corroboration": "QUARANTINE",
+    "revoke_requires": "verified_project_or_runtime_compromise",
+    "survival_requires": "platform_wide_or_core_integrity_risk",
+    "e_stop_requires": {
+      "severity": "CRITICAL",
+      "minimum_independent_corroborations": 2,
+      "allowed_scopes": [
+        "PLATFORM",
+        "CORE"
+      ],
+      "out_of_band_controller": true
+    },
+    "failover": {
+      "status": "RESERVED_INACTIVE",
+      "future_architecture": "ACTIVE_PASSIVE_HA",
+      "compromised_state_replication_forbidden": true
+    }
+  },
+  "direct_mutation": false
+}
