@@ -51,9 +51,9 @@ function verdictFor(config,events,implementationVerified){
 }
 async function publishReviewRef(env,role,receiptId){
   if(!env.ASSURANCE_EXCHANGE_SERVICE)return {status:"NOT_CONFIGURED"};
-  const body=JSON.stringify({schema:"chacha.dev/specialist-review-ref/v1",source:role,receipt_id:receiptId});
+  const body=JSON.stringify({schema:"chacha.dev/final-review-ref/v1",source:role,receipt_id:receiptId});
   let r;try{
-    r=await env.ASSURANCE_EXCHANGE_SERVICE.fetch(new Request("https://assurance-exchange.internal/v1/specialist-reviews",{
+    r=await env.ASSURANCE_EXCHANGE_SERVICE.fetch(new Request("https://assurance-exchange.internal/v1/final-reviews",{
       method:"POST",headers:{"content-type":"application/json"},body
     }));
   }catch{return {status:"DEFERRED",reason:"EXCHANGE_UNAVAILABLE"};}
