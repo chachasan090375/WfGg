@@ -217,6 +217,83 @@ def extract_receipt(stdout:str,label:str)->dict[str,Any]:
         if x.get("receipt_id"): return x
     raise SystemExit(label+"_RECEIPT_MISSING:"+stdout[-4000:])
 
+def stdout_marker(stdout:str,key:str)->str:
+    prefix=key+"="
+    for line in stdout.splitlines():
+        line=line.strip()
+        if line.startswith(prefix):
+            value=line[len(prefix):].strip()
+            if value:return value
+    raise SystemExit("V638_OUTPUT_MARKER_MISSING:"+key)
+
+def emit_specialist_project_evidence(repo:Path,plan_dir:Path,revision:str,
+                                     material:dict[str,Any],out:Path)->Path:
+    boot=load(plan_dir/"bootstrap-result.json")
+    if boot.get("project_assurance_identity_active") is not True:
+        raise SystemExit("V638_PROJECT_ASSURANCE_IDENTITY_NOT_ACTIVE")
+    if boot.get("specialist_authority_identities_active") is not True:
+        raise SystemExit("V638_SPECIALIST_AUTHORITY_IDENTITIES_NOT_ACTIVE")
+    bundle=Path(str(boot.get("embedded_assurance_bundle") or "")).resolve()
+    if not (bundle/"embedded-assurance.json").is_file():
+        raise SystemExit("V638_EMBEDDED_ASSURANCE_BUNDLE_MISSING")
+    identity_receipt=plan_dir/"project-assurance-identity-receipt.json"
+    if not identity_receipt.is_file():
+        raise SystemExit("V638_PROJECT_ASSURANCE_IDENTITY_RECEIPT_MISSING")
+    key=Path(str(load(identity_receipt).get("private_key_path") or ""))
+    if not key.is_file():
+        raise SystemExit("V638_PROJECT_ASSURANCE_PRIVATE_KEY_MISSING")
+
+    src={k:Path(v) for k,v in (material.get("artifact_sources") or {}).items()}
+    for required in ("preview-validation","security-scan","dependency-resolution"):
+        if required not in src or not src[required].is_file():
+            raise SystemExit("V638_SPECIALIST_EVIDENCE_SOURCE_MISSING:"+required)
+
+    preview=load(src["preview-validation"])
+    status_code=int(((preview.get("details") or {}).get("status_code") or 200))
+    duration_ms=float(material.get("preview_duration_ms") or 0)
+    specs={
+      "curator":("visual-health",{
+        "surface_id":"golden-path-preview","viewport_class":"responsive",
+        "status_code":status_code,"evidence_digest":digest_file(src["preview-validation"])
+      }),
+      "bastion":("security-health",{
+        "component_id":"golden-path-preview","component_version":revision,
+        "evidence_digest":digest_file(src["security-scan"])
+      }),
+      "intendant":("resource-health",{
+        "component_id":"golden-path-preview","component_version":revision,
+        "duration_ms":duration_ms,"external_cost_microunits":0,
+        "evidence_digest":digest_file(src["dependency-resolution"])
+      })
+    }
+    policy=repo/"dev-hub/config/project-embedded-assurance.v1.json"
+    event_script=repo/"dev-hub/bin/project-assurance-event.py"
+    relay_script=repo/"dev-hub/bin/project-assurance-relay.py"
+    rows=[]
+    for role,(event_type,fields) in specs.items():
+        p=run([sys.executable,str(event_script),"--policy",str(policy),"--bundle",str(bundle),
+               "--role",role,"--event-type",event_type,"--severity","INFO",
+               "--application-version",revision,
+               "--fields-json",json.dumps(fields,separators=(",",":"))],cwd=repo,timeout=60)
+        require_ok(p,"V638_"+role.upper()+"_EVIDENCE_EVENT")
+        event_id=stdout_marker(p.stdout,"EVENT_ID")
+        relay=run([sys.executable,str(relay_script),"--bundle",str(bundle),"--policy",str(policy),
+                   "--private-key",str(key),"--role",role],cwd=repo,timeout=90)
+        require_ok(relay,"V638_"+role.upper()+"_EVIDENCE_RELAY")
+        delivered=bundle/"delivered"/role/(event_id+".json")
+        if not delivered.is_file():
+            raise SystemExit("V638_SPECIALIST_EVIDENCE_NOT_DELIVERED:"+role+":"+event_id)
+        event=load(delivered)
+        if event.get("application_version")!=revision or event.get("assurance_role")!=role:
+            raise SystemExit("V638_SPECIALIST_EVIDENCE_IDENTITY_MISMATCH:"+role)
+        rows.append({"role":role,"event_type":event_type,"event_id":event_id,
+                     "event_digest":event.get("event_digest"),"source":str(delivered)})
+    result={"schema":"chacha.dev/v638-specialist-project-evidence/v1",
+            "revision":revision,"status":"PASS","events":rows,
+            "raw_user_content":False,"direct_mutation":False}
+    target=out/"specialist-project-evidence.json";save(target,result)
+    return target
+
 def run_materializer_phase(repo:Path,intent:Path,plan_dir:Path,revision:str,
                            material_dir:Path,phase:str)->dict[str,Any]:
     workspace=material_dir/"workspace"
@@ -639,6 +716,12 @@ def main()->int:
     material=run_materializer_phase(repo,intent,plan_dir,a.revision,material_dir,"preview")
     src={k:Path(v) for k,v in (material.get("artifact_sources") or {}).items()}
 
+    # The three specialist authorities require exact-revision project evidence before
+    # their V6.36/V6.37 second read. Evidence is derived only from real PREVIEW outputs,
+    # signed with the project-scoped assurance identity, and relayed server-side.
+    specialist_evidence=emit_specialist_project_evidence(
+        repo,plan_dir,a.revision,material,out/"specialist-assurance")
+
     # 5. Release trust is built only after PREVIEW work exists and PREVIEW is authoritative.
     signed,anchor=create_signed_checkpoint(repo,project,a.revision,pp["state"],
                                             a.signing_private_key.resolve(),a.signing_public_key.resolve(),
@@ -678,6 +761,7 @@ def main()->int:
       "sentinel_technical_receipt_id":sentinel.get("receipt_id"),
       "signed_release_checkpoint":str(signed.resolve()),
       "trust_anchor_quorum":str(quorum.resolve()),
+      "specialist_project_evidence":str(specialist_evidence.resolve()),
       "seven_agent_finalization":"PASS",
       "human_boundary_proven":True,
       "automatic_external_spend_eur":0,
@@ -689,6 +773,7 @@ def main()->int:
     # A separate invocation with --resume-from-awaiting-approval is required.
     save(out/"golden-path-result.json",result)
     print("CHACHA_DEV_V638_IDEA_TO_PREVIEW_AUTONOMOUS=PASS")
+    print("CHACHA_DEV_V638_SPECIALIST_PROJECT_EVIDENCE=PASS")
     print("CHACHA_DEV_V638_SEVEN_AGENT_AUTO_FINALIZATION=PASS")
     print("CHACHA_DEV_V638_HUMAN_BOUNDARY=AWAITING_APPROVAL")
     print("CHACHA_DEV_V638_TWO_PHASE_RESUME_REQUIRED=YES")
