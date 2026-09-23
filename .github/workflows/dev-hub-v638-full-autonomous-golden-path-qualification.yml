@@ -5,6 +5,7 @@ on:
     branches: [dev-hub-v639-controlled-production-handoff]
     paths:
       - 'dev-hub/bin/controlled-production-handoff-controller.py'
+      - 'dev-hub/bin/pilot-v639-controlled-production-handoff-dry-run.sh'
       - 'dev-hub/bin/controlled-production-adapter.py'
       - 'dev-hub/config/controlled-production-handoff.v1.json'
       - 'dev-hub/config/controlled-production-adapter-dry-run.v1.json'
@@ -68,6 +69,7 @@ jobs:
           if [ -f dev-hub/bin/install-v638-full-autonomous-golden-path.sh ]; then
             bash -n dev-hub/bin/install-v638-full-autonomous-golden-path.sh
           fi
+          bash -n dev-hub/bin/pilot-v639-controlled-production-handoff-dry-run.sh
           echo CHACHA_DEV_V639_STATIC=PASS
 
       - name: V6.39 controlled production handoff
@@ -152,6 +154,7 @@ jobs:
             echo ROLLBACK_PROVEN=YES
             echo OPERATE_ADVANCED=NO
             echo REAL_PRODUCTION_TARGET=NO
+            echo VPS_SANDBOX_PILOT=AVAILABLE
             echo V638_REGRESSION=YES
             echo RESULT=success
             echo SOURCE_REV="$(git rev-parse HEAD)"
