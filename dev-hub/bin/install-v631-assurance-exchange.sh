@@ -48,7 +48,18 @@ curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$A
 tar -xzf "$ARCHIVE" -C "$WORK"
 SRC="$(find "$WORK" -mindepth 1 -maxdepth 1 -type d -name 'WfGg-*' | head -1)"
 [ -d "$SRC/dev-hub" ] || { echo "CHACHA_DEV_V631_INSTALL=BLOCKED reason=archive_invalid"; exit 2; }
-for required in   dev-hub/bin/assurance-exchange-client.py   dev-hub/bin/assurance-exchange-feedback-controller.py   dev-hub/bin/assurance_exchange_runtime.py   dev-hub/bin/sentinel-client.py   dev-hub/bin/guardian-client.py   dev-hub/config/assurance-exchange-runtime-policy.v1.json   dev-hub/config/sentinel-runtime-policy.v1.json   dev-hub/config/guardian-runtime-policy.v1.json   dev-hub/systemd/chacha-dev-assurance-exchange-feedback.service   dev-hub/systemd/chacha-dev-assurance-exchange-feedback.timer   dev-hub/tests/test_v631_assurance_exchange.py; do
+for required in \
+  dev-hub/bin/assurance-exchange-client.py \
+  dev-hub/bin/assurance-exchange-feedback-controller.py \
+  dev-hub/bin/assurance_exchange_runtime.py \
+  dev-hub/bin/sentinel-client.py \
+  dev-hub/bin/guardian-client.py \
+  dev-hub/config/assurance-exchange-runtime-policy.v1.json \
+  dev-hub/config/sentinel-runtime-policy.v1.json \
+  dev-hub/config/guardian-runtime-policy.v1.json \
+  dev-hub/systemd/chacha-dev-assurance-exchange-feedback.service \
+  dev-hub/systemd/chacha-dev-assurance-exchange-feedback.timer \
+  dev-hub/tests/test_v631_assurance_exchange.py; do
   [ -f "$SRC/$required" ] || { echo "CHACHA_DEV_V631_INSTALL=BLOCKED reason=missing:$required"; exit 2; }
 done
 
@@ -65,7 +76,13 @@ stage semantic-pilot
   cd "$RELEASE"
   PYTHONPATH="$RELEASE/dev-hub/bin" python3 dev-hub/tests/test_v631_assurance_exchange.py
 ) >"$WORK/semantic.out" 2>&1
-for marker in   CHACHA_DEV_V631_GUARDIAN_SENTINEL_INDEPENDENCE=PASS   CHACHA_DEV_V631_SOURCE_RECEIPT_REVERIFICATION=PASS   CHACHA_DEV_V631_EVIDENCE_PRESERVING_CORRELATION=PASS   CHACHA_DEV_V631_CAUSALITY_NOT_INVENTED=PASS   CHACHA_DEV_V631_OPTIMIZATION_FEEDBACK_TO_CENTRAL=PASS   CHACHA_DEV_V631_TECHNOLOGY_WATCH_ARCHITECTURE_GUARD=PASS; do
+for marker in \
+  CHACHA_DEV_V631_GUARDIAN_SENTINEL_INDEPENDENCE=PASS \
+  CHACHA_DEV_V631_SOURCE_RECEIPT_REVERIFICATION=PASS \
+  CHACHA_DEV_V631_EVIDENCE_PRESERVING_CORRELATION=PASS \
+  CHACHA_DEV_V631_CAUSALITY_NOT_INVENTED=PASS \
+  CHACHA_DEV_V631_OPTIMIZATION_FEEDBACK_TO_CENTRAL=PASS \
+  CHACHA_DEV_V631_TECHNOLOGY_WATCH_ARCHITECTURE_GUARD=PASS; do
   grep -Fq "$marker" "$WORK/semantic.out"
 done
 echo "CHACHA_DEV_V631_SEMANTIC_PILOT=PASS"
@@ -114,7 +131,14 @@ cat >"$WORK/audit.json" <<JSON
   "automatic_external_spend_eur":0
 }
 JSON
-python3 "$CURRENT/dev-hub/bin/sentinel-client.py"   --policy "$CURRENT/dev-hub/config/sentinel-runtime-policy.v1.json"   release-check --project-id "$PROJECT" --repository chachasan090375/WfGg   --revision "$REV" --audit "$WORK/audit.json" >"$WORK/sentinel-receipt.out"
+python3 "$CURRENT/dev-hub/bin/sentinel-client.py" \
+  --policy "$CURRENT/dev-hub/config/sentinel-runtime-policy.v1.json" \
+  release-check \
+  --project-id "$PROJECT" \
+  --repository chachasan090375/WfGg \
+  --revision "$REV" \
+  --audit "$WORK/audit.json" \
+  >"$WORK/sentinel-receipt.out"
 python3 - "$WORK/sentinel-receipt.out" "$PROJECT" "$REV" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1]));project=sys.argv[2];rev=sys.argv[3]
@@ -156,7 +180,14 @@ cat >"$WORK/acceptance.json" <<JSON
   "return_to_factories":{}
 }
 JSON
-python3 "$CURRENT/dev-hub/bin/guardian-client.py"   --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json"   functional-acceptance --project-id "$PROJECT" --revision "$REV"   --contract "$WORK/functional-contract.json" --acceptance "$WORK/acceptance.json" >"$WORK/guardian-receipt.out"
+python3 "$CURRENT/dev-hub/bin/guardian-client.py" \
+  --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json" \
+  functional-acceptance \
+  --project-id "$PROJECT" \
+  --revision "$REV" \
+  --contract "$WORK/functional-contract.json" \
+  --acceptance "$WORK/acceptance.json" \
+  >"$WORK/guardian-receipt.out"
 python3 - "$WORK/guardian-receipt.out" "$PROJECT" "$REV" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1]));project=sys.argv[2];rev=sys.argv[3]
