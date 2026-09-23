@@ -46,14 +46,37 @@ curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$A
 tar -xzf "$ARCHIVE" -C "$WORK"
 SRC="$(find "$WORK" -mindepth 1 -maxdepth 1 -type d -name 'WfGg-*' | head -1)"
 [ -d "$SRC/dev-hub" ] || { echo "CHACHA_DEV_V632_INSTALL=BLOCKED reason=archive_invalid"; exit 2; }
-for required in   dev-hub/bin/project-assurance-event.py   dev-hub/bin/project-assurance-relay.py   dev-hub/bin/project-assurance-identity-manager.py   dev-hub/bin/project-embedded-assurance.py   dev-hub/bin/project-factory.py   dev-hub/bin/project-bootstrap.py   dev-hub/bin/autonomous-project-orchestrator.py   dev-hub/bin/guardian-client.py   dev-hub/bin/sentinel-client.py   dev-hub/templates/project-assurance-client.mjs   dev-hub/config/project-embedded-assurance.v1.json   dev-hub/config/peripheral-assurance-network.v1.json   dev-hub/config/project-factory.v1.json   dev-hub/config/guardian-runtime-policy.v1.json   dev-hub/config/sentinel-runtime-policy.v1.json   dev-hub/tests/test_v632_project_embedded_assurance.py; do
+for required in \
+  dev-hub/bin/project-assurance-event.py \
+  dev-hub/bin/project-assurance-relay.py \
+  dev-hub/bin/project-assurance-identity-manager.py \
+  dev-hub/bin/project-embedded-assurance.py \
+  dev-hub/bin/project-factory.py \
+  dev-hub/bin/project-bootstrap.py \
+  dev-hub/bin/autonomous-project-orchestrator.py \
+  dev-hub/bin/guardian-client.py \
+  dev-hub/bin/sentinel-client.py \
+  dev-hub/templates/project-assurance-client.mjs \
+  dev-hub/config/project-embedded-assurance.v1.json \
+  dev-hub/config/peripheral-assurance-network.v1.json \
+  dev-hub/config/project-factory.v1.json \
+  dev-hub/config/guardian-runtime-policy.v1.json \
+  dev-hub/config/sentinel-runtime-policy.v1.json \
+  dev-hub/tests/test_v632_project_embedded_assurance.py; do
   [ -f "$SRC/$required" ] || { echo "CHACHA_DEV_V632_INSTALL=BLOCKED reason=missing:$required"; exit 2; }
 done
 
 stage static-validation
 mkdir -p "$RELEASE" /opt/chacha-dev/evidence /opt/chacha-dev/runtime/secrets/project-assurance
 cp -a "$SRC/dev-hub" "$RELEASE/dev-hub"
-PYTHONPATH="$RELEASE/dev-hub/bin" python3 -m py_compile   "$RELEASE/dev-hub/bin/project-assurance-event.py"   "$RELEASE/dev-hub/bin/project-assurance-relay.py"   "$RELEASE/dev-hub/bin/project-assurance-identity-manager.py"   "$RELEASE/dev-hub/bin/project-embedded-assurance.py"   "$RELEASE/dev-hub/bin/project-factory.py"   "$RELEASE/dev-hub/bin/project-bootstrap.py"   "$RELEASE/dev-hub/bin/autonomous-project-orchestrator.py"
+PYTHONPATH="$RELEASE/dev-hub/bin" python3 -m py_compile \
+  "$RELEASE/dev-hub/bin/project-assurance-event.py" \
+  "$RELEASE/dev-hub/bin/project-assurance-relay.py" \
+  "$RELEASE/dev-hub/bin/project-assurance-identity-manager.py" \
+  "$RELEASE/dev-hub/bin/project-embedded-assurance.py" \
+  "$RELEASE/dev-hub/bin/project-factory.py" \
+  "$RELEASE/dev-hub/bin/project-bootstrap.py" \
+  "$RELEASE/dev-hub/bin/autonomous-project-orchestrator.py"
 python3 -m json.tool "$RELEASE/dev-hub/config/project-embedded-assurance.v1.json" >/dev/null
 python3 -m json.tool "$RELEASE/dev-hub/config/peripheral-assurance-network.v1.json" >/dev/null
 printf '%s\n' "$REV" >"$RELEASE/.revision"
@@ -64,7 +87,14 @@ stage semantic-pilot
   cd "$RELEASE"
   PYTHONPATH="$RELEASE/dev-hub/bin" python3 dev-hub/tests/test_v632_project_embedded_assurance.py
 ) >"$WORK/semantic.out" 2>&1
-for marker in   CHACHA_DEV_V632_EVERY_PROJECT_EMBEDDED_ASSURANCE=PASS   CHACHA_DEV_V632_GUARDIAN_LOCAL=PASS   CHACHA_DEV_V632_SENTINEL_LOCAL=PASS   CHACHA_DEV_V632_PROJECT_SCOPED_IDENTITY=PASS   CHACHA_DEV_V632_SERVER_SIDE_RELAY_ONLY=PASS   CHACHA_DEV_V632_FIVE_AGENT_NETWORK_RESERVED=PASS   CHACHA_DEV_V632_COMMON_ASSURANCE_EXCHANGE=PASS; do
+for marker in \
+  CHACHA_DEV_V632_EVERY_PROJECT_EMBEDDED_ASSURANCE=PASS \
+  CHACHA_DEV_V632_GUARDIAN_LOCAL=PASS \
+  CHACHA_DEV_V632_SENTINEL_LOCAL=PASS \
+  CHACHA_DEV_V632_PROJECT_SCOPED_IDENTITY=PASS \
+  CHACHA_DEV_V632_SERVER_SIDE_RELAY_ONLY=PASS \
+  CHACHA_DEV_V632_FIVE_AGENT_NETWORK_RESERVED=PASS \
+  CHACHA_DEV_V632_COMMON_ASSURANCE_EXCHANGE=PASS; do
   grep -Fq "$marker" "$WORK/semantic.out"
 done
 echo "CHACHA_DEV_V632_SEMANTIC_PILOT=PASS"
@@ -101,12 +131,28 @@ cat >"$WORK/functional-contract.json" <<JSON
   ]
 }
 JSON
-python3 "$CURRENT/dev-hub/bin/project-embedded-assurance.py"   --project-id "$PROJECT"   --application-version "$REV"   --policy "$CURRENT/dev-hub/config/project-embedded-assurance.v1.json"   --runtime-script "$CURRENT/dev-hub/bin/project-assurance-event.py"   --relay-script "$CURRENT/dev-hub/bin/project-assurance-relay.py"   --client-runtime "$CURRENT/dev-hub/templates/project-assurance-client.mjs"   --functional-contract "$WORK/functional-contract.json"   --output-dir "$WORK/bundle" >"$WORK/bundle.out"
+python3 "$CURRENT/dev-hub/bin/project-embedded-assurance.py" \
+  --project-id "$PROJECT" \
+  --application-version "$REV" \
+  --policy "$CURRENT/dev-hub/config/project-embedded-assurance.v1.json" \
+  --runtime-script "$CURRENT/dev-hub/bin/project-assurance-event.py" \
+  --relay-script "$CURRENT/dev-hub/bin/project-assurance-relay.py" \
+  --client-runtime "$CURRENT/dev-hub/templates/project-assurance-client.mjs" \
+  --functional-contract "$WORK/functional-contract.json" \
+  --output-dir "$WORK/bundle" >"$WORK/bundle.out"
 grep -Fq 'CHACHA_DEV_PROJECT_EMBEDDED_ASSURANCE=PASS' "$WORK/bundle.out"
 echo "CHACHA_DEV_V632_REAL_PROJECT_BUNDLE=PASS"
 
 stage project-scoped-identity
-python3 "$CURRENT/dev-hub/bin/project-assurance-identity-manager.py"   --project-id "$PROJECT"   --guardian-client "$CURRENT/dev-hub/bin/guardian-client.py"   --guardian-policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json"   --sentinel-client "$CURRENT/dev-hub/bin/sentinel-client.py"   --sentinel-policy "$CURRENT/dev-hub/config/sentinel-runtime-policy.v1.json"   --registration "$WORK/project-identity-registration.json"   --receipt "$WORK/project-identity-receipt.json"   --bundle "$WORK/bundle" >"$WORK/identity.out"
+python3 "$CURRENT/dev-hub/bin/project-assurance-identity-manager.py" \
+  --project-id "$PROJECT" \
+  --guardian-client "$CURRENT/dev-hub/bin/guardian-client.py" \
+  --guardian-policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json" \
+  --sentinel-client "$CURRENT/dev-hub/bin/sentinel-client.py" \
+  --sentinel-policy "$CURRENT/dev-hub/config/sentinel-runtime-policy.v1.json" \
+  --registration "$WORK/project-identity-registration.json" \
+  --receipt "$WORK/project-identity-receipt.json" \
+  --bundle "$WORK/bundle" >"$WORK/identity.out"
 grep -Fq 'CHACHA_DEV_PROJECT_ASSURANCE_IDENTITY=PASS' "$WORK/identity.out"
 KEY="/opt/chacha-dev/runtime/secrets/project-assurance/$PROJECT.pem"
 [ -s "$KEY" ] || { echo "CHACHA_DEV_V632_INSTALL=BLOCKED reason=project_identity_key_missing"; exit 2; }
@@ -125,8 +171,16 @@ print("CHACHA_DEV_V632_REAL_PRODUCTION_READINESS=PASS")
 PY
 
 stage local-probes
-python3 "$CURRENT/dev-hub/bin/project-assurance-event.py"   --policy "$CURRENT/dev-hub/config/project-embedded-assurance.v1.json"   --bundle "$WORK/bundle" --role guardian --event-type user-visible-failure --severity BLOCK   --fields-json '{"component_id":"pilot-ui","component_version":"v1","status_code":500}' >"$WORK/guardian-local.out"
-python3 "$CURRENT/dev-hub/bin/project-assurance-event.py"   --policy "$CURRENT/dev-hub/config/project-embedded-assurance.v1.json"   --bundle "$WORK/bundle" --role sentinel --event-type exception --severity BLOCK   --fields-json '{"component_id":"pilot-api","component_version":"v1","status_code":500}' >"$WORK/sentinel-local.out"
+python3 "$CURRENT/dev-hub/bin/project-assurance-event.py" \
+  --policy "$CURRENT/dev-hub/config/project-embedded-assurance.v1.json" \
+  --bundle "$WORK/bundle" --role guardian --event-type user-visible-failure --severity BLOCK \
+  --fields-json '{"component_id":"pilot-ui","component_version":"v1","status_code":500}' \
+  >"$WORK/guardian-local.out"
+python3 "$CURRENT/dev-hub/bin/project-assurance-event.py" \
+  --policy "$CURRENT/dev-hub/config/project-embedded-assurance.v1.json" \
+  --bundle "$WORK/bundle" --role sentinel --event-type exception --severity BLOCK \
+  --fields-json '{"component_id":"pilot-api","component_version":"v1","status_code":500}' \
+  >"$WORK/sentinel-local.out"
 grep -Fq 'CHACHA_DEV_PROJECT_ASSURANCE_EVENT=QUEUED' "$WORK/guardian-local.out"
 grep -Fq 'CHACHA_DEV_PROJECT_ASSURANCE_EVENT=QUEUED' "$WORK/sentinel-local.out"
 echo "CHACHA_DEV_V632_REAL_GUARDIAN_LOCAL_EVENT=PASS"
@@ -134,7 +188,11 @@ echo "CHACHA_DEV_V632_REAL_SENTINEL_LOCAL_EVENT=PASS"
 
 stage privacy-negative-proof
 set +e
-python3 "$CURRENT/dev-hub/bin/project-assurance-event.py"   --policy "$CURRENT/dev-hub/config/project-embedded-assurance.v1.json"   --bundle "$WORK/bundle" --role guardian --event-type user-visible-failure --severity BLOCK   --fields-json '{"message":"raw user content must never leave the application"}'   >"$WORK/privacy-negative.out" 2>"$WORK/privacy-negative.stderr"
+python3 "$CURRENT/dev-hub/bin/project-assurance-event.py" \
+  --policy "$CURRENT/dev-hub/config/project-embedded-assurance.v1.json" \
+  --bundle "$WORK/bundle" --role guardian --event-type user-visible-failure --severity BLOCK \
+  --fields-json '{"message":"raw user content must never leave the application"}' \
+  >"$WORK/privacy-negative.out" 2>"$WORK/privacy-negative.stderr"
 privacy_rc=$?
 set -e
 test "$privacy_rc" -ne 0
