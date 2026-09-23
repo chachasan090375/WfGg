@@ -11,6 +11,7 @@ on:
       - 'dev-hub/bin/sentinel-remediation-controller.py'
       - 'dev-hub/bin/external-assurance-release-gate.py'
       - 'dev-hub/bin/guardian-client.py'
+      - 'dev-hub/bin/install-v630-external-dual-assurance.sh'
       - 'dev-hub/config/sentinel-technical-policy.v1.json'
       - 'dev-hub/config/sentinel-runtime-policy.v1.json'
       - 'dev-hub/config/guardian-runtime-policy.v1.json'
@@ -51,6 +52,7 @@ jobs:
           python3 -m json.tool dev-hub/config/sentinel-technical-policy.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/sentinel-runtime-policy.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/guardian-runtime-policy.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v630-external-dual-assurance.sh
           grep -Fq 'functional_acceptance_receipts' dev-hub/guardian/migrations/0007_functional_acceptance.sql
           grep -Fq 'technical_release_receipts' dev-hub/sentinel/migrations/0001.sql
           echo CHACHA_DEV_V630_STATIC=PASS
