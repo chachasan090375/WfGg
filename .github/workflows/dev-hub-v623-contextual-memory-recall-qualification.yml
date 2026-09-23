@@ -12,6 +12,8 @@ on:
       - 'dev-hub/guardian/worker.js'
       - 'dev-hub/config/central-memory-recall.v1.json'
       - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/tests/test_v622_central_memory_assimilation.py'
       - 'dev-hub/tests/test_v623_contextual_memory_recall.py'
       - 'dev-hub/bin/install-v623-contextual-memory-recall.sh'
       - '.github/workflows/dev-hub-v623-contextual-memory-recall-qualification.yml'
@@ -47,6 +49,7 @@ jobs:
             dev-hub/bin/architecture-decision-council.py
           python3 -m json.tool dev-hub/config/central-memory-recall.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
           if [ -f dev-hub/bin/install-v623-contextual-memory-recall.sh ]; then
             bash -n dev-hub/bin/install-v623-contextual-memory-recall.sh
           fi
