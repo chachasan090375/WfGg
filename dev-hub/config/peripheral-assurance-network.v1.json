@@ -1,37 +1,45 @@
 {
   "schema": "chacha.dev/peripheral-assurance-network/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scope": "PLATFORM_GLOBAL",
   "participants": {
     "guardian": {
       "status": "ACTIVE",
       "scope": "functional",
       "local_probe": "guardian-local",
-      "central_authority": "guardian"
+      "central_authority": "guardian",
+      "central_authority_status": "ACTIVE"
     },
     "sentinel": {
       "status": "ACTIVE",
       "scope": "technical",
       "local_probe": "sentinel-local",
-      "central_authority": "sentinel"
+      "central_authority": "sentinel",
+      "central_authority_status": "ACTIVE"
     },
     "curator": {
-      "status": "PLANNED",
+      "status": "LOCAL_PROBE_ACTIVE",
       "scope": "visual-ux",
       "local_probe": "curator-local",
-      "central_authority": "curator"
+      "central_authority": "curator",
+      "central_authority_status": "PENDING_SPECIALIZED_AUTHORITY",
+      "incremental_sink": "assurance-exchange"
     },
     "bastion": {
-      "status": "PLANNED",
+      "status": "LOCAL_PROBE_ACTIVE",
       "scope": "security-data",
       "local_probe": "bastion-local",
-      "central_authority": "bastion"
+      "central_authority": "bastion",
+      "central_authority_status": "PENDING_SPECIALIZED_AUTHORITY",
+      "incremental_sink": "assurance-exchange"
     },
     "intendant": {
-      "status": "PLANNED",
+      "status": "LOCAL_PROBE_ACTIVE",
       "scope": "cost-resources",
       "local_probe": "intendant-local",
-      "central_authority": "intendant"
+      "central_authority": "intendant",
+      "central_authority_status": "PENDING_SPECIALIZED_AUTHORITY",
+      "incremental_sink": "assurance-exchange"
     }
   },
   "communication": {
@@ -42,13 +50,17 @@
     "direct_mutation": false,
     "central_orchestrator_owns_remediation": true,
     "architecture_change_requires_technology_watch": true,
-    "architecture_council_final_authority": true
+    "architecture_council_final_authority": true,
+    "all_five_local_probes_share_incremental_transport": true,
+    "future_specialized_authorities_consume_exchange_events": true,
+    "local_probes_never_peer_decide": true
   },
   "learning": {
     "incremental_feedback": true,
     "exact_project_revision_lineage": true,
     "raw_user_content": false,
-    "cross_project_learning": true
+    "cross_project_learning": true,
+    "five_agent_incremental_feedback": true
   },
   "economics": {
     "automatic_external_spend_eur": 0
