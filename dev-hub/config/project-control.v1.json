@@ -72,7 +72,13 @@
     "logician_post_implementation_second_read_required": true,
     "ergonomist_post_implementation_second_read_required": true,
     "five_external_final_reviews_must_be_source_reverified": true,
-    "remediation_precedes_agent_renegotiation_when_implementation_drifts": true
+    "remediation_precedes_agent_renegotiation_when_implementation_drifts": true,
+    "automatic_seven_agent_finalization_on_preview_release": true,
+    "automatic_finalization_uses_verified_input_bundle": true,
+    "automatic_finalization_is_transactional": true,
+    "automatic_finalization_is_idempotent": true,
+    "automatic_finalization_never_bypasses_non_finalization_release_blockers": true,
+    "automatic_finalization_failure_never_promotes_release": true
   },
   "interfaces": {
     "cli": {
@@ -143,7 +149,8 @@
     "curator_authority": "dev-hub/config/curator-authority.v1.json",
     "bastion_authority": "dev-hub/config/bastion-authority.v1.json",
     "intendant_authority": "dev-hub/config/intendant-authority.v1.json",
-    "seven_agent_final_compromise_policy": "dev-hub/config/seven-agent-final-compromise.v1.json"
+    "seven_agent_final_compromise_policy": "dev-hub/config/seven-agent-final-compromise.v1.json",
+    "automatic_seven_agent_finalization": "dev-hub/config/automatic-seven-agent-finalization.v1.json"
   },
   "engine_paths": {
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
@@ -192,7 +199,9 @@
     "compromise_release_gate": "dev-hub/bin/compromise-release-gate.py",
     "specialist_authority_client": "dev-hub/bin/specialist-authority-client.py",
     "internal_final_review": "dev-hub/bin/internal-final-review.py",
-    "seven_agent_final_compromise_controller": "dev-hub/bin/seven-agent-final-compromise-controller.py"
+    "seven_agent_final_compromise_controller": "dev-hub/bin/seven-agent-final-compromise-controller.py",
+    "seven_agent_finalization_inputs": "dev-hub/bin/seven-agent-finalization-inputs.py",
+    "automatic_seven_agent_finalizer": "dev-hub/bin/automatic-seven-agent-finalizer.py"
   },
   "status_model": [
     "READY",
