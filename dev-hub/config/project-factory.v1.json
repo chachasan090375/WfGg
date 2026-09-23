@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/project-factory/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "platform": "ChaCha DEV",
   "application_agnostic": true,
   "project_identity": {
@@ -40,7 +40,10 @@
     "sentinel-local-probe",
     "project-assurance-outbox",
     "project-assurance-relay",
-    "project-assurance-identity-request"
+    "project-assurance-identity-request",
+    "curator-local-probe",
+    "bastion-local-probe",
+    "intendant-local-probe"
   ],
   "provision_per_active_domain": [
     "domain-workspace",
@@ -101,7 +104,10 @@
     "embedded_assurance_required": true,
     "guardian_local_required": true,
     "sentinel_local_required": true,
-    "server_side_assurance_relay_required": true
+    "server_side_assurance_relay_required": true,
+    "curator_local_required": true,
+    "bastion_local_required": true,
+    "intendant_local_required": true
   },
   "autonomy": {
     "normal_reversible_work": "AUTO_WITH_GATES",
@@ -141,6 +147,11 @@
     "raw_user_content": false,
     "client_side_secret_allowed": false,
     "server_side_project_identity_required_for_production": true,
-    "central_orchestrator_owns_remediation": true
+    "central_orchestrator_owns_remediation": true,
+    "curator_local": true,
+    "bastion_local": true,
+    "intendant_local": true,
+    "five_local_probes_required": true,
+    "incremental_feedback_for_all_five": true
   }
 }
