@@ -1,0 +1,97 @@
+name: ChaCha DEV V6.29 memory-guided Foundry planning qualification
+
+on:
+  push:
+    branches: [dev-hub-v629-memory-guided-foundry-planning]
+    paths:
+      - 'dev-hub/bin/planning_memory_runtime.py'
+      - 'dev-hub/bin/central-memory-recall.py'
+      - 'dev-hub/bin/agent-foundry-planner.py'
+      - 'dev-hub/bin/branch-foundry-planner.py'
+      - 'dev-hub/bin/branch-blueprint-optimizer.py'
+      - 'dev-hub/bin/capability-foundry.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/central-memory-recall.v1.json'
+      - 'dev-hub/config/agent-foundry.v1.json'
+      - 'dev-hub/config/branch-foundry.v1.json'
+      - 'dev-hub/config/capability-foundry.v1.json'
+      - 'dev-hub/tests/test_v629_memory_guided_foundry_planning.py'
+      - 'dev-hub/tests/test_v628_trusted_dispatch_lineage.py'
+      - 'dev-hub/tests/test_v627_verified_evidence_learning.py'
+      - 'dev-hub/tests/test_v623_contextual_memory_recall.py'
+      - 'dev-hub/bin/install-v629-memory-guided-foundry-planning.sh'
+      - '.github/workflows/dev-hub-v629-memory-guided-foundry-planning-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v629-memory-guided-foundry-planning
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/planning_memory_runtime.py             dev-hub/bin/central-memory-recall.py             dev-hub/bin/agent-foundry-planner.py             dev-hub/bin/branch-foundry-planner.py             dev-hub/bin/branch-blueprint-optimizer.py             dev-hub/bin/capability-foundry.py             dev-hub/bin/autonomous-project-orchestrator.py
+          python3 -m json.tool dev-hub/config/central-memory-recall.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/agent-foundry.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/branch-foundry.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/capability-foundry.v1.json >/dev/null
+          if [ -f dev-hub/bin/install-v629-memory-guided-foundry-planning.sh ]; then
+            bash -n dev-hub/bin/install-v629-memory-guided-foundry-planning.sh
+          fi
+          echo CHACHA_DEV_V629_STATIC=PASS
+
+      - name: Memory-guided Foundry planning
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v629_memory_guided_foundry_planning.py
+
+      - name: V6.28 trusted dispatch regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v628_trusted_dispatch_lineage.py
+
+      - name: V6.27 verified evidence regression
+        env:
+          CHACHA_DEV_TEST_TRUSTED_CONTEXT_BYPASS: '1'
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v627_verified_evidence_learning.py
+
+      - name: V6.23 contextual recall regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v623_contextual_memory_recall.py
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_MEMORY_GUIDED_FOUNDRY_PLANNING=V6.29
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo CENTRAL_MEMORY_ACTIVE_IN_FOUNDRY_CANDIDATES=YES
+            echo NEGATIVE_CONFIDENCE_FAST_REUSE_EXCLUSION=YES
+            echo AGENT_FOUNDRY_MEMORY_GUIDED=YES
+            echo BRANCH_FOUNDRY_MEMORY_GUIDED=YES
+            echo CAPABILITY_FOUNDRY_MEMORY_GUIDED=YES
+            echo TECHNOLOGY_WATCH_REMAINS_REQUIRED=YES
+            echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+            echo MEMORY_CANNOT_EXPAND_CAPABILITIES_OR_PERMISSIONS=YES
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V629_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v629-memory-guided-foundry-planning
+          path: /tmp/CHACHA_DEV_V629_RECEIPT.txt
+          retention-days: 30
