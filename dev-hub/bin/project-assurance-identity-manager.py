@@ -73,8 +73,11 @@ def main()->int:
         manifest.setdefault("relay",{})["identity_status"]="ACTIVE"
         ready=manifest.setdefault("production_readiness",{})
         ready["relay_identity_active"]=True
-        ready["ready"]=bool(ready.get("guardian_local") and ready.get("sentinel_local") and
-                             ready.get("privacy_contract") and ready.get("functional_contract_bound"))
+        ready["ready"]=bool(
+            ready.get("guardian_local") and ready.get("sentinel_local") and
+            ready.get("curator_local") and ready.get("bastion_local") and ready.get("intendant_local") and
+            ready.get("five_local_probes") and ready.get("privacy_contract") and ready.get("functional_contract_bound")
+        )
         manifest["project_assurance_key_id"]=kid
         save(manifest_path,manifest)
     print("CHACHA_DEV_PROJECT_ASSURANCE_IDENTITY=PASS")
