@@ -95,9 +95,6 @@ jobs:
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v639_controlled_production_handoff.py
 
       - name: V6.39 Cloudflare Pages provider health read-only
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
           python3 dev-hub/bin/qualify-cloudflare-pages-provider-health.py \
@@ -192,6 +189,7 @@ jobs:
             echo CLOUDFLARE_PAGES_REAL_VPS_PROVISIONING=YES
             echo CLOUDFLARE_PAGES_RUNTIME_PILOT=AVAILABLE
             echo CLOUDFLARE_PAGES_PROVIDER_HEALTH=READ_ONLY_PASS
+            echo CLOUDFLARE_PAGES_PROVIDER_HEALTH_CREDENTIALS=NONE
             echo CLOUDFLARE_PAGES_ENABLEMENT_APPROVAL=HUMAN_REQUIRED
             echo CLOUDFLARE_PAGES_ENABLEMENT_READINESS=SCRIPTED
             echo CLOUDFLARE_PAGES_PILOT_PROMOTION_APPLIED=YES
