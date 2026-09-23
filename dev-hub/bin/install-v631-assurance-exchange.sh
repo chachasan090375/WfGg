@@ -37,11 +37,11 @@ printf '%s' "$REV" | grep -Eq '^[0-9a-f]{40}$' || { echo "CHACHA_DEV_V631_INSTAL
 for cmd in curl tar python3 ln readlink grep cp find systemctl openssl; do
   command -v "$cmd" >/dev/null || { echo "CHACHA_DEV_V631_INSTALL=BLOCKED reason=missing_command:$cmd"; exit 2; }
 done
-[ -f "$CURRENT/dev-hub/bin/sentinel-client.py" ] || { echo "CHACHA_DEV_V631_INSTALL=BLOCKED reason=v630_sentinel_missing"; exit 2; }
-[ -f "$CURRENT/dev-hub/bin/guardian-client.py" ] || { echo "CHACHA_DEV_V631_INSTALL=BLOCKED reason=v630_guardian_missing"; exit 2; }
+[ -f "$CURRENT/dev-hub/bin/planning_memory_runtime.py" ] || { echo "CHACHA_DEV_V631_INSTALL=BLOCKED reason=v629_baseline_missing"; exit 2; }
+[ -f "$CURRENT/dev-hub/bin/guardian-client.py" ] || { echo "CHACHA_DEV_V631_INSTALL=BLOCKED reason=guardian_client_missing"; exit 2; }
 [ -s /opt/chacha-dev/runtime/secrets/central-learning-key.pem ] || { echo "CHACHA_DEV_V631_INSTALL=BLOCKED reason=central_signing_key_missing"; exit 2; }
 if [ -L "$CURRENT" ]; then PREVIOUS="$(readlink -f "$CURRENT" || true)"; fi
-echo "CHACHA_DEV_V631_V630_BASELINE=PASS"
+echo "CHACHA_DEV_V631_V629_BASELINE=PASS"
 
 stage fetch-pinned-release
 curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$ARCHIVE"
@@ -53,10 +53,14 @@ for required in \
   dev-hub/bin/assurance-exchange-feedback-controller.py \
   dev-hub/bin/assurance_exchange_runtime.py \
   dev-hub/bin/sentinel-client.py \
+  dev-hub/bin/sentinel-remediation-controller.py \
+  dev-hub/bin/external-assurance-release-gate.py \
   dev-hub/bin/guardian-client.py \
   dev-hub/config/assurance-exchange-runtime-policy.v1.json \
   dev-hub/config/sentinel-runtime-policy.v1.json \
   dev-hub/config/guardian-runtime-policy.v1.json \
+  dev-hub/systemd/chacha-dev-sentinel-remediation.service \
+  dev-hub/systemd/chacha-dev-sentinel-remediation.timer \
   dev-hub/systemd/chacha-dev-assurance-exchange-feedback.service \
   dev-hub/systemd/chacha-dev-assurance-exchange-feedback.timer \
   dev-hub/tests/test_v631_assurance_exchange.py; do
@@ -90,13 +94,23 @@ echo "CHACHA_DEV_V631_SEMANTIC_PILOT=PASS"
 stage activate-release
 ln -sfn "$RELEASE" "$CURRENT"
 
-stage install-feedback-poller
-cp "$CURRENT/dev-hub/systemd/chacha-dev-assurance-exchange-feedback.service"   /etc/systemd/system/chacha-dev-assurance-exchange-feedback.service
-cp "$CURRENT/dev-hub/systemd/chacha-dev-assurance-exchange-feedback.timer"   /etc/systemd/system/chacha-dev-assurance-exchange-feedback.timer
+stage install-external-assurance-pollers
+cp "$CURRENT/dev-hub/systemd/chacha-dev-sentinel-remediation.service" \
+  /etc/systemd/system/chacha-dev-sentinel-remediation.service
+cp "$CURRENT/dev-hub/systemd/chacha-dev-sentinel-remediation.timer" \
+  /etc/systemd/system/chacha-dev-sentinel-remediation.timer
+cp "$CURRENT/dev-hub/systemd/chacha-dev-assurance-exchange-feedback.service" \
+  /etc/systemd/system/chacha-dev-assurance-exchange-feedback.service
+cp "$CURRENT/dev-hub/systemd/chacha-dev-assurance-exchange-feedback.timer" \
+  /etc/systemd/system/chacha-dev-assurance-exchange-feedback.timer
 systemctl daemon-reload
+systemctl enable --now chacha-dev-sentinel-remediation.timer >/dev/null
 systemctl enable --now chacha-dev-assurance-exchange-feedback.timer >/dev/null
+systemctl is-enabled --quiet chacha-dev-sentinel-remediation.timer
+systemctl is-active --quiet chacha-dev-sentinel-remediation.timer
 systemctl is-enabled --quiet chacha-dev-assurance-exchange-feedback.timer
 systemctl is-active --quiet chacha-dev-assurance-exchange-feedback.timer
+echo "CHACHA_DEV_V630_REAL_SENTINEL_REMEDIATION_TIMER=PASS"
 echo "CHACHA_DEV_V631_EXCHANGE_FEEDBACK_TIMER=PASS"
 
 stage external-three-plane-health
@@ -199,6 +213,30 @@ print("CHACHA_DEV_V631_REAL_GUARDIAN_RECEIPT=PASS")
 PY
 GUARDIAN_RECEIPT="$(python3 -c 'import json;print(json.load(open("'"$WORK"'/guardian-receipt.out"))["receipt_id"])')"
 
+stage v630-real-dual-release-gate
+python3 "$CURRENT/dev-hub/bin/guardian-client.py" \
+  --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json" \
+  dual-release-gate \
+  --project-id "$PROJECT" \
+  --revision "$REV" \
+  --guardian-functional-receipt-id "$GUARDIAN_RECEIPT" \
+  --sentinel-technical-receipt-id "$SENTINEL_RECEIPT" \
+  >"$WORK/dual-release-gate.out"
+python3 - "$WORK/dual-release-gate.out" "$PROJECT" "$REV" <<'PY'
+import json,sys
+x=json.load(open(sys.argv[1]));project=sys.argv[2];rev=sys.argv[3]
+assert x.get("schema")=="chacha.dev/external-dual-assurance-verdict/v1",x
+assert x.get("project_id")==project and x.get("revision")==rev,x
+assert x.get("verdict")=="PASS",x
+assert x.get("production_allowed") is True,x
+assert x.get("guardian_direct_mutation") is False,x
+assert x.get("sentinel_direct_mutation") is False,x
+assert x.get("remediation_owner")=="central-orchestrator",x
+print("CHACHA_DEV_V630_REAL_DUAL_EXTERNAL_ASSURANCE=PASS")
+print("CHACHA_DEV_V630_REAL_EXTERNAL_AGENTS_DIRECT_MUTATION=NO")
+print("CHACHA_DEV_V630_REAL_REMEDIATION_OWNER=central-orchestrator")
+PY
+
 stage force-source-reverification-and-correlation
 python3 "$CURRENT/dev-hub/bin/assurance-exchange-client.py"   --policy "$CURRENT/dev-hub/config/assurance-exchange-runtime-policy.v1.json"   observe --source sentinel --receipt-id "$SENTINEL_RECEIPT" >"$WORK/exchange-sentinel.out"
 python3 "$CURRENT/dev-hub/bin/assurance-exchange-client.py"   --policy "$CURRENT/dev-hub/config/assurance-exchange-runtime-policy.v1.json"   observe --source guardian --receipt-id "$GUARDIAN_RECEIPT" >"$WORK/exchange-guardian.out"
@@ -290,6 +328,7 @@ cat >"/opt/chacha-dev/evidence/v631-assurance-exchange-$STAMP.json" <<JSON
 }
 JSON
 
+echo "CHACHA_DEV_V630_INSTALL=PASS_VIA_V631"
 echo "CHACHA_DEV_V631_GUARDIAN_SENTINEL_COMMUNICATION=YES"
 echo "CHACHA_DEV_V631_ASSURANCE_EXCHANGE_EXTERNAL=YES"
 echo "CHACHA_DEV_V631_SOURCE_RECEIPTS_REVERIFIED=YES"
