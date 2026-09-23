@@ -1,0 +1,376 @@
+name: ChaCha DEV V6.32 deploy embedded assurance authorities
+
+on:
+  push:
+    branches: [dev-hub-v632-project-embedded-assurance]
+    paths:
+      - 'dev-hub/assurance-exchange/**'
+      - 'dev-hub/sentinel/**'
+      - 'dev-hub/guardian/**'
+      - 'dev-hub/config/assurance-exchange-runtime-policy.v1.json'
+      - 'dev-hub/config/sentinel-runtime-policy.v1.json'
+      - 'dev-hub/config/sentinel-technical-policy.v1.json'
+      - 'dev-hub/config/guardian-runtime-policy.v1.json'
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/worker-learning-central-identity.v1.json'
+      - 'dev-hub/config/project-embedded-assurance.v1.json'
+      - 'dev-hub/config/peripheral-assurance-network.v1.json'
+      - '.github/workflows/dev-hub-v632-project-embedded-assurance-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v632-project-embedded-assurance
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static external control plane validation
+        run: |
+          set -euo pipefail
+          node --check dev-hub/assurance-exchange/worker.js
+          node --check dev-hub/sentinel/worker.js
+          node --check dev-hub/guardian/worker.js
+          python3 -m json.tool dev-hub/config/assurance-exchange-runtime-policy.v1.json >/dev/null
+          echo CHACHA_DEV_V632_EXTERNAL_CONTROL_PLANE_STATIC=PASS
+
+      - name: Resolve Cloudflare account and D1 databases
+        id: cf
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request,urllib.error
+          token=os.environ.get('CF_API_TOKEN','').strip()
+          if not token: raise SystemExit('MISSING_SECRET=CLOUDFLARE_API_TOKEN')
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url,method='GET',body=None):
+              data=None if body is None else json.dumps(body).encode()
+              req=urllib.request.Request(url,headers=headers,method=method,data=data)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode('utf-8','replace')
+                  try:payload=json.loads(raw)
+                  except Exception:payload={'raw':raw[:500]}
+                  return e.code,payload
+          aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          if not aid:
+              status,payload=call('https://api.cloudflare.com/client/v4/accounts?per_page=50')
+              rows=(payload.get('result') or []) if status==200 else []
+              if len(rows)!=1: raise SystemExit('CLOUDFLARE_ACCOUNT_RESOLUTION_AMBIGUOUS_'+str(len(rows)))
+              aid=rows[0]['id']
+          def ensure_db(name):
+              status,payload=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote(name))
+              if status!=200: raise SystemExit('D1_LIST_FAILED_'+name)
+              rows=payload.get('result') or []
+              db=next((x for x in rows if x.get('name')==name),None)
+              if not db:
+                  status,payload=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database','POST',{'name':name,'jurisdiction':'eu'})
+                  if status not in (200,201): raise SystemExit('D1_CREATE_FAILED_'+name)
+                  db=payload.get('result')
+              return db['uuid']
+          guardian=ensure_db('chacha-dev-guardian')
+          sentinel=ensure_db('chacha-dev-sentinel')
+          exchange=ensure_db('chacha-dev-assurance-exchange')
+          status,payload=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/workers/subdomain')
+          if status!=200 or not (payload.get('result') or {}).get('subdomain'):
+              raise SystemExit('WORKERS_SUBDOMAIN_RESOLUTION_FAILED')
+          sub=payload['result']['subdomain']
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as f:
+              f.write('account_id='+aid+'\n')
+              f.write('guardian_database_id='+guardian+'\n')
+              f.write('sentinel_database_id='+sentinel+'\n')
+              f.write('exchange_database_id='+exchange+'\n')
+              f.write('workers_subdomain='+sub+'\n')
+          print('CHACHA_DEV_V632_D1_DATABASES_READY=PASS')
+          PY
+
+      - name: Prepare Wrangler configs
+        run: |
+          set -euo pipefail
+          SUBDOMAIN="${{ steps.cf.outputs.workers_subdomain }}"
+          GUARDIAN_URL="https://chacha-dev-guardian.$SUBDOMAIN.workers.dev"
+          SENTINEL_URL="https://chacha-dev-sentinel.$SUBDOMAIN.workers.dev"
+          EXCHANGE_URL="https://chacha-dev-assurance-exchange.$SUBDOMAIN.workers.dev"
+
+          cat > .wrangler-exchange.jsonc <<EOF
+          {
+            "name": "chacha-dev-assurance-exchange",
+            "main": "dev-hub/assurance-exchange/worker.js",
+            "compatibility_date": "2026-09-23",
+            "workers_dev": true,
+            "vars": {
+              "GUARDIAN_URL": "$GUARDIAN_URL",
+              "SENTINEL_URL": "$SENTINEL_URL"
+            },
+            "services": [
+              {"binding": "GUARDIAN_SERVICE", "service": "chacha-dev-guardian"},
+              {"binding": "SENTINEL_SERVICE", "service": "chacha-dev-sentinel"}
+            ],
+            "d1_databases": [{
+              "binding": "DB",
+              "database_name": "chacha-dev-assurance-exchange",
+              "database_id": "${{ steps.cf.outputs.exchange_database_id }}"
+            }]
+          }
+          EOF
+
+          cat > .wrangler-sentinel.jsonc <<EOF
+          {
+            "name": "chacha-dev-sentinel",
+            "main": "dev-hub/sentinel/worker.js",
+            "compatibility_date": "2026-09-23",
+            "workers_dev": true,
+            "vars": {
+              "REQUIRED_WORKFLOW_NAME": "ChaCha DEV Sentinel technical assurance",
+              "ASSURANCE_EXCHANGE_URL": "$EXCHANGE_URL"
+            },
+            "services": [
+              {"binding": "ASSURANCE_EXCHANGE_SERVICE", "service": "chacha-dev-assurance-exchange"}
+            ],
+            "d1_databases": [{
+              "binding": "DB",
+              "database_name": "chacha-dev-sentinel",
+              "database_id": "${{ steps.cf.outputs.sentinel_database_id }}"
+            }]
+          }
+          EOF
+
+          cat > .wrangler-guardian.jsonc <<EOF
+          {
+            "name": "chacha-dev-guardian",
+            "main": "dev-hub/guardian/worker.js",
+            "compatibility_date": "2026-09-23",
+            "workers_dev": true,
+            "triggers": {"crons": ["* * * * *"]},
+            "vars": {
+              "SENTINEL_URL": "$SENTINEL_URL",
+              "ASSURANCE_EXCHANGE_URL": "$EXCHANGE_URL"
+            },
+            "services": [
+              {"binding": "SENTINEL_SERVICE", "service": "chacha-dev-sentinel"},
+              {"binding": "ASSURANCE_EXCHANGE_SERVICE", "service": "chacha-dev-assurance-exchange"}
+            ],
+            "d1_databases": [{
+              "binding": "DB",
+              "database_name": "chacha-dev-guardian",
+              "database_id": "${{ steps.cf.outputs.guardian_database_id }}"
+            }]
+          }
+          EOF
+
+          echo "CHACHA_DEV_V632_GUARDIAN_URL=$GUARDIAN_URL"
+          echo "CHACHA_DEV_V632_SENTINEL_URL=$SENTINEL_URL"
+          echo "CHACHA_DEV_V632_EXCHANGE_URL=$EXCHANGE_URL"
+
+      - name: Apply Assurance Exchange migrations
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          for f in dev-hub/assurance-exchange/migrations/*.sql; do
+            npx --yes wrangler@4.45.0 d1 execute chacha-dev-assurance-exchange --remote --file="$f" --config=.wrangler-exchange.jsonc
+          done
+          echo CHACHA_DEV_V632_EXCHANGE_SCHEMA=PASS
+
+      - name: Apply Sentinel migrations
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          for f in dev-hub/sentinel/migrations/*.sql; do
+            npx --yes wrangler@4.45.0 d1 execute chacha-dev-sentinel --remote --file="$f" --config=.wrangler-sentinel.jsonc
+          done
+          echo CHACHA_DEV_V632_SENTINEL_SCHEMA=PASS
+
+      - name: Apply Guardian migrations
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          for f in dev-hub/guardian/migrations/*.sql; do
+            npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --file="$f" --config=.wrangler-guardian.jsonc
+          done
+          echo CHACHA_DEV_V632_GUARDIAN_SCHEMA=PASS
+
+      - name: Generate external control plane seeds
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,json
+          identity=json.load(open('dev-hub/config/worker-learning-central-identity.v1.json',encoding='utf-8'))
+          roles=json.load(open('dev-hub/config/guardian-role-contracts.v1.json',encoding='utf-8'))
+          adapters=json.load(open('dev-hub/config/provider-adapters.v1.json',encoding='utf-8'))
+          coverage=json.load(open('dev-hub/config/guardian-coverage-manifest.v1.json',encoding='utf-8'))
+          q=lambda s:"'"+str(s).replace("'","''")+"'"
+          def j(v):return json.dumps(v,separators=(',',':'),sort_keys=True)
+
+          identity_sql=lambda table: (
+            "INSERT INTO "+table+"(key_id,status,public_key_spki_b64,created_at) VALUES("
+            +q(identity['key_id'])+",'ACTIVE',"+q(identity['public_key_spki_b64'])+",datetime('now')) "
+            "ON CONFLICT(key_id) DO UPDATE SET status='ACTIVE',public_key_spki_b64=excluded.public_key_spki_b64;\n"
+          )
+          open('.sentinel-seed.sql','w',encoding='utf-8').write(identity_sql('sentinel_identities'))
+          open('.exchange-seed.sql','w',encoding='utf-8').write(identity_sql('exchange_identities'))
+
+          lines=[identity_sql('guardian_identities').strip()]
+          for c in roles['contracts']:
+              dig=hashlib.sha256(j(c).encode()).hexdigest()
+              lines.append(
+                "INSERT INTO role_contracts(contract_id,kind,allowed_actions_json,forbidden_actions_json,allowed_permissions_json,required_evidence_json,unknown_role,source_digest,updated_at) VALUES("
+                +q(c['contract_id'])+","+q(c.get('kind','role'))+","+q(j(c.get('allowed_actions',[])))+","
+                +q(j(c.get('forbidden_actions',[])))+","+q(j(c.get('allowed_permissions',[])))+","
+                +q(j(c.get('required_evidence',[])))+","+str(1 if c.get('unknown_role') else 0)+","+q(dig)+",datetime('now')) "
+                "ON CONFLICT(contract_id) DO UPDATE SET kind=excluded.kind,allowed_actions_json=excluded.allowed_actions_json,"
+                "forbidden_actions_json=excluded.forbidden_actions_json,allowed_permissions_json=excluded.allowed_permissions_json,"
+                "required_evidence_json=excluded.required_evidence_json,unknown_role=excluded.unknown_role,"
+                "source_digest=excluded.source_digest,updated_at=datetime('now');"
+              )
+          for adapter_id,a in (adapters.get('adapters') or {}).items():
+              c={'contract_id':'adapter:'+adapter_id,'kind':'adapter','allowed_actions':['EXECUTE_ADAPTER'],
+                 'forbidden_actions':['FINAL_ARCHITECTURE_DECISION','MODIFY_GUARDIAN_CONTRACTS'],
+                 'allowed_permissions':a.get('supports') or [],'required_evidence':[]}
+              dig=hashlib.sha256(j(c).encode()).hexdigest()
+              lines.append(
+                "INSERT INTO role_contracts(contract_id,kind,allowed_actions_json,forbidden_actions_json,allowed_permissions_json,required_evidence_json,unknown_role,source_digest,updated_at) VALUES("
+                +q(c['contract_id'])+","+q(c['kind'])+","+q(j(c['allowed_actions']))+","+q(j(c['forbidden_actions']))+","
+                +q(j(c['allowed_permissions']))+","+q('[]')+",0,"+q(dig)+",datetime('now')) "
+                "ON CONFLICT(contract_id) DO UPDATE SET kind=excluded.kind,allowed_actions_json=excluded.allowed_actions_json,"
+                "forbidden_actions_json=excluded.forbidden_actions_json,allowed_permissions_json=excluded.allowed_permissions_json,"
+                "required_evidence_json=excluded.required_evidence_json,source_digest=excluded.source_digest,updated_at=datetime('now');"
+              )
+          lines.append("DELETE FROM expected_components;")
+          for c in coverage.get('expected_components') or []:
+              dig=hashlib.sha256(j(c).encode()).hexdigest()
+              lines.append(
+                "INSERT INTO expected_components(component_id,role,kind,enforcement_point,criticality,source_digest,updated_at) VALUES("
+                +q(c['component_id'])+","+q(c['role'])+","+q(c['kind'])+","+q(c['enforcement_point'])+","
+                +q(c['criticality'])+","+q(dig)+",datetime('now'));"
+              )
+          open('.guardian-seed.sql','w',encoding='utf-8').write('\n'.join(lines)+'\n')
+          print('CHACHA_DEV_V632_EXTERNAL_CONTROL_PLANE_SEEDS=PASS')
+          PY
+
+      - name: Seed Exchange identity
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-assurance-exchange --remote --file=.exchange-seed.sql --config=.wrangler-exchange.jsonc
+          echo CHACHA_DEV_V632_EXCHANGE_IDENTITY=PASS
+
+      - name: Seed Sentinel identity
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-sentinel --remote --file=.sentinel-seed.sql --config=.wrangler-sentinel.jsonc
+          echo CHACHA_DEV_V632_SENTINEL_IDENTITY=PASS
+
+      - name: Seed Guardian contracts
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --file=.guardian-seed.sql --config=.wrangler-guardian.jsonc
+          echo CHACHA_DEV_V632_GUARDIAN_SEED=PASS
+
+      - name: Deploy Assurance Exchange
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 deploy --config=.wrangler-exchange.jsonc
+          echo CHACHA_DEV_V632_EXCHANGE_DEPLOY=PASS
+
+      - name: Deploy external Sentinel
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 deploy --config=.wrangler-sentinel.jsonc
+          echo CHACHA_DEV_V632_SENTINEL_DEPLOY=PASS
+
+      - name: Deploy external Guardian
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 deploy --config=.wrangler-guardian.jsonc
+          echo CHACHA_DEV_V632_GUARDIAN_DEPLOY=PASS
+
+      - name: Verify embedded assurance authority health
+        env:
+          SUBDOMAIN: ${{ steps.cf.outputs.workers_subdomain }}
+        run: |
+          set -euo pipefail
+          EXCHANGE="https://chacha-dev-assurance-exchange.$SUBDOMAIN.workers.dev"
+          SENTINEL="https://chacha-dev-sentinel.$SUBDOMAIN.workers.dev"
+          GUARDIAN="https://chacha-dev-guardian.$SUBDOMAIN.workers.dev"
+          ok=0
+          for i in $(seq 1 30); do
+            if curl -fsS "$EXCHANGE/healthz" -o /tmp/exchange.json &&
+               curl -fsS "$SENTINEL/healthz" -o /tmp/sentinel.json &&
+               curl -fsS "$GUARDIAN/healthz" -o /tmp/guardian.json &&
+               grep -Fq '"guardian_sentinel_correlation":true' /tmp/exchange.json &&
+               grep -Fq '"causality_not_invented":true' /tmp/exchange.json &&
+               grep -Fq '"guardian_service_binding":true' /tmp/exchange.json &&
+               grep -Fq '"sentinel_service_binding":true' /tmp/exchange.json &&
+               grep -Fq '"central_orchestrator_owns_remediation":true' /tmp/exchange.json &&
+               grep -Fq '"assurance_exchange_enabled":true' /tmp/sentinel.json &&
+               grep -Fq '"assurance_exchange_service_binding":true' /tmp/sentinel.json &&
+               grep -Fq '"embedded_sentinel_local_ingest":true' /tmp/sentinel.json &&
+               grep -Fq '"project_assurance_identity_registration":true' /tmp/sentinel.json &&
+               grep -Fq '"project_event_project_identity_required":true' /tmp/sentinel.json &&
+               grep -Fq '"assurance_exchange_enabled":true' /tmp/guardian.json &&
+               grep -Fq '"assurance_exchange_service_binding":true' /tmp/guardian.json &&
+               grep -Fq '"sentinel_service_binding":true' /tmp/guardian.json &&
+               grep -Fq '"embedded_guardian_local_ingest":true' /tmp/guardian.json &&
+               grep -Fq '"project_assurance_identity_registration":true' /tmp/guardian.json &&
+               grep -Fq '"project_event_project_identity_required":true' /tmp/guardian.json; then
+              ok=1;break
+            fi
+            sleep 3
+          done
+          test "$ok" = 1
+          echo "CHACHA_DEV_V632_EXCHANGE_URL=$EXCHANGE"
+          echo CHACHA_DEV_V632_EMBEDDED_ASSURANCE_AUTHORITIES_HEALTH=PASS
+          echo CHACHA_DEV_V632_EXTERNAL_AGENTS_DIRECT_MUTATION=NO
+          echo CHACHA_DEV_V632_REMEDIATION_OWNER=central-orchestrator
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+
+      - name: Verify Assurance Exchange observation route
+        env:
+          SUBDOMAIN: ${{ steps.cf.outputs.workers_subdomain }}
+        run: |
+          set -euo pipefail
+          EXCHANGE="https://chacha-dev-assurance-exchange.$SUBDOMAIN.workers.dev"
+          code="$(curl -sS -o /tmp/exchange-observation-probe.json -w '%{http_code}' \
+            -X POST "$EXCHANGE/v1/observations" \
+            -H 'content-type: application/json' \
+            --data '{"schema":"invalid-probe"}')"
+          test "$code" = "400"
+          grep -Fq '"schema_invalid"' /tmp/exchange-observation-probe.json
+          echo CHACHA_DEV_V632_EXCHANGE_OBSERVATION_ROUTE=PASS
