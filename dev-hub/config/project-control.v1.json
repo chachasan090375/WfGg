@@ -82,7 +82,11 @@
     "human_approval_recorded_only_via_protected_control_operation": true,
     "autonomous_golden_path_stops_at_human_boundaries": true,
     "autonomous_golden_path_resumes_after_recorded_approval": true,
-    "v638_single_canonical_materializer": true
+    "v638_single_canonical_materializer": true,
+    "production_deployment_requires_explicit_human_approval": true,
+    "release_and_operate_are_distinct": true,
+    "production_deployment_must_use_controlled_adapter": true,
+    "production_evidence_must_come_from_real_target": true
   },
   "interfaces": {
     "cli": {
@@ -348,6 +352,17 @@
       "verified_evidence_only": true,
       "human_boundary": "production-release",
       "seven_agent_finalization": "automatic-v637",
+      "automatic_external_spend_eur": 0
+    },
+    "controlled-production-handoff": {
+      "class": "execution",
+      "mutating": true,
+      "project_control_lifecycle_only": true,
+      "exact_release_revision_required": true,
+      "human_boundary": "production-deployment",
+      "production_mutation_before_approval": false,
+      "controlled_adapter_required": true,
+      "post_deploy_real_evidence_required": true,
       "automatic_external_spend_eur": 0
     }
   },
