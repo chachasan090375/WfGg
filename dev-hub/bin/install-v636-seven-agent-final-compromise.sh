@@ -41,7 +41,7 @@ printf '%s\n' "$REV" >"$RELEASE/.revision"
 stage static-semantic
 PYTHONPATH="$RELEASE/dev-hub/bin" python3 -m py_compile   "$RELEASE/dev-hub/bin/internal-final-review.py"   "$RELEASE/dev-hub/bin/seven-agent-final-compromise-controller.py"   "$RELEASE/dev-hub/bin/compromise-release-gate.py"   "$RELEASE/dev-hub/bin/lifecycle-engine.py"
 (
- cd "$RELEASE"
+ cd "$SRC"
  PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v636_seven_agent_final_compromise.py
 ) >"$WORK/semantic.out" 2>&1
 for marker in   CHACHA_DEV_V636_LOGICIAN_SECOND_READ=PASS   CHACHA_DEV_V636_ERGONOMIST_SECOND_READ=PASS   CHACHA_DEV_V636_FIVE_EXTERNAL_SOURCE_REVERIFICATION=PASS   CHACHA_DEV_V636_SEVEN_AGENT_RELEASE_GATE=PASS   CHACHA_DEV_V636_LIFECYCLE_RELEASE_PLUS_COMPROMISE=PASS; do
