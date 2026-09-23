@@ -90,6 +90,7 @@
         "backup-recovery-readiness",
         "signed-release-checkpoint",
         "trust-anchor-quorum",
+        "seven-agent-finalization-inputs",
         "compromise-release-receipt",
         "seven-agent-final-delivery-receipt"
       ],
@@ -163,7 +164,9 @@
     "agent_revision_request_only_after_failed_central_compromise": true,
     "seven_agent_final_delivery_receipt_required": true,
     "five_external_reviews_source_reverified": true,
-    "two_internal_post_implementation_reads_required": true
+    "two_internal_post_implementation_reads_required": true,
+    "automatic_seven_agent_finalization": true,
+    "finalization_input_bundle_required": true
   },
   "emergency": {
     "hotfix_path": [
