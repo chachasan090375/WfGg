@@ -217,35 +217,59 @@ def extract_receipt(stdout:str,label:str)->dict[str,Any]:
         if x.get("receipt_id"): return x
     raise SystemExit(label+"_RECEIPT_MISSING:"+stdout[-4000:])
 
-def build_design_artifacts(plan_dir:Path,project:str,revision:str,out:Path)->dict[str,Path]:
-    boot=load(plan_dir/"bootstrap-result.json")
-    final_plan=load(plan_dir/"final-plan.json")
-    council=load(plan_dir/"architecture-decision-council.json")
-    manifest={
-      "schema":"chacha.dev/project-manifest/v3","project_id":project,"revision":revision,
-      "functional_contract":str((plan_dir/"functional-contract.json").resolve()),
-      "domains":final_plan.get("primary_domains") or [],
-      "review_domains":final_plan.get("review_domains") or [],
-      "architecture_council":str((plan_dir/"architecture-decision-council.json").resolve()),
-      "dispatch_allowed":bool(boot.get("domain_dispatch_allowed")),
-      "embedded_assurance_required":True,
-      "automatic_external_spend_eur":0
-    }
-    mp=out/"manifest-v3.json";save(mp,manifest)
-    validation={
-      "schema":"chacha.dev/project-manifest-validation/v1","status":"PASS",
-      "project_id":project,"revision":revision,
-      "checks":{"project":True,"revision":True,"functional_contract":True,
-                "architecture_decision":bool(council.get("dispatch_allowed")),
-                "zero_external_spend":True},"observed_at":now_iso()
-    }
-    vp=out/"manifest-validation.json";save(vp,validation)
+def run_materializer_phase(repo:Path,intent:Path,plan_dir:Path,revision:str,
+                           material_dir:Path,phase:str)->dict[str,Any]:
+    workspace=material_dir/"workspace"
+    evidence_dir=material_dir/"evidence"
+    output=material_dir/"materialization.json"
+    p=run([
+      sys.executable,str(repo/"dev-hub/bin/golden-path-materializer.py"),
+      "--phase",phase,
+      "--intent",str(intent),
+      "--bootstrap-result",str(plan_dir/"bootstrap-result.json"),
+      "--revision",revision,
+      "--workspace",str(workspace),
+      "--evidence-dir",str(evidence_dir),
+      "--output",str(output)
+    ],cwd=repo,timeout=300)
+    require_ok(p,"V638_MATERIALIZATION_"+phase.upper())
+    value=load(output)
+    expected={
+      "design":"DESIGN_VALIDATED","prepare":"PREPARED","build":"BUILT",
+      "verify":"VERIFIED","preview":"PREVIEWED"
+    }[phase]
+    if value.get("phase")!=expected:
+        raise SystemExit("V638_MATERIALIZATION_PHASE_MISMATCH:"+phase+":"+str(value.get("phase")))
+    return value
+
+def design_sources_from_material(material:dict[str,Any])->dict[str,Path]:
+    src={k:Path(v) for k,v in (material.get("sources") or {}).items()}
+    ev={k:Path(v) for k,v in (material.get("artifact_sources") or {}).items()}
+    required=["project-plan","manifest-v3","capability-resolution","architecture-decisions-resolved"]
+    for key in required:
+        if key not in src or not src[key].is_file():
+            raise SystemExit("V638_DESIGN_SOURCE_MISSING:"+key)
+    if "manifest-validation" not in ev or not ev["manifest-validation"].is_file():
+        raise SystemExit("V638_DESIGN_SOURCE_MISSING:manifest-validation")
     return {
-      "project-plan":plan_dir/"final-plan.json",
-      "manifest-v3":mp,
-      "manifest-validation":vp,
-      "capability-resolution":plan_dir/"capability-foundry.json",
-      "architecture-decisions-resolved":plan_dir/"architecture-decision-council.json"
+      "project-plan":src["project-plan"],
+      "manifest-v3":src["manifest-v3"],
+      "manifest-validation":ev["manifest-validation"],
+      "capability-resolution":src["capability-resolution"],
+      "architecture-decisions-resolved":src["architecture-decisions-resolved"]
+    }
+
+def preview_entry_gate_specs(material:dict[str,Any])->dict[str,dict[str,Any]]:
+    src={k:Path(v) for k,v in (material.get("artifact_sources") or {}).items()}
+    required=["security-scan","test-result","build-result","dependency-resolution","ci-result","preview-candidate"]
+    for key in required:
+        if key not in src or not src[key].is_file():
+            raise SystemExit("V638_PREVIEW_GATE_EVIDENCE_MISSING:"+key)
+    return {
+      "identity-security":{"status":"OK","evidence":[str(src["security-scan"])]},
+      "testing":{"status":"OK","evidence":[str(src["test-result"])]},
+      "build-dependencies":{"status":"OK","evidence":[str(src["build-result"]),str(src["dependency-resolution"])]},
+      "ci-cd-release":{"status":"OK","evidence":[str(src["ci-result"]),str(src["preview-candidate"])]}
     }
 
 def acceptance_evidence(contract:dict[str,Any],material:dict[str,Any],path:Path)->Path:
@@ -500,31 +524,37 @@ def main()->int:
                             {"project-intent":intent},{},lifecycle_results/"idea-design")
     advance(repo,pc_policy_path,project,"DESIGN")
 
-    # 3. DESIGN -> READY from actual autonomous planning/Council outputs.
-    design=build_design_artifacts(plan_dir,project,a.revision,out/"design")
+    # 3. Execute DESIGN work only after the authoritative Lifecycle entered DESIGN.
+    material_dir=out/"materialization"
+    material=run_materializer_phase(repo,intent,plan_dir,a.revision,material_dir,"design")
+    design=design_sources_from_material(material)
     ingest_transition(repo,pc_policy_path,project,"READY",design,{},lifecycle_results/"design-ready")
     advance(repo,pc_policy_path,project,"READY")
 
-    # 4. Materialize and verify the narrow canonical application profile.
-    material_dir=out/"materialization"
-    p=run([sys.executable,str(repo/"dev-hub/bin/golden-path-materializer.py"),
-           "--intent",str(intent),"--project-id",project,"--revision",a.revision,
-           "--output-dir",str(material_dir)],cwd=repo,timeout=300)
-    require_ok(p,"V638_MATERIALIZATION")
-    material=load(material_dir/"materialization.json")
+    # 4. READY prepares the workspace/dependencies, then proves READY->BUILD.
+    material=run_materializer_phase(repo,intent,plan_dir,a.revision,material_dir,"prepare")
     src={k:Path(v) for k,v in (material.get("artifact_sources") or {}).items()}
-
     ingest_transition(repo,pc_policy_path,project,"BUILD",src,{},lifecycle_results/"ready-build")
     advance(repo,pc_policy_path,project,"BUILD")
 
+    # BUILD creates the real change set/build/static evidence, then moves to VERIFY.
+    material=run_materializer_phase(repo,intent,plan_dir,a.revision,material_dir,"build")
+    src={k:Path(v) for k,v in (material.get("artifact_sources") or {}).items()}
     ingest_transition(repo,pc_policy_path,project,"VERIFY",src,{},lifecycle_results/"build-verify")
     advance(repo,pc_policy_path,project,"VERIFY")
 
-    preview_gates=build_gate_specs(material,design)
+    # VERIFY runs tests/security and creates an immutable preview candidate.
+    material=run_materializer_phase(repo,intent,plan_dir,a.revision,material_dir,"verify")
+    src={k:Path(v) for k,v in (material.get("artifact_sources") or {}).items()}
+    preview_gates=preview_entry_gate_specs(material)
     ingest_transition(repo,pc_policy_path,project,"PREVIEW",src,preview_gates,lifecycle_results/"verify-preview")
     advance(repo,pc_policy_path,project,"PREVIEW")
 
-    # 5. Release trust is built only after PREVIEW exists in the authoritative journal.
+    # PREVIEW now performs real HTTP/e2e/smoke/recovery and implementation proof.
+    material=run_materializer_phase(repo,intent,plan_dir,a.revision,material_dir,"preview")
+    src={k:Path(v) for k,v in (material.get("artifact_sources") or {}).items()}
+
+    # 5. Release trust is built only after PREVIEW work exists and PREVIEW is authoritative.
     signed,anchor=create_signed_checkpoint(repo,project,a.revision,pp["state"],
                                             a.signing_private_key.resolve(),a.signing_public_key.resolve(),
                                             out/"release-trust")
@@ -604,6 +634,7 @@ def main()->int:
       "control_plane_integrity":"PASS","completed_at":now_iso()
     })
     save(out/"golden-path-result.json",result)
+    print("CHACHA_DEV_V638_LIFECYCLE_STAGED_MATERIALIZATION=PASS")
     print("CHACHA_DEV_V638_FULL_AUTONOMOUS_GOLDEN_PATH=PASS")
     print("CHACHA_DEV_V638_IDEA_TO_RELEASE=PASS")
     print("CHACHA_DEV_V638_HUMAN_BOUNDARY_PROVEN=PASS")
