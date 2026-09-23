@@ -53,11 +53,10 @@ def main()->int:
     if not token:
         raise SystemExit("CLOUDFLARE_API_TOKEN_MISSING")
 
-    verify=get_json("https://api.cloudflare.com/client/v4/user/tokens/verify",token)
-    token_status=str(((verify.get("result") or {}).get("status") or "")).lower()
-    if token_status!="active":
-        raise SystemExit("CLOUDFLARE_API_TOKEN_NOT_ACTIVE")
-
+    # Do not call /user/tokens/verify here: an account-scoped API token may
+    # legitimately lack that user-level permission. The provider health proof
+    # is instead the exact capability we need: account resolution + Pages read.
+    token_status="CAPABILITY_VERIFIED"
     account_source="secret"
     if not account:
         accounts=get_json("https://api.cloudflare.com/client/v4/accounts?per_page=50",token)
@@ -81,7 +80,7 @@ def main()->int:
       "schema":REPORT_SCHEMA,
       "adapter":ADAPTER,
       "status":"PASS",
-      "token_status":"active",
+      "token_status":"CAPABILITY_VERIFIED",
       "pages_api_read":"PASS",
       "account_resolution":account_source,
       "returned_project_rows":len(result),
@@ -103,7 +102,7 @@ def main()->int:
           "source":"cloudflare-api://pages/projects-read-only",
           "observed_at":ts,
           "details":{
-            "token_status":"active",
+            "token_status":"CAPABILITY_VERIFIED",
             "pages_api_read":"PASS",
             "account_resolution":account_source,
             "network_write":False,
@@ -117,6 +116,7 @@ def main()->int:
     save(a.evidence,evidence)
 
     print("CHACHA_DEV_V639_CF_PAGES_PROVIDER_HEALTH=PASS")
+    print("CHACHA_DEV_V639_CF_PAGES_TOKEN_CAPABILITY=VERIFIED_BY_PAGES_READ")
     print("CHACHA_DEV_V639_CF_PAGES_PROVIDER_API_READ=PASS")
     print("CHACHA_DEV_V639_CF_PAGES_ACCOUNT_RESOLUTION="+account_source)
     print("CHACHA_DEV_V639_CF_PAGES_PROVIDER_NETWORK_WRITE=NO")
