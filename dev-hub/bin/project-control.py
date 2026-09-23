@@ -9,6 +9,7 @@ engines using structured argv without shell interpolation.
 from __future__ import annotations
 
 import argparse
+import copy
 import fcntl
 import hashlib
 import json
