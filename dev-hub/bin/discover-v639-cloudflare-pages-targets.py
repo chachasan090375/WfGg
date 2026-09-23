@@ -107,8 +107,9 @@ def main()->int:
     args=ap.parse_args()
 
     tokens=candidates([
-      os.environ.get("CF_API_TOKEN",""),
-      os.environ.get("CLOUDFLARE_API_TOKEN","")
+      os.environ.get("CLOUDFLARE_PAGES_API_TOKEN",""),
+      os.environ.get("CLOUDFLARE_API_TOKEN",""),
+      os.environ.get("CF_API_TOKEN","")
     ])
     account_ids=candidates([
       os.environ.get("CF_ACCOUNT_ID",""),
