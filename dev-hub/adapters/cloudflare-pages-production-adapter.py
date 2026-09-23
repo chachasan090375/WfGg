@@ -181,9 +181,10 @@ def validate_target(cf:dict[str,Any])->tuple[str,str,str,Path]:
     return project,branch,revision,build
 
 def auth_headers()->dict[str,str]:
-    token=os.environ.get("CLOUDFLARE_API_TOKEN","").strip()
+    token=(os.environ.get("CLOUDFLARE_PAGES_API_TOKEN","").strip()
+           or os.environ.get("CLOUDFLARE_API_TOKEN","").strip())
     if not token:
-        raise ValueError("CLOUDFLARE_API_TOKEN_MISSING")
+        raise ValueError("CLOUDFLARE_PAGES_API_TOKEN_MISSING")
     return {"Authorization":"Bearer "+token,"Content-Type":"application/json",
             "User-Agent":"ChaCha-DEV-V639-CloudflarePages/1"}
 
