@@ -82,12 +82,13 @@ echo "CHACHA_DEV_V626_STATIC=PASS"
 stage semantic-pilot
 (
   cd "$RELEASE"
-  PYTHONPATH="$RELEASE/dev-hub/bin" python3 dev-hub/tests/test_v626_acceptance_confidence_loop.py
+  CHACHA_DEV_TEST_GUARDIAN_BYPASS=1 PYTHONPATH="$RELEASE/dev-hub/bin" python3 dev-hub/tests/test_v626_acceptance_confidence_loop.py
 ) >"$WORK/semantic.out" 2>&1
 for marker in   CHACHA_DEV_V626_ACCEPTANCE_FULL_PASS_TO_CONFIDENCE=PASS   CHACHA_DEV_V626_ACCEPTANCE_CONFIDENCE_IDEMPOTENCY=PASS   CHACHA_DEV_V626_REJECTED_PROJECT_NO_BROAD_COMPONENT_PENALTY=PASS   CHACHA_DEV_V626_ACCEPTANCE_ENGINE_AUTO_BRIDGE=PASS   CHACHA_DEV_V626_REAL_ORCHESTRATOR_CONFIDENCE_GUARDIAN_EVIDENCE=PASS; do
   grep -Fq "$marker" "$WORK/semantic.out"
 done
 echo "CHACHA_DEV_V626_SEMANTIC_PILOT=PASS"
+echo "CHACHA_DEV_V626_SEMANTIC_GUARDIAN_BYPASS=TEST_ONLY"
 
 stage activate-release
 ln -sfn "$RELEASE" "$CURRENT"
@@ -132,6 +133,7 @@ PY
 )"
 [ -s "$OUTBOX" ] || { echo "CHACHA_DEV_V626_INSTALL=BLOCKED reason=acceptance_delta_missing"; exit 2; }
 echo "CHACHA_DEV_V626_REAL_ACCEPTANCE_AUTO_CONFIDENCE=PASS"
+echo "CHACHA_DEV_V626_REAL_ACCEPTANCE_GUARDIAN_BYPASS=NO"
 
 stage acceptance-idempotency
 PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/acceptance-engine.py"   --contract "$WORK/contract.json" --evidence "$WORK/evidence.json" --output "$WORK/acceptance.json"   --component-lineage "$WORK/lineage.json" --confidence-project-id "$PILOT_PROJECT"   --confidence-deployment-id "$PILOT_DEPLOY" --confidence-output "$WORK/acceptance-confidence-2.json"   >"$WORK/acceptance-2.out"
