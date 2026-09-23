@@ -155,6 +155,11 @@
       "adapter": "collector-knowledge-adapter",
       "kind": "local-runtime",
       "execution": "vps"
+    },
+    "platform-selftest-runtime": {
+      "adapter": "platform-selftest-adapter",
+      "kind": "local-runtime",
+      "execution": "vps"
     }
   },
   "adapters": {
@@ -331,6 +336,13 @@
       "supports": [
         "read",
         "workspace-write"
+      ]
+    },
+    "platform-selftest-adapter": {
+      "status": "ENABLED",
+      "executable": "/opt/chacha-dev/platform/current/dev-hub/adapters/platform-selftest-adapter.py",
+      "supports": [
+        "read"
       ]
     }
   }
