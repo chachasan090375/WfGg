@@ -25,8 +25,8 @@ function uuid(){
   if(globalThis.crypto?.randomUUID)return globalThis.crypto.randomUUID();
   throw new Error("CRYPTO_RANDOM_UUID_REQUIRED");
 }
-function make(role,projectId,applicationVersion,relayUrl=DEFAULT_RELAY){
-  if(!["guardian","sentinel"].includes(role))throw new Error("ASSURANCE_ROLE_INVALID");
+export function createAssuranceLocal(role,projectId,applicationVersion,relayUrl=DEFAULT_RELAY){
+  if(!["guardian","sentinel","curator","bastion","intendant"].includes(role))throw new Error("ASSURANCE_ROLE_INVALID");
   if(!projectId||!applicationVersion)throw new Error("ASSURANCE_IDENTITY_REQUIRED");
   return {
     async emit(eventType,severity="INFO",fields={}){
@@ -57,10 +57,10 @@ function make(role,projectId,applicationVersion,relayUrl=DEFAULT_RELAY){
   };
 }
 export function createGuardianLocal(projectId,applicationVersion,relayUrl=DEFAULT_RELAY){
-  return make("guardian",projectId,applicationVersion,relayUrl);
+  return createAssuranceLocal("guardian",projectId,applicationVersion,relayUrl);
 }
 export function createSentinelLocal(projectId,applicationVersion,relayUrl=DEFAULT_RELAY){
-  return make("sentinel",projectId,applicationVersion,relayUrl);
+  return createAssuranceLocal("sentinel",projectId,applicationVersion,relayUrl);
 }
 export const assurancePrivacy={
   raw_user_content:false,
