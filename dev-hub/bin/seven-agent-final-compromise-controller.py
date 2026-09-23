@@ -37,6 +37,7 @@ def main()->int:
     ap.add_argument("--repo-root",type=Path,default=Path(__file__).resolve().parents[2])
     ap.add_argument("--output-dir",type=Path,required=True)
     ap.add_argument("--final-output",type=Path,required=True)
+    ap.add_argument("--evidence-ledger",type=Path)
     a=ap.parse_args()
 
     root=a.repo_root.resolve();bin_dir=root/"dev-hub/bin";cfg=root/"dev-hub/config"
@@ -129,6 +130,15 @@ def main()->int:
           "direct_mutation":False,"delivered_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())
         }
         save(a.final_output,final)
+        if a.evidence_ledger:
+            ledger=load(a.evidence_ledger)
+            artifacts=ledger.setdefault("artifacts",{})
+            gates=ledger.setdefault("gates",{})
+            stamp=time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())
+            artifacts["compromise-release-receipt"]={"status":"OK","source":str(release),"observed_at":stamp}
+            artifacts["seven-agent-final-delivery-receipt"]={"status":"OK","source":str(a.final_output),"observed_at":stamp}
+            gates["compromise-release"]={"status":"OK","source":str(a.final_output),"observed_at":stamp}
+            save(a.evidence_ledger,ledger)
         print("CHACHA_DEV_V636_SEVEN_AGENT_FINAL_COMPROMISE=PASS")
         print("FINAL_DELIVERY_ALLOWED=YES")
         return 0
@@ -146,6 +156,14 @@ def main()->int:
       "direct_mutation":False,"checked_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())
     }
     save(a.final_output,final)
+    if a.evidence_ledger:
+        ledger=load(a.evidence_ledger)
+        ledger.setdefault("gates",{})["compromise-release"]={
+          "status":"BLOCKED","source":str(a.final_output),
+          "observed_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),
+          "reason":"SEVEN_AGENT_FINAL_COMPROMISE_NOT_REACHED"
+        }
+        save(a.evidence_ledger,ledger)
     print("CHACHA_DEV_V636_SEVEN_AGENT_FINAL_COMPROMISE=BLOCK")
     print("FINAL_DELIVERY_ALLOWED=NO")
     print("CENTRAL_REMEDIATION_FIRST=YES")
