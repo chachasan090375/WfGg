@@ -18,6 +18,7 @@ on:
       - 'dev-hub/tests/test_v629_memory_guided_foundry_planning.py'
       - 'dev-hub/tests/test_v628_trusted_dispatch_lineage.py'
       - 'dev-hub/tests/test_v627_verified_evidence_learning.py'
+      - 'dev-hub/tests/test_v623_contextual_memory_recall.py'
       - 'dev-hub/bin/install-v631-assurance-exchange.sh'
       - '.github/workflows/dev-hub-v631-assurance-exchange-qualification.yml'
       - '.github/workflows/dev-hub-v631-assurance-exchange-deploy.yml'
@@ -87,6 +88,11 @@ jobs:
         run: |
           set -euo pipefail
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v627_verified_evidence_learning.py
+
+      - name: V6.23 contextual recall regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v623_contextual_memory_recall.py
 
       - name: Qualification receipt
         run: |
