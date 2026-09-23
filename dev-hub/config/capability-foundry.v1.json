@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/capability-foundry/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "purpose": "Create a missing platform capability or logical domain factory when the current kernel cannot satisfy a functional requirement.",
   "trigger": {
     "missing_registered_capability": true,
@@ -41,7 +41,12 @@
     "core_replan_required_after_creation": true,
     "agent_foundry_rerun_required_after_creation": true,
     "technology_watch_consulted_on_every_materialization": true,
-    "valid_zero_spend_candidates_dominate_nonzero_candidates": true
+    "valid_zero_spend_candidates_dominate_nonzero_candidates": true,
+    "central_memory_seeds_capability_design_candidates": true,
+    "negative_component_confidence_excludes_fast_candidate_reuse": true,
+    "memory_cannot_register_missing_capability_by_itself": true,
+    "memory_never_skips_technology_watch": true,
+    "architecture_council_remains_final_authority": true
   },
   "human_approval_only_for": [
     "new_external_spend",
