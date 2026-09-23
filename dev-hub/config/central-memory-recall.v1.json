@@ -1,0 +1,44 @@
+{
+  "schema": "chacha.dev/central-memory-recall-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "source": "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json",
+  "retrieval": {
+    "mode": "DETERMINISTIC_CONTEXTUAL_RECALL",
+    "max_trusted_items": 20,
+    "max_cautions": 20,
+    "max_reuse_candidates": 20,
+    "project_scope_weight": 100,
+    "global_generalizable_weight": 70,
+    "token_overlap_weight": 10,
+    "exact_domain_weight": 40,
+    "exact_capability_weight": 25
+  },
+  "trust": {
+    "actionable_states": [
+      "TRUSTED"
+    ],
+    "caution_states": [
+      "DEGRADED",
+      "CONTRADICTED",
+      "SUSPENDED"
+    ],
+    "provisional_is_context_only": true,
+    "single_observation_never_actionable": true
+  },
+  "reuse": {
+    "current_best_only": true,
+    "previous_solution_is_candidate_not_default": true,
+    "technology_revalidation_required": true,
+    "architecture_council_final_authority": true
+  },
+  "behavior": {
+    "central_orchestrator_recall_before_foundries": true,
+    "recall_again_after_capability_discovery": true,
+    "foundries_consume_memory_brief": true,
+    "architecture_council_consumes_memory_brief": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}
