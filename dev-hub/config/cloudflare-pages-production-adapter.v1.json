@@ -14,9 +14,10 @@
     "explicit_target_allowlist_env": "CHACHA_CF_PAGES_PROD_ALLOWED_PROJECTS"
   },
   "credentials": {
-    "token_env": "CLOUDFLARE_API_TOKEN",
+    "token_env": "CLOUDFLARE_PAGES_API_TOKEN",
     "account_id_env": "CLOUDFLARE_ACCOUNT_ID",
-    "secret_values_never_logged": true
+    "secret_values_never_logged": true,
+    "token_fallback_env": "CLOUDFLARE_API_TOKEN"
   },
   "deployment": {
     "mechanism": "wrangler-pages-deploy",
