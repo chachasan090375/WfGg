@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import technology_watch_runtime as tw
+import planning_memory_runtime as pmr
 
 SCHEMA="chacha.dev/branch-foundry/v1"
 OUT="chacha.dev/branch-topology/v1"
@@ -56,14 +57,17 @@ def build(preplan:dict[str,Any],cfg:dict[str,Any],project_id:str,
             domain=domain,
             capabilities=[str(x) for x in pkg.get("capabilities") or []],
         )
+        mem=memory_brief or {}
+        advice=pmr.package_advice(mem,pkg)
         pkg_for_opt=dict(pkg)
         pkg_for_opt["technology_candidates"]=watch.get("branch_blueprints") or []
+        pkg_for_opt["memory_reuse_candidates"]=advice.get("reuse_candidates") or []
+        pkg_for_opt["memory_avoid_components"]=advice.get("avoid_components") or []
         opt=optimizer.optimize(pkg_for_opt,preplan,cfg,agent_map.get(pid))
         if opt.get("state")!="READY":
             blocked.append({"package_id":pid,"reason":opt.get("reason"),"optimization":opt})
             continue
         chosen=opt["chosen"]
-        mem=memory_brief or {}
         domain_reuse=[x for x in mem.get("current_best_reuse_candidates") or []
                       if isinstance(x,dict) and (str(x.get("kind"))=="architecture" or str(x.get("domain") or "")==domain)]
         profile=profile_for(chosen)
@@ -86,6 +90,10 @@ def build(preplan:dict[str,Any],cfg:dict[str,Any],project_id:str,
             "pareto_frontier":opt.get("pareto_frontier"),
             "candidate_count":len(opt.get("candidates") or []),
             "rejected_candidates":opt.get("rejected") or [],
+            "memory_guided_planning":advice,
+            "memory_reuse_candidates_considered":int(opt.get("memory_reuse_candidates_considered") or 0),
+            "memory_negative_fast_reuse_block":bool(opt.get("memory_negative_fast_reuse_block")),
+            "memory_guided_decision":bool(opt.get("memory_reuse_candidates_considered") or opt.get("memory_negative_fast_reuse_block")),
             "central_memory_recall":{
                 "consumed":bool(memory_brief),
                 "brief_digest":mem.get("brief_digest"),
@@ -154,6 +162,7 @@ def build(preplan:dict[str,Any],cfg:dict[str,Any],project_id:str,
             "blocked":len(blocked),
             "materialized":len(materialized),
             "memory_only":len(memory),
+            "memory_guided_decisions":sum(1 for x in decisions if x.get("memory_guided_decision")),
             "runtime_memory_hard_limit_mb":sum(int((x.get("resource_budget") or {}).get("memory_hard_limit_mb") or 0) for x in materialized),
             "runtime_disk_soft_limit_mb":sum(int((x.get("resource_budget") or {}).get("disk_soft_limit_mb") or 0) for x in materialized),
             "external_spend_eur":sum(float((x.get("chosen_cost") or {}).get("external_spend_eur") or 0) for x in decisions)
@@ -183,6 +192,7 @@ def main():
     print("BRANCHES="+str(out["summary"]["branches"]))
     print("MATERIALIZED="+str(out["summary"]["materialized"]))
     print("MEMORY_ONLY="+str(out["summary"]["memory_only"]))
+    print("MEMORY_GUIDED_DECISIONS="+str(out["summary"]["memory_guided_decisions"]))
     print("EXTERNAL_SPEND_EUR="+str(out["summary"]["external_spend_eur"]))
     print("RUNTIME_MEMORY_MB="+str(out["summary"]["runtime_memory_hard_limit_mb"]))
 
