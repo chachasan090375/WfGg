@@ -62,6 +62,15 @@ export function createGuardianLocal(projectId,applicationVersion,relayUrl=DEFAUL
 export function createSentinelLocal(projectId,applicationVersion,relayUrl=DEFAULT_RELAY){
   return createAssuranceLocal("sentinel",projectId,applicationVersion,relayUrl);
 }
+export function createCuratorLocal(projectId,applicationVersion,relayUrl=DEFAULT_RELAY){
+  return createAssuranceLocal("curator",projectId,applicationVersion,relayUrl);
+}
+export function createBastionLocal(projectId,applicationVersion,relayUrl=DEFAULT_RELAY){
+  return createAssuranceLocal("bastion",projectId,applicationVersion,relayUrl);
+}
+export function createIntendantLocal(projectId,applicationVersion,relayUrl=DEFAULT_RELAY){
+  return createAssuranceLocal("intendant",projectId,applicationVersion,relayUrl);
+}
 export const assurancePrivacy={
   raw_user_content:false,
   credentials:false,
