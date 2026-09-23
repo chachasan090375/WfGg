@@ -440,6 +440,154 @@ def classify_blockers(blockers: list[str]) -> str:
     return "AWAITING_APPROVAL" if approvals and not others else "BLOCKED"
 
 
+FINALIZATION_OUTPUT_ARTIFACTS={"compromise-release-receipt","seven-agent-final-delivery-receipt"}
+
+def is_finalization_output_blocker(blocker:str)->bool:
+    b=str(blocker)
+    for artifact in FINALIZATION_OUTPUT_ARTIFACTS:
+        if b.startswith("ARTIFACT_MISSING:"+artifact):return True
+        if b.startswith("ARTIFACT_NOT_OK:"+artifact+":"):return True
+        if b.startswith("ARTIFACT_SOURCE_MISSING:"+artifact):return True
+        if b.startswith("ARTIFACT_TIMESTAMP_MISSING:"+artifact):return True
+    return (
+        b=="GATE_MISSING:compromise-release" or
+        b.startswith("GATE_BLOCKING:compromise-release:") or
+        b.startswith("GATE_FORBIDDEN:compromise-release:") or
+        b.startswith("GATE_NOT_RELEASE_READY:compromise-release:")
+    )
+
+def automatic_finalization_eligible(current:str,target:str,blockers:list[str])->bool:
+    if current!="PREVIEW" or target!="RELEASE":return False
+    if not any(is_finalization_output_blocker(x) for x in blockers):return False
+    non_final=[
+      x for x in blockers
+      if not is_finalization_output_blocker(x) and not str(x).startswith("APPROVAL_")
+    ]
+    return not non_final
+
+def run_automatic_finalization(project:str,actor:str,policy:dict[str,Any],repo_root:Path,p:dict[str,Path])->dict[str,Any]:
+    refs,tools=policy.get("repository_paths") or {},policy.get("engine_paths") or {}
+    engine_ref=tools.get("automatic_seven_agent_finalizer")
+    policy_ref=refs.get("automatic_seven_agent_finalization")
+    if not engine_ref or not policy_ref:
+        return {"status":"BLOCKED","blockers":["AUTOMATIC_FINALIZATION_NOT_CONFIGURED"]}
+    engine=resolve_repo(repo_root,str(engine_ref))
+    final_policy=resolve_repo(repo_root,str(policy_ref))
+    if not engine.is_file() or not final_policy.is_file():
+        return {"status":"BLOCKED","blockers":["AUTOMATIC_FINALIZATION_COMPONENT_MISSING"]}
+
+    txid="ctx-finalize-"+uuid.uuid4().hex
+    txdir=p["transactions"]/txid
+    txdir.mkdir(parents=True,exist_ok=False)
+    receipt=txdir/"receipt.json"
+    staged=txdir/"ledger.staged.json"
+    shutil.copy2(p["ledger"],staged)
+    old=load(p["ledger"])
+    old_digest=canonical_digest(old)
+    output_dir=p["plans"]/"automatic-finalization"
+    result_path=txdir/"automatic-finalization-result.json"
+    write_receipt(receipt,{
+      "transaction_id":txid,"project":project,"operation":"automatic-seven-agent-finalization",
+      "status":"PREPARED","actor":actor,"old_ledger_digest":old_digest
+    })
+    rc,stdout,stderr=run_tool(engine,[
+      "--project",project,
+      "--policy",str(final_policy),
+      "--ledger",str(staged),
+      "--repo-root",str(repo_root),
+      "--output-dir",str(output_dir),
+      "--result",str(result_path)
+    ],timeout=240)
+    final_result=load(result_path) if result_path.exists() else {}
+    if rc!=0 or final_result.get("delivery_allowed") is not True:
+        write_receipt(receipt,{
+          "transaction_id":txid,"project":project,"operation":"automatic-seven-agent-finalization",
+          "status":"FAILED","actor":actor,"returncode":rc,
+          "result":str(result_path) if result_path.exists() else None,
+          "stdout":stdout[-4000:],"stderr":stderr[-2000:]
+        })
+        return {
+          "status":"BLOCKED","transaction_id":txid,
+          "blockers":["AUTOMATIC_SEVEN_AGENT_FINALIZATION_BLOCKED"],
+          "result":str(result_path) if result_path.exists() else None,
+          "stdout":stdout[-2000:],"stderr":stderr[-1000:]
+        }
+
+    staged_value=load(staged)
+    new_digest=canonical_digest(staged_value)
+    if new_digest==old_digest:
+        write_receipt(receipt,{
+          "transaction_id":txid,"project":project,"operation":"automatic-seven-agent-finalization",
+          "status":"COMMITTED","actor":actor,"idempotent":True,
+          "old_ledger_digest":old_digest,"new_ledger_digest":new_digest,
+          "result":str(result_path)
+        })
+        return {"status":"PASS","transaction_id":txid,"idempotent":True,"result":str(result_path)}
+
+    payload_path=txdir/"payload.json"
+    save(payload_path,{
+      "transaction_id":txid,
+      "source":"automatic-seven-agent-finalization",
+      "old_ledger_digest":old_digest,
+      "new_ledger_digest":new_digest,
+      "staged_ledger":str(staged),
+      "finalization_result":str(result_path),
+      "commit_protocol":"journal-first-ledger-finalize"
+    })
+    rc_evt,event_values,out_evt,err_evt=store_record(
+      project,"EVIDENCE_RECORDED","central-orchestrator",payload_path,None,None,policy,repo_root
+    )
+    if rc_evt!=0:
+        write_receipt(receipt,{
+          "transaction_id":txid,"project":project,"operation":"automatic-seven-agent-finalization",
+          "status":"FAILED","failure":"FINALIZATION_EVIDENCE_AUDIT_COMMIT_FAILED",
+          "stdout":out_evt[-2000:],"stderr":err_evt[-1000:]
+        })
+        return {"status":"BLOCKED","transaction_id":txid,"blockers":["FINALIZATION_EVIDENCE_AUDIT_COMMIT_FAILED"]}
+
+    p["ledger"].parent.mkdir(parents=True,exist_ok=True)
+    fd,tmp_name=tempfile.mkstemp(prefix="ledger.",suffix=".v637",dir=str(p["ledger"].parent))
+    os.close(fd)
+    tmp=Path(tmp_name)
+    try:
+        shutil.copy2(staged,tmp)
+        with tmp.open("rb") as fh:os.fsync(fh.fileno())
+        os.replace(tmp,p["ledger"])
+    except Exception as exc:
+        if tmp.exists():tmp.unlink()
+        write_receipt(receipt,{
+          "transaction_id":txid,"project":project,"operation":"automatic-seven-agent-finalization",
+          "status":"CONTROL_EVENT_COMMITTED_LEDGER_PENDING",
+          "failure":str(exc),"event":event_values,"staged_ledger":str(staged),
+          "new_ledger_digest":new_digest
+        })
+        return {"status":"BLOCKED","transaction_id":txid,"blockers":["CONTROL_TRANSACTION_LEDGER_FINALIZE_PENDING"]}
+
+    finalized=load(p["ledger"])
+    if canonical_digest(finalized)!=new_digest:
+        write_receipt(receipt,{
+          "transaction_id":txid,"project":project,"operation":"automatic-seven-agent-finalization",
+          "status":"COMMIT_UNCERTAIN","expected_ledger_digest":new_digest,
+          "actual_ledger_digest":canonical_digest(finalized)
+        })
+        return {"status":"BLOCKED","transaction_id":txid,"blockers":["CONTROL_TRANSACTION_COMMIT_UNCERTAIN"]}
+
+    write_receipt(receipt,{
+      "transaction_id":txid,"project":project,"operation":"automatic-seven-agent-finalization",
+      "status":"COMMITTED","actor":actor,
+      "event_sequence":event_values.get("EVENT_SEQUENCE"),
+      "event_digest":event_values.get("EVENT_DIGEST"),
+      "old_ledger_digest":old_digest,"new_ledger_digest":new_digest,
+      "result":str(result_path)
+    })
+    return {
+      "status":"PASS","transaction_id":txid,"idempotent":False,
+      "event_sequence":event_values.get("EVENT_SEQUENCE"),
+      "event_digest":event_values.get("EVENT_DIGEST"),
+      "result":str(result_path)
+    }
+
+
 def advance_operation(project: str, target: str | None, actor: str, policy: dict[str, Any], repo_root: Path) -> dict[str, Any]:
     p = project_paths(policy, project)
     with project_lock(p["lock"]):
@@ -468,8 +616,27 @@ def advance_operation(project: str, target: str | None, actor: str, policy: dict
             resolve_repo(repo_root, refs["quality_gates"]),
             resolve_repo(repo_root, tools["lifecycle_engine"]),
         )
+        automatic_finalization=None
+        if (rc_check != 0 or blockers) and automatic_finalization_eligible(current,target,blockers):
+            automatic_finalization=run_automatic_finalization(project,actor,policy,repo_root,p)
+            if automatic_finalization.get("status")=="PASS":
+                ledger=load(p["ledger"])
+                values, blockers, rc_check, err_check = lifecycle_check(
+                    project, target, projection, p["ledger"], lifecycle_path,
+                    resolve_repo(repo_root, refs["quality_gates"]),
+                    resolve_repo(repo_root, tools["lifecycle_engine"]),
+                )
+            else:
+                details={"transition":f"{current}->{target}","automatic_finalization":automatic_finalization,**values}
+                return response(
+                    project,"advance","BLOCKED",
+                    "Automatic seven-agent finalization did not authorize release.",
+                    details,automatic_finalization.get("blockers") or ["AUTOMATIC_SEVEN_AGENT_FINALIZATION_BLOCKED"],
+                    ["repair implementation and re-run release advance; renegotiate agents only if compromise is infeasible"]
+                )
         if rc_check != 0 or blockers:
             details = {"transition": f"{current}->{target}", "engine_error": err_check, **values}
+            if automatic_finalization is not None:details["automatic_finalization"]=automatic_finalization
             return response(project, "advance", classify_blockers(blockers), "Lifecycle transition requirements are not satisfied.",
                             details, blockers or ["LIFECYCLE_CHECK_FAILED"])
         txid = "ctx-" + uuid.uuid4().hex
@@ -495,6 +662,7 @@ def advance_operation(project: str, target: str | None, actor: str, policy: dict
             "evidence_ledger_digest": ledger_digest,
             "precondition": {"version": pre_version, "journal_head_digest": pre_head},
             "lifecycle_check": {"allowed": True, "engine_values": values},
+            "automatic_seven_agent_finalization": automatic_finalization,
         }
         patch = {
             "lifecycle": {
@@ -562,7 +730,8 @@ def advance_operation(project: str, target: str | None, actor: str, policy: dict
                         {"transaction_id": txid, "transition": f"{current}->{target}",
                          "event_sequence": event_values.get("EVENT_SEQUENCE"),
                          "event_digest": event_values.get("EVENT_DIGEST"),
-                         "post_version": post.get("version"), "receipt": str(receipt)},
+                         "post_version": post.get("version"), "receipt": str(receipt),
+                         "automatic_seven_agent_finalization": automatic_finalization},
                         artifacts=[{"type": "control-transaction-receipt", "path": str(receipt)}])
 
 
