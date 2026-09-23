@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 180,
   "action_lease_default_seconds": 300,
@@ -388,6 +388,28 @@
       "proof": {
         "file": "dev-hub/bin/seven-agent-final-compromise-controller.py",
         "marker": "CHACHA_DEV_V636_SEVEN_AGENT_FINAL_COMPROMISE"
+      }
+    },
+    {
+      "component_id": "seven-agent-finalization-inputs",
+      "role": "orchestrator",
+      "kind": "finalization-input-contract",
+      "enforcement_point": "preview-release-task-graph",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/seven-agent-finalization-inputs.py",
+        "marker": "CHACHA_DEV_FINALIZATION_INPUT_BUNDLE"
+      }
+    },
+    {
+      "component_id": "automatic-seven-agent-finalizer",
+      "role": "orchestrator",
+      "kind": "automatic-release-finalization",
+      "enforcement_point": "project-control-preview-release",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/project-control.py",
+        "marker": "automatic_finalization_eligible"
       }
     }
   ],
