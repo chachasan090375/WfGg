@@ -214,6 +214,33 @@ async function evaluate(event,env){
       if(!truthyEvidence(evidence,key))addReason(state,"BLOCK","ARCHITECTURE_COUNCIL_EVIDENCE_MISSING:"+key);
   }
 
+  // V6.30: production requires two independent external receipts.
+  // Guardian owns functional conformity; Sentinel owns technical conformity.
+  if(phase==="PRE_ACTION"&&permission==="production-deploy"){
+    const projectId=String(event.project_id||"");
+    const revision=String(context.release_revision||"");
+    const functionalReceiptId=String(context.guardian_functional_receipt_id||"");
+    const sentinelReceiptId=String(context.sentinel_technical_receipt_id||"");
+    if(!revision)addReason(state,"BLOCK","RELEASE_REVISION_REQUIRED");
+    if(!functionalReceiptId)addReason(state,"BLOCK","GUARDIAN_FUNCTIONAL_RECEIPT_REQUIRED");
+    else{
+      const fr=await env.DB.prepare(
+        "SELECT project_id,revision,verdict FROM functional_acceptance_receipts WHERE receipt_id=?1"
+      ).bind(functionalReceiptId).first();
+      if(!fr)addReason(state,"BLOCK","GUARDIAN_FUNCTIONAL_RECEIPT_UNKNOWN");
+      else{
+        if(String(fr.project_id)!==projectId)addReason(state,"CRITICAL","GUARDIAN_FUNCTIONAL_RECEIPT_PROJECT_MISMATCH");
+        if(String(fr.revision)!==revision)addReason(state,"BLOCK","GUARDIAN_FUNCTIONAL_RECEIPT_REVISION_MISMATCH");
+        if(String(fr.verdict)!=="PASS")addReason(state,"BLOCK","GUARDIAN_FUNCTIONAL_ACCEPTANCE_NOT_PASS");
+      }
+    }
+    if(!sentinelReceiptId)addReason(state,"BLOCK","SENTINEL_TECHNICAL_RECEIPT_REQUIRED");
+    else{
+      const sv=await verifySentinelReceipt(env,sentinelReceiptId,projectId,revision);
+      if(!sv.ok)addReason(state,sv.critical?"CRITICAL":"BLOCK",sv.reason);
+    }
+  }
+
   const verdict=verdictFromSeverity(state.severity);
   return {verdict,severity:state.severity,reason_codes:[...new Set(state.reasons)],
           actor_contract_id:actorContract?actorContract.contract_id:null,
@@ -572,6 +599,95 @@ async function reportLearningAnomaly(req,env){
   },202);
 }
 
+async function verifySentinelReceipt(env,receiptId,projectId,revision){
+  const base=String(env.SENTINEL_URL||"").replace(/\/$/,"");
+  if(!base)return {ok:false,reason:"SENTINEL_EXTERNAL_URL_MISSING"};
+  let r;
+  try{
+    r=await fetch(base+"/v1/receipts/"+encodeURIComponent(receiptId),{
+      headers:{"accept":"application/json","user-agent":"ChaCha-DEV-Guardian/1.0"}
+    });
+  }catch{
+    return {ok:false,reason:"SENTINEL_RECEIPT_UNAVAILABLE"};
+  }
+  if(!r.ok)return {ok:false,reason:"SENTINEL_RECEIPT_UNKNOWN"};
+  let x;try{x=await r.json();}catch{return {ok:false,reason:"SENTINEL_RECEIPT_INVALID"};}
+  if(String(x.project_id||"")!==projectId)return {ok:false,critical:true,reason:"SENTINEL_RECEIPT_PROJECT_MISMATCH"};
+  if(String(x.revision||"")!==revision)return {ok:false,reason:"SENTINEL_RECEIPT_REVISION_MISMATCH"};
+  if(String(x.verdict||"")!=="PASS")return {ok:false,reason:"SENTINEL_TECHNICAL_ACCEPTANCE_NOT_PASS"};
+  return {ok:true};
+}
+
+async function functionalAcceptance(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(p.schema!=="chacha.dev/guardian-functional-acceptance-request/v1")return json({error:"functional_acceptance_schema_invalid"},400);
+  const projectId=String(p.project_id||""),revision=String(p.revision||"");
+  const contract=p.contract,acceptance=p.acceptance;
+  if(!projectId||!/^[0-9a-f]{40}$/.test(revision))return json({error:"project_or_revision_invalid"},400);
+  if(!contract||contract.schema!=="chacha.dev/functional-contract/v1")return json({error:"functional_contract_invalid"},400);
+  if(!acceptance||acceptance.schema!=="chacha.dev/acceptance-result/v1")return json({error:"acceptance_result_invalid"},400);
+  const contractId=String(contract.contract_id||"");
+  if(!contractId)return json({error:"functional_contract_id_missing"},400);
+  const contractDigest=await sha256Hex(stable(contract));
+  const pinned=await env.DB.prepare(
+    "SELECT contract_id,contract_digest FROM project_functional_contracts WHERE project_id=?1"
+  ).bind(projectId).first();
+  const reasons=[];
+  let severity="INFO";
+  if(!pinned){
+    await env.DB.prepare(
+      "INSERT INTO project_functional_contracts(project_id,contract_id,contract_digest,contract_json,pinned_at) VALUES(?1,?2,?3,?4,datetime('now'))"
+    ).bind(projectId,contractId,contractDigest,stable(contract)).run();
+  }else{
+    if(String(pinned.contract_id)!==contractId||String(pinned.contract_digest)!==contractDigest){
+      severity="CRITICAL";reasons.push("FUNCTIONAL_CONTRACT_DRIFT");
+    }
+  }
+  const amap=new Map((Array.isArray(acceptance.criteria)?acceptance.criteria:[])
+    .filter(x=>x&&x.criterion_id).map(x=>[String(x.criterion_id),x]));
+  const required=(Array.isArray(contract.criteria)?contract.criteria:[]).filter(x=>x&&x.required!==false);
+  let passed=0;
+  for(const criterion of required){
+    const cid=String(criterion.criterion_id||"");
+    const row=amap.get(cid);
+    if(!row){reasons.push("REQUIRED_FUNCTIONAL_CRITERION_MISSING:"+cid);continue;}
+    if(String(row.state||"")!=="PASS"){reasons.push("REQUIRED_FUNCTIONAL_CRITERION_NOT_PASS:"+cid);continue;}
+    const ev=row.evidence;
+    const evidencePresent=ev!==null&&ev!==undefined&&String(typeof ev==="string"?ev:stable(ev)).length>0;
+    if(!evidencePresent){reasons.push("REQUIRED_FUNCTIONAL_EVIDENCE_MISSING:"+cid);continue;}
+    passed++;
+  }
+  if(acceptance.accepted!==true||acceptance.delivery_allowed!==true)reasons.push("LOCAL_ACCEPTANCE_NOT_DELIVERABLE");
+  if(reasons.length&&severity!=="CRITICAL")severity="BLOCK";
+  const verdict=severity==="CRITICAL"?"CRITICAL":severity==="BLOCK"?"BLOCK":"PASS";
+  const receiptId="guardian-func-"+(await sha256Hex(projectId+"\n"+revision+"\n"+contractDigest+"\n"+stable(acceptance)+"\n"+Date.now())).slice(0,32);
+  await env.DB.prepare(
+    `INSERT INTO functional_acceptance_receipts
+      (receipt_id,project_id,revision,contract_id,contract_digest,verdict,reason_codes_json,required_criteria_count,passed_required_criteria_count,created_at)
+      VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,datetime('now'))`
+  ).bind(receiptId,projectId,revision,contractId,contractDigest,verdict,JSON.stringify(reasons),required.length,passed).run();
+  let directiveId=null;
+  if(verdict!=="PASS"){
+    directiveId=await createAlert(env,{
+      alertId:"functional-"+receiptId,eventId:"functional:"+receiptId,severity,
+      summary:severity+" functional acceptance "+projectId+" / "+revision,
+      reasons,payload:{actor:"central-orchestrator",subject_role:"central-orchestrator",
+        project_id:projectId,revision,receipt_id:receiptId,contract_id:contractId}
+    });
+  }
+  return json({
+    schema:"chacha.dev/guardian-functional-acceptance-receipt/v1",
+    receipt_id:receiptId,project_id:projectId,revision,contract_id:contractId,contract_digest:contractDigest,
+    verdict,severity,reason_codes:reasons,required_criteria_count:required.length,
+    passed_required_criteria_count:passed,directive_id:directiveId,
+    original_functional_contract_pinned:true,guardian:"external-worker",
+    functional_scope_only:true,direct_application_mutation:false,
+    central_orchestrator_owns_remediation:true,checked_at:new Date().toISOString()
+  },verdict==="PASS"?200:409);
+}
+
 async function check(req,env){
   const body=await req.text();
   const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
@@ -830,9 +946,13 @@ export default {
       production_learning_anomaly_bridge:true,production_anomaly_direct_mutation:false,
       central_memory_assimilation_evidence_required:true,component_confidence_evidence_required:true,contextual_memory_recall_evidence_required:true,
       coverage_remediation_auto_resolution:true,coverage_remediation_batched:true,
-      remediation_dependency_auto_resolution:true,remediation_cascade_suppression:true
+      remediation_dependency_auto_resolution:true,remediation_cascade_suppression:true,
+      functional_acceptance_gate:true,functional_contract_source_of_truth:true,
+      original_functional_contract_pinned:true,dual_external_assurance_required_for_production:true,
+      sentinel_receipt_verified_externally:true,functional_direct_mutation:false
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/functional-acceptance")return functionalAcceptance(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/learning-anomalies/report")return reportLearningAnomaly(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/dynamic-contracts/register")return registerDynamicContract(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/dynamic-components/register")return registerDynamicComponentContract(req,env);
