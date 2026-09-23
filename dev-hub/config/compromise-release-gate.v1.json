@@ -1,0 +1,62 @@
+{
+  "schema": "chacha.dev/compromise-release-policy/v1",
+  "version": "1.0.0",
+  "required_agents": [
+    {
+      "id": "logician",
+      "kind": "internal",
+      "scope": "logic-backend-search"
+    },
+    {
+      "id": "ergonomist",
+      "kind": "internal",
+      "scope": "user-experience"
+    },
+    {
+      "id": "guardian",
+      "kind": "external",
+      "scope": "functional"
+    },
+    {
+      "id": "sentinel",
+      "kind": "external",
+      "scope": "technical"
+    },
+    {
+      "id": "curator",
+      "kind": "external",
+      "scope": "visual-ux"
+    },
+    {
+      "id": "bastion",
+      "kind": "external",
+      "scope": "security-data"
+    },
+    {
+      "id": "intendant",
+      "kind": "external",
+      "scope": "cost-resources"
+    }
+  ],
+  "rules": {
+    "same_project_required": true,
+    "same_revision_required": true,
+    "same_compromise_digest_required": true,
+    "every_required_agent_accounted_for": true,
+    "unanimous_preferences_not_required": true,
+    "no_majority_vote": true,
+    "no_unresolved_hard_objection": true,
+    "no_revise_or_block_verdict": true,
+    "implementation_verification_required": true,
+    "non_dominated_compromise_verification_required": true,
+    "architecture_council_must_have_consumed_compromise": true,
+    "revision_request_only_after_failed_central_compromise": true,
+    "release_is_fail_closed": true,
+    "missing_future_specialist_authority_blocks_final_delivery": true,
+    "direct_mutation": false,
+    "central_orchestrator_owns_remediation": true,
+    "technology_watch_required_for_architecture_change": true,
+    "architecture_council_final_authority": true
+  },
+  "automatic_external_spend_eur": 0
+}
