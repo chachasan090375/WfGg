@@ -35,6 +35,10 @@
   },
   "mandatory_platform_tests": [
     {
+      "path": "dev-hub/tests/test_v638_full_autonomous_golden_path.py",
+      "env": {}
+    },
+    {
       "path": "dev-hub/tests/test_v637_automatic_seven_agent_finalization.py",
       "env": {}
     },
