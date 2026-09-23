@@ -269,6 +269,81 @@ async function correlate(env,projectId,revision){
          JSON.stringify(evidence)).run();
   return {status:"CORRELATED",correlation_id:correlationId,priority:cls.priority,recommendation_type:cls.type,causality_status:causality};
 }
+function specialistBinding(env,source){
+  if(source==="CURATOR")return env.CURATOR_SERVICE;
+  if(source==="BASTION")return env.BASTION_SERVICE;
+  if(source==="INTENDANT")return env.INTENDANT_SERVICE;
+  return null;
+}
+async function fetchSpecialistReview(env,source,receiptId){
+  const binding=specialistBinding(env,source);
+  if(!binding)return {ok:false,reason:source+"_SERVICE_BINDING_MISSING"};
+  let r;
+  try{
+    r=await binding.fetch(new Request(
+      "https://specialist.internal/v1/reviews/"+encodeURIComponent(receiptId),
+      {method:"GET",headers:{"accept":"application/json","user-agent":"ChaCha-DEV-Assurance-Exchange/1.2"}}
+    ));
+  }catch{return {ok:false,reason:source+"_REVIEW_UNAVAILABLE"};}
+  if(!r.ok)return {ok:false,reason:source+"_REVIEW_UNKNOWN"};
+  let x;try{x=await r.json();}catch{return {ok:false,reason:source+"_REVIEW_INVALID"};}
+  if(String(x.agent||"").toUpperCase()!==source)return {ok:false,reason:"SPECIALIST_REVIEW_SOURCE_MISMATCH"};
+  return {ok:true,review:x};
+}
+async function specialistReviewRef(req,env){
+  let p;try{p=await req.json();}catch{return json({error:"invalid_json"},400);}
+  if(p.schema!=="chacha.dev/specialist-review-ref/v1")return json({error:"schema_invalid"},400);
+  const source=String(p.source||"").toUpperCase(),receiptId=String(p.receipt_id||"");
+  if(!["CURATOR","BASTION","INTENDANT"].includes(source)||!receiptId)
+    return json({error:"source_or_receipt_invalid"},400);
+  const fr=await fetchSpecialistReview(env,source,receiptId);
+  if(!fr.ok)return json({error:fr.reason},409);
+  const x=fr.review,projectId=String(x.project_id||""),revision=String(x.revision||"");
+  const compromise=String(x.compromise_digest||"");
+  if(!projectId||!/^[0-9a-f]{40}$/.test(revision)||!compromise)
+    return json({error:"specialist_review_identity_invalid"},409);
+  const payloadDigest="sha256:"+await sha256Hex(stable(x));
+  await env.DB.prepare(`INSERT INTO specialist_authority_reviews
+    (source,receipt_id,project_id,revision,compromise_digest,verdict,hard_objections_json,soft_objections_json,
+     evidence_refs_json,implementation_verified,source_payload_digest,created_at)
+    VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,datetime('now'))
+    ON CONFLICT(source,receipt_id) DO UPDATE SET
+      verdict=excluded.verdict,hard_objections_json=excluded.hard_objections_json,
+      soft_objections_json=excluded.soft_objections_json,evidence_refs_json=excluded.evidence_refs_json,
+      implementation_verified=excluded.implementation_verified,source_payload_digest=excluded.source_payload_digest`)
+    .bind(source,receiptId,projectId,revision,compromise,String(x.verdict||"UNKNOWN"),
+      JSON.stringify(x.hard_objections||[]),JSON.stringify(x.soft_objections||[]),JSON.stringify(x.evidence_refs||[]),
+      x.implementation_verified===true?1:0,payloadDigest).run();
+  return json({
+    schema:"chacha.dev/specialist-review-exchange-result/v1",status:"RECORDED",
+    source,receipt_id:receiptId,project_id:projectId,revision,compromise_digest:compromise,
+    source_reverified:true,direct_mutation:false
+  });
+}
+async function specialistReviews(req,env){
+  const auth=await requireCentral(req,env);if(!auth.ok)return auth.response;
+  const u=new URL(req.url),project=String(u.searchParams.get("project_id")||"");
+  const revision=String(u.searchParams.get("revision")||""),compromise=String(u.searchParams.get("compromise_digest")||"");
+  if(!project||!revision||!compromise)return json({error:"project_revision_compromise_required"},400);
+  const rows=(await env.DB.prepare(
+    `SELECT * FROM specialist_authority_reviews
+     WHERE project_id=?1 AND revision=?2 AND compromise_digest=?3 ORDER BY source ASC`
+  ).bind(project,revision,compromise).all()).results||[];
+  return json({
+    schema:"chacha.dev/specialist-review-exchange-batch/v1",
+    project_id:project,revision,compromise_digest:compromise,
+    items:rows.map(r=>({
+      agent:String(r.source||"").toLowerCase(),receipt_id:r.receipt_id,verdict:r.verdict,
+      hard_objections:JSON.parse(r.hard_objections_json||"[]"),
+      soft_objections:JSON.parse(r.soft_objections_json||"[]"),
+      evidence_refs:JSON.parse(r.evidence_refs_json||"[]"),
+      implementation_verified:Boolean(r.implementation_verified),
+      source_payload_digest:r.source_payload_digest,source_reverified:true
+    })),
+    count:rows.length,direct_mutation:false
+  });
+}
+
 async function observe(req,env){
   let p;try{p=await req.json();}catch{return json({error:"invalid_json"},400);}
   if(p.schema!=="chacha.dev/assurance-exchange-observation-ref/v1")return json({error:"schema_invalid"},400);
@@ -343,6 +418,10 @@ export default{
       project_assurance_identity_registration:true,
       curator_local_ingest:true,bastion_local_ingest:true,intendant_local_ingest:true,
       five_agent_local_probe_fabric:true,incremental_peripheral_events:true,
+      curator_service_binding:Boolean(env.CURATOR_SERVICE),
+      bastion_service_binding:Boolean(env.BASTION_SERVICE),
+      intendant_service_binding:Boolean(env.INTENDANT_SERVICE),
+      specialist_review_source_reverification:true,
       direct_mutation:false,central_orchestrator_owns_remediation:true,
       technology_watch_guard:true,architecture_council_guard:true,
       automatic_external_spend_eur:0
@@ -352,6 +431,8 @@ export default{
     if(req.method==="POST"&&u.pathname==="/v1/peripheral-events")return peripheralEvents(req,env);
     if(req.method==="GET"&&u.pathname==="/v1/peripheral-events")return peripheralEventsQuery(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/observations")return observe(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/specialist-reviews")return specialistReviewRef(req,env);
+    if(req.method==="GET"&&u.pathname==="/v1/specialist-reviews")return specialistReviews(req,env);
     if(req.method==="GET"&&u.pathname==="/v1/recommendations")return recommendations(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/recommendations/delivered")return markDelivered(req,env);
     if(req.method==="GET"&&u.pathname.startsWith("/v1/correlations/"))
