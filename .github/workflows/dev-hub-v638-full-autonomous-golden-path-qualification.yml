@@ -12,6 +12,7 @@ on:
       - 'dev-hub/bin/verify-v639-cloudflare-pages-enabled-sync.sh'
       - 'dev-hub/bin/discover-v639-cloudflare-pages-targets.py'
       - 'dev-hub/bin/verify-v639-cloudflare-pages-wfgg-target.py'
+      - 'dev-hub/bin/run-v639-wfgg-real-production-pilot.sh'
       - 'dev-hub/bin/read-v639-cloudflare-pages-target-discovery.sh'
       - 'dev-hub/bin/controlled-production-adapter.py'
       - 'dev-hub/adapters/cloudflare-pages-production-adapter.py'
@@ -97,6 +98,7 @@ jobs:
           bash -n dev-hub/bin/enable-v639-cloudflare-pages-production-adapter.sh
           bash -n dev-hub/bin/verify-v639-cloudflare-pages-enabled-sync.sh
           bash -n dev-hub/bin/read-v639-cloudflare-pages-target-discovery.sh
+          bash -n dev-hub/bin/run-v639-wfgg-real-production-pilot.sh
           echo CHACHA_DEV_V639_STATIC=PASS
 
       - name: V6.39 controlled production handoff
@@ -236,6 +238,7 @@ jobs:
             echo CLOUDFLARE_PAGES_TARGET_DISCOVERY_READER=AVAILABLE
             echo REAL_PRODUCTION_TARGET_SELECTED=NO
             echo WFGG_TARGET_PREFLIGHT=READ_ONLY_NON_BLOCKING
+            echo WFGG_REAL_PRODUCTION_PILOT_RUNNER=VALIDATED
             echo REAL_PRODUCTION_DEPLOYMENT_AUTHORIZED=NO
             echo CLOUDFLARE_PAGES_PRODUCTION_EXECUTION=BLOCKED_AFTER_ENABLE
             echo CLOUDFLARE_PAGES_PILOT_PROMOTION_APPLIED=YES
