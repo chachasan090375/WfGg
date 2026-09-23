@@ -1,0 +1,21 @@
+{
+  "schema": "chacha.dev/decision-challenge-policy/v1",
+  "version": "1.0.0",
+  "priority": [
+    "KEEP",
+    "RECONSIDER",
+    "REPLAN_REQUIRED"
+  ],
+  "rules": {
+    "replan_required_blocks_continuation": true,
+    "reconsider_requires_structured_response": true,
+    "dismissal_without_evidence_forbidden": true,
+    "hard_constraint_may_reject_alternative": true,
+    "comparative_pilot_is_valid_response_to_unverified_better_candidate": true,
+    "ux_guidance_may_be_adopted_without_architecture_change": true,
+    "architecture_change_requires_technology_watch": true,
+    "architecture_council_final_authority": true,
+    "logician_and_ergonomist_are_advisors_not_final_deciders": true
+  },
+  "automatic_external_spend_eur": 0
+}
