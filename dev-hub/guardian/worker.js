@@ -44,6 +44,23 @@ async function requireCentral(req,env,body=""){
   const ok=await verifyEd25519(row.public_key_spki_b64,sig,requestMessage(req,ts,body));
   return ok?{ok:true,keyId}:{ok:false,response:json({error:"guardian_signature_invalid"},403)};
 }
+async function requireProjectAssurance(req,env,body,projectId){
+  const keyId=req.headers.get("x-chacha-key-id")||"";
+  const ts=req.headers.get("x-chacha-timestamp")||"";
+  const sig=req.headers.get("x-chacha-signature")||"";
+  const millis=Date.parse(ts);
+  if(!keyId||!sig||!Number.isFinite(millis)||Math.abs(Date.now()-millis)>120000)
+    return {ok:false,response:json({error:"project_assurance_auth_invalid"},401)};
+  const row=await env.DB.prepare(
+    "SELECT project_id,public_key_spki_b64 FROM project_assurance_identities WHERE key_id=?1 AND status='ACTIVE'"
+  ).bind(keyId).first();
+  if(!row)return {ok:false,response:json({error:"project_assurance_identity_unknown"},403)};
+  if(String(row.project_id||"")!==String(projectId||""))
+    return {ok:false,response:json({error:"project_assurance_identity_project_mismatch"},403)};
+  const ok=await verifyEd25519(row.public_key_spki_b64,sig,requestMessage(req,ts,body));
+  return ok?{ok:true,keyId,projectId:String(row.project_id)}:
+    {ok:false,response:json({error:"project_assurance_signature_invalid"},403)};
+}
 function arr(v){
   try{const x=typeof v==="string"?JSON.parse(v):v;return Array.isArray(x)?x.map(String):[];}catch{return [];}
 }
@@ -781,9 +798,11 @@ async function dualReleaseGate(req,env){
 
 async function projectEvents(req,env){
   const body=await req.text();
-  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
   let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
   if(p.schema!=="chacha.dev/project-assurance-event-batch/v1")return json({error:"project_event_batch_schema_invalid"},400);
+  const projectId=String(p.project_id||"");
+  if(!projectId)return json({error:"project_event_batch_project_required"},400);
+  const auth=await requireProjectAssurance(req,env,body,projectId);if(!auth.ok)return auth.response;
   const rows=Array.isArray(p.events)?p.events:[];
   if(!rows.length||rows.length>50)return json({error:"project_event_batch_size_invalid"},400);
   let accepted=0;
@@ -792,7 +811,8 @@ async function projectEvents(req,env){
     if(String(e.assurance_role||"")!=="guardian")return json({error:"guardian_role_required"},400);
     if((e.privacy||{}).raw_user_content!==false)return json({error:"raw_user_content_denied"},400);
     if(e.direct_mutation!==false)return json({error:"direct_mutation_denied"},400);
-    const eventId=String(e.event_id||""),projectId=String(e.project_id||""),version=String(e.application_version||"");
+    const eventId=String(e.event_id||""),eventProjectId=String(e.project_id||""),version=String(e.application_version||"");
+    if(eventProjectId!==projectId)return json({error:"project_event_project_mismatch"},403);
     const fields=e.fields&&typeof e.fields==="object"&&!Array.isArray(e.fields)?e.fields:{};
     const type=String(fields.event_type||""),severity=String(fields.severity||"INFO");
     if(!eventId||!projectId||!version||!type)return json({error:"project_event_identity_invalid"},400);
@@ -1067,7 +1087,7 @@ export default {
       coverage_remediation_auto_resolution:true,coverage_remediation_batched:true,
       remediation_dependency_auto_resolution:true,remediation_cascade_suppression:true,
       functional_acceptance_gate:true,external_dual_release_gate:true,functional_contract_source_of_truth:true,
-      embedded_guardian_local_ingest:true,project_event_raw_user_content:false,
+      embedded_guardian_local_ingest:true,project_event_project_identity_required:true,project_event_raw_user_content:false,
       original_functional_contract_pinned:true,dual_external_assurance_required_for_production:true,
       sentinel_receipt_verified_externally:true,sentinel_external_url_configured:Boolean(env.SENTINEL_URL),
       assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL||env.ASSURANCE_EXCHANGE_SERVICE),
