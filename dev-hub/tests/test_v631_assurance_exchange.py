@@ -88,20 +88,25 @@ for marker in [
   'direct_mutation_allowed:false',
   'remediation_owner:"central-orchestrator"',
   '/v1/recommendations',
-  '/v1/observations'
+  '/v1/observations',
+  'GUARDIAN_SERVICE',
+  'SENTINEL_SERVICE'
 ]:
     assert marker in worker,marker
 
 for marker in [
   'publishAssuranceObservation(env,"GUARDIAN",receiptId)',
   '/v1/functional-receipts/',
-  'assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL)'
+  'assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL||env.ASSURANCE_EXCHANGE_SERVICE)',
+  'ASSURANCE_EXCHANGE_SERVICE',
+  'SENTINEL_SERVICE'
 ]:
     assert marker in guardian,marker
 
 for marker in [
   'publishAssuranceObservation(env,"SENTINEL",receiptId)',
-  'assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL)'
+  'assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL||env.ASSURANCE_EXCHANGE_SERVICE)',
+  'ASSURANCE_EXCHANGE_SERVICE'
 ]:
     assert marker in sentinel,marker
 
