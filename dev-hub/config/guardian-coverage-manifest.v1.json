@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 180,
   "action_lease_default_seconds": 300,
@@ -91,6 +91,17 @@
       "proof": {
         "file": "dev-hub/bin/autonomous-project-orchestrator.py",
         "marker": "capability-foundry.py"
+      }
+    },
+    {
+      "component_id": "central-memory-recall",
+      "role": "central-memory-recall",
+      "kind": "memory-advisor",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "central-memory-recall.py"
       }
     },
     {
