@@ -1,0 +1,23 @@
+{
+  "schema": "chacha.dev/assurance-exchange-runtime-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "external_url": "https://chacha-dev-assurance-exchange.chachasan090375.workers.dev",
+  "private_key": "/opt/chacha-dev/runtime/secrets/central-learning-key.pem",
+  "poll_seconds": 30,
+  "local_recommendation_dir": "/opt/chacha-dev/runtime/assurance-exchange/recommendations",
+  "local_index": "/opt/chacha-dev/runtime/assurance-exchange/recommendation-index.json",
+  "principles": {
+    "guardian_and_sentinel_remain_independent": true,
+    "exchange_is_neutral_correlation_plane": true,
+    "source_receipts_are_reverified": true,
+    "correlation_does_not_create_new_primary_evidence": true,
+    "causality_is_never_inferred_without_shared_signals": true,
+    "direct_mutation": false,
+    "central_orchestrator_owns_remediation": true,
+    "technology_watch_required_if_architecture_change": true,
+    "architecture_council_required_if_architecture_change": true
+  },
+  "priorities": ["BLOCKER", "OPTIMIZE", "OBSERVE"],
+  "automatic_external_spend_eur": 0
+}
