@@ -47,7 +47,11 @@ jobs:
           node --check dev-hub/assurance-exchange/worker.js
           node --check dev-hub/guardian/worker.js
           node --check dev-hub/sentinel/worker.js
-          python3 -m py_compile             dev-hub/bin/assurance-exchange-client.py             dev-hub/bin/assurance-exchange-feedback-controller.py             dev-hub/bin/assurance_exchange_runtime.py             dev-hub/bin/autonomous-project-orchestrator.py
+          python3 -m py_compile \
+            dev-hub/bin/assurance-exchange-client.py \
+            dev-hub/bin/assurance-exchange-feedback-controller.py \
+            dev-hub/bin/assurance_exchange_runtime.py \
+            dev-hub/bin/autonomous-project-orchestrator.py
           python3 -m json.tool \
             dev-hub/config/assurance-exchange-runtime-policy.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/project-control.v1.json >/dev/null
