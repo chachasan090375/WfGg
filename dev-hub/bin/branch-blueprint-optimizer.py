@@ -190,6 +190,12 @@ def build_candidates(package:dict[str,Any],preplan:dict[str,Any],branch_policy:d
 
 def optimize(package:dict[str,Any],preplan:dict[str,Any],branch_policy:dict[str,Any],
              agent_decision:dict[str,Any]|None=None)->dict[str,Any]:
+    memory_reuse=[x for x in package.get("memory_reuse_candidates") or [] if isinstance(x,dict)]
+    memory_avoid=[x for x in package.get("memory_avoid_components") or [] if isinstance(x,dict)]
+    memory_negative_fast_reuse_block=any(
+        str(x.get("component_kind") or x.get("kind") or "") in {"branch","architecture"}
+        for x in memory_avoid
+    )
     candidates=build_candidates(package,preplan,branch_policy,agent_decision)
     valid=[c for c in candidates if hard_valid(c)]
     if not valid:
