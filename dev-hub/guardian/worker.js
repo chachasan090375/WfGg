@@ -601,6 +601,37 @@ async function reportLearningAnomaly(req,env){
   },202);
 }
 
+async function publishAssuranceObservation(env,source,receiptId){
+  const base=String(env.ASSURANCE_EXCHANGE_URL||"").replace(/\/$/,"");
+  if(!base)return {status:"NOT_CONFIGURED"};
+  const payload={schema:"chacha.dev/assurance-exchange-observation-ref/v1",source,receipt_id:receiptId};
+  let r;
+  try{
+    r=await fetch(base+"/v1/observations",{
+      method:"POST",headers:{"content-type":"application/json","user-agent":"ChaCha-DEV-Guardian/1.0"},
+      body:JSON.stringify(payload)
+    });
+  }catch{return {status:"DEFERRED",reason:"EXCHANGE_UNAVAILABLE"};}
+  let x={};try{x=await r.json();}catch{}
+  return {status:r.ok?"DELIVERED":"DEFERRED",http_status:r.status,correlation:x.correlation||null};
+}
+
+async function publicFunctionalReceipt(req,env,id){
+  const row=await env.DB.prepare(
+    "SELECT receipt_id,project_id,revision,contract_id,contract_digest,verdict,reason_codes_json,required_criteria_count,passed_required_criteria_count,created_at FROM functional_acceptance_receipts WHERE receipt_id=?1"
+  ).bind(id).first();
+  if(!row)return json({error:"receipt_not_found"},404);
+  let reasons=[];try{reasons=JSON.parse(row.reason_codes_json||"[]");}catch{}
+  return json({
+    schema:"chacha.dev/guardian-functional-public-receipt/v1",
+    receipt_id:row.receipt_id,project_id:row.project_id,revision:row.revision,
+    contract_id:row.contract_id,contract_digest:row.contract_digest,verdict:row.verdict,
+    reason_codes:reasons,required_criteria_count:Number(row.required_criteria_count||0),
+    passed_required_criteria_count:Number(row.passed_required_criteria_count||0),
+    created_at:row.created_at,external_guardian:true,functional_scope_only:true,direct_mutation:false
+  });
+}
+
 async function verifySentinelReceipt(env,receiptId,projectId,revision){
   const base=String(env.SENTINEL_URL||"").replace(/\/$/,"");
   if(!base)return {ok:false,reason:"SENTINEL_EXTERNAL_URL_MISSING"};
@@ -679,6 +710,7 @@ async function functionalAcceptance(req,env){
         project_id:projectId,revision,receipt_id:receiptId,contract_id:contractId}
     });
   }
+  const exchangeDelivery=await publishAssuranceObservation(env,"GUARDIAN",receiptId);
   return json({
     schema:"chacha.dev/guardian-functional-acceptance-receipt/v1",
     receipt_id:receiptId,project_id:projectId,revision,contract_id:contractId,contract_digest:contractDigest,
@@ -686,7 +718,9 @@ async function functionalAcceptance(req,env){
     passed_required_criteria_count:passed,directive_id:directiveId,
     original_functional_contract_pinned:true,guardian:"external-worker",
     functional_scope_only:true,direct_application_mutation:false,
-    central_orchestrator_owns_remediation:true,checked_at:new Date().toISOString()
+    central_orchestrator_owns_remediation:true,
+    assurance_exchange_delivery:exchangeDelivery,
+    checked_at:new Date().toISOString()
   },verdict==="PASS"?200:409);
 }
 
@@ -997,10 +1031,13 @@ export default {
       functional_acceptance_gate:true,external_dual_release_gate:true,functional_contract_source_of_truth:true,
       original_functional_contract_pinned:true,dual_external_assurance_required_for_production:true,
       sentinel_receipt_verified_externally:true,sentinel_external_url_configured:Boolean(env.SENTINEL_URL),
-      functional_direct_mutation:false
+      assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL),
+      functional_receipt_exchange_publish:true,functional_direct_mutation:false
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/functional-acceptance")return functionalAcceptance(req,env);
+    if(req.method==="GET"&&u.pathname.startsWith("/v1/functional-receipts/"))
+      return publicFunctionalReceipt(req,env,decodeURIComponent(u.pathname.slice("/v1/functional-receipts/".length)));
     if(req.method==="POST"&&u.pathname==="/v1/dual-release-gate")return dualReleaseGate(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/learning-anomalies/report")return reportLearningAnomaly(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/dynamic-contracts/register")return registerDynamicContract(req,env);
