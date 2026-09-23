@@ -242,6 +242,24 @@ def emergency_stop_active(path=Path("/opt/chacha-dev/runtime/control/emergency-s
     except Exception:
         return False
 
+def bastion_survival_active(path=Path("/opt/chacha-dev/runtime/control/survival-mode.json")):
+    try:
+        x=json.loads(path.read_text(encoding="utf-8"))
+        return bool(x.get("active"))
+    except Exception:
+        return False
+
+def bastion_project_block(project_id:str,root=Path("/opt/chacha-dev/runtime/control")):
+    for kind in ("revocation","quarantine","containment"):
+        p=root/kind/(str(project_id)+".json")
+        try:
+            x=json.loads(p.read_text(encoding="utf-8"))
+            if x.get("active"):
+                return {"kind":kind,"path":str(p),"state":x}
+        except Exception:
+            pass
+    return None
+
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--repo-root",default=".",type=Path)
@@ -250,6 +268,8 @@ def main():
     a=ap.parse_args()
     if emergency_stop_active():
         raise SystemExit("CHACHA_DEV_EMERGENCY_STOP_ACTIVE")
+    if bastion_survival_active():
+        raise SystemExit("CHACHA_DEV_BASTION_SURVIVAL_MODE_ACTIVE")
     root=a.repo_root.resolve();out=a.output_dir.resolve();out.mkdir(parents=True,exist_ok=True)
     cfg=root/"dev-hub/config";bin_dir=root/"dev-hub/bin"
     configure_guardian(root,out)
@@ -272,6 +292,9 @@ def main():
         "--output",project
     ])
     pid=load(project)["project_id"]
+    bastion_block=bastion_project_block(pid)
+    if bastion_block:
+        raise SystemExit("CHACHA_DEV_BASTION_PROJECT_BLOCKED:"+str(bastion_block.get("kind"))+":"+pid)
 
     # V6.32: assurance is part of the project birth contract, never an optional plugin.
     assurance_bundle=out/"embedded-assurance"
@@ -564,6 +587,9 @@ def main():
       "specialist_authority_identities_active":bool((assurance_manifest.get("production_readiness") or {}).get("specialist_authority_identities_active")),
       "curator_central_authority":"ACTIVE",
       "bastion_central_authority":"ACTIVE",
+      "bastion_survival_guard":True,
+      "bastion_project_control_guard":True,
+      "bastion_failover_status":"RESERVED_INACTIVE",
       "intendant_central_authority":"ACTIVE",
       "embedded_assurance_raw_user_content":False,
       "embedded_assurance_direct_mutation":False,
@@ -664,6 +690,9 @@ def main():
     print("SPECIALIST_AUTHORITY_IDENTITIES="+("ACTIVE" if state["specialist_authority_identities_active"] else "PENDING"))
     print("CURATOR_CENTRAL_AUTHORITY=ACTIVE")
     print("BASTION_CENTRAL_AUTHORITY=ACTIVE")
+    print("BASTION_SURVIVAL_GUARD=ACTIVE")
+    print("BASTION_PROJECT_CONTROL_GUARD=ACTIVE")
+    print("BASTION_FAILOVER=RESERVED_INACTIVE")
     print("INTENDANT_CENTRAL_AUTHORITY=ACTIVE")
     print("EXTERNAL_SPEND_EUR="+str(state["external_spend_eur"]))
 
