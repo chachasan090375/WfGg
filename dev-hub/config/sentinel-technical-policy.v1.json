@@ -35,6 +35,10 @@
   },
   "mandatory_platform_tests": [
     {
+      "path": "dev-hub/tests/test_v634_logic_ux_compromise_release.py",
+      "env": {}
+    },
+    {
       "path": "dev-hub/tests/test_v633_five_agent_embedded_probes.py",
       "env": {}
     },
