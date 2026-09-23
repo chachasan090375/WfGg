@@ -53,9 +53,11 @@ def confidence_state(*,success:int,failure:int,incidents:int,high:int,critical:i
     maturity=min(1.0,explicit_evidence/needed)
     score=round(max(0.0,min(1.0,posterior*(0.5+0.5*maturity))),4)
     cs=str(current_state or "")
-    if cs=="QUARANTINED" or critical>0:state="QUARANTINED"
-    elif cs=="DEGRADED" or high>0 or failure>0:state="DEGRADED"
+    if cs=="QUARANTINED":state="QUARANTINED"
+    elif cs=="DEGRADED":state="DEGRADED"
     elif cs=="RECOVERY_CANDIDATE":state="RECOVERY_CANDIDATE"
+    elif critical>0:state="QUARANTINED"
+    elif high>0 or failure>0:state="DEGRADED"
     elif success>=int(t["minimum_verified_successes_for_trusted"]) and failure<=int(t["maximum_verified_failures_for_trusted"]) and incidents<=int(t["maximum_incidents_for_trusted"]):
         state="TRUSTED"
     elif success>0:state="PROVISIONAL"
