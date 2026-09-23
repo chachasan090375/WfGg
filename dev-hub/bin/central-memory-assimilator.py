@@ -9,6 +9,7 @@ DEFAULT_DELTA_DB=Path("/opt/chacha-dev/runtime/knowledge/learning-deltas.db")
 DEFAULT_EXPERIENCE_DB=Path("/opt/chacha-dev/runtime/knowledge/experience.db")
 DEFAULT_BRANCH_DB=Path("/opt/chacha-dev/runtime/knowledge/reusable-branches.db")
 DEFAULT_ARCH_DB=Path("/opt/chacha-dev/runtime/knowledge/reusable-architectures.db")
+DEFAULT_CONFIDENCE=Path("/opt/chacha-dev/runtime/knowledge/component-confidence.json")
 DEFAULT_DB=Path("/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.db")
 DEFAULT_SNAPSHOT=Path("/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json")
 DEFAULT_POLICY=Path("dev-hub/config/central-memory-assimilation.v1.json")
@@ -141,8 +142,20 @@ def collect(delta_db:Path,experience_db:Path)->dict[str,dict[str,Any]]:
                     bucket[gkey]["projects"].add(str(project))
     return bucket
 
-def reuse_catalog(branch_db:Path,arch_db:Path)->dict[str,Any]:
+def confidence_snapshot(path:Path)->dict[str,Any]:
+    if not path.is_file():return {"available":False,"items":[]}
+    try:x=load(path)
+    except Exception:return {"available":False,"items":[]}
+    if x.get("schema")!="chacha.dev/component-confidence-snapshot/v1":return {"available":False,"items":[]}
+    return {"available":True,"snapshot_digest":x.get("snapshot_digest"),"generated_at":x.get("generated_at"),
+            "component_count":int(x.get("component_count") or 0),"trusted_count":int(x.get("trusted_count") or 0),
+            "negative_state_count":int(x.get("negative_state_count") or 0),"items":x.get("items") or []}
+
+def reuse_catalog(branch_db:Path,arch_db:Path,confidence:dict[str,Any])->dict[str,Any]:
     branches=[];architectures=[]
+    ci={(str(x.get("component_kind")),str(x.get("component_id")),str(x.get("version"))):x
+        for x in confidence.get("items") or [] if isinstance(x,dict)}
+    negative={"DEGRADED","QUARANTINED","RECOVERY_CANDIDATE"}
     if branch_db.is_file():
         db=sqlite3.connect(branch_db)
         try:
@@ -153,11 +166,15 @@ def reuse_catalog(branch_db:Path,arch_db:Path)->dict[str,Any]:
         except sqlite3.Error:rows=[]
         seen=set()
         for r in rows:
-            sig=str(r[3]);status="CURRENT_BEST" if sig not in seen else "SUPERSEDED";seen.add(sig)
+            sig=str(r[3]);conf=ci.get(("branch",str(r[0]),str(r[1])))
+            blocked=str(r[4] or "") in negative or (conf and str(conf.get("state")) in negative)
+            if blocked:status="BLOCKED_BY_CONFIDENCE"
+            elif sig not in seen:status="CURRENT_BEST";seen.add(sig)
+            else:status="SUPERSEDED"
             branches.append({"branch_id":r[0],"version":r[1],"domain":r[2],"functional_signature":sig,
               "state":r[4],"qualification_status":r[5],"external_spend_eur":r[6],"quality_score":r[7],
               "success_count":r[8],"failure_count":r[9],"incident_count":r[10],"technology_revalidated_at":r[11],
-              "last_used_at":r[12],"version_status":status})
+              "last_used_at":r[12],"version_status":status,"component_confidence":conf})
     if arch_db.is_file():
         db=sqlite3.connect(arch_db)
         try:
@@ -168,11 +185,15 @@ def reuse_catalog(branch_db:Path,arch_db:Path)->dict[str,Any]:
         except sqlite3.Error:rows=[]
         seen=set()
         for r in rows:
-            sig=str(r[2]);status="CURRENT_BEST" if sig not in seen else "SUPERSEDED";seen.add(sig)
+            sig=str(r[2]);conf=ci.get(("architecture",str(r[0]),str(r[1])))
+            blocked=str(r[3] or "") in negative or (conf and str(conf.get("state")) in negative)
+            if blocked:status="BLOCKED_BY_CONFIDENCE"
+            elif sig not in seen:status="CURRENT_BEST";seen.add(sig)
+            else:status="SUPERSEDED"
             architectures.append({"architecture_id":r[0],"version":r[1],"functional_signature":sig,
               "state":r[3],"qualification_status":r[4],"external_spend_eur":r[5],"quality_score":r[6],
               "success_count":r[7],"failure_count":r[8],"incident_count":r[9],"technology_revalidated_at":r[10],
-              "last_used_at":r[11],"version_status":status})
+              "last_used_at":r[11],"version_status":status,"component_confidence":conf})
     return {"branches":branches,"architectures":architectures}
 
 def publish_nas(snapshot:dict[str,Any])->dict[str,Any]:
@@ -229,7 +250,8 @@ def assimilate(args)->dict[str,Any]:
                x["evidence_count"],x["positive_count"],x["negative_count"],x["neutral_count"],
                x["high_anomaly_count"],x["critical_anomaly_count"],x["distinct_projects"],x["confidence"],
                x["state"],1 if x["generalizable"] else 0,x["latest_observed_at"],x["evidence_digest"],canon(x)))
-    catalog=reuse_catalog(args.branch_db,args.architecture_db)
+    confidence=confidence_snapshot(args.component_confidence)
+    catalog=reuse_catalog(args.branch_db,args.architecture_db,confidence)
     counts=defaultdict(int)
     for x in rows:counts[x["state"]]+=1
     snapshot={"schema":"chacha.dev/central-memory-assimilation/v1","generated_at":now_iso(),
@@ -240,6 +262,15 @@ def assimilate(args)->dict[str,Any]:
               "negative_memory_can_quarantine_candidate":True,
               "technology_revalidation_required_before_reuse":True,
               "reuse_catalog":catalog,
+              "component_confidence":{
+                "available":bool(confidence.get("available")),
+                "snapshot_digest":confidence.get("snapshot_digest"),
+                "generated_at":confidence.get("generated_at"),
+                "component_count":int(confidence.get("component_count") or 0),
+                "trusted_count":int(confidence.get("trusted_count") or 0),
+                "negative_state_count":int(confidence.get("negative_state_count") or 0),
+                "negative_states_excluded_from_current_best":True
+              },
               "items":sorted(rows,key=lambda x:(x["scope"],x["project_id"] or "",x["subject_kind"],x["subject_id"],x["signal_key"])),
               "automatic_external_spend_eur":0}
     snapshot["snapshot_digest"]=digest(snapshot)
@@ -256,6 +287,7 @@ def main()->int:
     ap.add_argument("--experience-db",type=Path,default=DEFAULT_EXPERIENCE_DB)
     ap.add_argument("--branch-db",type=Path,default=DEFAULT_BRANCH_DB)
     ap.add_argument("--architecture-db",type=Path,default=DEFAULT_ARCH_DB)
+    ap.add_argument("--component-confidence",type=Path,default=DEFAULT_CONFIDENCE)
     ap.add_argument("--db",type=Path,default=DEFAULT_DB)
     ap.add_argument("--snapshot",type=Path,default=DEFAULT_SNAPSHOT)
     ap.add_argument("--nas",action="store_true")
