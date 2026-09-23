@@ -530,6 +530,25 @@
         "read"
       ],
       "required_evidence": []
+    },
+    {
+      "contract_id": "component:acceptance-confidence-bridge",
+      "kind": "component",
+      "allowed_actions": [
+        "WRITE_MEMORY",
+        "REPORT_MEMORY"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MUTATE_APPLICATION",
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "workspace-write",
+        "read"
+      ],
+      "required_evidence": []
     }
   ]
 }
