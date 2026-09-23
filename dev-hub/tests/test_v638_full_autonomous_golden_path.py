@@ -226,6 +226,12 @@ assert "--resume-from-awaiting-approval" in source
 assert "V638_INITIAL_RUN_MUST_NOT_PRELOAD_APPROVAL" in source
 assert "CHACHA_DEV_V638_RESUMED_SAME_PROJECT=PASS" in source
 assert "CHACHA_DEV_V638_HUMAN_APPROVAL_AFTER_BOUNDARY=PASS" in source
+assert "emit_specialist_project_evidence" in source
+assert '"curator":("visual-health"' in source
+assert '"bastion":("security-health"' in source
+assert '"intendant":("resource-health"' in source
+assert "--application-version" in source
+assert "CHACHA_DEV_V638_SPECIALIST_PROJECT_EVIDENCE=PASS" in source
 
 installer=(BIN/"install-v638-full-autonomous-golden-path.sh").read_text(encoding="utf-8")
 for marker in [
@@ -241,6 +247,10 @@ assert 'if [ "$RESUME" -eq 0 ]; then' in installer
 assert "urllib.request" not in installer
 assert 'curl -fsS "$url/healthz"' in installer
 assert "CHACHA_DEV_V638_EXTERNAL_HEALTH_TRANSPORT=CURL" in installer
+
+event_script=(BIN/"project-assurance-event.py").read_text(encoding="utf-8")
+assert 'ap.add_argument("--application-version")' in event_script
+assert 'application_version=str(a.application_version or manifest["application_version"])' in event_script
 
 sentinel_worker=(ROOT/"dev-hub/sentinel/worker.js").read_text(encoding="utf-8")
 assert "const stored=await storedWorkflowAttestation(env,repository,revision,workflowName);" in sentinel_worker
