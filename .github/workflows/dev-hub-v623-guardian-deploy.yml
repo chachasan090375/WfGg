@@ -236,7 +236,10 @@ jobs:
                grep -Fq '"production_learning_anomaly_bridge":true' /tmp/guardian-health.json &&
                grep -Fq '"production_anomaly_direct_mutation":false' /tmp/guardian-health.json &&
                grep -Fq '"central_memory_assimilation_evidence_required":true' /tmp/guardian-health.json &&
-               grep -Fq '"contextual_memory_recall_evidence_required":true' /tmp/guardian-health.json; then
+               grep -Fq '"contextual_memory_recall_evidence_required":true' /tmp/guardian-health.json &&
+               grep -Fq '"coverage_remediation_batched":true' /tmp/guardian-health.json &&
+               grep -Fq '"remediation_dependency_auto_resolution":true' /tmp/guardian-health.json &&
+               grep -Fq '"remediation_cascade_suppression":true' /tmp/guardian-health.json; then
               ok=1; break
             fi
             sleep 3
@@ -259,5 +262,8 @@ jobs:
           echo CHACHA_DEV_V623_PRODUCTION_ANOMALY_DIRECT_MUTATION=NO
           echo CHACHA_DEV_V623_CENTRAL_MEMORY_ASSIMILATION_EVIDENCE=REQUIRED
           echo CHACHA_DEV_V623_CONTEXTUAL_MEMORY_RECALL_EVIDENCE=REQUIRED
+          echo CHACHA_DEV_V623_COVERAGE_REMEDIATION_BATCHED=PASS
+          echo CHACHA_DEV_V623_REMEDIATION_DEPENDENCY_AUTO_RESOLUTION=PASS
+          echo CHACHA_DEV_V623_REMEDIATION_CASCADE_SUPPRESSION=PASS
           echo CHACHA_DEV_V623_GUARDIAN_TUNNEL_REQUIRED=NO
           echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
