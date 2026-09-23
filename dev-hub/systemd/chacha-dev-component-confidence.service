@@ -1,0 +1,16 @@
+[Unit]
+Description=ChaCha DEV Guardian-governed component confidence engine
+Wants=network-online.target
+After=network-online.target chacha-dev-production-lineage-feedback.service
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+Environment=PYTHONPATH=/opt/chacha-dev/platform/current/dev-hub/bin
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/guardian-governed-component-confidence.py
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=false
+MemoryMax=256M
+TasksMax=32
