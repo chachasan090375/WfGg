@@ -2,7 +2,7 @@ name: ChaCha DEV V6.24 deploy external Guardian
 
 on:
   push:
-    branches: [dev-hub-v624-contextual-memory-recall]
+    branches: [dev-hub-v624-production-lineage-feedback]
     paths:
       - 'dev-hub/guardian/**'
       - 'dev-hub/config/guardian-role-contracts.v1.json'
@@ -45,7 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: dev-hub-v624-contextual-memory-recall
+          ref: dev-hub-v624-production-lineage-feedback
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
