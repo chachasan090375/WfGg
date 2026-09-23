@@ -89,15 +89,27 @@ def observe(a)->int:
     except Exception as exc:
         print(json.dumps({"status":"UNAVAILABLE","reason":str(exc)[:300]}));return 30
     print(json.dumps(x,ensure_ascii=False));return 0 if status==200 else 20
+def specialist_reviews(a)->int:
+    _,url,key=policy_values(a.policy)
+    q={"project_id":a.project_id,"revision":a.revision,"compromise_digest":a.compromise_digest}
+    full=url+"/v1/specialist-reviews?"+urllib.parse.urlencode(q)
+    try:status,x=http(signed_request("GET",full,key))
+    except Exception as exc:
+        print(json.dumps({"schema":"chacha.dev/assurance-exchange-client-result/v1","status":"UNAVAILABLE","reason":str(exc)[:300]}));return 30
+    print(json.dumps(x,ensure_ascii=False))
+    return 0 if status==200 else 30
+
 def main()->int:
     ap=argparse.ArgumentParser();ap.add_argument("--policy",type=Path,default=DEFAULT_POLICY)
     sub=ap.add_subparsers(dest="cmd",required=True)
     r=sub.add_parser("recommendations");r.add_argument("--status",default="OPEN");r.add_argument("--project-id")
+    sr=sub.add_parser("specialist-reviews");sr.add_argument("--project-id",required=True);sr.add_argument("--revision",required=True);sr.add_argument("--compromise-digest",required=True)
     pi=sub.add_parser("register-project-assurance-identity");pi.add_argument("--registration",type=Path,required=True)
     d=sub.add_parser("mark-delivered");d.add_argument("--correlation-id",action="append",required=True)
     o=sub.add_parser("observe");o.add_argument("--source",choices=["guardian","sentinel"],required=True);o.add_argument("--receipt-id",required=True)
     a=ap.parse_args()
     if a.cmd=="recommendations":return recommendations(a)
+    if a.cmd=="specialist-reviews":return specialist_reviews(a)
     if a.cmd=="register-project-assurance-identity":return register_project_assurance_identity(a.policy,a.registration)
     if a.cmd=="mark-delivered":return delivered(a)
     return observe(a)
