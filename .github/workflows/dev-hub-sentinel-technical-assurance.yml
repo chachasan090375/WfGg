@@ -1,0 +1,102 @@
+name: ChaCha DEV Sentinel technical assurance
+
+on:
+  push:
+    paths:
+      - 'dev-hub/**'
+      - '.github/workflows/dev-hub-sentinel-technical-assurance.yml'
+  pull_request:
+    paths:
+      - 'dev-hub/**'
+      - '.github/workflows/dev-hub-sentinel-technical-assurance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sentinel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Resolve comparison base
+        id: base
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=""
+          BEFORE="${{ github.event.before }}"
+          if [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            BASE="$BEFORE"
+          elif git rev-parse HEAD^ >/dev/null 2>&1; then
+            BASE="$(git rev-parse HEAD^)"
+          fi
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
+          echo "SENTINEL_BASE=${BASE:-FULL_REPOSITORY}"
+
+      - name: External technical audit
+        id: audit
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=(--repo-root . --head "$GITHUB_SHA" --run-tests --output /tmp/sentinel-technical-audit.json)
+          if [ -n "${{ steps.base.outputs.base }}" ]; then args+=(--base "${{ steps.base.outputs.base }}"); fi
+          PYTHONPATH=dev-hub/bin python3 dev-hub/bin/sentinel-technical-audit.py "${args[@]}"
+
+      - name: Audit receipt
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f /tmp/sentinel-technical-audit.json ]; then
+            python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/sentinel-technical-audit.json',encoding='utf-8'))
+          print('CHACHA_DEV_SENTINEL_EXTERNAL_AUDIT='+str(x.get('verdict')))
+          print('REVISION='+str(x.get('revision')))
+          print('AUDIT_DIGEST='+str(x.get('audit_digest')))
+          print('BLOCKING_FINDINGS='+str(len(x.get('blocking_findings') or [])))
+          print('ADVISORY_FINDINGS='+str(len(x.get('advisory_findings') or [])))
+          print('DIRECT_CODE_MUTATION=NO')
+          print('CENTRAL_ORCHESTRATOR_OWNS_REMEDIATION=YES')
+          PY
+          else
+            echo "CHACHA_DEV_SENTINEL_EXTERNAL_AUDIT=BLOCK"
+            echo "AUDIT_ARTIFACT_MISSING=YES"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chacha-dev-sentinel-technical-audit-${{ github.sha }}
+          path: /tmp/sentinel-technical-audit.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Enforce Sentinel verdict
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${{ steps.audit.outcome }}" = "success"
+          python3 - <<'PY'
+          import json,os
+          x=json.load(open('/tmp/sentinel-technical-audit.json',encoding='utf-8'))
+          assert x.get('verdict')=='PASS',x
+          assert x.get('revision')==os.environ['GITHUB_SHA'],x
+          assert x.get('direct_code_mutation') is False,x
+          print('CHACHA_DEV_SENTINEL_TECHNICAL_ASSURANCE=PASS')
+          print('EXACT_REVISION=PASS')
+          print('AUTOMATIC_EXTERNAL_SPEND_EUR=0')
+          PY
