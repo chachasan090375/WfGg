@@ -35,6 +35,10 @@
   },
   "mandatory_platform_tests": [
     {
+      "path": "dev-hub/tests/test_v637_automatic_seven_agent_finalization.py",
+      "env": {}
+    },
+    {
       "path": "dev-hub/tests/test_v636_seven_agent_final_compromise.py",
       "env": {}
     },
