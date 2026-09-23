@@ -744,6 +744,158 @@ def advance_operation(project: str, target: str | None, actor: str, policy: dict
                         artifacts=[{"type": "control-transaction-receipt", "path": str(receipt)}])
 
 
+
+def record_approval_operation(project: str, approval_id: str, actor: str, evidence: str | None,
+                              policy: dict[str, Any], repo_root: Path) -> dict[str, Any]:
+    """Record an explicit human approval through the protected control path.
+
+    The audit journal remains authoritative. The Evidence Ledger is staged first,
+    the protected APPROVAL_RECORDED event is committed, then the staged ledger is
+    atomically finalized. Replays of the same approval by the same human actor are
+    idempotent; conflicting actors/evidence fail closed.
+    """
+    approval_id=str(approval_id or "").strip()
+    actor=str(actor or "").strip()
+    if not approval_id:
+        return response(project,"record-approval","BLOCKED","Approval id is required.",
+                        blockers=["APPROVAL_ID_MISSING"])
+    if not actor or actor in {"central-orchestrator","guardian","sentinel","curator","bastion","intendant","logician","ergonomist"}:
+        return response(project,"record-approval","BLOCKED","A real human approval actor is required.",
+                        {"actor":actor},["HUMAN_APPROVAL_ACTOR_REQUIRED"])
+    p=project_paths(policy,project)
+    if not p["ledger"].exists():
+        return response(project,"record-approval","BLOCKED","Evidence ledger missing.",
+                        blockers=["EVIDENCE_LEDGER_MISSING"])
+
+    with project_lock(p["lock"]):
+        foreign=pending_transactions(p["transactions"])
+        if foreign:
+            return response(project,"record-approval","BLOCKED",
+                            "Another control transaction requires recovery.",blockers=foreign)
+        rc0,_,out0,err0=state_verify_raw(project,policy,repo_root)
+        if rc0!=0:
+            return response(project,"record-approval","BLOCKED",
+                            "Control-plane integrity failed before approval transaction.",
+                            {"stdout":out0.strip(),"stderr":err0.strip()},
+                            ["CONTROL_PLANE_INTEGRITY_FAILED"])
+
+        original=load(p["ledger"])
+        if original.get("schema")!=LEDGER_SCHEMA:
+            return response(project,"record-approval","BLOCKED","Evidence ledger schema invalid.",
+                            blockers=["EVIDENCE_LEDGER_SCHEMA_INVALID"])
+        existing=(original.get("approvals") or {}).get(approval_id)
+        if isinstance(existing,dict) and existing.get("status")=="APPROVED":
+            if existing.get("actor")==actor and str(existing.get("evidence") or "")==str(evidence or ""):
+                return response(project,"record-approval","OK",
+                                "Approval already recorded with identical evidence.",
+                                {"approval_id":approval_id,"actor":actor,"idempotent":True})
+            return response(project,"record-approval","BLOCKED",
+                            "Approval already exists with different actor or evidence.",
+                            {"approval_id":approval_id,"existing":existing},
+                            ["APPROVAL_REPLAY_CONFLICT"])
+
+        txid="ctx-approval-"+uuid.uuid4().hex
+        txdir=p["transactions"]/txid
+        txdir.mkdir(parents=True,exist_ok=False)
+        receipt=txdir/"receipt.json"
+        staged=txdir/"ledger.staged.json"
+        staged_value=copy.deepcopy(original)
+        stamp=now_iso()
+        staged_value.setdefault("approvals",{})[approval_id]={
+            "status":"APPROVED","actor":actor,"observed_at":stamp,
+            "evidence":evidence or None
+        }
+        staged_value["updated_at"]=stamp
+        save(staged,staged_value)
+        old_digest=canonical_digest(original)
+        new_digest=canonical_digest(staged_value)
+        write_receipt(receipt,{
+            "transaction_id":txid,"project":project,"operation":"record-approval",
+            "status":"PREPARED","approval_id":approval_id,"actor":actor,
+            "old_ledger_digest":old_digest,"new_ledger_digest":new_digest
+        })
+        payload=txdir/"payload.json"
+        save(payload,{
+            "approval_id":approval_id,"status":"APPROVED","actor":actor,
+            "observed_at":stamp,"evidence":evidence or None,
+            "state_patch":{"approvals":{approval_id:{
+                "status":"APPROVED","actor":actor,"observed_at":stamp,
+                "evidence":evidence or None
+            }}},
+            "ledger_digest":new_digest
+        })
+        rc_evt,event_values,out_evt,err_evt=store_record(
+            project,"APPROVAL_RECORDED",actor,payload,None,None,policy,repo_root
+        )
+        if rc_evt!=0:
+            write_receipt(receipt,{
+                "transaction_id":txid,"project":project,"operation":"record-approval",
+                "status":"FAILED","approval_id":approval_id,
+                "stdout":out_evt[-2000:],"stderr":err_evt[-1000:]
+            })
+            return response(project,"record-approval","BLOCKED",
+                            "Protected approval audit event failed.",
+                            {"transaction_id":txid},["APPROVAL_AUDIT_COMMIT_FAILED"])
+
+        p["ledger"].parent.mkdir(parents=True,exist_ok=True)
+        fd,tmp_name=tempfile.mkstemp(prefix="ledger.",suffix=".approval",dir=str(p["ledger"].parent))
+        os.close(fd);tmp=Path(tmp_name)
+        try:
+            shutil.copy2(staged,tmp)
+            with tmp.open("rb") as fh:os.fsync(fh.fileno())
+            os.replace(tmp,p["ledger"])
+        except Exception as exc:
+            if tmp.exists():tmp.unlink()
+            write_receipt(receipt,{
+                "transaction_id":txid,"project":project,"operation":"record-approval",
+                "status":"CONTROL_EVENT_COMMITTED_LEDGER_PENDING",
+                "approval_id":approval_id,"failure":str(exc),
+                "staged_ledger":str(staged),"new_ledger_digest":new_digest
+            })
+            return response(project,"record-approval","BLOCKED",
+                            "Approval audit event committed but ledger finalize is pending.",
+                            {"transaction_id":txid,"staged_ledger":str(staged)},
+                            ["CONTROL_TRANSACTION_LEDGER_FINALIZE_PENDING"])
+
+        finalized=load(p["ledger"])
+        if canonical_digest(finalized)!=new_digest:
+            write_receipt(receipt,{
+                "transaction_id":txid,"project":project,"operation":"record-approval",
+                "status":"COMMIT_UNCERTAIN","approval_id":approval_id,
+                "expected_ledger_digest":new_digest,
+                "actual_ledger_digest":canonical_digest(finalized)
+            })
+            return response(project,"record-approval","BLOCKED",
+                            "Approval ledger commit is uncertain.",
+                            {"transaction_id":txid},["CONTROL_TRANSACTION_COMMIT_UNCERTAIN"])
+
+        rc1,verify_values,out1,err1=state_verify_raw(project,policy,repo_root)
+        if rc1!=0:
+            write_receipt(receipt,{
+                "transaction_id":txid,"project":project,"operation":"record-approval",
+                "status":"COMMIT_UNCERTAIN","approval_id":approval_id,
+                "stdout":out1[-2000:],"stderr":err1[-1000:]
+            })
+            return response(project,"record-approval","BLOCKED",
+                            "Approval committed but post-write integrity is inconclusive.",
+                            {"transaction_id":txid},["CONTROL_TRANSACTION_COMMIT_UNCERTAIN"])
+
+        write_receipt(receipt,{
+            "transaction_id":txid,"project":project,"operation":"record-approval",
+            "status":"COMMITTED","approval_id":approval_id,"actor":actor,
+            "event_sequence":event_values.get("EVENT_SEQUENCE"),
+            "event_digest":event_values.get("EVENT_DIGEST"),
+            "old_ledger_digest":old_digest,"new_ledger_digest":new_digest,
+            "integrity":verify_values
+        })
+        return response(project,"record-approval","OK","Human approval recorded transactionally.",
+                        {"transaction_id":txid,"approval_id":approval_id,"actor":actor,
+                         "event_sequence":event_values.get("EVENT_SEQUENCE"),
+                         "event_digest":event_values.get("EVENT_DIGEST"),
+                         "receipt":str(receipt),"idempotent":False},
+                        artifacts=[{"type":"control-transaction-receipt","path":str(receipt)}])
+
+
 def record_control_event(project: str, event_type: str, actor: str, payload: Path | None, patch: Path | None,
                          references: Path | None, policy: dict[str, Any], repo_root: Path) -> dict[str, Any]:
     p = project_paths(policy, project)
@@ -996,6 +1148,12 @@ def main() -> int:
     verify.add_argument("--verifier", default="verification-broker")
     verify.add_argument("--ingest", action="store_true")
 
+    approve = sub.add_parser("record-approval")
+    approve.add_argument("--project", required=True)
+    approve.add_argument("--approval-id", required=True)
+    approve.add_argument("--actor", required=True)
+    approve.add_argument("--evidence")
+
     record = sub.add_parser("record-control-event")
     record.add_argument("--project", required=True)
     record.add_argument("--event-type", required=True)
@@ -1040,6 +1198,9 @@ def main() -> int:
     elif args.command == "verify-result":
         result = verify_result_operation(args.project, args.result, args.graph, args.method, args.verifier,
                                          args.ingest, policy, args.repo_root)
+    elif args.command == "record-approval":
+        result = record_approval_operation(args.project, args.approval_id, args.actor, args.evidence,
+                                           policy, args.repo_root)
     elif args.command == "record-control-event":
         result = record_control_event(args.project, args.event_type, args.actor, args.payload, args.patch,
                                       args.references, policy, args.repo_root)
