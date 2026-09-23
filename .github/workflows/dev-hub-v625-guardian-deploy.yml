@@ -2,7 +2,7 @@ name: ChaCha DEV V6.25 deploy external Guardian
 
 on:
   push:
-    branches: [dev-hub-v625-production-lineage-feedback]
+    branches: [dev-hub-v625-component-confidence]
     paths:
       - 'dev-hub/guardian/**'
       - 'dev-hub/config/guardian-role-contracts.v1.json'
@@ -26,6 +26,7 @@ on:
       - 'dev-hub/config/universal-learning.v1.json'
       - 'dev-hub/config/central-memory-recall.v1.json'
       - 'dev-hub/config/production-lineage-feedback.v1.json'
+      - 'dev-hub/config/component-confidence.v1.json'
       - 'dev-hub/config/guardian-runtime-policy.v1.json'
       - 'dev-hub/systemd/chacha-dev-guardian-remediation.service'
       - 'dev-hub/systemd/chacha-dev-guardian-remediation.timer'
@@ -45,7 +46,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: dev-hub-v625-production-lineage-feedback
+          ref: dev-hub-v625-component-confidence
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
