@@ -603,17 +603,22 @@ async function reportLearningAnomaly(req,env){
 
 async function publishAssuranceObservation(env,source,receiptId){
   const base=String(env.ASSURANCE_EXCHANGE_URL||"").replace(/\/$/,"");
-  if(!base)return {status:"NOT_CONFIGURED"};
+  if(!base&&!env.ASSURANCE_EXCHANGE_SERVICE)return {status:"NOT_CONFIGURED"};
   const payload={schema:"chacha.dev/assurance-exchange-observation-ref/v1",source,receipt_id:receiptId};
+  const init={
+    method:"POST",
+    headers:{"content-type":"application/json","user-agent":"ChaCha-DEV-Guardian/1.1"},
+    body:JSON.stringify(payload)
+  };
   let r;
   try{
-    r=await fetch(base+"/v1/observations",{
-      method:"POST",headers:{"content-type":"application/json","user-agent":"ChaCha-DEV-Guardian/1.0"},
-      body:JSON.stringify(payload)
-    });
+    r=env.ASSURANCE_EXCHANGE_SERVICE
+      ?await env.ASSURANCE_EXCHANGE_SERVICE.fetch(new Request("https://assurance-exchange.internal/v1/observations",init))
+      :await fetch(base+"/v1/observations",init);
   }catch{return {status:"DEFERRED",reason:"EXCHANGE_UNAVAILABLE"};}
   let x={};try{x=await r.json();}catch{}
-  return {status:r.ok?"DELIVERED":"DEFERRED",http_status:r.status,correlation:x.correlation||null};
+  return {status:r.ok?"DELIVERED":"DEFERRED",transport:env.ASSURANCE_EXCHANGE_SERVICE?"SERVICE_BINDING":"PUBLIC_HTTP",
+          http_status:r.status,correlation:x.correlation||null};
 }
 
 async function publicFunctionalReceipt(req,env,id){
@@ -637,9 +642,14 @@ async function verifySentinelReceipt(env,receiptId,projectId,revision){
   if(!base)return {ok:false,reason:"SENTINEL_EXTERNAL_URL_MISSING"};
   let r;
   try{
-    r=await fetch(base+"/v1/receipts/"+encodeURIComponent(receiptId),{
-      headers:{"accept":"application/json","user-agent":"ChaCha-DEV-Guardian/1.0"}
-    });
+    const path="/v1/receipts/"+encodeURIComponent(receiptId);
+    r=env.SENTINEL_SERVICE
+      ?await env.SENTINEL_SERVICE.fetch(new Request("https://sentinel.internal"+path,{
+          method:"GET",headers:{"accept":"application/json","user-agent":"ChaCha-DEV-Guardian/1.1"}
+        }))
+      :await fetch(base+path,{
+          headers:{"accept":"application/json","user-agent":"ChaCha-DEV-Guardian/1.1"}
+        });
   }catch{
     return {ok:false,reason:"SENTINEL_RECEIPT_UNAVAILABLE"};
   }
@@ -1031,7 +1041,9 @@ export default {
       functional_acceptance_gate:true,external_dual_release_gate:true,functional_contract_source_of_truth:true,
       original_functional_contract_pinned:true,dual_external_assurance_required_for_production:true,
       sentinel_receipt_verified_externally:true,sentinel_external_url_configured:Boolean(env.SENTINEL_URL),
-      assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL),
+      assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL||env.ASSURANCE_EXCHANGE_SERVICE),
+      assurance_exchange_service_binding:Boolean(env.ASSURANCE_EXCHANGE_SERVICE),
+      sentinel_service_binding:Boolean(env.SENTINEL_SERVICE),
       functional_receipt_exchange_publish:true,functional_direct_mutation:false
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
