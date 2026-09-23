@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/branch-foundry/v1",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "mandatory_preflight": true,
   "invocation_point": "parallel-with-agent-foundry-after-core-preplan",
   "returns_to": "chacha-core-orchestrator",
@@ -37,7 +37,11 @@
     "revalidate_technology_on_every_materialization": true,
     "never_reuse_architecture_without_current_fit_check": true,
     "cheapest_zero_spend_valid_blueprint_preferred": true,
-    "every_materialized_learning_capable_branch_reports_incremental_learning": true
+    "every_materialized_learning_capable_branch_reports_incremental_learning": true,
+    "central_memory_guides_hard_valid_blueprint_order": true,
+    "negative_component_confidence_blocks_fast_reuse_candidate": true,
+    "memory_never_overrides_hard_constraints": true,
+    "memory_never_skips_technology_watch": true
   },
   "fast_path": {
     "enabled": true,
