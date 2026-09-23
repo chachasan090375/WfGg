@@ -1,0 +1,133 @@
+name: ChaCha DEV V6.32 project embedded assurance qualification
+
+on:
+  push:
+    branches: [dev-hub-v632-project-embedded-assurance]
+    paths:
+      - 'dev-hub/bin/project-assurance-event.py'
+      - 'dev-hub/bin/project-assurance-relay.py'
+      - 'dev-hub/bin/project-assurance-identity-manager.py'
+      - 'dev-hub/bin/project-embedded-assurance.py'
+      - 'dev-hub/bin/project-factory.py'
+      - 'dev-hub/bin/project-bootstrap.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/templates/project-assurance-client.mjs'
+      - 'dev-hub/config/project-embedded-assurance.v1.json'
+      - 'dev-hub/config/peripheral-assurance-network.v1.json'
+      - 'dev-hub/config/project-factory.v1.json'
+      - 'dev-hub/config/project-control.v1.json'
+      - 'dev-hub/config/sentinel-technical-policy.v1.json'
+      - 'dev-hub/guardian/**'
+      - 'dev-hub/sentinel/**'
+      - 'dev-hub/tests/test_v632_project_embedded_assurance.py'
+      - 'dev-hub/tests/test_v631_assurance_exchange.py'
+      - 'dev-hub/tests/test_v630_external_dual_assurance.py'
+      - 'dev-hub/tests/test_v629_memory_guided_foundry_planning.py'
+      - 'dev-hub/tests/test_v628_trusted_dispatch_lineage.py'
+      - 'dev-hub/tests/test_v627_verified_evidence_learning.py'
+      - 'dev-hub/tests/test_v623_contextual_memory_recall.py'
+      - 'dev-hub/bin/install-v632-project-embedded-assurance.sh'
+      - '.github/workflows/dev-hub-v632-project-embedded-assurance-qualification.yml'
+      - '.github/workflows/dev-hub-v632-project-embedded-assurance-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v632-project-embedded-assurance
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          node --check dev-hub/guardian/worker.js
+          node --check dev-hub/sentinel/worker.js
+          node --check dev-hub/templates/project-assurance-client.mjs
+          python3 -m py_compile             dev-hub/bin/project-assurance-event.py             dev-hub/bin/project-assurance-relay.py             dev-hub/bin/project-assurance-identity-manager.py             dev-hub/bin/project-embedded-assurance.py             dev-hub/bin/project-factory.py             dev-hub/bin/project-bootstrap.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/guardian-client.py             dev-hub/bin/sentinel-client.py
+          python3 -m json.tool dev-hub/config/project-embedded-assurance.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/peripheral-assurance-network.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/project-factory.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/project-control.v1.json >/dev/null
+          grep -Fq 'project_assurance_identities' dev-hub/guardian/migrations/0009_project_assurance_identities.sql
+          grep -Fq 'project_assurance_identities' dev-hub/sentinel/migrations/0003_project_assurance_identities.sql
+          if [ -f dev-hub/bin/install-v632-project-embedded-assurance.sh ]; then
+            bash -n dev-hub/bin/install-v632-project-embedded-assurance.sh
+          fi
+          echo CHACHA_DEV_V632_STATIC=PASS
+
+      - name: V6.32 project embedded assurance
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v632_project_embedded_assurance.py
+
+      - name: V6.31 Assurance Exchange regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v631_assurance_exchange.py
+
+      - name: V6.30 dual assurance regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v630_external_dual_assurance.py
+
+      - name: V6.29 memory guided Foundry regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v629_memory_guided_foundry_planning.py
+
+      - name: V6.28 trusted dispatch regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v628_trusted_dispatch_lineage.py
+
+      - name: V6.27 verified evidence regression
+        env:
+          CHACHA_DEV_TEST_TRUSTED_CONTEXT_BYPASS: '1'
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v627_verified_evidence_learning.py
+
+      - name: V6.23 contextual recall regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v623_contextual_memory_recall.py
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_PROJECT_EMBEDDED_ASSURANCE=V6.32
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo EVERY_PROJECT_EMBEDDED_ASSURANCE=YES
+            echo GUARDIAN_LOCAL=YES
+            echo SENTINEL_LOCAL=YES
+            echo PROJECT_SCOPED_IDENTITY=YES
+            echo SERVER_SIDE_RELAY_ONLY=YES
+            echo RAW_USER_CONTENT=NO
+            echo CLIENT_SECRET=NO
+            echo DIRECT_MUTATION=NO
+            echo FIVE_AGENT_NETWORK_RESERVED=YES
+            echo COMMON_ASSURANCE_EXCHANGE=YES
+            echo REMEDIATION_OWNER=central-orchestrator
+            echo TECHNOLOGY_WATCH_REQUIRED_FOR_ARCHITECTURE_CHANGE=YES
+            echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V632_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v632-project-embedded-assurance
+          path: /tmp/CHACHA_DEV_V632_RECEIPT.txt
+          retention-days: 30
