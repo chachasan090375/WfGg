@@ -690,6 +690,51 @@ async function functionalAcceptance(req,env){
   },verdict==="PASS"?200:409);
 }
 
+async function dualReleaseGate(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(p.schema!=="chacha.dev/external-dual-assurance-request/v1")return json({error:"dual_assurance_schema_invalid"},400);
+  const projectId=String(p.project_id||""),revision=String(p.revision||"");
+  const functionalReceiptId=String(p.guardian_functional_receipt_id||"");
+  const sentinelReceiptId=String(p.sentinel_technical_receipt_id||"");
+  const reasons=[];let critical=false;
+  if(!projectId||!/^[0-9a-f]{40}$/.test(revision))reasons.push("PROJECT_OR_RELEASE_REVISION_INVALID");
+  const fr=functionalReceiptId?await env.DB.prepare(
+    "SELECT project_id,revision,verdict FROM functional_acceptance_receipts WHERE receipt_id=?1"
+  ).bind(functionalReceiptId).first():null;
+  if(!functionalReceiptId)reasons.push("GUARDIAN_FUNCTIONAL_RECEIPT_REQUIRED");
+  else if(!fr)reasons.push("GUARDIAN_FUNCTIONAL_RECEIPT_UNKNOWN");
+  else{
+    if(String(fr.project_id)!==projectId){reasons.push("GUARDIAN_FUNCTIONAL_RECEIPT_PROJECT_MISMATCH");critical=true;}
+    if(String(fr.revision)!==revision)reasons.push("GUARDIAN_FUNCTIONAL_RECEIPT_REVISION_MISMATCH");
+    if(String(fr.verdict)!=="PASS")reasons.push("GUARDIAN_FUNCTIONAL_ACCEPTANCE_NOT_PASS");
+  }
+  if(!sentinelReceiptId)reasons.push("SENTINEL_TECHNICAL_RECEIPT_REQUIRED");
+  else{
+    const sv=await verifySentinelReceipt(env,sentinelReceiptId,projectId,revision);
+    if(!sv.ok){reasons.push(sv.reason);if(sv.critical)critical=true;}
+  }
+  const verdict=reasons.length?(critical?"CRITICAL":"BLOCK"):"PASS";
+  let directiveId=null;
+  if(verdict!=="PASS"){
+    directiveId=await createAlert(env,{
+      alertId:"dual-release-"+projectId+"-"+revision.slice(0,12),eventId:"dual-release:"+projectId+":"+revision,
+      severity:verdict,summary:verdict+" external dual assurance "+projectId+" / "+revision,reasons,
+      payload:{actor:"central-orchestrator",subject_role:"central-orchestrator",project_id:projectId,revision,
+        guardian_functional_receipt_id:functionalReceiptId,sentinel_technical_receipt_id:sentinelReceiptId}
+    });
+  }
+  return json({
+    schema:"chacha.dev/external-dual-assurance-verdict/v1",project_id:projectId,revision,
+    verdict,reason_codes:[...new Set(reasons)],guardian_functional_receipt_id:functionalReceiptId,
+    sentinel_technical_receipt_id:sentinelReceiptId,production_allowed:verdict==="PASS",
+    remediation_owner:"central-orchestrator",directive_id:directiveId,
+    guardian_direct_mutation:false,sentinel_direct_mutation:false,
+    checked_at:new Date().toISOString()
+  },verdict==="PASS"?200:409);
+}
+
 async function check(req,env){
   const body=await req.text();
   const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
@@ -949,13 +994,14 @@ export default {
       central_memory_assimilation_evidence_required:true,component_confidence_evidence_required:true,contextual_memory_recall_evidence_required:true,
       coverage_remediation_auto_resolution:true,coverage_remediation_batched:true,
       remediation_dependency_auto_resolution:true,remediation_cascade_suppression:true,
-      functional_acceptance_gate:true,functional_contract_source_of_truth:true,
+      functional_acceptance_gate:true,external_dual_release_gate:true,functional_contract_source_of_truth:true,
       original_functional_contract_pinned:true,dual_external_assurance_required_for_production:true,
       sentinel_receipt_verified_externally:true,sentinel_external_url_configured:Boolean(env.SENTINEL_URL),
       functional_direct_mutation:false
     });
     if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/functional-acceptance")return functionalAcceptance(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/dual-release-gate")return dualReleaseGate(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/learning-anomalies/report")return reportLearningAnomaly(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/dynamic-contracts/register")return registerDynamicContract(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/dynamic-components/register")return registerDynamicComponentContract(req,env);
