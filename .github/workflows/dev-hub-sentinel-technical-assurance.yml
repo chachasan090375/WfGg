@@ -101,31 +101,99 @@ jobs:
           print('AUTOMATIC_EXTERNAL_SPEND_EUR=0')
           PY
 
-      - name: Persist exact-revision Sentinel attestation
+      - name: Persist and verify exact-revision Sentinel attestation
         if: success() && github.event_name != 'pull_request'
-        continue-on-error: true
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY' >/tmp/sentinel-attestation.sql
-          import json,os
-          x=json.load(open('/tmp/sentinel-technical-audit.json',encoding='utf-8'))
-          q=lambda s:"'"+str(s).replace("'","''")+"'"
-          sql=(
-            "INSERT INTO technical_workflow_attestations"
-            "(repository,revision,workflow_name,workflow_run_id,audit_digest,conclusion,attested_at) VALUES("
-            +q(os.environ['GITHUB_REPOSITORY'])+","+q(os.environ['GITHUB_SHA'])+","
-            +q('ChaCha DEV Sentinel technical assurance')+","+q(os.environ['GITHUB_RUN_ID'])+","
-            +q(x['audit_digest'])+",'PASS',datetime('now')) "
-            "ON CONFLICT(repository,revision,workflow_name) DO UPDATE SET "
-            "workflow_run_id=excluded.workflow_run_id,audit_digest=excluded.audit_digest,"
-            "conclusion='PASS',attested_at=datetime('now');"
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request,urllib.error
+
+          token=os.environ.get("CF_API_TOKEN","").strip()
+          if not token:
+              raise SystemExit("MISSING_SECRET=CLOUDFLARE_API_TOKEN")
+          headers={"Authorization":"Bearer "+token,"Content-Type":"application/json"}
+
+          def call(url,method="GET",body=None):
+              data=None if body is None else json.dumps(body).encode()
+              req=urllib.request.Request(url,headers=headers,method=method,data=data)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:
+                      return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode("utf-8","replace")
+                  try: payload=json.loads(raw)
+                  except Exception: payload={"raw":raw[:1000]}
+                  return e.code,payload
+
+          aid=os.environ.get("CF_ACCOUNT_ID","").strip()
+          if not aid:
+              status,payload=call("https://api.cloudflare.com/client/v4/accounts?per_page=50")
+              rows=(payload.get("result") or []) if status==200 else []
+              if len(rows)!=1:
+                  raise SystemExit("CLOUDFLARE_ACCOUNT_RESOLUTION_FAILED:"+str(status)+":"+str(len(rows)))
+              aid=rows[0]["id"]
+
+          status,payload=call(
+              "https://api.cloudflare.com/client/v4/accounts/"+aid+
+              "/d1/database?name="+urllib.parse.quote("chacha-dev-sentinel")
           )
-          print(sql)
+          if status!=200:
+              raise SystemExit("SENTINEL_D1_LOOKUP_FAILED:"+str(status))
+          rows=payload.get("result") or []
+          db=next((x for x in rows if x.get("name")=="chacha-dev-sentinel"),None)
+          if not db:
+              raise SystemExit("SENTINEL_D1_MISSING")
+          dbid=db["uuid"]
+
+          audit=json.load(open("/tmp/sentinel-technical-audit.json",encoding="utf-8"))
+          repo=os.environ["GITHUB_REPOSITORY"]
+          revision=os.environ["GITHUB_SHA"]
+          workflow="ChaCha DEV Sentinel technical assurance"
+          run_id=os.environ["GITHUB_RUN_ID"]
+          audit_digest=audit["audit_digest"]
+
+          sql="""INSERT INTO technical_workflow_attestations
+          (repository,revision,workflow_name,workflow_run_id,audit_digest,conclusion,attested_at)
+          VALUES(?1,?2,?3,?4,?5,'PASS',datetime('now'))
+          ON CONFLICT(repository,revision,workflow_name) DO UPDATE SET
+          workflow_run_id=excluded.workflow_run_id,
+          audit_digest=excluded.audit_digest,
+          conclusion='PASS',
+          attested_at=datetime('now')"""
+          query_url=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{dbid}/query"
+          status,payload=call(query_url,"POST",{
+              "sql":sql,
+              "params":[repo,revision,workflow,run_id,audit_digest]
+          })
+          if status!=200 or not payload.get("success"):
+              raise SystemExit("SENTINEL_ATTESTATION_WRITE_FAILED:"+str(status)+":"+json.dumps(payload)[:500])
+
+          status,payload=call(query_url,"POST",{
+              "sql":"""SELECT repository,revision,workflow_name,workflow_run_id,audit_digest,conclusion
+                       FROM technical_workflow_attestations
+                       WHERE repository=?1 AND revision=?2 AND workflow_name=?3""",
+              "params":[repo,revision,workflow]
+          })
+          if status!=200 or not payload.get("success"):
+              raise SystemExit("SENTINEL_ATTESTATION_VERIFY_QUERY_FAILED:"+str(status))
+          result=payload.get("result") or []
+          data=[]
+          for block in result:
+              data.extend(block.get("results") or [])
+          if len(data)!=1:
+              raise SystemExit("SENTINEL_ATTESTATION_VERIFY_MISSING:"+str(len(data)))
+          row=data[0]
+          assert row["repository"]==repo,row
+          assert row["revision"]==revision,row
+          assert row["workflow_name"]==workflow,row
+          assert str(row["workflow_run_id"])==str(run_id),row
+          assert row["audit_digest"]==audit_digest,row
+          assert row["conclusion"]=="PASS",row
+          print("CHACHA_DEV_SENTINEL_WORKFLOW_ATTESTATION_WRITE=PASS")
+          print("CHACHA_DEV_SENTINEL_WORKFLOW_ATTESTATION_READBACK=PASS")
+          print("EXACT_REVISION_ATTESTED="+revision)
           PY
-          SQL="$(cat /tmp/sentinel-attestation.sql)"
-          npx --yes wrangler@4.45.0 d1 execute chacha-dev-sentinel --remote --command="$SQL"
-          echo CHACHA_DEV_SENTINEL_WORKFLOW_ATTESTATION=PASS
