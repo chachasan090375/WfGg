@@ -318,6 +318,8 @@ function remediationPlan(reasons,severity,payload){
   else if(rs.some(x=>x.includes("POST_ACTION_MISSING")))requiredAction="RECONCILE_ACTION_STATE";
   else if(rs.some(x=>x.includes("HUMAN_APPROVAL")))requiredAction="REQUEST_HUMAN_APPROVAL";
   else if(rs.some(x=>x.includes("EMERGENCY_STOP")))requiredAction="HALT_AND_ESCALATE";
+  else if(rs.some(x=>x.includes("FUNCTIONAL_")||x.includes("REQUIRED_FUNCTIONAL")))requiredAction="CENTRAL_ORCHESTRATOR_REPAIR_AND_RERUN_FUNCTIONAL_ACCEPTANCE";
+  else if(rs.some(x=>x.includes("SENTINEL_")))requiredAction="CENTRAL_ORCHESTRATOR_REPAIR_AND_RERUN_TECHNICAL_ASSURANCE";
   else if(rs.some(x=>x.includes("PRODUCTION_ANOMALY")))requiredAction="INVESTIGATE_REPLAN_PATCH_AND_VERIFY_PRODUCTION_ANOMALY";
   else if(rs.some(x=>x.includes("PROJECT_SCOPE")||x.includes("CAPABILITY_OUTSIDE")||x.includes("DOMAIN_OUTSIDE")||x.includes("PACKAGE_OUTSIDE")))requiredAction="REPLAN_WITHIN_AUTHORIZED_SCOPE";
   const p=payload&&typeof payload==="object"?payload:{};
