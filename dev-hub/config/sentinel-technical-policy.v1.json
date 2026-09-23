@@ -35,6 +35,10 @@
   },
   "mandatory_platform_tests": [
     {
+      "path": "dev-hub/tests/test_v633_five_agent_embedded_probes.py",
+      "env": {}
+    },
+    {
       "path": "dev-hub/tests/test_v632_project_embedded_assurance.py",
       "env": {}
     },
