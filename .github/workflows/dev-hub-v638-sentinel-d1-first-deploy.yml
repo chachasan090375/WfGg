@@ -1,0 +1,174 @@
+name: ChaCha DEV V6.38 deploy Sentinel D1-first remediation
+
+on:
+  push:
+    branches: [dev-hub-v638-full-autonomous-golden-path]
+    paths:
+      - 'dev-hub/sentinel/worker.js'
+      - 'dev-hub/tests/test_v638_full_autonomous_golden_path.py'
+      - '.github/workflows/dev-hub-v638-sentinel-d1-first-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v638-full-autonomous-golden-path
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate Sentinel D1-first semantics
+        run: |
+          set -euo pipefail
+          node --check dev-hub/sentinel/worker.js
+          grep -Fq 'const stored=await storedWorkflowAttestation(env,repository,revision,workflowName);' dev-hub/sentinel/worker.js
+          grep -Fq 'const gh=await githubRuns(repository,revision,workflowName,env);' dev-hub/sentinel/worker.js
+          grep -Fq 'const gh=await technicalAssuranceForRevision(repository,revision,workflowName,env);' dev-hub/sentinel/worker.js
+          grep -Fq 'release_check_d1_first_runtime:true' dev-hub/sentinel/worker.js
+          echo CHACHA_DEV_V638_SENTINEL_D1_FIRST_STATIC=PASS
+
+      - name: Resolve Sentinel D1 and Workers subdomain
+        id: cf
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request,urllib.error
+          token=os.environ.get('CF_API_TOKEN','').strip()
+          if not token: raise SystemExit('MISSING_SECRET=CLOUDFLARE_API_TOKEN')
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url):
+              req=urllib.request.Request(url,headers=headers)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode('utf-8','replace')
+                  try:p=json.loads(raw)
+                  except Exception:p={'raw':raw[:800]}
+                  return e.code,p
+          aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          if not aid:
+              status,payload=call('https://api.cloudflare.com/client/v4/accounts?per_page=50')
+              rows=(payload.get('result') or []) if status==200 else []
+              if len(rows)!=1: raise SystemExit('CLOUDFLARE_ACCOUNT_RESOLUTION_FAILED')
+              aid=rows[0]['id']
+          status,payload=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-sentinel'))
+          if status!=200: raise SystemExit('SENTINEL_D1_LOOKUP_FAILED:'+str(status))
+          rows=payload.get('result') or []
+          db=next((x for x in rows if x.get('name')=='chacha-dev-sentinel'),None)
+          if not db: raise SystemExit('SENTINEL_D1_MISSING')
+          status,payload=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/workers/subdomain')
+          if status!=200 or not (payload.get('result') or {}).get('subdomain'):
+              raise SystemExit('WORKERS_SUBDOMAIN_RESOLUTION_FAILED')
+          sub=payload['result']['subdomain']
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as f:
+              f.write('account_id='+aid+'\n')
+              f.write('sentinel_database_id='+db['uuid']+'\n')
+              f.write('workers_subdomain='+sub+'\n')
+          print('CHACHA_DEV_V638_SENTINEL_D1_RESOLVED=PASS')
+          PY
+
+      - name: Prepare Sentinel Wrangler config
+        run: |
+          set -euo pipefail
+          SUBDOMAIN='${{ steps.cf.outputs.workers_subdomain }}'
+          EXCHANGE_URL="https://chacha-dev-assurance-exchange.$SUBDOMAIN.workers.dev"
+          cat > .wrangler-sentinel-v638.jsonc <<EOF
+          {
+            "name": "chacha-dev-sentinel",
+            "main": "dev-hub/sentinel/worker.js",
+            "compatibility_date": "2026-09-23",
+            "workers_dev": true,
+            "vars": {
+              "REQUIRED_WORKFLOW_NAME": "ChaCha DEV Sentinel technical assurance",
+              "ASSURANCE_EXCHANGE_URL": "$EXCHANGE_URL"
+            },
+            "services": [
+              {"binding": "ASSURANCE_EXCHANGE_SERVICE", "service": "chacha-dev-assurance-exchange"}
+            ],
+            "d1_databases": [{
+              "binding": "DB",
+              "database_name": "chacha-dev-sentinel",
+              "database_id": "${{ steps.cf.outputs.sentinel_database_id }}"
+            }]
+          }
+          EOF
+
+      - name: Deploy external Sentinel D1-first
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 deploy --config=.wrangler-sentinel-v638.jsonc
+          echo CHACHA_DEV_V638_SENTINEL_D1_FIRST_DEPLOY=PASS
+
+      - name: Verify deployed Sentinel runtime
+        env:
+          SUBDOMAIN: ${{ steps.cf.outputs.workers_subdomain }}
+        run: |
+          set -euo pipefail
+          URL="https://chacha-dev-sentinel.$SUBDOMAIN.workers.dev/healthz"
+          ok=0
+          for i in $(seq 1 30); do
+            if curl -fsS "$URL" -o /tmp/sentinel-v638-health.json &&
+               grep -Fq '"release_check_d1_first_runtime":true' /tmp/sentinel-v638-health.json &&
+               grep -Fq '"technical_verification_primary":"D1_WORKFLOW_ATTESTATION"' /tmp/sentinel-v638-health.json &&
+               grep -Fq '"github_api_fallback_only":true' /tmp/sentinel-v638-health.json &&
+               grep -Fq '"assurance_exchange_service_binding":true' /tmp/sentinel-v638-health.json; then
+              ok=1; break
+            fi
+            sleep 3
+          done
+          test "$ok" = 1
+          echo CHACHA_DEV_V638_SENTINEL_D1_FIRST_RUNTIME=PASS
+
+      - name: Wait for exact-revision D1 technical attestation
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+          SENTINEL_DB_ID: ${{ steps.cf.outputs.sentinel_database_id }}
+          REVISION: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,time,urllib.request,urllib.error
+          token=os.environ['CF_API_TOKEN'].strip();aid=os.environ['CF_ACCOUNT_ID'].strip()
+          db=os.environ['SENTINEL_DB_ID'].strip();rev=os.environ['REVISION'].strip()
+          url=f'https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{db}/query'
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          sql='''SELECT repository,revision,workflow_name,workflow_run_id,audit_digest,conclusion
+                 FROM technical_workflow_attestations
+                 WHERE repository=?1 AND revision=?2 AND workflow_name=?3'''
+          params=['chachasan090375/WfGg',rev,'ChaCha DEV Sentinel technical assurance']
+          for _ in range(90):
+              req=urllib.request.Request(url,headers=headers,method='POST',data=json.dumps({'sql':sql,'params':params}).encode())
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r: payload=json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  payload={}
+              rows=[]
+              for block in payload.get('result') or []: rows.extend(block.get('results') or [])
+              if len(rows)==1 and rows[0].get('conclusion')=='PASS':
+                  print('CHACHA_DEV_V638_SENTINEL_EXACT_REVISION_D1_ATTESTATION=PASS')
+                  print('ATTESTED_REVISION='+rev)
+                  raise SystemExit(0)
+              time.sleep(10)
+          raise SystemExit('SENTINEL_EXACT_REVISION_ATTESTATION_TIMEOUT:'+rev)
+          PY
+
+      - name: Remediation receipt
+        run: |
+          echo CHACHA_DEV_V638_SENTINEL_GITHUB_403_REMEDIATED=PASS
+          echo PRIMARY_TECHNICAL_VERIFICATION=D1_WORKFLOW_ATTESTATION
+          echo GITHUB_API_ROLE=FALLBACK_ONLY
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
