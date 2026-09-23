@@ -1,0 +1,68 @@
+{
+  "schema": "chacha.dev/controlled-production-handoff/v1",
+  "version": "1.0.0",
+  "scope": "RELEASE_TO_OPERATE",
+  "lifecycle": {
+    "from": "RELEASE",
+    "to": "OPERATE",
+    "approval_id": "production-deployment",
+    "first_production_mutation_requires_approval": true
+  },
+  "source_of_truth": {
+    "release_revision": "exact-pinned",
+    "project_control_state": true,
+    "evidence_ledger": true,
+    "seven_agent_release_receipt_reused": true
+  },
+  "deployment": {
+    "controller_direct_production_mutation": false,
+    "controlled_adapter_required": true,
+    "explicit_target_required": true,
+    "target_profile_must_be_allowlisted": true,
+    "reversible_first_pilot": true,
+    "production_data_write_allowed": false,
+    "destructive_migration_allowed": false,
+    "secret_change_allowed": false
+  },
+  "evidence": {
+    "required": [
+      "production-deployment-receipt",
+      "post-deploy-smoke",
+      "production-health",
+      "observability-health",
+      "post-release-signed-checkpoint",
+      "post-release-anchor-quorum"
+    ],
+    "real_target_required": true,
+    "synthetic_or_local_preview_not_sufficient": true
+  },
+  "gates": {
+    "required": [
+      "identity-security",
+      "ci-cd-release",
+      "observability",
+      "reliability-resilience"
+    ],
+    "fail_closed": true
+  },
+  "rollback": {
+    "required": true,
+    "must_be_executable": true,
+    "bastion_containment_available": true,
+    "emergency_stop_out_of_band": true,
+    "compromised_state_blind_replication_forbidden": true
+  },
+  "trust": {
+    "signed_post_release_checkpoint": true,
+    "minimum_independent_anchors": 2
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0,
+    "paid_solution_requires_explicit_human_approval": true
+  },
+  "pilot": {
+    "real_production_target": false,
+    "status": "DESIGN_ONLY",
+    "terminal_marker": "CHACHA_DEV_V639_INSTALL=PASS"
+  }
+}
