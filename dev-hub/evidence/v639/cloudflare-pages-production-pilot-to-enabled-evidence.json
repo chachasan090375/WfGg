@@ -1,0 +1,55 @@
+{
+  "schema": "chacha.dev/adapter-promotion-evidence/v1",
+  "adapter": "cloudflare-pages-production-adapter",
+  "observed_at": "2026-09-23T17:32:00Z",
+  "evidence": {
+    "repeatable-pass": {
+      "status": "PASS",
+      "source": "vps://ChaChaVPS/v639/cloudflare-pages-production/enablement-3x",
+      "observed_at": "2026-09-23T17:32:00Z",
+      "details": {
+        "runs": 3,
+        "executable_path": "/opt/chacha-dev/adapters/cloudflare-pages-production/current/cloudflare-pages-production-adapter",
+        "executable_digest": "sha256:e1080eed8da322d68a1c358236b2cf704b74a56b29f2f5e2c7ec1de076a53647",
+        "provisioning_version": "1.0.1",
+        "idempotent_second_run": true,
+        "production_execution": "BLOCKED",
+        "production_mutation": false,
+        "real_production_target": false
+      }
+    },
+    "provider-health-pass": {
+      "status": "PASS",
+      "source": "https://www.cloudflarestatus.com/api/v2/components.json",
+      "observed_at": "2026-09-23T17:32:00Z",
+      "details": {
+        "provider_health_mode": "PUBLIC_STATUS_READ_ONLY",
+        "network_write": false,
+        "production_mutation": false,
+        "credentials_consumed": false
+      }
+    },
+    "rollback-defined": {
+      "status": "PASS",
+      "source": "repo://dev-hub/config/adapter-rollbacks.v1.json",
+      "observed_at": "2026-09-23T17:32:00Z",
+      "details": {
+        "target_status": "DISABLED",
+        "provider_rollback_api": true,
+        "canonical_deployment_restore_verification": true
+      }
+    }
+  },
+  "approvals": [
+    {
+      "id": "v639-cf-pages-enable-20260923",
+      "type": "adapter-production-enable",
+      "adapter": "cloudflare-pages-production-adapter",
+      "target_status": "ENABLED",
+      "actor": "cedric",
+      "approved_at": "2026-09-23T17:32:00Z",
+      "scope": "ENABLE_ADAPTER_ONLY_NO_REAL_PRODUCTION_DEPLOYMENT",
+      "source_revision": "304f5ebb87182a11eeba3666a1c37089bdcc16b2"
+    }
+  ]
+}
