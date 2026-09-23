@@ -149,7 +149,7 @@ for(const name of names){
   const data=await readFile(path.join("dist",name));
   files[name]="sha256:"+createHash("sha256").update(data).digest("hex");
 }
-await import("node:fs/promises").then(fs=>fs.writeFile("dist/build-manifest.json",JSON.stringify({files},null,2)+"\n"));
+await import("node:fs/promises").then(fs=>fs.writeFile("dist/build-manifest.json",JSON.stringify({files},null,2)));
 """,encoding="utf-8")
     save(workspace/"package.json",{
         "name":"chacha-v638-golden-path",
@@ -217,7 +217,7 @@ await import("node:fs/promises").then(fs=>fs.writeFile("dist/build-manifest.json
     build_run=run(["node","tools/build.mjs"],workspace)
     build_manifest=dist/"build-manifest.json"
     if build_run.returncode!=0 or not build_manifest.is_file():
-        raise SystemExit("V638_BUILD_FAILED")
+        raise SystemExit("V638_BUILD_FAILED:stdout="+build_run.stdout[-3000:]+":stderr="+build_run.stderr[-3000:])
     build_report={
         "schema":"chacha.dev/golden-path-build-result/v1","status":"PASS",
         "returncode":build_run.returncode,"dist_files":file_manifest(dist),
