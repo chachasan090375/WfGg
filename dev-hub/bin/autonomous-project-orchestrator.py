@@ -295,6 +295,10 @@ def main():
             "--sentinel-policy",cfg/"sentinel-runtime-policy.v1.json",
             "--exchange-client",bin_dir/"assurance-exchange-client.py",
             "--exchange-policy",cfg/"assurance-exchange-runtime-policy.v1.json",
+            "--specialist-client",bin_dir/"specialist-authority-client.py",
+            "--curator-policy",cfg/"curator-runtime-policy.v1.json",
+            "--bastion-policy",cfg/"bastion-runtime-policy.v1.json",
+            "--intendant-policy",cfg/"intendant-runtime-policy.v1.json",
             "--registration",out/"project-assurance-identity-registration.json",
             "--receipt",assurance_identity_receipt,
             "--bundle",assurance_bundle
@@ -541,7 +545,7 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.34.0",
+      "version":"6.35.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
@@ -557,6 +561,10 @@ def main():
                                       for role in ("guardian","sentinel","curator","bastion","intendant")),
       "project_assurance_identity_active":bool((assurance_manifest.get("production_readiness") or {}).get("relay_identity_active")),
       "embedded_assurance_production_ready":bool((assurance_manifest.get("production_readiness") or {}).get("ready")),
+      "specialist_authority_identities_active":bool((assurance_manifest.get("production_readiness") or {}).get("specialist_authority_identities_active")),
+      "curator_central_authority":"ACTIVE",
+      "bastion_central_authority":"ACTIVE",
+      "intendant_central_authority":"ACTIVE",
       "embedded_assurance_raw_user_content":False,
       "embedded_assurance_direct_mutation":False,
       "preplan":str(active_pre),
@@ -653,6 +661,10 @@ def main():
     print("BASTION_LOCAL="+("ENABLED" if state["bastion_local_enabled"] else "DISABLED"))
     print("INTENDANT_LOCAL="+("ENABLED" if state["intendant_local_enabled"] else "DISABLED"))
     print("PROJECT_ASSURANCE_IDENTITY="+("ACTIVE" if state["project_assurance_identity_active"] else "PENDING"))
+    print("SPECIALIST_AUTHORITY_IDENTITIES="+("ACTIVE" if state["specialist_authority_identities_active"] else "PENDING"))
+    print("CURATOR_CENTRAL_AUTHORITY=ACTIVE")
+    print("BASTION_CENTRAL_AUTHORITY=ACTIVE")
+    print("INTENDANT_CENTRAL_AUTHORITY=ACTIVE")
     print("EXTERNAL_SPEND_EUR="+str(state["external_spend_eur"]))
 
 if __name__=="__main__":main()
