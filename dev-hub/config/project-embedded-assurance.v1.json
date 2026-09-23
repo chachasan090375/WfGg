@@ -1,0 +1,105 @@
+{
+  "schema": "chacha.dev/project-embedded-assurance-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "mandatory_for_all_projects": true,
+  "bundle": {
+    "manifest": "embedded-assurance.json",
+    "guardian_local": "guardian-local",
+    "sentinel_local": "sentinel-local",
+    "relay": "project-assurance-relay",
+    "outbox": "outbox",
+    "delivered": "delivered"
+  },
+  "local_agents": {
+    "guardian": {
+      "role": "functional-observer",
+      "allowed_event_types": [
+        "functional-miss",
+        "journey-failure",
+        "acceptance-regression",
+        "user-visible-failure",
+        "functional-latency"
+      ],
+      "direct_mutation": false
+    },
+    "sentinel": {
+      "role": "technical-observer",
+      "allowed_event_types": [
+        "exception",
+        "crash",
+        "timeout",
+        "latency-budget",
+        "dependency-failure",
+        "resource-pressure",
+        "runtime-regression"
+      ],
+      "direct_mutation": false
+    }
+  },
+  "privacy": {
+    "raw_user_content": false,
+    "raw_request_body": false,
+    "raw_response_body": false,
+    "raw_prompt": false,
+    "raw_message": false,
+    "credentials": false,
+    "secrets": false,
+    "tokens": false,
+    "email_addresses": false,
+    "allow_fields": [
+      "event_type",
+      "severity",
+      "code",
+      "component_id",
+      "component_version",
+      "deployment_id",
+      "metric_name",
+      "metric_value",
+      "metric_unit",
+      "duration_ms",
+      "status_code",
+      "evidence_digest",
+      "route_template",
+      "operation",
+      "observed_at",
+      "trace_id_hash"
+    ],
+    "forbidden_field_patterns": [
+      "content",
+      "body",
+      "prompt",
+      "message",
+      "email",
+      "password",
+      "secret",
+      "token",
+      "authorization",
+      "cookie"
+    ]
+  },
+  "transport": {
+    "mode": "LOCAL_OUTBOX_TO_SERVER_SIDE_RELAY",
+    "client_direct_to_central": false,
+    "relay_requires_server_side_private_key": true,
+    "guardian_path": "/v1/project-events",
+    "sentinel_path": "/v1/project-events",
+    "incremental_batch_max_events": 50,
+    "max_outbox_events": 5000,
+    "retry_is_non_destructive": true
+  },
+  "central_authority": {
+    "guardian_url": "https://chacha-dev-guardian.chachasan090375.workers.dev",
+    "sentinel_url": "https://chacha-dev-sentinel.chachasan090375.workers.dev",
+    "assurance_exchange_remains_correlation_plane": true
+  },
+  "remediation": {
+    "local_agents_may_apply_fix": false,
+    "local_agents_may_deploy": false,
+    "central_orchestrator_owns_remediation": true,
+    "remote_remediation_deferred_to_fleet_control": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}
