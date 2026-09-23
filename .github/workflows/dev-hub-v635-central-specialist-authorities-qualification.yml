@@ -10,6 +10,9 @@ on:
       - 'dev-hub/intendant/**'
       - 'dev-hub/assurance-exchange/**'
       - 'dev-hub/bin/specialist-authority-client.py'
+      - 'dev-hub/bin/bastion-incident-response-controller.py'
+      - 'dev-hub/systemd/chacha-dev-bastion-incident-response.service'
+      - 'dev-hub/systemd/chacha-dev-bastion-incident-response.timer'
       - 'dev-hub/bin/project-assurance-identity-manager.py'
       - 'dev-hub/bin/autonomous-project-orchestrator.py'
       - 'dev-hub/config/specialist-authority-common.v1.json'
@@ -65,12 +68,17 @@ jobs:
           node --check dev-hub/bastion/worker.js
           node --check dev-hub/intendant/worker.js
           node --check dev-hub/assurance-exchange/worker.js
-          python3 -m py_compile             dev-hub/bin/specialist-authority-client.py             dev-hub/bin/project-assurance-identity-manager.py             dev-hub/bin/autonomous-project-orchestrator.py
+          python3 -m py_compile \
+            dev-hub/bin/specialist-authority-client.py \
+            dev-hub/bin/bastion-incident-response-controller.py \
+            dev-hub/bin/project-assurance-identity-manager.py \
+            dev-hub/bin/autonomous-project-orchestrator.py
           for f in             dev-hub/config/specialist-authority-common.v1.json             dev-hub/config/curator-authority.v1.json             dev-hub/config/bastion-authority.v1.json             dev-hub/config/intendant-authority.v1.json             dev-hub/config/curator-runtime-policy.v1.json             dev-hub/config/bastion-runtime-policy.v1.json             dev-hub/config/intendant-runtime-policy.v1.json             dev-hub/config/project-embedded-assurance.v1.json             dev-hub/config/project-control.v1.json             dev-hub/config/guardian-role-contracts.v1.json             dev-hub/config/guardian-coverage-manifest.v1.json; do
             python3 -m json.tool "$f" >/dev/null
           done
           grep -Fq 'specialist_authority_reviews' dev-hub/assurance-exchange/migrations/0003_specialist_reviews.sql
           grep -Fq 'security_incidents' dev-hub/specialists/migrations/0001.sql
+          grep -Fq 'OnUnitActiveSec=10s' dev-hub/systemd/chacha-dev-bastion-incident-response.timer
           if [ -f dev-hub/bin/install-v635-central-specialist-authorities.sh ]; then
             bash -n dev-hub/bin/install-v635-central-specialist-authorities.sh
           fi
