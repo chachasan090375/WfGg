@@ -66,7 +66,7 @@ def _changes(previous:dict[str,Any],current:dict[str,Any])->list[dict[str,Any]]:
 
 def observe(*,project_id:str,source_id:str,source_kind:str,deployment_id:str,
             state:dict[str,Any],anomaly:dict[str,Any]|None=None,evidence_refs:list[str]|None=None,
-            lineage:dict[str,Any]|None=None,
+            lineage:dict[str,Any]|None=None,evaluation:dict[str,Any]|None=None,
             personal_data_class:str="none",outbox_root:Path=DEFAULT_OUTBOX,state_root:Path=DEFAULT_STATE)->dict[str,Any]:
     if source_kind not in KINDS:raise ValueError("UNIVERSAL_LEARNING_SOURCE_KIND_INVALID")
     if personal_data_class not in {"none","aggregated","policy-authorized"}:
@@ -78,6 +78,13 @@ def observe(*,project_id:str,source_id:str,source_kind:str,deployment_id:str,
         for row in lineage.get("components") or []:
             if not isinstance(row,dict) or not row.get("kind") or not row.get("component_id") or not row.get("version"):
                 raise ValueError("UNIVERSAL_LEARNING_LINEAGE_COMPONENT_INVALID")
+    if evaluation is not None:
+        if not isinstance(evaluation,dict) or evaluation.get("schema")!="chacha.dev/component-evaluation/v1":
+            raise ValueError("UNIVERSAL_LEARNING_EVALUATION_SCHEMA_INVALID")
+        if evaluation.get("verified") is not True:
+            raise ValueError("UNIVERSAL_LEARNING_EVALUATION_MUST_BE_VERIFIED")
+        if str(evaluation.get("outcome") or "") not in {"PASS","SUCCESS","ACCEPTED","HEALTHY","FAIL","FAILED","REJECTED","ERROR"}:
+            raise ValueError("UNIVERSAL_LEARNING_EVALUATION_OUTCOME_INVALID")
     state_root.mkdir(parents=True,exist_ok=True);outbox_root.mkdir(parents=True,exist_ok=True)
     sp=_state_path(source_id,deployment_id,state_root);lp=_lock_path(source_id,deployment_id,state_root)
     lp.parent.mkdir(parents=True,exist_ok=True)
@@ -86,15 +93,16 @@ def observe(*,project_id:str,source_id:str,source_kind:str,deployment_id:str,
         prev=_load(sp)
         seq=int(prev.get("sequence") or 0)+1
         changes=_changes(prev.get("state") if isinstance(prev.get("state"),dict) else {},state)
-        if not changes and not anomaly:
+        if not changes and not anomaly and not evaluation:
             return {"schema":"chacha.dev/universal-learning-observation/v1","status":"NO_CHANGE","queued":False,"sequence":int(prev.get("sequence") or 0)}
-        change_digest=digest({"changes":changes,"anomaly":anomaly})
+        change_digest=digest({"changes":changes,"anomaly":anomaly,"evaluation":evaluation})
         delta_id="ld-"+hashlib.sha256(f"{source_id}\0{deployment_id}\0{seq}\0{change_digest}".encode()).hexdigest()[:40]
         delta={
           "schema":SCHEMA,"delta_id":delta_id,"project_id":str(project_id),"source_id":str(source_id),
           "source_kind":source_kind,"deployment_id":str(deployment_id),"sequence":seq,"observed_at":now_iso(),
           "changes":changes or [{"path":"/anomaly","op":"signal","value":"anomaly-only"}],
           "anomaly":anomaly,
+          "evaluation":evaluation,
           "lineage":lineage,
           "evidence_refs":[str(x) for x in (evidence_refs or [])],
           "privacy":{"raw_user_content":False,"contains_secrets":False,"personal_data_class":personal_data_class}
@@ -108,9 +116,9 @@ def observe(*,project_id:str,source_id:str,source_kind:str,deployment_id:str,
 
 def observe_platform(*,project_id:str,source_id:str,source_kind:str,state:dict[str,Any],
                      anomaly:dict[str,Any]|None=None,evidence_refs:list[str]|None=None,
-                     lineage:dict[str,Any]|None=None)->dict[str,Any]:
+                     lineage:dict[str,Any]|None=None,evaluation:dict[str,Any]|None=None)->dict[str,Any]:
     runtime=Path("/opt/chacha-dev/runtime")
     if not runtime.exists():
         return {"status":"NON_RUNTIME_TEST_BYPASS","queued":False}
     return observe(project_id=project_id,source_id=source_id,source_kind=source_kind,
-                   deployment_id="chacha-dev-platform",state=state,anomaly=anomaly,evidence_refs=evidence_refs,lineage=lineage)
+                   deployment_id="chacha-dev-platform",state=state,anomaly=anomaly,evidence_refs=evidence_refs,lineage=lineage,evaluation=evaluation)
