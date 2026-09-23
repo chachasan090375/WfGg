@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-role-contracts/v1",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "scope": "PLATFORM_GLOBAL",
   "principles": {
     "guardian_is_external_to_central_brain": true,
@@ -151,6 +151,27 @@
       "allowed_permissions": [
         "read",
         "plan"
+      ],
+      "required_evidence": []
+    },
+    {
+      "contract_id": "role:production-lineage-feedback",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "READ_MEMORY",
+        "WRITE_MEMORY",
+        "REPORT_MEMORY"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MUTATE_APPLICATION",
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "workspace-write"
       ],
       "required_evidence": []
     },
