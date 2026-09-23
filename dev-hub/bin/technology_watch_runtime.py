@@ -103,6 +103,23 @@ def _reusable_architecture_taxonomy(db_path: Path) -> dict[str, Any]:
     return {"architecture_count":len(rows),"functional_signatures":groups}
 
 
+def _central_memory_assimilation() -> dict[str, Any]:
+    path=Path(os.environ.get("CHACHA_CENTRAL_MEMORY_ASSIMILATION","/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json"))
+    if not path.is_file():
+        return {"available":False,"path":str(path),"snapshot_digest":None,"state_counts":{},"trusted_generalizable_count":0,"reuse_catalog":{"branches":[],"architectures":[]}}
+    try:
+        x=_load(path)
+    except Exception as exc:
+        return {"available":False,"path":str(path),"snapshot_digest":None,"state_counts":{},"trusted_generalizable_count":0,"reuse_catalog":{"branches":[],"architectures":[]},"reason":str(exc)}
+    return {
+        "available":True,"path":str(path),"snapshot_digest":x.get("snapshot_digest"),
+        "generated_at":x.get("generated_at"),"state_counts":x.get("state_counts") or {},
+        "trusted_generalizable_count":int(x.get("trusted_generalizable_count") or 0),
+        "single_observation_never_trusted":bool(x.get("single_observation_never_trusted") is True),
+        "technology_revalidation_required_before_reuse":bool(x.get("technology_revalidation_required_before_reuse") is True),
+        "reuse_catalog":x.get("reuse_catalog") or {"branches":[],"architectures":[]}
+    }
+
 def _technology_taxonomy(domains: dict[str, Any], capreg: dict[str, Any], candidates: list[dict[str, Any]]) -> dict[str, Any]:
     out={}
     domain_specs=domains.get("domains") or {}
@@ -156,6 +173,7 @@ def build_snapshot(repo_root: Path, *, scope_domain: str|None=None,
     taxonomy=_technology_taxonomy(domains,capreg,candidates)
     reusable_taxonomy=_reusable_branch_taxonomy(reusable_db)
     reusable_architecture_taxonomy=_reusable_architecture_taxonomy(reusable_arch_db)
+    central_memory=_central_memory_assimilation()
     body={
         "schema":"chacha.dev/technology-watch-snapshot/v1",
         "generated_at":_utcnow(),
@@ -180,6 +198,7 @@ def build_snapshot(repo_root: Path, *, scope_domain: str|None=None,
         "technology_taxonomy":taxonomy,
         "reusable_branch_taxonomy":reusable_taxonomy,
         "reusable_architecture_taxonomy":reusable_architecture_taxonomy,
+        "central_memory_assimilation":central_memory,
         "provider_economics_digest":_digest(economics),
     }
     body["snapshot_digest"]=_digest(body)
@@ -300,6 +319,14 @@ def consult(repo_root: Path, *, consumer: str, domain: str,
         "automatic_external_spend_eur":0,
         "eligible_provider_candidates":pool,
         "branch_blueprints":snap.get("branch_blueprints") or [],
+        "central_memory_assimilation":{
+            "available":bool((snap.get("central_memory_assimilation") or {}).get("available")),
+            "snapshot_digest":(snap.get("central_memory_assimilation") or {}).get("snapshot_digest"),
+            "state_counts":(snap.get("central_memory_assimilation") or {}).get("state_counts") or {},
+            "trusted_generalizable_count":int((snap.get("central_memory_assimilation") or {}).get("trusted_generalizable_count") or 0),
+            "single_observation_never_trusted":bool((snap.get("central_memory_assimilation") or {}).get("single_observation_never_trusted") is True),
+            "technology_revalidation_required_before_reuse":bool((snap.get("central_memory_assimilation") or {}).get("technology_revalidation_required_before_reuse") is True)
+        },
     }
     _guardian_observe_consult(repo_root,feed,"POST_ACTION",action_id)
     return feed
