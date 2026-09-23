@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 180,
   "action_lease_default_seconds": 300,
@@ -278,6 +278,17 @@
       "proof": {
         "file": "dev-hub/bin/acceptance-confidence-bridge.py",
         "marker": "CHACHA_DEV_V626_ACCEPTANCE_CONFIDENCE_BRIDGE=PASS"
+      }
+    },
+    {
+      "component_id": "verified-evidence-learning",
+      "role": "verified-evidence-learning",
+      "kind": "learning-reconciler",
+      "enforcement_point": "evidence-ledger-reconciler",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/verified-evidence-learning.py",
+        "marker": "CHACHA_DEV_V627_VERIFIED_EVIDENCE_LEARNING=PASS"
       }
     }
   ],
