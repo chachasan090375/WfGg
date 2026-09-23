@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/decision-challenge-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "priority": [
     "KEEP",
     "RECONSIDER",
@@ -15,7 +15,55 @@
     "ux_guidance_may_be_adopted_without_architecture_change": true,
     "architecture_change_requires_technology_watch": true,
     "architecture_council_final_authority": true,
-    "logician_and_ergonomist_are_advisors_not_final_deciders": true
+    "logician_and_ergonomist_are_advisors_not_final_deciders": true,
+    "central_brain_must_answer_better_supported_alternative": true,
+    "central_brain_may_request_targeted_revision": true,
+    "agent_revision_must_consider_cross_agent_constraints": true,
+    "current_plan_has_no_incumbency_privilege": true
   },
-  "automatic_external_spend_eur": 0
+  "automatic_external_spend_eur": 0,
+  "participants": {
+    "internal": [
+      "logician",
+      "ergonomist"
+    ],
+    "peripheral": [
+      "guardian",
+      "sentinel",
+      "curator",
+      "bastion",
+      "intendant"
+    ],
+    "final_release_requires_all": true
+  },
+  "negotiation": {
+    "cycle": [
+      "PROPOSE",
+      "CONFLICT",
+      "REVISION_REQUEST",
+      "REVISE",
+      "RECOMPARE",
+      "COMPROMISE"
+    ],
+    "max_revision_cycles": 5,
+    "brain_may_request_revision_from_one_or_many_agents": true,
+    "revision_request_must_include_other_agent_constraints": true,
+    "revised_proposal_must_reference_superseded_proposal": true,
+    "evidence_and_history_are_append_only": true,
+    "unresolved_hard_conflict_after_limit": "HUMAN_ARBITRATION_REQUIRED",
+    "no_majority_vote": true,
+    "no_agent_veto_on_soft_preference": true,
+    "hard_objection_requires_resolution_or_evidence_backed_arbitration": true
+  },
+  "compromise_release": {
+    "target_rule": "VERSION_DELIVERABLE_ONLY_AFTER_MULTI_AGENT_COMPROMISE",
+    "no_unresolved_replan_required": true,
+    "no_unresolved_blocker": true,
+    "all_required_participants_accounted_for": true,
+    "objections_must_be_resolved_or_arbitrated_with_evidence": true,
+    "selected_solution_must_be_non_dominated_among_admissible_candidates": true,
+    "architecture_change_requires_technology_watch": true,
+    "final_architecture_authority": "architecture-council",
+    "remediation_owner": "central-orchestrator"
+  }
 }
