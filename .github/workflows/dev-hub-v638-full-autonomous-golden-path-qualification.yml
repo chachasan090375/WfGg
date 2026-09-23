@@ -11,6 +11,7 @@ on:
       - 'dev-hub/bin/enable-v639-cloudflare-pages-production-adapter.sh'
       - 'dev-hub/bin/verify-v639-cloudflare-pages-enabled-sync.sh'
       - 'dev-hub/bin/discover-v639-cloudflare-pages-targets.py'
+      - 'dev-hub/bin/verify-v639-cloudflare-pages-wfgg-target.py'
       - 'dev-hub/bin/read-v639-cloudflare-pages-target-discovery.sh'
       - 'dev-hub/bin/controlled-production-adapter.py'
       - 'dev-hub/adapters/cloudflare-pages-production-adapter.py'
@@ -121,6 +122,19 @@ jobs:
           python3 dev-hub/bin/discover-v639-cloudflare-pages-targets.py \
             --output /tmp/v639-cf-pages-target-discovery.json
 
+      - name: V6.39 canonical wfgg Pages target preflight
+        continue-on-error: true
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 dev-hub/bin/verify-v639-cloudflare-pages-wfgg-target.py \
+            --bindings dev-hub/config/cloudflare-pages-project-bindings.v1.json \
+            --output /tmp/v639-wfgg-target-preflight.json
+
       - name: V6.38 full autonomous Golden Path
         run: |
           set -euo pipefail
@@ -219,6 +233,7 @@ jobs:
             echo CLOUDFLARE_PAGES_TARGET_DISCOVERY=READ_ONLY
             echo CLOUDFLARE_PAGES_TARGET_DISCOVERY_READER=AVAILABLE
             echo REAL_PRODUCTION_TARGET_SELECTED=NO
+            echo WFGG_TARGET_PREFLIGHT=READ_ONLY_NON_BLOCKING
             echo REAL_PRODUCTION_DEPLOYMENT_AUTHORIZED=NO
             echo CLOUDFLARE_PAGES_PRODUCTION_EXECUTION=BLOCKED_AFTER_ENABLE
             echo CLOUDFLARE_PAGES_PILOT_PROMOTION_APPLIED=YES
@@ -250,4 +265,5 @@ jobs:
             /tmp/v639-cf-pages-provider-health-report.json
             /tmp/v639-cf-pages-provider-health-evidence.json
             /tmp/v639-cf-pages-target-discovery.json
+            /tmp/v639-wfgg-target-preflight.json
           retention-days: 30
