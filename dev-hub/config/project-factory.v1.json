@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/project-factory/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "platform": "ChaCha DEV",
   "application_agnostic": true,
   "project_identity": {
@@ -34,7 +34,13 @@
     "autonomy-audit-ledger",
     "branch-foundry-plan",
     "branch-runtime-manifest",
-    "project-branch-collector"
+    "project-branch-collector",
+    "embedded-assurance-manifest",
+    "guardian-local-probe",
+    "sentinel-local-probe",
+    "project-assurance-outbox",
+    "project-assurance-relay",
+    "project-assurance-identity-request"
   ],
   "provision_per_active_domain": [
     "domain-workspace",
@@ -91,7 +97,11 @@
     "project_collector_snapshot_required": true,
     "digital_twin_required": true,
     "contract_reconciliation_required": true,
-    "autonomy_audit_required": true
+    "autonomy_audit_required": true,
+    "embedded_assurance_required": true,
+    "guardian_local_required": true,
+    "sentinel_local_required": true,
+    "server_side_assurance_relay_required": true
   },
   "autonomy": {
     "normal_reversible_work": "AUTO_WITH_GATES",
@@ -121,5 +131,16 @@
     "provision_workspace_only_when_runtime_required": true,
     "teardown_on_idle": true,
     "central_memory_persists": true
+  },
+  "embedded_assurance": {
+    "required": true,
+    "policy": "dev-hub/config/project-embedded-assurance.v1.json",
+    "guardian_local": true,
+    "sentinel_local": true,
+    "direct_mutation": false,
+    "raw_user_content": false,
+    "client_side_secret_allowed": false,
+    "server_side_project_identity_required_for_production": true,
+    "central_orchestrator_owns_remediation": true
   }
 }
