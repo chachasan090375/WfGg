@@ -93,7 +93,10 @@ def load_policy()->dict[str,Any]:
         candidates.append(Path(__file__).resolve().parents[1]/"config/cloudflare-pages-production-adapter.v1.json")
     except Exception:
         pass
-    # Provisioned VPS execution: policy stays authoritative in platform/current.
+    # Provisioned VPS execution: dedicated runtime policy is authoritative for
+    # this adapter and does not require mutating an immutable platform release.
+    candidates.append(Path("/opt/chacha-dev/runtime/adapter-policies/cloudflare-pages-production-adapter.v1.json"))
+    # Compatibility fallback when V6.39 is the active platform release.
     candidates.append(Path("/opt/chacha-dev/platform/current/dev-hub/config/cloudflare-pages-production-adapter.v1.json"))
     path=next((p for p in candidates if p.is_file()),None)
     if path is None:
