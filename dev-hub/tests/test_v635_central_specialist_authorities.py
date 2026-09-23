@@ -60,6 +60,8 @@ exchange=(ROOT/"dev-hub/assurance-exchange/worker.js").read_text(encoding="utf-8
 identity=(BIN/"project-assurance-identity-manager.py").read_text(encoding="utf-8")
 client=(BIN/"specialist-authority-client.py").read_text(encoding="utf-8")
 orch=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
+bastion_controller=(BIN/"bastion-incident-response-controller.py").read_text(encoding="utf-8")
+bastion_timer=(ROOT/"dev-hub/systemd/chacha-dev-bastion-incident-response.timer").read_text(encoding="utf-8")
 
 for marker in [
   "/v1/project-assurance-identities/register","/v1/project-events","/v1/review","/v1/reviews/",
@@ -120,12 +122,21 @@ assert control["principles"]["compromised_state_must_never_be_blindly_replicated
 assert len(release["required_agents"])==7
 assert {x["id"] for x in release["required_agents"]}.issuperset({"curator","bastion","intendant"})
 
+for marker in ["CONTAIN","QUARANTINE","REVOKE","SURVIVAL","E_STOP","FAILOVER_RESERVED_INACTIVE"]:
+    assert marker in bastion_controller,marker
+assert "OnUnitActiveSec=10s" in bastion_timer
+assert "CHACHA_DEV_BASTION_SURVIVAL_MODE_ACTIVE" in orch
+assert "CHACHA_DEV_BASTION_PROJECT_BLOCKED" in orch
+assert '"bastion_failover_status":"RESERVED_INACTIVE"' in orch
+
 print("CHACHA_DEV_V635_CURATOR_CENTRAL_AUTHORITY=PASS")
 print("CHACHA_DEV_V635_BASTION_CENTRAL_AUTHORITY=PASS")
 print("CHACHA_DEV_V635_INTENDANT_CENTRAL_AUTHORITY=PASS")
 print("CHACHA_DEV_V635_SPECIALIST_PROJECT_IDENTITIES=PASS")
 print("CHACHA_DEV_V635_SPECIALIST_REVIEWS_EXCHANGE_REVERIFY=PASS")
 print("CHACHA_DEV_V635_BASTION_CONTAINMENT_CORE=PASS")
+print("CHACHA_DEV_V635_BASTION_RESPONSE_CONTROLLER=PASS")
+print("CHACHA_DEV_V635_BASTION_SURVIVAL_GUARD=PASS")
 print("CHACHA_DEV_V635_BASTION_EMERGENCY_CORROBORATION_GUARD=PASS")
 print("CHACHA_DEV_V635_FAILOVER_RESERVED_INACTIVE=PASS")
 print("CHACHA_DEV_V635_COMPROMISED_STATE_REPLICATION=FORBIDDEN")
