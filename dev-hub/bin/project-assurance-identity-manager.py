@@ -44,6 +44,7 @@ def main()->int:
     ap.add_argument("--guardian-client",type=Path,required=True);ap.add_argument("--guardian-policy",type=Path,required=True)
     ap.add_argument("--sentinel-client",type=Path,required=True);ap.add_argument("--sentinel-policy",type=Path,required=True)
     ap.add_argument("--registration",type=Path,required=True);ap.add_argument("--receipt",type=Path,required=True)
+    ap.add_argument("--bundle",type=Path)
     a=ap.parse_args()
     key=a.secret_root/(a.project_id+".pem")
     ensure_key(key);pub=public_b64(key);kid=key_id(pub)
@@ -63,6 +64,17 @@ def main()->int:
       "project_identity_active":True,"created_at":now()
     }
     save(a.receipt,receipt)
+    if a.bundle:
+        manifest_path=a.bundle/"embedded-assurance.json"
+        if not manifest_path.is_file():raise RuntimeError("EMBEDDED_ASSURANCE_MANIFEST_MISSING")
+        manifest=json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest.setdefault("relay",{})["identity_status"]="ACTIVE"
+        ready=manifest.setdefault("production_readiness",{})
+        ready["relay_identity_active"]=True
+        ready["ready"]=bool(ready.get("guardian_local") and ready.get("sentinel_local") and
+                             ready.get("privacy_contract") and ready.get("functional_contract_bound"))
+        manifest["project_assurance_key_id"]=kid
+        save(manifest_path,manifest)
     print("CHACHA_DEV_PROJECT_ASSURANCE_IDENTITY=PASS")
     print("PROJECT_ID="+a.project_id);print("KEY_ID="+kid)
     print("GUARDIAN_REGISTRATION=PASS");print("SENTINEL_REGISTRATION=PASS")
