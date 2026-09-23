@@ -65,6 +65,33 @@ def task_for(graph: dict[str, Any], task_id: str) -> dict[str, Any]:
     raise SystemExit(f"TASK_NOT_IN_GRAPH={task_id}")
 
 
+def validate_learning_context(value: Any) -> list[str]:
+    errors: list[str] = []
+    if value is None:
+        return errors
+    if not isinstance(value, dict):
+        return ["LEARNING_CONTEXT_INVALID"]
+    if value.get("schema") != "chacha.dev/verified-evidence-learning-context/v1":
+        errors.append("LEARNING_CONTEXT_SCHEMA_INVALID")
+    for key in ("deployment_id", "source_id", "surface_kind"):
+        if not str(value.get(key) or "").strip():
+            errors.append(f"LEARNING_CONTEXT_FIELD_MISSING:{key}")
+    lineage = value.get("component_lineage")
+    if not isinstance(lineage, dict) or lineage.get("schema") != "chacha.dev/component-lineage/v1":
+        errors.append("EXACT_COMPONENT_LINEAGE_REQUIRED")
+    else:
+        rows = lineage.get("components") or []
+        if not rows:
+            errors.append("EXACT_COMPONENT_LINEAGE_REQUIRED")
+        for idx, row in enumerate(rows):
+            if not isinstance(row, dict) or not row.get("kind") or not row.get("component_id") or not row.get("version"):
+                errors.append(f"COMPONENT_LINEAGE_ROW_INVALID:{idx}")
+    refs = value.get("evidence_refs")
+    if refs is not None and (not isinstance(refs, list) or any(not isinstance(x, str) for x in refs)):
+        errors.append("LEARNING_CONTEXT_EVIDENCE_REFS_INVALID")
+    return errors
+
+
 def validate_result(graph: dict[str, Any], task: dict[str, Any], result: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     if graph.get("schema") != GRAPH_SCHEMA:
@@ -100,6 +127,8 @@ def validate_result(graph: dict[str, Any], task: dict[str, Any], result: dict[st
         if required_mode == "machine-or-human" and mode not in {"machine", "human", "independent-agent"}:
             errors.append(f"VERIFICATION_MODE_INVALID:{mode}")
 
+    errors.extend(validate_learning_context(result.get("learning_context")))
+
     declared = {(o.get("type"), o.get("id")) for o in task.get("outputs") or [] if isinstance(o, dict)}
     for output in result.get("outputs") or []:
         key = (output.get("type"), output.get("id"))
@@ -133,6 +162,13 @@ def ingest(graph: dict[str, Any], ledger: dict[str, Any], result: dict[str, Any]
     producer = str(result.get("producer") or "unknown")
     verifier = str(verification.get("verifier") or "unknown")
     method = str(verification.get("method") or "none")
+    learning_context = result.get("learning_context")
+    verified_success = result.get("status") == "OK" and verification.get("status") == "VERIFIED"
+    learning_eligibility = (
+        "EXACT_LINEAGE" if verified_success and learning_context
+        else "NO_CONFIDENCE_NO_PENALTY" if verified_success
+        else "NOT_VERIFIED_SUCCESS"
+    )
 
     changes: list[str] = []
     for output in result.get("outputs") or []:
@@ -169,7 +205,10 @@ def ingest(graph: dict[str, Any], ledger: dict[str, Any], result: dict[str, Any]
             "verification_method": method,
             "task_id": task.get("id"),
             "summary": result.get("summary", ""),
+            "learning_eligibility": learning_eligibility,
         }
+        if learning_context:
+            record["learning_context"] = learning_context
         if output.get("reason"):
             record["reason"] = output.get("reason")
         bucket = "artifacts" if otype == "artifact" else "gates"
@@ -186,8 +225,11 @@ def ingest(graph: dict[str, Any], ledger: dict[str, Any], result: dict[str, Any]
         "producer": producer,
         "verifier": verifier,
         "verification_method": method,
+        "verification_status": verification.get("status"),
         "result_status": result.get("status"),
         "result_digest": result_digest,
+        "learning_eligibility": learning_eligibility,
+        "learning_context": learning_context,
         "changes": changes,
         "observed_at": now_iso(),
     })
