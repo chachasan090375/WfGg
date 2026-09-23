@@ -1,0 +1,97 @@
+name: ChaCha DEV V6.22 central memory assimilation qualification
+
+on:
+  push:
+    branches: [dev-hub-v622-central-memory-assimilation]
+    paths:
+      - 'dev-hub/bin/central-memory-assimilator.py'
+      - 'dev-hub/bin/technology_watch_runtime.py'
+      - 'dev-hub/bin/architecture-decision-council.py'
+      - 'dev-hub/config/central-memory-assimilation.v1.json'
+      - 'dev-hub/systemd/chacha-dev-central-memory-assimilation.service'
+      - 'dev-hub/systemd/chacha-dev-central-memory-assimilation.timer'
+      - 'dev-hub/tests/test_v622_central_memory_assimilation.py'
+      - 'dev-hub/bin/install-v622-central-memory-assimilation.sh'
+      - '.github/workflows/dev-hub-v622-central-memory-assimilation-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v622-central-memory-assimilation
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile \
+            dev-hub/bin/central-memory-assimilator.py \
+            dev-hub/bin/technology_watch_runtime.py \
+            dev-hub/bin/architecture-decision-council.py
+          python3 -m json.tool dev-hub/config/central-memory-assimilation.v1.json >/dev/null
+          if [ -f dev-hub/bin/install-v622-central-memory-assimilation.sh ]; then
+            bash -n dev-hub/bin/install-v622-central-memory-assimilation.sh
+          fi
+          echo CHACHA_DEV_V622_STATIC=PASS
+
+      - name: Central memory assimilation semantics
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v622_central_memory_assimilation.py
+
+      - name: Universal learning regression
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v621_universal_learning_loop.py
+
+      - name: Architecture and Technology Watch invariants
+        run: |
+          set -euo pipefail
+          grep -Fq '"single_observation_never_trusted": true' dev-hub/config/central-memory-assimilation.v1.json
+          grep -Fq '"project_specific_by_default": true' dev-hub/config/central-memory-assimilation.v1.json
+          grep -Fq '"technology_revalidation_required_before_reuse": true' dev-hub/config/central-memory-assimilation.v1.json
+          grep -Fq '"previous_solution_is_candidate_not_default": true' dev-hub/config/central-memory-assimilation.v1.json
+          grep -Fq '"central-memory-assimilation"' dev-hub/bin/architecture-decision-council.py
+          grep -Fq 'current_branch_versions' dev-hub/bin/architecture-decision-council.py
+          grep -Fq 'current_architecture_versions' dev-hub/bin/architecture-decision-council.py
+          grep -Fq 'central_memory_assimilation' dev-hub/bin/technology_watch_runtime.py
+          grep -Fq 'CURRENT_BEST' dev-hub/bin/central-memory-assimilator.py
+          grep -Fq 'SUPERSEDED' dev-hub/bin/central-memory-assimilator.py
+          echo CHACHA_DEV_V622_MEMORY_ARCHITECTURE_INVARIANTS=PASS
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_CENTRAL_MEMORY_ASSIMILATION=V6.22
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo SINGLE_OBSERVATION_BECOMES_TRUTH=NO
+            echo REPEATED_SUCCESS_REINFORCES_MEMORY=YES
+            echo NEGATIVE_MEMORY_PRESERVED=YES
+            echo CRITICAL_ANOMALY_SUSPENDS_MEMORY=YES
+            echo CONTRADICTIONS_DETECTED=YES
+            echo PROJECT_SPECIFIC_BY_DEFAULT=YES
+            echo CROSS_PROJECT_GENERALIZATION_GATED=YES
+            echo OLD_REUSE_VERSIONS_MARKED_SUPERSEDED=YES
+            echo CURRENT_BEST_REUSE_FILTER=YES
+            echo TECHNOLOGY_WATCH_MEMORY_FEED=YES
+            echo ARCHITECTURE_COUNCIL_MEMORY_ADVISOR=YES
+            echo TECHNOLOGY_REVALIDATION_BEFORE_REUSE=YES
+            echo NAS_AUTHORITATIVE=YES
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V622_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v622-central-memory-assimilation
+          path: /tmp/CHACHA_DEV_V622_RECEIPT.txt
+          retention-days: 30
