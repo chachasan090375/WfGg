@@ -19,7 +19,7 @@ def public_b64(private_key:Path)->str:
     if p.returncode!=0:raise RuntimeError("ASSURANCE_PRIVATE_KEY_READ_FAILED")
     return base64.b64encode(p.stdout).decode()
 def key_id(private_key:Path)->str:
-    return "central-"+hashlib.sha256(public_b64(private_key).encode()).hexdigest()[:16]
+    return "project-"+hashlib.sha256(public_b64(private_key).encode()).hexdigest()[:16]
 def sign(private_key:Path,message:bytes)->str:
     with tempfile.NamedTemporaryFile(prefix="chacha-project-assurance-",delete=True) as f:
         f.write(message);f.flush()
