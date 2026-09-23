@@ -159,6 +159,53 @@
           }
         }
       }
+    },
+    "evaluation": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "schema",
+        "verified",
+        "outcome"
+      ],
+      "properties": {
+        "schema": {
+          "const": "chacha.dev/component-evaluation/v1"
+        },
+        "verified": {
+          "type": "boolean"
+        },
+        "outcome": {
+          "enum": [
+            "PASS",
+            "SUCCESS",
+            "ACCEPTED",
+            "HEALTHY",
+            "FAIL",
+            "FAILED",
+            "REJECTED",
+            "ERROR"
+          ]
+        },
+        "acceptance_score": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 512
+          },
+          "maxItems": 50
+        }
+      }
     }
   }
 }
