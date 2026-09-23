@@ -66,7 +66,13 @@
     "bastion_may_contain_quarantine_revoke_under_policy": true,
     "bastion_emergency_control_requires_critical_scope_and_independent_corroboration": true,
     "bastion_failover_reserved_until_active_passive_ha_exists": true,
-    "compromised_state_must_never_be_blindly_replicated_to_future_passive": true
+    "compromised_state_must_never_be_blindly_replicated_to_future_passive": true,
+    "local_acceptance_is_provisional": true,
+    "seven_agent_final_delivery_receipt_is_only_delivery_authority": true,
+    "logician_post_implementation_second_read_required": true,
+    "ergonomist_post_implementation_second_read_required": true,
+    "five_external_final_reviews_must_be_source_reverified": true,
+    "remediation_precedes_agent_renegotiation_when_implementation_drifts": true
   },
   "interfaces": {
     "cli": {
@@ -136,7 +142,8 @@
     "specialist_authority_common": "dev-hub/config/specialist-authority-common.v1.json",
     "curator_authority": "dev-hub/config/curator-authority.v1.json",
     "bastion_authority": "dev-hub/config/bastion-authority.v1.json",
-    "intendant_authority": "dev-hub/config/intendant-authority.v1.json"
+    "intendant_authority": "dev-hub/config/intendant-authority.v1.json",
+    "seven_agent_final_compromise_policy": "dev-hub/config/seven-agent-final-compromise.v1.json"
   },
   "engine_paths": {
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
@@ -183,7 +190,9 @@
     "ux_planning_engine": "dev-hub/bin/ux-planning-engine.py",
     "multi_agent_compromise_engine": "dev-hub/bin/multi-agent-compromise-engine.py",
     "compromise_release_gate": "dev-hub/bin/compromise-release-gate.py",
-    "specialist_authority_client": "dev-hub/bin/specialist-authority-client.py"
+    "specialist_authority_client": "dev-hub/bin/specialist-authority-client.py",
+    "internal_final_review": "dev-hub/bin/internal-final-review.py",
+    "seven_agent_final_compromise_controller": "dev-hub/bin/seven-agent-final-compromise-controller.py"
   },
   "status_model": [
     "READY",
