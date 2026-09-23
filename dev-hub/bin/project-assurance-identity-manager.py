@@ -44,6 +44,10 @@ def main()->int:
     ap.add_argument("--guardian-client",type=Path,required=True);ap.add_argument("--guardian-policy",type=Path,required=True)
     ap.add_argument("--sentinel-client",type=Path,required=True);ap.add_argument("--sentinel-policy",type=Path,required=True)
     ap.add_argument("--exchange-client",type=Path,required=True);ap.add_argument("--exchange-policy",type=Path,required=True)
+    ap.add_argument("--specialist-client",type=Path,required=True)
+    ap.add_argument("--curator-policy",type=Path,required=True)
+    ap.add_argument("--bastion-policy",type=Path,required=True)
+    ap.add_argument("--intendant-policy",type=Path,required=True)
     ap.add_argument("--registration",type=Path,required=True);ap.add_argument("--receipt",type=Path,required=True)
     ap.add_argument("--bundle",type=Path)
     a=ap.parse_args()
@@ -58,10 +62,15 @@ def main()->int:
     g=register(a.guardian_client,a.guardian_policy,a.registration)
     s=register(a.sentinel_client,a.sentinel_policy,a.registration)
     e=register(a.exchange_client,a.exchange_policy,a.registration)
+    c=register(a.specialist_client,a.curator_policy,a.registration)
+    b=register(a.specialist_client,a.bastion_policy,a.registration)
+    i=register(a.specialist_client,a.intendant_policy,a.registration)
     receipt={
       "schema":"chacha.dev/project-assurance-identity-provisioning-receipt/v1",
       "project_id":a.project_id,"key_id":kid,"guardian_status":g.get("status"),
-      "sentinel_status":s.get("status"),"exchange_status":e.get("status"),"private_key_path":str(key),
+      "sentinel_status":s.get("status"),"exchange_status":e.get("status"),
+      "curator_status":c.get("status"),"bastion_status":b.get("status"),"intendant_status":i.get("status"),
+      "private_key_path":str(key),
       "private_key_exported":False,"client_secret_allowed":False,
       "project_identity_active":True,"created_at":now()
     }
@@ -73,16 +82,19 @@ def main()->int:
         manifest.setdefault("relay",{})["identity_status"]="ACTIVE"
         ready=manifest.setdefault("production_readiness",{})
         ready["relay_identity_active"]=True
+        ready["specialist_authority_identities_active"]=all(x.get("status")=="PASS" for x in (c,b,i))
         ready["ready"]=bool(
             ready.get("guardian_local") and ready.get("sentinel_local") and
             ready.get("curator_local") and ready.get("bastion_local") and ready.get("intendant_local") and
-            ready.get("five_local_probes") and ready.get("privacy_contract") and ready.get("functional_contract_bound")
+            ready.get("five_local_probes") and ready.get("privacy_contract") and ready.get("functional_contract_bound") and
+            ready.get("specialist_authority_identities_active")
         )
         manifest["project_assurance_key_id"]=kid
         save(manifest_path,manifest)
     print("CHACHA_DEV_PROJECT_ASSURANCE_IDENTITY=PASS")
     print("PROJECT_ID="+a.project_id);print("KEY_ID="+kid)
     print("GUARDIAN_REGISTRATION=PASS");print("SENTINEL_REGISTRATION=PASS");print("EXCHANGE_REGISTRATION=PASS")
+    print("CURATOR_REGISTRATION=PASS");print("BASTION_REGISTRATION=PASS");print("INTENDANT_REGISTRATION=PASS")
     print("CLIENT_SECRET=NO");print("PRIVATE_KEY_EXPORT=NO")
     return 0
 
