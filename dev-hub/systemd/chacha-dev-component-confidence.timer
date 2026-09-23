@@ -1,0 +1,13 @@
+[Unit]
+Description=ChaCha DEV component confidence refresh schedule
+
+[Timer]
+OnBootSec=75s
+OnUnitActiveSec=5min
+AccuracySec=15s
+RandomizedDelaySec=15s
+Persistent=true
+Unit=chacha-dev-component-confidence.service
+
+[Install]
+WantedBy=timers.target
