@@ -140,7 +140,7 @@ assert {"logician","ergonomist","multi-agent-compromise-engine","compromise-rele
 orch=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
 council_script=(BIN/"architecture-decision-council.py").read_text(encoding="utf-8")
 guardian_worker=(ROOT/"dev-hub/guardian/worker.js").read_text(encoding="utf-8")
-assert '"version":"6.34.0"' in orch
+assert any(v in orch for v in ['"version":"6.34.0"','"version":"6.35.0"'])
 assert '"--challenge-dossier",compromise' in orch
 assert "REVISION_REQUEST_ONLY_AFTER_FAILED_COMPROMISE=YES" in orch
 assert "MULTI_AGENT_COMPROMISE_REQUIRED" in orch
