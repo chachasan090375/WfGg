@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 180,
   "action_lease_default_seconds": 300,
@@ -333,6 +333,39 @@
       "proof": {
         "file": "dev-hub/bin/compromise-release-gate.py",
         "marker": "CHACHA_DEV_COMPROMISE_RELEASE_GATE"
+      }
+    },
+    {
+      "component_id": "curator-central-authority",
+      "role": "curator",
+      "kind": "external-authority",
+      "enforcement_point": "specialist-review",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/curator/worker.js",
+        "marker": "role:\"curator\""
+      }
+    },
+    {
+      "component_id": "bastion-central-authority",
+      "role": "bastion",
+      "kind": "external-authority",
+      "enforcement_point": "security-incident-and-review",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bastion/worker.js",
+        "marker": "role:\"bastion\""
+      }
+    },
+    {
+      "component_id": "intendant-central-authority",
+      "role": "intendant",
+      "kind": "external-authority",
+      "enforcement_point": "specialist-review",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/intendant/worker.js",
+        "marker": "role:\"intendant\""
       }
     }
   ],
