@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 180,
   "action_lease_default_seconds": 300,
@@ -267,6 +267,17 @@
       "proof": {
         "file": "dev-hub/bin/production-anomaly-guardian-bridge.py",
         "marker": "CHACHA_DEV_PRODUCTION_ANOMALY_GUARDIAN_BRIDGE=PASS"
+      }
+    },
+    {
+      "component_id": "acceptance-confidence-bridge",
+      "role": "acceptance-confidence-bridge",
+      "kind": "learning-bridge",
+      "enforcement_point": "acceptance-engine",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/acceptance-confidence-bridge.py",
+        "marker": "CHACHA_DEV_V626_ACCEPTANCE_CONFIDENCE_BRIDGE=PASS"
       }
     }
   ],
