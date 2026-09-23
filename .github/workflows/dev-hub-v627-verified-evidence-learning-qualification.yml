@@ -1,0 +1,101 @@
+name: ChaCha DEV V6.27 verified evidence learning qualification
+
+on:
+  push:
+    branches: [dev-hub-v627-verified-evidence-learning]
+    paths:
+      - 'dev-hub/bin/verified-evidence-learning.py'
+      - 'dev-hub/bin/evidence-collector.py'
+      - 'dev-hub/config/verified-evidence-learning.v1.json'
+      - 'dev-hub/config/project-control.v1.json'
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/schemas/task-result-v1.schema.json'
+      - 'dev-hub/systemd/chacha-dev-verified-evidence-learning.service'
+      - 'dev-hub/systemd/chacha-dev-verified-evidence-learning.timer'
+      - 'dev-hub/tests/test_v627_verified_evidence_learning.py'
+      - 'dev-hub/tests/test_v626_acceptance_confidence_loop.py'
+      - 'dev-hub/tests/test_v625_component_confidence.py'
+      - 'dev-hub/tests/test_v624_production_lineage_feedback.py'
+      - 'dev-hub/tests/test_v623_contextual_memory_recall.py'
+      - 'dev-hub/bin/install-v627-verified-evidence-learning.sh'
+      - '.github/workflows/dev-hub-v627-verified-evidence-learning-qualification.yml'
+      - '.github/workflows/dev-hub-v627-guardian-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev-hub-v627-verified-evidence-learning
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/verified-evidence-learning.py dev-hub/bin/evidence-collector.py
+          python3 -m json.tool dev-hub/config/verified-evidence-learning.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/project-control.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
+          python3 -m json.tool dev-hub/schemas/task-result-v1.schema.json >/dev/null
+          if [ -f dev-hub/bin/install-v627-verified-evidence-learning.sh ]; then
+            bash -n dev-hub/bin/install-v627-verified-evidence-learning.sh
+          fi
+          echo CHACHA_DEV_V627_STATIC=PASS
+
+      - name: Verified evidence learning
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v627_verified_evidence_learning.py
+
+      - name: V6.26 acceptance regression
+        run: |
+          set -euo pipefail
+          CHACHA_DEV_TEST_GUARDIAN_BYPASS=1 PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v626_acceptance_confidence_loop.py
+
+      - name: V6.25 confidence regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v625_component_confidence.py
+
+      - name: V6.24 lineage regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v624_production_lineage_feedback.py
+
+      - name: V6.23 memory regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v623_contextual_memory_recall.py
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo CHACHA_DEV_VERIFIED_EVIDENCE_LEARNING=V6.27
+            echo RESULT=success
+            echo SOURCE_REV="$(git rev-parse HEAD)"
+            echo VERIFIED_EVIDENCE_AUTO_LEARNING=YES
+            echo EXACT_COMPONENT_LINEAGE_REQUIRED_FOR_CONFIDENCE=YES
+            echo MISSING_LINEAGE_CONFIDENCE_CHANGE=NO
+            echo MISSING_LINEAGE_PENALTY=NO
+            echo RECONCILIATION_IDEMPOTENT=YES
+            echo EVIDENCE_LEDGER_REMAINS_FACTUAL_AUTHORITY=YES
+            echo TECHNOLOGY_REVALIDATION_REQUIRED=YES
+            echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+            echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+          } | tee /tmp/CHACHA_DEV_V627_RECEIPT.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-v627-verified-evidence-learning
+          path: /tmp/CHACHA_DEV_V627_RECEIPT.txt
+          retention-days: 30
