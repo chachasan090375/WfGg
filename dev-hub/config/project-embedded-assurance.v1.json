@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/project-embedded-assurance-policy/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "scope": "PLATFORM_GLOBAL",
   "mandatory_for_all_projects": true,
   "bundle": {
@@ -37,6 +37,51 @@
       ],
       "direct_mutation": false,
       "status": "ACTIVE"
+    },
+    "curator": {
+      "role": "visual-ux-observer",
+      "allowed_event_types": [
+        "visual-regression",
+        "layout-break",
+        "responsive-regression",
+        "contrast-regression",
+        "iconography-inconsistency",
+        "design-system-drift",
+        "interaction-friction",
+        "render-latency"
+      ],
+      "direct_mutation": false,
+      "status": "ACTIVE"
+    },
+    "bastion": {
+      "role": "security-data-observer",
+      "allowed_event_types": [
+        "auth-anomaly",
+        "permission-drift",
+        "secret-exposure-signal",
+        "dependency-vulnerability-signal",
+        "data-integrity-anomaly",
+        "privacy-contract-violation",
+        "unexpected-public-surface",
+        "security-regression"
+      ],
+      "direct_mutation": false,
+      "status": "ACTIVE"
+    },
+    "intendant": {
+      "role": "cost-resource-observer",
+      "allowed_event_types": [
+        "resource-budget-drift",
+        "external-cost-signal",
+        "request-amplification",
+        "idle-resource",
+        "cache-efficiency-regression",
+        "model-overuse",
+        "storage-growth",
+        "cost-regression"
+      ],
+      "direct_mutation": false,
+      "status": "ACTIVE"
     }
   },
   "privacy": {
@@ -65,7 +110,28 @@
       "route_template",
       "operation",
       "observed_at",
-      "trace_id_hash"
+      "trace_id_hash",
+      "viewport_class",
+      "surface_id",
+      "visual_diff_score",
+      "contrast_ratio",
+      "interaction_count",
+      "layout_shift_score",
+      "asset_count",
+      "permission_code",
+      "dependency_id",
+      "vulnerability_id_hash",
+      "data_contract_id",
+      "privacy_rule_code",
+      "exposure_class",
+      "request_count",
+      "cache_hit_ratio",
+      "cpu_ms",
+      "memory_mb",
+      "storage_bytes",
+      "network_bytes",
+      "external_cost_microunits",
+      "model_units"
     ],
     "forbidden_field_patterns": [
       "content",
@@ -100,13 +166,29 @@
       "sentinel": {
         "base_key": "sentinel_url",
         "path": "/v1/project-events"
+      },
+      "curator": {
+        "base_key": "exchange_url",
+        "path": "/v1/peripheral-events"
+      },
+      "bastion": {
+        "base_key": "exchange_url",
+        "path": "/v1/peripheral-events"
+      },
+      "intendant": {
+        "base_key": "exchange_url",
+        "path": "/v1/peripheral-events"
       }
     }
   },
   "central_authority": {
     "guardian_url": "https://chacha-dev-guardian.chachasan090375.workers.dev",
     "sentinel_url": "https://chacha-dev-sentinel.chachasan090375.workers.dev",
-    "assurance_exchange_remains_correlation_plane": true
+    "assurance_exchange_remains_correlation_plane": true,
+    "exchange_url": "https://chacha-dev-assurance-exchange.chachasan090375.workers.dev",
+    "curator_status": "CENTRAL_AUTHORITY_NEXT",
+    "bastion_status": "CENTRAL_AUTHORITY_NEXT",
+    "intendant_status": "CENTRAL_AUTHORITY_NEXT"
   },
   "remediation": {
     "local_agents_may_apply_fix": false,
@@ -118,25 +200,12 @@
     "automatic_external_spend_eur": 0
   },
   "peripheral_assurance_network": "dev-hub/config/peripheral-assurance-network.v1.json",
-  "planned_local_agents": {
-    "curator": {
-      "status": "PLANNED",
-      "activation_version": "V6.33"
-    },
-    "bastion": {
-      "status": "PLANNED",
-      "activation_version": "V6.34"
-    },
-    "intendant": {
-      "status": "PLANNED",
-      "activation_version": "V6.34"
-    }
-  },
   "communication": {
     "common_exchange": "assurance-exchange",
     "peer_decision_making": false,
     "source_evidence_preserved": true,
     "direct_mutation": false,
-    "central_orchestrator_owns_remediation": true
+    "central_orchestrator_owns_remediation": true,
+    "all_five_local_probes_incremental": true
   }
 }
