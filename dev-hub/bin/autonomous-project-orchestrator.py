@@ -65,6 +65,7 @@ def _council_guardian_evidence(output_path:Path|None):
       "technology_watch_pre":all_pass("technology-watch-pre"),
       "technology_watch_final":all_pass("technology-watch-final"),
       "central_memory_assimilation":all_pass("central-memory-assimilation"),
+      "component_confidence":all_pass("component-confidence"),
       "central_memory_recall":all_pass("central-memory-recall"),
       "reuse_memory":all_pass("reuse-memory"),
       "architecture_memory":all_pass("architecture-memory"),
@@ -460,7 +461,7 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.23.0",
+      "version":"6.26.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
@@ -471,6 +472,8 @@ def main():
       "central_memory_trusted_count":int(load(memory_brief).get("trusted_memory_count") or 0),
       "central_memory_caution_count":int(load(memory_brief).get("caution_count") or 0),
       "central_memory_current_best_reuse_count":int(load(memory_brief).get("reuse_candidate_count") or 0),
+      "component_confidence_available":bool((load(memory_brief).get("component_confidence") or {}).get("available")),
+      "component_confidence_snapshot_digest":(load(memory_brief).get("component_confidence") or {}).get("snapshot_digest"),
       "agent_topology":str(agent_topology),
       "agent_role_contracts":str(agent_contracts),
       "dynamic_agent_contract_count":int(agent_contracts_v.get("contract_count") or 0),
