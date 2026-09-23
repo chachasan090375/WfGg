@@ -111,7 +111,9 @@
         "post-release-signed-checkpoint",
         "post-release-anchor-quorum"
       ],
-      "required_approvals": [],
+      "required_approvals": [
+        "production-deployment"
+      ],
       "required_gates": [
         "identity-security",
         "ci-cd-release",
