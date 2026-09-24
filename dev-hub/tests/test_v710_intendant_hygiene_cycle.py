@@ -94,6 +94,7 @@ with tempfile.TemporaryDirectory(prefix="v710-hygiene-") as td:
     platform=td/"platform";(platform/"releases").mkdir(parents=True)
     active_rev="7"*40;v700="b061f1405fc758ff22be241c5c791a3ecb58c9ec";v663="a3803180a64f1ea95d94466b7b10529a7a4af92f";v660="f78cb1972112d32b1ac3ae582009bc96385be58c"
     active=write_release(platform,"20260924T180000Z-"+active_rev,active_rev,"7.1.0")
+    duplicate_active=write_release(platform,"20260924T175500Z-duplicate-"+active_rev,active_rev,"7.1.0")
     r700=write_release(platform,"20260924T170000Z-"+v700,v700,"7.0.0")
     r663=write_release(platform,"20260924T160000Z-"+v663,v663,"6.63.0")
     r660=write_release(platform,"20260924T150000Z-"+v660,v660,"6.60.0")
@@ -123,9 +124,10 @@ with tempfile.TemporaryDirectory(prefix="v710-hygiene-") as td:
     assert "RELEASE_OVERAGE" in latest["threshold_reasons"],latest
     weekly=next(x for x in latest["results"] if x["cycle"]=="WEEKLY_DRY_RUN")
     action=next(x for x in weekly["actions"] if x["action"]=="RELEASE_RETIREMENT_DRY_RUN")
-    assert action["retire_count"]==1,action
+    assert action["retire_count"]==2,action
     assert action["selected_rollback_revisions"]==[v700,v663],action
-    assert all(x.exists() for x in (active,r700,r663,r660)),"dry-run mutated releases"
+    assert all(x.exists() for x in (active,duplicate_active,r700,r663,r660)),"dry-run mutated releases"
+    assert active_rev not in action["selected_rollback_revisions"],action
 
     # Forced cycles are exclusive: daily means daily only; monthly remains review-only.
     hp3=json.loads(json.dumps(hygiene))
@@ -191,9 +193,9 @@ print(json.dumps({'schema':'chacha.dev/guardian-verdict/v3','event_id':event['ev
     latest=load(runtime/"intendant/latest.json")
     weekly=next(x for x in latest["results"] if x["cycle"]=="WEEKLY_DRY_RUN")
     applied=next(x for x in weekly["actions"] if x["action"]=="SAFE_RELEASE_RETIREMENT_APPLY")
-    assert applied["executor"]=="central-orchestrator" and applied["deleted_release_count"]==1,applied
+    assert applied["executor"]=="central-orchestrator" and applied["deleted_release_count"]==2,applied
     assert applied["guardian_post_action"] is True,applied
-    assert active.is_dir() and r700.is_dir() and r663.is_dir() and not r660.exists()
+    assert active.is_dir() and r700.is_dir() and r663.is_dir() and not r660.exists() and not duplicate_active.exists()
     assert sum(1 for p in (platform/"releases").iterdir() if p.is_dir())==3
 
 print("CHACHA_DEV_V710_SINGLE_HYGIENE_TIMER=PASS")
