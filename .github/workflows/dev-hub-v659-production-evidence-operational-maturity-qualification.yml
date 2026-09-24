@@ -6,6 +6,7 @@ on:
       - dev-hub-v659-production-evidence-operational-maturity-closure
     paths:
       - 'dev-hub/bin/agent_fleet_observatory.py'
+      - 'dev-hub/bin/install-v659-production-evidence-operational-maturity.sh'
       - 'dev-hub/bin/autonomous-project-orchestrator.py'
       - 'dev-hub/config/agent-fleet-observatory.v1.json'
       - 'dev-hub/tests/test_v659_production_evidence_operational_maturity.py'
@@ -27,6 +28,7 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
+          bash -n dev-hub/bin/install-v659-production-evidence-operational-maturity.sh
           python3 -m py_compile dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v659_production_evidence_operational_maturity.py
           python3 -m json.tool dev-hub/config/agent-fleet-observatory.v1.json >/dev/null
           grep -Fq '"version":"6.59.0"' dev-hub/bin/autonomous-project-orchestrator.py
