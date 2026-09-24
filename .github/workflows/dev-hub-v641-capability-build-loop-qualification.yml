@@ -6,6 +6,7 @@ on:
       - dev-hub-v641-capability-build-loop
     paths:
       - 'dev-hub/bin/capability-build-loop.py'
+      - 'dev-hub/bin/capability-build-request-compiler.py'
       - 'dev-hub/config/capability-build-loop.v1.json'
       - 'dev-hub/tests/test_v641_capability_build_loop.py'
       - 'dev-hub/bin/capability-foundry-closure.py'
@@ -33,6 +34,7 @@ jobs:
           set -euo pipefail
           python3 -m py_compile \
             dev-hub/bin/capability-build-loop.py \
+            dev-hub/bin/capability-build-request-compiler.py \
             dev-hub/bin/capability-foundry-closure.py \
             dev-hub/bin/autonomous-project-orchestrator.py
           python3 -m json.tool dev-hub/config/capability-build-loop.v1.json >/dev/null
@@ -48,6 +50,10 @@ jobs:
           grep -Fq 'CHACHA_DEV_V641_SAME_PROJECT_RESUME_READY=PASS' /tmp/v641.out
           grep -Fq 'CHACHA_DEV_V641_DURABLE_ADOPTION_BEFORE_PROJECT_SUCCESS=NO' /tmp/v641.out
           grep -Fq 'CHACHA_DEV_V641_UNSAFE_BUILD_CLASSES_FAIL_CLOSED=PASS' /tmp/v641.out
+          grep -Fq 'CHACHA_DEV_V641_GOVERNED_BUILD_REQUEST_COMPILER=PASS' /tmp/v641.out
+          grep -Fq 'CHACHA_DEV_V641_ORCHESTRATOR_POST_COUNCIL_BUILD=PASS' /tmp/v641.out
+          grep -Fq 'CHACHA_DEV_V641_PROJECT_LOCAL_BUILD_REPO=PASS' /tmp/v641.out
+          grep -Fq 'CHACHA_DEV_V641_ACTIVE_PROVIDER_REGISTRY_PROPAGATED=PASS' /tmp/v641.out
           grep -Fq 'CHACHA_DEV_V641_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v641.out
 
       - name: V6.40 regression
