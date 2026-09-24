@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/universal-evolution-governance-policy/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "purpose": "Apply the right evolution controls to every evolvable ChaCha DEV component without duplicating agent responsibilities.",
   "principles": {
     "one_evolution_owner_per_component": true,
@@ -258,7 +258,9 @@
     "canonical-materializer": "CORE_PLATFORM_COMPONENT",
     "human-approval-transaction": "CORE_PLATFORM_COMPONENT",
     "interface": "CORE_PLATFORM_COMPONENT",
-    "satellite-agent": "CORE_PLATFORM_COMPONENT"
+    "satellite-agent": "CORE_PLATFORM_COMPONENT",
+    "signing-controller": "CORE_PLATFORM_COMPONENT",
+    "factory": "CORE_PLATFORM_COMPONENT"
   },
   "guardian_component_class_overrides": {}
 }
