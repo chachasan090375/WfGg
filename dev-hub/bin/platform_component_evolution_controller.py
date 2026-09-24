@@ -131,7 +131,8 @@ def build_pilot_readiness(shadow_ledger:dict[str,Any],evidence_index:dict[str,An
         pilot_required=bool(result.get("pilot_required") is True)
         ev=evidence_by.get(str(did)) or {}
         refs=[str(x) for x in ev.get("evidence_refs") or [] if str(x)]
-        missing=[k for k in required if ev.get(k) is not True]
+        pre_pilot_checks={k:(ev.get(k) is True) for k in required}
+        missing=[k for k,v in pre_pilot_checks.items() if not v]
         candidate_ref=str(ev.get("candidate_artifact_ref") or "")
         incumbent_ref=str(ev.get("incumbent_artifact_ref") or "")
         candidate_revision=str(ev.get("candidate_revision") or "")
@@ -147,6 +148,7 @@ def build_pilot_readiness(shadow_ledger:dict[str,Any],evidence_index:dict[str,An
           "state":state,"pilot_required":pilot_required,"shadow_candidate_signal_count":len(signals),
           "evidence_refs":refs,"candidate_artifact_ref":candidate_ref,"incumbent_artifact_ref":incumbent_ref,
           "candidate_revision":candidate_revision,"incumbent_revision":incumbent_revision,
+          "pre_pilot_checks":pre_pilot_checks,
           "missing_evidence":sorted(set(missing)),
           "pilot_execution_authorized":False,"production_change_authorized":False,
           "active_component_mutation":False,"promotion_authorized":False,
@@ -197,6 +199,8 @@ def build_pilot_contracts(readiness:dict[str,Any],harness_registry:dict[str,Any]
           "incumbent_artifact_ref":row.get("incumbent_artifact_ref"),
           "candidate_artifact_ref":row.get("candidate_artifact_ref"),
           "incumbent_revision":row.get("incumbent_revision"),"candidate_revision":row.get("candidate_revision"),
+          "pre_pilot_checks":row.get("pre_pilot_checks") or {},
+          "pre_pilot_evidence_refs":list(row.get("evidence_refs") or []),
           "sentinel_exact_sha_receipt_required":True,
           "same_benchmark_contract":True,"isolated_ephemeral_capsules":True,
           "emergency_stop_required":True,"guardian_pre_post_required":True,
