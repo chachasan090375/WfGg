@@ -1,7 +1,7 @@
 {
   "schema": "chacha.dev/platform-consolidation-policy/v1",
-  "version": "1.0.0",
-  "target_platform_version": "7.0.0",
+  "version": "1.1.0",
+  "target_platform_version": "7.x",
   "owner_agent": "intendant",
   "purpose": [
     "compile a single canonical runtime baseline",
@@ -55,11 +55,14 @@
   },
   "physical_release_retention": {
     "keep_active_release": true,
-    "keep_verified_rollback_revisions": [
-      "a3803180a64f1ea95d94466b7b10529a7a4af92f",
-      "f78cb1972112d32b1ac3ae582009bc96385be58c"
+    "rollback_slots": 2,
+    "rollback_selection_strategy": "MOST_RECENT_VERIFIED_PRIOR_RELEASES",
+    "verification_evidence_root": "/opt/chacha-dev/evidence",
+    "fallback_verified_rollback_revisions": [
+      "b061f1405fc758ff22be241c5c791a3ecb58c9ec",
+      "a3803180a64f1ea95d94466b7b10529a7a4af92f"
     ],
-    "max_physical_releases_after_v7": 3,
+    "max_physical_releases_after_consolidation": 3,
     "archive_manifest_before_delete": true,
     "archive_sha256_before_delete": true
   },
@@ -78,6 +81,8 @@
       "V7 active runtime health PASS",
       "rollback release verified"
     ],
-    "destructive_apply_requires_explicit_flag": true
+    "destructive_apply_requires_explicit_flag": true,
+    "standing_operator_approval_allowed_for_safe_release_retirement": true,
+    "source_code_retirement_requires_fresh_explicit_review": true
   }
 }
