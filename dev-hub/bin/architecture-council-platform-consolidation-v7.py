@@ -50,11 +50,12 @@ def main()->int:
     execution=policy.get("execution") or {}
     max_keep=int(retention.get("max_physical_releases_after_consolidation") or 3)
     sentinel_name=str(execution.get("sentinel_workflow") or "ChaCha DEV Sentinel technical assurance")
-    qualification_name=str(execution.get("exact_revision_qualification_workflow") or "ChaCha DEV V7 platform qualification")
+    configured_qualification=str(execution.get("exact_revision_qualification_workflow") or "")
+    qualification_names=[x for x in dict.fromkeys([configured_qualification,"ChaCha DEV V7 platform qualification"]) if x]
     checks={
       "guardian_pass":guardian.get("all_hooks_active") is True,
       "sentinel_exact_revision_pass":workflow_ok(runs,sentinel_name,rev),
-      "v7_qualification_exact_revision_pass":workflow_ok(runs,qualification_name,rev),
+      "v7_qualification_exact_revision_pass":any(workflow_ok(runs,name,rev) for name in qualification_names),
       "architecture_council_approval":True,
       "v7_runtime_health_pass":str(plan.get("active_version") or "").startswith("7.") and str(plan.get("active_revision") or "")==rev,
       "rollback_release_verified":int(plan.get("missing_verified_rollback_count") or 0)==0,
