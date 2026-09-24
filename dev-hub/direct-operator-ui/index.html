@@ -122,5 +122,8 @@ async function submit(text){
 send.onclick=()=>submit(q.value);document.querySelector('#go').onclick=()=>submit('Go');document.querySelector('#status').onclick=()=>submit('Allo');document.querySelector('#stop').onclick=()=>submit('Stop');
 document.querySelector('#mic').onclick=()=>{q.focus();result.textContent='Sur le widget Android, le micro utilise la dictée native. Ici, utilise le micro du clavier.'};
 q.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')submit(q.value)});
+window.chachaSetPrompt=(text)=>{q.value=String(text||'');q.focus();};
+window.chachaSubmit=(text)=>submit(String(text||''));
+window.chachaRefresh=()=>refreshProgress();
 refreshProgress();setInterval(refreshProgress,1500);
 </script></body></html>
