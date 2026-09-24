@@ -205,26 +205,6 @@ grep -Fq 'CHACHA_DEV_V710_INTENDANT_HYGIENE_CYCLE=PASS' "$WORK/runtime-dry.out"
 grep -Fq 'INTENDANT_DIRECT_MUTATION=NO' "$WORK/runtime-dry.out"
 echo "CHACHA_DEV_V710_RUNTIME_DRY_RUN=PASS"
 
-stage enable-timer
-assert_current
-systemctl enable chacha-dev-intendant-hygiene.timer >/dev/null
-systemctl start chacha-dev-intendant-hygiene.timer
-systemctl is-active --quiet chacha-dev-intendant-hygiene.timer
-systemctl is-enabled --quiet chacha-dev-intendant-hygiene.timer
-systemctl list-timers chacha-dev-intendant-hygiene.timer --no-pager >"$WORK/timer-status.out"
-echo "CHACHA_DEV_V710_TIMER_ACTIVE=PASS"
-
-stage post-health
-assert_current
-systemctl is-active --quiet chacha-remote-desktop-commander.service
-systemctl is-active --quiet chacha-dev-agent-fleet-observatory.timer
-systemctl is-active --quiet chacha-dev-agent-observation-bus-health.timer
-PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/guardian-coverage-heartbeat.py"   --repo-root "$RELEASE" --manifest "$CURRENT/dev-hub/config/guardian-coverage-manifest.v1.json"   --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json"   --client "$CURRENT/dev-hub/bin/guardian-client.py"   --output "$RUNTIME/guardian/coverage-latest.json" >"$WORK/guardian.out"
-grep -Fq 'ALL_HOOKS_ACTIVE=YES' "$WORK/guardian.out"
-PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/technology-watch-service.py" --repo-root "$RELEASE" status >"$WORK/watch.out"
-grep -Fq 'CHACHA_TECHNOLOGY_WATCH_STATUS=FRESH' "$WORK/watch.out"
-echo "CHACHA_DEV_V710_POST_HEALTH=PASS"
-
 stage real-governed-pilot
 assert_current
 # V7.1 adds a fourth physical release. Force one governed weekly cycle to prove
@@ -259,6 +239,26 @@ else:
 PY
 PURGE_COMMITTED=1
 echo "CHACHA_DEV_V710_PURGE_COMMITTED=YES"
+
+stage enable-timer
+assert_current
+systemctl enable chacha-dev-intendant-hygiene.timer >/dev/null
+systemctl start chacha-dev-intendant-hygiene.timer
+systemctl is-active --quiet chacha-dev-intendant-hygiene.timer
+systemctl is-enabled --quiet chacha-dev-intendant-hygiene.timer
+systemctl list-timers chacha-dev-intendant-hygiene.timer --no-pager >"$WORK/timer-status.out"
+echo "CHACHA_DEV_V710_TIMER_ACTIVE=PASS"
+
+stage post-health
+assert_current
+systemctl is-active --quiet chacha-remote-desktop-commander.service
+systemctl is-active --quiet chacha-dev-agent-fleet-observatory.timer
+systemctl is-active --quiet chacha-dev-agent-observation-bus-health.timer
+PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/guardian-coverage-heartbeat.py"   --repo-root "$RELEASE" --manifest "$CURRENT/dev-hub/config/guardian-coverage-manifest.v1.json"   --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json"   --client "$CURRENT/dev-hub/bin/guardian-client.py"   --output "$RUNTIME/guardian/coverage-latest.json" >"$WORK/guardian.out"
+grep -Fq 'ALL_HOOKS_ACTIVE=YES' "$WORK/guardian.out"
+PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/technology-watch-service.py" --repo-root "$RELEASE" status >"$WORK/watch.out"
+grep -Fq 'CHACHA_TECHNOLOGY_WATCH_STATUS=FRESH' "$WORK/watch.out"
+echo "CHACHA_DEV_V710_POST_HEALTH=PASS"
 
 
 stage evidence
