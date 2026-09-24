@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import json,sys,tempfile
+import importlib.util,json,sys,tempfile
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
 BIN=ROOT/"dev-hub/bin"
 sys.path.insert(0,str(BIN))
-import platform_component_pilot_runner as runner
+spec=importlib.util.spec_from_file_location("platform_component_pilot_runner",BIN/"platform-component-pilot-runner.py")
+assert spec and spec.loader
+runner=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(runner)
 
 contract={
  "schema":"chacha.dev/platform-component-comparative-pilot-contract/v1",
