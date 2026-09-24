@@ -17,6 +17,13 @@ assert mod.normalize("Go!")=="CONTINUE"
 assert mod.normalize("STOP.")=="STOP"
 assert mod.normalize("Ajoute un widget")=="INSTRUCTION"
 
+satellite=load(ROOT/"dev-hub/config/functional-translator-satellite.v1.json")
+assert satellite["scope"]=="PLATFORM_EDGE_SATELLITE",satellite
+assert satellite["fleet_membership"]=="EXCLUDED_EDGE_SATELLITE",satellite
+assert satellite["permissions"]["repository_write"] is False,satellite
+assert satellite["permissions"]["production_change"] is False,satellite
+assert satellite["handoff"]["central_orchestrator_recompiles_independently"] is True,satellite
+
 with tempfile.TemporaryDirectory(prefix="v730-direct-") as raw:
     td=Path(raw);runtime=td/"runtime";runtime.mkdir()
     auth=td/"authorized.json";save(auth,{"authorized_logins":["operator@example.test"]})
@@ -90,6 +97,7 @@ print(json.dumps({'schema':'chacha.dev/emergency-stop-state/v1','active':True}))
 print("CHACHA_DEV_V730_DIRECT_OPERATOR=PASS")
 print("CHACHA_DEV_V730_TAILSCALE_IDENTITY_FAIL_CLOSED=PASS")
 print("CHACHA_DEV_V730_FUNCTIONAL_TRANSLATOR=PASS")
+print("CHACHA_DEV_V730_TRANSLATOR_FLEET_MEMBERSHIP=EXCLUDED_EDGE_SATELLITE")
 print("CHACHA_DEV_V730_TRANSLATOR_EXECUTION_AUTHORITY=NO")
 print("CHACHA_DEV_V730_TRANSLATOR_ARCHITECTURE_AUTHORITY=NO")
 print("CHACHA_DEV_V730_CHATGPT_IN_DIRECT_PATH=NO")
