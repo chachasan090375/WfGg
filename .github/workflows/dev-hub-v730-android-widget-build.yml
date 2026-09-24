@@ -5,6 +5,7 @@ on:
     branches:
       - dev-hub-v730-direct-operator-android-widget
     paths:
+      - 'dev-hub/config/v730-release-gates.v1.json'
       - 'android/chacha-direct-operator-widget/**'
       - '.github/workflows/dev-hub-v730-android-widget-build.yml'
       - 'dev-hub/config/direct-operator.v1.json'
