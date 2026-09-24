@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-role-contracts/v1",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "scope": "PLATFORM_GLOBAL",
   "principles": {
     "guardian_is_external_to_central_brain": true,
@@ -1114,6 +1114,34 @@
         "exact_sha_qualification",
         "sentinel_exact_sha",
         "pinned_release_certificate"
+      ]
+    },
+    {
+      "contract_id": "role:object-factory",
+      "kind": "role",
+      "allowed_actions": [
+        "PLAN_DOMAIN_OBJECT",
+        "REUSE_DOMAIN_OBJECT",
+        "BUILD_OBJECT_CONTRACT",
+        "HANDOFF_COMPONENT_FACTORY"
+      ],
+      "forbidden_actions": [
+        "SELECT_PRODUCTION_PROVIDER",
+        "PRODUCTION_DEPLOY",
+        "PROMOTE_COMPONENT",
+        "EXPAND_PERMISSIONS",
+        "DIRECT_DATABASE_MUTATION"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write"
+      ],
+      "required_evidence": [
+        "explicit_object_contract",
+        "reuse_search",
+        "validation_contract",
+        "component_factory_handoff"
       ]
     }
   ]
