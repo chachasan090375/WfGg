@@ -1,0 +1,91 @@
+name: ChaCha DEV V7.4 ChaCha jai pete progress UI qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v740-chacha-jai-pete-progress-ui
+    paths:
+      - 'dev-hub/bin/progress_state_controller.py'
+      - 'dev-hub/bin/direct-operator-service.py'
+      - 'dev-hub/config/progress-reporting.v1.json'
+      - 'dev-hub/config/direct-operator.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/config/technology-core-watch.v1.json'
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/systemd/chacha-dev-direct-operator.service'
+      - 'dev-hub/direct-operator-ui/**'
+      - 'dev-hub/tests/test_v740_chacha_jai_pete_progress_ui.py'
+      - 'android/chacha-direct-operator-widget/**'
+      - '.github/workflows/dev-hub-v740-chacha-jai-pete-progress-ui.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Static backend validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/progress_state_controller.py             dev-hub/bin/direct-operator-service.py             dev-hub/tests/test_v740_chacha_jai_pete_progress_ui.py
+          python3 -m json.tool dev-hub/config/progress-reporting.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/direct-operator.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/technology-core-watch.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
+      - name: Persistent progress and UI contract
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v740_chacha_jai_pete_progress_ui.py | tee /tmp/v740-progress.out
+          grep -Fq 'CHACHA_DEV_V740_PROGRESS_PERSISTENCE=PASS' /tmp/v740-progress.out
+          grep -Fq 'CHACHA_DEV_V740_GLOBAL_MATURITY=86' /tmp/v740-progress.out
+          grep -Fq 'CHACHA_DEV_V740_ACTIVE_WORK_INDEPENDENT=YES' /tmp/v740-progress.out
+          grep -Fq 'CHACHA_DEV_V740_PROGRESS_API=PASS' /tmp/v740-progress.out
+          grep -Fq 'CHACHA_DEV_V740_WEB_CONTEXT_UI=PASS' /tmp/v740-progress.out
+          grep -Fq 'CHACHA_DEV_V740_ANDROID_CONTEXT_UI=PASS' /tmp/v740-progress.out
+          grep -Fq 'CHACHA_DEV_V740_WIDGET_LIVE_CONTEXT=PASS' /tmp/v740-progress.out
+          grep -Fq 'CHACHA_DEV_V740_PROGRESS_EXECUTION_AUTHORITY=NO' /tmp/v740-progress.out
+      - name: Install Android SDK
+        run: |
+          set -euo pipefail
+          : "${ANDROID_HOME:=/usr/local/lib/android/sdk}"
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -path '*/bin/sdkmanager' | sort -V | tail -1)"
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.6.0'
+      - name: Build ChaCha jai pete APK
+        run: |
+          set -euo pipefail
+          gradle -p android/chacha-direct-operator-widget :app:assembleDebug :app:lintDebug
+          test -f android/chacha-direct-operator-widget/app/build/outputs/apk/debug/app-debug.apk
+          echo CHACHA_DEV_V740_ANDROID_BUILD=PASS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-jai-pete-v740-debug
+          path: android/chacha-direct-operator-widget/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
+      - name: Receipt
+        run: |
+          echo CHACHA_DEV_V740_PROGRESS_UI_QUALIFICATION=PASS
+          echo CHACHA_DEV_GLOBAL_MATURITY_PERCENT=86
+          echo ACTIVE_WORK_PROGRESS_IS_SEPARATE=YES
+          echo PERSISTENT_SHARED_PROGRESS_SOURCE=YES
+          echo WEB_CONTEXT_WINDOW=YES
+          echo ANDROID_CONTEXT_WINDOW=YES
+          echo HOME_WIDGET_LIVE_CONTEXT=YES
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
