@@ -13,6 +13,8 @@ on:
       - 'dev-hub/config/guardian-role-contracts.v1.json'
       - 'dev-hub/config/technology-core-watch.v1.json'
       - 'dev-hub/bin/platform-component-pilot-runner.py'
+      - 'dev-hub/tests/test_platform_component_promotion_gate.py'
+      - 'dev-hub/bin/platform-component-promotion-gate.py'
       - 'dev-hub/tests/test_architecture_council_platform_component_review.py'
       - 'dev-hub/config/architecture-decision-council.v1.json'
       - 'dev-hub/bin/architecture-council-platform-component-review.py'
@@ -54,7 +56,7 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
-          python3 -m py_compile dev-hub/bin/component_evolution_governance.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_observation_bus_health.py dev-hub/bin/platform_component_evolution_controller.py dev-hub/bin/branch-foundry-planner.py dev-hub/bin/capability-foundry.py dev-hub/tests/test_universal_evolution_coverage_sync.py dev-hub/tests/test_evolution_source_catalog_drift.py dev-hub/tests/test_platform_reassessment_routing.py dev-hub/tests/test_platform_foundry_dispatch.py dev-hub/tests/test_platform_foundry_native_reassessment.py dev-hub/tests/test_platform_shadow_idempotency.py dev-hub/tests/test_platform_pilot_readiness.py dev-hub/tests/test_platform_pilot_contract_gate.py dev-hub/tests/test_platform_component_pilot_runner.py dev-hub/bin/architecture-council-platform-component-review.py dev-hub/tests/test_architecture_council_platform_component_review.py dev-hub/bin/project-control.py dev-hub/bin/project-control-api.py dev-hub/tests/test_project_control_bootstrap.py
+          python3 -m py_compile dev-hub/bin/component_evolution_governance.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_observation_bus_health.py dev-hub/bin/platform_component_evolution_controller.py dev-hub/bin/branch-foundry-planner.py dev-hub/bin/capability-foundry.py dev-hub/tests/test_universal_evolution_coverage_sync.py dev-hub/tests/test_evolution_source_catalog_drift.py dev-hub/tests/test_platform_reassessment_routing.py dev-hub/tests/test_platform_foundry_dispatch.py dev-hub/tests/test_platform_foundry_native_reassessment.py dev-hub/tests/test_platform_shadow_idempotency.py dev-hub/tests/test_platform_pilot_readiness.py dev-hub/tests/test_platform_pilot_contract_gate.py dev-hub/tests/test_platform_component_pilot_runner.py dev-hub/bin/architecture-council-platform-component-review.py dev-hub/tests/test_architecture_council_platform_component_review.py dev-hub/bin/project-control.py dev-hub/bin/project-control-api.py dev-hub/tests/test_project_control_bootstrap.py dev-hub/bin/platform-component-promotion-gate.py dev-hub/tests/test_platform_component_promotion_gate.py
           python3 -m json.tool dev-hub/config/universal-evolution-governance.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-observation-bus.v1.json >/dev/null
@@ -170,6 +172,17 @@ jobs:
           grep -Fq 'CHACHA_DEV_PROJECT_CONTROL_HUMAN_APPROVAL_PROTECTED=YES' /tmp/project-control-bootstrap.out
           grep -Fq 'CHACHA_DEV_PROJECT_CONTROL_API_APPROVAL_SYNTHESIS=NO' /tmp/project-control-bootstrap.out
           grep -Fq 'CHACHA_DEV_PROJECT_CONTROL_BOOTSTRAP_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/project-control-bootstrap.out
+      - name: Protected platform component promotion gate
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_component_promotion_gate.py | tee /tmp/platform-promotion-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_GATE=PASS' /tmp/platform-promotion-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_NO_APPROVAL=AWAIT' /tmp/platform-promotion-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_SYSTEM_APPROVAL=BLOCKED' /tmp/platform-promotion-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_HUMAN_APPROVAL=VERIFIED' /tmp/platform-promotion-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_AUTOMATIC_APPLY=NO' /tmp/platform-promotion-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_GUARDIAN_COVERAGE=PASS' /tmp/platform-promotion-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/platform-promotion-gate.out
       - name: Receipt
         run: |
           echo CHACHA_DEV_UNIVERSAL_EVOLUTION_COVERAGE_SYNC_QUALIFICATION=PASS
@@ -189,6 +202,8 @@ jobs:
           echo PLATFORM_COMPONENT_ARCHITECTURE_COUNCIL_REVIEW=YES
           echo PROJECT_CONTROL_PLATFORM_BOOTSTRAP=YES
           echo PROJECT_CONTROL_HUMAN_APPROVAL_BOUNDARY=PROTECTED
+          echo PLATFORM_COMPONENT_PROMOTION_GATE=PROTECTED_HUMAN_APPROVAL
+          echo PLATFORM_COMPONENT_AUTOMATIC_PROMOTION=NO
           echo SELF_MUTATION=NO
           echo SELF_PROMOTION=NO
           echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
