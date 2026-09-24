@@ -19,6 +19,13 @@ contract={
  "resource_budget":{"memory_mb":128,"cpu_weight":50,"tasks_max":4,"timeout_seconds":30},
  "incumbent_artifact_ref":"git:incumbent@def","candidate_artifact_ref":"git:candidate@abc",
  "incumbent_revision":"def","candidate_revision":"abc",
+ "pre_pilot_checks":{
+   "independent_verification":True,"measurable_gain":True,"no_material_regression":True,
+   "permission_non_escalation":True,"rollback_ready":True,"exact_revision_evidence":True,
+   "logician_falsification_pass":True,"technology_watch_revalidation_pass":True,
+   "real_harness_available":True
+ },
+ "pre_pilot_evidence_refs":["e:1","e:2"],
  "same_benchmark_contract":True,"isolated_ephemeral_capsules":True,
  "pilot_execution_authorized":True,"production_change_authorized":False,
  "promotion_authorized":False,"automatic_external_spend_eur":0
@@ -75,6 +82,14 @@ except RuntimeError as e:
 else:
     raise AssertionError("sentinel SHA mismatch accepted")
 
+badpre=dict(contract);badpre["pre_pilot_checks"]={**contract["pre_pilot_checks"],"rollback_ready":False}
+try:
+    runner.validate_contract(badpre)
+except RuntimeError as e:
+    assert "PRECHECKS_INCOMPLETE" in str(e),e
+else:
+    raise AssertionError("pilot contract with incomplete prechecks accepted")
+
 badc=dict(contract);badc["production_change_authorized"]=True
 try:
     runner.validate_contract(badc)
@@ -101,6 +116,7 @@ print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_RUNNER=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_SAME_HARNESS=YES")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_ISOLATED_SYSTEMD=YES")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_EXACT_SENTINEL_SHA=YES")
+print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_PRECHECKS=ENFORCED")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_GUARDIAN_PRE_POST=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_GUARDIAN_RECEIPTS=PERSISTED")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_GUARDIAN_COVERAGE=PASS")
