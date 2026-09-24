@@ -1,0 +1,148 @@
+name: ChaCha DEV V7.3 Guardian runtime deploy
+
+on:
+  push:
+    branches:
+      - dev-hub-v730-direct-operator-android-widget
+    paths:
+      - 'dev-hub/guardian/**'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/bin/direct-operator-service.py'
+      - 'dev-hub/bin/functional-translator-agent.py'
+      - 'dev-hub/bin/install-v730-direct-operator-android-widget.sh'
+      - '.github/workflows/dev-hub-v730-guardian-runtime-deploy.yml'
+      - '.github/workflows/dev-hub-v730-direct-operator-qualification.yml'
+      - '.github/workflows/dev-hub-v7-guardian-coverage-sync.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate current Guardian worker
+        run: |
+          set -euo pipefail
+          node --check dev-hub/guardian/worker.js
+          python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
+          python3 - <<'PY'
+          import json
+          c=json.load(open('dev-hub/config/guardian-coverage-manifest.v1.json'))
+          ids={x['component_id'] for x in c['expected_components']}
+          assert {'direct-operator-service','functional-translator-satellite'} <= ids,ids
+          print('CHACHA_DEV_V730_GUARDIAN_WORKER_STATIC=PASS')
+          PY
+
+      - name: Resolve Guardian D1
+        id: cf
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request,urllib.error
+          token=os.environ.get('CF_API_TOKEN','').strip()
+          if not token: raise SystemExit('MISSING_SECRET=CLOUDFLARE_API_TOKEN')
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url):
+              req=urllib.request.Request(url,headers=headers)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode('utf-8','replace')
+                  try:p=json.loads(raw)
+                  except Exception:p={'raw':raw[:800]}
+                  return e.code,p
+          aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          if not aid:
+              st,p=call('https://api.cloudflare.com/client/v4/accounts?per_page=50')
+              rows=(p.get('result') or []) if st==200 else []
+              if len(rows)!=1:raise SystemExit('CLOUDFLARE_ACCOUNT_RESOLUTION_FAILED')
+              aid=rows[0]['id']
+          st,p=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-guardian'))
+          if st!=200:raise SystemExit('GUARDIAN_D1_LOOKUP_FAILED')
+          db=next((x for x in (p.get('result') or []) if x.get('name')=='chacha-dev-guardian'),None)
+          if not db:raise SystemExit('GUARDIAN_D1_MISSING')
+          st,p=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/workers/subdomain')
+          sub=(p.get('result') or {}).get('subdomain') if st==200 else None
+          if not sub:raise SystemExit('WORKERS_SUBDOMAIN_MISSING')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('account_id='+aid+'\n')
+              f.write('database_id='+db['uuid']+'\n')
+              f.write('workers_subdomain='+sub+'\n')
+          print('CHACHA_DEV_V730_GUARDIAN_D1_RESOLVED=PASS')
+          PY
+
+      - name: Prepare Wrangler config
+        run: |
+          cat > .wrangler-guardian-v730.jsonc <<EOF
+          {
+            "name": "chacha-dev-guardian",
+            "main": "dev-hub/guardian/worker.js",
+            "compatibility_date": "2026-09-24",
+            "workers_dev": true,
+            "triggers": {"crons": ["* * * * *"]},
+            "d1_databases": [{
+              "binding": "DB",
+              "database_name": "chacha-dev-guardian",
+              "database_id": "${{ steps.cf.outputs.database_id }}"
+            }]
+          }
+          EOF
+
+      - name: Apply current Guardian migrations
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          for f in dev-hub/guardian/migrations/*.sql; do
+            npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --file="$f" --config=.wrangler-guardian-v730.jsonc >/tmp/migration.out
+          done
+          echo CHACHA_DEV_V730_GUARDIAN_SCHEMA=PASS
+
+      - name: Deploy current Guardian Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 deploy --config=.wrangler-guardian-v730.jsonc
+          echo CHACHA_DEV_V730_GUARDIAN_WORKER_DEPLOY=PASS
+
+      - name: Verify external Guardian health
+        env:
+          SUBDOMAIN: ${{ steps.cf.outputs.workers_subdomain }}
+        run: |
+          set -euo pipefail
+          URL="https://chacha-dev-guardian.$SUBDOMAIN.workers.dev"
+          ok=0
+          for i in $(seq 1 30); do
+            if curl -fsS "$URL/healthz" -o /tmp/guardian-health.json &&
+               grep -Fq '"external_governance_plane":true' /tmp/guardian-health.json &&
+               grep -Fq '"coverage_watch":true' /tmp/guardian-health.json; then
+              ok=1; break
+            fi
+            sleep 3
+          done
+          test "$ok" = 1
+          echo CHACHA_DEV_V730_GUARDIAN_HEALTH=PASS
+
+      - name: Runtime deployment receipt
+        run: |
+          echo CHACHA_DEV_V730_GUARDIAN_RUNTIME_DEPLOY=PASS
+          echo EXACT_SHA="${GITHUB_SHA}"
+          echo DIRECT_OPERATOR_COVERAGE=EXPECTED
+          echo FUNCTIONAL_TRANSLATOR_COVERAGE=EXPECTED
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
