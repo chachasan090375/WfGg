@@ -1,0 +1,100 @@
+name: ChaCha DEV V7.8 runtime convergence qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v780-runtime-convergence
+    paths:
+      - 'dev-hub/**'
+      - 'android/chacha-direct-operator-widget/**'
+      - '.github/workflows/dev-hub-v780-runtime-convergence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/direct-operator-service.py             dev-hub/bin/progress_state_controller.py             dev-hub/bin/live_ui_publisher.py             dev-hub/bin/native_update_publisher.py             dev-hub/bin/android_release_signer.py             dev-hub/bin/object-factory.py             dev-hub/bin/project-planner.py             dev-hub/bin/autonomous-project-orchestrator.py
+          grep -Fq '"version":"7.8.0"' dev-hub/bin/autonomous-project-orchestrator.py
+      - name: V7.3 Direct Operator
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v730_direct_operator.py | tee /tmp/v730.out
+          grep -Fq 'CHACHA_DEV_V730_DIRECT_OPERATOR=PASS' /tmp/v730.out
+          grep -Fq 'CHACHA_DEV_V730_CHATGPT_IN_DIRECT_PATH=NO' /tmp/v730.out
+      - name: V7.4 persistent progress and UI
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v740_chacha_jai_pete_progress_ui.py | tee /tmp/v740.out
+          grep -Fq 'CHACHA_DEV_V740_PROGRESS_PERSISTENCE=PASS' /tmp/v740.out
+          grep -Fq 'CHACHA_DEV_V740_GLOBAL_MATURITY=86' /tmp/v740.out
+      - name: V7.5 Live Update
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v750_chacha_live_update_shell.py | tee /tmp/v750.out
+          grep -Fq 'CHACHA_DEV_V750_LIVE_SHELL=PASS' /tmp/v750.out
+          grep -Fq 'CHACHA_DEV_V750_ROLLBACK=PASS' /tmp/v750.out
+      - name: V7.6 Native Update
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v760_chacha_native_update.py | tee /tmp/v760.out
+          grep -Fq 'CHACHA_DEV_V760_NATIVE_UPDATE=PASS' /tmp/v760.out
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_android_release_signer.py | tee /tmp/v760-signer.out
+          grep -Fq 'CHACHA_DEV_V760_ANDROID_RELEASE_SIGNER=PASS' /tmp/v760-signer.out
+      - name: V7.7 Object Factory
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v770_object_factory.py | tee /tmp/v770.out
+          grep -Fq 'CHACHA_DEV_V770_OBJECT_FACTORY=PASS' /tmp/v770.out
+          grep -Fq 'OBJECT_MODEL_MISSING_BLOCKS_CODE_GENERATION=YES' /tmp/v770.out
+      - name: Universal evolution governance
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_universal_evolution_coverage_sync.py | tee /tmp/evolution.out
+          grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_GUARDIAN_SYNC=PASS' /tmp/evolution.out
+      - name: V7 inherited baseline
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v720_human_interface_gateway.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v710_intendant_hygiene_cycle.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v700_consolidated_platform_baseline.py
+      - name: Critical inherited invariants
+        run: |
+          set -euo pipefail
+          for t in             dev-hub/tests/test_v660_independent_accuracy_attestation.py             dev-hub/tests/test_v661_real_world_evidence_isolated_candidate.py             dev-hub/tests/test_v663_runtime_surface_instrumentation_readiness.py             dev-hub/tests/test_v664_real_instrumented_project_acceptance_council.py; do
+            PYTHONPATH=dev-hub/bin python3 "$t"
+          done
+      - name: Runtime release compilation
+        run: |
+          set -euo pipefail
+          T="$(mktemp -d)"
+          python3 dev-hub/bin/build-v7-runtime-release.py             --source-root "$PWD"             --output-root "$T/release"             --manifest "$T/manifest.json" | tee /tmp/compile.out
+          grep -Fq 'CHACHA_DEV_V7_COMPILED_RUNTIME_RELEASE=PASS' /tmp/compile.out
+          grep -Fq '"version":"7.8.0"' "$T/release/dev-hub/bin/autonomous-project-orchestrator.py"
+          test -f "$T/release/dev-hub/bin/direct-operator-service.py"
+          test -f "$T/release/dev-hub/bin/progress_state_controller.py"
+          test -f "$T/release/dev-hub/bin/live_ui_publisher.py"
+          test -f "$T/release/dev-hub/bin/native_update_publisher.py"
+          test -f "$T/release/dev-hub/bin/object-factory.py"
+      - name: Receipt
+        run: |
+          echo CHACHA_DEV_V780_RUNTIME_CONVERGENCE_QUALIFICATION=PASS
+          echo PLATFORM_VERSION=7.8.0
+          echo DIRECT_OPERATOR=PASS
+          echo PERSISTENT_PROGRESS=PASS
+          echo LIVE_UPDATE=PASS
+          echo NATIVE_UPDATE=PASS
+          echo OBJECT_FACTORY=PASS
+          echo UNIVERSAL_GOVERNANCE=PASS
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
