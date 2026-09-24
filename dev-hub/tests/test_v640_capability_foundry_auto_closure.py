@@ -166,11 +166,26 @@ with tempfile.TemporaryDirectory(prefix="v640-prod-") as td:
     assert rec["status"]=="COMMITTED",rec
     assert rec["approval_id"]=="v640-human-adopt",rec
 
+# The central orchestrator must consume the qualified closure overlay, expose the
+# active capability registry, and fail closed when a novel build is still needed.
+orch=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
+assert '"capability-foundry-closure.py"' in orch
+assert '"--policy",cfg/"capability-foundry-closure.v1.json"' in orch
+assert 'merge_caps(cfg/"capability-registry.v1.json",closure_overlay,merged_caps)' in orch
+assert 'merge_caps(cfg/"capability-registry.v1.json",cap_overlay,merged_caps)' not in orch
+assert '"active_capability_registry":str(active_capabilities)' in orch
+assert 'next_stage="CAPABILITY_BUILD_REQUIRED"' in orch
+assert 'final_v["dispatch_allowed"]=False' in orch
+assert '"version":"6.40.0"' in orch
+
 print("CHACHA_DEV_V640_EXISTING_ENABLED_PROVIDER_AUTO_CLOSURE=PASS")
 print("CHACHA_DEV_V640_NONZERO_SPEND_FAIL_CLOSED=PASS")
 print("CHACHA_DEV_V640_CREDENTIAL_BOUNDARY_FAIL_CLOSED=PASS")
 print("CHACHA_DEV_V640_ADAPTER_NOT_ENABLED_FAIL_CLOSED=PASS")
 print("CHACHA_DEV_V640_UNKNOWN_PROVIDER_INVENTION=NO")
+print("CHACHA_DEV_V640_ORCHESTRATOR_USES_CLOSURE_OVERLAY=PASS")
+print("CHACHA_DEV_V640_BUILD_REQUIRED_BLOCKS_DISPATCH=PASS")
+print("CHACHA_DEV_V640_ACTIVE_CAPABILITY_REGISTRY_PROPAGATED=PASS")
 print("CHACHA_DEV_V640_VERIFIED_PROJECT_SUCCESS_BEFORE_ADOPT=PASS")
 print("CHACHA_DEV_V640_PRODUCTION_CAPABILITY_HUMAN_ADOPTION_BOUNDARY=PASS")
 print("CHACHA_DEV_V640_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
