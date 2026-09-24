@@ -10,8 +10,13 @@ import agent_evolution_controller as aec
 import agent_evolution_profile as aep
 import agent_observation_bus_health as aobh
 import component_evolution_governance as ceg
-import agent_foundry_planner as afp
-import subprocess
+import importlib.util,subprocess
+
+def load_module(name,path):
+    spec=importlib.util.spec_from_file_location(name,path)
+    mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod);return mod
+
+afp=load_module("v654_agent_foundry_planner",BIN/"agent-foundry-planner.py")
 
 def load(p):return json.loads(Path(p).read_text(encoding="utf-8"))
 routing=load(CFG/"agent-routing.v1.json");seven=load(CFG/"seven-agent-final-compromise.v1.json")
