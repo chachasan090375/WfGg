@@ -3,24 +3,22 @@ package com.wfgg.chachadev.operator;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.speech.RecognizerIntent;
-import android.view.inputmethod.InputMethodManager;
-import android.content.Context;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.webkit.CookieManager;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -33,94 +31,160 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class OperatorActivity extends Activity {
     private static final int VOICE_REQUEST = 42;
+    private static final int SHELL_PROTOCOL_VERSION = 1;
+
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler main = new Handler(Looper.getMainLooper());
 
-    private EditText input;
-    private Button send;
-    private Button mic;
-    private Button allo;
-    private Button go;
-    private Button stop;
-    private Button newRequest;
-    private TextView state;
-    private TextView result;
-    private TextView headline;
-    private TextView globalPercent;
-    private TextView globalLabel;
-    private TextView workPercent;
-    private LinearLayout inputPanel;
-    private LinearLayout contextPanel;
-    private ProgressBar globalProgress;
-    private ProgressBar workProgress;
-    private final ProgressBar[] moduleProgress = new ProgressBar[4];
-    private final TextView[] moduleLabels = new TextView[4];
+    private WebView webView;
     private String baseUrl;
+    private Uri allowedOrigin;
+    private boolean pageReady = false;
+    private String pendingMode = ChaChaWidgetProvider.MODE_TYPE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_operator);
         baseUrl = getString(R.string.operator_base_url);
+        allowedOrigin = Uri.parse(baseUrl);
+        pendingMode = modeFrom(getIntent());
 
-        input = findViewById(R.id.operator_input);
-        send = findViewById(R.id.operator_send);
-        mic = findViewById(R.id.operator_mic);
-        state = findViewById(R.id.operator_state);
-        result = findViewById(R.id.operator_result);
-        headline = findViewById(R.id.context_headline);
-        globalPercent = findViewById(R.id.global_percent);
-        globalLabel = findViewById(R.id.global_label);
-        workPercent = findViewById(R.id.work_percent);
-        inputPanel = findViewById(R.id.operator_input_panel);
-        contextPanel = findViewById(R.id.operator_context_panel);
-        globalProgress = findViewById(R.id.global_progress);
-        workProgress = findViewById(R.id.work_progress);
-        moduleProgress[0] = findViewById(R.id.module_1_progress);
-        moduleProgress[1] = findViewById(R.id.module_2_progress);
-        moduleProgress[2] = findViewById(R.id.module_3_progress);
-        moduleProgress[3] = findViewById(R.id.module_4_progress);
-        moduleLabels[0] = findViewById(R.id.module_1_label);
-        moduleLabels[1] = findViewById(R.id.module_2_label);
-        moduleLabels[2] = findViewById(R.id.module_3_label);
-        moduleLabels[3] = findViewById(R.id.module_4_label);
-        allo = findViewById(R.id.operator_allo);
-        go = findViewById(R.id.operator_go);
-        stop = findViewById(R.id.operator_stop);
-        newRequest = findViewById(R.id.operator_new);
+        webView = new WebView(this);
+        setContentView(webView);
+        configureWebView();
+        loadRemoteUi();
+    }
 
-        send.setOnClickListener(v -> submit(input.getText().toString()));
-        mic.setOnClickListener(v -> startVoice());
-        allo.setOnClickListener(v -> submit("Allo"));
-        go.setOnClickListener(v -> submit("Go"));
-        stop.setOnClickListener(v -> submit("Stop"));
-        newRequest.setOnClickListener(v -> showInputMode());
-        refreshProgressOnce();
+    private void configureWebView() {
+        WebView.setWebContentsDebuggingEnabled(false);
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        settings.setAllowFileAccess(false);
+        settings.setAllowContentAccess(false);
+        settings.setJavaScriptCanOpenWindowsAutomatically(false);
+        settings.setSupportMultipleWindows(false);
+        settings.setGeolocationEnabled(false);
+        settings.setMediaPlaybackRequiresUserGesture(true);
+        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, false);
 
-        String mode = getIntent().getStringExtra(ChaChaWidgetProvider.EXTRA_MODE);
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                Uri u = request.getUrl();
+                if ("chacha".equalsIgnoreCase(u.getScheme()) && "retry".equalsIgnoreCase(u.getHost())) {
+                    loadRemoteUi();
+                    return true;
+                }
+                return !isAllowed(u);
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                if (isAllowed(Uri.parse(url))) {
+                    pageReady = true;
+                    handlePendingMode();
+                    ChaChaWidgetProvider.refreshRemote(OperatorActivity.this);
+                }
+            }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, android.webkit.WebResourceError error) {
+                if (request.isForMainFrame()) showFallback();
+            }
+        });
+    }
+
+    private boolean isAllowed(Uri uri) {
+        if (uri == null) return false;
+        if (!"https".equalsIgnoreCase(uri.getScheme())) return false;
+        if (allowedOrigin.getHost() == null || !allowedOrigin.getHost().equalsIgnoreCase(uri.getHost())) return false;
+        return normalizedPort(allowedOrigin) == normalizedPort(uri);
+    }
+
+    private int normalizedPort(Uri uri) {
+        int port = uri.getPort();
+        return port == -1 ? 443 : port;
+    }
+
+    private void loadRemoteUi() {
+        pageReady = false;
+        executor.execute(() -> {
+            String uiPath = "/";
+            try {
+                JSONObject cfg = getJson("/api/v1/app-config");
+                int min = cfg.optInt("min_shell_protocol_version", 1);
+                if (min > SHELL_PROTOCOL_VERSION) {
+                    main.post(() -> showFallbackMessage("Mise à jour native requise", "Cette interface demande un shell Android plus récent."));
+                    return;
+                }
+                String candidate = cfg.optString("ui_path", "/");
+                if (candidate.startsWith("/") && !candidate.startsWith("//")) uiPath = candidate;
+            } catch (Exception ignored) {
+                // Fail soft: the canonical private root is still safe to load.
+            }
+            final String target = baseUrl + uiPath;
+            main.post(() -> webView.loadUrl(target));
+        });
+    }
+
+    private JSONObject getJson(String path) throws Exception {
+        URL url = new URL(baseUrl + path);
+        if (!isAllowed(Uri.parse(url.toString()))) throw new SecurityException("LIVE_SHELL_ORIGIN_BLOCKED");
+        HttpsURLConnection c = (HttpsURLConnection) url.openConnection();
+        c.setRequestMethod("GET");
+        c.setConnectTimeout(8000);
+        c.setReadTimeout(12000);
+        c.setUseCaches(false);
+        c.setRequestProperty("Accept", "application/json");
+        int code = c.getResponseCode();
+        InputStream in = code >= 200 && code < 300 ? c.getInputStream() : c.getErrorStream();
+        StringBuilder sb = new StringBuilder();
+        if (in != null) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = br.readLine()) != null) sb.append(line);
+            }
+        }
+        c.disconnect();
+        if (code < 200 || code >= 300) throw new IllegalStateException("HTTP " + code + " " + sb);
+        return new JSONObject(sb.toString());
+    }
+
+    private String modeFrom(Intent intent) {
+        if (intent == null) return ChaChaWidgetProvider.MODE_TYPE;
+        String mode = intent.getStringExtra(ChaChaWidgetProvider.EXTRA_MODE);
+        return mode == null ? ChaChaWidgetProvider.MODE_TYPE : mode;
+    }
+
+    private void handlePendingMode() {
+        if (!pageReady) return;
+        String mode = pendingMode;
+        pendingMode = ChaChaWidgetProvider.MODE_TYPE;
         if (ChaChaWidgetProvider.MODE_STATUS.equals(mode)) {
-            submit("Allo");
+            eval("window.chachaSubmit && window.chachaSubmit('Allo');");
         } else if (ChaChaWidgetProvider.MODE_VOICE.equals(mode)) {
             main.postDelayed(this::startVoice, 180);
         } else {
-            main.postDelayed(() -> {
-                input.requestFocus();
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null) imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
-            }, 180);
+            eval("window.chachaSetPrompt && window.chachaSetPrompt('');");
         }
+    }
+
+    private void eval(String js) {
+        if (pageReady && webView != null) webView.evaluateJavascript(js, null);
     }
 
     private void startVoice() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Demander à ChaCha DEV…");
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Demander à ChaCha…");
         try {
             startActivityForResult(intent, VOICE_REQUEST);
         } catch (ActivityNotFoundException e) {
-            state.setText("DICTÉE INDISPONIBLE");
-            result.setText("Aucun service de reconnaissance vocale n’est disponible sur ce téléphone.");
+            eval("window.chachaSetPrompt && window.chachaSetPrompt('Dictée indisponible sur ce téléphone');");
         }
     }
 
@@ -131,196 +195,53 @@ public class OperatorActivity extends Activity {
         if (requestCode == VOICE_REQUEST && resultCode == RESULT_OK && data != null) {
             ArrayList<String> choices = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             if (choices != null && !choices.isEmpty()) {
-                input.setText(choices.get(0));
-                input.setSelection(input.length());
+                eval("window.chachaSetPrompt && window.chachaSetPrompt(" + JSONObject.quote(choices.get(0)) + ");");
             }
         }
     }
 
-    private void submit(String text) {
-        final String trimmed = text == null ? "" : text.trim();
-        if (trimmed.isEmpty()) return;
-        showContextMode();
-        send.setEnabled(false);
-        state.setText("TRANSMISSION");
-        headline.setText("ChaCha prend ta demande ✨");
-        result.setText("Transmission au cerveau central…");
-        ChaChaWidgetProvider.updateContext(this, 86, 5, "ChaCha prend ta demande…", "TRANSMISSION");
-
-        executor.execute(() -> {
-            try {
-                JSONObject accepted = postJson("/api/v1/intent", new JSONObject().put("text", trimmed));
-                String jobId = accepted.getString("job_id");
-                JSONObject job = waitForJob(jobId);
-                JSONObject response = job.getJSONObject("response");
-                String status = response.optString("status", "OK");
-                String next = response.optString("next_action", "");
-                String project = response.optString("project_id", "");
-                String message = status;
-                if (!next.isEmpty()) message += "\n\n" + next;
-                if (!project.isEmpty()) message += "\n\nProjet : " + project;
-                final String finalMessage = message;
-                main.post(() -> {
-                    state.setText(status);
-                    headline.setText("Réponse du cerveau central");
-                    result.setText(finalMessage);
-                    ChaChaWidgetProvider.updateContext(OperatorActivity.this, currentGlobal(), 100,
-                            "✓ " + shortText(status + (next.isEmpty() ? "" : " • " + next), 120), status);
-                    send.setEnabled(true);
-                });
-            } catch (Exception e) {
-                String message = friendlyError(e);
-                main.post(() -> {
-                    state.setText("ERREUR");
-                    headline.setText("ChaCha a rencontré un problème");
-                    result.setText(message);
-                    ChaChaWidgetProvider.updateContext(OperatorActivity.this, currentGlobal(), currentWork(),
-                            "⚠ " + shortText(message, 120), "ERREUR");
-                    send.setEnabled(true);
-                });
-            }
-        });
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        pendingMode = modeFrom(intent);
+        handlePendingMode();
     }
 
-    private JSONObject waitForJob(String jobId) throws Exception {
-        for (int i = 0; i < 900; i++) {
-            Thread.sleep(800);
-            JSONObject job = getJson("/api/v1/jobs/" + jobId);
-            String s = job.optString("state", "...");
-            final String shown = s;
-            try {
-                JSONObject progress = getJson("/api/v1/progress");
-                main.post(() -> applyProgress(progress));
-            } catch (Exception ignored) {
-                main.post(() -> state.setText(shown));
-            }
-            if ("COMPLETE".equals(s)) return job;
-            if ("FAILED".equals(s)) throw new IllegalStateException(job.optString("error", "Échec ChaCha DEV"));
-        }
-        throw new IllegalStateException("Le cerveau central n’a pas produit de receipt dans la fenêtre d’attente.");
+    private void showFallback() {
+        showFallbackMessage("ChaCha est momentanément hors ligne", "Vérifie Tailscale puis réessaie. Le widget et l’application restent installés.");
     }
 
-    private void showContextMode() {
-        inputPanel.setVisibility(android.view.View.GONE);
-        contextPanel.setVisibility(android.view.View.VISIBLE);
+    private void showFallbackMessage(String title, String detail) {
+        pageReady = false;
+        String html = "<!doctype html><html><head><meta name='viewport' content='width=device-width,initial-scale=1'>" +
+                "<style>body{font-family:system-ui;background:#111116;color:#fff;margin:0;padding:28px}" +
+                ".c{max-width:540px;margin:14vh auto;background:#211e29;border:1px solid #423b50;border-radius:24px;padding:24px}" +
+                "h1{font-size:24px}p{color:#b8b2c4;line-height:1.5}a{display:block;text-align:center;margin-top:20px;padding:14px;border-radius:15px;background:#7c5cff;color:white;text-decoration:none;font-weight:800}</style></head>" +
+                "<body><div class='c'><div style='font-size:36px'>💨</div><h1>" + escapeHtml(title) + "</h1><p>" + escapeHtml(detail) +
+                "</p><a href='chacha://retry'>Réessayer</a></div></body></html>";
+        webView.loadDataWithBaseURL(baseUrl + "/", html, "text/html", "UTF-8", null);
     }
 
-    private void showInputMode() {
-        contextPanel.setVisibility(android.view.View.GONE);
-        inputPanel.setVisibility(android.view.View.VISIBLE);
-        input.requestFocus();
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null) imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+    private String escapeHtml(String value) {
+        return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace(""", "&quot;");
     }
 
-    private int currentGlobal() {
-        Object tag = globalProgress.getTag();
-        return tag instanceof Integer ? (Integer) tag : globalProgress.getProgress();
-    }
-
-    private int currentWork() {
-        Object tag = workProgress.getTag();
-        return tag instanceof Integer ? (Integer) tag : workProgress.getProgress();
-    }
-
-    private void applyProgress(JSONObject p) {
-        int global = p.optInt("platform_maturity_percent", 86);
-        int work = p.optInt("active_work_percent", 0);
-        String globalText = p.optString("platform_maturity_label", "ChaCha DEV global");
-        String h = p.optString("headline", "ChaCha est prêt ✨");
-        String st = p.optString("status", "IDLE");
-
-        globalProgress.setProgress(global);
-        globalProgress.setTag(global);
-        globalPercent.setText(global + "%");
-        globalLabel.setText(globalText);
-        workProgress.setProgress(work);
-        workProgress.setTag(work);
-        workPercent.setText(work + "%");
-        headline.setText(h);
-        state.setText(st);
-
-        JSONObject modules = p.optJSONObject("modules");
-        String[] ids = new String[]{"direct-operator-service","functional-translator-satellite","central-interface-controller","central-orchestrator"};
-        for (int i = 0; i < ids.length; i++) {
-            JSONObject m = modules == null ? null : modules.optJSONObject(ids[i]);
-            if (m == null) continue;
-            int pct = m.optInt("percent", 0);
-            moduleProgress[i].setProgress(pct);
-            String icon = m.optString("icon", "•");
-            String label = m.optString("label", ids[i]);
-            String detail = m.optString("detail", "");
-            moduleLabels[i].setText(icon + " " + label + "  ·  " + pct + "%" + (detail.isEmpty() ? "" : "\n" + detail));
-        }
-
-        ChaChaWidgetProvider.updateContext(this, global, work, h, st);
-    }
-
-    private void refreshProgressOnce() {
-        executor.execute(() -> {
-            try {
-                JSONObject p = getJson("/api/v1/progress");
-                main.post(() -> applyProgress(p));
-            } catch (Exception ignored) {}
-        });
-    }
-
-    private JSONObject postJson(String path, JSONObject payload) throws Exception {
-        HttpsURLConnection c = open(path, "POST");
-        c.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-        byte[] body = payload.toString().getBytes(StandardCharsets.UTF_8);
-        c.setFixedLengthStreamingMode(body.length);
-        try (OutputStream os = c.getOutputStream()) { os.write(body); }
-        return readJson(c);
-    }
-
-    private JSONObject getJson(String path) throws Exception {
-        return readJson(open(path, "GET"));
-    }
-
-    private HttpsURLConnection open(String path, String method) throws Exception {
-        URL url = new URL(baseUrl + path);
-        HttpsURLConnection c = (HttpsURLConnection) url.openConnection();
-        c.setRequestMethod(method);
-        c.setConnectTimeout(10000);
-        c.setReadTimeout(20000);
-        c.setUseCaches(false);
-        c.setRequestProperty("Accept", "application/json");
-        if ("POST".equals(method)) c.setDoOutput(true);
-        return c;
-    }
-
-    private JSONObject readJson(HttpURLConnection c) throws Exception {
-        int code = c.getResponseCode();
-        InputStream in = code >= 200 && code < 300 ? c.getInputStream() : c.getErrorStream();
-        StringBuilder sb = new StringBuilder();
-        if (in != null) {
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = br.readLine()) != null) sb.append(line);
-            }
-        }
-        if (code == 403) throw new SecurityException("TAILSCALE_IDENTITY_REQUIRED");
-        if (code < 200 || code >= 300) throw new IllegalStateException("HTTP " + code + " " + sb);
-        return new JSONObject(sb.toString());
-    }
-
-    private String friendlyError(Exception e) {
-        String m = e.getMessage() == null ? e.toString() : e.getMessage();
-        if (m.contains("TAILSCALE") || m.contains("Unable to resolve host") || m.contains("Connect")) {
-            return "Connexion privée indisponible. Ouvre Tailscale et vérifie que le téléphone est connecté à ton tailnet, puis réessaie.";
-        }
-        return m;
-    }
-
-    private static String shortText(String text, int max) {
-        if (text.length() <= max) return text;
-        return text.substring(0, Math.max(1, max - 1)) + "…";
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ChaChaWidgetProvider.refreshRemote(this);
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        if (webView != null) {
+            webView.stopLoading();
+            webView.loadUrl("about:blank");
+            webView.destroy();
+            webView = null;
+        }
         executor.shutdownNow();
+        super.onDestroy();
     }
 }
