@@ -111,7 +111,10 @@ def publish(repo:Path,policy:dict[str,Any],revision:str,handoff:dict[str,Any],re
         if src.is_dir():dst.mkdir(parents=True,exist_ok=True)
         elif src.is_file():
             dst.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(src,dst)
-    shutil.copy2(cfg,staging/"app-config.json")
+    app_config=load(cfg)
+    app_config["published_revision"]=revision
+    app_config["published_at"]=time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())
+    save(staging/"app-config.json",app_config)
     m=manifest_for(staging,revision);save(staging/"manifest.json",m)
     previous=None
     link=root/str(policy.get("current_symlink") or "current")
