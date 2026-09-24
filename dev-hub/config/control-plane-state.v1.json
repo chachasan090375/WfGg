@@ -16,7 +16,8 @@
     "lifecycle_stage_changes_are_audited_transactions": true,
     "project_control_transaction_receipts_are_recovery_evidence": true,
     "recovery_never_rewrites_audit_history": true,
-    "recovery_fault_injection_is_sandbox_only": true
+    "recovery_fault_injection_is_sandbox_only": true,
+    "platform_component_apply_handoffs_are_audited": true
   },
   "storage": {
     "runtime_root": "/opt/chacha-dev/runtime/state",
@@ -74,7 +75,8 @@
     "SIGNING_KEY_ACTIVATED",
     "SIGNING_KEY_ROTATED",
     "SIGNING_KEY_REVOKED",
-    "PROJECT_RETIRED"
+    "PROJECT_RETIRED",
+    "PLATFORM_COMPONENT_APPLY_HANDOFF_ISSUED"
   ],
   "cryptographic_trust": {
     "policy": "dev-hub/config/cryptographic-trust.v1.json",
