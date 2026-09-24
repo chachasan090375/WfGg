@@ -113,6 +113,7 @@ p.write_text(json.dumps(x)+'\\n');print(json.dumps(x))
     assert p.returncode!=0,p
     r6=load(out6)
     assert r6["status"]=="BRAIN_UNAVAILABLE",r6
+    assert r6["brain_decision_obtained"] is False,r6
     assert r6["interface_direct_technical_decision"] is False,r6
 
     # Journal is append-only and hash chained.
