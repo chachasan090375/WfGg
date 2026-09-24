@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 900,
   "action_lease_default_seconds": 300,
@@ -565,6 +565,17 @@
         "file": "dev-hub/bin/progress_state_controller.py",
         "marker": "SCHEMA=\"chacha.dev/platform-progress/v1\""
       }
+    },
+    {
+      "component_id": "live-ui-publisher",
+      "role": "live-ui-publisher",
+      "kind": "controller",
+      "enforcement_point": "live-ui-publisher.exact-sha-atomic-switch",
+      "criticality": "HIGH",
+      "proof": {
+        "file": "dev-hub/bin/live_ui_publisher.py",
+        "marker": "LIVE_UI_EXACT_SHA_GATES_MISSING"
+      }
     }
   ],
   "safety_exemptions": [
@@ -576,8 +587,8 @@
   "automatic_external_spend_eur": 0,
   "d1_write_budget": {
     "coverage_heartbeat_interval_seconds": 300,
-    "expected_max_component_heartbeat_writes_per_day": 14688,
-    "calculation": "51 components * 12 heartbeats/hour * 24 hours",
+    "expected_max_component_heartbeat_writes_per_day": 14976,
+    "calculation": "52 components * 12 heartbeats/hour * 24 hours",
     "ci_sync_mode": "DIGEST_AWARE_DELTA",
     "automatic_paid_upgrade": false,
     "automatic_external_spend_eur": 0
