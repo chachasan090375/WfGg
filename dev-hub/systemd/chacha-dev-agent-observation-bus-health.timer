@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily ChaCha DEV Agent Observation Bus Health
+[Timer]
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=10m
+Unit=chacha-dev-agent-observation-bus-health.service
+[Install]
+WantedBy=timers.target

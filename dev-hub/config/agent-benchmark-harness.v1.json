@@ -1,0 +1,79 @@
+{
+  "schema": "chacha.dev/agent-benchmark-harness-policy/v1",
+  "version": "1.0.0",
+  "purpose": "Convert scheduled agent audits and ecosystem benchmarks into isolated comparable benchmark campaigns without manufacturing production truth.",
+  "action_types": [
+    "DEEP_AGENT_AUDIT",
+    "ECOSYSTEM_BENCHMARK"
+  ],
+  "fixture_families": {
+    "assurance": [
+      "guardian",
+      "sentinel",
+      "bastion",
+      "curator",
+      "intendant"
+    ],
+    "recovery": [
+      "autonomous-recovery-agent",
+      "recovery-engineer"
+    ],
+    "reasoning": [
+      "logician",
+      "ergonomist"
+    ],
+    "foundry": [
+      "agent-foundry-architect",
+      "branch-foundry-architect",
+      "capability-foundry-architect"
+    ],
+    "security": [
+      "security-reviewer"
+    ],
+    "testing": [
+      "test-engineer"
+    ],
+    "architecture": [
+      "product-domain-architect",
+      "frontend-architect",
+      "backend-api-architect",
+      "data-architect",
+      "platform-cloud-engineer",
+      "sre-observability-engineer",
+      "performance-engineer",
+      "release-engineer",
+      "integration-architect"
+    ],
+    "language_content": [
+      "documentation-adr-agent",
+      "translation-specialist",
+      "publication-specialist",
+      "graphics-specialist",
+      "animation-specialist",
+      "ui-layout-specialist"
+    ],
+    "default": [
+      "acceptance-engineer",
+      "knowledge-compiler-agent",
+      "uncertainty-resolution-agent",
+      "contract-integrator",
+      "technology-watch-agent"
+    ]
+  },
+  "invariants": {
+    "isolated_execution": true,
+    "incumbent_control_group": true,
+    "logician_challenge_required": true,
+    "technology_watch_revalidation_required": true,
+    "independent_oracle_required_for_quality": true,
+    "benchmark_fixture_is_production_truth": false,
+    "agent_self_scoring_authority": false,
+    "agent_self_promotion": false,
+    "direct_agent_mutation": false,
+    "candidate_owner": "agent-foundry",
+    "shadow_required_for_candidate": true,
+    "pilot_required_for_material_change": true,
+    "architecture_council_final_authority": true,
+    "automatic_external_spend_eur": 0
+  }
+}

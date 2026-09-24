@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/technology-watch-logician-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "owner_role": "logician",
   "decision_authority": "technology-watch-agent",
   "purpose": "Design falsification paths and adaptive verification strategies for Technology Watch without selecting technologies.",
@@ -54,6 +54,36 @@
       "id": "SHADOW_COMPARISON",
       "information_gain": 96,
       "cost_rank": 3
+    },
+    {
+      "id": "OBSERVATION_BUS_SCHEMA_FUZZ",
+      "information_gain": 96,
+      "cost_rank": 2
+    },
+    {
+      "id": "OBSERVATION_BUS_SOURCE_SPOOF_PROBE",
+      "information_gain": 98,
+      "cost_rank": 2
+    },
+    {
+      "id": "OBSERVATION_BUS_CHAIN_TAMPER_PROBE",
+      "information_gain": 100,
+      "cost_rank": 2
+    },
+    {
+      "id": "OBSERVATION_BUS_SHADOW_REPLAY",
+      "information_gain": 95,
+      "cost_rank": 3
+    },
+    {
+      "id": "OBSERVATION_BUS_INVENTORY_DRIFT_PROBE",
+      "information_gain": 92,
+      "cost_rank": 2
+    },
+    {
+      "id": "OBSERVATION_BUS_BACKPRESSURE_PROBE",
+      "information_gain": 88,
+      "cost_rank": 3
     }
   ],
   "principles": {
@@ -64,6 +94,7 @@
     "current_solution_is_a_candidate": true,
     "direct_mutation": false,
     "architecture_council_final_authority": true,
-    "automatic_external_spend_eur": 0
+    "automatic_external_spend_eur": 0,
+    "observation_bus_cannot_self_validate_promotion": true
   }
 }

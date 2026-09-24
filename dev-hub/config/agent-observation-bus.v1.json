@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-observation-bus-policy/v1",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "purpose": "Collect evidence-backed agent observations at common ChaCha DEV boundaries and trigger reassessment without self-mutation.",
   "storage": {
     "database": "agent-observation/observations.db",
@@ -135,5 +135,65 @@
     "ecosystem_benchmark_days": 30,
     "scheduled_reassessment_only": true,
     "direct_candidate_materialization": false
+  },
+  "self_health": {
+    "enabled": true,
+    "monitor": "agent-observation-bus-health",
+    "health_report": "agent-observation/bus-health-latest.json",
+    "state": "agent-observation/bus-health-state.json",
+    "platform_reassessment_queue": "platform-evolution/reassessment-queue",
+    "lightweight_health_hours": 24,
+    "deep_audit_days": 7,
+    "ecosystem_benchmark_days": 30,
+    "thresholds": {
+      "max_reassessment_queue_backlog": 100,
+      "max_shadow_publish_p95_ms": 100,
+      "min_free_disk_pct": 10
+    },
+    "evolution": {
+      "direct_self_mutation": false,
+      "self_promotion": false,
+      "monitor_can_promote": false,
+      "technology_watch_revalidation_required": true,
+      "logician_falsification_required": true,
+      "candidate_owner": "capability-foundry",
+      "candidate_isolated": true,
+      "incumbent_control_group": true,
+      "shadow_required": true,
+      "pilot_required": true,
+      "backward_compatibility_required": true,
+      "exact_revision_evidence_required": true,
+      "rollback_required": true,
+      "guardian_required": true,
+      "sentinel_required": true,
+      "architecture_council_final_authority": true,
+      "latest_version_priority": false
+    },
+    "falsification_routes": [
+      "SELF_VERIFICATION_ATTACK",
+      "SOURCE_SPOOFING",
+      "HASH_CHAIN_TAMPER",
+      "DUPLICATE_STORM",
+      "CONCURRENT_PUBLISH",
+      "SQLITE_INTEGRITY_FAILURE",
+      "SCHEMA_DRIFT",
+      "LEGACY_CONTRACT_COMPATIBILITY",
+      "RUNTIME_ROOT_ESCAPE",
+      "QUEUE_BACKLOG",
+      "TRIGGER_FALSE_POSITIVE",
+      "TRIGGER_FALSE_NEGATIVE",
+      "AGENT_INVENTORY_CHANGE",
+      "CAPABILITY_DRIFT",
+      "STORAGE_PRESSURE",
+      "LATENCY_REGRESSION"
+    ]
+  },
+  "agent_change_integration": {
+    "inventory_fingerprint_required": true,
+    "role_change_requires_bus_reassessment": true,
+    "capability_change_requires_bus_reassessment": true,
+    "new_agent_requires_instrumentation_review": true,
+    "removed_agent_requires_instrumentation_review": true,
+    "generic_event_contract_must_survive_agent_changes": true
   }
 }
