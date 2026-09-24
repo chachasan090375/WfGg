@@ -44,11 +44,17 @@ def executor(cmd,result_path,variant,artifact_ref):
     result_path.write_text(json.dumps(metrics)+"\n",encoding="utf-8")
     return 0,"ok",""
 
+guardian_calls=[]
+def guardian_provider(repo_root,run_root,phase,contract,result_status=None):
+    guardian_calls.append({"phase":phase,"result_status":result_status})
+    return {"verdict":"ALLOW","status":"PASS"}
+
 with tempfile.TemporaryDirectory(prefix="platform-pilot-runner-") as td:
-    out=runner.execute(contract,sentinel,ROOT,Path(td),executor)
+    out=runner.execute(contract,sentinel,ROOT,Path(td),executor,guardian_provider)
 
 assert out["status"]=="PASS",out
 assert len(calls)==2,calls
+assert [x["phase"] for x in guardian_calls]==["PRE_ACTION","POST_ACTION"],guardian_calls
 assert calls[0]["variant"]=="INCUMBENT" and calls[1]["variant"]=="CANDIDATE",calls
 assert calls[0]["cmd"][0]=="/usr/bin/systemd-run",calls[0]
 assert calls[1]["cmd"][0]=="/usr/bin/systemd-run",calls[1]
@@ -92,6 +98,7 @@ print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_RUNNER=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_SAME_HARNESS=YES")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_ISOLATED_SYSTEMD=YES")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_EXACT_SENTINEL_SHA=YES")
+print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_GUARDIAN_PRE_POST=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_GUARDIAN_COVERAGE=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_CORE_WATCH=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_GUARDIAN_ROLE=PASS")
