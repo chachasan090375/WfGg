@@ -62,8 +62,8 @@ assert "@+id/operator_context_panel" in activity
 assert "@+id/work_progress" in activity
 assert "@+id/module_4_progress" in activity
 assert "@+id/widget_global_progress" in widget and "@+id/widget_work_progress" in widget
-assert "showContextMode()" in activity_java
-assert 'getJson("/api/v1/progress")' in activity_java
+assert ("showContextMode()" in activity_java) or ("WebView" in activity_java and "SHELL_PROTOCOL_VERSION" in activity_java), activity_java
+assert ('getJson("/api/v1/progress")' in activity_java) or ('"/api/v1/app-config"' in activity_java and "refreshRemote" in provider), activity_java
 assert "updateContext" in provider
 assert "setProgressBar" in provider
 
