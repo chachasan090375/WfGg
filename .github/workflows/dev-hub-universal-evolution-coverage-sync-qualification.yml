@@ -24,6 +24,10 @@ on:
       - 'dev-hub/tests/test_platform_component_adapter_binding_gate.py'
       - 'dev-hub/config/platform-component-adapter-binding-gate.v1.json'
       - 'dev-hub/bin/platform-component-adapter-binding-gate.py'
+      - '.github/workflows/dev-hub-platform-adapter-registry-writer-qualification.yml'
+      - 'dev-hub/bin/platform-component-adapter-registry-writer.py'
+      - 'dev-hub/config/platform-component-adapter-registry-writer.v1.json'
+      - 'dev-hub/tests/test_platform_component_adapter_registry_writer.py'
       - '.github/workflows/dev-hub-platform-branch-foundry-source-integrator-qualification.yml'
       - 'dev-hub/tests/test_platform_component_branch_foundry_source_integrator.py'
       - 'dev-hub/config/platform-component-branch-foundry-source-integrator.v1.json'
@@ -76,7 +80,7 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
-          python3 -m py_compile dev-hub/bin/component_evolution_governance.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_observation_bus_health.py dev-hub/bin/platform_component_evolution_controller.py dev-hub/bin/branch-foundry-planner.py dev-hub/bin/capability-foundry.py dev-hub/tests/test_universal_evolution_coverage_sync.py dev-hub/tests/test_evolution_source_catalog_drift.py dev-hub/tests/test_platform_reassessment_routing.py dev-hub/tests/test_platform_foundry_dispatch.py dev-hub/tests/test_platform_foundry_native_reassessment.py dev-hub/tests/test_platform_shadow_idempotency.py dev-hub/tests/test_platform_pilot_readiness.py dev-hub/tests/test_platform_pilot_contract_gate.py dev-hub/tests/test_platform_component_pilot_runner.py dev-hub/bin/architecture-council-platform-component-review.py dev-hub/tests/test_architecture_council_platform_component_review.py dev-hub/bin/project-control.py dev-hub/bin/project-control-api.py dev-hub/tests/test_project_control_bootstrap.py dev-hub/bin/platform-component-promotion-gate.py dev-hub/tests/test_platform_component_promotion_gate.py dev-hub/bin/platform-component-controlled-apply-planner.py dev-hub/tests/test_platform_component_controlled_apply_planner.py dev-hub/bin/platform-component-source-integration-executor.py dev-hub/tests/test_platform_component_source_integration_executor.py dev-hub/bin/platform-component-adapter-binding-gate.py dev-hub/tests/test_platform_component_adapter_binding_gate.py dev-hub/tests/test_platform_component_apply_handoff.py dev-hub/tests/test_platform_component_adapter_registration.py dev-hub/adapters/platform-component-branch-foundry-source-integrator.py dev-hub/tests/test_platform_component_branch_foundry_source_integrator.py dev-hub/bin/adapter-provision.py dev-hub/tests/test_platform_component_branch_foundry_source_integrator_provisioning.py
+          python3 -m py_compile dev-hub/bin/component_evolution_governance.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_observation_bus_health.py dev-hub/bin/platform_component_evolution_controller.py dev-hub/bin/branch-foundry-planner.py dev-hub/bin/capability-foundry.py dev-hub/tests/test_universal_evolution_coverage_sync.py dev-hub/tests/test_evolution_source_catalog_drift.py dev-hub/tests/test_platform_reassessment_routing.py dev-hub/tests/test_platform_foundry_dispatch.py dev-hub/tests/test_platform_foundry_native_reassessment.py dev-hub/tests/test_platform_shadow_idempotency.py dev-hub/tests/test_platform_pilot_readiness.py dev-hub/tests/test_platform_pilot_contract_gate.py dev-hub/tests/test_platform_component_pilot_runner.py dev-hub/bin/architecture-council-platform-component-review.py dev-hub/tests/test_architecture_council_platform_component_review.py dev-hub/bin/project-control.py dev-hub/bin/project-control-api.py dev-hub/tests/test_project_control_bootstrap.py dev-hub/bin/platform-component-promotion-gate.py dev-hub/tests/test_platform_component_promotion_gate.py dev-hub/bin/platform-component-controlled-apply-planner.py dev-hub/tests/test_platform_component_controlled_apply_planner.py dev-hub/bin/platform-component-source-integration-executor.py dev-hub/tests/test_platform_component_source_integration_executor.py dev-hub/bin/platform-component-adapter-binding-gate.py dev-hub/tests/test_platform_component_adapter_binding_gate.py dev-hub/tests/test_platform_component_apply_handoff.py dev-hub/tests/test_platform_component_adapter_registration.py dev-hub/bin/platform-component-adapter-registry-writer.py dev-hub/tests/test_platform_component_adapter_registry_writer.py dev-hub/adapters/platform-component-branch-foundry-source-integrator.py dev-hub/tests/test_platform_component_branch_foundry_source_integrator.py dev-hub/bin/adapter-provision.py dev-hub/tests/test_platform_component_branch_foundry_source_integrator_provisioning.py
           python3 -m json.tool dev-hub/config/universal-evolution-governance.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-observation-bus.v1.json >/dev/null
@@ -89,6 +93,7 @@ jobs:
           python3 -m json.tool dev-hub/config/project-control.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/control-plane-state.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/platform-component-apply-adapter-registry.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/platform-component-adapter-registry-writer.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/platform-component-adapter-binding-gate.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/platform-component-branch-foundry-source-integrator.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/adapter-provisioning.v1.json >/dev/null
@@ -226,6 +231,20 @@ jobs:
           grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_API_SYNTHESIS=NO' /tmp/platform-adapter-registration.out
           grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_MUTATION_DURING_ISSUANCE=NO' /tmp/platform-adapter-registration.out
           grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/platform-adapter-registration.out
+      - name: Contract-bound platform adapter registry writer
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_component_adapter_registry_writer.py | tee /tmp/platform-adapter-registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_WRITER=PASS' /tmp/platform-adapter-registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_EXPLICIT_APPLY=REQUIRED' /tmp/platform-adapter-registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_SINGLE_KEY=YES' /tmp/platform-adapter-registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_OVERWRITE=NO' /tmp/platform-adapter-registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_UNRELATED_DELETE=NO' /tmp/platform-adapter-registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_SINGLE_USE=YES' /tmp/platform-adapter-registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_ROLLBACK=PASS' /tmp/platform-adapter-registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_POST_GATES=PENDING' /tmp/platform-adapter-registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_SOURCE_INTEGRATION=NO' /tmp/platform-adapter-registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/platform-adapter-registry-writer.out
       - name: Protected platform component promotion gate
         run: |
           set -euo pipefail
@@ -306,6 +325,8 @@ jobs:
           echo PLATFORM_COMPONENT_ADAPTER_BINDING_GATE=PROPOSAL_ONLY
           echo PLATFORM_COMPONENT_ADAPTER_AUTOMATIC_REGISTRATION=NO
           echo PLATFORM_COMPONENT_ADAPTER_REGISTRATION_CONTRACT=PROJECT_CONTROL_PROTECTED
+          echo PLATFORM_COMPONENT_ADAPTER_REGISTRY_WRITER=CONTRACT_BOUND
+          echo PLATFORM_COMPONENT_ADAPTER_REGISTRY_SOURCE_INTEGRATION=NO
           echo SELF_MUTATION=NO
           echo SELF_PROMOTION=NO
           echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
