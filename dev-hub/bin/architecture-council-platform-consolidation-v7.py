@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import argparse,json,urllib.parse,urllib.request
+import argparse,hashlib,json,urllib.parse,urllib.request
 from datetime import datetime,timezone
 from pathlib import Path
 from typing import Any
@@ -26,6 +26,8 @@ def github_runs(repository:str,revision:str)->dict[str,Any]:
 def workflow_ok(runs:dict[str,Any],name:str,revision:str)->bool:
     return any(isinstance(x,dict) and x.get("name")==name and x.get("head_sha")==revision and
       x.get("status")=="completed" and x.get("conclusion")=="success" for x in (runs.get("workflow_runs") or []))
+def file_digest(path:Path)->str:
+    return "sha256:"+hashlib.sha256(path.read_bytes()).hexdigest()
 
 def main()->int:
     ap=argparse.ArgumentParser()
@@ -35,6 +37,7 @@ def main()->int:
     ap.add_argument("--revision",required=True)
     ap.add_argument("--output",type=Path,required=True)
     ap.add_argument("--github-runs-json",type=Path)
+    ap.add_argument("--guardian-realtime-result",type=Path)
     ap.add_argument("--operator-explicit-purge-approval",action="store_true")
     a=ap.parse_args()
     plan=load(a.plan);policy=load(a.policy);guardian=load(a.guardian_coverage)
@@ -44,14 +47,23 @@ def main()->int:
     active=str(plan.get("active_release") or "")
     retired=[x for x in rows if x.get("action")=="RETIRE"]
     kept=[x for x in rows if x.get("action")=="KEEP"]
-    max_keep=int(((policy.get("physical_release_retention") or {}).get("max_physical_releases_after_v7") or 3))
+    retention=policy.get("physical_release_retention") or {}
+    execution=policy.get("execution") or {}
+    max_keep=int(retention.get("max_physical_releases_after_consolidation") or 3)
+    sentinel_name=str(execution.get("sentinel_workflow") or "ChaCha DEV Sentinel technical assurance")
+    qualification_name=str(execution.get("exact_revision_qualification_workflow") or "ChaCha DEV V7 platform qualification")
+    realtime={}
+    if a.guardian_realtime_result and a.guardian_realtime_result.is_file():
+        realtime=load(a.guardian_realtime_result)
+    realtime_pass=str(realtime.get("verdict") or "") in {"PASS","WARNING"} if execution.get("guardian_realtime_verdict_required") is True else True
     checks={
       "guardian_pass":guardian.get("all_hooks_active") is True,
-      "sentinel_exact_revision_pass":workflow_ok(runs,"ChaCha DEV Sentinel technical assurance",rev),
-      "v7_qualification_exact_revision_pass":workflow_ok(runs,"ChaCha DEV V7 consolidated platform baseline qualification",rev),
+      "guardian_realtime_pass":realtime_pass,
+      "sentinel_exact_revision_pass":workflow_ok(runs,sentinel_name,rev),
+      "v7_qualification_exact_revision_pass":workflow_ok(runs,qualification_name,rev),
       "architecture_council_approval":True,
-      "v7_runtime_health_pass":str(plan.get("active_version") or "")=="7.0.0" and str(plan.get("active_revision") or "")==rev,
-      "rollback_release_verified":not (plan.get("missing_verified_rollback_revisions") or []),
+      "v7_runtime_health_pass":str(plan.get("active_version") or "").startswith("7.") and str(plan.get("active_revision") or "")==rev,
+      "rollback_release_verified":int(plan.get("missing_verified_rollback_count") or 0)==0,
       "active_release_protected":bool(active) and all(str(x.get("path") or "")!=active for x in retired),
       "physical_retention_within_policy":len(kept)<=max_keep,
       "git_history_preserved":plan.get("git_history_preserved") is True,
@@ -62,10 +74,11 @@ def main()->int:
     }
     passed=all(checks.values())
     result={
-      "schema":SCHEMA,"generated_at":now_iso(),"revision":rev,
+      "schema":SCHEMA,"generated_at":now_iso(),"revision":rev,"plan_digest":file_digest(a.plan),
       "review_authority":"architecture-council","owner_agent":"intendant",
       "checks":{
         "guardian_pass":checks["guardian_pass"],
+        "guardian_realtime_pass":checks["guardian_realtime_pass"],
         "sentinel_exact_revision_pass":checks["sentinel_exact_revision_pass"],
         "architecture_council_approval":passed,
         "v7_runtime_health_pass":checks["v7_runtime_health_pass"],
