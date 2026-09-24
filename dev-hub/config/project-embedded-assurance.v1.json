@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/project-embedded-assurance-policy/v1",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "scope": "PLATFORM_GLOBAL",
   "mandatory_for_all_projects": true,
   "bundle": {
@@ -200,7 +200,13 @@
     "local_agents_may_apply_fix": false,
     "local_agents_may_deploy": false,
     "central_orchestrator_owns_remediation": true,
-    "remote_remediation_deferred_to_fleet_control": true
+    "remote_remediation_deferred_to_fleet_control": true,
+    "local_agents_may_self_update": false,
+    "local_agents_may_self_promote": false,
+    "local_technology_watch": false,
+    "local_logician": false,
+    "local_foundries": false,
+    "local_benchmark_orchestrator": false
   },
   "economics": {
     "automatic_external_spend_eur": 0
@@ -215,5 +221,6 @@
     "all_five_local_probes_incremental": true,
     "specialist_authorities_publish_reviews_to_exchange": true,
     "local_specialist_probes_report_to_specialist_authorities": true
-  }
+  },
+  "lightweight_agent_runtime_profile": "dev-hub/config/lightweight-agent-runtime-profile.v1.json"
 }

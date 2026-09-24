@@ -9,6 +9,7 @@ import agent_benchmark_harness as abh
 import agent_benchmark_campaign_runner as abcr
 import technology_watch_runtime as tw
 import agent_evolution_profile as aep
+import component_evolution_governance as ceg
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding="utf-8"))
     if not isinstance(x,dict):raise ValueError("JSON_ROOT_NOT_OBJECT:"+str(p))
@@ -68,6 +69,11 @@ def main()->int:
     adapter_cfg=load(cfg/"agent-benchmark-adapters.v1.json")
     profile_index=aep.build_index(report,routing,seven,[project],adapter_cfg,ep,profile_policy)
     aep.write_profiles(ae/"profiles",profile_index)
+    universal_policy=load(cfg/"universal-evolution-governance.v1.json")
+    component_index=ceg.build_index(profile_index,load(cfg/"technology-core-watch.v1.json"),
+      load(cfg/"provider-adapters.v1.json"),load(cfg/"mcp-provider-catalog.v1.json"),
+      load(cfg/"project-embedded-assurance.v1.json"),universal_policy)
+    save(ae/"component-governance-latest.json",component_index)
     receipt={"schema":"chacha.dev/agent-evolution-daily-cycle/v1","generated_at":iso(stamp),"agent_count":report.get("agent_count"),
       "optimization_count":len(report.get("optimization_queue") or []),"measurement_count":len(report.get("measurement_queue") or []),
       "event_request_count":len(requests),"scheduled_action_count":len(scheduled),"deep_audit_due":deep,"ecosystem_benchmark_due":bench,
@@ -75,6 +81,9 @@ def main()->int:
       "benchmark_contract_count":len((benchmark_campaign or {}).get("contracts") or []),
       "benchmark_run_promoted_count":int((locals().get("benchmark_run") or {}).get("promoted_count") or 0),
       "universal_profile_count":profile_index.get("profile_count"),"universal_profiles_generated":True,
+      "universal_component_governance_count":component_index.get("component_count"),
+      "single_evolution_owner_per_component":component_index.get("single_evolution_owner_per_component"),
+      "no_parallel_governance_engines":component_index.get("no_parallel_governance_engines"),
       "technology_watch":tw.snapshot_status(root),"direct_agent_mutation":False,"self_promotion":False,
       "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
     save(ae/"daily-cycle-latest.json",receipt)

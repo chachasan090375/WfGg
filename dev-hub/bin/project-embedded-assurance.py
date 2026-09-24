@@ -22,8 +22,13 @@ def main()->int:
     ap.add_argument("--policy",type=Path,required=True);ap.add_argument("--runtime-script",type=Path,required=True)
     ap.add_argument("--relay-script",type=Path,required=True);ap.add_argument("--client-runtime",type=Path,required=True)
     ap.add_argument("--functional-contract",type=Path)
+    ap.add_argument("--lightweight-profile",type=Path)
     ap.add_argument("--output-dir",type=Path,required=True);a=ap.parse_args()
     policy=load(a.policy)
+    lightweight_path=(a.lightweight_profile or (Path(__file__).resolve().parents[1]/"config/lightweight-agent-runtime-profile.v1.json")).resolve()
+    lightweight=load(lightweight_path)
+    if lightweight.get("schema")!="chacha.dev/lightweight-agent-runtime-profile/v1":
+        raise SystemExit("LIGHTWEIGHT_AGENT_RUNTIME_PROFILE_INVALID")
     if policy.get("schema")!=POLICY_SCHEMA or policy.get("mandatory_for_all_projects") is not True:
         raise SystemExit("EMBEDDED_ASSURANCE_POLICY_INVALID")
     root=a.output_dir.resolve();root.mkdir(parents=True,exist_ok=True)
@@ -31,6 +36,7 @@ def main()->int:
     relay=root/"project-assurance-relay.py";shutil.copy2(a.relay_script,relay);relay.chmod(0o755)
     client=root/"project-assurance-client.mjs";shutil.copy2(a.client_runtime,client)
     policy_copy=root/"project-embedded-assurance.policy.json";shutil.copy2(a.policy,policy_copy)
+    lightweight_copy=root/"lightweight-agent-runtime-profile.json";shutil.copy2(lightweight_path,lightweight_copy)
     functional_contract_digest=None
     if a.functional_contract and a.functional_contract.is_file():
         functional_contract_digest=digest_file(a.functional_contract)
@@ -62,7 +68,17 @@ def main()->int:
       "curator_local":{"enabled":True,"mode":"LOCAL_EVENT_PROBE","direct_mutation":False},
       "bastion_local":{"enabled":True,"mode":"LOCAL_EVENT_PROBE","direct_mutation":False},
       "intendant_local":{"enabled":True,"mode":"LOCAL_EVENT_PROBE","direct_mutation":False},
-      "local_probes":{role:{"enabled":True,"mode":"LOCAL_EVENT_PROBE","direct_mutation":False} for role in active_roles},
+      "local_probes":{role:{"enabled":True,"mode":"LOCAL_EVENT_PROBE","runtime_profile":"LIGHTWEIGHT_EMBEDDED_AGENT",
+                              "central_governance":True,"direct_mutation":False,"self_promotion":False} for role in active_roles},
+      "lightweight_agent_runtime_profile":{
+        "schema":lightweight.get("schema"),"version":lightweight.get("version"),
+        "governance_class":"LIGHTWEIGHT_EMBEDDED_AGENT","policy_digest":digest_file(lightweight_copy),
+        "local_required_controls":lightweight.get("local_required_controls") or [],
+        "centralized_controls":lightweight.get("centralized_controls") or [],
+        "local_forbidden_controls":lightweight.get("local_forbidden_controls") or [],
+        "technology_watch_local":False,"logician_local":False,"foundry_local":False,
+        "benchmark_orchestrator_local":False,"active_self_mutation":False,"self_promotion":False
+      },
       "relay":{"mode":"SERVER_SIDE_ONLY","client_direct_to_central":False,
                "private_key_embedded_in_client":False,"incremental":True,
                "same_origin_client_endpoint":"/__chacha/assurance/v1/events",
@@ -74,7 +90,7 @@ def main()->int:
       "privacy":{"raw_user_content":False,"raw_prompt":False,"raw_message":False,
                  "credentials":False,"secrets":False,"client_side_secret":False},
       "paths":{"runtime":str(runtime),"relay":str(relay),"client_runtime":str(client),
-               "policy":str(policy_copy),
+               "policy":str(policy_copy),"lightweight_profile":str(lightweight_copy),
                "identity_request":str(root/"project-assurance-identity-request.json"),
                "guardian_outbox":str(root/"outbox/guardian"),
                "sentinel_outbox":str(root/"outbox/sentinel"),

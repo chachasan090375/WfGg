@@ -1,0 +1,229 @@
+{
+  "schema": "chacha.dev/universal-evolution-governance-policy/v1",
+  "version": "1.0.0",
+  "purpose": "Apply the right evolution controls to every evolvable ChaCha DEV component without duplicating agent responsibilities.",
+  "principles": {
+    "one_evolution_owner_per_component": true,
+    "no_parallel_governance_engines": true,
+    "evidence_first": true,
+    "unknown_remains_unknown": true,
+    "active_self_mutation": false,
+    "self_promotion": false,
+    "permission_expansion": false,
+    "latest_version_priority": false,
+    "technology_watch_revalidation_required": true,
+    "logician_falsification_required": true,
+    "guardian_required_for_material_change": true,
+    "sentinel_required_for_material_change": true,
+    "architecture_council_final_authority": true,
+    "automatic_external_spend_eur": 0
+  },
+  "core_class_map": {
+    "orchestration": "CORE_PLATFORM_COMPONENT",
+    "governance": "CORE_PLATFORM_COMPONENT",
+    "reasoning": "CORE_PLATFORM_COMPONENT",
+    "foundry": "CORE_PLATFORM_COMPONENT",
+    "agents": "CORE_PLATFORM_COMPONENT",
+    "assurance": "CORE_PLATFORM_COMPONENT",
+    "security": "CORE_PLATFORM_COMPONENT",
+    "operations": "CORE_PLATFORM_COMPONENT",
+    "verification": "CORE_PLATFORM_COMPONENT",
+    "execution": "CORE_PLATFORM_COMPONENT",
+    "knowledge": "CORE_PLATFORM_COMPONENT",
+    "integration": "CONNECTOR_ADAPTER",
+    "surface": "RUNTIME_INFRASTRUCTURE",
+    "language-runtime": "RUNTIME_INFRASTRUCTURE",
+    "observability-evolution": "CORE_PLATFORM_COMPONENT"
+  },
+  "classes": {
+    "FULL_AGENT": {
+      "candidate_owner": "agent-foundry",
+      "agent_scorecard": true,
+      "independent_component_scorecard": false,
+      "required_controls": [
+        "observation-bus",
+        "fleet-observatory",
+        "technology-watch",
+        "logician",
+        "benchmark",
+        "qualification",
+        "shadow",
+        "pilot",
+        "rollback",
+        "guardian",
+        "sentinel"
+      ],
+      "central_only_controls": [
+        "foundries",
+        "promotion-decision",
+        "architecture-council"
+      ]
+    },
+    "LIGHTWEIGHT_PROJECT_AGENT": {
+      "candidate_owner": "agent-foundry",
+      "agent_scorecard": true,
+      "independent_component_scorecard": false,
+      "required_controls": [
+        "identity",
+        "version",
+        "capabilities",
+        "permissions",
+        "budget",
+        "health",
+        "telemetry",
+        "provenance",
+        "learning-uplink",
+        "termination",
+        "compatibility"
+      ],
+      "central_only_controls": [
+        "technology-watch",
+        "logician",
+        "foundries",
+        "benchmark-orchestrator",
+        "promotion-decision",
+        "architecture-council"
+      ]
+    },
+    "LIGHTWEIGHT_EMBEDDED_AGENT": {
+      "candidate_owner": "agent-foundry",
+      "agent_scorecard": false,
+      "independent_component_scorecard": false,
+      "required_controls": [
+        "identity",
+        "version",
+        "capabilities",
+        "permissions",
+        "budget",
+        "health",
+        "telemetry",
+        "provenance",
+        "learning-uplink",
+        "termination",
+        "compatibility"
+      ],
+      "central_only_controls": [
+        "technology-watch",
+        "logician",
+        "foundries",
+        "benchmark-orchestrator",
+        "promotion-decision",
+        "architecture-council"
+      ]
+    },
+    "CORE_PLATFORM_COMPONENT": {
+      "candidate_owner": "branch-foundry",
+      "agent_scorecard": false,
+      "independent_component_scorecard": true,
+      "required_controls": [
+        "version-pin",
+        "contract-fingerprint",
+        "self-health",
+        "technology-watch",
+        "logician",
+        "regression",
+        "shadow",
+        "pilot",
+        "rollback",
+        "guardian",
+        "sentinel"
+      ],
+      "central_only_controls": [
+        "promotion-decision",
+        "architecture-council"
+      ]
+    },
+    "CONNECTOR_ADAPTER": {
+      "candidate_owner": "capability-foundry",
+      "agent_scorecard": false,
+      "independent_component_scorecard": true,
+      "required_controls": [
+        "protocol-contract",
+        "version-pin",
+        "auth-reference",
+        "read-write-scope",
+        "health-probe",
+        "compatibility-test",
+        "technology-watch",
+        "canary",
+        "pilot",
+        "rollback"
+      ],
+      "central_only_controls": [
+        "logician",
+        "promotion-decision",
+        "architecture-council"
+      ],
+      "forbidden_controls": [
+        "agent-self-scoring",
+        "agent-learning-loop",
+        "local-foundry"
+      ]
+    },
+    "RUNTIME_INFRASTRUCTURE": {
+      "candidate_owner": "branch-foundry",
+      "agent_scorecard": false,
+      "independent_component_scorecard": true,
+      "required_controls": [
+        "version-pin",
+        "health-probe",
+        "security",
+        "resource-budget",
+        "cost-budget",
+        "technology-watch",
+        "compatibility-test",
+        "canary",
+        "pilot",
+        "rollback"
+      ],
+      "central_only_controls": [
+        "logician",
+        "promotion-decision",
+        "architecture-council"
+      ]
+    },
+    "OWNED_ARTIFACT": {
+      "candidate_owner": "INHERIT_OWNER",
+      "agent_scorecard": false,
+      "independent_component_scorecard": false,
+      "required_controls": [
+        "version-or-fingerprint",
+        "schema-validation",
+        "regression-test",
+        "compatibility-check"
+      ],
+      "central_only_controls": [],
+      "forbidden_controls": [
+        "independent-agent",
+        "independent-foundry",
+        "independent-promotion-loop"
+      ]
+    }
+  },
+  "passive_artifacts": {
+    "patterns": [
+      "**/*.json",
+      "**/*.md",
+      "**/*.yml",
+      "**/*.yaml",
+      "**/*.toml",
+      "**/*.txt",
+      "**/prompts/**",
+      "**/templates/**"
+    ],
+    "governance_class": "OWNED_ARTIFACT",
+    "inherit_owner": true,
+    "independent_agent_forbidden": true,
+    "independent_promotion_loop_forbidden": true
+  },
+  "source_catalogs": {
+    "agent_profiles": "agent-evolution/profiles/index.json",
+    "core_watch": "dev-hub/config/technology-core-watch.v1.json",
+    "provider_adapters": "dev-hub/config/provider-adapters.v1.json",
+    "mcp_catalog": "dev-hub/config/mcp-provider-catalog.v1.json",
+    "embedded_assurance": "dev-hub/config/project-embedded-assurance.v1.json"
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}

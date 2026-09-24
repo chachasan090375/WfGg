@@ -1,0 +1,64 @@
+{
+  "schema": "chacha.dev/lightweight-agent-runtime-profile/v1",
+  "version": "1.0.0",
+  "purpose": "Minimal runtime contract for project-local and embedded agents while all heavy evolution intelligence remains centralized in ChaCha DEV.",
+  "governance_class": "LIGHTWEIGHT_EMBEDDED_AGENT",
+  "local_required_controls": [
+    "identity",
+    "version",
+    "capabilities",
+    "least-privilege-permissions",
+    "zero-default-budget",
+    "health",
+    "telemetry",
+    "provenance",
+    "learning-uplink",
+    "termination",
+    "compatibility"
+  ],
+  "centralized_controls": [
+    "technology-watch",
+    "logician",
+    "agent-foundry",
+    "branch-foundry",
+    "capability-foundry",
+    "benchmark-orchestrator",
+    "promotion-decision",
+    "architecture-council"
+  ],
+  "local_forbidden_controls": [
+    "technology-watch-engine",
+    "logician-engine",
+    "foundry-engine",
+    "benchmark-orchestrator",
+    "self-update",
+    "self-promotion",
+    "permission-expansion",
+    "architecture-council"
+  ],
+  "observation": {
+    "local_event_probe": true,
+    "central_observation_bus": true,
+    "server_side_relay": true,
+    "raw_user_content": false,
+    "secrets": false
+  },
+  "learning": {
+    "local_learning_store": false,
+    "incremental_uplink": true,
+    "central_memory": "chacha-dev",
+    "raw_user_content": false
+  },
+  "evolution": {
+    "active_self_mutation": false,
+    "self_promotion": false,
+    "technology_watch_revalidation_required": true,
+    "logician_falsification_required": true,
+    "guardian_required": true,
+    "sentinel_required": true,
+    "architecture_council_final_authority": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}

@@ -29,6 +29,34 @@ def load(path:Path)->dict[str,Any]:
 def digest(value:Any)->str:
     return hashlib.sha256(json.dumps(value,sort_keys=True,ensure_ascii=False).encode()).hexdigest()
 
+def _lightweight_runtime_policy()->dict[str,Any]:
+    return load(Path(__file__).resolve().parents[1]/"config/lightweight-agent-runtime-profile.v1.json")
+
+def _evolution_inheritance(agent_id:str|None,scope:str)->dict[str,Any]:
+    lightweight=scope=="project"
+    return {
+      "schema":"chacha.dev/agent-evolution-inheritance/v1",
+      "governance_class":"LIGHTWEIGHT_PROJECT_AGENT" if lightweight else "FULL_AGENT",
+      "candidate_owner":"agent-foundry","active_self_mutation":False,"self_promotion":False,
+      "permission_expansion":False,"technology_watch_revalidation_required":True,
+      "logician_falsification_required":True,"guardian_required":True,"sentinel_required":True,
+      "architecture_council_final_authority":True,"observation_bus_required":True,
+      "learning_uplink_required":True,"automatic_external_spend_eur":0
+    }
+
+def _lightweight_runtime_manifest(agent_id:str|None,scope:str)->dict[str,Any]|None:
+    if scope!="project":return None
+    p=_lightweight_runtime_policy()
+    return {
+      "schema":p["schema"],"version":p.get("version"),"agent_id":agent_id,
+      "governance_class":"LIGHTWEIGHT_PROJECT_AGENT",
+      "local_required_controls":p.get("local_required_controls") or [],
+      "centralized_controls":p.get("centralized_controls") or [],
+      "local_forbidden_controls":p.get("local_forbidden_controls") or [],
+      "central_observation_bus":True,"incremental_learning_uplink":True,
+      "active_self_mutation":False,"self_promotion":False,"automatic_external_spend_eur":0
+    }
+
 def role_capabilities(routing:dict[str,Any],roles:list[str])->set[str]:
     out=set()
     catalog=routing.get("roles") or {}
@@ -140,6 +168,8 @@ def decide_package(pkg:dict[str,Any],routing:dict[str,Any],cfg:dict[str,Any],pro
         "verification":"qualification-required-before-dispatch",
         "termination_policy":"retire-ephemeral-after-accepted-delivery",
         "promotion_policy":"qualify-generalize-and-promote-only-if-reusable",
+        "evolution_profile":_evolution_inheritance(agent_id,scope),
+        "lightweight_runtime_profile":_lightweight_runtime_manifest(agent_id,scope),
         "learning_uplink":{
             "required":True,
             "mode":"incremental-deltas-only",

@@ -6,6 +6,12 @@ on:
       - dev-hub-v654-universal-evolution-governance-lightweight-agent-profile
     paths:
       - 'dev-hub/bin/agent_evolution_profile.py'
+      - 'dev-hub/bin/component_evolution_governance.py'
+      - 'dev-hub/bin/agent-foundry-planner.py'
+      - 'dev-hub/bin/project-embedded-assurance.py'
+      - 'dev-hub/config/universal-evolution-governance.v1.json'
+      - 'dev-hub/config/lightweight-agent-runtime-profile.v1.json'
+      - 'dev-hub/config/project-embedded-assurance.v1.json'
       - 'dev-hub/bin/install-v654-universal-evolution-governance.sh'
       - 'dev-hub/bin/agent_evolution_daily_cycle.py'
       - 'dev-hub/bin/agent_observation_bus_health.py'
@@ -33,8 +39,11 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
-          python3 -m py_compile dev-hub/bin/agent_evolution_profile.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_observation_bus_health.py dev-hub/bin/agent_benchmark_adapters.py dev-hub/bin/agent_benchmark_oracles.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v654_universal_evolution_governance.py
+          python3 -m py_compile dev-hub/bin/agent_evolution_profile.py dev-hub/bin/component_evolution_governance.py dev-hub/bin/agent-foundry-planner.py dev-hub/bin/project-embedded-assurance.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_observation_bus_health.py dev-hub/bin/agent_benchmark_adapters.py dev-hub/bin/agent_benchmark_oracles.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v654_universal_evolution_governance.py
           python3 -m json.tool dev-hub/config/agent-evolution-profile.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/universal-evolution-governance.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/lightweight-agent-runtime-profile.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/project-embedded-assurance.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-benchmark-adapters.v1.json >/dev/null
           bash -n dev-hub/bin/install-v654-universal-evolution-governance.sh
           grep -Fq '"version":"6.54.0"' dev-hub/bin/autonomous-project-orchestrator.py
@@ -51,6 +60,13 @@ jobs:
           grep -Fq 'CHACHA_DEV_V654_INTEGRATION_ARCHITECT_ADAPTER=PASS' /tmp/v654.out
           grep -Fq 'CHACHA_DEV_V654_ERGONOMIST_ADAPTER=PASS' /tmp/v654.out
           grep -Fq 'CHACHA_DEV_V654_BUS_PROFILE_POLICY_REASSESSMENT=PASS' /tmp/v654.out
+          grep -Fq 'CHACHA_DEV_V654_UNIVERSAL_COMPONENT_GOVERNANCE=PASS' /tmp/v654.out
+          grep -Fq 'CHACHA_DEV_V654_SINGLE_EVOLUTION_OWNER=PASS' /tmp/v654.out
+          grep -Fq 'CHACHA_DEV_V654_CONNECTOR_AGENT_SCORECARD=NO' /tmp/v654.out
+          grep -Fq 'CHACHA_DEV_V654_PASSIVE_ARTIFACT_INHERITS_OWNER=PASS' /tmp/v654.out
+          grep -Fq 'CHACHA_DEV_V654_FUTURE_AGENT_INHERITANCE=PASS' /tmp/v654.out
+          grep -Fq 'CHACHA_DEV_V654_LIGHTWEIGHT_EMBEDDED_PROFILE=PASS' /tmp/v654.out
+          grep -Fq 'CHACHA_DEV_V654_LOCAL_TECH_WATCH_LOGICIAN_FOUNDRY_DUPLICATION=NO' /tmp/v654.out
           grep -Fq 'CHACHA_DEV_V654_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v654.out
       - name: Receipt
         run: |
@@ -61,6 +77,12 @@ jobs:
           echo FOURTH_WAVE_EXECUTABLE_ADAPTERS=4
           echo PRODUCTION_MATURITY_TARGET_PCT=40
           echo BUS_PROFILE_POLICY_REASSESSMENT=YES
+          echo UNIVERSAL_COMPONENT_GOVERNANCE=YES
+          echo ONE_EVOLUTION_OWNER_PER_COMPONENT=YES
+          echo LIGHTWEIGHT_EMBEDDED_AGENT_PROFILE=YES
+          echo CONNECTOR_PSEUDO_AGENT_SCORECARD=NO
+          echo PASSIVE_ARTIFACT_INHERITS_OWNER=YES
+          echo LOCAL_HEAVY_GOVERNANCE_DUPLICATION=NO
           echo SELF_MUTATION=NO
           echo SELF_PROMOTION=NO
           echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
