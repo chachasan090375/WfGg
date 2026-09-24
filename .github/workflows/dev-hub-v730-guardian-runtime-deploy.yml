@@ -113,6 +113,43 @@ jobs:
           done
           echo CHACHA_DEV_V730_GUARDIAN_SCHEMA=PASS
 
+      - name: Reconcile central Guardian identity
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          x=json.load(open('dev-hub/config/worker-learning-central-identity.v1.json'))
+          q=lambda s:"'"+str(s).replace("'","''")+"'"
+          sql=("INSERT INTO guardian_identities(key_id,status,public_key_spki_b64,created_at,revoked_at) VALUES("
+               +q(x['key_id'])+",'ACTIVE',"+q(x['public_key_spki_b64'])+",datetime('now'),NULL) "
+               "ON CONFLICT(key_id) DO UPDATE SET status='ACTIVE',public_key_spki_b64=excluded.public_key_spki_b64,revoked_at=NULL;")
+          open('.guardian-v730-identity.sql','w').write(sql+'\n')
+          print('CHACHA_DEV_V730_GUARDIAN_IDENTITY_SEED=PASS')
+          PY
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --file=.guardian-v730-identity.sql --config=.wrangler-guardian-v730.jsonc >/tmp/identity-seed.out
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --command="SELECT key_id,status,public_key_spki_b64 FROM guardian_identities WHERE status='ACTIVE' ORDER BY key_id;" --config=.wrangler-guardian-v730.jsonc --json >/tmp/identity-readback.json
+          python3 - <<'PY'
+          import json
+          expected=json.load(open('dev-hub/config/worker-learning-central-identity.v1.json'))
+          raw=json.load(open('/tmp/identity-readback.json'))
+          rows=[]
+          def walk(v):
+              if isinstance(v,dict):
+                  if isinstance(v.get('results'),list):rows.extend(v['results'])
+                  for x in v.values():walk(x)
+              elif isinstance(v,list):
+                  for x in v:walk(x)
+          walk(raw)
+          hit=next((r for r in rows if r.get('key_id')==expected['key_id']),None)
+          assert hit,rows
+          assert hit.get('status')=='ACTIVE',hit
+          assert hit.get('public_key_spki_b64')==expected['public_key_spki_b64'],hit
+          print('CHACHA_DEV_V730_GUARDIAN_IDENTITY_REREAD=PASS')
+          PY
+
       - name: Deploy current Guardian Worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
