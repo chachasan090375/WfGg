@@ -46,6 +46,8 @@ def validate_contract(c:dict[str,Any])->None:
         raise RuntimeError("PLATFORM_COMPONENT_PILOT_EXACT_REVISIONS_REQUIRED")
     if not isinstance(c.get("harness_argv"),list) or not c.get("harness_argv"):
         raise RuntimeError("PLATFORM_COMPONENT_PILOT_HARNESS_ARGV_MISSING")
+    if not str(c.get("qualification_workflow_name") or ""):
+        raise RuntimeError("PLATFORM_COMPONENT_PILOT_QUALIFICATION_WORKFLOW_MISSING")
     required_checks=[
       "independent_verification","measurable_gain","no_material_regression",
       "permission_non_escalation","rollback_ready","exact_revision_evidence",
