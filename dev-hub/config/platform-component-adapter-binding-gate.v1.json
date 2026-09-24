@@ -1,0 +1,33 @@
+{
+  "schema": "chacha.dev/platform-component-adapter-binding-gate-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "purpose": "PROPOSE_COMPONENT_SPECIFIC_APPLY_ADAPTER_BINDING_ONLY",
+  "required_exact_sha_workflows": [
+    "ChaCha DEV Branch Foundry source integrator qualification",
+    "ChaCha DEV universal evolution coverage sync qualification",
+    "ChaCha DEV Sentinel technical assurance"
+  ],
+  "principles": {
+    "canonical_registry_default_admission": "DENY",
+    "exact_component_context_required": true,
+    "exact_candidate_and_incumbent_revision_required": true,
+    "exact_candidate_and_incumbent_artifact_required": true,
+    "verified_human_promotion_approval_required": true,
+    "candidate_owner_match_required": true,
+    "provisioned_byte_digest_match_required": true,
+    "trusted_executable_root": "/opt/chacha-dev/adapters/platform-component",
+    "source_only_mode_required": "SOURCE_RELEASE_CANDIDATE_INTEGRATION",
+    "reversible_adapter_required": true,
+    "rollback_operation_required": true,
+    "exact_revision_enforcement_required": true,
+    "runtime_mutation_forbidden": true,
+    "production_activation_forbidden": true,
+    "production_deployment_forbidden": true,
+    "production_merge_forbidden": true,
+    "automatic_registration_forbidden": true,
+    "registry_mutation_forbidden": true,
+    "protected_registration_required": true,
+    "automatic_external_spend_eur": 0
+  }
+}
