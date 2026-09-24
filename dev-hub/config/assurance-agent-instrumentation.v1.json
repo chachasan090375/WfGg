@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/assurance-agent-instrumentation-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "purpose": "Increase evidence coverage for high-risk and assurance agents without converting activity into unverified quality claims.",
   "priority_targets": [
     {
@@ -121,6 +121,54 @@
       "observed_dimensions": [
         "robustness"
       ]
+    },
+    {
+      "agent_id": "contract-integrator",
+      "risk": "medium",
+      "boundaries": [
+        "central-orchestrator"
+      ],
+      "observed_dimensions": [
+        "coverage",
+        "robustness"
+      ],
+      "quality_claim_from_activity": false
+    },
+    {
+      "agent_id": "integration-architect",
+      "risk": "medium",
+      "boundaries": [
+        "central-orchestrator"
+      ],
+      "observed_dimensions": [
+        "coverage",
+        "robustness"
+      ],
+      "quality_claim_from_activity": false
+    },
+    {
+      "agent_id": "knowledge-compiler-agent",
+      "risk": "low",
+      "boundaries": [
+        "central-orchestrator"
+      ],
+      "observed_dimensions": [
+        "coverage",
+        "robustness"
+      ],
+      "quality_claim_from_activity": false
+    },
+    {
+      "agent_id": "uncertainty-resolution-agent",
+      "risk": "low",
+      "boundaries": [
+        "central-orchestrator"
+      ],
+      "observed_dimensions": [
+        "coverage",
+        "robustness"
+      ],
+      "quality_claim_from_activity": false
     }
   ],
   "invariants": {
@@ -137,6 +185,8 @@
     "guardian_preserved": true,
     "sentinel_preserved": true,
     "architecture_council_final_authority": true,
-    "automatic_external_spend_eur": 0
+    "automatic_external_spend_eur": 0,
+    "future_surface_observation_requires_real_artifact": true,
+    "historical_surface_backfill_for_v663": false
   }
 }
