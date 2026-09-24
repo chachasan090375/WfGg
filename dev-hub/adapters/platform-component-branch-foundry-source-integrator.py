@@ -203,6 +203,9 @@ def main()->int:
     try:req=json.load(sys.stdin)
     except Exception:return blocked(operation,"INPUT_JSON_INVALID")
     if not isinstance(req,dict):return blocked(operation,"INPUT_ROOT_NOT_OBJECT")
+    expected=APPLY_SCHEMA if operation=="apply" else ROLLBACK_REQUEST_SCHEMA
+    if req.get("schema")!=expected:
+        return blocked(operation,"APPLY_SCHEMA_INVALID" if operation=="apply" else "ROLLBACK_SCHEMA_INVALID")
     try:
         policy=load_policy();repo=repository_path(policy)
     except Exception as exc:
