@@ -164,10 +164,14 @@ def main()->int:
       "duplicate_surfaces":0,"unused_configs":0}
     metrics["hygiene_debt_score"]=hygiene_debt(metrics,policy)
     last=state.setdefault("last_success",{});cycles=[]
-    for name in ("LIGHT_DAILY","WEEKLY_DRY_RUN","MONTHLY_CONSOLIDATION"):
-        cfg=cycle_cfg.get(name) or {}
-        if cfg.get("enabled") is True and (a.force_cycle==name or due(last.get(name),now,float(cfg.get("minimum_interval_hours") or 24))):
-            cycles.append(name)
+    if a.force_cycle:
+        cfg=cycle_cfg.get(a.force_cycle) or {}
+        if cfg.get("enabled") is True:cycles=[a.force_cycle]
+    else:
+        for name in ("LIGHT_DAILY","WEEKLY_DRY_RUN","MONTHLY_CONSOLIDATION"):
+            cfg=cycle_cfg.get(name) or {}
+            if cfg.get("enabled") is True and due(last.get(name),now,float(cfg.get("minimum_interval_hours") or 24)):
+                cycles.append(name)
     trig=((cycle_cfg.get("THRESHOLD_WATCH") or {}).get("triggers") or {});threshold_reasons=[]
     if metrics["disk_used_pct"]>=float(trig.get("filesystem_used_pct_gte") or 75):threshold_reasons.append("FILESYSTEM_PRESSURE")
     if metrics["release_count"]>int(trig.get("physical_release_count_gt") or 3):threshold_reasons.append("RELEASE_OVERAGE")
