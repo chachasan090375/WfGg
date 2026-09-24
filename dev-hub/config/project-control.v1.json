@@ -86,7 +86,10 @@
     "production_deployment_requires_explicit_human_approval": true,
     "release_and_operate_are_distinct": true,
     "production_deployment_must_use_controlled_adapter": true,
-    "production_evidence_must_come_from_real_target": true
+    "production_evidence_must_come_from_real_target": true,
+    "control_plane_bootstrap_uses_canonical_engines": true,
+    "control_plane_bootstrap_is_idempotent": true,
+    "control_plane_bootstrap_recovery_is_forward_only": true
   },
   "interfaces": {
     "cli": {
@@ -363,6 +366,17 @@
       "production_mutation_before_approval": false,
       "controlled_adapter_required": true,
       "post_deploy_real_evidence_required": true,
+      "automatic_external_spend_eur": 0
+    },
+    "bootstrap-control-plane": {
+      "class": "state-write",
+      "mutating": true,
+      "canonical_control_plane_store_required": true,
+      "canonical_evidence_collector_required": true,
+      "idempotent": true,
+      "forward_only": true,
+      "implicit_delete_or_rewrite_forbidden": true,
+      "final_integrity_recheck_required": true,
       "automatic_external_spend_eur": 0
     }
   },
