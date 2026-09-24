@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,json,urllib.parse,urllib.request
+import argparse,hashlib,json,urllib.parse,urllib.request
 from datetime import datetime,timezone
 from pathlib import Path
 from typing import Any
@@ -19,6 +19,10 @@ def save(p:Path,x:dict[str,Any])->None:
 
 def now_iso()->str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00","Z")
+
+def canonical_digest(value:Any)->str:
+    raw=json.dumps(value,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode("utf-8")
+    return "sha256:"+hashlib.sha256(raw).hexdigest()
 
 def github_runs(repository:str,revision:str)->dict[str,Any]:
     q=urllib.parse.urlencode({"head_sha":revision,"per_page":100})
@@ -113,12 +117,45 @@ def build_review(policy:dict[str,Any],pilot:dict[str,Any],contract:dict[str,Any]
     passed=all(checks.values())
     decision=("TECHNICALLY_ADMISSIBLE_AWAIT_EXPLICIT_HUMAN_PROMOTION_APPROVAL"
               if passed else "COUNCIL_REVIEW_BLOCKED_HOLD_INCUMBENT")
+    technical_evidence={
+      "component_id":contract.get("component_id"),
+      "candidate_owner":contract.get("candidate_owner"),
+      "candidate_revision":candidate_revision,
+      "incumbent_revision":incumbent_revision,
+      "pilot_contract_id":contract.get("contract_id"),
+      "pilot_run_id":pilot.get("run_id"),
+      "checks":checks
+    }
+    technical_review_digest=canonical_digest(technical_evidence)
+    approval_id="platform-component-promotion:"+str(contract.get("component_id") or "unknown")+":"+candidate_revision
+    approval_request=None
+    if passed:
+        approval_request={
+          "schema":"chacha.dev/protected-human-approval-request/v1",
+          "project":"chacha-dev-platform",
+          "operation":"record-approval",
+          "approval_id":approval_id,
+          "actor_requirement":"real-human",
+          "evidence":"architecture-council-platform-review:"+technical_review_digest,
+          "technical_review_digest":technical_review_digest,
+          "candidate_revision":candidate_revision,
+          "incumbent_revision":incumbent_revision,
+          "component_id":contract.get("component_id"),
+          "project_control_protected_path_required":True,
+          "agent_or_api_approval_synthesis_forbidden":True,
+          "production_activation_before_approval":False,
+          "promotion_before_approval":False,
+          "automatic_external_spend_eur":0
+        }
     return {
       "schema":SCHEMA,"generated_at":now_iso(),"review_authority":"architecture-council",
       "component_id":contract.get("component_id"),"candidate_owner":contract.get("candidate_owner"),
       "candidate_revision":candidate_revision,"incumbent_revision":incumbent_revision,
       "pilot_contract_id":contract.get("contract_id"),"pilot_run_id":pilot.get("run_id"),
       "checks":checks,"technical_review_passed":passed,
+      "technical_review_digest":technical_review_digest,
+      "human_approval_request_created":approval_request is not None,
+      "approval_request":approval_request,
       "architecture_council_technical_admissibility":passed,
       "decision":decision,
       "next_action":"AWAIT_EXPLICIT_HUMAN_PROMOTION_APPROVAL" if passed else "REMEDIATE_AND_REVIEW",
