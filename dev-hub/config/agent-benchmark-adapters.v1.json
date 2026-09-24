@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-benchmark-adapters/v1",
-  "version": "7.0.0",
+  "version": "8.0.0",
   "purpose": "Execute real agent code against isolated deterministic fixtures and verify outputs through a separate benchmark oracle.",
   "supported_agents": {
     "guardian": {
@@ -638,6 +638,138 @@
         "handoff_quality"
       ],
       "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "graphics-specialist": {
+      "adapter": "domain-specialist-contract",
+      "risk": "low",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "animation-specialist": {
+      "adapter": "domain-specialist-contract",
+      "risk": "medium",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "ui-layout-specialist": {
+      "adapter": "domain-specialist-contract",
+      "risk": "low",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "translation-specialist": {
+      "adapter": "domain-specialist-contract",
+      "risk": "low",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "publication-specialist": {
+      "adapter": "domain-specialist-contract",
+      "risk": "low",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "technology-radar-agent": {
+      "adapter": "radar-runtime-project-local-readonly",
+      "risk": "medium",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
+      ],
+      "max_duration_ms": 10000,
       "minimum_oracle_cases": 4,
       "required_base_dimensions": [
         "accuracy",
