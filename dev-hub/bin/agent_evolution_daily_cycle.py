@@ -10,6 +10,7 @@ import agent_benchmark_campaign_runner as abcr
 import technology_watch_runtime as tw
 import agent_evolution_profile as aep
 import component_evolution_governance as ceg
+import agent_verified_evidence_backfill as aveb
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding="utf-8"))
     if not isinstance(x,dict):raise ValueError("JSON_ROOT_NOT_OBJECT:"+str(p))
@@ -29,6 +30,8 @@ def main()->int:
     root=a.repo_root.resolve();runtime=a.runtime_root.resolve();cfg=root/"dev-hub/config";ae=runtime/"agent-evolution";ae.mkdir(parents=True,exist_ok=True)
     routing=load(cfg/"agent-routing.v1.json");seven=load(cfg/"seven-agent-final-compromise.v1.json");project=load(root/"dev-hub/projects/wfgg-radar/project-agent-registry.v1.json")
     fp=load(cfg/"agent-fleet-observatory.v1.json");ep=load(cfg/"agent-evolution.v1.json")
+    backfill=aveb.run(runtime,fp,load(cfg/"agent-observation-bus.v1.json"),routing,seven,[project],False)
+    save(ae/"verified-evidence-backfill-latest.json",backfill)
     report=afo.build_report(root,runtime,fp,ep,routing,seven,[project]);save(ae/"fleet-observatory-latest.json",report)
     requests=[];qroot=runtime/"agent-evolution/reassessment-queue"
     if qroot.is_dir():
@@ -80,6 +83,9 @@ def main()->int:
       "benchmark_campaign_created":benchmark_campaign is not None,
       "benchmark_contract_count":len((benchmark_campaign or {}).get("contracts") or []),
       "benchmark_run_promoted_count":int((locals().get("benchmark_run") or {}).get("promoted_count") or 0),
+      "verified_evidence_backfill_eligible":int(backfill.get("eligible_event_count") or 0),
+      "verified_evidence_backfill_inserted":int((backfill.get("counts") or {}).get("inserted") or 0),
+      "verified_evidence_backfill_retroactive_reassessment":False,
       "universal_profile_count":profile_index.get("profile_count"),"universal_profiles_generated":True,
       "universal_component_governance_count":component_index.get("component_count"),
       "single_evolution_owner_per_component":component_index.get("single_evolution_owner_per_component"),

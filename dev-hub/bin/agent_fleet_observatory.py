@@ -141,7 +141,7 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
                     if str(cap):a["observed_capabilities"].add(str(cap))
                 if event.get("capabilities"):a["refs"]["coverage"].append("agent-observation:"+str(event.get("event_id") or ""))
             et=str(event.get("event_type") or "")
-            if independent and et in {"TASK_RESULT_VERIFIED","FINAL_REVIEW_VERIFIED"} and verification=="VERIFIED":
+            if independent and et in {"TASK_RESULT_VERIFIED","HISTORICAL_TASK_RESULT_VERIFIED","FINAL_REVIEW_VERIFIED"} and verification=="VERIFIED":
                 a["handoff_total"]+=1
                 if str(event.get("outcome") or "").upper()=="OK":a["handoff_ok"]+=1
                 a["refs"]["handoff_quality"].append("agent-observation:"+str(event.get("event_id") or ""))

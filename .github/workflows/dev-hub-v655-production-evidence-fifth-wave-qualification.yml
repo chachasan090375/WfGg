@@ -1,0 +1,65 @@
+name: ChaCha DEV V6.55 production evidence backfill fifth adapter wave qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v655-production-evidence-promotion-fifth-adapter-wave
+    paths:
+      - 'dev-hub/bin/agent_verified_evidence_backfill.py'
+      - 'dev-hub/bin/agent_fleet_observatory.py'
+      - 'dev-hub/bin/agent_evolution_daily_cycle.py'
+      - 'dev-hub/bin/agent_benchmark_adapters.py'
+      - 'dev-hub/bin/agent_benchmark_oracles.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/agent-observation-bus.v1.json'
+      - 'dev-hub/config/agent-benchmark-adapters.v1.json'
+      - 'dev-hub/tests/test_v655_production_evidence_fifth_wave.py'
+      - '.github/workflows/dev-hub-v655-production-evidence-fifth-wave-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/agent_verified_evidence_backfill.py dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_benchmark_adapters.py dev-hub/bin/agent_benchmark_oracles.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v655_production_evidence_fifth_wave.py
+          python3 -m json.tool dev-hub/config/agent-observation-bus.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/agent-benchmark-adapters.v1.json >/dev/null
+          grep -Fq '"version":"6.55.0"' dev-hub/bin/autonomous-project-orchestrator.py
+      - name: V6.55 production evidence and fifth wave
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v655_production_evidence_fifth_wave.py | tee /tmp/v655.out
+          grep -Fq 'CHACHA_DEV_V655_HISTORICAL_VERIFIED_BACKFILL=PASS' /tmp/v655.out
+          grep -Fq 'CHACHA_DEV_V655_BACKFILL_IDEMPOTENT=PASS' /tmp/v655.out
+          grep -Fq 'CHACHA_DEV_V655_SELF_VERIFICATION_PROMOTION=BLOCKED' /tmp/v655.out
+          grep -Fq 'CHACHA_DEV_V655_RETROACTIVE_REASSESSMENT=NO' /tmp/v655.out
+          grep -Fq 'CHACHA_DEV_V655_PRODUCTION_COVERAGE_HANDOFF=PASS' /tmp/v655.out
+          grep -Fq 'CHACHA_DEV_V655_BACKEND_API_EXECUTABLE_ADAPTER=PASS' /tmp/v655.out
+          grep -Fq 'CHACHA_DEV_V655_FRONTEND_EXECUTABLE_ADAPTER=PASS' /tmp/v655.out
+          grep -Fq 'CHACHA_DEV_V655_PRODUCT_DOMAIN_EXECUTABLE_ADAPTER=PASS' /tmp/v655.out
+          grep -Fq 'CHACHA_DEV_V655_DOCUMENTATION_ADR_EXECUTABLE_ADAPTER=PASS' /tmp/v655.out
+          grep -Fq 'CHACHA_DEV_V655_FIFTH_WAVE_TOTAL_COVERAGE_80=PASS' /tmp/v655.out
+          grep -Fq 'CHACHA_DEV_V655_PRODUCTION_MEASUREMENT_PRECEDENCE=PASS' /tmp/v655.out
+          grep -Fq 'CHACHA_DEV_V655_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v655.out
+      - name: Qualification receipt
+        run: |
+          echo CHACHA_DEV_V655_QUALIFICATION=PASS
+          echo HISTORICAL_VERIFIED_BACKFILL=YES
+          echo PRODUCTION_TRUTH=VERIFIED_RUNTIME_ONLY
+          echo RETROACTIVE_REASSESSMENT=NO
+          echo FIFTH_WAVE_EXECUTABLE_ADAPTERS=4
+          echo PRODUCTION_MEASUREMENT_PRECEDENCE=YES
+          echo DIRECT_AGENT_MUTATION=NO
+          echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0

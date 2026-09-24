@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-observation-bus-policy/v1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "purpose": "Collect evidence-backed agent observations at common ChaCha DEV boundaries and trigger reassessment without self-mutation.",
   "storage": {
     "database": "agent-observation/observations.db",
@@ -195,5 +195,18 @@
     "new_agent_requires_instrumentation_review": true,
     "removed_agent_requires_instrumentation_review": true,
     "generic_event_contract_must_survive_agent_changes": true
+  },
+  "historical_verified_backfill": {
+    "enabled": true,
+    "source_id": "project-control",
+    "source_surface": "project-control:historical-verified-backfill",
+    "event_type": "HISTORICAL_TASK_RESULT_VERIFIED",
+    "minimum_age_minutes": 60,
+    "require_verification_report": true,
+    "require_report_checks_pass": true,
+    "require_independent_verifier": true,
+    "retroactive_reassessment": false,
+    "production_truth": true,
+    "idempotent_by_project_task": true
   }
 }

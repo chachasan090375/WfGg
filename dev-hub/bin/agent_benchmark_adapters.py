@@ -161,7 +161,7 @@ def _architect_role_contract(repo:Path,agent_id:str,focus_key:str)->dict[str,Any
             model_context,run_dir=mod.build_model_context(req,agent_id,ctx)
             prompt=mod.prompt_for(model_context)
             artifact={"schema":mod.SPECIALIST_SCHEMA,"project":project,"requirement_id":rid,
-              "task_id":"design:"+agent_id,"role":agent_id,"artifact_kind":"design-fragment","status":"PROPOSED",
+              "task_id":"design:"+agent_id,"role":agent_id,"artifact_kind":mod.expected_artifact_kind("design:"+agent_id,agent_id),"status":"PROPOSED",
               "summary":"benchmark","decisions":[],"recommendations":[],"risks":[],"unresolved_questions":[],
               "acceptance_obligations":[],"implementation_constraints":[],"source_references":["benchmark:fixture"]}
             artifact_valid=True
@@ -486,10 +486,25 @@ def ergonomist_agent(repo:Path)->dict[str,Any]:
           "digest_present":str(x.get("report_digest") or "").startswith("sha256:"),"automatic_external_spend_eur":x.get("automatic_external_spend_eur")
         }}
 
+
+def backend_api_architect(repo:Path)->dict[str,Any]:
+    return _architect_role_contract(repo,"backend-api-architect","backend_api")
+
+def frontend_architect(repo:Path)->dict[str,Any]:
+    return _architect_role_contract(repo,"frontend-architect","frontend")
+
+def product_domain_architect(repo:Path)->dict[str,Any]:
+    return _architect_role_contract(repo,"product-domain-architect","product_domain")
+
+def documentation_adr_agent(repo:Path)->dict[str,Any]:
+    return _architect_role_contract(repo,"documentation-adr-agent","documentation")
+
 ADAPTERS={"guardian":guardian,"sentinel":sentinel,"bastion":bastion,"autonomous-recovery-agent":recovery,
           "security-reviewer":security_reviewer,"recovery-engineer":recovery_engineer,
           "platform-cloud-engineer":platform_cloud_engineer,"data-architect":data_architect,
-          "release-engineer":release_engineer,"agent-foundry-architect":agent_foundry_architect,"branch-foundry-architect":branch_foundry_architect,"capability-foundry-architect":capability_foundry_architect,"logician":logician_agent,"technology-watch-agent":technology_watch_agent,"acceptance-engineer":acceptance_engineer,"contract-integrator":contract_integrator,"integration-architect":integration_architect,"ergonomist":ergonomist_agent}
+          "release-engineer":release_engineer,"backend-api-architect":backend_api_architect,
+          "frontend-architect":frontend_architect,"product-domain-architect":product_domain_architect,
+          "documentation-adr-agent":documentation_adr_agent,"agent-foundry-architect":agent_foundry_architect,"branch-foundry-architect":branch_foundry_architect,"capability-foundry-architect":capability_foundry_architect,"logician":logician_agent,"technology-watch-agent":technology_watch_agent,"acceptance-engineer":acceptance_engineer,"contract-integrator":contract_integrator,"integration-architect":integration_architect,"ergonomist":ergonomist_agent}
 
 def execute(agent_id:str,repo_root:Path)->dict[str,Any]:
     fn=ADAPTERS.get(agent_id)

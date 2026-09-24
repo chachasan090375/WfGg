@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-benchmark-adapters/v1",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "purpose": "Execute real agent code against isolated deterministic fixtures and verify outputs through a separate benchmark oracle.",
   "supported_agents": {
     "guardian": {
@@ -385,6 +385,94 @@
     "ergonomist": {
       "adapter": "ux-planning-engine",
       "risk": "medium",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "backend-api-architect": {
+      "adapter": "architecture-specialist-backend-api",
+      "risk": "medium",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "frontend-architect": {
+      "adapter": "architecture-specialist-frontend",
+      "risk": "medium",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "product-domain-architect": {
+      "adapter": "architecture-specialist-product-domain",
+      "risk": "low",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "documentation-adr-agent": {
+      "adapter": "architecture-specialist-documentation-adr",
+      "risk": "low",
       "dimensions": [
         "accuracy",
         "robustness",
