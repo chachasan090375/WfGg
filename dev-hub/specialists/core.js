@@ -49,6 +49,10 @@ function verdictFor(config,events,implementationVerified){
   if(severities.some(x=>reviseSet.has(x)))return {verdict:"REVISE",hard:[],soft:severities.filter(x=>reviseSet.has(x)).map(x=>"REVIEW_"+x)};
   return {verdict:"ACCEPT",hard:[],soft:severities.includes("WARNING")?["WARNING_EVIDENCE_REVIEWED"]:[]};
 }
+
+export function evaluateAuthorityVerdict(config,events,implementationVerified){
+  return verdictFor(config,events,implementationVerified);
+}
 async function publishReviewRef(env,role,receiptId){
   if(!env.ASSURANCE_EXCHANGE_SERVICE)return {status:"NOT_CONFIGURED"};
   const body=JSON.stringify({schema:"chacha.dev/final-review-ref/v1",source:role,receipt_id:receiptId});

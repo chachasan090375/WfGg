@@ -110,7 +110,7 @@ for body in [guardian,sentinel]:
     assert "project_assurance_identity_registration:true" in body
     assert "requireProjectAssurance" in body
 
-assert any(v in orchestrator for v in ['"version":"6.32.0"','"version":"6.33.0"','"version":"6.34.0"','"version":"6.35.0"','"version":"6.40.0"','"version":"6.41.0"','"version":"6.42.0"','"version":"6.43.0"','"version":"6.44.0"','"version":"6.45.0"','"version":"6.46.0"','"version":"6.47.0"','"version":"6.48.0"','"version":"6.49.0"','"version":"6.50.0"','"version":"6.51.0"','"version":"6.52.0"','"version":"6.53.0"','"version":"6.54.0"','"version":"6.55.0"','"version":"6.56.0"'])
+assert any(v in orchestrator for v in ['"version":"6.32.0"','"version":"6.33.0"','"version":"6.34.0"','"version":"6.35.0"','"version":"6.40.0"','"version":"6.41.0"','"version":"6.42.0"','"version":"6.43.0"','"version":"6.44.0"','"version":"6.45.0"','"version":"6.46.0"','"version":"6.47.0"','"version":"6.48.0"','"version":"6.49.0"','"version":"6.50.0"','"version":"6.51.0"','"version":"6.52.0"','"version":"6.53.0"','"version":"6.54.0"','"version":"6.55.0"','"version":"6.56.0"','"version":"6.57.0"'])
 assert "project-embedded-assurance.py" in orchestrator
 assert "project-assurance-identity-manager.py" in orchestrator
 assert '"embedded_assurance_required":True' in orchestrator

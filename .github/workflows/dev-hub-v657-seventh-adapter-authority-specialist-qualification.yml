@@ -1,0 +1,68 @@
+name: ChaCha DEV V6.57 seventh adapter authority specialist evidence qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v657-seventh-adapter-wave-authority-specialist-evidence
+    paths:
+      - 'dev-hub/specialists/core.js'
+      - 'dev-hub/bin/specialist-authority-benchmark.mjs'
+      - 'dev-hub/bin/agent_fleet_observatory.py'
+      - 'dev-hub/config/agent-fleet-observatory.v1.json'
+      - 'dev-hub/bin/agent_benchmark_adapters.py'
+      - 'dev-hub/bin/agent_benchmark_oracles.py'
+      - 'dev-hub/config/agent-benchmark-adapters.v1.json'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/tests/test_v657_seventh_adapter_authority_specialist_evidence.py'
+      - '.github/workflows/dev-hub-v657-seventh-adapter-authority-specialist-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/agent_benchmark_adapters.py dev-hub/bin/agent_benchmark_oracles.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v657_seventh_adapter_authority_specialist_evidence.py
+          node --check dev-hub/specialists/core.js
+          node --check dev-hub/bin/specialist-authority-benchmark.mjs
+          python3 -m json.tool dev-hub/config/agent-fleet-observatory.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/agent-benchmark-adapters.v1.json >/dev/null
+          grep -Fq '"version":"6.57.0"' dev-hub/bin/autonomous-project-orchestrator.py
+      - name: V6.57 authority specialist wave
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v657_seventh_adapter_authority_specialist_evidence.py | tee /tmp/v657.out
+          grep -Fq 'CHACHA_DEV_V657_CURATOR_PRODUCTION_REVIEW_EVIDENCE=PASS' /tmp/v657.out
+          grep -Fq 'CHACHA_DEV_V657_INTENDANT_PRODUCTION_REVIEW_EVIDENCE=PASS' /tmp/v657.out
+          grep -Fq 'CHACHA_DEV_V657_CURATOR_EXECUTABLE_ADAPTER=PASS' /tmp/v657.out
+          grep -Fq 'CHACHA_DEV_V657_INTENDANT_EXECUTABLE_ADAPTER=PASS' /tmp/v657.out
+          grep -Fq 'CHACHA_DEV_V657_KNOWLEDGE_COMPILER_EXECUTABLE_ADAPTER=PASS' /tmp/v657.out
+          grep -Fq 'CHACHA_DEV_V657_UNCERTAINTY_RESOLVER_EXECUTABLE_ADAPTER=PASS' /tmp/v657.out
+          grep -Fq 'CHACHA_DEV_V657_REVISE_IS_NOT_ACCURACY_PROOF=PASS' /tmp/v657.out
+          grep -Fq 'CHACHA_DEV_V657_BENCHMARK_ONLY_CANDIDATE_MATERIALIZATION=BLOCKED' /tmp/v657.out
+          grep -Fq 'CHACHA_DEV_V657_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v657.out
+      - name: V6.56 regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v656_sixth_adapter_production_weighted_maturity.py >/tmp/v656.out
+          grep -Fq 'CHACHA_DEV_V656_PRODUCTION_WEIGHTED_MATURITY=PASS' /tmp/v656.out
+          grep -Fq 'CHACHA_DEV_V656_BENCHMARK_ONLY_CANDIDATE_MATERIALIZATION=BLOCKED' /tmp/v656.out
+      - name: Qualification receipt
+        run: |
+          echo CHACHA_DEV_V657_QUALIFICATION=PASS
+          echo SEVENTH_WAVE_EXECUTABLE_ADAPTERS=4
+          echo AUTHORITY_SPECIALIST_PRODUCTION_EVIDENCE=STRUCTURAL_ONLY
+          echo VERDICT_IS_NOT_ACCURACY_PROOF=YES
+          echo BENCHMARK_ONLY_CANDIDATE_MATERIALIZATION=BLOCKED
+          echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0

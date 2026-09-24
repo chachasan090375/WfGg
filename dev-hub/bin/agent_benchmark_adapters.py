@@ -509,6 +509,88 @@ def performance_engineer(repo:Path)->dict[str,Any]:
 def sre_observability_engineer(repo:Path)->dict[str,Any]:
     return _architect_role_contract(repo,"sre-observability-engineer","observability")
 
+
+def _specialist_authority(repo:Path,agent_id:str,scope:str,authority_policy_name:str,runtime_policy_name:str)->dict[str,Any]:
+    authority=load(repo/"dev-hub/config"/authority_policy_name)
+    runtime=load(repo/"dev-hub/config"/runtime_policy_name)
+    payload={"role":agent_id,"scope":scope,
+      "block_severities":authority.get("block_severities") or [],
+      "revise_severities":authority.get("revise_severities") or []}
+    proc=subprocess.run(["node",str(repo/"dev-hub/bin/specialist-authority-benchmark.mjs")],
+      input=json.dumps(payload),stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=15)
+    result=json.loads(proc.stdout.strip()) if proc.returncode==0 and proc.stdout.strip() else {}
+    principles=runtime.get("principles") or {}
+    return {"agent_id":agent_id,"adapter":"specialist-authority-core","actual":{
+      "returncode":proc.returncode,"schema":result.get("schema"),"role":result.get("role"),"scope":result.get("scope"),
+      "cases":result.get("cases") or {},
+      "policy_direct_mutation":authority.get("direct_mutation"),
+      "runtime_no_app_mutation":principles.get("no_direct_application_mutation"),
+      "runtime_no_arch_mutation":principles.get("no_direct_architecture_mutation"),
+      "central_remediation":principles.get("central_orchestrator_owns_remediation"),
+      "automatic_external_spend_eur":runtime.get("automatic_external_spend_eur"),
+      "stderr_empty":not bool(proc.stderr.strip())
+    }}
+
+def curator_agent(repo:Path)->dict[str,Any]:
+    return _specialist_authority(repo,"curator","VISUAL_UX","curator-authority.v1.json","curator-runtime-policy.v1.json")
+
+def intendant_agent(repo:Path)->dict[str,Any]:
+    return _specialist_authority(repo,"intendant","COST_RESOURCES","intendant-authority.v1.json","intendant-runtime-policy.v1.json")
+
+def knowledge_compiler_agent(repo:Path)->dict[str,Any]:
+    with tempfile.TemporaryDirectory(prefix="v657-knowledge-compiler-") as td:
+        base=Path(td);inp=base/"observations.json";out=base/"result.json"
+        data={"observations":[
+          {"rule_key":"stable-rule","source":"s1","value":{"enabled":True}},
+          {"rule_key":"stable-rule","source":"s2","value":{"enabled":True}},
+          {"rule_key":"stable-rule","source":"s3","value":{"enabled":True}},
+          {"rule_key":"conflict-rule","source":"c1","value":"A"},
+          {"rule_key":"conflict-rule","source":"c2","value":"A"},
+          {"rule_key":"conflict-rule","source":"c3","value":"B"},
+          {"rule_key":"single-rule","source":"only","value":1},
+          {"rule_key":"duplicate-source-rule","source":"same","value":"X"},
+          {"rule_key":"duplicate-source-rule","source":"same","value":"X"}
+        ]}
+        original=json.dumps(data,sort_keys=True)
+        inp.write_text(json.dumps(data)+"\n",encoding="utf-8")
+        proc=subprocess.run([sys.executable,str(repo/"dev-hub/bin/knowledge-compiler.py"),
+          "--input",str(inp),"--policy",str(repo/"dev-hub/config/knowledge-lifecycle.v1.json"),"--output",str(out)],
+          stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=15)
+        result=load(out) if out.is_file() else {};rules={str(x.get("rule_key")):x for x in result.get("rules") or [] if isinstance(x,dict)}
+        return {"agent_id":"knowledge-compiler-agent","adapter":"knowledge-compiler","actual":{
+          "returncode":proc.returncode,"schema":result.get("schema"),"compiled_count":result.get("compiled_count"),
+          "stable":rules.get("stable-rule"),"conflict":rules.get("conflict-rule"),
+          "single_present":"single-rule" in rules,"duplicate_source_present":"duplicate-source-rule" in rules,
+          "input_unchanged":json.dumps(load(inp),sort_keys=True)==original,
+          "sandbox_output":str(out.resolve()).startswith(str(base.resolve())),
+          "stderr_empty":not bool(proc.stderr.strip()),"automatic_external_spend_eur":0
+        }}
+
+def uncertainty_resolution_agent(repo:Path)->dict[str,Any]:
+    policy=load(repo/"dev-hub/config/uncertainty-policy.v1.json");order=policy.get("self_resolution_order") or []
+    cases={
+      "normal":{"confidence":0.55,"assumptions":["a"],"unknowns":["u"]},
+      "sensitive":{"confidence":0.9,"sensitive_approval_boundary":True},
+      "functional":{"confidence":0.5,"functional_preference_underdetermined":True},
+      "exhausted":{"confidence":0.4,"exhausted_methods":order},
+      "partial":{"confidence":0.6,"exhausted_methods":order[:2]}
+    }
+    results={};all_ok=True;schemas=True
+    with tempfile.TemporaryDirectory(prefix="v657-uncertainty-") as td:
+        base=Path(td)
+        for name,case in cases.items():
+            cp=base/(name+"-case.json");op=base/(name+"-result.json");cp.write_text(json.dumps(case)+"\n",encoding="utf-8")
+            proc=subprocess.run([sys.executable,str(repo/"dev-hub/bin/uncertainty-resolver.py"),
+              "--case",str(cp),"--policy",str(repo/"dev-hub/config/uncertainty-policy.v1.json"),"--output",str(op)],
+              stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=15)
+            all_ok=all_ok and proc.returncode==0 and not bool(proc.stderr.strip())
+            rv=load(op) if op.is_file() else {};schemas=schemas and rv.get("schema")=="chacha.dev/uncertainty-resolution/v1";results[name]=rv
+        return {"agent_id":"uncertainty-resolution-agent","adapter":"uncertainty-resolver","actual":{
+          "results":results,"all_processes_ok":all_ok,"schemas_valid":schemas,
+          "expected_first":order[0] if order else None,"expected_partial":order[2] if len(order)>2 else None,
+          "sandbox_isolated":True,"automatic_external_spend_eur":0
+        }}
+
 ADAPTERS={"guardian":guardian,"sentinel":sentinel,"bastion":bastion,"autonomous-recovery-agent":recovery,
           "security-reviewer":security_reviewer,"recovery-engineer":recovery_engineer,
           "platform-cloud-engineer":platform_cloud_engineer,"data-architect":data_architect,
@@ -516,6 +598,8 @@ ADAPTERS={"guardian":guardian,"sentinel":sentinel,"bastion":bastion,"autonomous-
           "frontend-architect":frontend_architect,"product-domain-architect":product_domain_architect,
           "documentation-adr-agent":documentation_adr_agent,"test-engineer":test_engineer,
           "performance-engineer":performance_engineer,"sre-observability-engineer":sre_observability_engineer,
+          "curator":curator_agent,"intendant":intendant_agent,
+          "knowledge-compiler-agent":knowledge_compiler_agent,"uncertainty-resolution-agent":uncertainty_resolution_agent,
           "agent-foundry-architect":agent_foundry_architect,"branch-foundry-architect":branch_foundry_architect,"capability-foundry-architect":capability_foundry_architect,"logician":logician_agent,"technology-watch-agent":technology_watch_agent,"acceptance-engineer":acceptance_engineer,"contract-integrator":contract_integrator,"integration-architect":integration_architect,"ergonomist":ergonomist_agent}
 
 def execute(agent_id:str,repo_root:Path)->dict[str,Any]:

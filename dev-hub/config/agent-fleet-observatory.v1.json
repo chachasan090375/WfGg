@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-fleet-observatory-policy/v1",
-  "version": "1.2.0",
+  "version": "1.6.0",
   "purpose": "Build evidence-backed agent metrics from ChaCha DEV runtime artifacts without assigning scores to unmeasured dimensions.",
   "runtime_sources": {
     "task_graphs": "plans/**/*.task-graph.json",
@@ -119,5 +119,20 @@
     "production_truth_eligible": false,
     "fill_unmeasured_dimensions_only": true,
     "overwrite_production_measurement": false
+  },
+  "specialist_review_evidence": {
+    "enabled": true,
+    "glob": "plans/**/automatic-finalization/**/reviews/*-source-reverified-review.json",
+    "eligible_agents": [
+      "curator",
+      "intendant"
+    ],
+    "required_schema": "chacha.dev/compromise-agent-review/v1",
+    "required_source_authority": "EXTERNAL",
+    "source_reverified_required": true,
+    "post_implementation_second_read_required": true,
+    "implementation_verified_required": true,
+    "direct_mutation_must_be_false_for_authority_score": true,
+    "production_truth": true
   }
 }

@@ -72,7 +72,9 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
     agg={aid:{
       "exec_success":0,"exec_failure":0,"timeouts":0,"attempts":0,"exec_events":0,
       "guardian_checks":0,"guardian_points":0.0,
+      "authority_checks":0,"authority_points":0.0,
       "verified_total":0,"verified_ok":0,"verified_with_evidence":0,
+      "specialist_review_total":0,"specialist_review_quality_ok":0,
       "handoff_total":0,"handoff_ok":0,
       "observed_capabilities":set(),"refs":defaultdict(list)
     } for aid in ids}
@@ -108,6 +110,8 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
                     if gs:
                         a["guardian_checks"]+=1
                         a["guardian_points"]+=100.0 if gs=="PASS" else 75.0 if gs=="WARNING" else 0.0
+                        a["authority_checks"]+=1
+                        a["authority_points"]+=100.0 if gs=="PASS" else 75.0 if gs=="WARNING" else 0.0
                         a["refs"]["authority_discipline"].append(str(path))
 
     # Independently verified producer results.
@@ -154,6 +158,35 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
     except Exception:
         pass
 
+    # V6.57 independently re-verified external specialist reviews.
+    review_cfg=policy.get("specialist_review_evidence") or {}
+    if review_cfg.get("enabled") is True:
+        eligible=set(str(x) for x in (review_cfg.get("eligible_agents") or []))
+        review_glob=str(review_cfg.get("glob") or "plans/**/automatic-finalization/**/reviews/*-source-reverified-review.json")
+        for path in runtime_root.glob(review_glob):
+            x=safe_load(path)
+            if not x or x.get("schema")!="chacha.dev/compromise-agent-review/v1":continue
+            aid=normalize_role(str(x.get("agent") or ""),ids,policy)
+            if not aid or (eligible and aid not in eligible):continue
+            if str(x.get("source_authority") or "")!="EXTERNAL":continue
+            if x.get("source_reverified") is not True or x.get("post_implementation_second_read") is not True:continue
+            if x.get("implementation_verified") is not True:continue
+            if str(x.get("verdict") or "") not in {"ACCEPT","REVISE","BLOCK"}:continue
+            if not str(x.get("receipt_id") or "") or not str(x.get("project_id") or "") or not str(x.get("revision") or ""):continue
+            if not str(x.get("compromise_digest") or "").startswith("sha256:"):continue
+            a=agg[aid];a["specialist_review_total"]+=1
+            structured=all(k in x for k in ("receipt_id","project_id","revision","verdict","hard_objections","soft_objections","evidence_refs"))
+            digest_ok=str(x.get("source_payload_digest") or "").startswith("sha256:")
+            if digest_ok:
+                a["specialist_review_quality_ok"]+=1
+                a["refs"]["evidence_quality"].append(str(path))
+            a["handoff_total"]+=1
+            if structured:a["handoff_ok"]+=1
+            a["refs"]["handoff_quality"].append(str(path))
+            a["authority_checks"]+=1
+            if x.get("direct_mutation") is False:a["authority_points"]+=100.0
+            a["refs"]["authority_discipline"].append(str(path))
+
     # V6.51 promoted benchmark evidence: benchmark-only measurements may fill UNKNOWN dimensions,
     # but never overwrite production/runtime measurements.
     benchmark_evidence={}
@@ -195,8 +228,10 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
         robustness=pct(a["exec_success"],a["exec_success"]+a["exec_failure"])
         efficiency=pct(a["exec_events"],a["attempts"]) if a["exec_events"] else None
         accuracy=pct(a["verified_ok"],a["verified_total"])
-        evidence_quality=pct(a["verified_with_evidence"],a["verified_total"])
-        authority=(round(a["guardian_points"]/a["guardian_checks"],1) if a["guardian_checks"] else None)
+        evidence_total=a["verified_total"]+a["specialist_review_total"]
+        evidence_ok=a["verified_with_evidence"]+a["specialist_review_quality_ok"]
+        evidence_quality=pct(evidence_ok,evidence_total)
+        authority=(round(a["authority_points"]/a["authority_checks"],1) if a["authority_checks"] else None)
         learning=a.get("learning_quality_value")
         declared_caps=declared.get(aid) or set()
         observed_declared=set(a["observed_capabilities"]) & declared_caps
@@ -206,13 +241,13 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
           "accuracy":measured(accuracy,a["verified_total"],a["refs"]["accuracy"]),
           "coverage":measured(coverage,len(observed_declared),a["refs"]["coverage"]),
           "calibration":{"status":"UNMEASURED","value":None,"evidence_count":0,"source_refs":[]},
-          "evidence_quality":measured(evidence_quality,a["verified_total"],a["refs"]["evidence_quality"]),
+          "evidence_quality":measured(evidence_quality,evidence_total,a["refs"]["evidence_quality"]),
           "robustness":measured(robustness,a["exec_events"],a["refs"]["robustness"]),
           "efficiency":measured(efficiency,a["exec_events"],a["refs"]["efficiency"]),
           "handoff_quality":measured(handoff,a["handoff_total"],a["refs"]["handoff_quality"]),
           "learning_quality":measured(learning,1 if learning is not None else 0,a["refs"]["learning_quality"]),
           "drift_resistance":{"status":"UNMEASURED","value":None,"evidence_count":0,"source_refs":[]},
-          "authority_discipline":measured(authority,a["guardian_checks"],a["refs"]["authority_discipline"])
+          "authority_discipline":measured(authority,a["authority_checks"],a["refs"]["authority_discipline"])
         }
         bench_path,bench=benchmark_evidence.get(aid,(None,None))
         if bench:
@@ -242,6 +277,7 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
             "execution_failures":a["exec_failure"],"timeouts":a["timeouts"],
             "attempts":a["attempts"],"verified_results":a["verified_total"],
             "verified_ok":a["verified_ok"],"guardian_checks":a["guardian_checks"],
+            "authority_checks":a["authority_checks"],"specialist_reviews":a["specialist_review_total"],
             "observed_capabilities":sorted(a["observed_capabilities"]),
             "declared_capabilities":sorted(declared.get(aid) or set()),
             "handoff_total":a["handoff_total"],"handoff_ok":a["handoff_ok"],
