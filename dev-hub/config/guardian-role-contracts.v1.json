@@ -400,6 +400,38 @@
       ]
     },
     {
+      "contract_id": "role:platform-component-adapter-registry-writer",
+      "kind": "role",
+      "allowed_actions": [
+        "WRITE_EXACT_ADAPTER_BINDING",
+        "ROLLBACK_EXACT_ADAPTER_BINDING",
+        "REPORT_TASK_RESULT"
+      ],
+      "forbidden_actions": [
+        "OVERWRITE_ADAPTER_BINDING",
+        "DELETE_UNRELATED_BINDING",
+        "PRODUCTION_DEPLOY",
+        "PROMOTE_COMPONENT",
+        "SOURCE_INTEGRATION",
+        "MODIFY_GUARDIAN_CONTRACTS",
+        "EXPAND_PERMISSIONS",
+        "MUTATE_RUNTIME"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write"
+      ],
+      "required_evidence": [
+        "project_control_registration_contract",
+        "separate_human_registration_approval",
+        "exact_registry_before_digest",
+        "exact_registry_after_digest",
+        "single_use_contract",
+        "rollback_required"
+      ]
+    },
+    {
       "contract_id": "role:platform-component-source-integration-executor",
       "kind": "role",
       "allowed_actions": [
