@@ -357,9 +357,10 @@ def run_memory(*,repo_root:Path,event:dict[str,Any],work:Path,experience_db:Path
     result={"experience":out,"event":str(event_path)}
     if memory_db is not None and memory_snapshot is not None:
         cmd=[sys.executable,str(repo_root/"dev-hub/bin/central-memory-assimilator.py"),
+             "--policy",str(repo_root/"dev-hub/config/central-memory-assimilation.v1.json"),
              "--experience-db",str(experience_db),"--db",str(memory_db),"--snapshot",str(memory_snapshot)]
         if nas:cmd.append("--nas")
-        p=subprocess.run(cmd,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,check=False)
+        p=subprocess.run(cmd,cwd=str(repo_root),text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,check=False)
         if p.returncode!=0:raise SystemExit("CENTRAL_MEMORY_REFRESH_FAILED:"+(p.stderr or p.stdout)[-2000:])
         raw=p.stdout
         marker="\nCHACHA_DEV_V622_CENTRAL_MEMORY_ASSIMILATION=PASS"
