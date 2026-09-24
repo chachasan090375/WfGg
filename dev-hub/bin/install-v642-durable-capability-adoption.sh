@@ -263,7 +263,7 @@ cat >"$WORK/project-success-task-graph.json" <<JSON
     "id":"v642-project-success",
     "kind":"verification",
     "permission":"read",
-    "outputs":[],
+    "outputs":[{"type":"artifact","id":"capability-project-success:$CAPABILITY"}],
     "verification":{"required":true,"mode":"machine"}
   }]
 }
@@ -277,7 +277,7 @@ cat >"$WORK/project-success-task-result.json" <<JSON
   "status":"OK",
   "summary":"Capability used successfully by the real V6.42 adoption pilot.",
   "observed_at":"$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-  "outputs":[],
+  "outputs":[{"type":"artifact","id":"capability-project-success:$CAPABILITY","status":"OK"}],
   "evidence":[
     {"source":"$PROOF_DIR/project-success-claims.json","digest":"$CLAIMS_DIGEST"},
     {"source":"$PROOF_DIR/build-result.json","digest":"$BUILD_DIGEST"},
@@ -322,13 +322,15 @@ cat >"$PROOF_DIR/candidate.json" <<JSON
   "adoption_state":"PENDING_PROJECT_SUCCESS"
 }
 JSON
-python3 - "$PROOF_DIR/project-success-claims.json" "$PC_RECEIPT" "$CLAIMS_DIGEST" "$PROOF_DIR/project-success.json" <<'PY'
+python3 - "$PROOF_DIR/project-success-claims.json" "$PC_RECEIPT" "$LEDGER" "$CLAIMS_DIGEST" "$PROOF_DIR/project-success.json" "$CAPABILITY" <<'PY'
 import json,pathlib,sys
-claims_path,receipt,digest,out=sys.argv[1:]
+claims_path,receipt,ledger,digest,out,capability=sys.argv[1:]
 claims=json.load(open(claims_path,encoding="utf-8"))
 v={"schema":"chacha.dev/capability-project-success/v1",**claims,
    "verification_status":"VERIFIED",
    "project_control_receipt":receipt,
+   "project_control_ledger":ledger,
+   "verified_success_artifact_id":"capability-project-success:"+capability,
    "verified_task_id":"v642-project-success",
    "verified_claims_path":claims_path,
    "verified_claims_digest":digest}
