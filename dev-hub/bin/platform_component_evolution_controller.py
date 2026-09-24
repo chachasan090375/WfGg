@@ -182,6 +182,7 @@ def build_pilot_contracts(readiness:dict[str,Any],harness_registry:dict[str,Any]
           "same_benchmark_contract":h.get("same_benchmark_contract") is True,
           "zero_external_spend":float(h.get("automatic_external_spend_eur") or 0)==0,
           "argv_present":isinstance(h.get("argv"),list) and bool(h.get("argv")),
+          "qualification_workflow_name_present":bool(str(h.get("qualification_workflow_name") or "")),
           "incumbent_ref_present":bool(str(row.get("incumbent_artifact_ref") or "")),
           "candidate_ref_present":bool(str(row.get("candidate_artifact_ref") or "")),
         }
@@ -195,6 +196,7 @@ def build_pilot_contracts(readiness:dict[str,Any],harness_registry:dict[str,Any]
             "candidate":row.get("candidate_artifact_ref"),"incumbent":row.get("incumbent_artifact_ref")})[:24],
           "dispatch_id":row.get("dispatch_id"),"component_id":cid,
           "candidate_owner":row.get("candidate_owner"),"harness_id":h.get("harness_id"),
+          "qualification_workflow_name":h.get("qualification_workflow_name"),
           "harness_argv":list(h.get("argv") or []),"resource_budget":h.get("resource_budget") or {},
           "incumbent_artifact_ref":row.get("incumbent_artifact_ref"),
           "candidate_artifact_ref":row.get("candidate_artifact_ref"),
