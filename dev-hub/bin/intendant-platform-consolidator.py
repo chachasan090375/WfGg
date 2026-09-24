@@ -202,8 +202,7 @@ def main()->int:
     evidence_root=Path(str(retention.get("verification_evidence_root") or "/opt/chacha-dev/evidence"))
     plan=build_plan(a.platform_root.resolve(),policy,evidence_root)
     if a.apply:
-        archive=a.archive_manifest or (a.output.parent/"platform-retirement-archive.json")
-        plan=apply_plan(plan,policy,a.approval,archive.resolve(),a.explicit_destructive_apply)
+        raise SystemExit("INTENDANT_DIRECT_MUTATION_FORBIDDEN_USE_CENTRAL_ORCHESTRATOR")
     save(a.output.resolve(),plan)
     mib=lambda n:round(float(n or 0)/1024/1024,1)
     print("CHACHA_DEV_V7_CONSOLIDATION_PLAN=PASS")
