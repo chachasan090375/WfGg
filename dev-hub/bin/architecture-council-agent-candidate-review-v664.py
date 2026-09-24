@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,hashlib,json
+import argparse,hashlib,json,urllib.parse,urllib.request
 from datetime import datetime,timezone
 from pathlib import Path
 from typing import Any
@@ -16,14 +16,32 @@ def save(p:Path,x:dict[str,Any])->None:
     p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(x,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
 def now_iso()->str:return datetime.now(timezone.utc).isoformat().replace("+00:00","Z")
 def sha256(p:Path)->str:return "sha256:"+hashlib.sha256(p.read_bytes()).hexdigest()
+def github_runs(repository:str,revision:str)->dict[str,Any]:
+    q=urllib.parse.urlencode({"head_sha":revision,"per_page":50})
+    req=urllib.request.Request(
+      "https://api.github.com/repos/"+repository+"/actions/runs?"+q,
+      headers={"User-Agent":"ChaCha-DEV-V664-Council/1.0","Accept":"application/vnd.github+json"}
+    )
+    with urllib.request.urlopen(req,timeout=20) as r:
+        x=json.loads(r.read().decode("utf-8"))
+    if not isinstance(x,dict):raise ValueError("GITHUB_RUNS_INVALID")
+    return x
+def workflow_success(runs:dict[str,Any],name:str,revision:str)->bool:
+    return any(
+      isinstance(x,dict) and x.get("name")==name and x.get("head_sha")==revision and
+      x.get("status")=="completed" and x.get("conclusion")=="success"
+      for x in (runs.get("workflow_runs") or [])
+    )
 
 def main()->int:
     ap=argparse.ArgumentParser()
     ap.add_argument("--repo-root",type=Path,required=True)
     ap.add_argument("--runtime-root",type=Path,required=True)
     ap.add_argument("--readiness",type=Path,required=True)
+    ap.add_argument("--revision",required=True)
     ap.add_argument("--output",type=Path,required=True)
     ap.add_argument("--technology-watch-status",type=Path)
+    ap.add_argument("--github-runs-json",type=Path)
     a=ap.parse_args()
     repo=a.repo_root.resolve();runtime=a.runtime_root.resolve()
     policy_path=repo/"dev-hub/config/architecture-decision-council.v1.json"
@@ -32,6 +50,9 @@ def main()->int:
     readiness=load(a.readiness);policy=load(policy_path);manifest=load(manifest_path)
     review_policy=policy.get("agent_candidate_review") or {}
     watch=load(a.technology_watch_status) if a.technology_watch_status else tw.snapshot_status(repo)
+    runs=load(a.github_runs_json) if a.github_runs_json else github_runs("chachasan090375/WfGg",str(a.revision))
+    exact_sentinel=workflow_success(runs,"ChaCha DEV Sentinel technical assurance",str(a.revision))
+    exact_qualification=workflow_success(runs,"ChaCha DEV V6.64 real instrumented project and Acceptance Council gate qualification",str(a.revision))
     checks={
       "council_policy_enabled":review_policy.get("enabled") is True,
       "central_orchestrator_final_decider":policy.get("central_orchestrator_is_final_decider") is True,
@@ -54,12 +75,14 @@ def main()->int:
       "zero_automatic_external_spend":float(readiness.get("automatic_external_spend_eur") or 0)==0 and float(manifest.get("automatic_external_spend_eur") or 0)==0,
       "auto_promotion_forbidden":review_policy.get("architecture_council_may_auto_promote") is False,
       "human_approval_required":review_policy.get("explicit_human_promotion_approval_required") is True,
-      "human_approval_absent":readiness.get("human_explicit_promotion_approval_present") is False
+      "human_approval_absent":readiness.get("human_explicit_promotion_approval_present") is False,
+      "v664_exact_revision_sentinel_success":exact_sentinel,
+      "v664_exact_revision_qualification_success":exact_qualification
     }
     passed=all(checks.values())
     decision="TECHNICALLY_ADMISSIBLE_AWAIT_EXPLICIT_HUMAN_PROMOTION_APPROVAL" if passed else "COUNCIL_REVIEW_BLOCKED_HOLD_INCUMBENT"
     result={
-      "schema":SCHEMA,"generated_at":now_iso(),"candidate_id":manifest.get("candidate_id"),
+      "schema":SCHEMA,"generated_at":now_iso(),"revision":str(a.revision),"candidate_id":manifest.get("candidate_id"),
       "review_authority":"architecture-council","policy_digest":sha256(policy_path),"manifest_digest":sha256(manifest_path),
       "readiness_digest":sha256(a.readiness),"incumbent_digest":sha256(incumbent),
       "checks":checks,"technical_review_passed":passed,"decision":decision,
