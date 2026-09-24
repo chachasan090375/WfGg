@@ -313,6 +313,56 @@ def uncertainty_resolution_agent(a:dict[str,Any])->list[dict[str,Any]]:
       _case("zero-spend","authority_discipline",float(a.get("automatic_external_spend_eur") or 0)==0,a.get("automatic_external_spend_eur"))
     ]
 
+
+def _domain_specialist_contract(a:dict[str,Any])->list[dict[str,Any]]:
+    resolutions=a.get("resolutions") or []
+    return [
+      _case("role-bound","accuracy",a.get("role_bound") is True,a.get("role_bound")),
+      _case("capability-alignment","accuracy",a.get("capability_alignment") is True,{"routing":a.get("routing_capabilities"),"domain":a.get("domain_capabilities")}),
+      _case("all-capabilities-registered","robustness",a.get("all_capabilities_registered") is True,a.get("all_capabilities_registered")),
+      _case("all-resolutions-ready","robustness",a.get("all_resolutions_ready") is True,resolutions),
+      _case("structured-resolution-evidence","evidence_quality",a.get("resolution_evidence_complete") is True,resolutions),
+      _case("toolchain-declared","evidence_quality",int(a.get("toolchain_count") or 0)>0,a.get("toolchain_count")),
+      _case("review-chain-declared","evidence_quality",int(a.get("review_count") or 0)>0,a.get("review_count")),
+      _case("no-paid-provider","authority_discipline",a.get("paid_provider_selected") is False,a.get("paid_provider_selected")),
+      _case("no-direct-mutation","authority_discipline",a.get("direct_mutation") is False,a.get("direct_mutation")),
+      _case("benchmark-not-production","authority_discipline",a.get("benchmark_production_truth") is False,a.get("benchmark_production_truth")),
+      _case("zero-spend","authority_discipline",float(a.get("automatic_external_spend_eur") or 0)==0,a.get("automatic_external_spend_eur"))
+    ]
+
+def graphics_specialist(a:dict[str,Any])->list[dict[str,Any]]:
+    return _domain_specialist_contract(a)
+
+def animation_specialist(a:dict[str,Any])->list[dict[str,Any]]:
+    return _domain_specialist_contract(a)
+
+def ui_layout_specialist(a:dict[str,Any])->list[dict[str,Any]]:
+    return _domain_specialist_contract(a)
+
+def translation_specialist(a:dict[str,Any])->list[dict[str,Any]]:
+    return _domain_specialist_contract(a)
+
+def publication_specialist(a:dict[str,Any])->list[dict[str,Any]]:
+    return _domain_specialist_contract(a)
+
+def technology_radar_agent(a:dict[str,Any])->list[dict[str,Any]]:
+    return [
+      _case("status-read-contract","accuracy",a.get("status_contract_ok") is True,a.get("status_contract_ok")),
+      _case("isolated-quality-gate","accuracy",a.get("quality_gate_ready") is True and int(a.get("cycle_count") or 0)==1,a),
+      _case("cycles-table-present","robustness",a.get("cycles_table_present") is True,a.get("cycles_table_present")),
+      _case("write-permission-blocked","robustness",a.get("write_permission_blocked") is True,a.get("write_permission_blocked")),
+      _case("project-registry-bound","evidence_quality",a.get("project_id")=="wfgg-radar" and a.get("scope_exclusion_project")=="wfgg-radar",a),
+      _case("project-only-scope","authority_discipline",a.get("agent_scope")=="PROJECT_ONLY" and a.get("scope_exclusion")=="PROJECT_ONLY",a),
+      _case("not-central-brain","authority_discipline",a.get("central_brain_role") is False,a.get("central_brain_role")),
+      _case("no-production-permission","authority_discipline",a.get("production_permission") is False,a.get("production_permission")),
+      _case("not-platform-global","authority_discipline",a.get("platform_global") is False,a.get("platform_global")),
+      _case("no-game-scan","authority_discipline",a.get("game_scan_executed") is False,a.get("game_scan_executed")),
+      _case("no-collector-mutation","authority_discipline",a.get("collector_mutation") is False,a.get("collector_mutation")),
+      _case("no-direct-mutation","authority_discipline",a.get("direct_mutation") is False,a.get("direct_mutation")),
+      _case("benchmark-not-production","authority_discipline",a.get("benchmark_production_truth") is False,a.get("benchmark_production_truth")),
+      _case("zero-spend","authority_discipline",float(a.get("automatic_external_spend_eur") or 0)==0,a.get("automatic_external_spend_eur"))
+    ]
+
 ORACLES={"guardian":guardian,"sentinel":sentinel,"bastion":bastion,"autonomous-recovery-agent":recovery,
          "security-reviewer":security_reviewer,"recovery-engineer":recovery_engineer,
          "platform-cloud-engineer":platform_cloud_engineer,"data-architect":data_architect,
@@ -322,6 +372,8 @@ ORACLES={"guardian":guardian,"sentinel":sentinel,"bastion":bastion,"autonomous-r
          "performance-engineer":performance_engineer,"sre-observability-engineer":sre_observability_engineer,
          "curator":curator_agent,"intendant":intendant_agent,
          "knowledge-compiler-agent":knowledge_compiler_agent,"uncertainty-resolution-agent":uncertainty_resolution_agent,
+         "graphics-specialist":graphics_specialist,"animation-specialist":animation_specialist,"ui-layout-specialist":ui_layout_specialist,
+         "translation-specialist":translation_specialist,"publication-specialist":publication_specialist,"technology-radar-agent":technology_radar_agent,
          "agent-foundry-architect":agent_foundry_architect,"branch-foundry-architect":branch_foundry_architect,"capability-foundry-architect":capability_foundry_architect,"logician":logician_agent,"technology-watch-agent":technology_watch_agent,"acceptance-engineer":acceptance_engineer,"contract-integrator":contract_integrator,"integration-architect":integration_architect,"ergonomist":ergonomist_agent}
 
 def verify(agent_id:str,raw:dict[str,Any])->dict[str,Any]:
