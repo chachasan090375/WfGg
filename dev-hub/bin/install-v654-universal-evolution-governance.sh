@@ -53,9 +53,9 @@ root=pathlib.Path(sys.argv[1])
 src=(root/"dev-hub/bin/autonomous-project-orchestrator.py").read_text(encoding="utf-8")
 assert '"version":"6.53.0"' in src,"V653_RUNTIME_VERSION_NOT_ACTIVE"
 rev=(root/".revision").read_text(encoding="utf-8").strip()
-assert rev=="9c8ba1b2c279adc0ac67a66e11b49093fb0e8397",("V653_ACQUIRED_REVISION_MISMATCH",rev)
+assert rev=="7c1bec95e168bfc9c022f6d1b6ecf9c6ee2ccc63",("V653_ACQUIRED_REVISION_MISMATCH",rev)
 ev=list(pathlib.Path("/opt/chacha-dev/evidence").glob("v653-calibration-handoff-learning-third-wave-*.json"))
-assert any("9c8ba1b2c279adc0ac67a66e11b49093fb0e8397" in p.read_text(encoding="utf-8") for p in ev),"V653_REAL_EVIDENCE_MISSING"
+assert any("7c1bec95e168bfc9c022f6d1b6ecf9c6ee2ccc63" in p.read_text(encoding="utf-8") for p in ev),"V653_REAL_EVIDENCE_MISSING"
 print("CHACHA_DEV_V654_V653_REAL_BASELINE=PASS")
 PY
 
@@ -69,14 +69,17 @@ else
   SRC="$WORK/src"
 fi
 
-for required in  dev-hub/bin/agent_evolution_profile.py  dev-hub/bin/agent_evolution_daily_cycle.py  dev-hub/bin/agent_observation_bus_health.py  dev-hub/bin/agent_benchmark_adapters.py  dev-hub/bin/agent_benchmark_oracles.py  dev-hub/bin/agent_benchmark_campaign_runner.py  dev-hub/bin/agent_fleet_observatory.py  dev-hub/bin/autonomous-project-orchestrator.py  dev-hub/config/agent-evolution-profile.v1.json  dev-hub/config/agent-benchmark-adapters.v1.json  dev-hub/tests/test_v654_universal_evolution_governance.py; do
+for required in  dev-hub/bin/agent_evolution_profile.py  dev-hub/bin/component_evolution_governance.py  dev-hub/bin/agent-foundry-planner.py  dev-hub/bin/project-embedded-assurance.py  dev-hub/bin/agent_evolution_daily_cycle.py  dev-hub/bin/agent_observation_bus_health.py  dev-hub/bin/agent_benchmark_adapters.py  dev-hub/bin/agent_benchmark_oracles.py  dev-hub/bin/agent_benchmark_campaign_runner.py  dev-hub/bin/agent_fleet_observatory.py  dev-hub/bin/autonomous-project-orchestrator.py  dev-hub/config/agent-evolution-profile.v1.json  dev-hub/config/universal-evolution-governance.v1.json  dev-hub/config/lightweight-agent-runtime-profile.v1.json  dev-hub/config/project-embedded-assurance.v1.json  dev-hub/config/agent-benchmark-adapters.v1.json  dev-hub/tests/test_v654_universal_evolution_governance.py; do
   [ -f "$SRC/$required" ] || { echo "CHACHA_DEV_V654_INSTALL=BLOCKED reason=missing:$required"; exit 2; }
 done
 
 stage candidate-release
 mkdir -p "$RELEASE";cp -a "$SRC/dev-hub" "$RELEASE/dev-hub";printf '%s\n' "$REV" >"$RELEASE/.revision"
-PYTHONPATH="$RELEASE/dev-hub/bin" python3 -m py_compile  "$RELEASE/dev-hub/bin/agent_evolution_profile.py"  "$RELEASE/dev-hub/bin/agent_evolution_daily_cycle.py"  "$RELEASE/dev-hub/bin/agent_observation_bus_health.py"  "$RELEASE/dev-hub/bin/agent_benchmark_adapters.py"  "$RELEASE/dev-hub/bin/agent_benchmark_oracles.py"  "$RELEASE/dev-hub/bin/agent_fleet_observatory.py"  "$RELEASE/dev-hub/bin/autonomous-project-orchestrator.py"
+PYTHONPATH="$RELEASE/dev-hub/bin" python3 -m py_compile  "$RELEASE/dev-hub/bin/agent_evolution_profile.py"  "$RELEASE/dev-hub/bin/component_evolution_governance.py"  "$RELEASE/dev-hub/bin/agent-foundry-planner.py"  "$RELEASE/dev-hub/bin/project-embedded-assurance.py"  "$RELEASE/dev-hub/bin/agent_evolution_daily_cycle.py"  "$RELEASE/dev-hub/bin/agent_observation_bus_health.py"  "$RELEASE/dev-hub/bin/agent_benchmark_adapters.py"  "$RELEASE/dev-hub/bin/agent_benchmark_oracles.py"  "$RELEASE/dev-hub/bin/agent_fleet_observatory.py"  "$RELEASE/dev-hub/bin/autonomous-project-orchestrator.py"
 python3 -m json.tool "$RELEASE/dev-hub/config/agent-evolution-profile.v1.json" >/dev/null
+python3 -m json.tool "$RELEASE/dev-hub/config/universal-evolution-governance.v1.json" >/dev/null
+python3 -m json.tool "$RELEASE/dev-hub/config/lightweight-agent-runtime-profile.v1.json" >/dev/null
+python3 -m json.tool "$RELEASE/dev-hub/config/project-embedded-assurance.v1.json" >/dev/null
 python3 -m json.tool "$RELEASE/dev-hub/config/agent-benchmark-adapters.v1.json" >/dev/null
 grep -Fq '"version":"6.54.0"' "$RELEASE/dev-hub/bin/autonomous-project-orchestrator.py"
 echo "CHACHA_DEV_V654_STATIC=PASS"
@@ -86,7 +89,7 @@ stage semantic-qualification
  cd "$RELEASE"
  PYTHONPATH="$RELEASE/dev-hub/bin" python3 dev-hub/tests/test_v654_universal_evolution_governance.py
 ) >"$WORK/v654.out" 2>"$WORK/v654.err"
-for marker in  CHACHA_DEV_V654_UNIVERSAL_PROFILE_35=PASS  CHACHA_DEV_V654_PROFILE_IS_PERFORMANCE_SCORE=NO  CHACHA_DEV_V654_PROJECT_RADAR_SCOPE=PROJECT_LOCAL  CHACHA_DEV_V654_CURATOR_INTENDANT_PROFILE_ONLY=PASS  CHACHA_DEV_V654_ACCEPTANCE_ENGINEER_ADAPTER=PASS  CHACHA_DEV_V654_CONTRACT_INTEGRATOR_ADAPTER=PASS  CHACHA_DEV_V654_INTEGRATION_ARCHITECT_ADAPTER=PASS  CHACHA_DEV_V654_ERGONOMIST_ADAPTER=PASS  CHACHA_DEV_V654_FOURTH_WAVE_CANDIDATE_MATERIALIZATION=BLOCKED  CHACHA_DEV_V654_BUS_PROFILE_POLICY_REASSESSMENT=PASS  CHACHA_DEV_V654_AUTOMATIC_EXTERNAL_SPEND_EUR=0; do
+for marker in  CHACHA_DEV_V654_UNIVERSAL_PROFILE_35=PASS  CHACHA_DEV_V654_PROFILE_IS_PERFORMANCE_SCORE=NO  CHACHA_DEV_V654_PROJECT_RADAR_SCOPE=PROJECT_LOCAL  CHACHA_DEV_V654_CURATOR_INTENDANT_PROFILE_ONLY=PASS  CHACHA_DEV_V654_ACCEPTANCE_ENGINEER_ADAPTER=PASS  CHACHA_DEV_V654_CONTRACT_INTEGRATOR_ADAPTER=PASS  CHACHA_DEV_V654_INTEGRATION_ARCHITECT_ADAPTER=PASS  CHACHA_DEV_V654_ERGONOMIST_ADAPTER=PASS  CHACHA_DEV_V654_FOURTH_WAVE_CANDIDATE_MATERIALIZATION=BLOCKED  CHACHA_DEV_V654_BUS_PROFILE_POLICY_REASSESSMENT=PASS  CHACHA_DEV_V654_UNIVERSAL_COMPONENT_GOVERNANCE=PASS  CHACHA_DEV_V654_SINGLE_EVOLUTION_OWNER=PASS  CHACHA_DEV_V654_CONNECTOR_AGENT_SCORECARD=NO  CHACHA_DEV_V654_PASSIVE_ARTIFACT_INHERITS_OWNER=PASS  CHACHA_DEV_V654_FUTURE_AGENT_INHERITANCE=PASS  CHACHA_DEV_V654_LIGHTWEIGHT_EMBEDDED_PROFILE=PASS  CHACHA_DEV_V654_LOCAL_TECH_WATCH_LOGICIAN_FOUNDRY_DUPLICATION=NO  CHACHA_DEV_V654_AUTOMATIC_EXTERNAL_SPEND_EUR=0; do
   grep -Fq "$marker" "$WORK/v654.out"
 done
 echo "CHACHA_DEV_V654_SEMANTIC_QUALIFICATION=PASS"
@@ -179,6 +182,86 @@ print("CHACHA_DEV_V654_REAL_PROJECT_RADAR_SCOPE=PROJECT_LOCAL")
 print("CHACHA_DEV_V654_REAL_TECHNOLOGY_WATCH_NEXT=ACCUMULATE_PRODUCTION_EVIDENCE")
 PY
 
+stage universal-component-governance
+PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/component_evolution_governance.py" \
+ --agent-profiles /opt/chacha-dev/runtime/agent-evolution/profiles/index.json \
+ --core-watch "$CURRENT/dev-hub/config/technology-core-watch.v1.json" \
+ --provider-adapters "$CURRENT/dev-hub/config/provider-adapters.v1.json" \
+ --mcp-catalog "$CURRENT/dev-hub/config/mcp-provider-catalog.v1.json" \
+ --embedded-assurance "$CURRENT/dev-hub/config/project-embedded-assurance.v1.json" \
+ --policy "$CURRENT/dev-hub/config/universal-evolution-governance.v1.json" \
+ --output /opt/chacha-dev/runtime/agent-evolution/component-governance-latest.json \
+ >"$WORK/component-governance.out" 2>"$WORK/component-governance.err"
+grep -Fq 'CHACHA_DEV_V654_UNIVERSAL_COMPONENT_GOVERNANCE=PASS' "$WORK/component-governance.out"
+python3 - <<'PY'
+import json
+p='/opt/chacha-dev/runtime/agent-evolution/component-governance-latest.json'
+x=json.load(open(p,encoding='utf-8'))
+assert x["component_count"]>70,x["component_count"]
+assert x["single_evolution_owner_per_component"] is True,x
+assert x["no_parallel_governance_engines"] is True,x
+assert x["lightweight_agents_do_not_duplicate_central_intelligence"] is True,x
+by={c["component_id"]:c for c in x["components"]}
+assert by["core:central-orchestrator"]["evolution_owner"]=="branch-foundry",by["core:central-orchestrator"]
+assert by["adapter:playwright-mcp-adapter"]["evolution_owner"]=="capability-foundry",by["adapter:playwright-mcp-adapter"]
+assert by["adapter:playwright-mcp-adapter"]["agent_scorecard"] is False,by["adapter:playwright-mcp-adapter"]
+assert by["integration:playwright-mcp"]["sources"]==["mcp-provider-catalog","provider-adapters"],by["integration:playwright-mcp"]
+assert x["passive_artifact_governance"]["inherit_owner"] is True,x
+print("CHACHA_DEV_V654_REAL_UNIVERSAL_COMPONENT_GOVERNANCE=PASS")
+print("CHACHA_DEV_V654_REAL_SINGLE_EVOLUTION_OWNER=PASS")
+print("CHACHA_DEV_V654_REAL_CONNECTOR_AGENT_SCORECARD=NO")
+PY
+
+stage future-agent-inheritance
+PYTHONPATH="$CURRENT/dev-hub/bin" python3 - "$CURRENT" <<'PY'
+import importlib.util,json,sys
+from pathlib import Path
+root=Path(sys.argv[1]);binp=root/"dev-hub/bin"
+sys.path.insert(0,str(binp))
+spec=importlib.util.spec_from_file_location("v654_agent_foundry",binp/"agent-foundry-planner.py")
+m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+routing=json.load(open(root/"dev-hub/config/agent-routing.v1.json",encoding="utf-8"))
+cfg=json.load(open(root/"dev-hub/config/agent-foundry.v1.json",encoding="utf-8"))
+pkg={"id":"v654-real-light","domain":"custom-domain","kind":"primary",
+     "capabilities":["custom-a","custom-b","custom-c","custom-d","custom-e"],"roles":[],"toolchain":[]}
+x=m.decide_package(pkg,routing,cfg,"v654-real")
+assert x["decision"]=="CREATE_EPHEMERAL_AGENT",x
+mf=x["manifest"];ep=mf["evolution_profile"];lp=mf["lightweight_runtime_profile"]
+assert ep["governance_class"]=="LIGHTWEIGHT_PROJECT_AGENT",ep
+assert ep["active_self_mutation"] is False and ep["self_promotion"] is False,ep
+assert lp["central_observation_bus"] is True and lp["incremental_learning_uplink"] is True,lp
+assert "technology-watch-engine" in lp["local_forbidden_controls"],lp
+print("CHACHA_DEV_V654_REAL_FUTURE_AGENT_INHERITANCE=PASS")
+PY
+
+stage lightweight-embedded-profile
+mkdir -p "$WORK/embedded-input"
+printf '#!/usr/bin/env python3\n' >"$WORK/embedded-input/runtime.py"
+printf '#!/usr/bin/env python3\n' >"$WORK/embedded-input/relay.py"
+printf '// v654\n' >"$WORK/embedded-input/client.mjs"
+PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/project-embedded-assurance.py" \
+ --project-id v654-real-project \
+ --policy "$CURRENT/dev-hub/config/project-embedded-assurance.v1.json" \
+ --runtime-script "$WORK/embedded-input/runtime.py" \
+ --relay-script "$WORK/embedded-input/relay.py" \
+ --client-runtime "$WORK/embedded-input/client.mjs" \
+ --output-dir "$WORK/embedded-bundle" \
+ >"$WORK/embedded.out" 2>"$WORK/embedded.err"
+python3 - "$WORK/embedded-bundle/embedded-assurance.json" <<'PY'
+import json,sys
+x=json.load(open(sys.argv[1],encoding="utf-8"))
+lp=x["lightweight_agent_runtime_profile"]
+assert lp["governance_class"]=="LIGHTWEIGHT_EMBEDDED_AGENT",lp
+assert lp["technology_watch_local"] is False,lp
+assert lp["logician_local"] is False,lp
+assert lp["foundry_local"] is False,lp
+assert lp["benchmark_orchestrator_local"] is False,lp
+assert lp["active_self_mutation"] is False and lp["self_promotion"] is False,lp
+assert all(p["runtime_profile"]=="LIGHTWEIGHT_EMBEDDED_AGENT" and p["central_governance"] is True for p in x["local_probes"].values()),x["local_probes"]
+print("CHACHA_DEV_V654_REAL_LIGHTWEIGHT_EMBEDDED_PROFILE=PASS")
+print("CHACHA_DEV_V654_REAL_LOCAL_HEAVY_GOVERNANCE_DUPLICATION=NO")
+PY
+
 stage bus-health-profile-policy
 PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/agent_observation_bus_health.py"  --repo-root "$CURRENT" --runtime-root /opt/chacha-dev/runtime  --policy "$CURRENT/dev-hub/config/agent-observation-bus.v1.json" --mode lightweight  >"$WORK/bus-health.out" 2>"$WORK/bus-health.err"
 python3 - <<'PY'
@@ -187,6 +270,10 @@ p='/opt/chacha-dev/runtime/agent-observation/bus-health-latest.json'
 x=json.load(open(p,encoding='utf-8'))
 assert (x.get("evolution_profile_policy") or {}).get("digest","").startswith("sha256:"),x
 assert (x.get("evolution_profile_policy") or {}).get("change_requires_reassessment") is True,x
+assert (x.get("universal_evolution_governance_policy") or {}).get("digest","").startswith("sha256:"),x
+assert (x.get("universal_evolution_governance_policy") or {}).get("change_requires_reassessment") is True,x
+assert (x.get("lightweight_agent_runtime_profile") or {}).get("digest","").startswith("sha256:"),x
+assert (x.get("lightweight_agent_runtime_profile") or {}).get("change_requires_reassessment") is True,x
 assert x.get("direct_self_mutation") is False and x.get("self_promotion") is False,x
 print("CHACHA_DEV_V654_REAL_BUS_PROFILE_POLICY_DIGEST=PASS")
 PY
@@ -225,6 +312,8 @@ by={a["agent_id"]:a for a in fleet.get("agents") or []}
 targets=["acceptance-engineer","contract-integrator","integration-architect","ergonomist"]
 out={"schema":"chacha.dev/v654-universal-evolution-governance-evidence/v1",
  "revision":sys.argv[2],"observed_at":sys.argv[3],"universal_profile_count":idx["profile_count"],
+ "universal_component_governance":True,"single_evolution_owner_per_component":True,
+ "lightweight_embedded_agent_profile":True,"local_heavy_governance_duplication":False,
  "profile_is_performance_score":False,
  "fourth_wave":{aid:{"measurement_coverage_pct":by[aid]["scorecard"]["measurement_coverage_pct"],
                      "production_measurement_coverage_pct":by[aid]["scorecard"].get("production_measurement_coverage_pct")} for aid in targets},
@@ -242,6 +331,11 @@ echo "CHACHA_DEV_V654_REAL_FOURTH_WAVE_EVIDENCE_PROMOTED=4"
 echo "CHACHA_DEV_V654_REAL_PROJECT_RADAR_SCOPE=PROJECT_LOCAL"
 echo "CHACHA_DEV_V654_REAL_CURATOR_INTENDANT_PROFILE_ONLY=PASS"
 echo "CHACHA_DEV_V654_REAL_BUS_PROFILE_POLICY_DIGEST=PASS"
+echo "CHACHA_DEV_V654_REAL_UNIVERSAL_COMPONENT_GOVERNANCE=PASS"
+echo "CHACHA_DEV_V654_REAL_SINGLE_EVOLUTION_OWNER=PASS"
+echo "CHACHA_DEV_V654_REAL_FUTURE_AGENT_INHERITANCE=PASS"
+echo "CHACHA_DEV_V654_REAL_LIGHTWEIGHT_EMBEDDED_PROFILE=PASS"
+echo "CHACHA_DEV_V654_REAL_LOCAL_HEAVY_GOVERNANCE_DUPLICATION=NO"
 echo "CHACHA_DEV_V654_REAL_CANONICAL_TRUST_DURABLE_TW_BUS_MUTATION=NO"
 echo "CHACHA_DEV_V654_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES"
 echo "CHACHA_DEV_V654_AUTOMATIC_EXTERNAL_SPEND_EUR=0"
