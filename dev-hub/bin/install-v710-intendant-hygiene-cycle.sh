@@ -31,19 +31,19 @@ rollback(){
       [ -s "$f" ] || continue
       echo "=== $(basename "$f") ==="; tail -300 "$f" || true
     done
-    systemctl stop chacha-dev-intendant-hygiene.timer >/dev/null 2>&1 || true
-    systemctl disable chacha-dev-intendant-hygiene.timer >/dev/null 2>&1 || true
-    if [ "$SERVICE_EXISTED" -eq 1 ]; then cp -a "$SERVICE_BACKUP" "$SERVICE"; else rm -f "$SERVICE"; fi
-    if [ "$TIMER_EXISTED" -eq 1 ]; then cp -a "$TIMER_BACKUP" "$TIMER"; else rm -f "$TIMER"; fi
-    systemctl daemon-reload >/dev/null 2>&1 || true
-    if [ "$ACTIVATED" -eq 1 ] && [ "$PURGE_COMMITTED" -eq 0 ] && [ -n "$PREVIOUS" ] && [ -d "$PREVIOUS" ]; then
-      ln -sfn "$PREVIOUS" "$CURRENT"
-      echo "CHACHA_DEV_V710_RUNTIME_ROLLBACK=PASS"
+    if [ "$PURGE_COMMITTED" -eq 0 ]; then
+      systemctl stop chacha-dev-intendant-hygiene.timer >/dev/null 2>&1 || true
+      systemctl disable chacha-dev-intendant-hygiene.timer >/dev/null 2>&1 || true
+      if [ "$SERVICE_EXISTED" -eq 1 ]; then cp -a "$SERVICE_BACKUP" "$SERVICE"; else rm -f "$SERVICE"; fi
+      if [ "$TIMER_EXISTED" -eq 1 ]; then cp -a "$TIMER_BACKUP" "$TIMER"; else rm -f "$TIMER"; fi
+      systemctl daemon-reload >/dev/null 2>&1 || true
+      if [ "$ACTIVATED" -eq 1 ] && [ -n "$PREVIOUS" ] && [ -d "$PREVIOUS" ]; then
+        ln -sfn "$PREVIOUS" "$CURRENT"
+        echo "CHACHA_DEV_V710_RUNTIME_ROLLBACK=PASS"
+      fi
       rm -rf "$RELEASE" 2>/dev/null || true
-    elif [ "$PURGE_COMMITTED" -eq 1 ]; then
-      echo "CHACHA_DEV_V710_RUNTIME_ROLLBACK=SKIPPED_PURGE_ALREADY_COMMITTED"
     else
-      rm -rf "$RELEASE" 2>/dev/null || true
+      echo "CHACHA_DEV_V710_ROLLBACK=SKIPPED_COMMITTED_PHYSICAL_RETIREMENT"
     fi
   fi
   cleanup
@@ -105,7 +105,9 @@ req=urllib.request.Request("https://api.github.com/repos/chachasan090375/WfGg/ac
 with urllib.request.urlopen(req,timeout=20) as r:x=json.loads(r.read().decode())
 need={
  "ChaCha DEV Sentinel technical assurance",
- "ChaCha DEV V7 platform qualification"
+ "ChaCha DEV V7 platform qualification",
+ "ChaCha DEV V7.1 Intendant hygiene cycle qualification",
+ "ChaCha DEV V7.1 Guardian hygiene contract deploy"
 }
 rows=x.get("workflow_runs") or []
 for name in need:
@@ -187,6 +189,24 @@ grep -Fq 'CHACHA_DEV_V710_INTENDANT_HYGIENE_CYCLE=PASS' "$WORK/runtime-dry.out"
 grep -Fq 'INTENDANT_DIRECT_MUTATION=NO' "$WORK/runtime-dry.out"
 echo "CHACHA_DEV_V710_RUNTIME_DRY_RUN=PASS"
 
+stage enable-timer
+systemctl enable chacha-dev-intendant-hygiene.timer >/dev/null
+systemctl start chacha-dev-intendant-hygiene.timer
+systemctl is-active --quiet chacha-dev-intendant-hygiene.timer
+systemctl is-enabled --quiet chacha-dev-intendant-hygiene.timer
+systemctl list-timers chacha-dev-intendant-hygiene.timer --no-pager >"$WORK/timer-status.out"
+echo "CHACHA_DEV_V710_TIMER_ACTIVE=PASS"
+
+stage post-health
+systemctl is-active --quiet chacha-remote-desktop-commander.service
+systemctl is-active --quiet chacha-dev-agent-fleet-observatory.timer
+systemctl is-active --quiet chacha-dev-agent-observation-bus-health.timer
+PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/guardian-coverage-heartbeat.py"   --repo-root "$CURRENT" --manifest "$CURRENT/dev-hub/config/guardian-coverage-manifest.v1.json"   --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json"   --client "$CURRENT/dev-hub/bin/guardian-client.py"   --output "$RUNTIME/guardian/coverage-latest.json" >"$WORK/guardian.out"
+grep -Fq 'ALL_HOOKS_ACTIVE=YES' "$WORK/guardian.out"
+PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/technology-watch-service.py" --repo-root "$CURRENT" status >"$WORK/watch.out"
+grep -Fq 'CHACHA_TECHNOLOGY_WATCH_STATUS=FRESH' "$WORK/watch.out"
+echo "CHACHA_DEV_V710_POST_HEALTH=PASS"
+
 stage real-governed-pilot
 # V7.1 adds a fourth physical release. Force one governed weekly cycle to prove
 # automatic retirement returns the platform to active + two verified rollbacks.
@@ -210,26 +230,14 @@ assert len(rels)==3,len(rels)
 print("CHACHA_DEV_V710_REAL_GOVERNED_RETIREMENT=PASS")
 PY
 PURGE_COMMITTED=1
+echo "CHACHA_DEV_V710_PURGE_COMMITTED=YES"
 
-stage enable-timer
-systemctl enable chacha-dev-intendant-hygiene.timer >/dev/null
-systemctl start chacha-dev-intendant-hygiene.timer
-systemctl is-active --quiet chacha-dev-intendant-hygiene.timer
-systemctl is-enabled --quiet chacha-dev-intendant-hygiene.timer
-systemctl list-timers chacha-dev-intendant-hygiene.timer --no-pager >"$WORK/timer-status.out"
-echo "CHACHA_DEV_V710_TIMER_ACTIVE=PASS"
-
-stage post-health
-systemctl is-active --quiet chacha-remote-desktop-commander.service
-systemctl is-active --quiet chacha-dev-agent-fleet-observatory.timer
-systemctl is-active --quiet chacha-dev-agent-observation-bus-health.timer
-PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/guardian-coverage-heartbeat.py"   --repo-root "$CURRENT" --manifest "$CURRENT/dev-hub/config/guardian-coverage-manifest.v1.json"   --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json"   --client "$CURRENT/dev-hub/bin/guardian-client.py"   --output "$RUNTIME/guardian/coverage-latest.json" >"$WORK/guardian.out"
-grep -Fq 'ALL_HOOKS_ACTIVE=YES' "$WORK/guardian.out"
-PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/technology-watch-service.py" --repo-root "$CURRENT" status >"$WORK/watch.out"
-grep -Fq 'CHACHA_TECHNOLOGY_WATCH_STATUS=FRESH' "$WORK/watch.out"
-echo "CHACHA_DEV_V710_POST_HEALTH=PASS"
 
 stage evidence
+[ "$PURGE_COMMITTED" -eq 1 ]
+[ "$(readlink -f "$CURRENT")" = "$RELEASE" ]
+[ "$(find "$BASE/releases" -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 3 ]
+systemctl is-active --quiet chacha-dev-intendant-hygiene.timer
 mkdir -p /opt/chacha-dev/evidence
 python3 - "/opt/chacha-dev/evidence/v710-intendant-hygiene-cycle-$STAMP.json" "$REV" "$STAMP" "$WORK/compiled-manifest.json" "$RUNTIME/intendant/hygiene-latest.json" <<'PY'
 import json,sys,pathlib
