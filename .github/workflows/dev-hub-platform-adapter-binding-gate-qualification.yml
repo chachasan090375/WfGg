@@ -1,0 +1,65 @@
+name: ChaCha DEV platform adapter binding gate qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-post-v730-universal-evolution-coverage-sync
+    paths:
+      - 'dev-hub/bin/platform-component-adapter-binding-gate.py'
+      - 'dev-hub/config/platform-component-adapter-binding-gate.v1.json'
+      - 'dev-hub/config/platform-component-apply-adapter-registry.v1.json'
+      - 'dev-hub/config/platform-component-branch-foundry-source-integrator.v1.json'
+      - 'dev-hub/config/adapter-provisioning.v1.json'
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/config/technology-core-watch.v1.json'
+      - 'dev-hub/tests/test_platform_component_adapter_binding_gate.py'
+      - '.github/workflows/dev-hub-platform-adapter-binding-gate-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/platform-component-adapter-binding-gate.py dev-hub/tests/test_platform_component_adapter_binding_gate.py
+          python3 -m json.tool dev-hub/config/platform-component-adapter-binding-gate.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/platform-component-apply-adapter-registry.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/platform-component-branch-foundry-source-integrator.v1.json >/dev/null
+      - name: Protected component adapter binding proposal
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_component_adapter_binding_gate.py | tee /tmp/binding-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_GATE=PASS' /tmp/binding-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_PROPOSAL=PASS' /tmp/binding-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_EXISTING_BINDING=BLOCKED' /tmp/binding-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_OWNER_MISMATCH=BLOCKED' /tmp/binding-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_DIGEST_MISMATCH=BLOCKED' /tmp/binding-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_EXACT_SHA_GATES=REQUIRED' /tmp/binding-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_AUTHORIZED=NO' /tmp/binding-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_MUTATION=NO' /tmp/binding-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/binding-gate.out
+      - name: Universal governance regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_universal_evolution_coverage_sync.py | tee /tmp/universal.out
+          grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_GUARDIAN_SYNC=PASS' /tmp/universal.out
+          grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_SELF_MUTATION=NO' /tmp/universal.out
+      - name: Receipt
+        run: |
+          echo CHACHA_DEV_PLATFORM_ADAPTER_BINDING_GATE_QUALIFICATION=PASS
+          echo BINDING_PROPOSAL_ONLY=YES
+          echo REGISTRATION_AUTHORIZED=NO
+          echo REGISTRY_MUTATION_AUTHORIZED=NO
+          echo AUTOMATIC_REGISTRATION=NO
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
