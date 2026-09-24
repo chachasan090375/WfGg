@@ -5,6 +5,7 @@ on:
     branches:
       - dev-hub-v661-real-world-evidence-isolated-candidate-qualification
     paths:
+      - 'dev-hub/bin/install-v661-real-world-evidence-isolated-candidate.sh'
       - 'dev-hub/bin/real-world-evidence-attestor-v661.py'
       - 'dev-hub/bin/acceptance-candidate-shadow-qualifier-v661.py'
       - 'dev-hub/bin/agent_fleet_observatory.py'
