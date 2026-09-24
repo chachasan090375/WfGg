@@ -81,8 +81,17 @@ with tempfile.TemporaryDirectory(prefix="v648-observation-bus-") as td:
     assert srq["self_request"] is True and srq["metric_authority"] is False,srq
     assert srq["action"]=="REQUEST_REASSESSMENT",srq
 
+    final_review={"event_id":"final-review-1","event_type":"FINAL_REVIEW_VERIFIED",
+      "source_id":"seven-agent-final-compromise-controller","source_surface":"seven-agent-final-compromise",
+      "project_id":"p1","revision":"sha-test","subject_role":"bastion","outcome":"OK","verification":"VERIFIED",
+      "capabilities":[],"evidence_refs":["final-review:bastion"]}
+    fr=bus.publish(final_review,policy,rt);assert fr["event"]["verification"]=="VERIFIED",fr
+    stage={"event_id":"stage-1","event_type":"STAGE_EXECUTION_OBSERVED","source_id":"central-orchestrator",
+      "source_surface":"autonomous-project-orchestrator","project_id":"p1","revision":"sha-test","subject_role":"logician",
+      "outcome":"OK","verification":"OBSERVED","capabilities":[],"evidence_refs":["stage:logic"]}
+    bus.publish(stage,policy,rt)
     chain=bus.verify_chain(rt,policy)
-    assert chain["status"]=="PASS" and chain["event_count"]==6,chain
+    assert chain["status"]=="PASS" and chain["event_count"]==8,chain
     assert (rt/"agent-observation/observations.db").is_file()
     assert not Path("/opt/chacha-dev/runtime/agent-observation/observations.db").exists() or str(rt)!="/opt/chacha-dev/runtime"
 
@@ -98,6 +107,9 @@ with tempfile.TemporaryDirectory(prefix="v648-observation-bus-") as td:
     assert tm["signals"]["handoff_total"]==2,tm
     bm=metrics["bastion"]
     assert "fake-capability" not in bm["signals"]["observed_capabilities"],bm
+    assert bm["dimensions"]["handoff_quality"]["status"]=="MEASURED" and bm["dimensions"]["handoff_quality"]["value"]==100.0,bm
+    lm=metrics["logician"]
+    assert lm["dimensions"]["robustness"]["status"]=="MEASURED" and lm["dimensions"]["robustness"]["value"]==100.0,lm
 
     # No fabricated scores for still-unmeasured dimensions.
     sc=aec.score("test-engineer",tm,evo)
@@ -116,6 +128,8 @@ print("CHACHA_DEV_V648_AGENT_SELF_REASSESSMENT_REQUEST=PASS")
 print("CHACHA_DEV_V648_SELF_REQUEST_METRIC_AUTHORITY=NO")
 print("CHACHA_DEV_V648_SELF_ASSERTED_COVERAGE_INFLATION=NO")
 print("CHACHA_DEV_V648_EXACT_REVISION_LINEAGE=PASS")
+print("CHACHA_DEV_V648_SEVEN_AGENT_FINAL_HANDOFF=PASS")
+print("CHACHA_DEV_V648_CENTRAL_STAGE_OBSERVATION=PASS")
 print("CHACHA_DEV_V648_DIRECT_AGENT_MUTATION=NO")
 print("CHACHA_DEV_V648_DIRECT_CANDIDATE_MATERIALIZATION=NO")
 print("CHACHA_DEV_V648_COVERAGE_FROM_OBSERVATION_BUS=PASS")

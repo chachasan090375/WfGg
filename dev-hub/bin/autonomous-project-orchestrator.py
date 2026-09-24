@@ -13,6 +13,10 @@ from pathlib import Path
 import guardian_remediation_runtime as grr
 import assurance_exchange_runtime as aer
 import universal_learning_runtime as ulr
+try:
+    import agent_observation_bus as aob
+except Exception:
+    aob=None
 
 def load(p):
     x=json.loads(Path(p).read_text(encoding="utf-8"))
@@ -144,12 +148,28 @@ def guardian_stage(script:Path,args,phase:str,action_id:str):
         raise RuntimeError("GUARDIAN_STAGE_UNAVAILABLE:"+script.name+":"+str(verdict.get("reason") or state))
     return verdict
 
+def _observe_stage(script:Path,args,action_id:str,role:str,returncode:int):
+    if aob is None or not Path("/opt/chacha-dev/runtime").exists():return
+    canonical={"agent-foundry":"agent-foundry-architect","branch-foundry":"branch-foundry-architect","capability-foundry":"capability-foundry-architect"}.get(role,role)
+    if canonical not in {"logician","ergonomist","agent-foundry-architect","branch-foundry-architect","capability-foundry-architect"}:return
+    try:
+        project_id="platform-global"
+        for i,v in enumerate(args):
+            if str(v)=="--project-id" and i+1<len(args):project_id=str(args[i+1]);break
+        aob.publish({"schema":"chacha.dev/agent-observation-event/v1","event_id":"aobs-stage-"+action_id,
+          "event_type":"STAGE_EXECUTION_OBSERVED","source_id":"central-orchestrator","source_surface":"autonomous-project-orchestrator",
+          "project_id":project_id,"revision":aob.runtime_revision(),"subject_role":canonical,
+          "outcome":"OK" if returncode==0 else "FAILED","verification":"OBSERVED","capabilities":[],
+          "evidence_refs":["orchestrator-stage:"+action_id],"details":{"script":script.name,"returncode":returncode}})
+    except Exception:pass
+
 def run(script,args):
     action_id="stage-"+uuid.uuid4().hex
     guardian_stage(Path(script),args,"PRE_ACTION",action_id)
     p=subprocess.run([sys.executable,str(script),*map(str,args)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
                      text=True,check=False,timeout=120)
     role=_STAGE_ROLE.get(Path(script).name,"orchestrator")
+    _observe_stage(Path(script),args,action_id,role,p.returncode)
     lower=role.lower()
     kind="foundry" if "foundry" in lower else "core-orchestrator" if role=="orchestrator" else "domain-orchestrator" if "orchestrator" in lower else "agent"
     project_id="platform-global"

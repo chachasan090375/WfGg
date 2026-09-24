@@ -6,6 +6,9 @@ on:
       - dev-hub-v648-agent-observation-bus-evolution-triggers
     paths:
       - 'dev-hub/bin/agent_observation_bus.py'
+      - 'dev-hub/bin/agent_evolution_daily_cycle.py'
+      - 'dev-hub/bin/seven-agent-final-compromise-controller.py'
+      - 'dev-hub/systemd/chacha-dev-agent-fleet-observatory.service'
       - 'dev-hub/bin/install-v648-agent-observation-bus.sh'
       - 'dev-hub/bin/agent_fleet_observatory.py'
       - 'dev-hub/bin/run-controller.py'
@@ -34,7 +37,7 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
-          python3 -m py_compile dev-hub/bin/agent_observation_bus.py dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/run-controller.py dev-hub/bin/project-control.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v648_agent_observation_bus.py
+          python3 -m py_compile dev-hub/bin/agent_observation_bus.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/run-controller.py dev-hub/bin/project-control.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/bin/seven-agent-final-compromise-controller.py dev-hub/tests/test_v648_agent_observation_bus.py
           python3 -m json.tool dev-hub/config/agent-observation-bus.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-fleet-observatory.v1.json >/dev/null
           bash -n dev-hub/bin/install-v648-agent-observation-bus.sh
@@ -54,6 +57,8 @@ jobs:
           grep -Fq 'CHACHA_DEV_V648_SELF_REQUEST_METRIC_AUTHORITY=NO' /tmp/v648.out
           grep -Fq 'CHACHA_DEV_V648_SELF_ASSERTED_COVERAGE_INFLATION=NO' /tmp/v648.out
           grep -Fq 'CHACHA_DEV_V648_EXACT_REVISION_LINEAGE=PASS' /tmp/v648.out
+          grep -Fq 'CHACHA_DEV_V648_SEVEN_AGENT_FINAL_HANDOFF=PASS' /tmp/v648.out
+          grep -Fq 'CHACHA_DEV_V648_CENTRAL_STAGE_OBSERVATION=PASS' /tmp/v648.out
           grep -Fq 'CHACHA_DEV_V648_DIRECT_AGENT_MUTATION=NO' /tmp/v648.out
           grep -Fq 'CHACHA_DEV_V648_COVERAGE_FROM_OBSERVATION_BUS=PASS' /tmp/v648.out
           grep -Fq 'CHACHA_DEV_V648_HANDOFF_FROM_VERIFIED_BOUNDARY=PASS' /tmp/v648.out

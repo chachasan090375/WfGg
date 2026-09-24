@@ -3,6 +3,10 @@ from __future__ import annotations
 import argparse,json,subprocess,sys,time
 from pathlib import Path
 from typing import Any
+try:
+    import agent_observation_bus as aob
+except Exception:
+    aob=None
 
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding="utf-8"))
@@ -130,6 +134,16 @@ def main()->int:
           "direct_mutation":False,"delivered_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())
         }
         save(a.final_output,final)
+        if aob is not None and Path("/opt/chacha-dev/runtime").exists():
+            for agent in ("logician","ergonomist","guardian","sentinel","curator","bastion","intendant"):
+                try:
+                    aob.publish({"schema":"chacha.dev/agent-observation-event/v1",
+                      "event_id":"aobs-final-review-"+a.project_id+"-"+a.revision+"-"+agent,
+                      "event_type":"FINAL_REVIEW_VERIFIED","source_id":"seven-agent-final-compromise-controller",
+                      "source_surface":"seven-agent-final-compromise","project_id":a.project_id,"revision":a.revision,
+                      "subject_role":agent,"outcome":"OK","verification":"VERIFIED","capabilities":[],
+                      "evidence_refs":[str(a.final_output),str(release)],"details":{"all_seven_accept":True}})
+                except Exception:pass
         if a.evidence_ledger:
             ledger=load(a.evidence_ledger)
             artifacts=ledger.setdefault("artifacts",{})
@@ -156,6 +170,22 @@ def main()->int:
       "direct_mutation":False,"checked_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())
     }
     save(a.final_output,final)
+    if aob is not None and agents and Path("/opt/chacha-dev/runtime").exists():
+        for agent in agents:
+            try:
+                aob.publish({"schema":"chacha.dev/agent-observation-event/v1",
+                  "event_id":"aobs-final-review-failure-"+a.project_id+"-"+a.revision+"-"+agent,
+                  "event_type":"FINAL_REVIEW_VERIFIED","source_id":"seven-agent-final-compromise-controller",
+                  "source_surface":"seven-agent-final-compromise","project_id":a.project_id,"revision":a.revision,
+                  "subject_role":agent,"outcome":"BLOCKED","verification":"VERIFIED","capabilities":[],
+                  "evidence_refs":[str(a.final_output),str(release)],"details":{"reason_codes":blockers}})
+                aob.publish({"schema":"chacha.dev/agent-observation-event/v1",
+                  "event_id":"aobs-handoff-trigger-"+a.project_id+"-"+a.revision+"-"+agent,
+                  "event_type":"HANDOFF_FAILURE_CLUSTER","source_id":"seven-agent-final-compromise-controller",
+                  "source_surface":"seven-agent-final-compromise","project_id":a.project_id,"revision":a.revision,
+                  "subject_role":agent,"outcome":"FAILED","verification":"VERIFIED","capabilities":[],
+                  "evidence_refs":[str(a.final_output)],"details":{"reason_codes":blockers}})
+            except Exception:pass
     if a.evidence_ledger:
         ledger=load(a.evidence_ledger)
         ledger.setdefault("gates",{})["compromise-release"]={

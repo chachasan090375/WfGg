@@ -137,10 +137,17 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
                 for cap in event.get("capabilities") or []:
                     if str(cap):a["observed_capabilities"].add(str(cap))
                 if event.get("capabilities"):a["refs"]["coverage"].append("agent-observation:"+str(event.get("event_id") or ""))
-            if independent and str(event.get("event_type") or "")=="TASK_RESULT_VERIFIED" and verification=="VERIFIED":
+            et=str(event.get("event_type") or "")
+            if independent and et in {"TASK_RESULT_VERIFIED","FINAL_REVIEW_VERIFIED"} and verification=="VERIFIED":
                 a["handoff_total"]+=1
                 if str(event.get("outcome") or "").upper()=="OK":a["handoff_ok"]+=1
                 a["refs"]["handoff_quality"].append("agent-observation:"+str(event.get("event_id") or ""))
+            if independent and et=="STAGE_EXECUTION_OBSERVED" and verification=="OBSERVED" and str(event.get("source_id") or "")=="central-orchestrator":
+                a["exec_events"]+=1;a["attempts"]+=1
+                if str(event.get("outcome") or "").upper()=="OK":a["exec_success"]+=1
+                else:a["exec_failure"]+=1
+                a["refs"]["robustness"].append("agent-observation:"+str(event.get("event_id") or ""))
+                a["refs"]["efficiency"].append("agent-observation:"+str(event.get("event_id") or ""))
     except Exception:
         pass
 

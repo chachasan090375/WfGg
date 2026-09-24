@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-observation-bus-policy/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "purpose": "Collect evidence-backed agent observations at common ChaCha DEV boundaries and trigger reassessment without self-mutation.",
   "storage": {
     "database": "agent-observation/observations.db",
@@ -23,7 +23,8 @@
       "guardian",
       "sentinel",
       "architecture-decision-council",
-      "technology-watch-agent"
+      "technology-watch-agent",
+      "seven-agent-final-compromise-controller"
     ],
     "producer_self_assertion_can_be_verified": false,
     "verified_requires_evidence_refs": true,
@@ -60,7 +61,8 @@
       "SOURCE_CONFIDENCE_DROP",
       "DEPENDENCY_EOL_OR_DEPRECATION",
       "PERFORMANCE_REGRESSION",
-      "PERMISSION_DRIFT"
+      "PERMISSION_DRIFT",
+      "HANDOFF_FAILURE_CLUSTER"
     ],
     "derived": [
       {
@@ -96,6 +98,14 @@
     "project_control": {
       "event_type": "TASK_RESULT_VERIFIED",
       "verification": "VERIFIED"
+    },
+    "central_orchestrator": {
+      "event_type": "STAGE_EXECUTION_OBSERVED",
+      "verification": "OBSERVED"
+    },
+    "seven_agent_final_compromise": {
+      "event_type": "FINAL_REVIEW_VERIFIED",
+      "verification": "VERIFIED"
     }
   },
   "authority": {
@@ -108,5 +118,12 @@
   },
   "economics": {
     "automatic_external_spend_eur": 0
+  },
+  "cadence": {
+    "lightweight_health_hours": 24,
+    "deep_agent_audit_days": 7,
+    "ecosystem_benchmark_days": 30,
+    "scheduled_reassessment_only": true,
+    "direct_candidate_materialization": false
   }
 }
