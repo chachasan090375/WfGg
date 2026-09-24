@@ -22,6 +22,7 @@ with tempfile.TemporaryDirectory(prefix="v659-operational-") as td:
     rt=Path(td)
     for i in (1,2):
         base=rt/"golden-path-runs"/f"run-{i}"/"external-assurance"
+        base.mkdir(parents=True,exist_ok=True)
         rev=(str(i)*40)[:40];project_id=f"golden-{i}"
         guardian={
           "schema":"chacha.dev/guardian-functional-acceptance-receipt/v1",
