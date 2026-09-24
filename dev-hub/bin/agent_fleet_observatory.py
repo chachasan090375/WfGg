@@ -77,6 +77,8 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
       "verified_total":0,"verified_ok":0,"verified_with_evidence":0,
       "specialist_review_total":0,"specialist_review_quality_ok":0,
       "project_adapter_evidence_total":0,"project_adapter_evidence_quality_ok":0,
+      "operational_accuracy_total":0,"operational_accuracy_ok":0,
+      "operational_evidence_total":0,"operational_evidence_ok":0,
       "handoff_total":0,"handoff_ok":0,
       "observed_capabilities":set(),"refs":defaultdict(list)
     } for aid in ids}
@@ -227,6 +229,107 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
                 if authority_ok:a["authority_points"]+=100.0
                 a["refs"]["authority_discipline"].append(str(path))
 
+    # V6.59 real Golden Path operational evidence.
+    gp_cfg=policy.get("golden_path_operational_evidence") or {}
+    if gp_cfg.get("enabled") is True:
+        # Guardian external functional assurance receipts.
+        cfg=gp_cfg.get("guardian") or {}
+        if "guardian" in agg:
+            for path in runtime_root.glob(str(cfg.get("glob") or "golden-path-runs/**/external-assurance/guardian-functional-receipt.json")):
+                x=safe_load(path)
+                if not x or x.get("schema")!=cfg.get("required_schema"):continue
+                if str(x.get("guardian") or "")!=str(cfg.get("required_guardian") or "external-worker"):continue
+                verdict=str(x.get("verdict") or "")
+                if verdict not in {"PASS","BLOCK","REVISE"}:continue
+                required=int(x.get("required_criteria_count") or 0)
+                passed=int(x.get("passed_required_criteria_count") or 0)
+                delivery=(x.get("assurance_exchange_delivery") or {})
+                delivered=str(delivery.get("status") or "")==str(cfg.get("required_delivery_status") or "DELIVERED")
+                structured=(
+                    bool(str(x.get("receipt_id") or "")) and bool(str(x.get("project_id") or "")) and
+                    len(str(x.get("revision") or ""))==40 and len(str(x.get("contract_digest") or ""))==64 and
+                    x.get("original_functional_contract_pinned") is True and required>0
+                )
+                a=agg["guardian"]
+                a["operational_accuracy_total"]+=1
+                if verdict=="PASS" and passed==required:a["operational_accuracy_ok"]+=1
+                a["refs"]["accuracy"].append(str(path))
+                a["operational_evidence_total"]+=1
+                if structured and delivered:a["operational_evidence_ok"]+=1
+                a["refs"]["evidence_quality"].append(str(path))
+                a["handoff_total"]+=1
+                if delivered:a["handoff_ok"]+=1
+                a["refs"]["handoff_quality"].append(str(path))
+                a["authority_checks"]+=1
+                if x.get("direct_application_mutation") is False and x.get("central_orchestrator_owns_remediation") is True:
+                    a["authority_points"]+=100.0
+                a["refs"]["authority_discipline"].append(str(path))
+
+        # Sentinel external technical assurance receipts with workflow attestation.
+        cfg=gp_cfg.get("sentinel") or {}
+        if "sentinel" in agg:
+            for path in runtime_root.glob(str(cfg.get("glob") or "golden-path-runs/**/external-assurance/sentinel-technical-receipt.json")):
+                x=safe_load(path)
+                if not x or x.get("schema")!=cfg.get("required_schema"):continue
+                if str(x.get("sentinel") or "")!=str(cfg.get("required_sentinel") or "external-worker"):continue
+                if str(x.get("technical_verification_source") or "")!=str(cfg.get("required_verification_source") or "D1_WORKFLOW_ATTESTATION"):continue
+                verdict=str(x.get("verdict") or "")
+                if verdict not in {"PASS","BLOCK","REVISE"}:continue
+                delivery=(x.get("assurance_exchange_delivery") or {})
+                delivered=str(delivery.get("status") or "")==str(cfg.get("required_delivery_status") or "DELIVERED")
+                structured=(
+                    bool(str(x.get("receipt_id") or "")) and bool(str(x.get("project_id") or "")) and
+                    len(str(x.get("revision") or ""))==40 and str(x.get("audit_digest") or "").startswith("sha256:") and
+                    bool(str(x.get("workflow_run_id") or ""))
+                )
+                a=agg["sentinel"]
+                a["operational_accuracy_total"]+=1
+                if verdict=="PASS":a["operational_accuracy_ok"]+=1
+                a["refs"]["accuracy"].append(str(path))
+                a["operational_evidence_total"]+=1
+                if structured and delivered:a["operational_evidence_ok"]+=1
+                a["refs"]["evidence_quality"].append(str(path))
+                a["handoff_total"]+=1
+                if delivered:a["handoff_ok"]+=1
+                a["refs"]["handoff_quality"].append(str(path))
+                a["authority_checks"]+=1
+                if x.get("direct_code_mutation") is False and x.get("central_orchestrator_owns_remediation") is True:
+                    a["authority_points"]+=100.0
+                a["refs"]["authority_discipline"].append(str(path))
+
+        # Acceptance Engine real results: structural production truth only, never accuracy.
+        cfg=gp_cfg.get("acceptance-engineer") or {}
+        if "acceptance-engineer" in agg:
+            peer_name=str(cfg.get("evidence_peer_filename") or "acceptance-evidence.json")
+            for path in runtime_root.glob(str(cfg.get("glob") or "golden-path-runs/**/external-assurance/acceptance.json")):
+                x=safe_load(path);peer=safe_load(path.with_name(peer_name))
+                if not x or x.get("schema")!=cfg.get("required_schema") or not peer:continue
+                rows=[r for r in (x.get("criteria") or []) if isinstance(r,dict)]
+                peers={str(r.get("criterion_id")):r for r in (peer.get("criteria") or []) if isinstance(r,dict)}
+                if not rows:continue
+                evidence_bound=all(
+                    str(r.get("criterion_id") or "") in peers and
+                    str(r.get("evidence") or "")==str(peers[str(r.get("criterion_id"))].get("evidence") or "") and
+                    "#sha256:" in str(r.get("evidence") or "")
+                    for r in rows
+                )
+                gate_ok=(
+                    x.get("final_delivery_allowed") is False and
+                    str(x.get("final_delivery_gate") or "")=="seven-agent-final-compromise" and
+                    x.get("final_delivery_receipt_required") is True
+                )
+                handoff_ok=bool(x.get("delivery_allowed") is True and x.get("local_acceptance_candidate") is True and gate_ok)
+                a=agg["acceptance-engineer"]
+                a["operational_evidence_total"]+=1
+                if evidence_bound:a["operational_evidence_ok"]+=1
+                a["refs"]["evidence_quality"].append(str(path))
+                a["handoff_total"]+=1
+                if handoff_ok:a["handoff_ok"]+=1
+                a["refs"]["handoff_quality"].append(str(path))
+                a["authority_checks"]+=1
+                if gate_ok:a["authority_points"]+=100.0
+                a["refs"]["authority_discipline"].append(str(path))
+
     # V6.51 promoted benchmark evidence: benchmark-only measurements may fill UNKNOWN dimensions,
     # but never overwrite production/runtime measurements.
     benchmark_evidence={}
@@ -267,9 +370,9 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
     for aid,a in agg.items():
         robustness=pct(a["exec_success"],a["exec_success"]+a["exec_failure"])
         efficiency=pct(a["exec_events"],a["attempts"]) if a["exec_events"] else None
-        accuracy=pct(a["verified_ok"],a["verified_total"])
-        evidence_total=a["verified_total"]+a["specialist_review_total"]+a["project_adapter_evidence_total"]
-        evidence_ok=a["verified_with_evidence"]+a["specialist_review_quality_ok"]+a["project_adapter_evidence_quality_ok"]
+        accuracy=pct(a["verified_ok"]+a["operational_accuracy_ok"],a["verified_total"]+a["operational_accuracy_total"])
+        evidence_total=a["verified_total"]+a["specialist_review_total"]+a["project_adapter_evidence_total"]+a["operational_evidence_total"]
+        evidence_ok=a["verified_with_evidence"]+a["specialist_review_quality_ok"]+a["project_adapter_evidence_quality_ok"]+a["operational_evidence_ok"]
         evidence_quality=pct(evidence_ok,evidence_total)
         authority=(round(a["authority_points"]/a["authority_checks"],1) if a["authority_checks"] else None)
         learning=a.get("learning_quality_value")
@@ -278,7 +381,7 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
         coverage=pct(len(observed_declared),len(declared_caps)) if declared_caps and a["observed_capabilities"] else None
         handoff=pct(a["handoff_ok"],a["handoff_total"])
         dims={
-          "accuracy":measured(accuracy,a["verified_total"],a["refs"]["accuracy"]),
+          "accuracy":measured(accuracy,a["verified_total"]+a["operational_accuracy_total"],a["refs"]["accuracy"]),
           "coverage":measured(coverage,len(observed_declared),a["refs"]["coverage"]),
           "calibration":{"status":"UNMEASURED","value":None,"evidence_count":0,"source_refs":[]},
           "evidence_quality":measured(evidence_quality,evidence_total,a["refs"]["evidence_quality"]),
@@ -319,6 +422,8 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
             "verified_ok":a["verified_ok"],"guardian_checks":a["guardian_checks"],
             "authority_checks":a["authority_checks"],"specialist_reviews":a["specialist_review_total"],
             "project_adapter_evidence":a["project_adapter_evidence_total"],
+            "operational_accuracy_evidence":a["operational_accuracy_total"],
+            "operational_structural_evidence":a["operational_evidence_total"],
             "observed_capabilities":sorted(a["observed_capabilities"]),
             "declared_capabilities":sorted(declared.get(aid) or set()),
             "handoff_total":a["handoff_total"],"handoff_ok":a["handoff_ok"],
