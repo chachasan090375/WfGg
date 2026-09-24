@@ -2,7 +2,7 @@
 
 Date: 2026-09-24
 Branch: `dev-hub-post-v730-universal-evolution-coverage-sync`
-Qualified code head before checkpoint commit: `a0d28f39c113db469f1557aa57572a148c01d197`
+Qualified code head before checkpoint commit: `c78094c7f25c5f953679e3f7ec8979253e676fbd`
 
 ## Frozen V7.3 candidate
 
@@ -32,7 +32,7 @@ The post-V7.3 work in this branch must not mutate the frozen V7.3 candidate.
 
 Guardian coverage is now a source of universal evolution governance.
 
-Current expected Guardian component count: 47.
+Current expected Guardian component count: 48.
 
 Universal evolution:
 - maps Guardian-covered components into the canonical evolution index;
@@ -54,7 +54,7 @@ A material source change creates a platform reassessment request.
 
 Implemented chain:
 
-`source drift -> Bus Health -> platform reassessment queue -> evolution owner -> Foundry dispatch -> native Foundry SHADOW -> evidence gate -> PILOT readiness -> real harness contract -> comparative PILOT runner -> Architecture Council review -> protected human approval request -> promotion gate -> controlled apply contract`
+`source drift -> Bus Health -> platform reassessment queue -> evolution owner -> Foundry dispatch -> native Foundry SHADOW -> evidence gate -> PILOT readiness -> real harness contract -> comparative PILOT runner -> Architecture Council review -> protected human approval request -> promotion gate -> controlled apply contract -> deny-by-default apply planner -> canonical Project Control central handoff -> guarded source integration executor`
 
 Key invariants:
 - unknown evolution owner: BLOCK;
@@ -237,23 +237,24 @@ and requires:
 ## Latest qualified evidence before checkpoint commit
 
 Qualified code SHA:
-`a0d28f39c113db469f1557aa57572a148c01d197`
+`c78094c7f25c5f953679e3f7ec8979253e676fbd`
 
 GitHub Actions:
 - ChaCha DEV universal evolution coverage sync qualification
-  - run: `36053489526`
+  - run: `36055285403`
   - conclusion: SUCCESS
 - ChaCha DEV Sentinel technical assurance
-  - run: `36053489704`
+  - run: `36055285650`
   - conclusion: SUCCESS
 
 VPS source qualification PASS included:
+- canonical Project Control central apply handoff;
+- source integration executor;
+- controlled apply planner;
 - platform promotion gate;
 - protected Council approval request;
 - Project Control bootstrap/platform profile;
-- PILOT runner;
-- pilot contract gate;
-- universal evolution coverage 47/47.
+- universal evolution coverage 48/48.
 
 ## Controlled apply planner
 
@@ -309,6 +310,83 @@ VPS source qualification PASS included:
 - promotion gate;
 - universal evolution coverage 47/47.
 
+## Canonical Central Orchestrator apply handoff
+
+Project Control now owns a dedicated operation:
+
+`issue-platform-component-apply-handoff`
+
+It is restricted to the governance-only project:
+
+`chacha-dev-platform`
+
+The operation:
+- independently revalidates the human approval in both Evidence Ledger and projection;
+- requires Promotion Gate status `PROMOTION_AUTHORIZED_FOR_CONTROLLED_APPLY`;
+- requires a ready controlled-apply plan;
+- fixes the actor to `central-orchestrator`;
+- binds exact component, candidate/incumbent revisions and artifacts;
+- binds the candidate-owner adapter;
+- binds the exact controlled-apply plan digest;
+- requires rollback, Emergency Stop and Guardian PRE/POST;
+- emits a deterministic single-use handoff;
+- records `PLATFORM_COMPONENT_APPLY_HANDOFF_ISSUED` in the canonical audit journal;
+- is idempotent for identical input;
+- cannot be synthesized through the agent-facing local JSON API.
+
+The generic `record-control-event` path is forbidden from creating
+`PLATFORM_COMPONENT_APPLY_HANDOFF_ISSUED`.
+
+Even after issuance:
+- direct runtime mutation=false;
+- production activation=false;
+- production deployment=false;
+- production merge=false;
+- automatic apply=false.
+
+## Guarded source integration executor
+
+Component:
+
+`dev-hub/bin/platform-component-source-integration-executor.py`
+
+The executor is:
+- Guardian-covered;
+- Technology Watch-covered;
+- governed as a source-integration-only executor;
+- protected by Emergency Stop;
+- protected against single-use handoff replay;
+- restricted to adapters below `/opt/chacha-dev/adapters/platform-component`;
+- shell interpolation forbidden;
+- fixed operation protocol only;
+- exact component/owner/revision/artifact/adapter binding required.
+
+Execution sequence:
+1. validate Project Control Central Orchestrator handoff;
+2. atomically consume the single-use handoff;
+3. Guardian PRE;
+4. candidate-owner adapter `apply`;
+5. verify exact source-integration receipt;
+6. recheck all post-apply exact-SHA workflows including Sentinel;
+7. Guardian POST;
+8. return source-release-candidate integration evidence.
+
+If a post-apply exact-SHA gate fails after integration:
+- rollback adapter is mandatory;
+- rollback receipt must prove restoration;
+- result is `BLOCKED_ROLLED_BACK`.
+
+If Guardian POST fails after integration:
+- rollback is also mandatory.
+
+The executor never authorizes:
+- runtime mutation;
+- production activation;
+- production deployment;
+- merge to production branch.
+
+Current adapter registry remains empty and DENY-by-default, so no real controlled apply can execute.
+
 ## Resume rules
 
 On resume:
@@ -318,8 +396,9 @@ On resume:
 4. Do not deploy this post-V7.3 branch directly over V7.2.
 5. Do not record any human promotion approval unless a real component candidate has completed SHADOW, real comparative PILOT, Council review, and the user explicitly approves that exact approval request.
 6. Do not create a generic unrestricted component mutator.
-7. Continue from the controlled apply boundary: design and qualify candidate-owner source integration adapters with exact scope, rollback and post-apply gates.
-8. Keep the canonical adapter registry DENY-by-default; do not mark an adapter QUALIFIED until its exact-SHA workflow, rollback behavior and source-only scope pass.
-9. Do not execute a controlled apply on real source until a real component candidate has a valid Project Control human approval and the promotion gate emits the exact controlled apply contract.
-10. Production deployment remains a separate protected handoff after source candidate integration and post-apply qualification.
-11. Preserve automatic external spend EUR 0.
+7. The canonical Project Control Central Orchestrator handoff and guarded source integration executor are qualified; do not bypass either.
+8. Continue by designing and qualifying candidate-owner source integration adapters under `/opt/chacha-dev/adapters/platform-component`, with fixed apply/rollback protocol, exact revision scope and no production/runtime mutation.
+9. Keep the canonical adapter registry DENY-by-default; do not register or mark an adapter QUALIFIED until its exact-SHA workflow, rollback behavior and source-only scope pass.
+10. Do not execute a controlled apply on real source until a real component candidate has a valid Project Control human approval, Promotion Gate contract, ready apply plan, canonical handoff and registered qualified adapter.
+11. Production deployment remains a separate protected handoff after source candidate integration and post-apply qualification.
+12. Preserve automatic external spend EUR 0.
