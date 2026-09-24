@@ -11,6 +11,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.content.Context;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.json.JSONObject;
@@ -37,8 +39,22 @@ public class OperatorActivity extends Activity {
     private EditText input;
     private Button send;
     private Button mic;
+    private Button allo;
+    private Button go;
+    private Button stop;
+    private Button newRequest;
     private TextView state;
     private TextView result;
+    private TextView headline;
+    private TextView globalPercent;
+    private TextView globalLabel;
+    private TextView workPercent;
+    private LinearLayout inputPanel;
+    private LinearLayout contextPanel;
+    private ProgressBar globalProgress;
+    private ProgressBar workProgress;
+    private final ProgressBar[] moduleProgress = new ProgressBar[4];
+    private final TextView[] moduleLabels = new TextView[4];
     private String baseUrl;
 
     @Override
@@ -52,9 +68,34 @@ public class OperatorActivity extends Activity {
         mic = findViewById(R.id.operator_mic);
         state = findViewById(R.id.operator_state);
         result = findViewById(R.id.operator_result);
+        headline = findViewById(R.id.context_headline);
+        globalPercent = findViewById(R.id.global_percent);
+        globalLabel = findViewById(R.id.global_label);
+        workPercent = findViewById(R.id.work_percent);
+        inputPanel = findViewById(R.id.operator_input_panel);
+        contextPanel = findViewById(R.id.operator_context_panel);
+        globalProgress = findViewById(R.id.global_progress);
+        workProgress = findViewById(R.id.work_progress);
+        moduleProgress[0] = findViewById(R.id.module_1_progress);
+        moduleProgress[1] = findViewById(R.id.module_2_progress);
+        moduleProgress[2] = findViewById(R.id.module_3_progress);
+        moduleProgress[3] = findViewById(R.id.module_4_progress);
+        moduleLabels[0] = findViewById(R.id.module_1_label);
+        moduleLabels[1] = findViewById(R.id.module_2_label);
+        moduleLabels[2] = findViewById(R.id.module_3_label);
+        moduleLabels[3] = findViewById(R.id.module_4_label);
+        allo = findViewById(R.id.operator_allo);
+        go = findViewById(R.id.operator_go);
+        stop = findViewById(R.id.operator_stop);
+        newRequest = findViewById(R.id.operator_new);
 
         send.setOnClickListener(v -> submit(input.getText().toString()));
         mic.setOnClickListener(v -> startVoice());
+        allo.setOnClickListener(v -> submit("Allo"));
+        go.setOnClickListener(v -> submit("Go"));
+        stop.setOnClickListener(v -> submit("Stop"));
+        newRequest.setOnClickListener(v -> showInputMode());
+        refreshProgressOnce();
 
         String mode = getIntent().getStringExtra(ChaChaWidgetProvider.EXTRA_MODE);
         if (ChaChaWidgetProvider.MODE_STATUS.equals(mode)) {
@@ -99,10 +140,12 @@ public class OperatorActivity extends Activity {
     private void submit(String text) {
         final String trimmed = text == null ? "" : text.trim();
         if (trimmed.isEmpty()) return;
+        showContextMode();
         send.setEnabled(false);
         state.setText("TRANSMISSION");
-        result.setText("Envoi au Functional Translator…");
-        ChaChaWidgetProvider.updatePrompt(this, "ChaCha DEV • transmission…");
+        headline.setText("ChaCha prend ta demande ✨");
+        result.setText("Transmission au cerveau central…");
+        ChaChaWidgetProvider.updateContext(this, 86, 5, "ChaCha prend ta demande…", "TRANSMISSION");
 
         executor.execute(() -> {
             try {
@@ -119,16 +162,20 @@ public class OperatorActivity extends Activity {
                 final String finalMessage = message;
                 main.post(() -> {
                     state.setText(status);
+                    headline.setText("Réponse du cerveau central");
                     result.setText(finalMessage);
-                    ChaChaWidgetProvider.updatePrompt(OperatorActivity.this, "✓ " + shortText(status + (next.isEmpty() ? "" : " • " + next), 52));
+                    ChaChaWidgetProvider.updateContext(OperatorActivity.this, currentGlobal(), 100,
+                            "✓ " + shortText(status + (next.isEmpty() ? "" : " • " + next), 120), status);
                     send.setEnabled(true);
                 });
             } catch (Exception e) {
                 String message = friendlyError(e);
                 main.post(() -> {
                     state.setText("ERREUR");
+                    headline.setText("ChaCha a rencontré un problème");
                     result.setText(message);
-                    ChaChaWidgetProvider.updatePrompt(OperatorActivity.this, "ChaCha DEV • connexion requise");
+                    ChaChaWidgetProvider.updateContext(OperatorActivity.this, currentGlobal(), currentWork(),
+                            "⚠ " + shortText(message, 120), "ERREUR");
                     send.setEnabled(true);
                 });
             }
@@ -141,11 +188,81 @@ public class OperatorActivity extends Activity {
             JSONObject job = getJson("/api/v1/jobs/" + jobId);
             String s = job.optString("state", "...");
             final String shown = s;
-            main.post(() -> state.setText(shown));
+            try {
+                JSONObject progress = getJson("/api/v1/progress");
+                main.post(() -> applyProgress(progress));
+            } catch (Exception ignored) {
+                main.post(() -> state.setText(shown));
+            }
             if ("COMPLETE".equals(s)) return job;
             if ("FAILED".equals(s)) throw new IllegalStateException(job.optString("error", "Échec ChaCha DEV"));
         }
         throw new IllegalStateException("Le cerveau central n’a pas produit de receipt dans la fenêtre d’attente.");
+    }
+
+    private void showContextMode() {
+        inputPanel.setVisibility(android.view.View.GONE);
+        contextPanel.setVisibility(android.view.View.VISIBLE);
+    }
+
+    private void showInputMode() {
+        contextPanel.setVisibility(android.view.View.GONE);
+        inputPanel.setVisibility(android.view.View.VISIBLE);
+        input.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    private int currentGlobal() {
+        Object tag = globalProgress.getTag();
+        return tag instanceof Integer ? (Integer) tag : globalProgress.getProgress();
+    }
+
+    private int currentWork() {
+        Object tag = workProgress.getTag();
+        return tag instanceof Integer ? (Integer) tag : workProgress.getProgress();
+    }
+
+    private void applyProgress(JSONObject p) {
+        int global = p.optInt("platform_maturity_percent", 86);
+        int work = p.optInt("active_work_percent", 0);
+        String globalText = p.optString("platform_maturity_label", "ChaCha DEV global");
+        String h = p.optString("headline", "ChaCha est prêt ✨");
+        String st = p.optString("status", "IDLE");
+
+        globalProgress.setProgress(global);
+        globalProgress.setTag(global);
+        globalPercent.setText(global + "%");
+        globalLabel.setText(globalText);
+        workProgress.setProgress(work);
+        workProgress.setTag(work);
+        workPercent.setText(work + "%");
+        headline.setText(h);
+        state.setText(st);
+
+        JSONObject modules = p.optJSONObject("modules");
+        String[] ids = new String[]{"direct-operator-service","functional-translator-satellite","central-interface-controller","central-orchestrator"};
+        for (int i = 0; i < ids.length; i++) {
+            JSONObject m = modules == null ? null : modules.optJSONObject(ids[i]);
+            if (m == null) continue;
+            int pct = m.optInt("percent", 0);
+            moduleProgress[i].setProgress(pct);
+            String icon = m.optString("icon", "•");
+            String label = m.optString("label", ids[i]);
+            String detail = m.optString("detail", "");
+            moduleLabels[i].setText(icon + " " + label + "  ·  " + pct + "%" + (detail.isEmpty() ? "" : "\n" + detail));
+        }
+
+        ChaChaWidgetProvider.updateContext(this, global, work, h, st);
+    }
+
+    private void refreshProgressOnce() {
+        executor.execute(() -> {
+            try {
+                JSONObject p = getJson("/api/v1/progress");
+                main.post(() -> applyProgress(p));
+            } catch (Exception ignored) {}
+        });
     }
 
     private JSONObject postJson(String path, JSONObject payload) throws Exception {
