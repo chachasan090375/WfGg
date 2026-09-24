@@ -159,24 +159,30 @@ def guardian_stage(script:Path,args,phase:str,action_id:str):
         raise RuntimeError("GUARDIAN_STAGE_UNAVAILABLE:"+script.name+":"+str(verdict.get("reason") or state))
     return verdict
 
+def _stage_observation_payload(script:Path,args,action_id:str,role:str,returncode:int,runtime_revision:str):
+    canonical={"agent-foundry":"agent-foundry-architect","branch-foundry":"branch-foundry-architect","capability-foundry":"capability-foundry-architect"}.get(role,role)
+    if canonical not in {"logician","ergonomist","agent-foundry-architect","branch-foundry-architect","capability-foundry-architect","contract-integrator","integration-architect","knowledge-compiler-agent","uncertainty-resolution-agent"}:
+        return None
+    project_id="platform-global"
+    for i,v in enumerate(args):
+        if str(v)=="--project-id" and i+1<len(args):
+            project_id=str(args[i+1]);break
+    evidence_refs=["orchestrator-stage:"+action_id]
+    out=_output_arg(args)
+    if out and out.is_file():
+        import hashlib
+        evidence_refs.append(str(out)+"#sha256:"+hashlib.sha256(out.read_bytes()).hexdigest())
+    return {"schema":"chacha.dev/agent-observation-event/v1","event_id":"aobs-stage-"+action_id,
+      "event_type":"STAGE_EXECUTION_OBSERVED","source_id":"central-orchestrator","source_surface":"autonomous-project-orchestrator",
+      "project_id":project_id,"revision":runtime_revision,"subject_role":canonical,
+      "outcome":"OK" if returncode==0 else "FAILED","verification":"OBSERVED","capabilities":_STAGE_CAPABILITIES.get(script.name,[]),
+      "evidence_refs":evidence_refs,"details":{"script":script.name,"returncode":returncode}}
+
 def _observe_stage(script:Path,args,action_id:str,role:str,returncode:int):
     if aob is None or not Path("/opt/chacha-dev/runtime").exists():return
-    canonical={"agent-foundry":"agent-foundry-architect","branch-foundry":"branch-foundry-architect","capability-foundry":"capability-foundry-architect"}.get(role,role)
-    if canonical not in {"logician","ergonomist","agent-foundry-architect","branch-foundry-architect","capability-foundry-architect","contract-integrator","integration-architect","knowledge-compiler-agent","uncertainty-resolution-agent"}:return
     try:
-        project_id="platform-global"
-        for i,v in enumerate(args):
-            if str(v)=="--project-id" and i+1<len(args):project_id=str(args[i+1]);break
-        evidence_refs=["orchestrator-stage:"+action_id]
-        out=_output_arg(args)
-        if out and out.is_file():
-            import hashlib
-            evidence_refs.append(str(out)+"#sha256:"+hashlib.sha256(out.read_bytes()).hexdigest())
-        aob.publish({"schema":"chacha.dev/agent-observation-event/v1","event_id":"aobs-stage-"+action_id,
-          "event_type":"STAGE_EXECUTION_OBSERVED","source_id":"central-orchestrator","source_surface":"autonomous-project-orchestrator",
-          "project_id":project_id,"revision":aob.runtime_revision(),"subject_role":canonical,
-          "outcome":"OK" if returncode==0 else "FAILED","verification":"OBSERVED","capabilities":_STAGE_CAPABILITIES.get(script.name,[]),
-          "evidence_refs":evidence_refs,"details":{"script":script.name,"returncode":returncode}})
+        event=_stage_observation_payload(script,args,action_id,role,returncode,aob.runtime_revision())
+        if event:aob.publish(event)
     except Exception:pass
 
 def run(script,args):
