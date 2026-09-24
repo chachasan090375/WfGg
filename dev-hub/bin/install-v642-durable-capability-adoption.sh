@@ -75,7 +75,7 @@ trap on_exit EXIT
 
 [ "$(id -u)" -eq 0 ] || { echo "CHACHA_DEV_V642_INSTALL=BLOCKED reason=root_required"; exit 2; }
 printf '%s' "$REV" | grep -Eq '^[0-9a-f]{40}$' || { echo "CHACHA_DEV_V642_INSTALL=BLOCKED reason=pinned_revision_required"; exit 2; }
-for cmd in python3 cp ln readlink grep sha256sum find curl tar; do
+for cmd in python3 cp ln readlink grep sha256sum find curl tar awk tr tail; do
   command -v "$cmd" >/dev/null || { echo "CHACHA_DEV_V642_INSTALL=BLOCKED reason=missing_command:$cmd"; exit 2; }
 done
 
