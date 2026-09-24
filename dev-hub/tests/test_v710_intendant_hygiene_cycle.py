@@ -167,7 +167,7 @@ print(json.dumps({'schema':'chacha.dev/guardian-verdict/v3','event_id':event['ev
     guardian_policy=td/"guardian-policy.json";save(guardian_policy,{})
     runs=td/"github-runs.json";save(runs,{"workflow_runs":[
       {"name":"ChaCha DEV Sentinel technical assurance","head_sha":active_rev,"status":"completed","conclusion":"success"},
-      {"name":"ChaCha DEV V7 platform qualification","head_sha":active_rev,"status":"completed","conclusion":"success"}
+      {"name":"ChaCha DEV V7.1 Intendant hygiene cycle qualification","head_sha":active_rev,"status":"completed","conclusion":"success"}
     ]})
     txt=run([sys.executable,str(BIN/"intendant-hygiene-cycle.py"),"--repo-root",str(ROOT),
       "--runtime-root",str(runtime),"--platform-root",str(platform),"--policy",str(hp2_path),
