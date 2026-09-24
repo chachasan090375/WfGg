@@ -4,6 +4,7 @@ on:
     branches: [dev-hub-v646-agent-evolution-continuous-optimization]
     paths:
       - 'dev-hub/bin/agent_evolution_controller.py'
+      - 'dev-hub/bin/install-v646-agent-evolution-continuous-optimization.sh'
       - 'dev-hub/bin/agent_evolution_logician.py'
       - 'dev-hub/config/agent-evolution.v1.json'
       - 'dev-hub/config/agent-foundry.v1.json'
@@ -32,6 +33,7 @@ jobs:
           python3 -m json.tool dev-hub/config/agent-foundry.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-routing.v1.json >/dev/null
           python3 -m json.tool dev-hub/projects/wfgg-radar/project-agent-registry.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v646-agent-evolution-continuous-optimization.sh
           grep -Fq '"version":"6.46.0"' dev-hub/bin/autonomous-project-orchestrator.py
       - name: V6.46 qualification
         run: |
