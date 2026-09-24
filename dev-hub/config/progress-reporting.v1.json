@@ -1,0 +1,38 @@
+{
+  "schema": "chacha.dev/progress-reporting-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "runtime_state": "/opt/chacha-dev/runtime/progress/progress.json",
+  "stale_after_seconds": 1800,
+  "modules": [
+    {
+      "id": "direct-operator-service",
+      "label": "Entrée directe",
+      "icon": "⚡"
+    },
+    {
+      "id": "functional-translator-satellite",
+      "label": "Traduction fonctionnelle",
+      "icon": "✨"
+    },
+    {
+      "id": "central-interface-controller",
+      "label": "Interface centrale",
+      "icon": "🧭"
+    },
+    {
+      "id": "central-orchestrator",
+      "label": "Cerveau central",
+      "icon": "🧠"
+    }
+  ],
+  "invariants": {
+    "persistent_across_sessions": true,
+    "one_shared_source_for_web_and_android": true,
+    "percentages_are_operation_progress_not_architecture_maturity": true,
+    "idle_modules_must_not_fake_progress": true,
+    "progress_has_no_execution_authority": true,
+    "progress_has_no_mutation_authority": true,
+    "automatic_external_spend_eur": 0
+  }
+}
