@@ -26,6 +26,7 @@ on:
       - 'dev-hub/tests/test_project_control_bootstrap.py'
       - 'dev-hub/tests/test_platform_component_apply_handoff.py'
       - 'dev-hub/config/project-control.v1.json'
+      - 'dev-hub/config/control-plane-state.v1.json'
       - 'dev-hub/bin/project-control-api.py'
       - 'dev-hub/bin/project-control.py'
       - 'dev-hub/tests/test_platform_foundry_native_reassessment.py'
@@ -74,6 +75,7 @@ jobs:
           python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/architecture-decision-council.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/project-control.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/control-plane-state.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/platform-component-apply-adapter-registry.v1.json >/dev/null
       - name: Guardian to evolution coverage sync
         run: |
