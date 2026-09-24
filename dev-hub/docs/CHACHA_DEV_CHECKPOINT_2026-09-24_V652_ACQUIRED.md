@@ -8,7 +8,6 @@ Acquired runtime revision: `c1659393bd48d1de7d5de0dd34d5195b44872e6f`
 ## Acquired baseline
 
 V6.35 through V6.51 remain acquired and must not be replayed.
-
 V6.52 Deep Assurance Calibration & Second Benchmark Adapter Wave is acquired in real ChaChaVPS runtime.
 
 Terminal proof:
@@ -19,202 +18,186 @@ Active runtime:
 - release: `/opt/chacha-dev/platform/releases/20260924T104542Z-c1659393bd48d1de7d5de0dd34d5195b44872e6f`
 - evidence: `/opt/chacha-dev/evidence/v652-deep-assurance-second-wave-20260924T104542Z.json`
 
-GitHub qualification on acquired runtime SHA:
-- V6.52 qualification run: `35989026807` — SUCCESS
-- Sentinel technical assurance run: `35989026743` — SUCCESS
+Final exact-runtime qualification before VPS activation:
+- qualification run: `35989026807` — SUCCESS
+- Sentinel run: `35989026743` — SUCCESS
 
-The later branch revision `64f8817156b6fe58bcbfb369c21e899546092bca` adds only an additional installer/PILOT packaging path and three workflow-line changes. It does not change functional runtime engines. The acquired runtime therefore remains pinned to `c1659393bd48d1de7d5de0dd34d5195b44872e6f`.
+## Important SHA distinction
+
+The acquired runtime is exactly:
+`c1659393bd48d1de7d5de0dd34d5195b44872e6f`
+
+A later branch commit:
+`64f8817156b6fe58bcbfb369c21e899546092bca`
+is a direct child that adds only an additional installer path and workflow wiring. It does not change the functional V6.52 runtime engines and was not the installed runtime revision.
+
+Do not reinterpret a later documentation or packaging SHA as the acquired runtime SHA.
 
 ## Deep calibration acquired
 
-The four V6.51 priority agents now execute twice during benchmark calibration:
+The original V6.51 priority wave is now executed twice per benchmark cycle:
 - Guardian
 - Sentinel
 - Bastion
 - Autonomous Recovery
 
-Independent oracle outputs are compared between runs.
+Independent oracle outputs are compared between repeated runs.
 
-Additional benchmark-only measured dimensions:
+New benchmark-only dimensions acquired:
 - drift_resistance
 - efficiency
 
-All four first-wave agents reached:
-- measurement coverage: 60.0%
-- recommendation: MEASURE_MORE
-
-The repeated benchmark remains BENCHMARK_ONLY and is never production truth.
+Each target now has at least six measured dimensions while production/runtime measurements retain absolute precedence over benchmark evidence.
 
 ## Second executable adapter wave acquired
 
-Five additional high-risk agents now have executable adapters:
+Executable benchmark adapters now also exist for:
+- Security Reviewer
+- Recovery Engineer
+- Platform/Cloud Engineer
+- Data Architect
+- Release Engineer
 
-### Security Reviewer
+Security Reviewer:
 - real architecture-specialist contract runtime;
-- security-scoped context;
+- security-scoped role preservation;
 - plan-only permission enforcement;
-- role identity enforcement;
-- path-escape protection;
-- zero-tools specialist policy;
-- no model/network call during benchmark.
+- identity mismatch rejection;
+- path escape rejection;
+- zero-tool specialist boundary;
+- no model call required by the benchmark.
 
-### Recovery Engineer
-- real `recovery-drill.py`;
-- isolated sandbox only;
-- prepared-before-authority recovery;
+Recovery Engineer:
+- real Recovery Drill;
+- isolated sandbox;
+- prepared-before-authority case;
 - journal/projection recovery;
-- evidence-ledger finalization recovery;
-- tampered-journal conservative handling;
-- divergent-ledger conservative handling.
+- evidence finalization recovery;
+- tampered journal conservative behavior;
+- divergent ledger conservative behavior.
 
-### Platform / Cloud Engineer
-- real `platform-selftest-adapter.py`;
-- temporary revision proof;
-- read-only permission enforcement;
-- provider binding enforcement;
-- invalid action rejection;
-- structured digest evidence;
+Platform/Cloud Engineer:
+- real platform-selftest adapter;
+- read-only revision proof;
+- invalid permission blocked;
+- missing binding blocked;
+- invalid action blocked;
+- digest-bearing evidence;
+- no application mutation;
 - zero external spend.
 
-### Data Architect
+Data Architect:
 - real architecture-specialist contract runtime;
-- data-scoped context;
-- plan-only permission enforcement;
-- role identity enforcement;
-- path-escape protection;
-- zero-tools specialist policy;
-- no model/network call during benchmark.
+- data-scoped role preservation;
+- plan-only boundary;
+- identity and path isolation;
+- no model call required by the benchmark.
 
-### Release Engineer
+Release Engineer:
 - real external dual-assurance release gate;
 - Guardian + Sentinel PASS required;
 - revision mismatch blocks;
-- Guardian block blocks release;
+- Guardian block blocks;
 - central orchestrator remains remediation owner;
 - no direct Guardian/Sentinel mutation.
 
-All five second-wave agents reached:
-- measurement coverage: 60.0%
-- recommendation: MEASURE_MORE
+## Evidence promotion hardening
 
-## Verified evidence promotion
-
-Nine benchmark evidence sets were promoted in real runtime.
-
-Promoted evidence:
-- verification: BENCHMARK_VERIFIED
-- truth_scope: BENCHMARK_ONLY
-- production_truth_eligible: false
-- exact revision bound
-- explicit oracle identity required
-- Technology Watch freshness required
-- Guardian preserved
-- Sentinel preserved
-- automatic external spend: 0 EUR
-
-The policy oracle is:
+V6.52 promotion requires the exact independent oracle identifier declared by policy:
 `v652-independent-benchmark-oracle`
 
-The promoter now rejects any other verifier identity.
+Promoted evidence now carries `promoted_at`.
 
-## Freshest benchmark evidence selection
+Fleet Observatory explicitly selects the freshest promoted BENCHMARK_ONLY evidence revision per agent.
 
-Fleet Observatory now explicitly chooses the freshest promoted benchmark evidence using:
-1. `promoted_at`
-2. fallback `observed_at`
+Production/runtime measurements still win and are never overwritten by benchmark evidence.
 
-This removes implicit filename-order selection.
+Technology Watch freshness remains mandatory before promotion.
 
-Production/runtime evidence still has absolute precedence:
-- benchmark evidence may fill UNMEASURED dimensions only;
-- benchmark evidence never overwrites production measurement.
+## Real VPS proof
 
-## Real VPS result
+The real PILOT produced:
+- `CHACHA_DEV_V652_REAL_ISOLATED_NINE_AGENT_WAVE=PASS`
+- `CHACHA_DEV_V652_REAL_UNSUPPORTED_AGENT_IS_FAILURE=NO`
+- `CHACHA_DEV_V652_RELEASE_ACTIVATED=PASS`
+- `CHACHA_DEV_V652_REAL_BENCHMARK_EVIDENCE_PROMOTED=9`
+- `CHACHA_DEV_V652_REAL_BENCHMARK_PRODUCTION_TRUTH=NO`
+- `CHACHA_DEV_V652_REAL_NINE_AGENTS_MEASURED=PASS`
+- `CHACHA_DEV_V652_REAL_MEASUREMENT_COVERAGE_60=PASS`
+- `CHACHA_DEV_V652_REAL_CANONICAL_TRUST_DURABLE_TW_BUS_MUTATION=NO`
+- `CHACHA_DEV_V652_GUARDIAN_COVERAGE=PASS`
+- `CHACHA_DEV_V652_POST_ACTIVATION=PASS`
+- `CHACHA_DEV_V652_DIRECT_AGENT_MUTATION=NO`
+- `CHACHA_DEV_V652_CANDIDATE_MATERIALIZATION=NO`
+- `CHACHA_DEV_V652_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES`
+- `CHACHA_DEV_V652_AUTOMATIC_EXTERNAL_SPEND_EUR=0`
+- `CHACHA_DEV_V652_INSTALL=PASS`
 
-Real promoted benchmark evidence count:
-- 9
+## Real scorecards at acquisition
 
-Real measured agents:
-- Guardian: 60.0% — MEASURE_MORE
-- Sentinel: 60.0% — MEASURE_MORE
-- Bastion: 60.0% — MEASURE_MORE
-- Autonomous Recovery: 60.0% — MEASURE_MORE
-- Security Reviewer: 60.0% — MEASURE_MORE
-- Recovery Engineer: 60.0% — MEASURE_MORE
-- Platform / Cloud Engineer: 60.0% — MEASURE_MORE
-- Data Architect: 60.0% — MEASURE_MORE
-- Release Engineer: 60.0% — MEASURE_MORE
+All nine targeted agents reached:
+- measurement coverage: `60.0%`
+- recommendation: `MEASURE_MORE`
 
-Unsupported agent behavior remains:
-`NO_EXECUTABLE_ADAPTER`
+Targets:
+- Guardian
+- Sentinel
+- Bastion
+- Autonomous Recovery
+- Security Reviewer
+- Recovery Engineer
+- Platform/Cloud Engineer
+- Data Architect
+- Release Engineer
 
-Unsupported agents are not treated as failed.
+No target is treated as production-proven merely because its benchmark passed.
 
 ## Canonical isolation
 
-Real acquisition proved:
-- canonical Observation Bus mutation: NO
-- canonical Trust mutation: NO
-- canonical Durable Capability mutation: NO
-- canonical Technology Watch mutation: NO
-- benchmark fixture production truth: NO
-- direct agent mutation: NO
-- candidate materialization: NO
-- Guardian coverage: PASS
-- Architecture Council final authority: YES
-- automatic external spend: 0 EUR
+The real acquisition proved no mutation of:
+- canonical Trust state;
+- Durable Capability registry;
+- Technology Watch canonical optimizer input;
+- Agent Observation Bus database.
 
-## Continuous controls preserved
+Benchmark fixtures remain:
+- `BENCHMARK_ONLY`
+- `production_truth_eligible = false`
+- no direct active agent mutation;
+- no candidate materialization;
+- no self-promotion;
+- automatic external spend = 0 EUR.
 
-Runtime services:
+## Continuous operation preserved
+
+At acquisition:
 - `chacha-dev-agent-fleet-observatory.timer`: active
 - `chacha-dev-agent-observation-bus-health.timer`: active
 - `chacha-remote-desktop-commander.service`: active
 
-The daily Agent Evolution Cycle remains wired to:
-- build benchmark campaigns;
-- execute available adapters;
-- promote verified evidence;
-- rebuild Fleet Observatory.
+The daily Agent Evolution cycle already executes supported benchmark adapters whenever scheduled audit/benchmark actions are due.
 
-## Architecture interpretation
+Unsupported agents remain:
+`NO_EXECUTABLE_ADAPTER`
 
-The agent optimization loop is now materially stronger:
-
-Technology Watch
-→ Fleet Observatory
-→ scheduled benchmark campaign
-→ real isolated adapter execution
-→ independent oracle
-→ deep repeatability/efficiency calibration
-→ verified benchmark evidence
-→ Fleet Observatory scorecard
-→ Agent Foundry candidate only when evidence justifies it
-→ SHADOW
-→ PILOT
-→ Guardian/Sentinel
-→ Architecture Council.
-
-No benchmark can self-promote an agent.
+They are never converted into artificial failures.
 
 ## Next logical increment
 
-Nine high-risk agents now have six measured benchmark dimensions.
+The nine highest-priority assurance/platform agents now have 60% evidence coverage, but still remain MEASURE_MORE.
 
-The next missing dimensions are primarily:
-- calibration
-- handoff quality
-- learning quality
-- deeper capability coverage
+The next useful increment should complete the remaining evidence dimensions, especially:
+- calibration;
+- handoff quality;
+- learning quality;
+- real capability coverage where applicable.
 
-The next increment should:
-- add independently verified calibration and handoff fixtures;
-- connect learning-quality evidence to real retained project outcomes;
-- continue the third adapter wave for remaining agents;
-- only create optimization candidates when scorecards contain enough evidence to justify a specific change.
+It should also extend executable adapter coverage to the next unmeasured agents rather than optimizing based on partial evidence.
+
+Only after sufficient evidence coverage should Agent Foundry materialize the first optimization candidate, followed by incumbent-vs-candidate SHADOW comparison.
 
 Proposed next increment:
-**V6.53 — Calibration, Handoff & Learning Evidence + Third Adapter Wave**
+**V6.53 — Calibration/Handoff/Learning Evidence & Third Adapter Wave**
 
 ## Resume rule
 
