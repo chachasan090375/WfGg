@@ -271,13 +271,24 @@ else:
     assert len(rollbacks)==2,rollbacks
     print("CHACHA_DEV_V710_REAL_GOVERNED_RETENTION=PASS_NO_RETIREMENT_NEEDED")
 PY
-PURGE_COMMITTED=1
-echo "CHACHA_DEV_V710_PURGE_COMMITTED=YES"
-
+RETIRE_COUNT_REAL="$(python3 - "$RUNTIME/intendant/hygiene-latest.json" <<'PY'
+import json,sys
+x=json.load(open(sys.argv[1]))
+w=next(r for r in x["results"] if r["cycle"]=="WEEKLY_DRY_RUN")
+dry=next(a for a in w["actions"] if a["action"]=="RELEASE_RETIREMENT_DRY_RUN")
+print(int(dry.get("retire_count") or 0))
+PY
+)"
+if [ "$RETIRE_COUNT_REAL" -gt 0 ]; then
+  PURGE_COMMITTED=1
+  echo "CHACHA_DEV_V710_PURGE_COMMITTED=YES"
+else
+  PURGE_COMMITTED=0
+  echo "CHACHA_DEV_V710_PURGE_COMMITTED=NO_RETIREMENT_NEEDED"
+fi
 
 stage evidence
 assert_current
-[ "$PURGE_COMMITTED" -eq 1 ]
 [ "$(readlink -f "$CURRENT")" = "$RELEASE" ]
 [ "$(find "$BASE/releases" -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 3 ]
 systemctl is-active --quiet chacha-dev-intendant-hygiene.timer
