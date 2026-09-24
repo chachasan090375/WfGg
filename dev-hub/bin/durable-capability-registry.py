@@ -370,9 +370,17 @@ def run_memory(*,repo_root:Path,event:dict[str,Any],work:Path,experience_db:Path
     return result
 
 def merge_registries(base_caps:dict[str,Any],base_provider:dict[str,Any],durable:dict[str,Any],
-                     require_executables:bool)->tuple[dict[str,Any],dict[str,Any],dict[str,Any]]:
+                     require_executables:bool,trust_snapshot:dict[str,Any]|None=None,
+                     trust_policy:dict[str,Any]|None=None)->tuple[dict[str,Any],dict[str,Any],dict[str,Any]]:
     caps=copy.deepcopy(base_caps);providers=copy.deepcopy(base_provider)
     valid=[];quarantined=[]
+    trust_index={}
+    if isinstance(trust_snapshot,dict):
+        for item in trust_snapshot.get("items") or []:
+            if not isinstance(item,dict) or item.get("component_kind")!="capability":continue
+            trust_index[(str(item.get("component_id") or ""),str(item.get("version") or ""))]=item
+    reuse_policy=(trust_policy or {}).get("reuse") if isinstance(trust_policy,dict) else {}
+    blocked_trust_states=set((reuse_policy or {}).get("blocked_states") or ["DEGRADED","QUARANTINED","RECOVERY_CANDIDATE"])
     for aid,row in sorted((durable.get("adoptions") or {}).items()):
         if not isinstance(row,dict) or row.get("status")!="ADOPTED":continue
         cap=str(row.get("capability") or "");provider=str(row.get("provider") or "");adapter=str(row.get("adapter") or "")
@@ -397,14 +405,24 @@ def merge_registries(base_caps:dict[str,Any],base_provider:dict[str,Any],durable
             if not isinstance(bp,dict) or bp.get("adapter")!=adapter:reasons.append("BASE_PROVIDER_UNAVAILABLE")
             if not isinstance(ba,dict) or ba.get("status")!="ENABLED":reasons.append("BASE_ADAPTER_NOT_ENABLED")
         else:reasons.append("PROVIDER_ORIGIN_INVALID")
+        trust_item=trust_index.get((cap,aid))
+        trust_state=str((trust_item or {}).get("state") or "UNKNOWN")
+        if trust_state in blocked_trust_states:
+            reasons.append("CAPABILITY_TRUST_BLOCKED:"+trust_state)
         if reasons:
-            quarantined.append({"adoption_id":aid,"reason_codes":reasons});continue
+            quarantined.append({"adoption_id":aid,"capability":cap,"trust_state":trust_state,
+                                "reason_codes":reasons});continue
         caps.setdefault("capabilities",{})[cap]=copy.deepcopy(ce)
+        caps["capabilities"][cap]["trust_state"]=trust_state
+        caps["capabilities"][cap]["trust_is_advisory"]=True
+        caps["capabilities"][cap]["technology_revalidation_required"]=True
         if origin=="DURABLE_BUILT":
             providers.setdefault("providers",{})[provider]=copy.deepcopy(pe)
             providers.setdefault("adapters",{})[adapter]=copy.deepcopy(ae)
-        valid.append(aid)
-    return caps,providers,{"valid_adoptions":valid,"quarantined":quarantined}
+        valid.append({"adoption_id":aid,"capability":cap,"trust_state":trust_state})
+    return caps,providers,{"valid_adoptions":valid,"quarantined":quarantined,
+                           "trust_filter_applied":bool(trust_index),
+                           "trusted_does_not_escalate_permissions":True}
 
 def adopt(args)->dict[str,Any]:
     policy=load(args.policy);candidate=load(args.candidate);success=load(args.success)
@@ -556,6 +574,8 @@ def main()->int:
     m.add_argument("--output-capabilities",type=Path,required=True)
     m.add_argument("--output-providers",type=Path,required=True)
     m.add_argument("--require-executables",action="store_true")
+    m.add_argument("--trust-snapshot",type=Path)
+    m.add_argument("--trust-policy",type=Path)
 
     a=sub.add_parser("adopt")
     a.add_argument("--policy",type=Path,required=True);a.add_argument("--candidate",type=Path,required=True)
@@ -580,11 +600,16 @@ def main()->int:
     if args.cmd=="merge":
         base_caps=load(args.base_capability_registry);base_provider=load(args.base_provider_registry)
         durable=read_registry(args.registry)
-        caps,providers,report=merge_registries(base_caps,base_provider,durable,args.require_executables)
+        trust_snapshot=load(args.trust_snapshot) if args.trust_snapshot and args.trust_snapshot.is_file() else None
+        trust_policy=load(args.trust_policy) if args.trust_policy and args.trust_policy.is_file() else None
+        caps,providers,report=merge_registries(base_caps,base_provider,durable,args.require_executables,
+                                              trust_snapshot=trust_snapshot,trust_policy=trust_policy)
         save(args.output_capabilities,caps);save(args.output_providers,providers)
         print("CHACHA_DEV_V642_DURABLE_REGISTRY_MERGE=PASS")
         print("CHACHA_DEV_V642_DURABLE_REUSE_COUNT="+str(len(report["valid_adoptions"])))
         print("CHACHA_DEV_V642_DURABLE_QUARANTINED_COUNT="+str(len(report["quarantined"])))
+        print("CHACHA_DEV_V643_CAPABILITY_TRUST_FILTER="+("PASS" if report["trust_filter_applied"] else "NOT_AVAILABLE"))
+        print("CHACHA_DEV_V643_TRUSTED_PERMISSION_ESCALATION=NO")
         print(json.dumps(report,ensure_ascii=False))
         return 0
     if args.cmd=="adopt":
