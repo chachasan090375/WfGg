@@ -6,6 +6,7 @@ on:
       - dev-hub-v654-universal-evolution-governance-lightweight-agent-profile
     paths:
       - 'dev-hub/bin/agent_evolution_profile.py'
+      - 'dev-hub/bin/install-v654-universal-evolution-governance.sh'
       - 'dev-hub/bin/agent_evolution_daily_cycle.py'
       - 'dev-hub/bin/agent_observation_bus_health.py'
       - 'dev-hub/bin/agent_benchmark_adapters.py'
@@ -35,6 +36,7 @@ jobs:
           python3 -m py_compile dev-hub/bin/agent_evolution_profile.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_observation_bus_health.py dev-hub/bin/agent_benchmark_adapters.py dev-hub/bin/agent_benchmark_oracles.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v654_universal_evolution_governance.py
           python3 -m json.tool dev-hub/config/agent-evolution-profile.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-benchmark-adapters.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v654-universal-evolution-governance.sh
           grep -Fq '"version":"6.54.0"' dev-hub/bin/autonomous-project-orchestrator.py
       - name: V6.54 qualification
         run: |
@@ -62,4 +64,5 @@ jobs:
           echo SELF_MUTATION=NO
           echo SELF_PROMOTION=NO
           echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+          echo REAL_VPS_PILOT_INSTALLER=VALIDATED
           echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
