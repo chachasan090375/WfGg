@@ -5,6 +5,7 @@ on:
     branches:
       - dev-hub-v730-direct-operator-android-widget
     paths:
+      - 'dev-hub/config/v730-release-gates.v1.json'
       - 'dev-hub/bin/direct-operator-service.py'
       - 'dev-hub/bin/install-v730-direct-operator-android-widget.sh'
       - 'dev-hub/bin/functional-translator-agent.py'
