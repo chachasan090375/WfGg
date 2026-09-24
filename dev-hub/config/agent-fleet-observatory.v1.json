@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-fleet-observatory-policy/v1",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "purpose": "Build evidence-backed agent metrics from ChaCha DEV runtime artifacts without assigning scores to unmeasured dimensions.",
   "runtime_sources": {
     "task_graphs": "plans/**/*.task-graph.json",
@@ -215,7 +215,7 @@
     "enabled": true,
     "glob": "agent-evolution/real-world-attestations/**/attestation-*.json",
     "required_schema": "chacha.dev/real-world-agent-attestation/v1",
-    "required_verifier": "v661-real-world-evidence-attestor",
+    "required_verifier": "v662-real-world-evidence-attestor",
     "required_verification": "INDEPENDENTLY_RECOMPUTED",
     "required_scope": "REAL_RUNTIME",
     "eligible_agents": [
@@ -223,7 +223,8 @@
       "branch-foundry-architect",
       "capability-foundry-architect",
       "logician",
-      "technology-watch-agent"
+      "technology-watch-agent",
+      "ergonomist"
     ],
     "production_truth_dimensions": [
       "evidence_quality",
@@ -232,6 +233,26 @@
     ],
     "accuracy_inference": false,
     "canonical_observation_bus_mutation": false,
+    "automatic_external_spend_eur": 0
+  },
+  "project_local_runtime_coverage": {
+    "enabled": true,
+    "eligible_agent": "technology-radar-agent",
+    "required_scope": "PROJECT",
+    "project_id": "wfgg-radar",
+    "run_glob": "runs/wfgg-radar/**/run-record.json",
+    "provider": "radar-vps-runtime",
+    "adapter": "radar-runtime-adapter",
+    "required_task_status": "SUCCEEDED",
+    "require_no_fallback": true,
+    "allowed_capabilities": [
+      "radar-runtime-inspect",
+      "radar-pilot-control"
+    ],
+    "production_truth_dimensions": [
+      "coverage"
+    ],
+    "accuracy_inference": false,
     "automatic_external_spend_eur": 0
   }
 }
