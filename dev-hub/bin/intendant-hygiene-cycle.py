@@ -177,7 +177,8 @@ def main()->int:
     if metrics["release_count"]>int(trig.get("physical_release_count_gt") or 3):threshold_reasons.append("RELEASE_OVERAGE")
     if metrics["temp_bytes"]>=int(trig.get("runtime_temp_bytes_gte") or 1073741824):threshold_reasons.append("TEMP_PRESSURE")
     if metrics["hygiene_debt_score"]>=int(trig.get("hygiene_debt_score_gte") or 60):threshold_reasons.append("HYGIENE_DEBT")
-    if threshold_reasons and "WEEKLY_DRY_RUN" not in cycles:cycles.append("WEEKLY_DRY_RUN")
+    if not a.force_cycle and threshold_reasons and "WEEKLY_DRY_RUN" not in cycles:
+        cycles.append("WEEKLY_DRY_RUN")
     coverage=load(a.guardian_coverage,{})
     coverage_ok=coverage.get("all_hooks_active") is True
     stamp=now.strftime("%Y%m%dT%H%M%SZ");work=a.runtime_root/"intendant"/"work"/stamp;work.mkdir(parents=True,exist_ok=True)
