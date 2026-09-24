@@ -6,6 +6,7 @@ on:
       - dev-hub-v657-seventh-adapter-wave-authority-specialist-evidence
     paths:
       - 'dev-hub/specialists/core.js'
+      - 'dev-hub/bin/install-v657-seventh-adapter-authority-specialist.sh'
       - 'dev-hub/bin/specialist-authority-benchmark.mjs'
       - 'dev-hub/bin/agent_fleet_observatory.py'
       - 'dev-hub/config/agent-fleet-observatory.v1.json'
@@ -32,6 +33,7 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
+          bash -n dev-hub/bin/install-v657-seventh-adapter-authority-specialist.sh
           python3 -m py_compile dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/agent_benchmark_adapters.py dev-hub/bin/agent_benchmark_oracles.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v657_seventh_adapter_authority_specialist_evidence.py
           node --check dev-hub/specialists/core.js
           node --check dev-hub/bin/specialist-authority-benchmark.mjs
