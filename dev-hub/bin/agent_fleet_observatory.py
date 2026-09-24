@@ -69,12 +69,14 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
     ids={str(a.get("agent_id")) for a in agents if a.get("agent_id")}
     idx=task_role_index(runtime_root,ids,policy)
     declared={str(a.get("agent_id")):set(str(x) for x in (a.get("capabilities") or [])) for a in agents if a.get("agent_id")}
+    scopes={str(a.get("agent_id")):str(a.get("scope") or "") for a in agents if a.get("agent_id")}
     agg={aid:{
       "exec_success":0,"exec_failure":0,"timeouts":0,"attempts":0,"exec_events":0,
       "guardian_checks":0,"guardian_points":0.0,
       "authority_checks":0,"authority_points":0.0,
       "verified_total":0,"verified_ok":0,"verified_with_evidence":0,
       "specialist_review_total":0,"specialist_review_quality_ok":0,
+      "project_adapter_evidence_total":0,"project_adapter_evidence_quality_ok":0,
       "handoff_total":0,"handoff_ok":0,
       "observed_capabilities":set(),"refs":defaultdict(list)
     } for aid in ids}
@@ -187,6 +189,44 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
             if x.get("direct_mutation") is False:a["authority_points"]+=100.0
             a["refs"]["authority_discipline"].append(str(path))
 
+    # V6.58 project-local Radar adapter promotion evidence: structural production truth only.
+    project_cfg=policy.get("project_local_adapter_evidence") or {}
+    if project_cfg.get("enabled") is True:
+        aid=str(project_cfg.get("eligible_agent") or "")
+        required=[str(x) for x in (project_cfg.get("required_evidence") or [])]
+        expected_adapter=str(project_cfg.get("adapter") or "")
+        required_scope=str(project_cfg.get("required_scope") or "PROJECT")
+        evidence_glob=str(project_cfg.get("glob") or "adapter-promotions/radar-runtime-adapter/**/promotion-evidence.json")
+        if aid in agg and scopes.get(aid)==required_scope:
+            for path in runtime_root.glob(evidence_glob):
+                x=safe_load(path)
+                if not x or x.get("schema")!="chacha.dev/adapter-promotion-evidence/v1":continue
+                if expected_adapter and str(x.get("adapter") or "")!=expected_adapter:continue
+                evidence=x.get("evidence") or {}
+                if not all(isinstance(evidence.get(k),dict) and evidence[k].get("status")=="PASS" for k in required):continue
+                structured=all(
+                    str((evidence.get(k) or {}).get("source") or "") and
+                    str((evidence.get(k) or {}).get("observed_at") or "") and
+                    isinstance((evidence.get(k) or {}).get("details"),dict)
+                    for k in required
+                )
+                provisioning=(evidence.get("provisioning-pass") or {}).get("details") or {}
+                probe_ok=str(provisioning.get("probe_status") or "")=="PASS"
+                a=agg[aid];a["project_adapter_evidence_total"]+=1
+                if structured and probe_ok:
+                    a["project_adapter_evidence_quality_ok"]+=1
+                    a["refs"]["evidence_quality"].append(str(path))
+                sandbox=(evidence.get("sandbox-only") or {}).get("details") or {}
+                authority_ok=(
+                    str(sandbox.get("production_radar_mutation") or "")=="NO" and
+                    str(sandbox.get("registry_mutation") or "")=="NO" and
+                    str(sandbox.get("radar_sentinel_guard") or "")=="PASS" and
+                    str(sandbox.get("collector_sentinel_guard") or "")=="PASS"
+                )
+                a["authority_checks"]+=1
+                if authority_ok:a["authority_points"]+=100.0
+                a["refs"]["authority_discipline"].append(str(path))
+
     # V6.51 promoted benchmark evidence: benchmark-only measurements may fill UNKNOWN dimensions,
     # but never overwrite production/runtime measurements.
     benchmark_evidence={}
@@ -228,8 +268,8 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
         robustness=pct(a["exec_success"],a["exec_success"]+a["exec_failure"])
         efficiency=pct(a["exec_events"],a["attempts"]) if a["exec_events"] else None
         accuracy=pct(a["verified_ok"],a["verified_total"])
-        evidence_total=a["verified_total"]+a["specialist_review_total"]
-        evidence_ok=a["verified_with_evidence"]+a["specialist_review_quality_ok"]
+        evidence_total=a["verified_total"]+a["specialist_review_total"]+a["project_adapter_evidence_total"]
+        evidence_ok=a["verified_with_evidence"]+a["specialist_review_quality_ok"]+a["project_adapter_evidence_quality_ok"]
         evidence_quality=pct(evidence_ok,evidence_total)
         authority=(round(a["authority_points"]/a["authority_checks"],1) if a["authority_checks"] else None)
         learning=a.get("learning_quality_value")
@@ -278,6 +318,7 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
             "attempts":a["attempts"],"verified_results":a["verified_total"],
             "verified_ok":a["verified_ok"],"guardian_checks":a["guardian_checks"],
             "authority_checks":a["authority_checks"],"specialist_reviews":a["specialist_review_total"],
+            "project_adapter_evidence":a["project_adapter_evidence_total"],
             "observed_capabilities":sorted(a["observed_capabilities"]),
             "declared_capabilities":sorted(declared.get(aid) or set()),
             "handoff_total":a["handoff_total"],"handoff_ok":a["handoff_ok"],
