@@ -28,16 +28,18 @@ def main()->int:
     ap.add_argument("--platform-root",type=Path,required=True)
     ap.add_argument("--plan",type=Path,required=True)
     ap.add_argument("--approval",type=Path,required=True)
+    ap.add_argument("--guardian-receipt",type=Path,required=True)
     ap.add_argument("--archive-manifest",type=Path,required=True)
     ap.add_argument("--output",type=Path,required=True)
     ap.add_argument("--explicit-destructive-apply",action="store_true")
     a=ap.parse_args()
     if not a.explicit_destructive_apply:raise SystemExit("EXPLICIT_DESTRUCTIVE_APPLY_REQUIRED")
     platform=a.platform_root.resolve();releases=(platform/"releases").resolve();current=(platform/"current").resolve()
-    plan=load(a.plan);approval=load(a.approval)
+    plan=load(a.plan);approval=load(a.approval);guardian=load(a.guardian_receipt)
     if plan.get("schema")!=PLAN_SCHEMA:raise SystemExit("PLAN_SCHEMA_INVALID")
     if approval.get("schema")!=APPROVAL_SCHEMA:raise SystemExit("APPROVAL_SCHEMA_INVALID")
     if approval.get("destructive_apply_authorized") is not True:raise SystemExit("COUNCIL_APPROVAL_REQUIRED")
+    if str(guardian.get("verdict") or "") not in {"PASS","WARNING"}:raise SystemExit("GUARDIAN_REALTIME_VERDICT_REQUIRED")
     if str(approval.get("plan_digest") or "")!=sha256_file(a.plan):raise SystemExit("PLAN_DIGEST_MISMATCH")
     if str(approval.get("revision") or "")!=str(plan.get("active_revision") or ""):raise SystemExit("REVISION_MISMATCH")
     if int(plan.get("missing_verified_rollback_count") or 0)>0:raise SystemExit("ROLLBACK_PROTECTION_INCOMPLETE")
@@ -53,7 +55,7 @@ def main()->int:
         retiring.append((row,p))
     archive={"schema":"chacha.dev/platform-retirement-archive/v2","generated_at":now_iso(),
       "executor":"central-orchestrator","owner_agent":"intendant","revision":plan.get("active_revision"),
-      "plan_digest":sha256_file(a.plan),"retiring":[],"git_history_preserved":True,
+      "plan_digest":sha256_file(a.plan),"guardian_verdict":guardian.get("verdict"),"retiring":[],"git_history_preserved":True,
       "remote_branch_deletion":False,"source_code_deletion":False,"automatic_external_spend_eur":0}
     for row,p in retiring:
         item=dict(row);item["tree_sha256"]=tree_digest(p) if p.is_dir() else "MISSING"
