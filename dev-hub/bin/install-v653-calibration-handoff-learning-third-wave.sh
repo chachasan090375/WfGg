@@ -145,7 +145,12 @@ by={a["agent_id"]:a for a in x.get("agents") or []}
 for aid in sorted(previous|third):
     row=by[aid];sc=row["scorecard"];pl=row["plan"]
     assert sc["measurement_coverage_pct"]>=80.0,(aid,sc)
-    assert sc["benchmark_measurement_coverage_pct"]>=80.0,(aid,sc)
+    prod=float(sc.get("production_measurement_coverage_pct") or 0)
+    bench=float(sc.get("benchmark_measurement_coverage_pct") or 0)
+    prod_dims=set(sc.get("production_measured_dimensions") or [])
+    bench_dims=set(sc.get("benchmark_measured_dimensions") or [])
+    assert not (prod_dims & bench_dims),(aid,prod_dims,bench_dims)
+    assert abs(float(sc["measurement_coverage_pct"])-min(100.0,prod+bench))<0.01,(aid,sc)
     assert sc["recommendation"]!="MEASURE_FIRST",(aid,sc)
     maturity=pl.get("evidence_maturity") or {}
     assert maturity.get("benchmark_only_cannot_materialize_candidate") is True,(aid,maturity)
