@@ -190,8 +190,13 @@ with tempfile.TemporaryDirectory(prefix="v642-e2e-") as td_raw:
     temp_bin=str(repo/"dev-hub/bin")
     if temp_bin not in sys.path:
         sys.path.insert(0,temp_bin)
-    spec=importlib.util.spec_from_file_location("v642_orchestrator",repo/"dev-hub/bin/autonomous-project-orchestrator.py")
-    orch=importlib.util.module_from_spec(spec);spec.loader.exec_module(orch)
+    import sys
+    sys.path.insert(0,str(repo/"dev-hub/bin"))
+    try:
+        spec=importlib.util.spec_from_file_location("v642_orchestrator",repo/"dev-hub/bin/autonomous-project-orchestrator.py")
+        orch=importlib.util.module_from_spec(spec);spec.loader.exec_module(orch)
+    finally:
+        sys.path.pop(0)
     preplan=td/"project-two-preplan.json"
     contract=td/"project-two-contract.json"
     gaps=td/"project-two-gaps.json"
