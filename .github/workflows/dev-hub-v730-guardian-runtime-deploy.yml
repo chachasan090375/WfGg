@@ -127,7 +127,8 @@ jobs:
           q=lambda s:"'"+str(s).replace("'","''")+"'"
           sql=("INSERT INTO guardian_identities(key_id,status,public_key_spki_b64,created_at,revoked_at) VALUES("
                +q(x['key_id'])+",'ACTIVE',"+q(x['public_key_spki_b64'])+",datetime('now'),NULL) "
-               "ON CONFLICT(key_id) DO UPDATE SET status='ACTIVE',public_key_spki_b64=excluded.public_key_spki_b64,revoked_at=NULL;")
+               "ON CONFLICT(key_id) DO UPDATE SET status='ACTIVE',public_key_spki_b64=excluded.public_key_spki_b64,revoked_at=NULL "
+               "WHERE guardian_identities.status<>'ACTIVE' OR guardian_identities.public_key_spki_b64<>excluded.public_key_spki_b64 OR guardian_identities.revoked_at IS NOT NULL;")
           open('.guardian-v730-identity.sql','w').write(sql+'\n')
           print('CHACHA_DEV_V730_GUARDIAN_IDENTITY_SEED=PASS')
           PY
@@ -150,6 +151,7 @@ jobs:
           assert hit.get('status')=='ACTIVE',hit
           assert hit.get('public_key_spki_b64')==expected['public_key_spki_b64'],hit
           print('CHACHA_DEV_V730_GUARDIAN_IDENTITY_REREAD=PASS')
+          print('CHACHA_DEV_V730_GUARDIAN_IDENTITY_SYNC=DELTA_ONLY')
           PY
 
       - name: Deploy current Guardian Worker
