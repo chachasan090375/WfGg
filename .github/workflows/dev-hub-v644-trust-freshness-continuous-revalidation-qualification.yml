@@ -6,6 +6,7 @@ on:
       - dev-hub-v644-trust-freshness-continuous-revalidation
     paths:
       - 'dev-hub/bin/capability-trust-freshness.py'
+      - 'dev-hub/bin/install-v644-trust-freshness-continuous-revalidation.sh'
       - 'dev-hub/bin/durable-capability-registry.py'
       - 'dev-hub/bin/autonomous-project-orchestrator.py'
       - 'dev-hub/config/capability-trust-freshness.v1.json'
@@ -37,6 +38,7 @@ jobs:
           set -euo pipefail
           python3 -m py_compile dev-hub/bin/capability-trust-freshness.py dev-hub/bin/durable-capability-registry.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v644_trust_freshness_continuous_revalidation.py
           python3 -m json.tool dev-hub/config/capability-trust-freshness.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v644-trust-freshness-continuous-revalidation.sh
           grep -Fq '"version":"6.44.0"' dev-hub/bin/autonomous-project-orchestrator.py
 
       - name: V6.44 trust freshness
@@ -96,6 +98,7 @@ jobs:
             echo 'GUARDIAN_AUTHORITY=PRESERVED'
             echo 'SENTINEL_AUTHORITY=PRESERVED'
             echo 'ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES'
+            echo 'REAL_VPS_PILOT_INSTALLER=VALIDATED'
             echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
           } | tee /tmp/v644-qualification-receipt.txt
 # V6.44 exact-head requalification marker
