@@ -1,0 +1,102 @@
+{
+  "schema": "chacha.dev/intendant-hygiene-cycle/v1",
+  "version": "1.0.0",
+  "owner_agent": "intendant",
+  "platform_scope": "GLOBAL",
+  "scheduler": {
+    "poll_interval_minutes": 60,
+    "single_timer": true,
+    "state_file": "/opt/chacha-dev/runtime/intendant/hygiene-state.json",
+    "report_dir": "/opt/chacha-dev/runtime/intendant/hygiene-reports"
+  },
+  "cycles": {
+    "LIGHT_DAILY": {
+      "enabled": true,
+      "minimum_interval_hours": 24,
+      "actions": [
+        "prune-safe-temp-files",
+        "prune-stale-empty-workdirs",
+        "prune-expired-download-fragments",
+        "measure-cache-and-log-growth"
+      ],
+      "destructive_scope": "SAFE_TEMP_ONLY",
+      "guardian_required": true,
+      "architecture_council_required": false
+    },
+    "WEEKLY_DRY_RUN": {
+      "enabled": true,
+      "minimum_interval_hours": 168,
+      "actions": [
+        "release-retirement-dry-run",
+        "duplicate-and-obsolete-surface-scan",
+        "unused-runtime-artifact-scan",
+        "storage-health-report"
+      ],
+      "destructive_scope": "NONE",
+      "guardian_required": true,
+      "sentinel_required": false,
+      "architecture_council_required": false
+    },
+    "MONTHLY_CONSOLIDATION": {
+      "enabled": true,
+      "minimum_interval_hours": 720,
+      "actions": [
+        "deep-reference-scan",
+        "deprecated-code-candidate-scan",
+        "obsolete-config-candidate-scan",
+        "release-retirement-review",
+        "branch-and-repository-retirement-candidate-report"
+      ],
+      "destructive_scope": "PLAN_ONLY",
+      "guardian_required": true,
+      "sentinel_required": true,
+      "architecture_council_required": true,
+      "automatic_remote_branch_deletion": false,
+      "automatic_source_code_deletion": false
+    },
+    "THRESHOLD_WATCH": {
+      "enabled": true,
+      "evaluate_every_poll": true,
+      "triggers": {
+        "filesystem_used_pct_gte": 75,
+        "physical_release_count_gt": 3,
+        "runtime_temp_bytes_gte": 1073741824,
+        "hygiene_debt_score_gte": 60
+      },
+      "action": "FORCE_WEEKLY_DRY_RUN_AND_ESCALATE_IF_DESTRUCTIVE_ACTION_REQUIRED"
+    }
+  },
+  "hygiene_debt": {
+    "score_range": [
+      0,
+      100
+    ],
+    "weights": {
+      "release_overage": 30,
+      "temp_storage_pressure": 20,
+      "stale_artifacts": 15,
+      "deprecated_code_candidates": 15,
+      "duplicate_surfaces": 10,
+      "unused_configs": 10
+    },
+    "escalation": {
+      "warning_gte": 40,
+      "consolidation_review_gte": 60,
+      "critical_gte": 80
+    }
+  },
+  "invariants": {
+    "git_history_preserved": true,
+    "canonical_observation_bus_rewrite": false,
+    "benchmark_evidence_mutation": false,
+    "active_release_never_deleted": true,
+    "rollback_slots_minimum": 2,
+    "remote_branch_auto_delete": false,
+    "source_code_auto_delete": false,
+    "active_self_mutation": false,
+    "self_promotion": false,
+    "permission_expansion": false,
+    "architecture_council_final_authority": true,
+    "automatic_external_spend_eur": 0
+  }
+}
