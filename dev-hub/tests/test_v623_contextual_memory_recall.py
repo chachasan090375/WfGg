@@ -81,8 +81,8 @@ assert "recall_branch_rank" in council and "recall_arch_rank" in council
 orch=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
 assert orch.count('"central-memory-recall.py"')>=3,orch.count('"central-memory-recall.py"')
 assert orch.count('"--memory-brief"')>=5,orch.count('"--memory-brief"')
-m=re.search(r'"version":"6\.(\d+)\.(\d+)"',orch)
-assert m and int(m.group(1))>=23,(m.group(0) if m else "version missing")
+m=re.search(r'"version":"(\d+)\.(\d+)\.(\d+)"',orch)
+assert m and (int(m.group(1))>6 or (int(m.group(1))==6 and int(m.group(2))>=23)),(m.group(0) if m else "version missing")
 assert '"central_memory_brief"' in orch
 
 guardian=(ROOT/"dev-hub/guardian/worker.js").read_text(encoding="utf-8")
