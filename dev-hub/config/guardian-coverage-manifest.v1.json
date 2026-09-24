@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 900,
   "action_lease_default_seconds": 300,
@@ -521,6 +521,17 @@
         "file": "dev-hub/bin/platform-component-controlled-apply-planner.py",
         "marker": "READY_FOR_CENTRAL_ORCHESTRATOR_APPLY"
       }
+    },
+    {
+      "component_id": "platform-component-source-integration-executor",
+      "role": "platform-component-source-integration-executor",
+      "kind": "controller",
+      "enforcement_point": "platform-component-source-integration-executor.guardian-pre-post",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/platform-component-source-integration-executor.py",
+        "marker": "PLATFORM_COMPONENT_SOURCE_INTEGRATION_GUARDIAN_PRE_POST"
+      }
     }
   ],
   "safety_exemptions": [
@@ -532,8 +543,8 @@
   "automatic_external_spend_eur": 0,
   "d1_write_budget": {
     "coverage_heartbeat_interval_seconds": 300,
-    "expected_max_component_heartbeat_writes_per_day": 13536,
-    "calculation": "47 components * 12 heartbeats/hour * 24 hours",
+    "expected_max_component_heartbeat_writes_per_day": 13824,
+    "calculation": "48 components * 12 heartbeats/hour * 24 hours",
     "ci_sync_mode": "DIGEST_AWARE_DELTA",
     "automatic_paid_upgrade": false,
     "automatic_external_spend_eur": 0
