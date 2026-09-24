@@ -1,0 +1,72 @@
+name: ChaCha DEV V6.51 executable agent benchmark adapters qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v651-executable-agent-benchmark-adapters
+    paths:
+      - 'dev-hub/bin/agent_benchmark_adapters.py'
+      - 'dev-hub/bin/agent_benchmark_oracles.py'
+      - 'dev-hub/bin/agent_benchmark_adapter_runner.py'
+      - 'dev-hub/bin/agent_benchmark_evidence_promoter.py'
+      - 'dev-hub/bin/agent_benchmark_campaign_runner.py'
+      - 'dev-hub/bin/agent_fleet_observatory.py'
+      - 'dev-hub/bin/agent_evolution_daily_cycle.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/agent-benchmark-adapters.v1.json'
+      - 'dev-hub/config/agent-fleet-observatory.v1.json'
+      - 'dev-hub/tests/test_v651_executable_agent_benchmark_adapters.py'
+      - '.github/workflows/dev-hub-v651-executable-agent-benchmark-adapters-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/agent_benchmark_adapters.py dev-hub/bin/agent_benchmark_oracles.py dev-hub/bin/agent_benchmark_adapter_runner.py dev-hub/bin/agent_benchmark_evidence_promoter.py dev-hub/bin/agent_benchmark_campaign_runner.py dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v651_executable_agent_benchmark_adapters.py
+          python3 -m json.tool dev-hub/config/agent-benchmark-adapters.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/agent-fleet-observatory.v1.json >/dev/null
+          grep -Fq '"version":"6.51.0"' dev-hub/bin/autonomous-project-orchestrator.py
+      - name: V6.51 executable adapters
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v651_executable_agent_benchmark_adapters.py | tee /tmp/v651.out
+          grep -Fq 'CHACHA_DEV_V651_GUARDIAN_EXECUTABLE_ADAPTER=PASS' /tmp/v651.out
+          grep -Fq 'CHACHA_DEV_V651_SENTINEL_EXECUTABLE_ADAPTER=PASS' /tmp/v651.out
+          grep -Fq 'CHACHA_DEV_V651_BASTION_EXECUTABLE_ADAPTER=PASS' /tmp/v651.out
+          grep -Fq 'CHACHA_DEV_V651_AUTONOMOUS_RECOVERY_EXECUTABLE_ADAPTER=PASS' /tmp/v651.out
+          grep -Fq 'CHACHA_DEV_V651_INDEPENDENT_ORACLE=PASS' /tmp/v651.out
+          grep -Fq 'CHACHA_DEV_V651_MEASURE_FIRST_CONVERSION=PASS' /tmp/v651.out
+          grep -Fq 'CHACHA_DEV_V651_TECHNOLOGY_WATCH_STALE_PROMOTION=BLOCKED' /tmp/v651.out
+          grep -Fq 'CHACHA_DEV_V651_BENCHMARK_PRODUCTION_TRUTH=NO' /tmp/v651.out
+          grep -Fq 'CHACHA_DEV_V651_CANONICAL_OBSERVATION_BUS_WRITE=NO' /tmp/v651.out
+      - name: V6.50 regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v650_agent_benchmark_harness.py >/tmp/v650-bench.out
+          grep -Fq 'CHACHA_DEV_V650_INDEPENDENT_ORACLE_REQUIRED=PASS' /tmp/v650-bench.out
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v650_observation_bus_self_evolution.py >/tmp/v650-bus.out
+          grep -Fq 'CHACHA_DEV_V650_BUS_SELF_HEALTH=PASS' /tmp/v650-bus.out
+      - name: Receipt
+        run: |
+          echo CHACHA_DEV_V651_QUALIFICATION=PASS
+          echo PRIORITY_EXECUTABLE_ADAPTERS=4
+          echo BENCHMARK_VERIFICATION=INDEPENDENT_ORACLE
+          echo BENCHMARK_TRUTH_SCOPE=BENCHMARK_ONLY
+          echo PRODUCTION_MEASUREMENT_PRECEDENCE=YES
+          echo UNSUPPORTED_AGENT_IS_FAILURE=NO
+          echo CANONICAL_OBSERVATION_BUS_WRITE=NO
+          echo DIRECT_AGENT_MUTATION=NO
+          echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0

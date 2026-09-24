@@ -111,5 +111,13 @@
       "recovery-orchestrator"
     ],
     "untrusted_observed_capability_evidence_ignored": true
+  },
+  "benchmark_evidence": {
+    "promoted_dir": "agent-evolution/benchmark-evidence",
+    "verification": "BENCHMARK_VERIFIED",
+    "truth_scope": "BENCHMARK_ONLY",
+    "production_truth_eligible": false,
+    "fill_unmeasured_dimensions_only": true,
+    "overwrite_production_measurement": false
   }
 }

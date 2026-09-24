@@ -1,0 +1,79 @@
+{
+  "schema": "chacha.dev/agent-benchmark-adapters/v1",
+  "version": "1.0.0",
+  "purpose": "Execute real agent code against isolated deterministic fixtures and verify outputs through a separate benchmark oracle.",
+  "supported_agents": {
+    "guardian": {
+      "adapter": "guardian-remediation-runtime",
+      "risk": "critical",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "sentinel": {
+      "adapter": "sentinel-technical-audit",
+      "risk": "critical",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "bastion": {
+      "adapter": "bastion-incident-response",
+      "risk": "critical",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "autonomous-recovery-agent": {
+      "adapter": "recovery-orchestrator",
+      "risk": "high",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    }
+  },
+  "evidence": {
+    "raw_dir": "agent-evolution/benchmark-results/raw",
+    "promoted_dir": "agent-evolution/benchmark-evidence",
+    "truth_scope": "BENCHMARK_ONLY",
+    "production_truth_eligible": false,
+    "verification": "BENCHMARK_VERIFIED",
+    "independent_oracle_id": "v651-independent-benchmark-oracle",
+    "exact_revision_required": true,
+    "technology_watch_fresh_required": true,
+    "guardian_preserved": true,
+    "sentinel_preserved": true,
+    "automatic_external_spend_eur": 0
+  },
+  "promotion": {
+    "fill_unmeasured_dimensions_only": true,
+    "overwrite_production_measurement": false,
+    "low_score_is_valid_evidence": true,
+    "failed_fixture_is_valid_negative_evidence": true,
+    "candidate_materialization": false,
+    "self_promotion": false,
+    "architecture_council_final_authority": true
+  },
+  "isolation": {
+    "runtime_root_must_be_temporary": true,
+    "canonical_observation_bus_writes": false,
+    "external_network_required": false,
+    "destructive_actions_allowed": false,
+    "real_credentials_required": false
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}

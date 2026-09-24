@@ -154,6 +154,23 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
     except Exception:
         pass
 
+    # V6.51 promoted benchmark evidence: benchmark-only measurements may fill UNKNOWN dimensions,
+    # but never overwrite production/runtime measurements.
+    benchmark_evidence={}
+    bench_cfg=policy.get("benchmark_evidence") or {}
+    bench_root=runtime_root/str(bench_cfg.get("promoted_dir") or "agent-evolution/benchmark-evidence")
+    if bench_root.is_dir():
+        for path in sorted(bench_root.glob("**/*.json")):
+            x=safe_load(path)
+            if not x or x.get("schema")!="chacha.dev/agent-benchmark-verified-evidence/v1":continue
+            aid=str(x.get("agent_id") or "")
+            if aid not in ids:continue
+            if x.get("truth_scope")!="BENCHMARK_ONLY" or x.get("production_truth_eligible") is not False:continue
+            if x.get("verification")!="BENCHMARK_VERIFIED" or not x.get("oracle_complete"):continue
+            if str(x.get("verifier") or "") in {"",aid}:continue
+            if x.get("overwrite_production_measurement") is not False:continue
+            benchmark_evidence[aid]=(path,x)
+
     # Exact component-confidence entries only; no fuzzy attribution.
     conf_path=runtime_root/"knowledge/component-confidence.json"
     conf=safe_load(conf_path) if conf_path.is_file() else None
@@ -193,6 +210,19 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
           "drift_resistance":{"status":"UNMEASURED","value":None,"evidence_count":0,"source_refs":[]},
           "authority_discipline":measured(authority,a["guardian_checks"],a["refs"]["authority_discipline"])
         }
+        bench_path,bench=benchmark_evidence.get(aid,(None,None))
+        if bench:
+            per_dim_counts={}
+            for case in bench.get("cases") or []:
+                if isinstance(case,dict) and case.get("dimension"):
+                    d=str(case["dimension"]);per_dim_counts[d]=per_dim_counts.get(d,0)+1
+            for d,value in (bench.get("dimensions") or {}).items():
+                if d not in dims or not isinstance(value,(int,float)):continue
+                if dims[d].get("status")!="UNMEASURED":continue
+                dims[d]={"status":"MEASURED","value":round(float(value),1),
+                         "evidence_count":int(per_dim_counts.get(d) or 1),"source_refs":[str(bench_path)],
+                         "evidence_scope":"BENCHMARK_ONLY","verification":"BENCHMARK_VERIFIED",
+                         "production_truth_eligible":False}
         out[aid]={
           "schema":"chacha.dev/agent-observed-metrics/v1",
           "agent_id":aid,
@@ -211,7 +241,9 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
             "observed_capabilities":sorted(a["observed_capabilities"]),
             "declared_capabilities":sorted(declared.get(aid) or set()),
             "handoff_total":a["handoff_total"],"handoff_ok":a["handoff_ok"],
-            "component_confidence_state":a.get("learning_quality_state")
+            "component_confidence_state":a.get("learning_quality_state"),
+            "benchmark_evidence_present":aid in benchmark_evidence,
+            "benchmark_evidence_scope":"BENCHMARK_ONLY" if aid in benchmark_evidence else None
           }
         }
     return out
