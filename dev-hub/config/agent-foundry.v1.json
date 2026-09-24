@@ -204,8 +204,8 @@
   },
   "evolution": {
     "schema": "chacha.dev/agent-evolution-policy/v1",
-    "controller": "dev-hub/bin/agent-evolution-controller.py",
-    "logician": "dev-hub/bin/agent-evolution-logician.py",
+    "controller": "dev-hub/bin/agent_evolution_controller.py",
+    "logician": "dev-hub/bin/agent_evolution_logician.py",
     "stages": [
       "BASELINE",
       "ASSESS",

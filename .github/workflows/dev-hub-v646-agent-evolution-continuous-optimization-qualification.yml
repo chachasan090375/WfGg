@@ -3,8 +3,8 @@ on:
   push:
     branches: [dev-hub-v646-agent-evolution-continuous-optimization]
     paths:
-      - 'dev-hub/bin/agent-evolution-controller.py'
-      - 'dev-hub/bin/agent-evolution-logician.py'
+      - 'dev-hub/bin/agent_evolution_controller.py'
+      - 'dev-hub/bin/agent_evolution_logician.py'
       - 'dev-hub/config/agent-evolution.v1.json'
       - 'dev-hub/config/agent-foundry.v1.json'
       - 'dev-hub/config/agent-routing.v1.json'
@@ -27,7 +27,7 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
-          python3 -m py_compile dev-hub/bin/agent-evolution-controller.py dev-hub/bin/agent-evolution-logician.py dev-hub/tests/test_v646_agent_evolution_continuous_optimization.py
+          python3 -m py_compile dev-hub/bin/agent_evolution_controller.py dev-hub/bin/agent_evolution_logician.py dev-hub/tests/test_v646_agent_evolution_continuous_optimization.py
           python3 -m json.tool dev-hub/config/agent-evolution.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-foundry.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-routing.v1.json >/dev/null
