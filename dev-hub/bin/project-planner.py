@@ -162,6 +162,8 @@ def resolve(cap_id: str, registry: dict[str, Any]) -> dict[str, Any]:
 
 def capabilities(intent: dict[str, Any], selected: list[dict[str, Any]], registry: dict[str, Any]) -> list[dict[str, Any]]:
     ids = ["source-control", "code-edit", "code-review", "technology-radar", "architecture-audit", "storage-governance"]
+    if intent.get("domain_objects"):
+        ids.extend(["domain-modeling","object-factory","component-factory","contract-reconciliation"])
     for item in selected:
         for cap in item["path"].get("capabilities", []):
             if cap not in ids:
@@ -187,6 +189,12 @@ def decision_list(intent: dict[str, Any], resolved: list[dict[str, Any]]) -> lis
     nf = intent.get("non_functional") or {}
     if channels & {"web", "pwa", "mobile", "api"}:
         out.append({"id": "AUTH_MODEL", "status": "NEEDS_INPUT", "question": "What authentication/authorization model is required?", "recommendation": "Choose the least-complex model that satisfies user and data sensitivity requirements.", "options": ["anonymous/public", "email-link", "OIDC/OAuth", "enterprise-SSO"], "rationale": ["identity boundaries affect frontend, API, secrets and audit requirements"]})
+    if data.get("stores_data") and not intent.get("domain_objects"):
+        out.append({"id":"OBJECT_MODEL","status":"NEEDS_INPUT",
+          "question":"What domain objects does the application manage?",
+          "recommendation":"Define explicit reusable domain objects before code generation.",
+          "options":["define-domain-objects"],
+          "rationale":["Object Factory requires explicit fields, relationships and persistence semantics"]})
     if data.get("stores_data") and nf.get("rpo_hours") is None:
         out.append({"id": "RPO", "status": "NEEDS_INPUT", "question": "What is the maximum acceptable data-loss window (RPO)?", "recommendation": "Set an explicit RPO before release.", "options": ["24h", "4h", "1h", "<1h"], "rationale": ["backup cadence cannot be validated without an RPO"]})
     if data.get("stores_data") and nf.get("rto_hours") is None:
@@ -227,6 +235,21 @@ def draft_manifest(intent: dict[str, Any], comps: list[dict[str, Any]], resolved
     }
 
 
+def object_factory_handoffs(intent: dict[str, Any]) -> list[dict[str, Any]]:
+    rows=[]
+    for obj in intent.get("domain_objects") or []:
+        oid=str(obj.get("id") or obj.get("name") or "object").strip().casefold().replace(" ","-")
+        rows.append({
+          "schema":"chacha.dev/object-factory-request/v1",
+          "project_id":intent["identity"]["slug"],"object_id":oid,
+          "object":obj,"owner":"component-factory",
+          "architecture_owner":"chacha-dev-architect",
+          "capability_gap_owner":"capability-foundry",
+          "must_complete_before_code_generation":True,
+          "production_change_authorized":False
+        })
+    return rows
+
 def make_plan(intent: dict[str, Any], registry: dict[str, Any], paths: dict[str, Any]) -> dict[str, Any]:
     if intent.get("schema") != INTENT_ID:
         raise SystemExit(f"INTENT_SCHEMA_INVALID={intent.get('schema')}")
@@ -249,6 +272,13 @@ def make_plan(intent: dict[str, Any], registry: dict[str, Any], paths: dict[str,
         "project": intent["identity"]["slug"],
         "golden_path": {"id": "+".join(x["path"]["id"] for x in selected), "confidence": round(primary["score"], 2), "reasons": primary["reasons"], "alternatives": [pid for _, pid in ranked_alternatives if pid != primary["path"]["id"]][:3]},
         "components": comps,
+        "object_factory": {
+          "required": bool(intent.get("domain_objects")),
+          "handoffs": object_factory_handoffs(intent),
+          "owner": "component-factory",
+          "architecture_owner": "chacha-dev-architect",
+          "capability_gap_owner": "capability-foundry"
+        },
         "capabilities": resolved,
         "quality_gates": gates,
         "decisions": decisions,
