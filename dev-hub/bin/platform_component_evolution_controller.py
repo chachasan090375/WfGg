@@ -205,6 +205,7 @@ def build_pilot_contracts(readiness:dict[str,Any],harness_registry:dict[str,Any]
           "pre_pilot_evidence_refs":list(row.get("evidence_refs") or []),
           "sentinel_exact_sha_receipt_required":True,
           "same_benchmark_contract":True,"isolated_ephemeral_capsules":True,
+          "production_entrypoint_unchanged":True,
           "emergency_stop_required":True,"guardian_pre_post_required":True,
           "sentinel_required":True,"technology_watch_revalidation_required":True,
           "logician_falsification_required":True,"rollback_required":True,
