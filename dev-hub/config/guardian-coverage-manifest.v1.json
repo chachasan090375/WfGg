@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "2.9.0",
+  "version": "3.0.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 900,
   "action_lease_default_seconds": 300,
@@ -499,6 +499,17 @@
         "file": "dev-hub/bin/platform-component-pilot-runner.py",
         "marker": "PLATFORM_COMPONENT_PILOT_GUARDIAN_PRE_POST"
       }
+    },
+    {
+      "component_id": "platform-component-promotion-gate",
+      "role": "platform-component-promotion-gate",
+      "kind": "release-gate",
+      "enforcement_point": "platform-component-promotion-gate.project-control-approval-check",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/platform-component-promotion-gate.py",
+        "marker": "SCHEMA=\"chacha.dev/platform-component-promotion-gate/v1\""
+      }
     }
   ],
   "safety_exemptions": [
@@ -510,8 +521,8 @@
   "automatic_external_spend_eur": 0,
   "d1_write_budget": {
     "coverage_heartbeat_interval_seconds": 300,
-    "expected_max_component_heartbeat_writes_per_day": 12960,
-    "calculation": "45 components * 12 heartbeats/hour * 24 hours",
+    "expected_max_component_heartbeat_writes_per_day": 13248,
+    "calculation": "46 components * 12 heartbeats/hour * 24 hours",
     "ci_sync_mode": "DIGEST_AWARE_DELTA",
     "automatic_paid_upgrade": false,
     "automatic_external_spend_eur": 0
