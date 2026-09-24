@@ -178,6 +178,57 @@ for name,patch,blocker in unsafe_cases:
         assert plan["status"]=="BUILD_SPECIALIST_REQUIRED",(name,plan)
         assert blocker in plan["blockers"],(name,plan)
 
+
+# Governed compiler: only an explicit safe build profile may cross BUILD_REQUIRED.
+with tempfile.TemporaryDirectory(prefix="v641-compiler-") as td:
+    td=Path(td)
+    closure={
+      "schema":"chacha.dev/capability-foundry-closure-plan/v1",
+      "project_id":"v641-compiler-project",
+      "plans":[
+        {"capability":"v641-compiler-safe","state":"BUILD_REQUIRED","evaluated_candidates":[
+          {"candidate":{
+            "provider_id":"v641-compiler-provider",
+            "adapter_id":"v641-compiler-adapter",
+            "build_profile":"structured-read-v1","execution":"vps","supports":["read"],
+            "network_access":False,"credentials_required":False,"production_capable":False,
+            "external_spend_eur":0
+          }}
+        ]},
+        {"capability":"v641-compiler-unsafe","state":"BUILD_REQUIRED","evaluated_candidates":[
+          {"candidate":{
+            "provider_id":"v641-unsafe-provider",
+            "execution":"vps","supports":["read"],
+            "network_access":False,"credentials_required":False,"production_capable":False,
+            "external_spend_eur":0
+          }}
+        ]}
+      ]
+    }
+    foundry={
+      "schema":"chacha.dev/capability-foundry-plan/v1",
+      "project_id":"v641-compiler-project",
+      "plans":[
+        {"capability":"v641-compiler-safe","technology_watch":{"consulted":True,"snapshot_freshness":"FRESH","source_snapshot_digest":"sha256:test"}},
+        {"capability":"v641-compiler-unsafe","technology_watch":{"consulted":True,"snapshot_freshness":"FRESH","source_snapshot_digest":"sha256:test"}}
+      ]
+    }
+    council={"schema":"chacha.dev/architecture-decision-council/v1","dispatch_allowed":True,"decisions":[]}
+    save(td/"closure.json",closure); save(td/"foundry.json",foundry); save(td/"council.json",council)
+    run([
+      "python3",BIN/"capability-build-request-compiler.py",
+      "--closure",td/"closure.json","--foundry-plan",td/"foundry.json",
+      "--architecture-council",td/"council.json","--output",td/"batch.json"
+    ])
+    batch=load(td/"batch.json")
+    assert batch["buildable_count"]==1,batch
+    assert batch["unresolved_count"]==1,batch
+    req=batch["requests"][0]
+    assert req["capability"]=="v641-compiler-safe",req
+    assert req["profile"]=="structured-read-v1",req
+    assert req["architecture_council"]["decision"]=="APPROVED",req
+    assert batch["unresolved"][0]["reason"]=="BUILD_SPECIALIST_REQUIRED",batch
+
 print("CHACHA_DEV_V641_BUILD_REQUIRED_TO_SAFE_ADAPTER=PASS")
 print("CHACHA_DEV_V641_OFFICIAL_PROVISIONING_CHAIN=PASS")
 print("CHACHA_DEV_V641_OFFICIAL_PROMOTION_CHAIN=PASS")
@@ -185,4 +236,6 @@ print("CHACHA_DEV_V641_THREE_RUN_ENABLEMENT=PASS")
 print("CHACHA_DEV_V641_SAME_PROJECT_RESUME_READY=PASS")
 print("CHACHA_DEV_V641_DURABLE_ADOPTION_BEFORE_PROJECT_SUCCESS=NO")
 print("CHACHA_DEV_V641_UNSAFE_BUILD_CLASSES_FAIL_CLOSED=PASS")
+print("CHACHA_DEV_V641_GOVERNED_BUILD_REQUEST_COMPILER=PASS")
+print("CHACHA_DEV_V641_UNDECLARED_BUILD_PROFILE_FAIL_CLOSED=PASS")
 print("CHACHA_DEV_V641_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
