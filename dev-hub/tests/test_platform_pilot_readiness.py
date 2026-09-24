@@ -36,7 +36,8 @@ complete={"evidence":[{"dispatch_id":"d1","evidence_refs":["e:1","e:2"],
  "independent_verification":True,"measurable_gain":True,"no_material_regression":True,
  "permission_non_escalation":True,"rollback_ready":True,"exact_revision_evidence":True,
  "logician_falsification_pass":True,"technology_watch_revalidation_pass":True,
- "real_harness_available":True}]}
+ "real_harness_available":True,"candidate_artifact_ref":"git:candidate@abc",
+ "incumbent_artifact_ref":"git:incumbent@def"}]}
 ok=ctrl.build_pilot_readiness(ledger,complete)
 assert ok["pilot_ready_count"]==1 and ok["hold_shadow_count"]==0,ok
 row=ok["pilot_ready"][0]
