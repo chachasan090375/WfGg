@@ -8,6 +8,7 @@ from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
+from progress_state_controller import ProgressStore
 
 HUMAN_RESPONSE_SCHEMA="chacha.dev/human-interface-response/v1"
 CENTRAL_RECEIPT_SCHEMA="chacha.dev/central-interface-receipt/v1"
@@ -79,6 +80,8 @@ class State:
         self.controller=repo/str(policy.get("central_controller") or "dev-hub/bin/central-interface-controller.py")
         self.translator=repo/str(((policy.get("translator") or {}).get("script")) or "dev-hub/bin/functional-translator-agent.py")
         self.emergency=repo/str(policy.get("emergency_controller") or "dev-hub/bin/emergency-stop-controller.py")
+        progress_policy=repo/str(policy.get("progress_policy") or "dev-hub/config/progress-reporting.v1.json")
+        self.progress=ProgressStore(load(progress_policy))
 
     def session(self)->dict[str,Any]:
         return load(self.session_path,{"schema":"chacha.dev/direct-operator-session/v1",
@@ -109,8 +112,11 @@ class State:
           "interface_decision_authority":False,"operator_identity":operator}
         self.set_job(jid,state="TRANSLATING" if command=="INSTRUCTION" else "CENTRAL_ORCHESTRATION",
                      request_id=request_id,command=command,project_id=project)
+        self.progress.begin(request_id,"ChaCha s’occupe de ta demande ✨",project)
+        self.progress.update("direct-operator-service",100,"COMPLETE","Demande reçue",10,"Demande reçue")
         try:
             if command=="STOP":
+                self.progress.update("central-interface-controller",35,"RUNNING","Activation du Stop",35,"Arrêt d’urgence en cours")
                 out=work/"stop.json"
                 p=run([sys.executable,str(self.emergency),"--state",str(self.runtime/"control/emergency-stop.json"),
                        "activate","--reason","direct-operator:"+request_id,"--actor","direct-operator"],120)
@@ -122,8 +128,10 @@ class State:
                   "next_action":"AWAIT_EXPLICIT_RESET_AND_HEALTH_CHECK","evidence_refs":[],"decision":{"emergency_stop":payload},
                   "automatic_external_spend_eur":0}
             elif command=="STATUS":
+                self.progress.update("central-interface-controller",55,"RUNNING","Lecture de l’état plateforme",55,"ChaCha vérifie son état")
                 receipt=self.central(["status","--project",project],work/"brain-receipt.json")
             elif command=="CONTINUE":
+                self.progress.update("central-interface-controller",55,"RUNNING","Reprise de la dernière action",55,"ChaCha reprend")
                 with self.lock:s=self.session()
                 prior=Path(str(s.get("last_response_path") or ""));expected=str(s.get("last_response_digest") or "")
                 if not prior.is_file() or not expected:
@@ -134,15 +142,19 @@ class State:
                       "--expected-response-digest",expected,"--output-dir",str(work/"brain")],work/"brain-receipt.json")
             else:
                 self.set_job(jid,state="TRANSLATING",request_id=request_id,command=command,project_id=project)
+                self.progress.update("functional-translator-satellite",20,"RUNNING","Traduction de ta demande",28,"ChaCha comprend ta demande")
                 trans=work/"translation"
                 p=run([sys.executable,str(self.translator),"--repo-root",str(self.repo),"--text",text,
                   "--project",project,"--source","direct-operator","--operator",operator,
                   "--request-id",request_id,"--output-dir",str(trans)],180)
                 if p.returncode!=0:raise RuntimeError("FUNCTIONAL_TRANSLATOR_FAILED:"+p.stderr[-1200:])
                 translation=load(trans/"translation.json")
+                self.progress.update("functional-translator-satellite",100,"COMPLETE","Intention prête",45,"Demande comprise ✨")
                 self.set_job(jid,state="CENTRAL_ORCHESTRATION",translation=translation)
+                self.progress.update("central-interface-controller",55,"RUNNING","Transmission au cerveau central",62,"Transmission au cerveau central")
                 receipt=self.central(["instruction","--intent",str(trans/"interface-intent.json"),
                   "--output-dir",str(work/"brain")],work/"brain-receipt.json")
+                self.progress.update("central-orchestrator",90,"RUNNING","Décision centrale reçue",88,"ChaCha finalise")
             if receipt.get("schema")!=CENTRAL_RECEIPT_SCHEMA:
                 raise RuntimeError("CENTRAL_RECEIPT_SCHEMA_INVALID")
             response=wrap(intent,receipt)
@@ -153,7 +165,9 @@ class State:
                   "last_response_path":str(response_path),"last_response_digest":fd(response_path),
                   "last_command":command,"last_operator":operator});self.save_session(s)
             self.set_job(jid,state="COMPLETE",response=response,response_path=str(response_path))
+            self.progress.complete("C’est fait ✨")
         except Exception as exc:
+            self.progress.fail("ChaCha a rencontré un problème")
             self.set_job(jid,state="FAILED",error=str(exc)[:2000])
 
 class Handler(BaseHTTPRequestHandler):
@@ -176,6 +190,8 @@ class Handler(BaseHTTPRequestHandler):
         if not identity:return
         if path=="/api/v1/session":
             s=self.st.session();return self.json(200,{"status":"OK","active_project":s.get("active_project"),"last_command":s.get("last_command")})
+        if path=="/api/v1/progress":
+            return self.json(200,self.st.progress.snapshot())
         if path.startswith("/api/v1/jobs/"):
             jid=path.rsplit("/",1)[-1];p=self.st.job_path(jid)
             return self.json(200,load(p)) if p.is_file() else self.json(404,{"status":"NOT_FOUND"})
