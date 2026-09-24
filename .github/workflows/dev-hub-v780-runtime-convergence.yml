@@ -27,6 +27,7 @@ jobs:
           set -euo pipefail
           python3 -m py_compile             dev-hub/bin/direct-operator-service.py             dev-hub/bin/progress_state_controller.py             dev-hub/bin/live_ui_publisher.py             dev-hub/bin/native_update_publisher.py             dev-hub/bin/android_release_signer.py             dev-hub/bin/object-factory.py             dev-hub/bin/project-planner.py             dev-hub/bin/autonomous-project-orchestrator.py
           grep -Fq '"version":"7.8.0"' dev-hub/bin/autonomous-project-orchestrator.py
+          bash -n dev-hub/bin/install-v780-runtime-convergence.sh
       - name: V7.3 Direct Operator
         run: |
           set -euo pipefail
@@ -87,6 +88,9 @@ jobs:
           test -f "$T/release/dev-hub/bin/live_ui_publisher.py"
           test -f "$T/release/dev-hub/bin/native_update_publisher.py"
           test -f "$T/release/dev-hub/bin/object-factory.py"
+          test -f "$T/release/dev-hub/config/android-native-update.v1.json"
+          test -f "$T/release/dev-hub/config/android-live-shell.v1.json"
+          test -f "$T/release/dev-hub/config/object-factory.v1.json"
       - name: Receipt
         run: |
           echo CHACHA_DEV_V780_RUNTIME_CONVERGENCE_QUALIFICATION=PASS
