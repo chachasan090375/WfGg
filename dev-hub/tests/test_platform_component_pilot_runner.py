@@ -58,12 +58,31 @@ def guardian_provider(repo_root,run_root,phase,contract,result_status=None):
     guardian_calls.append({"phase":phase,"result_status":result_status})
     return {"verdict":"ALLOW","status":"PASS"}
 
+council_calls=[]
+def council_provider(repo_root,run_root,contract,sentinel_receipt,pilot_result):
+    council_calls.append({"contract_id":contract["contract_id"],"run_id":pilot_result["run_id"]})
+    return {
+      "schema":"chacha.dev/architecture-council-platform-component-review/v1",
+      "technical_review_passed":True,
+      "architecture_council_technical_admissibility":True,
+      "decision":"TECHNICALLY_ADMISSIBLE_AWAIT_EXPLICIT_HUMAN_PROMOTION_APPROVAL",
+      "next_action":"AWAIT_EXPLICIT_HUMAN_PROMOTION_APPROVAL",
+      "production_activation_allowed":False,"promotion_allowed":False,
+      "automatic_external_spend_eur":0
+    }
+
 with tempfile.TemporaryDirectory(prefix="platform-pilot-runner-") as td:
-    out=runner.execute(contract,sentinel,ROOT,Path(td),executor,guardian_provider)
+    out=runner.execute(contract,sentinel,ROOT,Path(td),executor,guardian_provider,council_provider)
 
 assert out["status"]=="PASS",out
 assert len(calls)==2,calls
 assert [x["phase"] for x in guardian_calls]==["PRE_ACTION","POST_ACTION"],guardian_calls
+assert len(council_calls)==1,council_calls
+assert out["council_handoff_complete"] is True,out
+assert out["council_review_technical_pass"] is True,out
+assert out["pipeline_status"]=="PASS_HOLD_INCUMBENT",out
+assert out["human_explicit_promotion_approval_present"] is False,out
+assert out["explicit_human_promotion_approval_required"] is True,out
 assert out["guardian_pre_pass"] is True and out["guardian_post_pass"] is True,out
 assert str(out["guardian_pre_receipt_digest"]).startswith("sha256:"),out
 assert str(out["guardian_post_receipt_digest"]).startswith("sha256:"),out
@@ -133,6 +152,8 @@ print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_GUARDIAN_COVERAGE=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_CORE_WATCH=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_GUARDIAN_ROLE=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_COUNCIL_HANDOFF=YES")
+print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_COUNCIL_REVIEW=PASS")
+print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_HOLD_INCUMBENT=YES")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_FINAL_DECISION=NO")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_PRODUCTION_ENTRYPOINT_CHANGED=NO")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_PRODUCTION_CHANGE=NO")
