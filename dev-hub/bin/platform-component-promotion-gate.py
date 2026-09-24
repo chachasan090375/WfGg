@@ -82,6 +82,37 @@ def evaluate(review:dict[str,Any],status:dict[str,Any],state:dict[str,Any],ledge
     else:
         gate_status="PROMOTION_AUTHORIZED_FOR_CONTROLLED_APPLY"
     blockers=sorted(k for k,v in checks.items() if not v)
+    controlled_apply_contract=None
+    if gate_status=="PROMOTION_AUTHORIZED_FOR_CONTROLLED_APPLY":
+        controlled_apply_contract={
+          "schema":"chacha.dev/platform-component-controlled-apply-contract/v1",
+          "component_id":review.get("component_id"),
+          "candidate_owner":review.get("candidate_owner"),
+          "candidate_revision":review.get("candidate_revision"),
+          "incumbent_revision":review.get("incumbent_revision"),
+          "candidate_artifact_ref":review.get("candidate_artifact_ref"),
+          "incumbent_artifact_ref":review.get("incumbent_artifact_ref"),
+          "qualification_workflow_name":review.get("qualification_workflow_name"),
+          "approval_id":approval_id,"approval_actor":actor,"approval_evidence":evidence,
+          "technical_review_digest":review.get("technical_review_digest"),
+          "apply_mode":"SOURCE_RELEASE_CANDIDATE_INTEGRATION",
+          "source_candidate_integration_authorized":True,
+          "direct_runtime_mutation_authorized":False,
+          "production_activation_authorized":False,
+          "production_deployment_authorized":False,
+          "merge_to_production_branch_authorized":False,
+          "automatic_apply":False,
+          "central_orchestrator_apply_required":True,
+          "candidate_owner_apply_adapter_required":True,
+          "exact_revision_required":True,
+          "rollback_required":True,
+          "post_apply_exact_sha_gates_required":[
+            str(review.get("qualification_workflow_name") or ""),
+            "ChaCha DEV Sentinel technical assurance"
+          ],
+          "guardian_post_apply_assurance_required":True,
+          "automatic_external_spend_eur":0
+        }
     return {
       "schema":SCHEMA,"generated_at":now_iso(),"component_id":review.get("component_id"),
       "candidate_revision":review.get("candidate_revision"),"incumbent_revision":review.get("incumbent_revision"),
@@ -90,7 +121,10 @@ def evaluate(review:dict[str,Any],status:dict[str,Any],state:dict[str,Any],ledge
       "human_approval_record_present":approval_record_present,
       "human_approval_verified":approval_ready and core_ready,
       "promotion_authorized":gate_status=="PROMOTION_AUTHORIZED_FOR_CONTROLLED_APPLY",
-      "controlled_apply_required":True,"automatic_apply":False,
+      "controlled_apply_required":True,
+      "controlled_apply_contract_created":controlled_apply_contract is not None,
+      "controlled_apply_contract":controlled_apply_contract,
+      "automatic_apply":False,
       "production_activation_allowed":False,
       "production_deployment_requires_separate_controlled_handoff":True,
       "direct_runtime_mutation":False,"permission_expansion":False,
