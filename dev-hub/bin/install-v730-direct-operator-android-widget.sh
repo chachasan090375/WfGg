@@ -19,6 +19,13 @@ TIMER="chacha-dev-intendant-hygiene.timer"
 TIMER_WAS_ACTIVE=0
 TIMER_WAS_ENABLED=0
 TIMER_PAUSED=0
+GUARDIAN_TIMER="chacha-dev-guardian-coverage-heartbeat.timer"
+GUARDIAN_TIMER_WAS_ACTIVE=0
+GUARDIAN_TIMER_WAS_ENABLED=0
+GUARDIAN_TIMER_PAUSED=0
+GUARDIAN_TIMER_UNIT="/etc/systemd/system/chacha-dev-guardian-coverage-heartbeat.timer"
+GUARDIAN_TIMER_BACKUP="$WORK/chacha-dev-guardian-coverage-heartbeat.timer.backup"
+GUARDIAN_TIMER_UNIT_EXISTED=0
 DEPLOY_LOCK="$RUNTIME/control/platform-deploy.lock"
 UNIT="/etc/systemd/system/chacha-dev-direct-operator.service"
 UNIT_BACKUP="$WORK/direct-operator.service.backup"
@@ -46,6 +53,13 @@ restore_timer(){
     TIMER_PAUSED=0
   fi
 }
+restore_guardian_timer(){
+  if [ "$GUARDIAN_TIMER_PAUSED" -eq 1 ]; then
+    if [ "$GUARDIAN_TIMER_WAS_ENABLED" -eq 1 ]; then systemctl enable "$GUARDIAN_TIMER" >/dev/null 2>&1 || true; fi
+    if [ "$GUARDIAN_TIMER_WAS_ACTIVE" -eq 1 ]; then systemctl start "$GUARDIAN_TIMER" >/dev/null 2>&1 || true; fi
+    GUARDIAN_TIMER_PAUSED=0
+  fi
+}
 rollback(){
   rc=$?
   if [ "$rc" -ne 0 ]; then
@@ -65,6 +79,9 @@ rollback(){
     else
       rm -f "$UNIT"
     fi
+    if [ "$GUARDIAN_TIMER_UNIT_EXISTED" -eq 1 ]; then
+      cp -a "$GUARDIAN_TIMER_BACKUP" "$GUARDIAN_TIMER_UNIT"
+    fi
     systemctl daemon-reload >/dev/null 2>&1 || true
     if [ "$AUTH_CREATED" -eq 1 ]; then rm -f "$AUTH_FILE"; fi
     if [ "$PURGE_COMMITTED" -eq 0 ] && [ "$ACTIVATED" -eq 1 ] && [ -n "$PREVIOUS" ] && [ -d "$PREVIOUS" ]; then
@@ -79,6 +96,7 @@ rollback(){
     elif [ "$PURGE_COMMITTED" -eq 1 ]; then
       echo "CHACHA_DEV_V730_RUNTIME_ROLLBACK=SKIPPED_COMMITTED_RETIREMENT"
     fi
+    restore_guardian_timer
     restore_timer
   fi
   cleanup
@@ -129,6 +147,12 @@ if systemctl is-active --quiet chacha-dev-intendant-hygiene.service 2>/dev/null;
   echo "CHACHA_DEV_V730_INSTALL=BLOCKED reason=hygiene_service_active"
   exit 74
 fi
+if systemctl is-enabled --quiet "$GUARDIAN_TIMER" 2>/dev/null; then GUARDIAN_TIMER_WAS_ENABLED=1; fi
+if systemctl is-active --quiet "$GUARDIAN_TIMER" 2>/dev/null; then
+  GUARDIAN_TIMER_WAS_ACTIVE=1
+  systemctl stop "$GUARDIAN_TIMER"
+  GUARDIAN_TIMER_PAUSED=1
+fi
 
 stage source
 if [ -n "$SOURCE_ROOT" ]; then
@@ -138,7 +162,7 @@ else
   mkdir -p "$WORK/src"; tar -xzf "$WORK/repo.tar.gz" -C "$WORK/src" --strip-components=1
   SRC="$WORK/src"
 fi
-for p in   dev-hub/bin/install-v730-direct-operator-android-widget.sh   dev-hub/bin/build-v7-runtime-release.py   dev-hub/bin/direct-operator-service.py   dev-hub/bin/functional-translator-agent.py   dev-hub/bin/central-interface-controller.py   dev-hub/bin/human-interface-gateway.py   dev-hub/bin/autonomous-project-orchestrator.py   dev-hub/bin/intendant-hygiene-cycle.py   dev-hub/bin/intendant-platform-consolidator.py   dev-hub/bin/central-platform-hygiene-executor.py   dev-hub/bin/guardian-coverage-heartbeat.py   dev-hub/config/direct-operator.v1.json   dev-hub/config/functional-translator-satellite.v1.json   dev-hub/config/guardian-coverage-manifest.v1.json   dev-hub/config/intendant-hygiene-cycle.v1.json   dev-hub/config/platform-consolidation.v1.json   dev-hub/systemd/chacha-dev-direct-operator.service   dev-hub/direct-operator-ui/index.html   dev-hub/tests/test_v730_direct_operator.py   dev-hub/tests/test_v720_human_interface_gateway.py   dev-hub/tests/test_v710_intendant_hygiene_cycle.py   dev-hub/tests/test_v700_consolidated_platform_baseline.py; do
+for p in   dev-hub/bin/install-v730-direct-operator-android-widget.sh   dev-hub/bin/build-v7-runtime-release.py   dev-hub/bin/direct-operator-service.py   dev-hub/bin/functional-translator-agent.py   dev-hub/bin/central-interface-controller.py   dev-hub/bin/human-interface-gateway.py   dev-hub/bin/autonomous-project-orchestrator.py   dev-hub/bin/intendant-hygiene-cycle.py   dev-hub/bin/intendant-platform-consolidator.py   dev-hub/bin/central-platform-hygiene-executor.py   dev-hub/bin/guardian-coverage-heartbeat.py   dev-hub/config/direct-operator.v1.json   dev-hub/config/functional-translator-satellite.v1.json   dev-hub/config/guardian-coverage-manifest.v1.json   dev-hub/config/intendant-hygiene-cycle.v1.json   dev-hub/config/platform-consolidation.v1.json   dev-hub/systemd/chacha-dev-direct-operator.service   dev-hub/systemd/chacha-dev-guardian-coverage-heartbeat.timer   dev-hub/direct-operator-ui/index.html   dev-hub/tests/test_v730_direct_operator.py   dev-hub/tests/test_v720_human_interface_gateway.py   dev-hub/tests/test_v710_intendant_hygiene_cycle.py   dev-hub/tests/test_v700_consolidated_platform_baseline.py; do
   [ -f "$SRC/$p" ] || { echo "CHACHA_DEV_V730_INSTALL=BLOCKED reason=missing:$p"; exit 2; }
 done
 
@@ -220,6 +244,26 @@ stage activate
 ln -sfn "$RELEASE" "$CURRENT"; ACTIVATED=1
 assert_current
 echo "CHACHA_DEV_V730_RELEASE_ACTIVATED=PASS"
+
+stage guardian-d1-budget-timer
+if [ -f "$GUARDIAN_TIMER_UNIT" ]; then
+  cp -a "$GUARDIAN_TIMER_UNIT" "$GUARDIAN_TIMER_BACKUP"
+  GUARDIAN_TIMER_UNIT_EXISTED=1
+fi
+cp "$RELEASE/dev-hub/systemd/chacha-dev-guardian-coverage-heartbeat.timer" "$GUARDIAN_TIMER_UNIT"
+chmod 0644 "$GUARDIAN_TIMER_UNIT"
+systemctl daemon-reload
+systemd-analyze verify "$GUARDIAN_TIMER_UNIT" >"$WORK/guardian-timer-systemd.out" 2>"$WORK/guardian-timer-systemd.err"
+grep -Fq 'OnUnitActiveSec=300s' "$GUARDIAN_TIMER_UNIT"
+python3 - "$RELEASE/dev-hub/config/guardian-runtime-policy.v1.json" "$RELEASE/dev-hub/config/guardian-coverage-manifest.v1.json" <<'PY'
+import json,sys
+policy=json.load(open(sys.argv[1]));manifest=json.load(open(sys.argv[2]))
+assert policy["coverage_heartbeat_max_age_seconds"]==900,policy
+assert manifest["heartbeat_max_age_seconds"]==900,manifest
+assert policy["d1_write_budget"]["coverage_heartbeat_interval_seconds"]==300,policy
+assert policy["d1_write_budget"]["automatic_paid_upgrade"] is False,policy
+print("CHACHA_DEV_V730_GUARDIAN_D1_BUDGET=PASS")
+PY
 
 stage service
 if [ -f "$UNIT" ]; then cp -a "$UNIT" "$UNIT_BACKUP"; UNIT_EXISTED=1; fi
@@ -398,6 +442,10 @@ open(sys.argv[1],"w").write(json.dumps(out,indent=2,ensure_ascii=False)+"\n")
 PY
 
 stage resume-timer
+if [ "$GUARDIAN_TIMER_WAS_ENABLED" -eq 1 ]; then systemctl enable "$GUARDIAN_TIMER" >/dev/null; fi
+if [ "$GUARDIAN_TIMER_WAS_ACTIVE" -eq 1 ]; then systemctl start "$GUARDIAN_TIMER"; fi
+GUARDIAN_TIMER_PAUSED=0
+systemctl cat "$GUARDIAN_TIMER" | grep -Fq 'OnUnitActiveSec=300s'
 if [ "$TIMER_WAS_ENABLED" -eq 1 ]; then systemctl enable "$TIMER" >/dev/null; fi
 if [ "$TIMER_WAS_ACTIVE" -eq 1 ]; then systemctl start "$TIMER"; fi
 TIMER_PAUSED=0
@@ -414,6 +462,9 @@ echo "CHACHA_DEV_V730_FUNCTIONAL_TRANSLATOR_SCOPE=PLATFORM_EDGE_SATELLITE"
 echo "CHACHA_DEV_V730_TRANSLATOR_EXECUTION_AUTHORITY=NO"
 echo "CHACHA_DEV_V730_CHATGPT_IN_DIRECT_PATH=NO"
 echo "CHACHA_DEV_V730_ANDROID_WIDGET_BUILD=PASS"
+echo "CHACHA_DEV_V730_GUARDIAN_HEARTBEAT_SECONDS=300"
+echo "CHACHA_DEV_V730_GUARDIAN_HEARTBEAT_MAX_AGE_SECONDS=900"
+echo "CHACHA_DEV_V730_GUARDIAN_D1_SYNC_MODE=DIGEST_AWARE_DELTA"
 echo "CHACHA_DEV_V730_AUTOMATIC_EXTERNAL_SPEND_EUR=0"
 
 trap - EXIT
