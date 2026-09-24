@@ -6,6 +6,9 @@ on:
       - dev-hub-v760-chacha-native-update
     paths:
       - 'dev-hub/bin/native_update_publisher.py'
+      - 'dev-hub/tests/test_android_release_signer.py'
+      - 'dev-hub/config/android-release-signing.v1.json'
+      - 'dev-hub/bin/android_release_signer.py'
       - 'dev-hub/bin/direct-operator-service.py'
       - 'dev-hub/config/android-native-update.v1.json'
       - 'dev-hub/config/direct-operator.v1.json'
@@ -36,7 +39,12 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
-          python3 -m py_compile             dev-hub/bin/native_update_publisher.py             dev-hub/bin/direct-operator-service.py             dev-hub/tests/test_v760_chacha_native_update.py
+          python3 -m py_compile \
+            dev-hub/bin/native_update_publisher.py \
+            dev-hub/bin/android_release_signer.py \
+            dev-hub/bin/direct-operator-service.py \
+            dev-hub/tests/test_v760_chacha_native_update.py \
+            dev-hub/tests/test_android_release_signer.py
           python3 -m json.tool dev-hub/config/android-native-update.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/direct-operator.v1.json >/dev/null
       - name: Native update contract and runtime switch
@@ -51,6 +59,14 @@ jobs:
           grep -Fq 'CHACHA_DEV_V760_SILENT_INSTALL=NO' /tmp/v760.out
           grep -Fq 'CHACHA_DEV_V760_NATIVE_PUBLISH_ROLLBACK=PASS' /tmp/v760.out
           grep -Fq 'CHACHA_DEV_V760_LIVE_UI_RUNTIME_SWITCH=PASS' /tmp/v760.out
+      - name: Android release signer contract
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_android_release_signer.py | tee /tmp/android-signer.out
+          grep -Fq 'CHACHA_DEV_V760_ANDROID_RELEASE_SIGNER=PASS' /tmp/android-signer.out
+          grep -Fq 'CHACHA_DEV_V760_ANDROID_SIGNER_CERT_PIN=PASS' /tmp/android-signer.out
+          grep -Fq 'CHACHA_DEV_V760_ANDROID_SIGNER_EXACT_SHA_GATES=PASS' /tmp/android-signer.out
+          grep -Fq 'CHACHA_DEV_V760_ANDROID_SIGNER_KEY_EXPORT=NO' /tmp/android-signer.out
       - name: Install Android SDK
         run: |
           set -euo pipefail
@@ -80,6 +96,8 @@ jobs:
         run: |
           echo CHACHA_DEV_V760_NATIVE_UPDATE_QUALIFICATION=PASS
           echo RELEASE_SIGNING_LOCATION=VPS_ONLY
+          echo RELEASE_SIGNER_EXACT_SHA_GATED=YES
+          echo RELEASE_SIGNER_KEY_EXPORT=NO
           echo PINNED_CERT_SHA256=3a39f13de1191aec28526d5d8e7c9b490723d514b8dd87e5cb30aaa86a6bff88
           echo ANDROID_USER_INSTALL_CONFIRMATION_REQUIRED=YES
           echo SILENT_INSTALL=NO
