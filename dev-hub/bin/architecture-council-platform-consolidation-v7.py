@@ -15,7 +15,6 @@ def load(p:Path)->dict[str,Any]:
 def save(p:Path,x:dict[str,Any])->None:
     p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(x,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
 def now_iso()->str:return datetime.now(timezone.utc).isoformat().replace("+00:00","Z")
-def sha256_file(p:Path)->str:return "sha256:"+hashlib.sha256(p.read_bytes()).hexdigest()
 def github_runs(repository:str,revision:str)->dict[str,Any]:
     q=urllib.parse.urlencode({"head_sha":revision,"per_page":50})
     req=urllib.request.Request(
@@ -69,7 +68,7 @@ def main()->int:
     }
     passed=all(checks.values())
     result={
-      "schema":SCHEMA,"generated_at":now_iso(),"revision":rev,"plan_digest":plan_digest,"plan_digest":file_digest(a.plan),
+      "schema":SCHEMA,"generated_at":now_iso(),"revision":rev,"plan_digest":file_digest(a.plan),
       "review_authority":"architecture-council","owner_agent":"intendant",
       "checks":{
         "guardian_pass":checks["guardian_pass"],
