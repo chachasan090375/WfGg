@@ -12,6 +12,7 @@ on:
       - 'dev-hub/config/adapter-provisioning.v1.json'
       - 'dev-hub/bin/adapter-provision.py'
       - '.github/workflows/dev-hub-platform-branch-foundry-source-integrator-qualification.yml'
+      - 'dev-hub/docs/CHACHA_DEV_CHECKPOINT_2026-09-24_POST_V730_PLATFORM_EVOLUTION_CONTROL.md'
   workflow_dispatch:
 
 permissions:
