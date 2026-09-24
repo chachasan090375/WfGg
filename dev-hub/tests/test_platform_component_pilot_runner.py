@@ -28,6 +28,7 @@ contract={
  },
  "pre_pilot_evidence_refs":["e:1","e:2"],
  "same_benchmark_contract":True,"isolated_ephemeral_capsules":True,
+ "production_entrypoint_unchanged":True,
  "pilot_execution_authorized":True,"production_change_authorized":False,
  "promotion_authorized":False,"automatic_external_spend_eur":0
 }
@@ -91,6 +92,14 @@ except RuntimeError as e:
 else:
     raise AssertionError("pilot contract with incomplete prechecks accepted")
 
+badentry=dict(contract);badentry["production_entrypoint_unchanged"]=False
+try:
+    runner.validate_contract(badentry)
+except RuntimeError as e:
+    assert "PRODUCTION_ENTRYPOINT_CHANGED" in str(e),e
+else:
+    raise AssertionError("pilot contract with changed production entrypoint accepted")
+
 badc=dict(contract);badc["production_change_authorized"]=True
 try:
     runner.validate_contract(badc)
@@ -125,6 +134,7 @@ print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_CORE_WATCH=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_GUARDIAN_ROLE=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_COUNCIL_HANDOFF=YES")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_FINAL_DECISION=NO")
+print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_PRODUCTION_ENTRYPOINT_CHANGED=NO")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_PRODUCTION_CHANGE=NO")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_PROMOTION=NO")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
