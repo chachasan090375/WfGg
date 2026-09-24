@@ -1431,6 +1431,21 @@
           "fallback": []
         }
       ]
+    },
+    "object-factory": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "chacha-object-factory",
+          "status": "ADOPT",
+          "health": "runtime-check",
+          "cost_class": "local",
+          "scope": "project-domain-model",
+          "fallback": [
+            "chacha-dev-architect"
+          ]
+        }
+      ]
     }
   }
 }
