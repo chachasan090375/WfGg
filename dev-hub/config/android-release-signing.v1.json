@@ -1,0 +1,25 @@
+{
+  "schema": "chacha.dev/android-release-signing-policy/v1",
+  "version": "1.0.0",
+  "app_id": "com.wfgg.chachadev.operator",
+  "signer": "apksigner",
+  "key_path": "/opt/chacha-dev/secrets/android/chacha-operator-release-key.pem",
+  "certificate_path": "/opt/chacha-dev/secrets/android/chacha-operator-release-cert.pem",
+  "pinned_certificate_sha256": "3a39f13de1191aec28526d5d8e7c9b490723d514b8dd87e5cb30aaa86a6bff88",
+  "required_workflows": [
+    "ChaCha DEV V7.6 native update qualification",
+    "ChaCha DEV Sentinel technical assurance"
+  ],
+  "invariants": {
+    "exact_sha_receipts_required": true,
+    "central_orchestrator_signing_handoff_required": true,
+    "unsigned_apk_sha256_required": true,
+    "key_export_forbidden": true,
+    "key_material_in_repository_forbidden": true,
+    "signed_output_must_verify": true,
+    "signed_output_certificate_must_match_pin": true,
+    "v2_signing_required": true,
+    "v3_signing_required": true,
+    "automatic_external_spend_eur": 0
+  }
+}
