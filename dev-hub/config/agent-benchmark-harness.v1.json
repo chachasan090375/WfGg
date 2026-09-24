@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-benchmark-harness-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "purpose": "Convert scheduled agent audits and ecosystem benchmarks into isolated comparable benchmark campaigns without manufacturing production truth.",
   "action_types": [
     "DEEP_AGENT_AUDIT",
@@ -75,5 +75,24 @@
     "pilot_required_for_material_change": true,
     "architecture_council_final_authority": true,
     "automatic_external_spend_eur": 0
+  },
+  "result_requirements": {
+    "exact_revision": true,
+    "distinct_candidate_revision": true,
+    "independent_verifier": true,
+    "evidence_refs_required": true,
+    "same_fixture_contract": true,
+    "same_environment_contract": true,
+    "guardian_preserved": true,
+    "sentinel_preserved": true,
+    "permission_expansion": false,
+    "automatic_external_spend_eur": 0
+  },
+  "comparison": {
+    "minimum_average_gain": 3,
+    "maximum_dimension_regression": 2,
+    "minimum_measured_dimensions": 2,
+    "latest_version_priority": false,
+    "pilot_eligible_requires_all_hard_gates": true
   }
 }
