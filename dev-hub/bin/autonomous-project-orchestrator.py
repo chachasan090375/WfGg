@@ -38,6 +38,7 @@ _STAGE_ROLE={
     "capability-foundry-closure.py":"capability-foundry",
     "capability-build-request-compiler.py":"capability-foundry",
     "capability-build-loop.py":"capability-foundry",
+    "durable-capability-registry.py":"capability-foundry",
     "central-memory-recall.py":"central-memory-recall",
     "logic-search-engine.py":"logician",
     "ux-planning-engine.py":"ergonomist",
@@ -346,15 +347,30 @@ def main():
     initial_branch=out/"branch-topology-initial.json"
     run_parallel_foundries(bin_dir,cfg,pre,pid,cfg/"agent-routing.v1.json",initial_memory_brief,initial_agent,initial_branch)
 
+    # V6.42: merge release-independent durable capability adoptions before
+    # capability-gap detection. This keeps learned capabilities reusable across
+    # projects and platform releases without mutating static release configs.
+    durable_registry=Path("/opt/chacha-dev/runtime/registries/durable-capability-adoptions.v1.json")
+    durable_caps=out/"runtime-capabilities-durable.json"
+    durable_providers=out/"runtime-provider-adapters-durable.json"
+    run(bin_dir/"durable-capability-registry.py",[
+       "merge",
+       "--base-capability-registry",cfg/"capability-registry.v1.json",
+       "--base-provider-registry",cfg/"provider-adapters.v1.json",
+       "--registry",durable_registry,
+       "--output-capabilities",durable_caps,
+       "--output-providers",durable_providers
+    ])
+
     # Capability gaps may create project-local branches/capabilities.
     gapreq=out/"capability-gaps.json"
-    capability_gaps(pre,contract,cfg/"capability-registry.v1.json",pid,gapreq)
+    capability_gaps(pre,contract,durable_caps,pid,gapreq)
     foundry_plan=out/"capability-foundry.json"
     dom_overlay=out/"domain-overlay.json";cap_overlay=out/"capability-overlay.json";routing_overlay=out/"routing-overlay.json"
     run(bin_dir/"capability-foundry.py",[
        "--request",gapreq,"--policy",cfg/"capability-foundry.v1.json",
        "--domains",cfg/"domain-orchestration.v1.json",
-       "--capabilities",cfg/"capability-registry.v1.json",
+       "--capabilities",durable_caps,
        "--memory-brief",initial_memory_brief,
        "--output",foundry_plan,
        "--domain-overlay",dom_overlay,
@@ -371,8 +387,8 @@ def main():
     run(bin_dir/"capability-foundry-closure.py",[
        "--policy",cfg/"capability-foundry-closure.v1.json",
        "--foundry-plan",foundry_plan,
-       "--capability-registry",cfg/"capability-registry.v1.json",
-       "--provider-adapters",cfg/"provider-adapters.v1.json",
+       "--capability-registry",durable_caps,
+       "--provider-adapters",durable_providers,
        "--output",closure_plan,
        "--overlay",closure_overlay,
        "plan"
@@ -385,7 +401,7 @@ def main():
     active_intent=a.intent
     active_domain=cfg/"domain-orchestration.v1.json"
     active_routing=cfg/"agent-routing.v1.json"
-    active_capabilities=cfg/"capability-registry.v1.json"
+    active_capabilities=durable_caps
 
     if foundry_v.get("created_domain_count") or foundry_v.get("created_capability_count"):
         merged_domain=out/"runtime-domain-orchestration.json"
@@ -543,7 +559,7 @@ def main():
     capability_build_results=[]
     capability_build_auto_built_count=0
     capability_build_specialist_required_count=capability_build_required_count
-    active_provider_adapters=cfg/"provider-adapters.v1.json"
+    active_provider_adapters=durable_providers
 
     if capability_build_required_count:
         run(bin_dir/"capability-build-request-compiler.py",[
