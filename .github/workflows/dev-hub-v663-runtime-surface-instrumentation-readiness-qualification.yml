@@ -54,14 +54,14 @@ jobs:
           grep -Fq 'CHACHA_DEV_V663_ACCEPTANCE_PRODUCTION_ACTIVATION=NO' /tmp/v663.out
           grep -Fq 'CHACHA_DEV_V663_ACCEPTANCE_PROMOTION=NO' /tmp/v663.out
           grep -Fq 'CHACHA_DEV_V663_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v663.out
-      - name: V6.62 regression
+      - name: V6.61 governance regression
         run: |
           set -euo pipefail
-          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v662_remaining_real_world_acceptance_pilot.py >/tmp/v662.out
-          grep -Fq 'CHACHA_DEV_V662_REAL_WORLD_STRUCTURAL_ATTESTATION=PASS' /tmp/v662.out
-          grep -Fq 'CHACHA_DEV_V662_ACCEPTANCE_INDEPENDENT_PILOT=PASS' /tmp/v662.out
-          grep -Fq 'CHACHA_DEV_V662_ACCEPTANCE_PRODUCTION_ACTIVATION=NO' /tmp/v662.out
-          grep -Fq 'CHACHA_DEV_V662_ACCEPTANCE_PROMOTION=NO' /tmp/v662.out
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v661_real_world_evidence_isolated_candidate.py >/tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_REAL_WORLD_STRUCTURAL_ATTESTATION=PASS' /tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_ACCEPTANCE_ISOLATED_PILOT=PASS' /tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_ACCEPTANCE_PRODUCTION_ACTIVATION=NO' /tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_ACCEPTANCE_PROMOTION=NO' /tmp/v661.out
       - name: V6.60 accuracy regression
         run: |
           set -euo pipefail
