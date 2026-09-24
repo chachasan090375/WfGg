@@ -279,7 +279,10 @@ def run_memory(*,repo_root:Path,event:dict[str,Any],work:Path,experience_db:Path
         if nas:cmd.append("--nas")
         p=subprocess.run(cmd,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,check=False)
         if p.returncode!=0:raise SystemExit("CENTRAL_MEMORY_REFRESH_FAILED:"+(p.stderr or p.stdout)[-2000:])
-        result["central_memory"]=json.loads(p.stdout.splitlines()[0]) if p.stdout.strip().startswith("{") else {"status":"PASS"}
+        raw=p.stdout
+        marker="\nCHACHA_DEV_V622_CENTRAL_MEMORY_ASSIMILATION=PASS"
+        payload=raw.split(marker,1)[0].strip()
+        result["central_memory"]=json.loads(payload) if payload.startswith("{") else {"status":"PASS"}
         result["snapshot"]=str(memory_snapshot)
     return result
 
