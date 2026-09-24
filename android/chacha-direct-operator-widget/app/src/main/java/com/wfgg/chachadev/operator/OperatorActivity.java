@@ -231,6 +231,7 @@ public class OperatorActivity extends Activity {
     protected void onResume() {
         super.onResume();
         ChaChaWidgetProvider.refreshRemote(this);
+        NativeUpdateManager.checkForUpdate(this, baseUrl, getString(R.string.native_update_signing_cert_sha256));
     }
 
     @Override
