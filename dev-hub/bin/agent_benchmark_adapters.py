@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import contextlib,copy,importlib.util,io,json,subprocess,sys,tempfile
+import contextlib,copy,importlib.util,io,json,os,sqlite3,subprocess,sys,tempfile
 from pathlib import Path
 from typing import Any
 
@@ -591,6 +591,102 @@ def uncertainty_resolution_agent(repo:Path)->dict[str,Any]:
           "sandbox_isolated":True,"automatic_external_spend_eur":0
         }}
 
+
+def _domain_specialist_contract(repo:Path,agent_id:str,domain_key:str)->dict[str,Any]:
+    domains=load(repo/"dev-hub/config/domain-orchestration.v1.json")
+    routing=load(repo/"dev-hub/config/agent-routing.v1.json")
+    registry=load(repo/"dev-hub/config/capability-registry.v1.json")
+    economics=load(repo/"dev-hub/config/provider-economics.v1.json")
+    resolver=loadmod("v658_domain_provider_resolver",repo/"dev-hub/bin/domain-provider-resolver.py")
+    domain=((domains.get("domains") or {}).get(domain_key) or {})
+    role=((routing.get("roles") or {}).get(agent_id) or {})
+    domain_caps=[str(x) for x in (domain.get("capabilities") or [])]
+    routing_caps=[str(x) for x in (role.get("capabilities") or [])]
+    providers={}
+    registered=True
+    for cap in domain_caps:
+        spec=((registry.get("capabilities") or {}).get(cap) or {})
+        rows=spec.get("providers") or []
+        if not rows:registered=False
+        for p in rows:
+            pid=str(p.get("id") or "")
+            if pid:
+                providers[pid]={"state":"HEALTHY","source":"v658-isolated-health","checked_at":"2026-09-24T00:00:00Z"}
+    health={"schema":"chacha.dev/provider-health-snapshot/v1","providers":providers}
+    resolutions=[resolver.resolve(cap,domain_key,registry,health,economics,{},False) for cap in domain_caps]
+    chosen=[x for x in resolutions if x.get("state")=="READY"]
+    evidence_complete=all(
+      x.get("provider") and any(
+        c.get("provider")==x.get("provider") and c.get("health_source") and c.get("checked_at")
+        for c in (x.get("candidates") or [])
+      ) for x in chosen
+    ) if chosen else False
+    return {"agent_id":agent_id,"adapter":"domain-specialist-contract","actual":{
+      "domain":domain_key,"orchestrator":domain.get("orchestrator"),
+      "role_bound":agent_id in (domain.get("roles") or []),
+      "routing_capabilities":sorted(routing_caps),"domain_capabilities":sorted(domain_caps),
+      "capability_alignment":set(routing_caps)==set(domain_caps),
+      "all_capabilities_registered":registered,
+      "all_resolutions_ready":len(resolutions)>0 and all(x.get("state")=="READY" for x in resolutions),
+      "resolution_count":len(resolutions),"resolutions":resolutions,
+      "resolution_evidence_complete":evidence_complete,
+      "toolchain_count":len(domain.get("toolchain") or []),"review_count":len(domain.get("reviews") or []),
+      "paid_provider_selected":any(str(x.get("cost_class") or "") in {"paid","low"} for x in chosen),
+      "direct_mutation":False,"benchmark_production_truth":False,"automatic_external_spend_eur":0
+    }}
+
+def graphics_specialist(repo:Path)->dict[str,Any]:
+    return _domain_specialist_contract(repo,"graphics-specialist","graphics")
+
+def animation_specialist(repo:Path)->dict[str,Any]:
+    return _domain_specialist_contract(repo,"animation-specialist","animation")
+
+def ui_layout_specialist(repo:Path)->dict[str,Any]:
+    return _domain_specialist_contract(repo,"ui-layout-specialist","ui-layout")
+
+def translation_specialist(repo:Path)->dict[str,Any]:
+    return _domain_specialist_contract(repo,"translation-specialist","translation")
+
+def publication_specialist(repo:Path)->dict[str,Any]:
+    return _domain_specialist_contract(repo,"publication-specialist","publication")
+
+def technology_radar_agent(repo:Path)->dict[str,Any]:
+    mod=loadmod("v658_radar_runtime_adapter",repo/"dev-hub/adapters/radar-runtime-adapter.py")
+    project=load(repo/"dev-hub/projects/wfgg-radar/project-agent-registry.v1.json")
+    routing=load(repo/"dev-hub/config/agent-routing.v1.json")
+    agent=next((x for x in (project.get("agents") or []) if x.get("agent_id")=="technology-radar-agent"),{})
+    def envelope(action:str,permission:str)->dict[str,Any]:
+        return {"schema":mod.INPUT_SCHEMA,"project":"wfgg-radar","task":{"id":"v658:"+action,"permission":permission},
+          "bindings":[{"provider":mod.PROVIDER_ID,"adapter":mod.ADAPTER_ID,"health_state":"HEALTHY"}],
+          "metadata":{"radar_runtime":{"action":action}}}
+    radar,status_error=mod.validate_request(envelope("status","read"))
+    _write,write_error=mod.validate_request(envelope("pilot-open","read"))
+    with tempfile.TemporaryDirectory(prefix="v658-radar-readonly-") as td:
+        db=Path(td)/"collector.db";conn=sqlite3.connect(db)
+        try:
+            conn.execute("CREATE TABLE cycles (id INTEGER PRIMARY KEY, status TEXT, error TEXT, query TEXT)")
+            conn.execute("INSERT INTO cycles(status,error,query) VALUES ('SUCCESS','','@federated:8122')")
+            conn.commit()
+        finally:conn.close()
+        old=os.environ.get("WFGG_COLLECTOR_DB");os.environ["WFGG_COLLECTOR_DB"]=str(db)
+        try:snapshot=mod.cluster_quality_snapshot()
+        finally:
+            if old is None:os.environ.pop("WFGG_COLLECTOR_DB",None)
+            else:os.environ["WFGG_COLLECTOR_DB"]=old
+    exclusion=((routing.get("scope_exclusions") or {}).get("technology-radar-agent") or {})
+    return {"agent_id":"technology-radar-agent","adapter":"radar-runtime-project-local-readonly","actual":{
+      "project_id":project.get("project_id"),"platform_global":project.get("platform_global"),
+      "agent_scope":agent.get("scope"),"central_brain_role":agent.get("central_brain_role"),
+      "production_permission":agent.get("production_permission"),
+      "scope_exclusion":exclusion.get("scope"),"scope_exclusion_project":exclusion.get("project_id"),
+      "status_contract_ok":status_error is None and isinstance(radar,dict) and radar.get("action")=="status",
+      "write_permission_blocked":write_error=="RADAR_RUNTIME_PERMISSION_REQUIRED:production-deploy",
+      "quality_gate_ready":snapshot.get("quality_gate_ready"),"cycles_table_present":snapshot.get("cycles_table_present"),
+      "cycle_count":snapshot.get("cycle_count"),"federated_cycles":snapshot.get("federated_cycles"),
+      "game_scan_executed":False,"collector_mutation":False,"direct_mutation":False,
+      "benchmark_production_truth":False,"automatic_external_spend_eur":0
+    }}
+
 ADAPTERS={"guardian":guardian,"sentinel":sentinel,"bastion":bastion,"autonomous-recovery-agent":recovery,
           "security-reviewer":security_reviewer,"recovery-engineer":recovery_engineer,
           "platform-cloud-engineer":platform_cloud_engineer,"data-architect":data_architect,
@@ -600,6 +696,8 @@ ADAPTERS={"guardian":guardian,"sentinel":sentinel,"bastion":bastion,"autonomous-
           "performance-engineer":performance_engineer,"sre-observability-engineer":sre_observability_engineer,
           "curator":curator_agent,"intendant":intendant_agent,
           "knowledge-compiler-agent":knowledge_compiler_agent,"uncertainty-resolution-agent":uncertainty_resolution_agent,
+          "graphics-specialist":graphics_specialist,"animation-specialist":animation_specialist,"ui-layout-specialist":ui_layout_specialist,
+          "translation-specialist":translation_specialist,"publication-specialist":publication_specialist,"technology-radar-agent":technology_radar_agent,
           "agent-foundry-architect":agent_foundry_architect,"branch-foundry-architect":branch_foundry_architect,"capability-foundry-architect":capability_foundry_architect,"logician":logician_agent,"technology-watch-agent":technology_watch_agent,"acceptance-engineer":acceptance_engineer,"contract-integrator":contract_integrator,"integration-architect":integration_architect,"ergonomist":ergonomist_agent}
 
 def execute(agent_id:str,repo_root:Path)->dict[str,Any]:
