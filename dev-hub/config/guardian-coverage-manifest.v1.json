@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "3.4.0",
+  "version": "3.5.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 900,
   "action_lease_default_seconds": 300,
@@ -576,6 +576,17 @@
         "file": "dev-hub/bin/live_ui_publisher.py",
         "marker": "LIVE_UI_EXACT_SHA_GATES_MISSING"
       }
+    },
+    {
+      "component_id": "native-update-publisher",
+      "role": "native-update-publisher",
+      "kind": "controller",
+      "enforcement_point": "native-update-publisher.pinned-signer-exact-sha",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/native_update_publisher.py",
+        "marker": "NATIVE_UPDATE_SIGNING_CERT_MISMATCH"
+      }
     }
   ],
   "safety_exemptions": [
@@ -587,8 +598,8 @@
   "automatic_external_spend_eur": 0,
   "d1_write_budget": {
     "coverage_heartbeat_interval_seconds": 300,
-    "expected_max_component_heartbeat_writes_per_day": 14976,
-    "calculation": "52 components * 12 heartbeats/hour * 24 hours",
+    "expected_max_component_heartbeat_writes_per_day": 15264,
+    "calculation": "53 components * 12 heartbeats/hour * 24 hours",
     "ci_sync_mode": "DIGEST_AWARE_DELTA",
     "automatic_paid_upgrade": false,
     "automatic_external_spend_eur": 0
