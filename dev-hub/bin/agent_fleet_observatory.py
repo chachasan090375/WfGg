@@ -362,7 +362,7 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
             if not x or x.get("schema")!=required_schema:continue
             aid=str(x.get("subject_agent") or "")
             if aid not in agg or (eligible and aid not in eligible):continue
-            if str(x.get("verifier") or "")!=required_verifier or str(x.get("verifier") or "")==aid:continue
+            if str(x.get("verifier") or "") not in allowed_verifiers or str(x.get("verifier") or "")==aid:continue
             if str(x.get("verification") or "")!=required_verification:continue
             if str(x.get("verification_scope") or "")!=required_scope:continue
             if x.get("production_truth_eligible") is not True:continue
@@ -390,6 +390,7 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
         required_dims=[str(x) for x in (rw_cfg.get("production_truth_dimensions") or [])]
         required_schema=str(rw_cfg.get("required_schema") or "chacha.dev/real-world-agent-attestation/v1")
         required_verifier=str(rw_cfg.get("required_verifier") or "v661-real-world-evidence-attestor")
+        allowed_verifiers={required_verifier,*[str(x) for x in (rw_cfg.get("additional_verifiers") or [])]}
         required_verification=str(rw_cfg.get("required_verification") or "INDEPENDENTLY_RECOMPUTED")
         required_scope=str(rw_cfg.get("required_scope") or "REAL_RUNTIME")
         att_glob=str(rw_cfg.get("glob") or "agent-evolution/real-world-attestations/**/attestation-*.json")
