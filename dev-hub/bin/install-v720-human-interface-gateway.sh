@@ -144,7 +144,8 @@ with urllib.request.urlopen(req,timeout=20) as r:x=json.loads(r.read().decode())
 need={
  "ChaCha DEV Sentinel technical assurance",
  "ChaCha DEV V7 platform qualification",
- "ChaCha DEV V7.2 Human Interface Gateway qualification"
+ "ChaCha DEV V7.2 Human Interface Gateway qualification",
+ "ChaCha DEV V7 Guardian contract sync"
 }
 rows=x.get("workflow_runs") or []
 for name in need:
