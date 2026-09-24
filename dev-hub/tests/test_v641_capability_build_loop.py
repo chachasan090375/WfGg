@@ -230,6 +230,17 @@ with tempfile.TemporaryDirectory(prefix="v641-compiler-") as td:
     assert batch["unresolved"][0]["reason"]=="BUILD_SPECIALIST_REQUIRED",batch
 
 
+# Capability Foundry may carry an explicit contract build hint, but must never
+# infer the build profile/provider from a capability name.
+foundry_src=(BIN/"capability-foundry.py").read_text(encoding="utf-8")
+assert 'build_profile=str(gap.get("build_profile") or "").strip()' in foundry_src
+assert 'build_provider=str(gap.get("provider_id") or "").strip()' in foundry_src
+assert 'if build_profile and build_provider:' in foundry_src
+assert '"evidence":"functional-contract-build-hint-reviewed-by-technology-watch"' in foundry_src
+assert '"technology_candidates":technology_candidates' in foundry_src
+assert 'build_profile=slug(' not in foundry_src
+assert 'build_provider=slug(' not in foundry_src
+
 # Central orchestrator integration invariants.
 orch=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
 assert '"capability-build-request-compiler.py"' in orch
@@ -259,4 +270,6 @@ print("CHACHA_DEV_V641_ORCHESTRATOR_POST_COUNCIL_BUILD=PASS")
 print("CHACHA_DEV_V641_PROJECT_LOCAL_BUILD_REPO=PASS")
 print("CHACHA_DEV_V641_ACTIVE_PROVIDER_REGISTRY_PROPAGATED=PASS")
 print("CHACHA_DEV_V641_UNDECLARED_BUILD_PROFILE_FAIL_CLOSED=PASS")
+print("CHACHA_DEV_V641_EXPLICIT_BUILD_HINT_PROPAGATION=PASS")
+print("CHACHA_DEV_V641_BUILD_PROFILE_INFERENCE=NO")
 print("CHACHA_DEV_V641_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
