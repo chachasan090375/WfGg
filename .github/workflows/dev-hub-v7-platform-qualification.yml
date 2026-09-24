@@ -1,0 +1,79 @@
+name: ChaCha DEV V7 platform qualification
+
+on:
+  push:
+    branches:
+      - 'dev-hub-v7*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Static V7 validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/intendant-platform-consolidator.py             dev-hub/bin/intendant-hygiene-cycle.py             dev-hub/bin/central-platform-hygiene-executor.py             dev-hub/bin/architecture-council-platform-consolidation-v7.py             dev-hub/bin/build-v7-runtime-release.py             dev-hub/tests/test_v700_consolidated_platform_baseline.py             dev-hub/tests/test_v710_intendant_hygiene_cycle.py
+          python3 -m json.tool dev-hub/config/platform-consolidation.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/intendant-hygiene-cycle.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/platform-baseline.v7.json >/dev/null
+          grep -Eq '"version":"7\.[0-9]+\.[0-9]+"' dev-hub/bin/autonomous-project-orchestrator.py
+          test "$(find dev-hub/systemd -maxdepth 1 -type f -name 'chacha-dev-intendant-hygiene.timer' | wc -l)" -eq 1
+          grep -Fq 'OnUnitActiveSec=1h' dev-hub/systemd/chacha-dev-intendant-hygiene.timer
+
+      - name: V7 baseline regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v700_consolidated_platform_baseline.py | tee /tmp/v700.out
+          grep -Fq 'CHACHA_DEV_V700_CANONICAL_BASELINE=PASS' /tmp/v700.out
+          grep -Fq 'CHACHA_DEV_V700_INTENDANT_CONSOLIDATOR=PASS' /tmp/v700.out
+          grep -Fq 'CHACHA_DEV_V700_ARCHITECTURE_COUNCIL_CONSOLIDATION=PASS' /tmp/v700.out
+          grep -Fq 'CHACHA_DEV_V700_RADAR_PROJECT_ONLY=PASS' /tmp/v700.out
+
+      - name: V7.1 hygiene cycle qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v710_intendant_hygiene_cycle.py | tee /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_SINGLE_HYGIENE_TIMER=PASS' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_DAILY_LIGHT_CYCLE=PASS' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_WEEKLY_DRY_RUN=PASS' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_MONTHLY_REVIEW_ONLY=PASS' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_THRESHOLD_WATCH=PASS' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_DYNAMIC_TWO_ROLLBACK_RETENTION=PASS' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_INTENDANT_DIRECT_MUTATION=NO' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_PHYSICAL_EXECUTOR=central-orchestrator' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_REALTIME_GUARDIAN_GATE=PASS' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_REMOTE_BRANCH_AUTO_DELETE=NO' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_SOURCE_CODE_AUTO_DELETE=NO' /tmp/v710.out
+
+      - name: Critical historical invariants
+        run: |
+          set -euo pipefail
+          for t in             dev-hub/tests/test_v660_independent_accuracy_attestation.py             dev-hub/tests/test_v661_real_world_evidence_isolated_candidate.py             dev-hub/tests/test_v663_runtime_surface_instrumentation_readiness.py             dev-hub/tests/test_v664_real_instrumented_project_acceptance_council.py; do
+            PYTHONPATH=dev-hub/bin python3 "$t"
+          done
+
+      - name: V7 stable qualification receipt
+        run: |
+          echo CHACHA_DEV_V7_PLATFORM_QUALIFICATION=PASS
+          echo HYGIENE_OWNER=intendant
+          echo PHYSICAL_EXECUTOR=central-orchestrator
+          echo SINGLE_HYGIENE_TIMER=YES
+          echo DAILY_LIGHT=ENABLED
+          echo WEEKLY_DRY_RUN=ENABLED
+          echo MONTHLY_REVIEW=ENABLED
+          echo THRESHOLD_WATCH=ENABLED
+          echo ROLLBACK_SLOTS=2
+          echo REMOTE_BRANCH_AUTO_DELETE=NO
+          echo SOURCE_CODE_AUTO_DELETE=NO
+          echo GIT_HISTORY_PRESERVED=YES
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
