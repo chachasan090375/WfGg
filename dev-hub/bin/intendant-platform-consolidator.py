@@ -140,6 +140,7 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
       "bytes_retirable":sum(x["size_bytes"] for x in retire),
       "estimated_bytes_after":sum(x["size_bytes"] for x in keep),
       "rollback_slots":slots,
+      "rollback_revision_must_differ_from_active":True,
       "selected_rollback_revisions":[str(x.get("revision") or "") for x in selected[:slots]],
       "verified_revision_count":len(verified),
       "missing_verified_rollback_count":missing_rollbacks,
