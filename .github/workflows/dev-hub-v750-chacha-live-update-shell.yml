@@ -1,0 +1,86 @@
+name: ChaCha DEV V7.5 live update shell qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v750-chacha-live-update-shell
+    paths:
+      - 'dev-hub/bin/live_ui_publisher.py'
+      - 'dev-hub/bin/direct-operator-service.py'
+      - 'dev-hub/config/live-ui-publisher.v1.json'
+      - 'dev-hub/config/android-live-shell.v1.json'
+      - 'dev-hub/config/direct-operator.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/config/technology-core-watch.v1.json'
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/direct-operator-ui/**'
+      - 'dev-hub/tests/test_v750_chacha_live_update_shell.py'
+      - 'android/chacha-direct-operator-widget/**'
+      - '.github/workflows/dev-hub-v750-chacha-live-update-shell.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/live_ui_publisher.py dev-hub/bin/direct-operator-service.py dev-hub/tests/test_v750_chacha_live_update_shell.py
+          python3 -m json.tool dev-hub/config/live-ui-publisher.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/android-live-shell.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/direct-operator.v1.json >/dev/null
+      - name: Live Update contract and rollback
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v750_chacha_live_update_shell.py | tee /tmp/v750.out
+          grep -Fq 'CHACHA_DEV_V750_LIVE_SHELL=PASS' /tmp/v750.out
+          grep -Fq 'CHACHA_DEV_V750_REMOTE_UI=YES' /tmp/v750.out
+          grep -Fq 'CHACHA_DEV_V750_REMOTE_WIDGET_CONFIG=YES' /tmp/v750.out
+          grep -Fq 'CHACHA_DEV_V750_ATOMIC_PUBLISH=PASS' /tmp/v750.out
+          grep -Fq 'CHACHA_DEV_V750_ROLLBACK=PASS' /tmp/v750.out
+          grep -Fq 'CHACHA_DEV_V750_NATIVE_UPDATE_AUTHORITY=NO' /tmp/v750.out
+      - name: Install Android SDK
+        run: |
+          set -euo pipefail
+          : "${ANDROID_HOME:=/usr/local/lib/android/sdk}"
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -path '*/bin/sdkmanager' | sort -V | tail -1)"
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.6.0'
+      - name: Build stable Live Update shell
+        run: |
+          set -euo pipefail
+          gradle -p android/chacha-direct-operator-widget :app:assembleDebug :app:lintDebug
+          test -f android/chacha-direct-operator-widget/app/build/outputs/apk/debug/app-debug.apk
+          echo CHACHA_DEV_V750_ANDROID_BUILD=PASS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-live-shell-v750-debug
+          path: android/chacha-direct-operator-widget/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
+      - name: Receipt
+        run: |
+          echo CHACHA_DEV_V750_LIVE_UPDATE_SHELL_QUALIFICATION=PASS
+          echo CENTRAL_ORCHESTRATOR_HANDOFF_REQUIRED=YES
+          echo REMOTE_UI_UPDATE_WITHOUT_APK=YES
+          echo REMOTE_WIDGET_CONFIG_WITHOUT_APK=YES
+          echo ATOMIC_ROLLBACK=YES
+          echo NATIVE_UPDATE_AUTHORITY=NO
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
