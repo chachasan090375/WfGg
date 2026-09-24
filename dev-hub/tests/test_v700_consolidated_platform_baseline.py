@@ -114,13 +114,21 @@ with tempfile.TemporaryDirectory(prefix="v700-qualification-") as td:
     ar0=load(approval)
     assert ar0["decision"]=="APPROVE_INTENDANT_CONSOLIDATION",ar0
     assert ar0["destructive_apply_authorized"] is True,ar0
-    applied=td/"applied.json";archive=td/"archive.json";guardian_receipt=td/"guardian-receipt.json"
-    save(guardian_receipt,{"verdict":"PASS","action":"SAFE_SUPERSEDED_PHYSICAL_RELEASE_RETIREMENT"})
-    out=run([sys.executable,str(BIN/"central-retirement-executor.py"),
+    applied=td/"applied.json";archive=td/"archive.json"
+    guardian_event=td/"guardian-event.json";guardian_result=td/"guardian-result.json"
+    plan_digest="sha256:"+hashlib.sha256(plan.read_bytes()).hexdigest()
+    action_id="v700-test-retirement"
+    save(guardian_event,{"schema":"chacha.dev/governance-action/v1","event_id":action_id+"-pre",
+      "action_id":action_id,"phase":"PRE_ACTION","actor":"central-orchestrator",
+      "subject_role":"platform-hygiene-executor","action":"EXECUTE_PLATFORM_RETIREMENT",
+      "permission":"destructive-operation","project_id":"chacha-dev-platform","revision":v7rev,
+      "evidence":{"human_approval":True,"consolidation_plan_digest":plan_digest}})
+    save(guardian_result,{"action_id":action_id,"verdict":"PASS"})
+    out=run([sys.executable,str(BIN/"central-platform-hygiene-executor.py"),"release-retirement",
        "--platform-root",str(platform),"--plan",str(plan),"--approval",str(approval),
-       "--guardian-receipt",str(guardian_receipt),"--archive-manifest",str(archive),
-       "--output",str(applied),"--explicit-destructive-apply"])
-    assert "CHACHA_DEV_V710_CENTRAL_RETIREMENT_EXECUTION=PASS" in out,out
+       "--guardian-event",str(guardian_event),"--guardian-result",str(guardian_result),
+       "--archive-manifest",str(archive),"--output",str(applied)])
+    assert "CHACHA_DEV_V710_CENTRAL_PLATFORM_HYGIENE_EXECUTION=PASS" in out,out
     a=load(applied)
     assert a["deleted_release_count"]==2,a
     assert a["release_count_after"]==3,a
