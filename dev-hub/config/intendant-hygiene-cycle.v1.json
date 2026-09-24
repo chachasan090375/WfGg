@@ -1,13 +1,16 @@
 {
   "schema": "chacha.dev/intendant-hygiene-cycle/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "owner_agent": "intendant",
   "platform_scope": "GLOBAL",
   "scheduler": {
     "poll_interval_minutes": 60,
     "single_timer": true,
     "state_file": "/opt/chacha-dev/runtime/intendant/hygiene-state.json",
-    "report_dir": "/opt/chacha-dev/runtime/intendant/hygiene-reports"
+    "report_dir": "/opt/chacha-dev/runtime/intendant/hygiene-reports",
+    "lock_file": "/opt/chacha-dev/runtime/intendant/hygiene.lock",
+    "latest_report": "/opt/chacha-dev/runtime/intendant/hygiene-latest.json",
+    "standing_operator_approval_authorized": true
   },
   "cycles": {
     "LIGHT_DAILY": {
@@ -35,7 +38,10 @@
           }
         ],
         "require_no_open_file_descriptors": true,
-        "central_orchestrator_executes_delete": true
+        "central_orchestrator_executes_delete": true,
+        "central_orchestrator_executor": "dev-hub/bin/central-platform-hygiene-executor.py",
+        "standing_operator_approval": true,
+        "standing_operator_approval_scope": "SAFE_TEMP_ONLY"
       }
     },
     "WEEKLY_DRY_RUN": {
@@ -55,7 +61,8 @@
         "auto_apply_when_fully_governed": true,
         "standing_operator_approval": true,
         "reason_must_equal": "SUPERSEDED_PHYSICAL_RELEASE",
-        "central_orchestrator_executor": "dev-hub/bin/central-retirement-executor.py"
+        "central_orchestrator_executor": "dev-hub/bin/central-platform-hygiene-executor.py",
+        "standing_operator_approval_scope": "SAFE_SUPERSEDED_PHYSICAL_RELEASES_ONLY"
       }
     },
     "MONTHLY_CONSOLIDATION": {
@@ -118,6 +125,8 @@
     "self_promotion": false,
     "permission_expansion": false,
     "architecture_council_final_authority": true,
-    "automatic_external_spend_eur": 0
+    "automatic_external_spend_eur": 0,
+    "intendant_direct_mutation": false,
+    "physical_mutation_executor": "central-orchestrator"
   }
 }
