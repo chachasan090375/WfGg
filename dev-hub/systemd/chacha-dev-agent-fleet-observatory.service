@@ -1,0 +1,10 @@
+[Unit]
+Description=ChaCha DEV Agent Fleet Observatory
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/chacha-dev/platform/current
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/agent_fleet_observatory.py --repo-root /opt/chacha-dev/platform/current --runtime-root /opt/chacha-dev/runtime --policy /opt/chacha-dev/platform/current/dev-hub/config/agent-fleet-observatory.v1.json --evolution-policy /opt/chacha-dev/platform/current/dev-hub/config/agent-evolution.v1.json --routing /opt/chacha-dev/platform/current/dev-hub/config/agent-routing.v1.json --seven /opt/chacha-dev/platform/current/dev-hub/config/seven-agent-final-compromise.v1.json --project-registry /opt/chacha-dev/platform/current/dev-hub/projects/wfgg-radar/project-agent-registry.v1.json --output /opt/chacha-dev/runtime/agent-evolution/fleet-observatory-latest.json

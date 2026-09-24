@@ -6,6 +6,9 @@ on:
       - dev-hub-v647-agent-fleet-observatory-evidence-optimization
     paths:
       - 'dev-hub/bin/agent_fleet_observatory.py'
+      - 'dev-hub/bin/install-v647-agent-fleet-observatory.sh'
+      - 'dev-hub/systemd/chacha-dev-agent-fleet-observatory.service'
+      - 'dev-hub/systemd/chacha-dev-agent-fleet-observatory.timer'
       - 'dev-hub/bin/agent_evolution_controller.py'
       - 'dev-hub/bin/agent_evolution_logician.py'
       - 'dev-hub/bin/autonomous-project-orchestrator.py'
@@ -35,6 +38,8 @@ jobs:
           python3 -m py_compile dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/agent_evolution_controller.py dev-hub/bin/agent_evolution_logician.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v647_agent_fleet_observatory.py
           python3 -m json.tool dev-hub/config/agent-fleet-observatory.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-evolution.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v647-agent-fleet-observatory.sh
+          grep -Fq 'OnCalendar=daily' dev-hub/systemd/chacha-dev-agent-fleet-observatory.timer
           grep -Fq '"version":"6.47.0"' dev-hub/bin/autonomous-project-orchestrator.py
 
       - name: V6.47 observatory qualification
@@ -77,5 +82,7 @@ jobs:
             echo 'ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES'
             echo 'GUARDIAN_AUTHORITY=PRESERVED'
             echo 'SENTINEL_AUTHORITY=PRESERVED'
+            echo 'REAL_VPS_PILOT_INSTALLER=VALIDATED'
+            echo 'DAILY_OBSERVATORY_TIMER=VALIDATED'
             echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
           } | tee /tmp/v647-receipt.txt
