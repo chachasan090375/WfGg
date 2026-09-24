@@ -47,17 +47,18 @@ def main()->int:
     ap=argparse.ArgumentParser()
     ap.add_argument("--repo-root",type=Path,required=True);ap.add_argument("--runtime-root",type=Path,required=True)
     ap.add_argument("--revision",required=True);ap.add_argument("--output",type=Path,required=True)
-    ap.add_argument("--github-runs-json",type=Path);a=ap.parse_args()
+    ap.add_argument("--github-runs-json",type=Path);ap.add_argument("--technology-watch-status",type=Path)
+    ap.add_argument("--guardian-coverage",type=Path);a=ap.parse_args()
     repo=a.repo_root.resolve();runtime=a.runtime_root.resolve();rev=str(a.revision)
     manifest_path=repo/"dev-hub/candidates/acceptance-engineer/v661/candidate-manifest.json"
     incumbent=repo/"dev-hub/bin/acceptance-engine.py"
     fleet_path=runtime/"agent-evolution/fleet-observatory-latest.json"
-    guardian_path=runtime/"guardian/coverage-latest.json"
+    guardian_path=a.guardian_coverage if a.guardian_coverage is not None else runtime/"guardian/coverage-latest.json"
     pilot_path=latest_pilot(runtime)
     if not all(p and Path(p).is_file() for p in (manifest_path,incumbent,fleet_path,guardian_path,pilot_path)):
         raise SystemExit("V663_READINESS_INPUT_MISSING")
     manifest=load(manifest_path);pilot=load(Path(pilot_path));fleet=load(fleet_path);guardian=load(guardian_path)
-    watch=tw.snapshot_status(repo)
+    watch=load(a.technology_watch_status) if a.technology_watch_status is not None else tw.snapshot_status(repo)
     runs=load(a.github_runs_json) if a.github_runs_json else github_runs("chachasan090375/WfGg",rev)
     acc=next((x for x in (fleet.get("agents") or []) if x.get("agent_id")=="acceptance-engineer"),None)
     if not acc:raise SystemExit("ACCEPTANCE_ENGINEER_FLEET_ROW_MISSING")
@@ -67,7 +68,7 @@ def main()->int:
       int(pilot.get("real_candidate_passed") or pilot.get("real_passed_count") or 0)>=3 and
       int(pilot.get("real_case_count") or 0)>=3 and
       int(pilot.get("adversarial_candidate_passed") or pilot.get("adversarial_passed_count") or 0)>=3 and
-      pilot.get("measurable_gain") is True or pilot.get("measurable_gain_verified") is True
+      (pilot.get("measurable_gain") is True or pilot.get("measurable_gain_verified") is True)
     )
     incumbent_digest=str(pilot.get("incumbent_digest") or "")
     incumbent_unchanged=bool(incumbent_digest) and sha256(incumbent)==incumbent_digest
