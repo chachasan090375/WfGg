@@ -62,6 +62,15 @@ ok=gate.evaluate(ROOT,policy,promotion,registry,adapter_policy,provisioning,rece
 assert ok["status"]=="BINDING_PROPOSAL_READY_AWAIT_PROTECTED_REGISTRATION",ok
 assert ok["proposal_created"] is True,ok
 assert ok["registration_authorized"] is False and ok["registry_mutation_authorized"] is False,ok
+assert ok["human_registration_approval_request_created"] is True,ok
+req=ok["registration_approval_request"]
+assert req["schema"]=="chacha.dev/protected-human-approval-request/v1",req
+assert req["project"]=="chacha-dev-platform" and req["operation"]=="record-approval",req
+assert req["actor_requirement"]=="real-human",req
+assert req["agent_or_api_approval_synthesis_forbidden"] is True,req
+assert req["binding_proposal_digest"]==ok["binding_proposal_digest"],req
+assert req["evidence"]=="platform-component-adapter-binding-proposal:"+ok["binding_proposal_digest"],req
+assert req["registration_before_approval"] is False and req["registry_mutation_before_approval"] is False,req
 proposal=ok["binding_proposal"]
 assert proposal["schema"]=="chacha.dev/platform-component-adapter-binding-proposal/v1",proposal
 assert proposal["component_id"]=="central-orchestrator",proposal
@@ -111,6 +120,8 @@ print("CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_OWNER_MISMATCH=BLOCKED")
 print("CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_DIGEST_MISMATCH=BLOCKED")
 print("CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_EXACT_SHA_GATES=REQUIRED")
 print("CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_HUMAN_APPROVAL=REQUIRED")
+print("CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_APPROVAL_REQUEST=PROTECTED")
+print("CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_API_SYNTHESIS=NO")
 print("CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_AUTHORIZED=NO")
 print("CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_MUTATION=NO")
 print("CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_AUTOMATIC_REGISTRATION=NO")
