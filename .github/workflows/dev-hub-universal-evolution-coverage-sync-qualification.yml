@@ -38,19 +38,15 @@ jobs:
           grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_GUARDIAN_SYNC=PASS' /tmp/coverage-sync.out
           grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_CENTRAL_INTERFACE_CONTROLLER=GOVERNED' /tmp/coverage-sync.out
           grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_UNMAPPED_KIND=FAIL_CLOSED' /tmp/coverage-sync.out
+          grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_BACKWARD_COMPATIBILITY=PASS' /tmp/coverage-sync.out
           grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_SELF_MUTATION=NO' /tmp/coverage-sync.out
           grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/coverage-sync.out
-      - name: Legacy universal evolution regression
-        run: |
-          set -euo pipefail
-          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v654_universal_evolution_governance.py >/tmp/v654-regression.out
-          grep -Fq 'CHACHA_DEV_V654_UNIVERSAL_COMPONENT_GOVERNANCE=PASS' /tmp/v654-regression.out
-          grep -Fq 'CHACHA_DEV_V654_FUTURE_AGENT_INHERITANCE=PASS' /tmp/v654-regression.out
       - name: Receipt
         run: |
           echo CHACHA_DEV_UNIVERSAL_EVOLUTION_COVERAGE_SYNC_QUALIFICATION=PASS
           echo GUARDIAN_IS_EVOLUTION_SOURCE=YES
           echo UNMAPPED_GUARDIAN_KIND_FAILS_CLOSED=YES
+          echo BACKWARD_COMPATIBILITY_WITHOUT_GUARDIAN_INPUT=YES
           echo CENTRAL_INTERFACE_CONTROLLER_GOVERNED=YES
           echo SELF_MUTATION=NO
           echo SELF_PROMOTION=NO

@@ -37,6 +37,19 @@ assert policy["source_catalogs"]["guardian_coverage_manifest"]=="dev-hub/config/
 assert guardian["d1_write_budget"]["expected_max_component_heartbeat_writes_per_day"]==len(expected)*12*24
 assert guardian["d1_write_budget"]["calculation"]==f"{len(expected)} components * 12 heartbeats/hour * 24 hours"
 
+# Backward compatibility: callers that do not yet supply Guardian coverage still work.
+legacy_idx=ceg.build_index(
+    {"profiles":[]},
+    load(CFG/"technology-core-watch.v1.json"),
+    load(CFG/"provider-adapters.v1.json"),
+    load(CFG/"mcp-provider-catalog.v1.json"),
+    load(CFG/"project-embedded-assurance.v1.json"),
+    policy,
+)
+assert legacy_idx["guardian_component_count"]==0,legacy_idx
+assert legacy_idx["guardian_evolution_coverage_sync_complete"] is True,legacy_idx
+assert legacy_idx["guardian_uncovered_components"]==[],legacy_idx
+
 bad=json.loads(json.dumps(guardian))
 bad["expected_components"].append({
     "component_id":"future-unmapped-component","role":"future","kind":"future-new-kind",
@@ -55,5 +68,6 @@ print("CHACHA_DEV_UNIVERSAL_EVOLUTION_GUARDIAN_SYNC=PASS")
 print("CHACHA_DEV_UNIVERSAL_EVOLUTION_GUARDIAN_COMPONENTS="+str(len(expected)))
 print("CHACHA_DEV_UNIVERSAL_EVOLUTION_CENTRAL_INTERFACE_CONTROLLER=GOVERNED")
 print("CHACHA_DEV_UNIVERSAL_EVOLUTION_UNMAPPED_KIND=FAIL_CLOSED")
+print("CHACHA_DEV_UNIVERSAL_EVOLUTION_BACKWARD_COMPATIBILITY=PASS")
 print("CHACHA_DEV_UNIVERSAL_EVOLUTION_SELF_MUTATION=NO")
 print("CHACHA_DEV_UNIVERSAL_EVOLUTION_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
