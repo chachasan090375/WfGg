@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 900,
   "action_lease_default_seconds": 300,
@@ -554,6 +554,17 @@
         "file": "dev-hub/bin/platform-component-adapter-registry-writer.py",
         "marker": "REGISTRATION_CONTRACT_REPLAY_BLOCKED"
       }
+    },
+    {
+      "component_id": "progress-state-controller",
+      "role": "progress-state-controller",
+      "kind": "controller",
+      "enforcement_point": "direct-operator-service.progress-reporting",
+      "criticality": "HIGH",
+      "proof": {
+        "file": "dev-hub/bin/progress_state_controller.py",
+        "marker": "SCHEMA=\"chacha.dev/platform-progress/v1\""
+      }
     }
   ],
   "safety_exemptions": [
@@ -565,8 +576,8 @@
   "automatic_external_spend_eur": 0,
   "d1_write_budget": {
     "coverage_heartbeat_interval_seconds": 300,
-    "expected_max_component_heartbeat_writes_per_day": 14400,
-    "calculation": "50 components * 12 heartbeats/hour * 24 hours",
+    "expected_max_component_heartbeat_writes_per_day": 14688,
+    "calculation": "51 components * 12 heartbeats/hour * 24 hours",
     "ci_sync_mode": "DIGEST_AWARE_DELTA",
     "automatic_paid_upgrade": false,
     "automatic_external_spend_eur": 0
