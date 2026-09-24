@@ -21,6 +21,7 @@
     "prior_positive": 1,
     "prior_negative": 1,
     "states": [
+      "CANDIDATE",
       "OBSERVED",
       "PROVISIONAL",
       "TRUSTED",
@@ -55,5 +56,23 @@
   },
   "economics": {
     "automatic_external_spend_eur": 0
+  },
+  "capability_multi_project": {
+    "enabled": true,
+    "source_component_kind": "capability",
+    "project_distinct_counting": true,
+    "minimum_distinct_success_projects_for_provisional": 1,
+    "minimum_distinct_success_projects_for_trusted": 3,
+    "maximum_distinct_failure_projects_for_trusted": 0,
+    "maximum_distinct_incident_projects_for_trusted": 0,
+    "recovery_fresh_distinct_success_projects_required": 2,
+    "same_project_same_action_counted_once": true,
+    "replay_does_not_inflate": true,
+    "critical_incident_state": "QUARANTINED",
+    "high_incident_state": "DEGRADED",
+    "verified_failure_state": "DEGRADED",
+    "verified_recovery_state": "RECOVERY_CANDIDATE",
+    "recovery_returns_to": "PROVISIONAL",
+    "trusted_is_advisory_not_authority": true
   }
 }
