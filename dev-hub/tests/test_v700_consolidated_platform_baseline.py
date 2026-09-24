@@ -104,7 +104,7 @@ with tempfile.TemporaryDirectory(prefix="v700-qualification-") as td:
     save(runs,{"workflow_runs":[
       {"name":"ChaCha DEV Sentinel technical assurance","head_sha":v7rev,"status":"completed","conclusion":"success"},
       {"name":"ChaCha DEV V7 consolidated platform baseline qualification","head_sha":v7rev,"status":"completed","conclusion":"success"},
-      {"name":"ChaCha DEV V7.1 Intendant hygiene cycle qualification","head_sha":v7rev,"status":"completed","conclusion":"success"}
+      {"name":"ChaCha DEV V7 platform qualification","head_sha":v7rev,"status":"completed","conclusion":"success"}
     ]})
     council=run([sys.executable,str(BIN/"architecture-council-platform-consolidation-v7.py"),
       "--plan",str(plan),"--policy",str(test_policy),
