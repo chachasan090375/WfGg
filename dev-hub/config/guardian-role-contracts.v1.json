@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-role-contracts/v1",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "scope": "PLATFORM_GLOBAL",
   "principles": {
     "guardian_is_external_to_central_brain": true,
@@ -755,6 +755,90 @@
         "human_approval"
       ],
       "authority_scope": "PLATFORM_PHYSICAL_HYGIENE"
+    },
+    {
+      "contract_id": "role:contract-integrator",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "REPORT_PLAN"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MUTATE_APPLICATION",
+        "PRODUCTION_DEPLOY",
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "required_evidence": [],
+      "authority_scope": "PLANNING_ONLY"
+    },
+    {
+      "contract_id": "role:integration-architect",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "REPORT_PLAN"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MUTATE_APPLICATION",
+        "PRODUCTION_DEPLOY",
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "required_evidence": [],
+      "authority_scope": "PLANNING_ONLY"
+    },
+    {
+      "contract_id": "role:knowledge-compiler-agent",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "REPORT_PLAN"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MUTATE_APPLICATION",
+        "PRODUCTION_DEPLOY",
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "required_evidence": [],
+      "authority_scope": "PLANNING_ONLY"
+    },
+    {
+      "contract_id": "role:uncertainty-resolution-agent",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "REPORT_PLAN"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MUTATE_APPLICATION",
+        "PRODUCTION_DEPLOY",
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "required_evidence": [],
+      "authority_scope": "PLANNING_ONLY"
     }
   ]
 }
