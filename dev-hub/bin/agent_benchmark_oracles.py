@@ -192,7 +192,7 @@ def contract_evidence(oracle:dict[str,Any],spec:dict[str,Any])->list[dict[str,An
     cases=oracle.get("cases") or [];dims=set((oracle.get("dimensions") or {}).keys())
     required=set(spec.get("required_base_dimensions") or ["accuracy","robustness","authority_discipline","evidence_quality"])
     min_cases=int(spec.get("minimum_oracle_cases") or 4)
-    structural=all(isinstance(c,dict) and c.get("case_id") and c.get("dimension") and isinstance(c.get("passed"),bool) and "observed" in c for c in cases)
+    structural=all(isinstance(c,dict) and c.get("case_id") and c.get("dimension") and isinstance(c.get("passed"),bool) and "detail" in c for c in cases)
     return [
       _case("benchmark-contract-surface-coverage","coverage",len(cases)>=min_cases and required<=dims,{"case_count":len(cases),"min_cases":min_cases,"dimensions":sorted(dims)}),
       _case("independent-oracle-handoff-contract","handoff_quality",oracle.get("oracle_complete") is True and structural,{"oracle_complete":oracle.get("oracle_complete"),"structural":structural})
