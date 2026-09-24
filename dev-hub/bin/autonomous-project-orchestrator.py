@@ -50,6 +50,17 @@ _STAGE_ROLE={
     "architecture-decision-council.py":"architecture-decision-council",
     "architecture-comparative-pilot.py":"comparative-pilot",
     "capsule-scheduler.py":"capsule-scheduler",
+    "contract-registry.py":"contract-integrator",
+    "integration-architecture-review.py":"integration-architect",
+    "knowledge-compiler.py":"knowledge-compiler-agent",
+    "uncertainty-resolver.py":"uncertainty-resolution-agent",
+}
+
+_STAGE_CAPABILITIES={
+    "contract-registry.py":["contract-reconciliation"],
+    "integration-architecture-review.py":["integration-design","api-contract-review"],
+    "knowledge-compiler.py":["knowledge-compilation"],
+    "uncertainty-resolver.py":["uncertainty-resolution"],
 }
 
 def configure_guardian(root:Path,out:Path):
@@ -151,7 +162,7 @@ def guardian_stage(script:Path,args,phase:str,action_id:str):
 def _observe_stage(script:Path,args,action_id:str,role:str,returncode:int):
     if aob is None or not Path("/opt/chacha-dev/runtime").exists():return
     canonical={"agent-foundry":"agent-foundry-architect","branch-foundry":"branch-foundry-architect","capability-foundry":"capability-foundry-architect"}.get(role,role)
-    if canonical not in {"logician","ergonomist","agent-foundry-architect","branch-foundry-architect","capability-foundry-architect"}:return
+    if canonical not in {"logician","ergonomist","agent-foundry-architect","branch-foundry-architect","capability-foundry-architect","contract-integrator","integration-architect","knowledge-compiler-agent","uncertainty-resolution-agent"}:return
     try:
         project_id="platform-global"
         for i,v in enumerate(args):
@@ -159,7 +170,7 @@ def _observe_stage(script:Path,args,action_id:str,role:str,returncode:int):
         aob.publish({"schema":"chacha.dev/agent-observation-event/v1","event_id":"aobs-stage-"+action_id,
           "event_type":"STAGE_EXECUTION_OBSERVED","source_id":"central-orchestrator","source_surface":"autonomous-project-orchestrator",
           "project_id":project_id,"revision":aob.runtime_revision(),"subject_role":canonical,
-          "outcome":"OK" if returncode==0 else "FAILED","verification":"OBSERVED","capabilities":[],
+          "outcome":"OK" if returncode==0 else "FAILED","verification":"OBSERVED","capabilities":_STAGE_CAPABILITIES.get(script.name,[]),
           "evidence_refs":["orchestrator-stage:"+action_id],"details":{"script":script.name,"returncode":returncode}})
     except Exception:pass
 
@@ -761,6 +772,41 @@ def main():
         })
     save(final,final_v)
 
+    # V6.63: real Contract Integrator and Integration Architect runtime stages.
+    # These execute only on the current project's real planning artifacts.
+    contract_reconciliation=out/"contract-reconciliation.json"
+    run(bin_dir/"contract-registry.py",[
+        "--plan",final,
+        "--component-contracts",component_contracts,
+        "--output",contract_reconciliation
+    ])
+    contract_reconciliation_v=load(contract_reconciliation)
+    if contract_reconciliation_v.get("compatible") is not True or contract_reconciliation_v.get("assembly_allowed") is not True:
+        final_v["dispatch_allowed"]=False
+        final_v.setdefault("blocked",[]).append({
+          "scope":"contract-integrator","reason":"CONTRACT_RECONCILIATION_FAILED",
+          "artifact":str(contract_reconciliation)
+        })
+    final_v["contract_reconciliation"]=str(contract_reconciliation)
+
+    integration_review=out/"integration-architecture-review.json"
+    run(bin_dir/"integration-architecture-review.py",[
+        "--plan",final,
+        "--contract-reconciliation",contract_reconciliation,
+        "--component-contracts",component_contracts,
+        "--architecture-council",architecture_council,
+        "--output",integration_review
+    ])
+    integration_review_v=load(integration_review)
+    if integration_review_v.get("integration_ready") is not True:
+        final_v["dispatch_allowed"]=False
+        final_v.setdefault("blocked",[]).append({
+          "scope":"integration-architect","reason":"INTEGRATION_ARCHITECTURE_NOT_READY",
+          "artifact":str(integration_review)
+        })
+    final_v["integration_architecture_review"]=str(integration_review)
+    save(final,final_v)
+
     wave_plan=out/"runtime-wave-plan.json"
     run(bin_dir/"capsule-scheduler.py",[
         "--topology",effective_branch_topology,
@@ -786,7 +832,7 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.62.0",
+      "version":"6.63.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
@@ -870,6 +916,10 @@ def main():
       "capability_foundry_memory_guided_plans":int(foundry_v.get("memory_guided_plans") or 0),
       "memory_guided_foundry_planning":True,
       "final_plan":str(final),
+      "contract_reconciliation":str(contract_reconciliation),
+      "contract_reconciliation_compatible":bool(contract_reconciliation_v.get("compatible")),
+      "integration_architecture_review":str(integration_review),
+      "integration_architecture_ready":bool(integration_review_v.get("integration_ready")),
       "architecture_decision_council":str(architecture_council),
       "architecture_decision_allowed":bool(architecture_council_v.get("dispatch_allowed")),
       "architecture_portfolio_mode":((architecture_council_v.get("architecture_portfolio") or {}).get("mode")),
