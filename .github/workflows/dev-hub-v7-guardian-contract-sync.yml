@@ -37,7 +37,13 @@ jobs:
           assert {'EXECUTE_PLATFORM_RETIREMENT','EXECUTE_SAFE_TEMP_CLEANUP'} <= set(executor['allowed_actions'])
           assert executor['allowed_permissions']==['destructive-operation']
           assert 'human_approval' in executor['required_evidence']
+          for role in ('contract-integrator','integration-architect','knowledge-compiler-agent','uncertainty-resolution-agent'):
+              c=by['role:'+role]
+              assert 'INVOKE_COMPONENT' in c['allowed_actions'],(role,c)
+              assert c['allowed_permissions']==['read','plan'],(role,c)
+              assert c.get('authority_scope')=='PLANNING_ONLY',(role,c)
           print('CHACHA_DEV_V7_GUARDIAN_HYGIENE_CONTRACT_STATIC=PASS')
+          print('CHACHA_DEV_V7_GUARDIAN_CENTRAL_PLANNING_ROLES=PASS')
           PY
 
       - name: Resolve Guardian D1
