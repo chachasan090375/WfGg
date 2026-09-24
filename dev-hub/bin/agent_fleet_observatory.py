@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,json
+import argparse,hashlib,json
 from collections import defaultdict
 from datetime import datetime,timezone
 from pathlib import Path
@@ -23,6 +23,18 @@ def save(path:Path,x:dict[str,Any])->None:
 
 def now_iso()->str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00","Z")
+
+def verified_sha256_ref(value:Any)->bool:
+    ref=str(value or "")
+    if "#sha256:" not in ref:return False
+    raw,digest=ref.rsplit("#sha256:",1)
+    if len(digest)!=64:return False
+    try:
+        path=Path(raw)
+        if not path.is_file():return False
+        return hashlib.sha256(path.read_bytes()).hexdigest()==digest
+    except Exception:
+        return False
 
 def normalize_role(role:str,inventory_ids:set[str],policy:dict[str,Any])->str|None:
     role=str(role or "").strip()
@@ -311,8 +323,9 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
                 if not rows:continue
                 evidence_bound=all(
                     str(r.get("criterion_id") or "") in peers and
+                    str(r.get("state") or "")==str(peers[str(r.get("criterion_id"))].get("state") or "") and
                     str(r.get("evidence") or "")==str(peers[str(r.get("criterion_id"))].get("evidence") or "") and
-                    "#sha256:" in str(r.get("evidence") or "")
+                    verified_sha256_ref(r.get("evidence"))
                     for r in rows
                 )
                 gate_ok=(
