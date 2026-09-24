@@ -147,7 +147,7 @@ need={
  "ChaCha DEV V7 platform qualification",
  "ChaCha DEV V7.2 Human Interface Gateway qualification",
  "ChaCha DEV V7 Guardian contract sync",
- "ChaCha DEV V7 Guardian coverage sync"
+ "ChaCha DEV V7 Guardian contract sync"
 }
 rows=x.get("workflow_runs") or []
 for name in need:
