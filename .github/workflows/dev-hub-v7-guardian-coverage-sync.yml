@@ -6,6 +6,11 @@ on:
       - 'dev-hub-v7*'
     paths:
       - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/bin/install-v730-direct-operator-android-widget.sh'
+      - 'dev-hub/bin/direct-operator-service.py'
+      - 'dev-hub/bin/functional-translator-agent.py'
+      - 'dev-hub/config/direct-operator.v1.json'
+      - 'dev-hub/config/functional-translator-satellite.v1.json'
       - 'dev-hub/bin/install-v720-human-interface-gateway.sh'
       - 'dev-hub/bin/human-interface-gateway.py'
       - 'dev-hub/bin/central-interface-controller.py'
@@ -39,7 +44,12 @@ jobs:
           assert g['kind']=='interface',g
           assert g['criticality']=='CRITICAL',g
           assert g['proof']['file']=='dev-hub/bin/human-interface-gateway.py',g
+          direct=by['direct-operator-service']
+          translator=by['functional-translator-satellite']
+          assert direct['kind']=='interface' and direct['criticality']=='CRITICAL',direct
+          assert translator['kind']=='satellite-agent' and translator['criticality']=='CRITICAL',translator
           print('CHACHA_DEV_V7_GUARDIAN_GATEWAY_COVERAGE_STATIC=PASS')
+          print('CHACHA_DEV_V7_GUARDIAN_DIRECT_OPERATOR_COVERAGE_STATIC=PASS')
           print('EXPECTED_COMPONENTS='+str(len(rows)))
           PY
 
@@ -92,10 +102,11 @@ jobs:
           actual=[]
           for block in payload.get('result') or []: actual.extend(block.get('results') or [])
           ids={str(x.get('component_id')) for x in actual}
-          if status!=200 or not payload.get('success') or len(actual)!=expected or 'human-interface-gateway' not in ids:
+          if status!=200 or not payload.get('success') or len(actual)!=expected or not {'human-interface-gateway','direct-operator-service','functional-translator-satellite'} <= ids:
               raise SystemExit('GUARDIAN_COVERAGE_READBACK_FAILED:'+json.dumps(actual)[:1000])
           print('CHACHA_DEV_V7_GUARDIAN_COVERAGE_SYNC=PASS')
           print('CHACHA_DEV_V7_GUARDIAN_GATEWAY_EXPECTED=YES')
+          print('CHACHA_DEV_V7_GUARDIAN_DIRECT_OPERATOR_EXPECTED=YES')
           print('EXPECTED_COMPONENTS='+str(expected))
           print('AUTOMATIC_EXTERNAL_SPEND_EUR=0')
           PY
