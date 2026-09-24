@@ -293,6 +293,33 @@
       ]
     },
     {
+      "contract_id": "role:platform-component-pilot-runner",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "RUN_COMPARATIVE_PILOT",
+        "REPORT_COMPARISON"
+      ],
+      "forbidden_actions": [
+        "PRODUCTION_DEPLOY",
+        "PROMOTE_COMPONENT",
+        "MODIFY_GUARDIAN_CONTRACTS",
+        "EXPAND_PERMISSIONS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write",
+        "preview-deploy"
+      ],
+      "required_evidence": [
+        "isolated_capsules",
+        "same_benchmark_contract",
+        "exact_artifacts",
+        "sentinel_exact_sha_pass"
+      ]
+    },
+    {
       "contract_id": "role:reusable-memory",
       "kind": "role",
       "allowed_actions": [
