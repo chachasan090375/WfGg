@@ -7,9 +7,11 @@ on:
     paths:
       - 'dev-hub/bin/component_evolution_governance.py'
       - 'dev-hub/bin/agent_evolution_daily_cycle.py'
+      - 'dev-hub/bin/agent_observation_bus_health.py'
       - 'dev-hub/config/universal-evolution-governance.v1.json'
       - 'dev-hub/config/guardian-coverage-manifest.v1.json'
       - 'dev-hub/tests/test_universal_evolution_coverage_sync.py'
+      - 'dev-hub/tests/test_evolution_source_catalog_drift.py'
       - '.github/workflows/dev-hub-universal-evolution-coverage-sync-qualification.yml'
   workflow_dispatch:
 
@@ -28,7 +30,7 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
-          python3 -m py_compile dev-hub/bin/component_evolution_governance.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/tests/test_universal_evolution_coverage_sync.py
+          python3 -m py_compile dev-hub/bin/component_evolution_governance.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_observation_bus_health.py dev-hub/tests/test_universal_evolution_coverage_sync.py dev-hub/tests/test_evolution_source_catalog_drift.py
           python3 -m json.tool dev-hub/config/universal-evolution-governance.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
       - name: Guardian to evolution coverage sync
@@ -41,6 +43,14 @@ jobs:
           grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_BACKWARD_COMPATIBILITY=PASS' /tmp/coverage-sync.out
           grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_SELF_MUTATION=NO' /tmp/coverage-sync.out
           grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/coverage-sync.out
+      - name: Evolution source catalog drift
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_evolution_source_catalog_drift.py | tee /tmp/source-drift.out
+          grep -Fq 'CHACHA_DEV_EVOLUTION_SOURCE_DRIFT=PASS' /tmp/source-drift.out
+          grep -Fq 'CHACHA_DEV_GUARDIAN_MANIFEST_DRIFT_REASSESS=PASS' /tmp/source-drift.out
+          grep -Fq 'CHACHA_DEV_MCP_CATALOG_DRIFT_REASSESS=PASS' /tmp/source-drift.out
+          grep -Fq 'CHACHA_DEV_EVOLUTION_SOURCE_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/source-drift.out
       - name: Receipt
         run: |
           echo CHACHA_DEV_UNIVERSAL_EVOLUTION_COVERAGE_SYNC_QUALIFICATION=PASS
@@ -48,6 +58,7 @@ jobs:
           echo UNMAPPED_GUARDIAN_KIND_FAILS_CLOSED=YES
           echo BACKWARD_COMPATIBILITY_WITHOUT_GUARDIAN_INPUT=YES
           echo CENTRAL_INTERFACE_CONTROLLER_GOVERNED=YES
+          echo EVOLUTION_SOURCE_CATALOG_DRIFT_REASSESSMENT=YES
           echo SELF_MUTATION=NO
           echo SELF_PROMOTION=NO
           echo AUTOMATIC_EXTERNAL_SPEND_EUR=0

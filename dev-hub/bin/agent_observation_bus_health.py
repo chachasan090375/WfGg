@@ -39,6 +39,17 @@ def assess(repo:Path,root:Path,policy:dict,state:Path,report:Path,deep=False):
  universal_digest=dg(load(universal_path)) if universal_path.is_file() else None
  lightweight_path=repo/"dev-hub/config/lightweight-agent-runtime-profile.v1.json"
  lightweight_digest=dg(load(lightweight_path)) if lightweight_path.is_file() else None
+ source_catalog_paths={
+  "guardian_coverage_manifest":"dev-hub/config/guardian-coverage-manifest.v1.json",
+  "technology_core_watch":"dev-hub/config/technology-core-watch.v1.json",
+  "provider_adapters":"dev-hub/config/provider-adapters.v1.json",
+  "mcp_provider_catalog":"dev-hub/config/mcp-provider-catalog.v1.json",
+  "project_embedded_assurance":"dev-hub/config/project-embedded-assurance.v1.json",
+ }
+ source_catalog_digests={}
+ for key,relp in source_catalog_paths.items():
+  pth=repo/relp
+  source_catalog_digests[key]=dg(load(pth)) if pth.is_file() else None
  if state.is_file():
   try:old=load(state)
   except Exception:old={}
@@ -62,16 +73,32 @@ def assess(repo:Path,root:Path,policy:dict,state:Path,report:Path,deep=False):
  if old_universal and universal_digest and old_universal!=universal_digest:reasons.append("UNIVERSAL_EVOLUTION_GOVERNANCE_POLICY_CHANGED")
  old_lightweight=str(old.get("lightweight_agent_runtime_profile_digest") or "")
  if old_lightweight and lightweight_digest and old_lightweight!=lightweight_digest:reasons.append("LIGHTWEIGHT_AGENT_RUNTIME_PROFILE_CHANGED")
+ source_reason_map={
+  "guardian_coverage_manifest":"GUARDIAN_COVERAGE_MANIFEST_CHANGED",
+  "technology_core_watch":"TECHNOLOGY_CORE_WATCH_CHANGED",
+  "provider_adapters":"PROVIDER_ADAPTER_CATALOG_CHANGED",
+  "mcp_provider_catalog":"MCP_PROVIDER_CATALOG_CHANGED",
+  "project_embedded_assurance":"PROJECT_EMBEDDED_ASSURANCE_POLICY_CHANGED",
+ }
+ old_source_digests=old.get("evolution_source_catalog_digests") if isinstance(old.get("evolution_source_catalog_digests"),dict) else {}
+ for key,reason in source_reason_map.items():
+  before=str(old_source_digests.get(key) or "")
+  after=source_catalog_digests.get(key)
+  if before and after and before!=after:reasons.append(reason)
  out={"schema":"chacha.dev/agent-observation-bus-health/v1","status":"REASSESS_REQUIRED" if reasons else "PASS","component_id":"agent-observation-bus","integrity":{"sqlite":sql,"hash_chain":chain},"contract_checks":checks,"shadow_benchmark":sh,"inventory":{"agent_count":inv.get("agent_count"),"fingerprint":fp,"delta":d},"evolution_profile_policy":{"digest":profile_digest,"change_requires_reassessment":True},
  "universal_evolution_governance_policy":{"digest":universal_digest,"change_requires_reassessment":True},
- "lightweight_agent_runtime_profile":{"digest":lightweight_digest,"change_requires_reassessment":True},"candidate_owner":"capability-foundry","technology_watch_revalidation_required":True,"logician_falsification_required":True,"direct_self_mutation":False,"self_promotion":False,"shadow_required":True,"pilot_required":True,"architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+ "lightweight_agent_runtime_profile":{"digest":lightweight_digest,"change_requires_reassessment":True},
+ "evolution_source_catalogs":{"digests":source_catalog_digests,"change_requires_reassessment":True},"candidate_owner":"capability-foundry","technology_watch_revalidation_required":True,"logician_falsification_required":True,"direct_self_mutation":False,"self_promotion":False,"shadow_required":True,"pilot_required":True,"architecture_council_final_authority":True,"automatic_external_spend_eur":0}
  if reasons:
-  q=rel(root,str((policy.get("self_health") or {}).get("platform_reassessment_queue") or "platform-evolution/reassessment-queue"));q.mkdir(parents=True,exist_ok=True);rid="bus-"+hashlib.sha256(("|".join(sorted(reasons))+fp).encode()).hexdigest()[:20]
+  q=rel(root,str((policy.get("self_health") or {}).get("platform_reassessment_queue") or "platform-evolution/reassessment-queue"));q.mkdir(parents=True,exist_ok=True)
+  source_fp=dg(source_catalog_digests)
+  rid="bus-"+hashlib.sha256(("|".join(sorted(reasons))+fp+source_fp).encode()).hexdigest()[:20]
   req={"schema":"chacha.dev/platform-component-reassessment-request/v1","request_id":rid,"component_id":"agent-observation-bus","trigger_reasons":sorted(reasons),"candidate_owner":"capability-foundry","direct_self_mutation":False,"self_promotion":False,"technology_watch_revalidation_required":True,"logician_falsification_required":True,"shadow_required":True,"pilot_required":True,"architecture_council_final_authority":True,"automatic_external_spend_eur":0};rp=q/(rid+".json");save(rp,req);out["reassessment"]={"path":str(rp)}
  save(report,out);save(state,{"inventory_projection":p,"inventory_fingerprint":fp,
   "evolution_profile_policy_digest":profile_digest,
   "universal_evolution_governance_policy_digest":universal_digest,
   "lightweight_agent_runtime_profile_digest":lightweight_digest,
+  "evolution_source_catalog_digests":source_catalog_digests,
   "status":out["status"]});return out
 def main():
  ap=argparse.ArgumentParser();ap.add_argument("--repo-root",type=Path,required=True);ap.add_argument("--runtime-root",type=Path,default=Path("/opt/chacha-dev/runtime"));ap.add_argument("--policy",type=Path,required=True);ap.add_argument("--mode",choices=["lightweight","deep"],default="lightweight");a=ap.parse_args();p=load(a.policy);cfg=p.get("self_health") or {};r=rel(a.runtime_root,cfg.get("health_report","agent-observation/bus-health-latest.json"));s=rel(a.runtime_root,cfg.get("state","agent-observation/bus-health-state.json"));x=assess(a.repo_root,a.runtime_root,p,s,r,a.mode=="deep");print(json.dumps(x,ensure_ascii=False));print("CHACHA_DEV_V650_BUS_HEALTH="+x["status"]);print("CHACHA_DEV_V650_BUS_SELF_MUTATION=NO");print("CHACHA_DEV_V650_BUS_CANDIDATE_OWNER=CAPABILITY_FOUNDRY")
