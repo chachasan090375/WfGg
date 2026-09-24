@@ -82,6 +82,8 @@ class State:
         self.emergency=repo/str(policy.get("emergency_controller") or "dev-hub/bin/emergency-stop-controller.py")
         progress_policy=repo/str(policy.get("progress_policy") or "dev-hub/config/progress-reporting.v1.json")
         self.progress=ProgressStore(load(progress_policy))
+        live_shell_path=repo/str(policy.get("android_live_shell_config") or "dev-hub/config/android-live-shell.v1.json")
+        self.live_shell_config=load(live_shell_path)
 
     def session(self)->dict[str,Any]:
         return load(self.session_path,{"schema":"chacha.dev/direct-operator-session/v1",
@@ -192,6 +194,8 @@ class Handler(BaseHTTPRequestHandler):
             s=self.st.session();return self.json(200,{"status":"OK","active_project":s.get("active_project"),"last_command":s.get("last_command")})
         if path=="/api/v1/progress":
             return self.json(200,self.st.progress.snapshot())
+        if path=="/api/v1/app-config":
+            return self.json(200,self.st.live_shell_config)
         if path.startswith("/api/v1/jobs/"):
             jid=path.rsplit("/",1)[-1];p=self.st.job_path(jid)
             return self.json(200,load(p)) if p.is_file() else self.json(404,{"status":"NOT_FOUND"})
