@@ -1296,11 +1296,33 @@ def issue_platform_component_apply_handoff(project: str, promotion_gate: Path, p
                 return response(project,"issue-platform-component-apply-handoff","BLOCKED",
                                 "Existing handoff output is invalid.",
                                 {"output":str(output)},["HANDOFF_OUTPUT_CONFLICT"])
-            if canonical_digest(existing)==canonical_digest(handoff):
+            stable_match=all((
+              existing.get("schema")=="chacha.dev/platform-component-central-apply-handoff/v1",
+              existing.get("handoff_id")==handoff_id,
+              existing.get("project")==project,
+              existing.get("component_id")==handoff.get("component_id"),
+              existing.get("candidate_revision")==handoff.get("candidate_revision"),
+              existing.get("incumbent_revision")==handoff.get("incumbent_revision"),
+              existing.get("adapter_id")==handoff.get("adapter_id"),
+              existing.get("approval_id")==approval_id,
+              existing.get("approval_actor")==actor,
+              existing.get("approval_evidence")==evidence,
+              existing.get("technical_review_digest")==handoff.get("technical_review_digest"),
+              existing.get("promotion_gate_digest")==handoff.get("promotion_gate_digest"),
+              existing.get("planner_result_digest")==handoff.get("planner_result_digest"),
+              existing.get("controlled_apply_plan_digest")==handoff.get("controlled_apply_plan_digest"),
+              existing.get("single_use") is True,
+              existing.get("apply_execution_authorized") is True,
+              existing.get("direct_runtime_mutation_authorized") is False,
+              existing.get("production_activation_authorized") is False,
+              existing.get("production_deployment_authorized") is False,
+              existing.get("merge_to_production_branch_authorized") is False,
+            ))
+            if stable_match:
                 return response(project,"issue-platform-component-apply-handoff","OK",
                                 "Identical Central Orchestrator handoff already exists.",
                                 {"handoff_id":handoff_id,"handoff":str(output),
-                                 "handoff_digest":canonical_digest(handoff),"idempotent":True},
+                                 "handoff_digest":canonical_digest(existing),"idempotent":True},
                                 artifacts=[{"type":"platform-component-central-apply-handoff","path":str(output)}])
             return response(project,"issue-platform-component-apply-handoff","BLOCKED",
                             "Handoff output already exists with different content.",
