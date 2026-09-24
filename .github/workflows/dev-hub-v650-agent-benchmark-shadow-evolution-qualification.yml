@@ -4,6 +4,10 @@ on:
     branches: [dev-hub-v650-agent-benchmark-shadow-evolution-campaigns]
     paths:
       - 'dev-hub/bin/agent_benchmark_harness.py'
+      - 'dev-hub/bin/agent_evolution_daily_cycle.py'
+      - 'dev-hub/bin/install-v650-agent-benchmark-bus-self-evolution.sh'
+      - 'dev-hub/systemd/chacha-dev-agent-observation-bus-health.service'
+      - 'dev-hub/systemd/chacha-dev-agent-observation-bus-health.timer'
       - 'dev-hub/bin/agent_observation_bus_health.py'
       - 'dev-hub/bin/autonomous-project-orchestrator.py'
       - 'dev-hub/config/agent-benchmark-harness.v1.json'
@@ -26,11 +30,13 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
-          python3 -m py_compile dev-hub/bin/agent_benchmark_harness.py dev-hub/bin/agent_observation_bus_health.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v650_agent_benchmark_harness.py dev-hub/tests/test_v650_observation_bus_self_evolution.py
+          python3 -m py_compile dev-hub/bin/agent_benchmark_harness.py dev-hub/bin/agent_observation_bus_health.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v650_agent_benchmark_harness.py dev-hub/tests/test_v650_observation_bus_self_evolution.py
           python3 -m json.tool dev-hub/config/agent-benchmark-harness.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-observation-bus.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/technology-core-watch.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/technology-watch-logician.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v650-agent-benchmark-bus-self-evolution.sh
+          grep -Fq 'OnCalendar=daily' dev-hub/systemd/chacha-dev-agent-observation-bus-health.timer
           grep -Fq '"version":"6.50.0"' dev-hub/bin/autonomous-project-orchestrator.py
       - name: Benchmark harness
         run: |
