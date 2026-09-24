@@ -1,0 +1,51 @@
+{
+  "schema": "chacha.dev/technology-source-reputation/v1",
+  "version": "1.0.0",
+  "principle": "Publisher and source confidence is calibrated from later verified outcomes and never substitutes for technical evidence.",
+  "priors": {
+    "confirmed": 1,
+    "contradicted": 1
+  },
+  "publishers": {},
+  "event_weights": {
+    "CONFIRMED_EXECUTABLE": {
+      "confirmed": 2,
+      "contradicted": 0
+    },
+    "CONFIRMED_INDEPENDENT": {
+      "confirmed": 1,
+      "contradicted": 0
+    },
+    "VERIFIED_SUCCESS": {
+      "confirmed": 1,
+      "contradicted": 0
+    },
+    "PARTIAL": {
+      "confirmed": 0.5,
+      "contradicted": 0.5
+    },
+    "CONTRADICTED": {
+      "confirmed": 0,
+      "contradicted": 2
+    },
+    "VERIFIED_FAILURE": {
+      "confirmed": 0,
+      "contradicted": 2
+    },
+    "ROLLBACK_ATTRIBUTED": {
+      "confirmed": 0,
+      "contradicted": 2
+    },
+    "CRITICAL_INCIDENT": {
+      "confirmed": 0,
+      "contradicted": 3
+    }
+  },
+  "invariants": {
+    "marketing_repetition_never_becomes_sufficient_evidence": true,
+    "confidence_is_claim_class_aware": true,
+    "confidence_is_advisory": true,
+    "exact_outcome_provenance_required": true,
+    "automatic_external_spend_eur": 0
+  }
+}

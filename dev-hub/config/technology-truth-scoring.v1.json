@@ -1,0 +1,88 @@
+{
+  "schema": "chacha.dev/technology-truth-scoring-policy/v1",
+  "version": "1.0.0",
+  "purpose": "Separate technical truth, operational maturity, architecture fit and publisher confidence before technology recommendations.",
+  "evidence_weights": {
+    "executable_reproduction": 60,
+    "project_pilot": 55,
+    "independent_technical": 35,
+    "benchmark_reproducible": 35,
+    "security_advisory": 30,
+    "official_technical": 25,
+    "maintainer_issue": 20,
+    "postmortem": 30,
+    "official_announcement": 8,
+    "marketing": 5,
+    "unverified_blog": 10
+  },
+  "contradiction_multiplier": 1.25,
+  "publisher_vendor_evidence_types": [
+    "official_technical",
+    "official_announcement",
+    "marketing"
+  ],
+  "technical_evidence_types": [
+    "executable_reproduction",
+    "project_pilot",
+    "independent_technical",
+    "benchmark_reproducible",
+    "security_advisory",
+    "official_technical",
+    "maintainer_issue",
+    "postmortem"
+  ],
+  "executable_evidence_types": [
+    "executable_reproduction",
+    "project_pilot"
+  ],
+  "thresholds": {
+    "adopt": {
+      "technical_truth": 80,
+      "operational_maturity": 75,
+      "architecture_fit": 75
+    },
+    "pilot": {
+      "technical_truth": 60,
+      "operational_maturity": 50,
+      "architecture_fit": 65
+    },
+    "minimum_required_claim_truth": 55
+  },
+  "release_age_days": {
+    "critical_new": 3,
+    "very_new": 7,
+    "new": 14,
+    "settling": 30,
+    "mature": 60
+  },
+  "hard_gates": {
+    "exact_version_required": true,
+    "marketing_only_cannot_adopt_or_enable": true,
+    "unresolved_contradiction_requires_more_verification": true,
+    "rollback_tested_required_for_adopt": true,
+    "executable_or_real_pilot_required_for_adopt": true,
+    "high_or_critical_blast_radius_requires_shadow_and_pilot_for_adopt": true,
+    "latest_version_has_no_priority": true,
+    "critical_security_does_not_remove_test_or_rollback_requirements": true
+  },
+  "decision_classes": [
+    "REJECT",
+    "WATCH",
+    "SHADOW",
+    "PILOT",
+    "ADOPT"
+  ],
+  "authority": {
+    "technology_watch_owns_evidence_score": true,
+    "logician_is_advisory_falsification_partner": true,
+    "architecture_council_final_authority": true,
+    "guardian_authority_preserved": true,
+    "sentinel_authority_preserved": true,
+    "score_never_grants_production_permission": true,
+    "score_never_grants_network_permission": true,
+    "score_never_grants_secret_permission": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}

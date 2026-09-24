@@ -7,7 +7,11 @@
     "deterministic_collection_first": true,
     "llm_synthesis_optional": true,
     "paid_research_provider_required": false,
-    "platform_core_included": true
+    "platform_core_included": true,
+    "source_independence_required": true,
+    "vendor_marketing_is_discovery_not_proof": true,
+    "executable_evidence_preferred": true,
+    "contradictory_evidence_must_be_retained": true
   },
   "watches": {
     "domains": [
@@ -56,7 +60,13 @@
       "maintenance-health",
       "architecture-fit",
       "energy-and-resource-efficiency",
-      "autonomy-impact"
+      "autonomy-impact",
+      "publisher-reliability",
+      "evidence-independence",
+      "release-age",
+      "blast-radius",
+      "technology-debt",
+      "source-calibration"
     ]
   },
   "candidate_policy": {
@@ -68,7 +78,15 @@
     "require_minimum_fixture_evaluation_before_pilot": true,
     "auto_fixture_evaluation": true,
     "auto_sandbox": true,
-    "auto_canary_when_policy_allows": true
+    "auto_canary_when_policy_allows": true,
+    "require_truth_scoring_before_pilot": true,
+    "require_operational_maturity_score": true,
+    "require_architecture_fit_score": true,
+    "require_publisher_confidence_index": true,
+    "require_logician_falsification": true,
+    "marketing_only_cannot_promote": true,
+    "latest_version_has_no_priority": true,
+    "exact_version_required": true
   },
   "output": {
     "recommendation_snapshot": "/opt/chacha-dev/runtime/technology-radar/domain-recommendations.json",
@@ -117,5 +135,22 @@
     "prefer_zero_external_cost_candidates": true,
     "include_pricing_and_quota_in_candidate_evidence": true,
     "include_resource_requirements_in_candidate_evidence": true
+  },
+  "truth_assurance": {
+    "policy": "dev-hub/config/technology-truth-scoring.v1.json",
+    "source_reputation": "dev-hub/config/technology-source-reputation.v1.json",
+    "logician_policy": "dev-hub/config/technology-watch-logician.v1.json",
+    "evidence_graph_required": true,
+    "duplicated_sources_do_not_inflate": true,
+    "real_outcome_feedback_required": true,
+    "shadow_mode_for_high_blast_radius": true,
+    "rollback_must_be_tested_for_adopt": true
+  },
+  "core_architecture_watch": {
+    "enabled": true,
+    "inventory": "dev-hub/config/technology-core-watch.v1.json",
+    "technology_debt_radar": true,
+    "includes_platform_core": true,
+    "recommendations_only": true
   }
 }

@@ -1,0 +1,102 @@
+name: ChaCha DEV V6.45 technology truth scoring core watch qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v645-technology-truth-scoring-core-watch
+    paths:
+      - 'dev-hub/bin/technology_truth_scoring.py'
+      - 'dev-hub/bin/technology_source_reputation.py'
+      - 'dev-hub/bin/technology_watch_logician.py'
+      - 'dev-hub/bin/technology_core_watch.py'
+      - 'dev-hub/bin/technology_watch_runtime.py'
+      - 'dev-hub/bin/technology-watch-service.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/technology-truth-scoring.v1.json'
+      - 'dev-hub/config/technology-source-reputation.v1.json'
+      - 'dev-hub/config/technology-watch-logician.v1.json'
+      - 'dev-hub/config/technology-core-watch.v1.json'
+      - 'dev-hub/config/technology-radar-domain-watch.v2.json'
+      - 'dev-hub/config/agent-routing.v1.json'
+      - 'dev-hub/tests/test_v645_technology_truth_scoring_core_watch.py'
+      - 'dev-hub/tests/test_v644_trust_freshness_continuous_revalidation.py'
+      - 'dev-hub/tests/test_v64_technology_watch_runtime.py'
+      - '.github/workflows/dev-hub-v645-technology-truth-scoring-core-watch-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/technology_truth_scoring.py dev-hub/bin/technology_source_reputation.py dev-hub/bin/technology_watch_logician.py dev-hub/bin/technology_core_watch.py dev-hub/bin/technology_watch_runtime.py dev-hub/bin/technology-watch-service.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v645_technology_truth_scoring_core_watch.py
+          python3 -m json.tool dev-hub/config/technology-truth-scoring.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/technology-source-reputation.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/technology-watch-logician.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/technology-core-watch.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/technology-radar-domain-watch.v2.json >/dev/null
+          python3 -m json.tool dev-hub/config/agent-routing.v1.json >/dev/null
+          grep -Fq '"version":"6.45.0"' dev-hub/bin/autonomous-project-orchestrator.py
+      - name: V6.45 technology truth scoring
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v645_technology_truth_scoring_core_watch.py | tee /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_MARKETING_ONLY_ADOPTION=BLOCKED' /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_SOURCE_DUPLICATION_INFLATION=NO' /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_EXECUTABLE_PROOF_RAISES_TRUTH=PASS' /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_CONTRADICTORY_EVIDENCE_REQUIRES_VERIFICATION=PASS' /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_MATURITY_INDEPENDENT_FROM_TRUTH=PASS' /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_NEWEST_VERSION_PRIORITY=NO' /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_OLDER_VERIFIED_SAFE_SELECTION=PASS' /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_REAL_OUTCOME_FEEDBACK=PASS' /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_PUBLISHER_CONFIDENCE_CALIBRATION=PASS' /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_LOGICIAN_FALSIFICATION=PASS' /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_LOGICIAN_DECISION_AUTHORITY=NO' /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_CORE_ARCHITECTURE_WATCH=PASS' /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_TECHNOLOGY_DEBT_RADAR=PASS' /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_PERMISSION_ESCALATION=NO' /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v645.out
+      - name: V6.44 regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v644_trust_freshness_continuous_revalidation.py | tee /tmp/v644.out
+          grep -Fq 'CHACHA_DEV_V644_TECHNOLOGY_WATCH_FRESH_REVALIDATION=PASS' /tmp/v644.out
+          grep -Fq 'CHACHA_DEV_V644_NEGATIVE_TRUST_PRECEDENCE=PASS' /tmp/v644.out
+          grep -Fq 'CHACHA_DEV_V644_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v644.out
+      - name: Technology Watch runtime regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v64_technology_watch_runtime.py | tee /tmp/v64.out
+          grep -Fq 'CHACHA_DEV_V64_TECHNOLOGY_WATCH_SERVICE=PASS' /tmp/v64.out
+          grep -Fq 'CHACHA_DEV_V64_TECHNOLOGY_WATCH_ZERO_SPEND=PASS' /tmp/v64.out
+      - name: Qualification receipt
+        run: |
+          {
+            echo 'CHACHA_DEV_V645_QUALIFICATION=PASS'
+            echo 'TECHNICAL_TRUTH_SCORE=REQUIRED'
+            echo 'OPERATIONAL_MATURITY_SCORE=REQUIRED'
+            echo 'ARCHITECTURE_FIT_SCORE=REQUIRED'
+            echo 'PUBLISHER_CONFIDENCE_INDEX=REQUIRED'
+            echo 'MARKETING_ONLY_ADOPTION=BLOCKED'
+            echo 'DUPLICATED_SOURCE_INFLATION=NO'
+            echo 'LOGICIAN_FALSIFICATION=REQUIRED'
+            echo 'LOGICIAN_DECISION_AUTHORITY=NO'
+            echo 'NEWEST_VERSION_PRIORITY=NO'
+            echo 'CORE_ARCHITECTURE_WATCH=YES'
+            echo 'TECHNOLOGY_DEBT_RADAR=YES'
+            echo 'REAL_OUTCOME_CALIBRATION=YES'
+            echo 'ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES'
+            echo 'GUARDIAN_AUTHORITY=PRESERVED'
+            echo 'SENTINEL_AUTHORITY=PRESERVED'
+            echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
+          } | tee /tmp/v645-receipt.txt

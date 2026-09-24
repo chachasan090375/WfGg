@@ -766,7 +766,7 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.44.0",
+      "version":"6.45.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),

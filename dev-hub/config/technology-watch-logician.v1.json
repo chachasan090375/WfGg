@@ -1,0 +1,69 @@
+{
+  "schema": "chacha.dev/technology-watch-logician-policy/v1",
+  "version": "1.0.0",
+  "owner_role": "logician",
+  "decision_authority": "technology-watch-agent",
+  "purpose": "Design falsification paths and adaptive verification strategies for Technology Watch without selecting technologies.",
+  "verification_routes": [
+    {
+      "id": "EXECUTABLE_REPRODUCTION",
+      "information_gain": 100,
+      "cost_rank": 2
+    },
+    {
+      "id": "NEGATIVE_ISSUE_SEARCH",
+      "information_gain": 85,
+      "cost_rank": 1
+    },
+    {
+      "id": "INDEPENDENT_CORROBORATION",
+      "information_gain": 80,
+      "cost_rank": 1
+    },
+    {
+      "id": "DEPENDENCY_COMPATIBILITY_MATRIX",
+      "information_gain": 78,
+      "cost_rank": 2
+    },
+    {
+      "id": "EARLY_RELEASE_REGRESSION_PROBE",
+      "information_gain": 90,
+      "cost_rank": 2
+    },
+    {
+      "id": "RESOURCE_BUDGET_PROBE",
+      "information_gain": 72,
+      "cost_rank": 2
+    },
+    {
+      "id": "ROLLBACK_DRILL",
+      "information_gain": 88,
+      "cost_rank": 3
+    },
+    {
+      "id": "SOURCE_INDEPENDENCE_CHECK",
+      "information_gain": 75,
+      "cost_rank": 1
+    },
+    {
+      "id": "SECURITY_ADVISORY_SEARCH",
+      "information_gain": 92,
+      "cost_rank": 1
+    },
+    {
+      "id": "SHADOW_COMPARISON",
+      "information_gain": 96,
+      "cost_rank": 3
+    }
+  ],
+  "principles": {
+    "falsification_before_confirmation_bias": true,
+    "cheapest_high_information_test_first": true,
+    "search_for_counterexamples": true,
+    "challenge_vendor_claims": true,
+    "current_solution_is_a_candidate": true,
+    "direct_mutation": false,
+    "architecture_council_final_authority": true,
+    "automatic_external_spend_eur": 0
+  }
+}

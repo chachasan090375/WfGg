@@ -53,6 +53,9 @@ def _provider_candidate(provider: dict[str, Any], capability: str, cfg: dict[str
     return {
         "id":str(provider.get("id") or "unknown"),
         "capability":capability,
+        "incumbent_registry_baseline":True,
+        "truth_scoring_required_for_version_change":True,
+        "marketing_claim_is_not_technical_proof":True,
         "status":status,
         "health":provider.get("health"),
         "scope":provider.get("scope"),
@@ -154,6 +157,8 @@ def build_snapshot(repo_root: Path, *, scope_domain: str|None=None,
     capreg=_load(repo_root/"dev-hub/config/capability-registry.v1.json")
     domains=_load(repo_root/"dev-hub/config/domain-orchestration.v1.json")
     economics=_load(repo_root/"dev-hub/config/provider-economics.v1.json")
+    truth_policy=_load(repo_root/"dev-hub/config/technology-truth-scoring.v1.json")
+    core_watch=_load(repo_root/"dev-hub/config/technology-core-watch.v1.json")
     requested={str(x) for x in (scope_capabilities or []) if str(x)}
     candidates=[]
     for capability,spec in (capreg.get("capabilities") or {}).items():
@@ -200,6 +205,22 @@ def build_snapshot(repo_root: Path, *, scope_domain: str|None=None,
         "reusable_architecture_taxonomy":reusable_architecture_taxonomy,
         "central_memory_assimilation":central_memory,
         "provider_economics_digest":_digest(economics),
+        "technology_truth_assurance":{
+            "required_for_new_or_version_changed_candidate":True,
+            "scores":["technical_truth","operational_maturity","architecture_fit","publisher_confidence"],
+            "marketing_only_adoption_forbidden":True,
+            "latest_version_has_no_priority":True,
+            "logician_falsification_required":True,
+            "policy_version":truth_policy.get("version"),
+            "architecture_council_final_authority":True
+        },
+        "core_architecture_watch":{
+            "enabled":True,
+            "inventory_component_count":len(core_watch.get("components") or []),
+            "inventory_ids":[str(x.get("id")) for x in core_watch.get("components") or [] if isinstance(x,dict)],
+            "technology_debt_radar":True,
+            "recommendations_only":True
+        }
     }
     body["snapshot_digest"]=_digest(body)
     return body
@@ -319,6 +340,8 @@ def consult(repo_root: Path, *, consumer: str, domain: str,
         "automatic_external_spend_eur":0,
         "eligible_provider_candidates":pool,
         "branch_blueprints":snap.get("branch_blueprints") or [],
+        "technology_truth_assurance":snap.get("technology_truth_assurance") or {},
+        "core_architecture_watch":snap.get("core_architecture_watch") or {},
         "central_memory_assimilation":{
             "available":bool((snap.get("central_memory_assimilation") or {}).get("available")),
             "snapshot_digest":(snap.get("central_memory_assimilation") or {}).get("snapshot_digest"),
