@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/architecture-decision-council-policy/v1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "central_orchestrator_is_final_decider": true,
   "no_single_foundry_may_select_final_architecture": true,
   "mandatory_advisors": [
@@ -94,5 +94,30 @@
     "architecture_council_may_auto_promote": false,
     "explicit_human_promotion_approval_required": true,
     "default_action_without_human_approval": "HOLD_INCUMBENT"
+  },
+  "platform_component_candidate_review": {
+    "enabled": true,
+    "pilot_result_required": true,
+    "exact_candidate_and_incumbent_revision_required": true,
+    "exact_candidate_and_incumbent_artifact_required": true,
+    "same_benchmark_contract_required": true,
+    "isolated_ephemeral_capsules_required": true,
+    "guardian_pre_post_required": true,
+    "sentinel_exact_revision_success_required": true,
+    "qualification_exact_revision_success_required": true,
+    "technology_watch_fresh_required": true,
+    "logician_falsification_required": true,
+    "permission_non_escalation_required": true,
+    "rollback_ready_required": true,
+    "measurable_gain_required": true,
+    "no_material_regression_required": true,
+    "zero_automatic_external_spend_required": true,
+    "incumbent_control_group_required": true,
+    "production_entrypoint_unchanged_required": true,
+    "architecture_council_may_confirm_technical_admissibility": true,
+    "architecture_council_may_auto_promote": false,
+    "explicit_human_promotion_approval_required": true,
+    "default_action_without_human_approval": "HOLD_INCUMBENT",
+    "automatic_external_spend_eur": 0
   }
 }
