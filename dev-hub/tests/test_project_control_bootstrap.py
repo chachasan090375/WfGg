@@ -66,6 +66,23 @@ with tempfile.TemporaryDirectory(prefix="project-control-bootstrap-") as raw:
     assert '"event_type":"PROJECT_INITIALIZED"' in journal,journal
     assert '"event_type":"EVIDENCE_RECORDED"' in journal,journal
 
+    # Platform profile is governance-only: status is READY without application lifecycle gates.
+    status=pc.status_operation(project,policy,ROOT)
+    assert status["status"]=="READY",status
+    assert status["details"]["control_profile"]=="platform",status
+    assert status["details"]["lifecycle_managed"] is False,status
+    assert status["details"]["protected_human_approval_boundary"] is True,status
+    assert status["details"]["next_stage"] is None,status
+    planned=pc.plan_transition(project,None,policy,ROOT)
+    assert planned["status"]=="BLOCKED",planned
+    assert "PLATFORM_CONTROL_PROFILE_LIFECYCLE_OPERATION_FORBIDDEN" in planned["blockers"],planned
+    scheduled=pc.schedule_operation(project,None,policy,ROOT)
+    assert scheduled["status"]=="BLOCKED",scheduled
+    assert "PLATFORM_CONTROL_PROFILE_LIFECYCLE_OPERATION_FORBIDDEN" in scheduled["blockers"],scheduled
+    advanced=pc.advance_operation(project,None,"project-owner",policy,ROOT)
+    assert advanced["status"]=="BLOCKED",advanced
+    assert "PLATFORM_CONTROL_PROFILE_LIFECYCLE_OPERATION_FORBIDDEN" in advanced["blockers"],advanced
+
     # 2) Exact replay is idempotent and creates no extra journal entry.
     before=journal_path.read_bytes()
     second=pc.bootstrap_control_plane_operation(project,"bootstrap-test","platform",policy,ROOT)
@@ -146,6 +163,8 @@ with tempfile.TemporaryDirectory(prefix="project-control-bootstrap-") as raw:
 print("CHACHA_DEV_PROJECT_CONTROL_BOOTSTRAP=PASS")
 print("CHACHA_DEV_PROJECT_CONTROL_BOOTSTRAP_CANONICAL_ENGINES=YES")
 print("CHACHA_DEV_PROJECT_CONTROL_BOOTSTRAP_IDEMPOTENT=YES")
+print("CHACHA_DEV_PROJECT_CONTROL_PLATFORM_STATUS=READY")
+print("CHACHA_DEV_PROJECT_CONTROL_PLATFORM_APPLICATION_LIFECYCLE=FORBIDDEN")
 print("CHACHA_DEV_PROJECT_CONTROL_BOOTSTRAP_FORWARD_ONLY=YES")
 print("CHACHA_DEV_PROJECT_CONTROL_BOOTSTRAP_PARTIAL_FAIL_CLOSED=YES")
 print("CHACHA_DEV_PROJECT_CONTROL_HUMAN_APPROVAL_PROTECTED=YES")
