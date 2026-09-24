@@ -157,13 +157,14 @@
     "ui-layout": {
       "orchestrator": "domain-ui-layout-orchestrator",
       "roles": [
-        "frontend-architect"
+        "ui-layout-specialist"
       ],
       "capabilities": [
         "browser-automation",
         "browser-diagnostics",
         "accessibility-review",
-        "frontend-performance"
+        "frontend-performance",
+        "ui-layout-review"
       ],
       "keywords": [
         "ui",
@@ -184,6 +185,7 @@
         "axe-core"
       ],
       "reviews": [
+        "development",
         "qa"
       ]
     },
