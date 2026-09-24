@@ -30,7 +30,11 @@
     "project_control_verification_receipt_required": true,
     "project_control_receipt_status_required": "COMMITTED",
     "verified_task_result_required": true,
-    "project_success_claims_must_be_verified_evidence": true
+    "project_success_claims_must_be_verified_evidence": true,
+    "project_control_verify_result_ingest_required": true,
+    "project_control_verification_status_required": "VERIFIED",
+    "success_evidence_must_bind_exact_file": true,
+    "evidence_ledger_digest_must_match_receipt": true
   },
   "protected_adapter_permissions": [
     "production-deploy",
