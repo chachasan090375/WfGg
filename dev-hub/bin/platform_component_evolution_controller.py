@@ -132,12 +132,17 @@ def build_pilot_readiness(shadow_ledger:dict[str,Any],evidence_index:dict[str,An
         ev=evidence_by.get(str(did)) or {}
         refs=[str(x) for x in ev.get("evidence_refs") or [] if str(x)]
         missing=[k for k in required if ev.get(k) is not True]
+        candidate_ref=str(ev.get("candidate_artifact_ref") or "")
+        incumbent_ref=str(ev.get("incumbent_artifact_ref") or "")
         if not refs:missing.append("evidence_refs")
         if not signals:missing.append("shadow_candidate_signals")
+        if not candidate_ref:missing.append("candidate_artifact_ref")
+        if not incumbent_ref:missing.append("incumbent_artifact_ref")
         state="NOT_REQUIRED" if not pilot_required else ("PILOT_READY" if not missing else "HOLD_SHADOW")
         row={"dispatch_id":did,"component_id":cid,"candidate_owner":entry.get("candidate_owner"),
           "state":state,"pilot_required":pilot_required,"shadow_candidate_signal_count":len(signals),
-          "evidence_refs":refs,"missing_evidence":sorted(set(missing)),
+          "evidence_refs":refs,"candidate_artifact_ref":candidate_ref,"incumbent_artifact_ref":incumbent_ref,
+          "missing_evidence":sorted(set(missing)),
           "pilot_execution_authorized":False,"production_change_authorized":False,
           "active_component_mutation":False,"promotion_authorized":False,
           "permission_expansion":False,"real_harness_required":True,
@@ -153,6 +158,54 @@ def build_pilot_readiness(shadow_ledger:dict[str,Any],evidence_index:dict[str,An
       "pilot_execution_authorized":False,"production_change_authorized":False,
       "promotion_authorized":False,"architecture_council_final_authority":True,
       "automatic_external_spend_eur":0}
+
+def build_pilot_contracts(readiness:dict[str,Any],harness_registry:dict[str,Any])->dict[str,Any]:
+    harnesses=harness_registry.get("harnesses") if isinstance(harness_registry.get("harnesses"),dict) else {}
+    contracts=[];blocked=[]
+    for row in readiness.get("pilot_ready") or []:
+        cid=str(row.get("component_id") or "")
+        h=harnesses.get(cid)
+        if not isinstance(h,dict):
+            blocked.append({"dispatch_id":row.get("dispatch_id"),"component_id":cid,
+                "blocker":"REAL_HARNESS_NOT_REGISTERED"});continue
+        checks={
+          "status_qualified":str(h.get("status") or "")=="QUALIFIED",
+          "real_harness":h.get("real_harness") is True,
+          "isolated":h.get("isolated") is True,
+          "same_benchmark_contract":h.get("same_benchmark_contract") is True,
+          "zero_external_spend":float(h.get("automatic_external_spend_eur") or 0)==0,
+          "argv_present":isinstance(h.get("argv"),list) and bool(h.get("argv")),
+          "incumbent_ref_present":bool(str(row.get("incumbent_artifact_ref") or "")),
+          "candidate_ref_present":bool(str(row.get("candidate_artifact_ref") or "")),
+        }
+        missing=[k for k,v in checks.items() if not v]
+        if missing:
+            blocked.append({"dispatch_id":row.get("dispatch_id"),"component_id":cid,
+                "harness_id":h.get("harness_id"),"blocker":"PILOT_CONTRACT_REQUIREMENTS_MISSING",
+                "missing":missing});continue
+        contract={"schema":"chacha.dev/platform-component-comparative-pilot-contract/v1",
+          "contract_id":"pcp-"+digest({"dispatch_id":row.get("dispatch_id"),"harness_id":h.get("harness_id"),
+            "candidate":row.get("candidate_artifact_ref"),"incumbent":row.get("incumbent_artifact_ref")})[:24],
+          "dispatch_id":row.get("dispatch_id"),"component_id":cid,
+          "candidate_owner":row.get("candidate_owner"),"harness_id":h.get("harness_id"),
+          "harness_argv":list(h.get("argv") or []),"resource_budget":h.get("resource_budget") or {},
+          "incumbent_artifact_ref":row.get("incumbent_artifact_ref"),
+          "candidate_artifact_ref":row.get("candidate_artifact_ref"),
+          "same_benchmark_contract":True,"isolated_ephemeral_capsules":True,
+          "emergency_stop_required":True,"guardian_pre_post_required":True,
+          "sentinel_required":True,"technology_watch_revalidation_required":True,
+          "logician_falsification_required":True,"rollback_required":True,
+          "pilot_execution_authorized":True,"production_change_authorized":False,
+          "promotion_authorized":False,"permission_expansion":False,
+          "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+        contracts.append(contract)
+    return {"schema":"chacha.dev/platform-component-pilot-contract-index/v1",
+      "pilot_ready_input_count":len(readiness.get("pilot_ready") or []),
+      "contract_count":len(contracts),"blocked_count":len(blocked),
+      "contracts":contracts,"blocked":blocked,
+      "default_admission":"DENY","synthetic_harness_for_production_decision":False,
+      "production_change_authorized":False,"promotion_authorized":False,
+      "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
 
 def main()->int:
     ap=argparse.ArgumentParser()

@@ -141,6 +141,9 @@ def main()->int:
     shadow_evidence=safe(pe/"shadow-evidence.json")
     pilot_readiness=pcec.build_pilot_readiness(shadow_ledger,shadow_evidence)
     save(pe/"pilot-readiness-latest.json",pilot_readiness)
+    pilot_harness_registry=load(cfg/"platform-component-pilot-harness-registry.v1.json")
+    pilot_contracts=pcec.build_pilot_contracts(pilot_readiness,pilot_harness_registry)
+    save(pe/"pilot-contracts-latest.json",pilot_contracts)
     receipt={"schema":"chacha.dev/agent-evolution-daily-cycle/v1","generated_at":iso(stamp),"agent_count":report.get("agent_count"),
       "optimization_count":len(report.get("optimization_queue") or []),"measurement_count":len(report.get("measurement_queue") or []),
       "event_request_count":len(requests),"scheduled_action_count":len(scheduled),
@@ -158,6 +161,8 @@ def main()->int:
       "platform_pilot_ready_count":pilot_readiness.get("pilot_ready_count"),
       "platform_hold_shadow_count":pilot_readiness.get("hold_shadow_count"),
       "platform_pilot_execution_authorized":pilot_readiness.get("pilot_execution_authorized"),
+      "platform_pilot_contract_count":pilot_contracts.get("contract_count"),
+      "platform_pilot_contract_blocked_count":pilot_contracts.get("blocked_count"),
       "deep_audit_due":deep,"ecosystem_benchmark_due":bench,
       "benchmark_campaign_created":benchmark_campaign is not None,
       "benchmark_contract_count":len((benchmark_campaign or {}).get("contracts") or []),
@@ -183,5 +188,6 @@ def main()->int:
     print("PLATFORM_FOUNDRY_SHADOW="+("PASS" if platform_shadow["shadow_execution_complete"] else ("IDLE" if platform_shadow["input_dispatch_count"]==0 else "BLOCKED")))
     print("PLATFORM_PILOT_READY="+str(pilot_readiness["pilot_ready_count"]))
     print("PLATFORM_HOLD_SHADOW="+str(pilot_readiness["hold_shadow_count"]))
+    print("PLATFORM_PILOT_CONTRACTS="+str(pilot_contracts["contract_count"]))
     print("CHACHA_DEV_V648_AUTOMATIC_EXTERNAL_SPEND_EUR=0");return 0
 if __name__=="__main__":raise SystemExit(main())

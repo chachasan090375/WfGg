@@ -1,0 +1,17 @@
+{
+  "schema": "chacha.dev/platform-component-pilot-harness-registry/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "default_admission": "DENY",
+  "real_harness_required": true,
+  "synthetic_harness_for_production_decision": false,
+  "isolated_ephemeral_capsules_required": true,
+  "same_benchmark_contract_required": true,
+  "emergency_stop_required": true,
+  "guardian_pre_post_required": true,
+  "sentinel_required": true,
+  "rollback_required": true,
+  "exact_candidate_and_incumbent_artifacts_required": true,
+  "automatic_external_spend_eur": 0,
+  "harnesses": {}
+}
