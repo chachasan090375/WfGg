@@ -1,0 +1,79 @@
+{
+  "schema": "chacha.dev/human-interface-gateway-policy/v1",
+  "version": "1.0.0",
+  "platform_version": "7.2.0",
+  "component_id": "human-interface-gateway",
+  "component_type": "interface-adapter",
+  "is_agent": false,
+  "decision_authority": "central-orchestrator",
+  "operator_surface": "project-control",
+  "runtime_root": "/opt/chacha-dev/runtime/human-interface",
+  "session_file": "/opt/chacha-dev/runtime/human-interface/session.json",
+  "journal_file": "/opt/chacha-dev/runtime/human-interface/audit.jsonl",
+  "runs_root": "/opt/chacha-dev/runtime/human-interface/runs",
+  "default_project": "chacha-dev-platform",
+  "routing": {
+    "default_route": "CHACHA_DEV",
+    "general_direct_route_allowed": true,
+    "general_direct_requires_explicit_route": true,
+    "technical_project_dev_infra_architecture_must_route_to_chacha_dev": true,
+    "exact_commands": {
+      "allo": "STATUS",
+      "go": "CONTINUE",
+      "stop": "STOP"
+    }
+  },
+  "commands": {
+    "STATUS": {
+      "brain_read_only": true,
+      "project_control_first": true,
+      "platform_status_fallback": true
+    },
+    "CONTINUE": {
+      "require_prior_brain_receipt": true,
+      "create_new_technical_decision": false,
+      "continue_only_prior_next_action": true
+    },
+    "STOP": {
+      "out_of_band": true,
+      "controller": "dev-hub/bin/emergency-stop-controller.py",
+      "explicit_user_command_required": true,
+      "interface_may_not_reset_stop": true
+    },
+    "INSTRUCTION": {
+      "orchestrator": "dev-hub/bin/autonomous-project-orchestrator.py",
+      "planning_only": true,
+      "automatic_execution": false,
+      "require_brain_receipt": true
+    }
+  },
+  "response_contract": {
+    "schema": "chacha.dev/human-interface-response/v1",
+    "brain_decision_required_for_chacha_route": true,
+    "response_must_include_authority": true,
+    "response_must_include_next_action": true,
+    "response_must_include_evidence_refs": true,
+    "interface_may_execute_only_brain_authorized_next_actions": true,
+    "fabricated_brain_decision_forbidden": true
+  },
+  "failure": {
+    "brain_unavailable_status": "BRAIN_UNAVAILABLE",
+    "invalid_receipt_status": "BRAIN_RECEIPT_INVALID",
+    "fail_closed": true,
+    "chat_interface_may_not_substitute_technical_decision": true
+  },
+  "invariants": {
+    "interface_is_not_central_brain": true,
+    "interface_has_no_architecture_authority": true,
+    "interface_has_no_direct_mutation": true,
+    "interface_has_no_self_promotion": true,
+    "interface_has_no_permission_expansion": true,
+    "central_orchestrator_is_final_technical_orchestration_authority": true,
+    "architecture_council_final_authority_preserved": true,
+    "guardian_preserved": true,
+    "sentinel_preserved": true,
+    "technology_watch_preserved": true,
+    "canonical_observation_bus_rewrite": false,
+    "automatic_external_spend_eur": 0
+  }
+}
