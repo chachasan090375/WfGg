@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-fleet-observatory-policy/v1",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "purpose": "Build evidence-backed agent metrics from ChaCha DEV runtime artifacts without assigning scores to unmeasured dimensions.",
   "runtime_sources": {
     "task_graphs": "plans/**/*.task-graph.json",
@@ -125,7 +125,8 @@
     "glob": "plans/**/automatic-finalization/**/reviews/*-source-reverified-review.json",
     "eligible_agents": [
       "curator",
-      "intendant"
+      "intendant",
+      "bastion"
     ],
     "required_schema": "chacha.dev/compromise-agent-review/v1",
     "required_source_authority": "EXTERNAL",
@@ -207,6 +208,29 @@
     "production_truth_dimensions": [
       "accuracy"
     ],
+    "canonical_observation_bus_mutation": false,
+    "automatic_external_spend_eur": 0
+  },
+  "real_world_structural_attestation": {
+    "enabled": true,
+    "glob": "agent-evolution/real-world-attestations/**/attestation-*.json",
+    "required_schema": "chacha.dev/real-world-agent-attestation/v1",
+    "required_verifier": "v661-real-world-evidence-attestor",
+    "required_verification": "INDEPENDENTLY_RECOMPUTED",
+    "required_scope": "REAL_RUNTIME",
+    "eligible_agents": [
+      "agent-foundry-architect",
+      "branch-foundry-architect",
+      "capability-foundry-architect",
+      "logician",
+      "technology-watch-agent"
+    ],
+    "production_truth_dimensions": [
+      "evidence_quality",
+      "handoff_quality",
+      "authority_discipline"
+    ],
+    "accuracy_inference": false,
     "canonical_observation_bus_mutation": false,
     "automatic_external_spend_eur": 0
   }
