@@ -277,13 +277,13 @@ def main()->int:
         print(aid.upper().replace("-","_")+"_CASES="+str(x["case_count"]))
         print(aid.upper().replace("-","_")+"_STRUCTURAL="+str((x["dimension_values"] or {}).get("evidence_quality")))
         ok=ok and x["case_count"]>0 and x["passed_case_count"]==x["case_count"]
-    print("CHACHA_DEV_V661_REAL_WORLD_STRUCTURAL_ATTESTATION="+("PASS" if ok else "BLOCK"))
-    print("CHACHA_DEV_V661_ACCURACY_INFERENCE=NO")
-    print("CHACHA_DEV_V661_CANONICAL_OBSERVATION_BUS_MUTATION=NO")
-    print("CHACHA_DEV_V661_SELF_MUTATION=NO")
-    print("CHACHA_DEV_V661_SELF_PROMOTION=NO")
-    print("CHACHA_DEV_V661_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
-    print("CHACHA_DEV_V661_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
+    print("CHACHA_DEV_V662_REAL_WORLD_STRUCTURAL_ATTESTATION="+("PASS" if ok else "BLOCK"))
+    print("CHACHA_DEV_V662_ACCURACY_INFERENCE=NO")
+    print("CHACHA_DEV_V662_CANONICAL_OBSERVATION_BUS_MUTATION=NO")
+    print("CHACHA_DEV_V662_SELF_MUTATION=NO")
+    print("CHACHA_DEV_V662_SELF_PROMOTION=NO")
+    print("CHACHA_DEV_V662_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
+    print("CHACHA_DEV_V662_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
     return 0 if ok else 20
 
 if __name__=="__main__":
