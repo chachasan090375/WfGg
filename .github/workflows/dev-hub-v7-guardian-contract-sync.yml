@@ -1,0 +1,124 @@
+name: ChaCha DEV V7 Guardian contract sync
+
+on:
+  push:
+    branches:
+      - 'dev-hub-v7*'
+    paths:
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - '.github/workflows/dev-hub-v7-guardian-contract-sync.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate Guardian contracts
+        run: |
+          set -euo pipefail
+          python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
+          python3 - <<'PY'
+          import json
+          x=json.load(open('dev-hub/config/guardian-role-contracts.v1.json'))
+          by={c['contract_id']:c for c in x['contracts']}
+          central=by['component:central-orchestrator']
+          executor=by['role:platform-hygiene-executor']
+          assert {'EXECUTE_PLATFORM_RETIREMENT','EXECUTE_SAFE_TEMP_CLEANUP'} <= set(central['allowed_actions'])
+          assert 'destructive-operation' in central['allowed_permissions']
+          assert {'EXECUTE_PLATFORM_RETIREMENT','EXECUTE_SAFE_TEMP_CLEANUP'} <= set(executor['allowed_actions'])
+          assert executor['allowed_permissions']==['destructive-operation']
+          assert 'human_approval' in executor['required_evidence']
+          print('CHACHA_DEV_V7_GUARDIAN_HYGIENE_CONTRACT_STATIC=PASS')
+          PY
+
+      - name: Resolve Guardian D1
+        id: cf
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request,urllib.error,sys
+          token=os.environ.get('CF_API_TOKEN','').strip()
+          if not token: raise SystemExit('MISSING_SECRET=CLOUDFLARE_API_TOKEN')
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url):
+              req=urllib.request.Request(url,headers=headers)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  return e.code,json.loads(e.read() or b'{}')
+          aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          if not aid:
+              status,payload=call('https://api.cloudflare.com/client/v4/accounts?per_page=50')
+              rows=(payload.get('result') or []) if status==200 else []
+              if len(rows)!=1:raise SystemExit('CLOUDFLARE_ACCOUNT_RESOLUTION_AMBIGUOUS')
+              aid=rows[0]['id']
+          status,payload=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-guardian'))
+          if status!=200:raise SystemExit('GUARDIAN_D1_LIST_FAILED')
+          db=next((x for x in (payload.get('result') or []) if x.get('name')=='chacha-dev-guardian'),None)
+          if not db:raise SystemExit('GUARDIAN_D1_NOT_FOUND')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('account_id='+aid+'\n');f.write('database_id='+db['uuid']+'\n')
+          print('CHACHA_DEV_V7_GUARDIAN_D1_RESOLVED=PASS')
+          PY
+
+      - name: Prepare Wrangler D1 config
+        run: |
+          cat > .wrangler-guardian-contract-sync.jsonc <<EOF
+          {
+            "name": "chacha-dev-guardian",
+            "main": "dev-hub/guardian/worker.js",
+            "compatibility_date": "2026-09-22",
+            "d1_databases": [{
+              "binding": "DB",
+              "database_name": "chacha-dev-guardian",
+              "database_id": "${{ steps.cf.outputs.database_id }}"
+            }]
+          }
+          EOF
+
+      - name: Generate role-contract UPSERT seed
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,json
+          roles=json.load(open('dev-hub/config/guardian-role-contracts.v1.json',encoding='utf-8'))
+          q=lambda s:"'"+str(s).replace("'","''")+"'"
+          j=lambda v:json.dumps(v,separators=(',',':'),sort_keys=True)
+          lines=[]
+          for c in roles['contracts']:
+              dig=hashlib.sha256(j(c).encode()).hexdigest()
+              lines.append(
+                "INSERT INTO role_contracts(contract_id,kind,allowed_actions_json,forbidden_actions_json,allowed_permissions_json,required_evidence_json,unknown_role,source_digest,updated_at) VALUES("
+                +q(c['contract_id'])+","+q(c.get('kind','role'))+","+q(j(c.get('allowed_actions',[])))+","
+                +q(j(c.get('forbidden_actions',[])))+","+q(j(c.get('allowed_permissions',[])))+","
+                +q(j(c.get('required_evidence',[])))+","+str(1 if c.get('unknown_role') else 0)+","+q(dig)+",datetime('now')) "
+                "ON CONFLICT(contract_id) DO UPDATE SET kind=excluded.kind,allowed_actions_json=excluded.allowed_actions_json,"
+                "forbidden_actions_json=excluded.forbidden_actions_json,allowed_permissions_json=excluded.allowed_permissions_json,"
+                "required_evidence_json=excluded.required_evidence_json,unknown_role=excluded.unknown_role,"
+                "source_digest=excluded.source_digest,updated_at=datetime('now');"
+              )
+          open('.guardian-v7-contract-seed.sql','w').write('\n'.join(lines)+'\n')
+          print('CHACHA_DEV_V7_GUARDIAN_CONTRACT_SEED=PASS')
+          print('ROLE_CONTRACTS='+str(len(roles['contracts'])))
+          PY
+
+      - name: Sync Guardian role contracts
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote             --file=.guardian-v7-contract-seed.sql --config=.wrangler-guardian-contract-sync.jsonc
+          echo CHACHA_DEV_V7_GUARDIAN_CONTRACT_SYNC=PASS
