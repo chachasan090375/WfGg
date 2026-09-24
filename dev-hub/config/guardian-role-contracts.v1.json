@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-role-contracts/v1",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "scope": "PLATFORM_GLOBAL",
   "principles": {
     "guardian_is_external_to_central_brain": true,
@@ -1033,6 +1033,33 @@
         "persistent_progress_contract",
         "shared_web_android_source",
         "no_execution_authority"
+      ]
+    },
+    {
+      "contract_id": "role:live-ui-publisher",
+      "kind": "role",
+      "allowed_actions": [
+        "PUBLISH_LIVE_UI",
+        "ROLLBACK_LIVE_UI"
+      ],
+      "forbidden_actions": [
+        "INSTALL_APK",
+        "NATIVE_APP_UPDATE",
+        "MUTATE_SYSTEMD",
+        "EXPAND_PERMISSIONS",
+        "ARBITRARY_RUNTIME_MUTATION",
+        "PRODUCTION_DEPLOY_OUTSIDE_LIVE_UI"
+      ],
+      "allowed_permissions": [
+        "read",
+        "workspace-write"
+      ],
+      "required_evidence": [
+        "central_orchestrator_handoff",
+        "exact_sha_qualification",
+        "sentinel_exact_sha",
+        "atomic_switch",
+        "rollback_available"
       ]
     }
   ]
