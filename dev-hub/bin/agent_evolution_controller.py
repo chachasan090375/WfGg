@@ -74,6 +74,10 @@ def score(agent_id:str,metrics:dict[str,Any],policy:dict[str,Any])->dict[str,Any
             rec="MEASURE_MORE"
         else:
             rec="KEEP"
+    maturity=measurement_policy.get("evidence_maturity") or {}
+    min_prod_keep=float(maturity.get("minimum_production_dimension_coverage_for_keep_pct",40))
+    if rec=="KEEP" and production_coverage<min_prod_keep:
+        rec="MEASURE_REAL_WORLD"
     scorecard={
       "schema":"chacha.dev/agent-evolution-scorecard/v1",
       "agent_id":agent_id,
@@ -108,7 +112,7 @@ def plan(agent_id:str,scorecard:dict[str,Any],policy:dict[str,Any])->dict[str,An
     return {
       "schema":"chacha.dev/agent-evolution-plan/v1","agent_id":agent_id,"recommendation":rec,
       "evolution_surfaces":policy.get("evolution_surfaces") or [],
-      "measurement_required":rec in {"MEASURE_FIRST","MEASURE_MORE"} or (candidate_requested and not candidate_evidence_mature),
+      "measurement_required":rec in {"MEASURE_FIRST","MEASURE_MORE","MEASURE_REAL_WORLD"} or (candidate_requested and not candidate_evidence_mature),
       "evidence_maturity":{"candidate_requested":candidate_requested,"candidate_evidence_mature":candidate_evidence_mature,
         "production_measurement_coverage_pct":production_coverage,"minimum_required_pct":min_prod,
         "benchmark_only_cannot_materialize_candidate":True},

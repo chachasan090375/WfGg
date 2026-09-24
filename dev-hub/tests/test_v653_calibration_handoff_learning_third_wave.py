@@ -60,7 +60,10 @@ with tempfile.TemporaryDirectory(prefix="v653-third-wave-") as td:
     sc=aec.score("benchmark-only-perfect",synthetic,evo);pl=aec.plan("benchmark-only-perfect",sc,evo)
     assert sc["measurement_coverage_pct"]==100.0 and sc["production_measurement_coverage_pct"]==0.0,sc
     assert pl["candidate"]["owner"] is None and pl["evidence_maturity"]["candidate_evidence_mature"] is False,pl
+    assert sc["recommendation"]=="MEASURE_REAL_WORLD",sc
+    assert pl["measurement_required"] is True,pl
 
+print("CHACHA_DEV_V653_BENCHMARK_ONLY_KEEP=BLOCKED")
 print("CHACHA_DEV_V653_BENCHMARK_CONTRACT_COVERAGE=PASS")
 print("CHACHA_DEV_V653_BENCHMARK_HANDOFF_QUALITY=PASS")
 print("CHACHA_DEV_V653_AGENT_FOUNDRY_EXECUTABLE_ADAPTER=PASS")
