@@ -1,0 +1,30 @@
+{
+  "schema": "chacha.dev/project-agent-registry/v1",
+  "version": "1.0.0",
+  "project_id": "wfgg-radar",
+  "platform_global": false,
+  "agents": [
+    {
+      "agent_id": "technology-radar-agent",
+      "role": "technology-radar-agent",
+      "scope": "PROJECT_ONLY",
+      "project_id": "wfgg-radar",
+      "embedded_in": "WfGg Radar",
+      "purpose": "Project-specific Radar technology/runtime evolution and observation support.",
+      "capabilities": [
+        "radar-runtime-inspect",
+        "radar-pilot-control",
+        "radar-protocol-evolution-watch",
+        "radar-application-technology-watch"
+      ],
+      "permissions": [
+        "read",
+        "plan"
+      ],
+      "production_permission": false,
+      "central_brain_role": false,
+      "technology_watch_platform_role": false,
+      "automatic_external_spend_eur": 0
+    }
+  ]
+}

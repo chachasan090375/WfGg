@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-foundry/v1",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "branch": "agent-foundry",
   "mandatory_preflight": true,
   "invocation_point": "after-core-intent-understanding-before-domain-dispatch",
@@ -45,7 +45,18 @@
     "central_memory_guides_existing_agent_candidate_order": true,
     "negative_component_confidence_excludes_fast_agent_reuse": true,
     "memory_cannot_expand_agent_capabilities_or_permissions": true,
-    "memory_never_skips_technology_watch": true
+    "memory_never_skips_technology_watch": true,
+    "existing_agents_are_continuously_reassessed": true,
+    "agent_self_evolution_is_proposal_only": true,
+    "active_agent_cannot_self_mutate": true,
+    "active_agent_cannot_self_promote": true,
+    "evolution_candidate_must_be_isolated": true,
+    "evolution_candidate_competes_against_incumbent": true,
+    "logician_falsification_required_for_agent_evolution": true,
+    "technology_watch_required_for_agent_evolution": true,
+    "guardian_permission_diff_required_for_agent_evolution": true,
+    "sentinel_regression_required_for_agent_evolution": true,
+    "promotion_requires_measurable_non_regression": true
   },
   "scoring": {
     "capability_fit": 30,
@@ -189,6 +200,38 @@
     "remote_app_compatible": true,
     "background_delivery": true,
     "central_memory": "chacha-dev",
+    "automatic_external_spend_eur": 0
+  },
+  "evolution": {
+    "schema": "chacha.dev/agent-evolution-policy/v1",
+    "controller": "dev-hub/bin/agent-evolution-controller.py",
+    "logician": "dev-hub/bin/agent-evolution-logician.py",
+    "stages": [
+      "BASELINE",
+      "ASSESS",
+      "PROPOSE",
+      "SHADOW",
+      "PILOT",
+      "ADOPT",
+      "DEPRECATE",
+      "RETIRE"
+    ],
+    "self_evolution": {
+      "allowed": [
+        "OBSERVE_SELF",
+        "REPORT_DEBT",
+        "REQUEST_REASSESSMENT",
+        "PROPOSE_EVOLUTION"
+      ],
+      "forbidden": [
+        "MUTATE_ACTIVE_SELF",
+        "PROMOTE_SELF",
+        "EXPAND_OWN_PERMISSIONS",
+        "DISABLE_ASSURANCE"
+      ]
+    },
+    "candidate_owner": "agent-foundry",
+    "final_architecture_authority": "architecture-decision-council",
     "automatic_external_spend_eur": 0
   }
 }

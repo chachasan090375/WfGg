@@ -1,0 +1,74 @@
+name: ChaCha DEV V6.46 agent evolution continuous optimization qualification
+on:
+  push:
+    branches: [dev-hub-v646-agent-evolution-continuous-optimization]
+    paths:
+      - 'dev-hub/bin/agent-evolution-controller.py'
+      - 'dev-hub/bin/agent-evolution-logician.py'
+      - 'dev-hub/config/agent-evolution.v1.json'
+      - 'dev-hub/config/agent-foundry.v1.json'
+      - 'dev-hub/config/agent-routing.v1.json'
+      - 'dev-hub/projects/wfgg-radar/project-agent-registry.v1.json'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/tests/test_v646_agent_evolution_continuous_optimization.py'
+      - '.github/workflows/dev-hub-v646-agent-evolution-continuous-optimization-qualification.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/agent-evolution-controller.py dev-hub/bin/agent-evolution-logician.py dev-hub/tests/test_v646_agent_evolution_continuous_optimization.py
+          python3 -m json.tool dev-hub/config/agent-evolution.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/agent-foundry.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/agent-routing.v1.json >/dev/null
+          python3 -m json.tool dev-hub/projects/wfgg-radar/project-agent-registry.v1.json >/dev/null
+          grep -Fq '"version":"6.46.0"' dev-hub/bin/autonomous-project-orchestrator.py
+      - name: V6.46 qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v646_agent_evolution_continuous_optimization.py | tee /tmp/v646.out
+          grep -Fq 'CHACHA_DEV_V646_TECHNOLOGY_RADAR_PLATFORM_ROUTING=REMOVED' /tmp/v646.out
+          grep -Fq 'CHACHA_DEV_V646_TECHNOLOGY_RADAR_PROJECT_SCOPE=PASS' /tmp/v646.out
+          grep -Fq 'CHACHA_DEV_V646_AGENT_INVENTORY_35=PASS' /tmp/v646.out
+          grep -Fq 'CHACHA_DEV_V646_REGULAR_EVOLUTION_CADENCE=PASS' /tmp/v646.out
+          grep -Fq 'CHACHA_DEV_V646_AGENT_FUNCTION_ARCHITECTURE_CODE_EVOLUTION=PASS' /tmp/v646.out
+          grep -Fq 'CHACHA_DEV_V646_LOGICIAN_AGENT_FALSIFICATION=PASS' /tmp/v646.out
+          grep -Fq 'CHACHA_DEV_V646_ACTIVE_SELF_MUTATION=NO' /tmp/v646.out
+          grep -Fq 'CHACHA_DEV_V646_SELF_PROMOTION=NO' /tmp/v646.out
+          grep -Fq 'CHACHA_DEV_V646_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v646.out
+      - name: V6.45 Technology Watch regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v645_technology_truth_scoring_core_watch.py | tee /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_MARKETING_ONLY_ADOPTION=BLOCKED' /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_CORE_ARCHITECTURE_WATCH=PASS' /tmp/v645.out
+          grep -Fq 'CHACHA_DEV_V645_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v645.out
+      - name: Receipt
+        run: |
+          {
+            echo 'CHACHA_DEV_V646_QUALIFICATION=PASS'
+            echo 'TECHNOLOGY_RADAR_PLATFORM_ROUTING=REMOVED'
+            echo 'TECHNOLOGY_RADAR_PROJECT_SCOPE=wfgg-radar'
+            echo 'AGENT_CONTINUOUS_EVOLUTION=YES'
+            echo 'AGENT_SELF_EVOLUTION=PROPOSAL_ONLY'
+            echo 'ACTIVE_SELF_MUTATION=NO'
+            echo 'SELF_PROMOTION=NO'
+            echo 'LOGICIAN_FALSIFICATION=REQUIRED'
+            echo 'TECHNOLOGY_WATCH=REQUIRED'
+            echo 'AGENT_FOUNDRY_CANDIDATE_OWNER=YES'
+            echo 'SHADOW_COMPARISON=REQUIRED'
+            echo 'GUARDIAN_PERMISSION_DIFF=REQUIRED'
+            echo 'SENTINEL_REGRESSION=REQUIRED'
+            echo 'ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES'
+            echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
+          } | tee /tmp/v646-receipt.txt

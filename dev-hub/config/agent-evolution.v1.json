@@ -1,0 +1,123 @@
+{
+  "schema": "chacha.dev/agent-evolution/v1",
+  "version": "1.0.0",
+  "purpose": "Continuously measure, challenge and safely evolve ChaCha DEV agents without direct self-mutation.",
+  "inventory_sources": [
+    "dev-hub/config/agent-routing.v1.json",
+    "dev-hub/config/seven-agent-final-compromise.v1.json",
+    "dev-hub/projects/*/project-agent-registry.v1.json"
+  ],
+  "scorecard_dimensions": {
+    "accuracy": {
+      "higher_is_better": true
+    },
+    "coverage": {
+      "higher_is_better": true
+    },
+    "calibration": {
+      "higher_is_better": true
+    },
+    "evidence_quality": {
+      "higher_is_better": true
+    },
+    "robustness": {
+      "higher_is_better": true
+    },
+    "efficiency": {
+      "higher_is_better": true
+    },
+    "handoff_quality": {
+      "higher_is_better": true
+    },
+    "learning_quality": {
+      "higher_is_better": true
+    },
+    "drift_resistance": {
+      "higher_is_better": true
+    },
+    "authority_discipline": {
+      "higher_is_better": true
+    }
+  },
+  "evolution_surfaces": [
+    "FUNCTIONS_AND_CAPABILITIES",
+    "INTERNAL_ARCHITECTURE",
+    "IMPLEMENTATION_CODE",
+    "TOOLCHAIN_AND_PROVIDERS",
+    "PROMPTS_AND_POLICIES",
+    "TESTS_AND_EVIDENCE",
+    "HANDOFF_CONTRACTS",
+    "MEMORY_AND_LEARNING",
+    "OBSERVABILITY",
+    "RESOURCE_AND_COST_PROFILE"
+  ],
+  "cadence": {
+    "event_driven": true,
+    "lightweight_health_hours": 24,
+    "deep_agent_audit_days": 7,
+    "ecosystem_benchmark_days": 30,
+    "immediate_triggers": [
+      "VERIFIED_FAILURE",
+      "ROLLBACK",
+      "SECURITY_INCIDENT",
+      "REPEATED_REMEDIATION",
+      "HANDOFF_FAILURE_CLUSTER",
+      "TECHNOLOGY_WATCH_MATERIAL_DELTA",
+      "SOURCE_CONFIDENCE_DROP",
+      "DEPENDENCY_EOL_OR_DEPRECATION",
+      "PERFORMANCE_REGRESSION",
+      "PERMISSION_DRIFT"
+    ]
+  },
+  "stages": [
+    "BASELINE",
+    "ASSESS",
+    "PROPOSE",
+    "SHADOW",
+    "PILOT",
+    "ADOPT",
+    "DEPRECATE",
+    "RETIRE"
+  ],
+  "recommendation_thresholds": {
+    "keep_min_dimension": 80,
+    "optimize_min_dimension": 65,
+    "shadow_candidate_below": 65,
+    "block_and_review_below": 40,
+    "debt_watch": 20,
+    "debt_shadow": 40,
+    "debt_block": 70
+  },
+  "self_evolution": {
+    "agent_may_observe_self": true,
+    "agent_may_report_debt": true,
+    "agent_may_request_reassessment": true,
+    "agent_may_propose_evolution": true,
+    "agent_may_modify_active_self": false,
+    "agent_may_promote_self": false,
+    "agent_may_expand_own_permissions": false,
+    "candidate_materialized_by": "agent-foundry",
+    "candidate_isolated_from_incumbent": true,
+    "incumbent_is_control_group": true
+  },
+  "mandatory_challenge": {
+    "logician_falsification": true,
+    "technology_watch_revalidation": true,
+    "shadow_comparison": true,
+    "pilot_for_material_change": true,
+    "guardian_permission_diff": true,
+    "sentinel_regression": true,
+    "architecture_council_final_authority": true
+  },
+  "promotion": {
+    "measurable_gain_required": true,
+    "no_material_regression_required": true,
+    "permission_non_escalation_required": true,
+    "rollback_required": true,
+    "exact_revision_evidence_required": true,
+    "latest_version_has_no_priority": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}

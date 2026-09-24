@@ -14,7 +14,9 @@
     "product_owner_defines_what_not_how": true,
     "product_requirement_routes_before_implementation": true,
     "backend_design_requires_backend_api_architect": true,
-    "data_design_requires_data_architect": true
+    "data_design_requires_data_architect": true,
+    "project_scoped_agents_must_not_enter_platform_routing": true,
+    "technology_watch_is_platform_global": true
   },
   "roles": {
     "product-domain-architect": {
@@ -126,17 +128,6 @@
         "architecture-documentation",
         "adr-management",
         "runbook-maintenance"
-      ],
-      "default_risk": "low"
-    },
-    "technology-radar-agent": {
-      "capabilities": [
-        "technology-radar",
-        "web-research",
-        "comparative-evaluation",
-        "mcp-ecosystem-watch",
-        "connector-watch",
-        "protocol-watch"
       ],
       "default_risk": "low"
     },
@@ -556,7 +547,6 @@
         "alternative",
         "new-tool",
         "technology",
-        "radar",
         "upgrade-stack",
         "mcp",
         "connector",
@@ -564,7 +554,7 @@
         "protocol-version",
         "deprecation"
       ],
-      "primary_role": "technology-radar-agent",
+      "primary_role": "technology-watch-agent",
       "review_roles": [
         "security-reviewer",
         "platform-cloud-engineer"
@@ -707,5 +697,12 @@
     ],
     "verification_must_be_executed": true,
     "claims_without_execution_must_be_marked_unverified": true
+  },
+  "scope_exclusions": {
+    "technology-radar-agent": {
+      "scope": "PROJECT_ONLY",
+      "project_id": "wfgg-radar",
+      "reason": "WfGg Radar application-specific agent; not a ChaCha DEV central-brain role."
+    }
   }
 }
