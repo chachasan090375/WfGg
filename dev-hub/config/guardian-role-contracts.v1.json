@@ -344,6 +344,33 @@
       ]
     },
     {
+      "contract_id": "role:platform-component-controlled-apply-planner",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "REPORT_PLAN"
+      ],
+      "forbidden_actions": [
+        "PRODUCTION_DEPLOY",
+        "PROMOTE_COMPONENT",
+        "MODIFY_GUARDIAN_CONTRACTS",
+        "EXPAND_PERMISSIONS",
+        "MUTATE_RUNTIME"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write"
+      ],
+      "required_evidence": [
+        "promotion_gate_verified",
+        "human_approval_verified",
+        "exact_artifacts",
+        "exact_revisions",
+        "rollback_required"
+      ]
+    },
+    {
       "contract_id": "role:reusable-memory",
       "kind": "role",
       "allowed_actions": [
