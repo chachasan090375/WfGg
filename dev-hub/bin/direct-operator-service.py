@@ -86,6 +86,10 @@ class State:
         self.progress=ProgressStore(load(progress_policy))
         live_shell_path=repo/str(policy.get("android_live_shell_config") or "dev-hub/config/android-live-shell.v1.json")
         self.live_shell_config=load(live_shell_path)
+        native_policy_path=repo/str(policy.get("android_native_update_policy") or "dev-hub/config/android-native-update.v1.json")
+        self.native_update_policy=load(native_policy_path)
+        self.native_update_manifest=Path(str(policy.get("native_update_manifest") or "/opt/chacha-dev/runtime/native-update/current/manifest.json"))
+        self.native_update_packages_root=Path(str(policy.get("native_update_packages_root") or "/opt/chacha-dev/runtime/native-update/current/packages"))
     def effective_ui_root(self):
         live=self.live_ui_root
         if (live/"index.html").is_file():return live
@@ -96,6 +100,16 @@ class State:
             if x.get("schema")=="chacha.dev/android-live-shell-config/v1":return x
         except Exception:pass
         return self.live_shell_config
+
+    def effective_native_update_manifest(self):
+        try:
+            x=load(self.native_update_manifest)
+            if x.get("schema")=="chacha.dev/android-native-update/v1" and x.get("package_id")==self.native_update_policy.get("app_id"):
+                return x
+        except Exception:pass
+        return {"schema":"chacha.dev/android-native-update/v1","status":"NONE",
+                "package_id":self.native_update_policy.get("app_id"),
+                "automatic_external_spend_eur":0}
 
     def session(self)->dict[str,Any]:
         return load(self.session_path,{"schema":"chacha.dev/direct-operator-session/v1",
@@ -208,9 +222,24 @@ class Handler(BaseHTTPRequestHandler):
             return self.json(200,self.st.progress.snapshot())
         if path=="/api/v1/app-config":
             return self.json(200,self.st.effective_live_shell_config())
+        if path=="/api/v1/native-update":
+            return self.json(200,self.st.effective_native_update_manifest())
         if path.startswith("/api/v1/jobs/"):
             jid=path.rsplit("/",1)[-1];p=self.st.job_path(jid)
             return self.json(200,load(p)) if p.is_file() else self.json(404,{"status":"NOT_FOUND"})
+        if path.startswith("/native-updates/"):
+            rel_apk=path[len("/native-updates/"):]
+            if not rel_apk or "/" in rel_apk or "\\" in rel_apk or not rel_apk.endswith(".apk"):
+                return self.json(404,{"status":"NOT_FOUND"})
+            root=self.st.native_update_packages_root.resolve()
+            target=(root/rel_apk).resolve()
+            try:target.relative_to(root)
+            except ValueError:return self.json(403,{"status":"FORBIDDEN"})
+            if not target.is_file():return self.json(404,{"status":"NOT_FOUND"})
+            raw=target.read_bytes();self.send_response(200)
+            self.send_header("Content-Type","application/vnd.android.package-archive")
+            self.send_header("Content-Length",str(len(raw)));self.send_header("Cache-Control","no-store")
+            self.send_header("X-Content-Type-Options","nosniff");self.end_headers();self.wfile.write(raw);return
         rel="index.html" if path in {"/","/index.html"} else path.lstrip("/")
         ui_root=self.st.effective_ui_root()
         target=(ui_root/rel).resolve()
