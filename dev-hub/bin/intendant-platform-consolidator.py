@@ -112,7 +112,7 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
         seen=set()
         for row in sorted(rows,key=lambda x:x["name"],reverse=True):
             rev=str(row.get("revision") or "").lower()
-            if row["path"]==active_path or not rev or rev in seen or rev not in verified:continue
+            if row["path"]==active_path or rev==str(active_revision or "").lower() or not rev or rev in seen or rev not in verified:continue
             selected.append(row);seen.add(rev)
             if len(selected)>=slots:break
     for rev in retention.get("fallback_verified_rollback_revisions") or []:
