@@ -87,7 +87,6 @@
     "planner_owner": "intendant",
     "physical_retirement_executor": "central-orchestrator",
     "intendant_direct_mutation": false,
-    "guardian_realtime_verdict_required": true,
     "architecture_council_plan_digest_binding_required": true,
     "standing_operator_approval_scope": "SAFE_SUPERSEDED_PHYSICAL_RELEASES_ONLY",
     "never_auto_delete": [
@@ -98,6 +97,8 @@
       "acquisition-evidence"
     ],
     "exact_revision_qualification_workflow": "ChaCha DEV V7 platform qualification",
-    "sentinel_workflow": "ChaCha DEV Sentinel technical assurance"
+    "sentinel_workflow": "ChaCha DEV Sentinel technical assurance",
+    "guardian_realtime_verdict_required_for_council": false,
+    "guardian_realtime_verdict_required_for_executor": true
   }
 }
