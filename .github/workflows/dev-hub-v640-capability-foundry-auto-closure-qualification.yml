@@ -55,8 +55,10 @@ jobs:
       - name: V6.39 regression
         run: |
           set -euo pipefail
-          python3 dev-hub/tests/test_v639_controlled_production_handoff.py >/tmp/v639-regression.out
-          grep -Fq 'CHACHA_DEV_V639_CONTROLLED_PRODUCTION_HANDOFF=PASS' /tmp/v639-regression.out
+          python3 dev-hub/tests/test_v639_controlled_production_handoff.py | tee /tmp/v639-regression.out
+          grep -Fq 'CHACHA_DEV_V639_PRODUCTION_APPROVAL_BOUNDARY=PASS' /tmp/v639-regression.out
+          grep -Fq 'CHACHA_DEV_V639_CLOUDFLARE_PAGES_PRODUCTION_ADAPTER=ENABLED' /tmp/v639-regression.out
+          grep -Fq 'CHACHA_DEV_V639_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v639-regression.out
 
       - name: V6.29 Foundry memory regression
         run: |
