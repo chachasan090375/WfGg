@@ -254,7 +254,7 @@ assert 'active_provider_adapters=current_provider_registry' in orch
 assert 'active_capabilities=current_capability_registry' in orch
 assert 'capability_build_required_count=capability_build_specialist_required_count' in orch
 assert '"capability_build_durable_adoption_before_project_success":False' in orch
-assert any(v in orch for v in ['"version":"6.41.0"','"version":"6.42.0"'])
+assert any(v in orch for v in ['"version":"6.41.0"','"version":"6.42.0"','"version":"6.43.0"'])
 assert orch.index('architecture_council_v=load(architecture_council)') < orch.index('capability_build_batch=out/"capability-build-request-batch.json"')
 assert orch.index('capability_build_batch=out/"capability-build-request-batch.json"') < orch.index('effective_branch_topology=out/"branch-topology-effective.json"')
 
