@@ -91,3 +91,34 @@ with tempfile.TemporaryDirectory(prefix="v645-snapshot-contract-") as td:
         if old_env is None: os.environ.pop("CHACHA_TECHNOLOGY_WATCH_SNAPSHOT",None)
         else: os.environ["CHACHA_TECHNOLOGY_WATCH_SNAPSHOT"]=old_env
 print("CHACHA_DEV_V645_LEGACY_FRESH_SNAPSHOT_COMPATIBILITY=BLOCKED")
+
+
+# Real-PILOT regression: a recent V6.44 snapshot can be time-fresh but contract-incompatible.
+import os,tempfile
+from datetime import datetime,timezone
+import technology_watch_runtime as tw
+with tempfile.TemporaryDirectory(prefix="v645-incompatible-snapshot-") as td:
+    legacy=Path(td)/"optimizer-input.json"
+    legacy.write_text(json.dumps({
+      "schema":"chacha.dev/technology-watch-snapshot/v1",
+      "generated_at":datetime.now(timezone.utc).isoformat().replace("+00:00","Z"),
+      "snapshot_digest":"v644-time-fresh-but-legacy",
+      "provider_candidates":[]
+    }),encoding="utf-8")
+    old_env=os.environ.get("CHACHA_TECHNOLOGY_WATCH_SNAPSHOT")
+    os.environ["CHACHA_TECHNOLOGY_WATCH_SNAPSHOT"]=str(legacy)
+    try:
+        status=tw.snapshot_status(ROOT)
+        assert status["state"]=="INCOMPATIBLE" and status["fresh"] is False,status
+        assert set(status["missing_required_sections"])=={"technology_truth_assurance","core_architecture_watch"},status
+        feed=tw.consult(ROOT,consumer="architecture-decision-council",domain="platform-release",capabilities=[])
+        assert feed["targeted_refresh_performed"] is True,feed
+        assert (feed.get("technology_truth_assurance") or {}).get("required_for_new_or_version_changed_candidate") is True,feed
+        assert (feed.get("technology_truth_assurance") or {}).get("marketing_only_adoption_forbidden") is True,feed
+        assert (feed.get("core_architecture_watch") or {}).get("technology_debt_radar") is True,feed
+        assert json.loads(legacy.read_text(encoding="utf-8"))["snapshot_digest"]=="v644-time-fresh-but-legacy"
+    finally:
+        if old_env is None:os.environ.pop("CHACHA_TECHNOLOGY_WATCH_SNAPSHOT",None)
+        else:os.environ["CHACHA_TECHNOLOGY_WATCH_SNAPSHOT"]=old_env
+print("CHACHA_DEV_V645_INCOMPATIBLE_SNAPSHOT_TARGETED_REFRESH=PASS")
+print("CHACHA_DEV_V645_INCOMPATIBLE_REFRESH_CANONICAL_MUTATION=NO")
