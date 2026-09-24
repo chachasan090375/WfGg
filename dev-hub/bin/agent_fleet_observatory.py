@@ -251,9 +251,10 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
                     x.get("original_functional_contract_pinned") is True and required>0
                 )
                 a=agg["guardian"]
-                a["operational_accuracy_total"]+=1
-                if verdict=="PASS" and passed==required:a["operational_accuracy_ok"]+=1
-                a["refs"]["accuracy"].append(str(path))
+                if cfg.get("accuracy_inference") is True:
+                    a["operational_accuracy_total"]+=1
+                    if verdict=="PASS" and passed==required:a["operational_accuracy_ok"]+=1
+                    a["refs"]["accuracy"].append(str(path))
                 a["operational_evidence_total"]+=1
                 if structured and delivered:a["operational_evidence_ok"]+=1
                 a["refs"]["evidence_quality"].append(str(path))
@@ -283,9 +284,10 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
                     bool(str(x.get("workflow_run_id") or ""))
                 )
                 a=agg["sentinel"]
-                a["operational_accuracy_total"]+=1
-                if verdict=="PASS":a["operational_accuracy_ok"]+=1
-                a["refs"]["accuracy"].append(str(path))
+                if cfg.get("accuracy_inference") is True:
+                    a["operational_accuracy_total"]+=1
+                    if verdict=="PASS":a["operational_accuracy_ok"]+=1
+                    a["refs"]["accuracy"].append(str(path))
                 a["operational_evidence_total"]+=1
                 if structured and delivered:a["operational_evidence_ok"]+=1
                 a["refs"]["evidence_quality"].append(str(path))
