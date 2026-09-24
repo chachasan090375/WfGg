@@ -1,8 +1,8 @@
 {
   "schema": "chacha.dev/intendant-authority-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "role": "intendant",
-  "scope": "COST_RESOURCES",
+  "scope": "COST_RESOURCES_PLATFORM_HYGIENE",
   "local_probe_role": "intendant",
   "accept_severities": [
     "INFO",
@@ -19,7 +19,12 @@
     "cost_signal_is_advisory_until_verified": true,
     "resource_exhaustion_can_block": true,
     "cheaper_option_must_remain_technically_admissible": true,
-    "technology_watch_used_for_material_cost_architecture_tradeoff": true
+    "technology_watch_used_for_material_cost_architecture_tradeoff": true,
+    "platform_hygiene_planning": true,
+    "release_retirement_planning": true,
+    "physical_deletion_execution_owner": "central-orchestrator",
+    "intendant_direct_mutation": false,
+    "source_code_retirement_is_review_only": true
   },
   "direct_mutation": false
 }
