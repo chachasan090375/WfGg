@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-fleet-observatory-policy/v1",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "purpose": "Build evidence-backed agent metrics from ChaCha DEV runtime artifacts without assigning scores to unmeasured dimensions.",
   "runtime_sources": {
     "task_graphs": "plans/**/*.task-graph.json",
@@ -253,6 +253,14 @@
       "coverage"
     ],
     "accuracy_inference": false,
-    "automatic_external_spend_eur": 0
+    "automatic_external_spend_eur": 0,
+    "require_subject_agent_binding": true,
+    "required_subject_agent": "technology-radar-agent",
+    "subject_agent_sources": [
+      "dispatch_envelope.task.subject_agent",
+      "dispatch_envelope.task.agent_id",
+      "dispatch_envelope.task.owner_role"
+    ],
+    "provider_binding_alone_is_agent_attribution": false
   }
 }
