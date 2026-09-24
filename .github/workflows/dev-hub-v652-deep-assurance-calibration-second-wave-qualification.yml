@@ -6,6 +6,7 @@ on:
       - dev-hub-v652-deep-assurance-calibration-second-adapter-wave
     paths:
       - 'dev-hub/bin/agent_benchmark_adapters.py'
+      - 'dev-hub/bin/install-v652-deep-assurance-second-wave.sh'
       - 'dev-hub/bin/agent_benchmark_oracles.py'
       - 'dev-hub/bin/agent_benchmark_adapter_runner.py'
       - 'dev-hub/bin/agent_benchmark_evidence_promoter.py'
@@ -35,6 +36,7 @@ jobs:
           set -euo pipefail
           python3 -m py_compile dev-hub/bin/agent_benchmark_adapters.py dev-hub/bin/agent_benchmark_oracles.py dev-hub/bin/agent_benchmark_adapter_runner.py dev-hub/bin/agent_benchmark_evidence_promoter.py dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v652_deep_assurance_second_wave.py
           python3 -m json.tool dev-hub/config/agent-benchmark-adapters.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v652-deep-assurance-second-wave.sh
           bash -n dev-hub/bin/install-v652-deep-assurance-calibration-second-wave.sh
           grep -Fq '"version":"6.52.0"' dev-hub/bin/autonomous-project-orchestrator.py
       - name: V6.52 deep calibration and second wave
@@ -74,5 +76,6 @@ jobs:
             echo 'CANONICAL_OBSERVATION_BUS_WRITE=NO'
             echo 'DIRECT_AGENT_MUTATION=NO'
             echo 'ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES'
+            echo 'REAL_VPS_PILOT_INSTALLER=VALIDATED'
             echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
           } | tee /tmp/v652-receipt.txt
