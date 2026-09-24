@@ -2,8 +2,7 @@
 Description=ChaCha DEV Intendant single hygiene scheduler
 
 [Timer]
-OnBootSec=10min
-OnUnitActiveSec=1h
+OnCalendar=hourly
 RandomizedDelaySec=10min
 AccuracySec=5min
 Persistent=true
