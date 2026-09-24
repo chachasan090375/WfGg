@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/progress-reporting-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scope": "PLATFORM_GLOBAL",
   "runtime_state": "/opt/chacha-dev/runtime/progress/progress.json",
   "stale_after_seconds": 1800,
@@ -33,6 +33,13 @@
     "idle_modules_must_not_fake_progress": true,
     "progress_has_no_execution_authority": true,
     "progress_has_no_mutation_authority": true,
-    "automatic_external_spend_eur": 0
+    "automatic_external_spend_eur": 0,
+    "global_maturity_and_active_work_are_distinct": true
+  },
+  "platform_maturity": {
+    "percent": 86,
+    "label": "ChaCha DEV global",
+    "update_mode": "EXPLICIT_GOVERNED_UPDATE",
+    "active_work_must_never_overwrite": true
   }
 }
