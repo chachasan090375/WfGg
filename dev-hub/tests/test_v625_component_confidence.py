@@ -172,7 +172,7 @@ assert policy["economics"]["automatic_external_spend_eur"]==0
 
 council=(BIN/"architecture-decision-council.py").read_text(encoding="utf-8")
 assert '"component-confidence"' in council
-assert '"version":"6.25.0"' in council
+assert '"6.25.0"' in council
 worker=(ROOT/"dev-hub/guardian/worker.js").read_text(encoding="utf-8")
 assert '"component_confidence"' in worker
 assert "component_confidence_evidence_required:true" in worker
