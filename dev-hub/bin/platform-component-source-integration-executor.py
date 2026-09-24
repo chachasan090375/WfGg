@@ -225,14 +225,15 @@ def validate_rollback_receipt(receipt:dict[str,Any],plan:dict[str,Any])->None:
 
 def execute(planner:dict[str,Any],handoff:dict[str,Any],registry:dict[str,Any],repo_root:Path,
             runs:dict[str,Any],adapter_provider=None,guardian_provider=None,
-            handoff_consumer=None,runtime_root:Path|None=None)->dict[str,Any]:
+            handoff_consumer=None,runtime_root:Path|None=None,stop_provider=None)->dict[str,Any]:
     validated=validate_inputs(planner,handoff,registry)
     if not validated["ok"]:
         return {"schema":SCHEMA,"status":"BLOCKED_INPUT","blockers":validated["blockers"],
                 "source_release_candidate_integrated":False,"rollback_attempted":False,
                 "production_activation_allowed":False,"production_deployment_allowed":False,
                 "merge_to_production_branch_allowed":False,"automatic_external_spend_eur":0}
-    if stop_active():raise RuntimeError("CHACHA_DEV_EMERGENCY_STOP_ACTIVE")
+    stop_provider=stop_provider or stop_active
+    if stop_provider():raise RuntimeError("CHACHA_DEV_EMERGENCY_STOP_ACTIVE")
     plan=validated["plan"];adapter=validated["adapter"]
     handoff_consumer=handoff_consumer or consume_handoff
     runtime_root=runtime_root or Path("/opt/chacha-dev/runtime/platform-component-source-integration")
