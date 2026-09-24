@@ -22,8 +22,9 @@ jobs:
       - name: Static V7 validation
         run: |
           set -euo pipefail
-          python3 -m py_compile             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/intendant-platform-consolidator.py             dev-hub/bin/intendant-hygiene-cycle.py             dev-hub/bin/central-platform-hygiene-executor.py             dev-hub/bin/architecture-council-platform-consolidation-v7.py             dev-hub/bin/build-v7-runtime-release.py             dev-hub/tests/test_v700_consolidated_platform_baseline.py             dev-hub/tests/test_v710_intendant_hygiene_cycle.py
+          python3 -m py_compile             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/human-interface-gateway.py             dev-hub/bin/intendant-platform-consolidator.py             dev-hub/bin/intendant-hygiene-cycle.py             dev-hub/bin/central-platform-hygiene-executor.py             dev-hub/bin/architecture-council-platform-consolidation-v7.py             dev-hub/bin/build-v7-runtime-release.py             dev-hub/tests/test_v700_consolidated_platform_baseline.py             dev-hub/tests/test_v710_intendant_hygiene_cycle.py
           python3 -m json.tool dev-hub/config/platform-consolidation.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/human-interface-gateway.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/intendant-hygiene-cycle.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/platform-baseline.v7.json >/dev/null
           grep -Eq '"version":"7\.[0-9]+\.[0-9]+"' dev-hub/bin/autonomous-project-orchestrator.py
@@ -54,6 +55,15 @@ jobs:
           grep -Fq 'CHACHA_DEV_V710_REALTIME_GUARDIAN_GATE=PASS' /tmp/v710.out
           grep -Fq 'CHACHA_DEV_V710_REMOTE_BRANCH_AUTO_DELETE=NO' /tmp/v710.out
           grep -Fq 'CHACHA_DEV_V710_SOURCE_CODE_AUTO_DELETE=NO' /tmp/v710.out
+
+      - name: V7.2 human interface gateway qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v720_human_interface_gateway.py | tee /tmp/v720.out
+          grep -Fq 'CHACHA_DEV_V720_HUMAN_INTERFACE_GATEWAY=PASS' /tmp/v720.out
+          grep -Fq 'CHACHA_DEV_V720_GO_CONTINUES_PRIOR_BRAIN_RECEIPT=PASS' /tmp/v720.out
+          grep -Fq 'CHACHA_DEV_V720_BRAIN_UNAVAILABLE_FAIL_CLOSED=PASS' /tmp/v720.out
+          grep -Fq 'CHACHA_DEV_V720_INTERFACE_TECHNICAL_DECISION_AUTHORITY=NO' /tmp/v720.out
 
       - name: Critical historical invariants
         run: |
