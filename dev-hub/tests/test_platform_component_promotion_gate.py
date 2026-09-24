@@ -14,8 +14,10 @@ approval_id="platform-component-promotion:central-orchestrator:abc"
 evidence="architecture-council-platform-review:"+digest
 review={
  "schema":"chacha.dev/architecture-council-platform-component-review/v1",
- "component_id":"central-orchestrator",
+ "component_id":"central-orchestrator","candidate_owner":"branch-foundry",
  "candidate_revision":"abc","incumbent_revision":"def",
+ "candidate_artifact_ref":"git:candidate@abc","incumbent_artifact_ref":"git:incumbent@def",
+ "qualification_workflow_name":"ChaCha DEV universal evolution coverage sync qualification",
  "technical_review_passed":True,
  "architecture_council_technical_admissibility":True,
  "technical_review_digest":digest,
@@ -56,6 +58,8 @@ base_ledger={
 awaiting=gate.evaluate(review,status,json.loads(json.dumps(base_state)),json.loads(json.dumps(base_ledger)))
 assert awaiting["status"]=="AWAITING_HUMAN_APPROVAL",awaiting
 assert awaiting["promotion_authorized"] is False,awaiting
+assert awaiting["controlled_apply_contract_created"] is False,awaiting
+assert awaiting["controlled_apply_contract"] is None,awaiting
 assert awaiting["human_approval_record_present"] is False,awaiting
 assert awaiting["production_activation_allowed"] is False,awaiting
 
@@ -67,6 +71,7 @@ bad=gate.evaluate(review,status,bad_state,bad_ledger)
 assert bad["status"]=="BLOCKED",bad
 assert bad["checks"]["ledger_approval_actor_human"] is False,bad
 assert bad["promotion_authorized"] is False,bad
+assert bad["controlled_apply_contract"] is None,bad
 
 # A real human approval with exact evidence in both ledger and projection authorizes controlled apply only.
 human_state=json.loads(json.dumps(base_state));human_ledger=json.loads(json.dumps(base_ledger))
@@ -82,6 +87,21 @@ assert ok["automatic_apply"] is False,ok
 assert ok["production_activation_allowed"] is False,ok
 assert ok["production_deployment_requires_separate_controlled_handoff"] is True,ok
 assert ok["central_orchestrator_remains_apply_authority"] is True,ok
+assert ok["controlled_apply_contract_created"] is True,ok
+apply=ok["controlled_apply_contract"]
+assert apply["schema"]=="chacha.dev/platform-component-controlled-apply-contract/v1",apply
+assert apply["apply_mode"]=="SOURCE_RELEASE_CANDIDATE_INTEGRATION",apply
+assert apply["source_candidate_integration_authorized"] is True,apply
+assert apply["candidate_owner"]=="branch-foundry",apply
+assert apply["candidate_revision"]=="abc" and apply["incumbent_revision"]=="def",apply
+assert apply["candidate_artifact_ref"]=="git:candidate@abc",apply
+assert apply["qualification_workflow_name"]=="ChaCha DEV universal evolution coverage sync qualification",apply
+assert apply["automatic_apply"] is False,apply
+assert apply["direct_runtime_mutation_authorized"] is False,apply
+assert apply["production_activation_authorized"] is False,apply
+assert apply["production_deployment_authorized"] is False,apply
+assert apply["merge_to_production_branch_authorized"] is False,apply
+assert apply["rollback_required"] is True,apply
 
 # Exact evidence mismatch fails closed.
 mismatch_state=json.loads(json.dumps(human_state));mismatch_ledger=json.loads(json.dumps(human_ledger))
@@ -113,6 +133,8 @@ print("CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_NO_APPROVAL=AWAIT")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_SYSTEM_APPROVAL=BLOCKED")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_HUMAN_APPROVAL=VERIFIED")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_CONTROLLED_APPLY_REQUIRED=YES")
+print("CHACHA_DEV_PLATFORM_COMPONENT_CONTROLLED_APPLY_CONTRACT=PASS")
+print("CHACHA_DEV_PLATFORM_COMPONENT_CONTROLLED_APPLY_SCOPE=SOURCE_RELEASE_CANDIDATE_ONLY")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_AUTOMATIC_APPLY=NO")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_PRODUCTION_ACTIVATION=NO")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_GUARDIAN_COVERAGE=PASS")
