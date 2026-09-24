@@ -1,0 +1,70 @@
+{
+  "schema": "chacha.dev/capability-trust-graduation-policy/v1",
+  "version": "1.0.0",
+  "purpose": "Graduate durable capability trust from verified outcomes across distinct projects without replay inflation or privilege escalation.",
+  "thresholds": {
+    "candidate_min_distinct_success_projects": 0,
+    "provisional_min_distinct_success_projects": 1,
+    "trusted_min_distinct_success_projects": 3,
+    "maximum_distinct_failure_projects_for_trusted": 0,
+    "maximum_distinct_incident_projects_for_trusted": 0,
+    "recovery_fresh_distinct_success_projects_required": 2
+  },
+  "evidence": {
+    "exact_capability_lineage_required": true,
+    "project_id_required": true,
+    "verification_status_required": "VERIFIED",
+    "project_control_committed_proof_required": true,
+    "replay_same_project_does_not_increase_success_count": true,
+    "absence_of_anomaly_is_not_success": true,
+    "negative_evidence_is_not_deduplicated_across_different_projects": true,
+    "same_project_same_action_is_counted_once": true
+  },
+  "states": [
+    "CANDIDATE",
+    "PROVISIONAL",
+    "TRUSTED",
+    "DEGRADED",
+    "QUARANTINED",
+    "RECOVERY_CANDIDATE"
+  ],
+  "negative_precedence": {
+    "critical_incident": "QUARANTINED",
+    "high_incident": "DEGRADED",
+    "verified_failure": "DEGRADED",
+    "verified_recovery": "RECOVERY_CANDIDATE"
+  },
+  "reuse": {
+    "allowed_states": [
+      "CANDIDATE",
+      "PROVISIONAL",
+      "TRUSTED"
+    ],
+    "blocked_states": [
+      "DEGRADED",
+      "QUARANTINED",
+      "RECOVERY_CANDIDATE"
+    ],
+    "unknown_confidence_does_not_auto_block": true,
+    "trusted_is_advisory_not_authority": true,
+    "technology_revalidation_required": true,
+    "architecture_council_final_authority": true,
+    "guardian_authority_preserved": true,
+    "sentinel_authority_preserved": true
+  },
+  "recovery": {
+    "explicit_verified_recovery_required": true,
+    "fresh_success_projects_must_be_after_latest_recovery": true,
+    "recovered_capability_returns_to": "PROVISIONAL",
+    "automatic_return_directly_to_trusted": false
+  },
+  "privilege": {
+    "trust_never_grants_production_permission": true,
+    "trust_never_grants_secret_permission": true,
+    "trust_never_grants_network_permission": true,
+    "protected_human_boundaries_preserved": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}
