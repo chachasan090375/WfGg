@@ -16,6 +16,7 @@ on:
       - 'dev-hub/config/universal-evolution-governance.v1.json'
       - 'dev-hub/schemas/project-intent-v1.schema.json'
       - 'dev-hub/tests/test_v770_object_factory.py'
+      - 'dev-hub/docs/PROJECT_PLANNER_V1.md'
       - '.github/workflows/dev-hub-v770-object-factory.yml'
   workflow_dispatch:
 
