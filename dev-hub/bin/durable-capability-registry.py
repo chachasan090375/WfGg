@@ -117,6 +117,32 @@ def validate_success(candidate:dict[str,Any],success:dict[str,Any],policy:dict[s
     if not isinstance(refs,list) or not refs:
         raise SystemExit("PROJECT_SUCCESS_EVIDENCE_REFS_REQUIRED")
 
+    # V6.42: a project-success declaration is not self-authenticating. It must
+    # be backed by a committed Project Control verify-result transaction and
+    # the verified task result referenced by that transaction.
+    receipt_path=Path(str(success.get("project_control_receipt") or ""))
+    if not receipt_path.is_file():
+        raise SystemExit("PROJECT_CONTROL_VERIFICATION_RECEIPT_REQUIRED")
+    receipt=load(receipt_path)
+    if receipt.get("schema")!="chacha.dev/control-transaction-receipt/v1":
+        raise SystemExit("PROJECT_CONTROL_RECEIPT_SCHEMA_INVALID")
+    if receipt.get("project")!=candidate["project_id"] or receipt.get("operation")!="verify-result":
+        raise SystemExit("PROJECT_CONTROL_RECEIPT_SCOPE_INVALID")
+    if receipt.get("status")!="COMMITTED" or receipt.get("verification_status")!="VERIFIED":
+        raise SystemExit("PROJECT_CONTROL_VERIFICATION_NOT_COMMITTED")
+    verified_path=Path(str(receipt.get("verified_result") or ""))
+    if not verified_path.is_file():
+        raise SystemExit("PROJECT_CONTROL_VERIFIED_RESULT_MISSING")
+    verified=load(verified_path)
+    if verified.get("project")!=candidate["project_id"] or verified.get("status")!="OK":
+        raise SystemExit("PROJECT_CONTROL_VERIFIED_RESULT_SCOPE_INVALID")
+    verification=verified.get("verification") if isinstance(verified.get("verification"),dict) else {}
+    if verification.get("status")!="VERIFIED":
+        raise SystemExit("PROJECT_CONTROL_VERIFIED_RESULT_STATUS_INVALID")
+    expected_task=str(success.get("verified_task_id") or "")
+    if expected_task and verified.get("task_id")!=expected_task:
+        raise SystemExit("PROJECT_CONTROL_VERIFIED_TASK_MISMATCH")
+
     protected=bool(candidate.get("production_capable") or candidate.get("credentials_required") or candidate.get("network_access"))
     if protected:
         a=human_approval or {}
