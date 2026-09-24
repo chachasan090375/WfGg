@@ -1,0 +1,89 @@
+name: ChaCha DEV V6.43 multi-project trust graduation qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v643-multi-project-trust-graduation
+    paths:
+      - 'dev-hub/bin/capability-trust-observer.py'
+      - 'dev-hub/bin/component-confidence-engine.py'
+      - 'dev-hub/bin/durable-capability-registry.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/capability-trust-graduation.v1.json'
+      - 'dev-hub/config/component-confidence.v1.json'
+      - 'dev-hub/tests/test_v643_multi_project_trust_graduation.py'
+      - 'dev-hub/tests/test_v642_durable_capability_adoption.py'
+      - 'dev-hub/tests/test_v625_component_confidence.py'
+      - '.github/workflows/dev-hub-v643-multi-project-trust-graduation-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/capability-trust-observer.py             dev-hub/bin/component-confidence-engine.py             dev-hub/bin/durable-capability-registry.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/tests/test_v643_multi_project_trust_graduation.py
+          python3 -m json.tool dev-hub/config/capability-trust-graduation.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/component-confidence.v1.json >/dev/null
+
+      - name: V6.43 multi-project trust graduation
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v643_multi_project_trust_graduation.py | tee /tmp/v643.out
+          grep -Fq 'CHACHA_DEV_V643_PROJECT_CONTROL_VERIFIED_OBSERVATION=PASS' /tmp/v643.out
+          grep -Fq 'CHACHA_DEV_V643_DISTINCT_PROJECT_COUNTING=PASS' /tmp/v643.out
+          grep -Fq 'CHACHA_DEV_V643_REPLAY_TRUST_INFLATION=NO' /tmp/v643.out
+          grep -Fq 'CHACHA_DEV_V643_THREE_DISTINCT_PROJECTS_TRUSTED=PASS' /tmp/v643.out
+          grep -Fq 'CHACHA_DEV_V643_CRITICAL_INCIDENT_QUARANTINE=PASS' /tmp/v643.out
+          grep -Fq 'CHACHA_DEV_V643_NEGATIVE_TRUST_REMOVED_FROM_REUSE=PASS' /tmp/v643.out
+          grep -Fq 'CHACHA_DEV_V643_VERIFIED_RECOVERY_FRESH_EVIDENCE_REQUIRED=PASS' /tmp/v643.out
+          grep -Fq 'CHACHA_DEV_V643_RECOVERY_RETURNS_PROVISIONAL_NOT_TRUSTED=PASS' /tmp/v643.out
+          grep -Fq 'CHACHA_DEV_V643_TRUST_PERMISSION_ESCALATION=NO' /tmp/v643.out
+          grep -Fq 'CHACHA_DEV_V643_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v643.out
+
+      - name: V6.42 regression
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v642_durable_capability_adoption.py | tee /tmp/v642.out
+          grep -Fq 'CHACHA_DEV_V642_VERIFIED_SUCCESS_BEFORE_ADOPTION=PASS' /tmp/v642.out
+          grep -Fq 'CHACHA_DEV_V642_CROSS_PROJECT_REUSE_WITHOUT_REBUILD=PASS' /tmp/v642.out
+          grep -Fq 'CHACHA_DEV_V642_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v642.out
+
+      - name: V6.25 confidence regression
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v625_component_confidence.py | tee /tmp/v625.out
+          grep -Fq 'CHACHA_DEV_V625_THREE_SUCCESS_TRUSTED=PASS' /tmp/v625.out
+          grep -Fq 'CHACHA_DEV_V625_CRITICAL_ANOMALY_QUARANTINE=PASS' /tmp/v625.out
+          grep -Fq 'CHACHA_DEV_V625_RECOVERY_NOT_AUTO_READOPT=PASS' /tmp/v625.out
+          grep -Fq 'CHACHA_DEV_V625_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v625.out
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo 'CHACHA_DEV_V643_QUALIFICATION=PASS'
+            echo 'PROJECT_CONTROL_VERIFIED_CAPABILITY_OUTCOMES=YES'
+            echo 'DISTINCT_PROJECT_COUNTING=YES'
+            echo 'SAME_PROJECT_REPLAY_INFLATION=NO'
+            echo 'THREE_DISTINCT_SUCCESS_PROJECTS_TRUSTED=YES'
+            echo 'CRITICAL_INCIDENT_QUARANTINE=YES'
+            echo 'NEGATIVE_TRUST_REMOVED_FROM_REUSE=YES'
+            echo 'RECOVERY_REQUIRES_FRESH_VERIFIED_PROJECTS=YES'
+            echo 'RECOVERY_RETURNS_PROVISIONAL=YES'
+            echo 'TRUST_PERMISSION_ESCALATION=NO'
+            echo 'TECHNOLOGY_WATCH_REQUIRED=YES'
+            echo 'ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES'
+            echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
+          } | tee /tmp/v643-qualification-receipt.txt
