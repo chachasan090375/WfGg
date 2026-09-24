@@ -66,7 +66,7 @@ evidence_tail=installer[installer.index("stage evidence"):]
 assert '[ "$PURGE_COMMITTED" -eq 1 ]' not in evidence_tail
 
 src=(BIN/"autonomous-project-orchestrator.py").read_text()
-assert any(v in src for v in ('"version":"7.1.0"','"version":"7.2.0"','"version":"7.3.0"')),src[-5000:]
+assert any(v in src for v in ('"version":"7.1.0"','"version":"7.2.0"','"version":"7.3.0"','"version":"7.8.0"')),src[-5000:]
 
 with tempfile.TemporaryDirectory(prefix="v710-hygiene-") as td:
     td=Path(td)
