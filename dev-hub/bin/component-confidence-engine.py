@@ -66,6 +66,86 @@ def confidence_state(*,success:int,failure:int,incidents:int,high:int,critical:i
     eligible=state not in excluded
     return state,score,eligible
 
+def capability_project_stats(db:sqlite3.Connection)->dict[tuple[str,str,str],dict[str,Any]]:
+    tables={str(r[0]) for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+    if "processed_feedback" not in tables:return {}
+    rows=db.execute("""SELECT component_id,version,action,observed_at,detail
+                       FROM processed_feedback
+                       WHERE component_kind='capability'
+                       ORDER BY observed_at,delta_id""").fetchall()
+    out={}
+    for cid,ver,action,observed_at,detail_raw in rows:
+        try:detail=json.loads(detail_raw)
+        except Exception:continue
+        project_id=str(detail.get("project_id") or "")
+        if not project_id:continue
+        key=("capability",str(cid),str(ver))
+        x=out.setdefault(key,{
+          "success_projects":set(),"failure_projects":set(),"incident_projects":set(),
+          "high_projects":set(),"critical_projects":set(),"recovery_projects":set(),
+          "success_events":[],"latest_recovery_at":None
+        })
+        action=str(action or "")
+        observed=str(observed_at or "")
+        if action=="VERIFIED_SUCCESS":
+            x["success_projects"].add(project_id);x["success_events"].append((project_id,observed))
+        elif action=="VERIFIED_FAILURE":
+            x["failure_projects"].add(project_id)
+        elif action=="INCIDENT":
+            x["incident_projects"].add(project_id)
+            sev=str(detail.get("severity") or "").lower()
+            if sev=="critical":x["critical_projects"].add(project_id)
+            elif sev=="high":x["high_projects"].add(project_id)
+        elif action=="VERIFIED_RECOVERY":
+            x["recovery_projects"].add(project_id)
+            if not x["latest_recovery_at"] or observed>x["latest_recovery_at"]:
+                x["latest_recovery_at"]=observed
+    for x in out.values():
+        recovery_at=x["latest_recovery_at"]
+        fresh={pid for pid,ts in x["success_events"] if recovery_at and ts>recovery_at}
+        x["fresh_success_projects_after_recovery"]=fresh
+    return out
+
+def capability_confidence_state(*,x:dict[str,Any],policy:dict[str,Any])->tuple[str,float,bool]:
+    c=policy.get("capability_multi_project") or {}
+    t=policy["trust"]
+    success=int(x["success"]);failure=int(x["failure"]);incidents=int(x["incidents"])
+    high=int(x["high"]);critical=int(x["critical"]);recovery=int(x["recovery"])
+    weighted_negative=failure + high*int(t["high_anomaly_weight"]) + critical*int(t["critical_anomaly_weight"])
+    alpha=float(t["prior_positive"])+success
+    beta=float(t["prior_negative"])+weighted_negative
+    posterior=alpha/max(alpha+beta,1.0)
+    needed=max(1,int(c.get("minimum_distinct_success_projects_for_trusted") or t["minimum_verified_successes_for_trusted"]))
+    explicit=success+failure+incidents+recovery
+    maturity=min(1.0,explicit/needed)
+    score=round(max(0.0,min(1.0,posterior*(0.5+0.5*maturity))),4)
+    cs=str(x.get("current_state") or "")
+    if cs=="QUARANTINED":
+        state="QUARANTINED"
+    elif cs=="DEGRADED":
+        state="DEGRADED"
+    elif cs=="RECOVERY_CANDIDATE":
+        fresh=int(x.get("fresh_success_after_recovery") or 0)
+        if fresh>=int(c.get("recovery_fresh_distinct_success_projects_required") or 2):
+            state=str(c.get("recovery_returns_to") or "PROVISIONAL")
+        else:
+            state="RECOVERY_CANDIDATE"
+    elif critical>0:
+        state="QUARANTINED"
+    elif high>0 or failure>0:
+        state="DEGRADED"
+    elif (success>=int(c.get("minimum_distinct_success_projects_for_trusted") or 3)
+          and failure<=int(c.get("maximum_distinct_failure_projects_for_trusted") or 0)
+          and incidents<=int(c.get("maximum_distinct_incident_projects_for_trusted") or 0)):
+        state="TRUSTED"
+    elif success>=int(c.get("minimum_distinct_success_projects_for_provisional") or 1):
+        state="PROVISIONAL"
+    else:
+        state="CANDIDATE"
+    blocked=set((c.get("blocked_states") or policy["reuse"]["exclude_states_from_fast_reuse"]))
+    eligible=state not in blocked
+    return state,score,eligible
+
 def collect_feedback(path:Path)->dict[tuple[str,str,str],dict[str,Any]]:
     out={}
     if not path.is_file():return out
@@ -85,6 +165,21 @@ def collect_feedback(path:Path)->dict[tuple[str,str,str],dict[str,Any]]:
           "current_state":str(r[10] or "OBSERVED"),"last_seen_at":r[11],
           "evidence_source":"LINEAGE_REPUTATION"
         }
+    distinct=capability_project_stats(db)
+    for key,stats in distinct.items():
+        x=out.get(key)
+        if x is None:continue
+        x["success"]=len(stats["success_projects"])
+        x["failure"]=len(stats["failure_projects"])
+        x["incidents"]=len(stats["incident_projects"])
+        x["high"]=len(stats["high_projects"])
+        x["critical"]=len(stats["critical_projects"])
+        x["recovery"]=len(stats["recovery_projects"])
+        x["fresh_success_after_recovery"]=len(stats["fresh_success_projects_after_recovery"])
+        x["distinct_project_count"]=len(
+          stats["success_projects"]|stats["failure_projects"]|stats["incident_projects"]|stats["recovery_projects"]
+        )
+        x["evidence_source"]="LINEAGE_REPUTATION_DISTINCT_PROJECTS"
     return out
 
 def add_legacy_registry(out:dict[tuple[str,str,str],dict[str,Any]],path:Path,kind:str)->None:
@@ -137,8 +232,11 @@ def build(args)->dict[str,Any]:
     rows=[]
     for key in sorted(raw):
         x=raw[key]
-        state,score,eligible=confidence_state(success=x["success"],failure=x["failure"],incidents=x["incidents"],
-          high=x["high"],critical=x["critical"],recovery=x["recovery"],current_state=x["current_state"],policy=policy)
+        if x["kind"]=="capability" and bool((policy.get("capability_multi_project") or {}).get("enabled")):
+            state,score,eligible=capability_confidence_state(x=x,policy=policy)
+        else:
+            state,score,eligible=confidence_state(success=x["success"],failure=x["failure"],incidents=x["incidents"],
+              high=x["high"],critical=x["critical"],recovery=x["recovery"],current_state=x["current_state"],policy=policy)
         rows.append({
           "schema":"chacha.dev/component-confidence-item/v1",
           "component_kind":x["kind"],"component_id":x["component_id"],"version":x["version"],
@@ -148,6 +246,9 @@ def build(args)->dict[str,Any]:
           "verified_recovery_count":x["recovery"],"evidence_count":x["success"]+x["failure"]+x["incidents"]+x["recovery"],
           "observation_count":x["observations"],"evidence_source":x["evidence_source"],
           "reuse_advisory_eligible":eligible,"last_seen_at":x["last_seen_at"],
+          "distinct_project_count":int(x.get("distinct_project_count") or 0) if x["kind"]=="capability" else None,
+          "fresh_success_projects_after_recovery":int(x.get("fresh_success_after_recovery") or 0) if x["kind"]=="capability" else None,
+          "project_distinct_counting":x["kind"]=="capability",
           "confidence_is_advisory":True,"technology_revalidation_required":True
         })
     counts={}
@@ -158,6 +259,8 @@ def build(args)->dict[str,Any]:
           "negative_state_count":sum(1 for x in rows if x["state"] in {"DEGRADED","QUARANTINED","RECOVERY_CANDIDATE"}),
           "items":rows,"confidence_is_advisory_not_final_authority":True,
           "absence_of_anomaly_is_not_success":True,"technology_revalidation_required":True,
+          "capability_project_distinct_counting":True,
+          "capability_replay_does_not_inflate_trust":True,
           "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
     snap["snapshot_digest"]=digest(snap)
     db=db_open(args.db)
