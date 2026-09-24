@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/technology-core-watch/v1",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "purpose": "Continuously monitor the technology health and debt of ChaCha DEV itself.",
   "components": [
     {
@@ -201,6 +201,11 @@
     {
       "id": "native-update-publisher",
       "class": "verification",
+      "criticality": "critical"
+    },
+    {
+      "id": "android-release-signer",
+      "class": "security",
       "criticality": "critical"
     }
   ],
