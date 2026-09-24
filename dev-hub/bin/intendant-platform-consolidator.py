@@ -59,17 +59,31 @@ def latest_for_revision(rows:list[dict[str,Any]],revision:str)->dict[str,Any]|No
     hits=[x for x in rows if x["revision"]==revision]
     return sorted(hits,key=lambda x:x["name"])[-1] if hits else None
 
-def verified_revisions(evidence_root:Path)->set[str]:
-    out=set()
+def _evidence_epoch(x:dict[str,Any],path:Path)->float:
+    for key in ("observed_at","generated_at","applied_at","executed_at"):
+        raw=str(x.get(key) or "").strip()
+        if not raw:continue
+        try:
+            if len(raw)==16 and raw.endswith("Z") and "T" in raw and "-" not in raw:
+                return datetime.strptime(raw,"%Y%m%dT%H%M%SZ").replace(tzinfo=timezone.utc).timestamp()
+            return datetime.fromisoformat(raw.replace("Z","+00:00")).timestamp()
+        except Exception:
+            continue
+    try:return path.stat().st_mtime
+    except Exception:return 0.0
+
+def verified_revision_ranks(evidence_root:Path)->dict[str,float]:
+    out={}
     if not evidence_root.is_dir():return out
     for p in evidence_root.rglob("*.json"):
         try:
             x=load(p)
         except Exception:
             continue
-        rev=str(x.get("revision") or "")
-        if len(rev)==40 and all(ch in "0123456789abcdef" for ch in rev.lower()):
-            out.add(rev.lower())
+        rev=str(x.get("revision") or "").lower()
+        if len(rev)!=40 or not all(ch in "0123456789abcdef" for ch in rev):continue
+        rank=_evidence_epoch(x,p)
+        if rank>out.get(rev,0.0):out[rev]=rank
     return out
 
 def approval_ok(path:Path|None,active_revision:str)->tuple[bool,list[str]]:
@@ -106,20 +120,26 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
     slots=int(retention.get("rollback_slots") or 2)
     strategy=str(retention.get("rollback_selection_strategy") or "MOST_RECENT_VERIFIED_PRIOR_RELEASES")
     evidence_root=evidence_root or Path(str(retention.get("verification_evidence_root") or "/opt/chacha-dev/evidence"))
-    verified=verified_revisions(evidence_root)
-    selected=[]
+    verified_ranks=verified_revision_ranks(evidence_root)
+    verified=set(verified_ranks)
+    selected=[];seen=set()
     if strategy=="MOST_RECENT_VERIFIED_PRIOR_RELEASES":
-        seen=set()
-        for row in sorted(rows,key=lambda x:x["name"],reverse=True):
-            rev=str(row.get("revision") or "").lower()
-            if row["path"]==active_path or rev==str(active_revision or "").lower() or not rev or rev in seen or rev not in verified:continue
+        candidates=[]
+        for rev,rank in verified_ranks.items():
+            if rev==str(active_revision or "").lower():continue
+            hit=latest_for_revision(rows,rev)
+            if hit is not None:candidates.append((rank,rev,hit))
+        for rank,rev,row in sorted(candidates,key=lambda x:(x[0],x[1]),reverse=True):
+            if rev in seen:continue
             selected.append(row);seen.add(rev)
             if len(selected)>=slots:break
     for rev in retention.get("fallback_verified_rollback_revisions") or []:
         if len(selected)>=slots:break
-        hit=latest_for_revision(rows,str(rev))
-        if hit and hit["path"]!=active_path and all(x["path"]!=hit["path"] for x in selected):
-            selected.append(hit)
+        rev=str(rev).lower()
+        if rev==str(active_revision or "").lower() or rev in seen:continue
+        hit=latest_for_revision(rows,rev)
+        if hit and hit["path"]!=active_path:
+            selected.append(hit);seen.add(rev)
     for hit in selected[:slots]:
         protected_paths.add(hit["path"])
         reasons.setdefault(hit["path"],"VERIFIED_ROLLBACK")
@@ -142,6 +162,8 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
       "rollback_slots":slots,
       "rollback_revision_must_differ_from_active":True,
       "selected_rollback_revisions":[str(x.get("revision") or "") for x in selected[:slots]],
+      "selected_rollback_evidence_epochs":[verified_ranks.get(str(x.get("revision") or "").lower(),0.0) for x in selected[:slots]],
+      "rollback_selection_basis":"ACQUISITION_EVIDENCE_TIME",
       "verified_revision_count":len(verified),
       "missing_verified_rollback_count":missing_rollbacks,
       "rows":rows,
