@@ -18,6 +18,7 @@ on:
       - '.github/workflows/dev-hub-v720-human-interface-gateway-qualification.yml'
       - '.github/workflows/dev-hub-v7-platform-qualification.yml'
       - '.github/workflows/dev-hub-v7-guardian-contract-sync.yml'
+      - '.github/workflows/dev-hub-v730-direct-operator-qualification.yml'
       - '.github/workflows/dev-hub-v7-guardian-coverage-sync.yml'
   workflow_dispatch:
 
