@@ -4,10 +4,12 @@ on:
   push:
     paths:
       - 'dev-hub/**'
+      - 'android/**'
       - '.github/workflows/dev-hub-*.yml'
   pull_request:
     paths:
       - 'dev-hub/**'
+      - 'android/**'
       - '.github/workflows/dev-hub-sentinel-technical-assurance.yml'
   workflow_dispatch:
 
