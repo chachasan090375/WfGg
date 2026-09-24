@@ -240,13 +240,22 @@ assert x["physical_executor"]=="central-orchestrator",x
 assert x["intendant_direct_mutation"] is False,x
 w=next(r for r in x["results"] if r["cycle"]=="WEEKLY_DRY_RUN")
 assert w["status"] in {"PASS","WARNING"},w
-a=next((a for a in w["actions"] if a["action"]=="SAFE_RELEASE_RETIREMENT_APPLY"),None)
-assert a is not None,w
-assert a["executor"]=="central-orchestrator",a
-assert a["guardian_post_action"] is True,a
+dry=next((a for a in w["actions"] if a["action"]=="RELEASE_RETIREMENT_DRY_RUN"),None)
+assert dry is not None,w
+retire_count=int(dry.get("retire_count") or 0)
+apply=next((a for a in w["actions"] if a["action"]=="SAFE_RELEASE_RETIREMENT_APPLY"),None)
 rels=[p for p in pathlib.Path("/opt/chacha-dev/platform/releases").iterdir() if p.is_dir()]
 assert len(rels)==3,len(rels)
-print("CHACHA_DEV_V710_REAL_GOVERNED_RETIREMENT=PASS")
+if retire_count>0:
+    assert apply is not None,w
+    assert apply["executor"]=="central-orchestrator",apply
+    assert apply["guardian_post_action"] is True,apply
+    print("CHACHA_DEV_V710_REAL_GOVERNED_RETIREMENT=PASS")
+else:
+    assert apply is None,w
+    rollbacks=list(dry.get("selected_rollback_revisions") or [])
+    assert len(rollbacks)==2,rollbacks
+    print("CHACHA_DEV_V710_REAL_GOVERNED_RETENTION=PASS_NO_RETIREMENT_NEEDED")
 PY
 PURGE_COMMITTED=1
 echo "CHACHA_DEV_V710_PURGE_COMMITTED=YES"
