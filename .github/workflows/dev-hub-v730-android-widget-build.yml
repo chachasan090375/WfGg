@@ -1,0 +1,44 @@
+name: ChaCha DEV V7.3 Android Operator Widget build
+
+on:
+  push:
+    branches:
+      - dev-hub-v730-direct-operator-android-widget
+    paths:
+      - 'android/chacha-direct-operator-widget/**'
+      - '.github/workflows/dev-hub-v730-android-widget-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.6.0'
+      - name: Build widget APK
+        run: |
+          set -euo pipefail
+          gradle -p android/chacha-direct-operator-widget :app:assembleDebug :app:lintDebug
+          test -f android/chacha-direct-operator-widget/app/build/outputs/apk/debug/app-debug.apk
+          echo CHACHA_DEV_V730_ANDROID_WIDGET_BUILD=PASS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-dev-direct-operator-widget-debug
+          path: android/chacha-direct-operator-widget/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
