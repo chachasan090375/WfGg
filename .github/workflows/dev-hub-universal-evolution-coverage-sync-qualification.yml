@@ -20,6 +20,10 @@ on:
       - 'dev-hub/bin/platform-component-controlled-apply-planner.py'
       - 'dev-hub/tests/test_platform_component_source_integration_executor.py'
       - 'dev-hub/bin/platform-component-source-integration-executor.py'
+      - '.github/workflows/dev-hub-platform-adapter-binding-gate-qualification.yml'
+      - 'dev-hub/tests/test_platform_component_adapter_binding_gate.py'
+      - 'dev-hub/config/platform-component-adapter-binding-gate.v1.json'
+      - 'dev-hub/bin/platform-component-adapter-binding-gate.py'
       - '.github/workflows/dev-hub-platform-branch-foundry-source-integrator-qualification.yml'
       - 'dev-hub/tests/test_platform_component_branch_foundry_source_integrator.py'
       - 'dev-hub/config/platform-component-branch-foundry-source-integrator.v1.json'
@@ -71,7 +75,7 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
-          python3 -m py_compile dev-hub/bin/component_evolution_governance.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_observation_bus_health.py dev-hub/bin/platform_component_evolution_controller.py dev-hub/bin/branch-foundry-planner.py dev-hub/bin/capability-foundry.py dev-hub/tests/test_universal_evolution_coverage_sync.py dev-hub/tests/test_evolution_source_catalog_drift.py dev-hub/tests/test_platform_reassessment_routing.py dev-hub/tests/test_platform_foundry_dispatch.py dev-hub/tests/test_platform_foundry_native_reassessment.py dev-hub/tests/test_platform_shadow_idempotency.py dev-hub/tests/test_platform_pilot_readiness.py dev-hub/tests/test_platform_pilot_contract_gate.py dev-hub/tests/test_platform_component_pilot_runner.py dev-hub/bin/architecture-council-platform-component-review.py dev-hub/tests/test_architecture_council_platform_component_review.py dev-hub/bin/project-control.py dev-hub/bin/project-control-api.py dev-hub/tests/test_project_control_bootstrap.py dev-hub/bin/platform-component-promotion-gate.py dev-hub/tests/test_platform_component_promotion_gate.py dev-hub/bin/platform-component-controlled-apply-planner.py dev-hub/tests/test_platform_component_controlled_apply_planner.py dev-hub/bin/platform-component-source-integration-executor.py dev-hub/tests/test_platform_component_source_integration_executor.py dev-hub/tests/test_platform_component_apply_handoff.py dev-hub/adapters/platform-component-branch-foundry-source-integrator.py dev-hub/tests/test_platform_component_branch_foundry_source_integrator.py dev-hub/bin/adapter-provision.py dev-hub/tests/test_platform_component_branch_foundry_source_integrator_provisioning.py
+          python3 -m py_compile dev-hub/bin/component_evolution_governance.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_observation_bus_health.py dev-hub/bin/platform_component_evolution_controller.py dev-hub/bin/branch-foundry-planner.py dev-hub/bin/capability-foundry.py dev-hub/tests/test_universal_evolution_coverage_sync.py dev-hub/tests/test_evolution_source_catalog_drift.py dev-hub/tests/test_platform_reassessment_routing.py dev-hub/tests/test_platform_foundry_dispatch.py dev-hub/tests/test_platform_foundry_native_reassessment.py dev-hub/tests/test_platform_shadow_idempotency.py dev-hub/tests/test_platform_pilot_readiness.py dev-hub/tests/test_platform_pilot_contract_gate.py dev-hub/tests/test_platform_component_pilot_runner.py dev-hub/bin/architecture-council-platform-component-review.py dev-hub/tests/test_architecture_council_platform_component_review.py dev-hub/bin/project-control.py dev-hub/bin/project-control-api.py dev-hub/tests/test_project_control_bootstrap.py dev-hub/bin/platform-component-promotion-gate.py dev-hub/tests/test_platform_component_promotion_gate.py dev-hub/bin/platform-component-controlled-apply-planner.py dev-hub/tests/test_platform_component_controlled_apply_planner.py dev-hub/bin/platform-component-source-integration-executor.py dev-hub/tests/test_platform_component_source_integration_executor.py dev-hub/bin/platform-component-adapter-binding-gate.py dev-hub/tests/test_platform_component_adapter_binding_gate.py dev-hub/tests/test_platform_component_apply_handoff.py dev-hub/adapters/platform-component-branch-foundry-source-integrator.py dev-hub/tests/test_platform_component_branch_foundry_source_integrator.py dev-hub/bin/adapter-provision.py dev-hub/tests/test_platform_component_branch_foundry_source_integrator_provisioning.py
           python3 -m json.tool dev-hub/config/universal-evolution-governance.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-observation-bus.v1.json >/dev/null
@@ -84,6 +88,7 @@ jobs:
           python3 -m json.tool dev-hub/config/project-control.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/control-plane-state.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/platform-component-apply-adapter-registry.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/platform-component-adapter-binding-gate.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/platform-component-branch-foundry-source-integrator.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/adapter-provisioning.v1.json >/dev/null
       - name: Guardian to evolution coverage sync
@@ -243,6 +248,19 @@ jobs:
           grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_SOURCE_INTEGRATION_RUNTIME_MUTATION=NO' /tmp/platform-source-integration.out
           grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_SOURCE_INTEGRATION_PRODUCTION_ACTIVATION=NO' /tmp/platform-source-integration.out
           grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_SOURCE_INTEGRATION_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/platform-source-integration.out
+      - name: Protected component adapter binding proposal gate
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_component_adapter_binding_gate.py | tee /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_GATE=PASS' /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_PROPOSAL=PASS' /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_EXISTING_BINDING=BLOCKED' /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_OWNER_MISMATCH=BLOCKED' /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_DIGEST_MISMATCH=BLOCKED' /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_EXACT_SHA_GATES=REQUIRED' /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_AUTHORIZED=NO' /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_MUTATION=NO' /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/platform-adapter-binding.out
       - name: Receipt
         run: |
           echo CHACHA_DEV_UNIVERSAL_EVOLUTION_COVERAGE_SYNC_QUALIFICATION=PASS
@@ -268,6 +286,8 @@ jobs:
           echo PLATFORM_COMPONENT_CONTROLLED_APPLY_PLANNER=DENY_BY_DEFAULT
           echo PLATFORM_COMPONENT_APPLY_HANDOFF=PROJECT_CONTROL_CANONICAL
           echo PLATFORM_COMPONENT_SOURCE_INTEGRATION_EXECUTOR=GUARDED
+          echo PLATFORM_COMPONENT_ADAPTER_BINDING_GATE=PROPOSAL_ONLY
+          echo PLATFORM_COMPONENT_ADAPTER_AUTOMATIC_REGISTRATION=NO
           echo SELF_MUTATION=NO
           echo SELF_PROMOTION=NO
           echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
