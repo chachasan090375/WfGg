@@ -6,6 +6,7 @@ on:
       - dev-hub-v640-capability-foundry-auto-closure
     paths:
       - 'dev-hub/bin/capability-foundry-closure.py'
+      - 'dev-hub/bin/install-v640-capability-foundry-auto-closure.sh'
       - 'dev-hub/bin/autonomous-project-orchestrator.py'
       - 'dev-hub/config/capability-foundry-closure.v1.json'
       - 'dev-hub/tests/test_v640_capability_foundry_auto_closure.py'
@@ -40,6 +41,7 @@ jobs:
             dev-hub/bin/capability-foundry-closure.py \
             dev-hub/bin/autonomous-project-orchestrator.py
           python3 -m json.tool dev-hub/config/capability-foundry-closure.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v640-capability-foundry-auto-closure.sh
 
       - name: V6.40 capability foundry auto-closure
         run: |
@@ -86,5 +88,6 @@ jobs:
             echo 'PRODUCTION_CAPABILITY_HUMAN_ADOPTION_BOUNDARY=YES'
             echo 'TECHNOLOGY_WATCH_REQUIRED=YES'
             echo 'ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES'
+            echo 'REAL_VPS_PILOT_INSTALLER=VALIDATED'
             echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
           } | tee /tmp/v640-qualification-receipt.txt
