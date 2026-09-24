@@ -28,7 +28,7 @@ jobs:
           python3 -m json.tool dev-hub/config/platform-baseline.v7.json >/dev/null
           grep -Eq '"version":"7\.[0-9]+\.[0-9]+"' dev-hub/bin/autonomous-project-orchestrator.py
           test "$(find dev-hub/systemd -maxdepth 1 -type f -name 'chacha-dev-intendant-hygiene.timer' | wc -l)" -eq 1
-          grep -Fq 'OnUnitActiveSec=1h' dev-hub/systemd/chacha-dev-intendant-hygiene.timer
+          grep -Fq 'OnCalendar=hourly' dev-hub/systemd/chacha-dev-intendant-hygiene.timer
 
       - name: V7 baseline regression
         run: |
