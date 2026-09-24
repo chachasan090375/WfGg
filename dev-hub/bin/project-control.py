@@ -1124,6 +1124,219 @@ def record_approval_operation(project: str, approval_id: str, actor: str, eviden
                         artifacts=[{"type":"control-transaction-receipt","path":str(receipt)}])
 
 
+def issue_platform_component_apply_handoff(project: str, promotion_gate: Path, planner_result: Path,
+                                           output: Path, policy: dict[str, Any], repo_root: Path) -> dict[str, Any]:
+    """Issue the single-use Central Orchestrator source-integration handoff.
+
+    This operation is platform-profile only. It independently revalidates the
+    protected human approval in both the Evidence Ledger and the control-plane
+    projection, verifies Promotion Gate + controlled-apply plan identity, then
+    records an auditable handoff event. It does not execute the integration.
+    """
+    if project!="chacha-dev-platform":
+        return response(project,"issue-platform-component-apply-handoff","BLOCKED",
+                        "Platform component apply handoff is restricted to chacha-dev-platform.",
+                        blockers=["PLATFORM_CONTROL_PROJECT_REQUIRED"])
+    if not promotion_gate.is_file() or not planner_result.is_file():
+        return response(project,"issue-platform-component-apply-handoff","BLOCKED",
+                        "Promotion Gate and controlled-apply planner evidence are required.",
+                        {"promotion_gate":str(promotion_gate),"planner_result":str(planner_result)},
+                        ["PLATFORM_APPLY_HANDOFF_INPUT_MISSING"])
+
+    try:
+        gate=load(promotion_gate);planner=load(planner_result)
+    except Exception as exc:
+        return response(project,"issue-platform-component-apply-handoff","BLOCKED",
+                        "Platform apply handoff input is invalid.",
+                        {"reason":str(exc)},["PLATFORM_APPLY_HANDOFF_INPUT_INVALID"])
+
+    controlled=gate.get("controlled_apply_contract") if isinstance(gate.get("controlled_apply_contract"),dict) else {}
+    plan=planner.get("apply_plan") if isinstance(planner.get("apply_plan"),dict) else {}
+    p=project_paths(policy,project)
+    system_actors={
+      "central-orchestrator","guardian","sentinel","curator","bastion","intendant",
+      "logician","ergonomist","architecture-council","agent-foundry","branch-foundry",
+      "capability-foundry","platform-component-pilot-runner","platform-component-promotion-gate",
+      "platform-component-controlled-apply-planner","platform-component-source-integration-executor"
+    }
+
+    with project_lock(p["lock"]):
+        pending=pending_transactions(p["transactions"])
+        if pending:
+            return response(project,"issue-platform-component-apply-handoff","BLOCKED",
+                            "A control transaction requires recovery before handoff issuance.",
+                            blockers=pending)
+        rc0,verify0,out0,err0=state_verify_raw(project,policy,repo_root)
+        if rc0!=0:
+            return response(project,"issue-platform-component-apply-handoff","BLOCKED",
+                            "Control-plane integrity failed before handoff issuance.",
+                            {"stdout":out0.strip(),"stderr":err0.strip()},
+                            ["CONTROL_PLANE_INTEGRITY_FAILED"])
+        if not p["state"].is_file() or not p["ledger"].is_file():
+            return response(project,"issue-platform-component-apply-handoff","BLOCKED",
+                            "Platform control-plane state or Evidence Ledger is missing.",
+                            blockers=["PLATFORM_CONTROL_PLANE_NOT_BOOTSTRAPPED"])
+        projection=load(p["state"]);ledger=load(p["ledger"])
+        identity=((projection.get("state") or {}).get("identity") or {})
+        bootstrap=((projection.get("state") or {}).get("evidence") or {})
+        approval_id=str(controlled.get("approval_id") or "")
+        ledger_approval=((ledger.get("approvals") or {}).get(approval_id) or {}) if approval_id else {}
+        state_approval=((((projection.get("state") or {}).get("approvals") or {}).get(approval_id) or {})
+                        if approval_id else {})
+        actor=str(ledger_approval.get("actor") or "")
+        evidence=str(ledger_approval.get("evidence") or "")
+        expected_actor=str(controlled.get("approval_actor") or "")
+        expected_evidence=str(controlled.get("approval_evidence") or "")
+        post_gate=set(str(x) for x in (controlled.get("post_apply_exact_sha_gates_required") or []) if str(x))
+        post_plan=set(str(x) for x in (plan.get("post_apply_exact_sha_gates_required") or []) if str(x))
+        checks={
+          "state_schema":projection.get("schema")==STATE_SCHEMA,
+          "ledger_schema":ledger.get("schema")==LEDGER_SCHEMA,
+          "state_project":projection.get("project")==project,
+          "ledger_project":ledger.get("project")==project,
+          "platform_profile":identity.get("control_profile")=="platform",
+          "bootstrap_marker":bootstrap.get("control_plane_ledger_initialized") is True,
+          "gate_schema":gate.get("schema")=="chacha.dev/platform-component-promotion-gate/v1",
+          "gate_status":gate.get("status")=="PROMOTION_AUTHORIZED_FOR_CONTROLLED_APPLY",
+          "gate_human_approval_verified":gate.get("human_approval_verified") is True,
+          "gate_promotion_authorized":gate.get("promotion_authorized") is True,
+          "gate_controlled_contract":controlled.get("schema")=="chacha.dev/platform-component-controlled-apply-contract/v1",
+          "gate_source_candidate_only":controlled.get("apply_mode")=="SOURCE_RELEASE_CANDIDATE_INTEGRATION",
+          "gate_central_orchestrator_required":controlled.get("central_orchestrator_apply_required") is True,
+          "gate_adapter_required":controlled.get("candidate_owner_apply_adapter_required") is True,
+          "gate_runtime_mutation_forbidden":controlled.get("direct_runtime_mutation_authorized") is False,
+          "gate_production_activation_forbidden":controlled.get("production_activation_authorized") is False,
+          "gate_production_deployment_forbidden":controlled.get("production_deployment_authorized") is False,
+          "gate_production_merge_forbidden":controlled.get("merge_to_production_branch_authorized") is False,
+          "gate_automatic_apply_forbidden":controlled.get("automatic_apply") is False,
+          "gate_rollback_required":controlled.get("rollback_required") is True,
+          "gate_guardian_post_apply_required":controlled.get("guardian_post_apply_assurance_required") is True,
+          "planner_schema":planner.get("schema")=="chacha.dev/platform-component-controlled-apply-planner/v1",
+          "planner_ready":planner.get("status")=="READY_FOR_CENTRAL_ORCHESTRATOR_APPLY",
+          "planner_plan_ready":planner.get("controlled_apply_plan_ready") is True,
+          "planner_did_not_authorize_execution":planner.get("apply_execution_authorized_by_planner") is False,
+          "plan_schema":plan.get("schema")=="chacha.dev/platform-component-controlled-apply-plan/v1",
+          "plan_source_candidate_only":plan.get("apply_mode")=="SOURCE_RELEASE_CANDIDATE_INTEGRATION",
+          "plan_adapter_present":bool(str(plan.get("adapter_id") or "")),
+          "plan_rollback_adapter_present":bool(str(plan.get("rollback_adapter_id") or "")),
+          "plan_central_orchestrator_required":plan.get("central_orchestrator_apply_required") is True,
+          "plan_runtime_mutation_forbidden":plan.get("direct_runtime_mutation") is False,
+          "plan_production_activation_forbidden":plan.get("production_activation_allowed") is False,
+          "plan_production_deployment_forbidden":plan.get("production_deployment_allowed") is False,
+          "plan_production_merge_forbidden":plan.get("merge_to_production_branch_allowed") is False,
+          "plan_rollback_required":plan.get("rollback_required") is True,
+          "component_matches":plan.get("component_id")==controlled.get("component_id") and bool(plan.get("component_id")),
+          "candidate_owner_matches":plan.get("candidate_owner")==controlled.get("candidate_owner") and bool(plan.get("candidate_owner")),
+          "candidate_revision_matches":plan.get("candidate_revision")==controlled.get("candidate_revision") and bool(plan.get("candidate_revision")),
+          "incumbent_revision_matches":plan.get("incumbent_revision")==controlled.get("incumbent_revision") and bool(plan.get("incumbent_revision")),
+          "candidate_artifact_matches":plan.get("candidate_artifact_ref")==controlled.get("candidate_artifact_ref") and bool(plan.get("candidate_artifact_ref")),
+          "incumbent_artifact_matches":plan.get("incumbent_artifact_ref")==controlled.get("incumbent_artifact_ref") and bool(plan.get("incumbent_artifact_ref")),
+          "source_qualification_matches":plan.get("source_qualification_workflow_name")==controlled.get("qualification_workflow_name") and bool(plan.get("source_qualification_workflow_name")),
+          "post_apply_gate_set_matches":bool(post_gate) and post_gate==post_plan,
+          "post_apply_sentinel_required":"ChaCha DEV Sentinel technical assurance" in post_plan,
+          "approval_id_present":bool(approval_id),
+          "ledger_approval_status":ledger_approval.get("status")=="APPROVED",
+          "ledger_approval_actor_human":bool(actor) and actor not in system_actors,
+          "ledger_approval_actor_matches":bool(expected_actor) and actor==expected_actor,
+          "ledger_approval_evidence_matches":bool(expected_evidence) and evidence==expected_evidence,
+          "state_approval_status":state_approval.get("status")=="APPROVED",
+          "state_approval_actor_matches":bool(actor) and state_approval.get("actor")==actor,
+          "state_approval_evidence_matches":bool(evidence) and state_approval.get("evidence")==evidence,
+          "planner_approval_id_matches":planner.get("approval_id")==approval_id,
+          "planner_approval_actor_matches":planner.get("approval_actor")==actor,
+          "planner_review_digest_matches":planner.get("technical_review_digest")==controlled.get("technical_review_digest") and bool(controlled.get("technical_review_digest")),
+          "zero_automatic_external_spend":float(controlled.get("automatic_external_spend_eur") or 0)==0 and float(plan.get("automatic_external_spend_eur") or 0)==0,
+        }
+        blockers=sorted(k for k,v in checks.items() if not v)
+        if blockers:
+            return response(project,"issue-platform-component-apply-handoff","BLOCKED",
+                            "Platform component apply handoff prerequisites are not satisfied.",
+                            {"checks":checks},blockers)
+
+        handoff_seed={
+          "project":project,"component_id":plan.get("component_id"),
+          "candidate_revision":plan.get("candidate_revision"),"incumbent_revision":plan.get("incumbent_revision"),
+          "adapter_id":plan.get("adapter_id"),"approval_id":approval_id,
+          "controlled_apply_plan_digest":canonical_digest(plan),
+          "technical_review_digest":controlled.get("technical_review_digest")
+        }
+        handoff_id="pcah-"+hashlib.sha256(
+          json.dumps(handoff_seed,sort_keys=True,separators=(",",":")).encode("utf-8")
+        ).hexdigest()[:24]
+        handoff={
+          "schema":"chacha.dev/platform-component-central-apply-handoff/v1",
+          "handoff_id":handoff_id,"project":project,"actor":"central-orchestrator",
+          "issued_by_project_control":True,"human_approval_verified":True,
+          "approval_id":approval_id,"approval_actor":actor,"approval_evidence":evidence,
+          "technical_review_digest":controlled.get("technical_review_digest"),
+          "promotion_gate_digest":canonical_digest(gate),"planner_result_digest":canonical_digest(planner),
+          "controlled_apply_plan_digest":canonical_digest(plan),
+          "component_id":plan.get("component_id"),"candidate_owner":plan.get("candidate_owner"),
+          "candidate_revision":plan.get("candidate_revision"),"incumbent_revision":plan.get("incumbent_revision"),
+          "candidate_artifact_ref":plan.get("candidate_artifact_ref"),"incumbent_artifact_ref":plan.get("incumbent_artifact_ref"),
+          "adapter_id":plan.get("adapter_id"),"rollback_adapter_id":plan.get("rollback_adapter_id"),
+          "adapter_qualification_workflow_name":plan.get("adapter_qualification_workflow_name"),
+          "source_qualification_workflow_name":plan.get("source_qualification_workflow_name"),
+          "post_apply_exact_sha_gates_required":list(plan.get("post_apply_exact_sha_gates_required") or []),
+          "apply_execution_authorized":True,"single_use":True,
+          "source_candidate_integration_only":True,
+          "rollback_required":True,"guardian_pre_post_required":True,"emergency_stop_required":True,
+          "direct_runtime_mutation_authorized":False,
+          "production_activation_authorized":False,"production_deployment_authorized":False,
+          "merge_to_production_branch_authorized":False,"automatic_apply":False,
+          "control_plane_state_digest":canonical_digest(projection),
+          "evidence_ledger_digest":canonical_digest(ledger),
+          "automatic_external_spend_eur":0
+        }
+
+        output=output.resolve()
+        if output.exists():
+            try:existing=load(output)
+            except Exception:
+                return response(project,"issue-platform-component-apply-handoff","BLOCKED",
+                                "Existing handoff output is invalid.",
+                                {"output":str(output)},["HANDOFF_OUTPUT_CONFLICT"])
+            if canonical_digest(existing)==canonical_digest(handoff):
+                return response(project,"issue-platform-component-apply-handoff","OK",
+                                "Identical Central Orchestrator handoff already exists.",
+                                {"handoff_id":handoff_id,"handoff":str(output),
+                                 "handoff_digest":canonical_digest(handoff),"idempotent":True},
+                                artifacts=[{"type":"platform-component-central-apply-handoff","path":str(output)}])
+            return response(project,"issue-platform-component-apply-handoff","BLOCKED",
+                            "Handoff output already exists with different content.",
+                            {"output":str(output)},["HANDOFF_OUTPUT_CONFLICT"])
+
+        with tempfile.TemporaryDirectory(prefix="chacha-platform-apply-handoff-") as td:
+            payload=Path(td)/"handoff.json";save(payload,handoff)
+            rc_evt,event_values,out_evt,err_evt=store_record(
+              project,"PLATFORM_COMPONENT_APPLY_HANDOFF_ISSUED","central-orchestrator",
+              payload,None,None,policy,repo_root
+            )
+            if rc_evt!=0:
+                return response(project,"issue-platform-component-apply-handoff","BLOCKED",
+                                "Central apply handoff audit event could not be committed.",
+                                {"stdout":out_evt[-2000:],"stderr":err_evt[-1000:]},
+                                ["PLATFORM_APPLY_HANDOFF_AUDIT_FAILED"])
+
+        rc1,verify1,out1,err1=state_verify_raw(project,policy,repo_root)
+        if rc1!=0:
+            return response(project,"issue-platform-component-apply-handoff","BLOCKED",
+                            "Handoff audit event committed but integrity recheck failed; no executable handoff was emitted.",
+                            {"stdout":out1.strip(),"stderr":err1.strip()},
+                            ["PLATFORM_APPLY_HANDOFF_INTEGRITY_UNCERTAIN"])
+
+        output.parent.mkdir(parents=True,exist_ok=True)
+        save(output,handoff)
+        return response(project,"issue-platform-component-apply-handoff","OK",
+                        "Single-use Central Orchestrator source-integration handoff issued.",
+                        {"handoff_id":handoff_id,"handoff":str(output),
+                         "handoff_digest":canonical_digest(handoff),"idempotent":False,
+                         "event_sequence":event_values.get("EVENT_SEQUENCE"),
+                         "event_digest":event_values.get("EVENT_DIGEST"),
+                         "integrity":verify1},
+                        artifacts=[{"type":"platform-component-central-apply-handoff","path":str(output)}])
+
+
 def record_control_event(project: str, event_type: str, actor: str, payload: Path | None, patch: Path | None,
                          references: Path | None, policy: dict[str, Any], repo_root: Path) -> dict[str, Any]:
     p = project_paths(policy, project)
@@ -1415,6 +1628,12 @@ def main() -> int:
     bootstrap.add_argument("--actor", default="central-orchestrator")
     bootstrap.add_argument("--profile", choices=["project","platform"], default="project")
 
+    handoff = sub.add_parser("issue-platform-component-apply-handoff")
+    handoff.add_argument("--project", required=True)
+    handoff.add_argument("--promotion-gate", type=Path, required=True)
+    handoff.add_argument("--planner-result", type=Path, required=True)
+    handoff.add_argument("--output", type=Path, required=True)
+
     approve = sub.add_parser("record-approval")
     approve.add_argument("--project", required=True)
     approve.add_argument("--approval-id", required=True)
@@ -1467,6 +1686,10 @@ def main() -> int:
                                          args.ingest, policy, args.repo_root)
     elif args.command == "bootstrap-control-plane":
         result = bootstrap_control_plane_operation(args.project,args.actor,args.profile,policy,args.repo_root)
+    elif args.command == "issue-platform-component-apply-handoff":
+        result = issue_platform_component_apply_handoff(
+          args.project,args.promotion_gate,args.planner_result,args.output,policy,args.repo_root
+        )
     elif args.command == "record-approval":
         result = record_approval_operation(args.project, args.approval_id, args.actor, args.evidence,
                                            policy, args.repo_root)
