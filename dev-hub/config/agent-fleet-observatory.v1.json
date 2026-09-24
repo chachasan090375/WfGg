@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-fleet-observatory-policy/v1",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "purpose": "Build evidence-backed agent metrics from ChaCha DEV runtime artifacts without assigning scores to unmeasured dimensions.",
   "runtime_sources": {
     "task_graphs": "plans/**/*.task-graph.json",
@@ -152,5 +152,44 @@
     ],
     "accuracy_from_adapter_promotion": false,
     "handoff_from_unverified_task_results": false
+  },
+  "golden_path_operational_evidence": {
+    "enabled": true,
+    "guardian": {
+      "glob": "golden-path-runs/**/external-assurance/guardian-functional-receipt.json",
+      "required_schema": "chacha.dev/guardian-functional-acceptance-receipt/v1",
+      "required_guardian": "external-worker",
+      "required_delivery_status": "DELIVERED",
+      "production_truth_dimensions": [
+        "accuracy",
+        "evidence_quality",
+        "handoff_quality",
+        "authority_discipline"
+      ]
+    },
+    "sentinel": {
+      "glob": "golden-path-runs/**/external-assurance/sentinel-technical-receipt.json",
+      "required_schema": "chacha.dev/sentinel-technical-receipt/v1",
+      "required_sentinel": "external-worker",
+      "required_verification_source": "D1_WORKFLOW_ATTESTATION",
+      "required_delivery_status": "DELIVERED",
+      "production_truth_dimensions": [
+        "accuracy",
+        "evidence_quality",
+        "handoff_quality",
+        "authority_discipline"
+      ]
+    },
+    "acceptance-engineer": {
+      "glob": "golden-path-runs/**/external-assurance/acceptance.json",
+      "required_schema": "chacha.dev/acceptance-result/v1",
+      "evidence_peer_filename": "acceptance-evidence.json",
+      "production_truth_dimensions": [
+        "evidence_quality",
+        "handoff_quality",
+        "authority_discipline"
+      ],
+      "accuracy_inference": false
+    }
   }
 }
