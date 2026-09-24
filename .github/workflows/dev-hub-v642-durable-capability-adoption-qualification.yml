@@ -48,6 +48,7 @@ jobs:
           set -euo pipefail
           python3 dev-hub/tests/test_v642_durable_capability_adoption.py | tee /tmp/v642.out
           grep -Fq 'CHACHA_DEV_V642_VERIFIED_SUCCESS_BEFORE_ADOPTION=PASS' /tmp/v642.out
+          grep -Fq 'CHACHA_DEV_V642_MEMORY_REFRESH_CWD_INDEPENDENT=PASS' /tmp/v642.out
           grep -Fq 'CHACHA_DEV_V642_PROJECT_CONTROL_COMMITTED_PROOF=PASS' /tmp/v642.out
           grep -Fq 'CHACHA_DEV_V642_SUCCESS_CLAIMS_BOUND_TO_VERIFIED_RESULT=PASS' /tmp/v642.out
           grep -Fq 'CHACHA_DEV_V642_PROJECT_CONTROL_LEDGER_COMMIT_PROOF=PASS' /tmp/v642.out
@@ -85,6 +86,7 @@ jobs:
           {
             echo 'CHACHA_DEV_V642_QUALIFICATION=PASS'
             echo 'VERIFIED_PROJECT_SUCCESS_BEFORE_ADOPTION=YES'
+            echo 'MEMORY_REFRESH_CWD_INDEPENDENT=YES'
             echo 'PROJECT_CONTROL_LEDGER_COMMIT_PROOF=YES'
             echo 'PROJECT_CONTROL_COMMITTED_PROOF=YES'
             echo 'SUCCESS_CLAIMS_BOUND_TO_VERIFIED_RESULT=YES'
