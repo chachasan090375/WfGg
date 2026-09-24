@@ -499,12 +499,24 @@ def product_domain_architect(repo:Path)->dict[str,Any]:
 def documentation_adr_agent(repo:Path)->dict[str,Any]:
     return _architect_role_contract(repo,"documentation-adr-agent","documentation")
 
+
+def test_engineer(repo:Path)->dict[str,Any]:
+    return _architect_role_contract(repo,"test-engineer","testing")
+
+def performance_engineer(repo:Path)->dict[str,Any]:
+    return _architect_role_contract(repo,"performance-engineer","performance")
+
+def sre_observability_engineer(repo:Path)->dict[str,Any]:
+    return _architect_role_contract(repo,"sre-observability-engineer","observability")
+
 ADAPTERS={"guardian":guardian,"sentinel":sentinel,"bastion":bastion,"autonomous-recovery-agent":recovery,
           "security-reviewer":security_reviewer,"recovery-engineer":recovery_engineer,
           "platform-cloud-engineer":platform_cloud_engineer,"data-architect":data_architect,
           "release-engineer":release_engineer,"backend-api-architect":backend_api_architect,
           "frontend-architect":frontend_architect,"product-domain-architect":product_domain_architect,
-          "documentation-adr-agent":documentation_adr_agent,"agent-foundry-architect":agent_foundry_architect,"branch-foundry-architect":branch_foundry_architect,"capability-foundry-architect":capability_foundry_architect,"logician":logician_agent,"technology-watch-agent":technology_watch_agent,"acceptance-engineer":acceptance_engineer,"contract-integrator":contract_integrator,"integration-architect":integration_architect,"ergonomist":ergonomist_agent}
+          "documentation-adr-agent":documentation_adr_agent,"test-engineer":test_engineer,
+          "performance-engineer":performance_engineer,"sre-observability-engineer":sre_observability_engineer,
+          "agent-foundry-architect":agent_foundry_architect,"branch-foundry-architect":branch_foundry_architect,"capability-foundry-architect":capability_foundry_architect,"logician":logician_agent,"technology-watch-agent":technology_watch_agent,"acceptance-engineer":acceptance_engineer,"contract-integrator":contract_integrator,"integration-architect":integration_architect,"ergonomist":ergonomist_agent}
 
 def execute(agent_id:str,repo_root:Path)->dict[str,Any]:
     fn=ADAPTERS.get(agent_id)

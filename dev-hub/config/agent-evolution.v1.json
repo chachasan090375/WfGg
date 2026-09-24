@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-evolution/v1",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "purpose": "Continuously measure, challenge and safely evolve ChaCha DEV agents without direct self-mutation.",
   "inventory_sources": [
     "dev-hub/config/agent-routing.v1.json",
@@ -136,7 +136,16 @@
       "production_measurements_always_override_benchmark": true,
       "rationale": "Prevent high fixture scores from materializing an optimization candidate before sufficient real-world evidence exists.",
       "minimum_production_dimension_coverage_for_keep_pct": 40,
-      "insufficient_production_recommendation": "MEASURE_REAL_WORLD"
+      "insufficient_production_recommendation": "MEASURE_REAL_WORLD",
+      "production_weight": 0.7,
+      "benchmark_weight": 0.3,
+      "minimum_production_weighted_maturity_for_candidate_pct": 40,
+      "minimum_production_weighted_maturity_for_keep_pct": 50,
+      "mixed_evidence_min_production_pct": 30,
+      "mixed_evidence_score_pct": 30,
+      "production_mature_coverage_pct": 70,
+      "production_mature_score_pct": 60,
+      "weighted_maturity_rationale": "Real production evidence carries more maturity weight than isolated benchmark evidence."
     }
   },
   "observatory": {

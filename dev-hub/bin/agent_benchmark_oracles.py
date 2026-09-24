@@ -242,12 +242,24 @@ def product_domain_architect(a:dict[str,Any])->list[dict[str,Any]]:
 def documentation_adr_agent(a:dict[str,Any])->list[dict[str,Any]]:
     return _architect_contract(a)
 
+
+def test_engineer(a:dict[str,Any])->list[dict[str,Any]]:
+    return _architect_contract(a)
+
+def performance_engineer(a:dict[str,Any])->list[dict[str,Any]]:
+    return _architect_contract(a)
+
+def sre_observability_engineer(a:dict[str,Any])->list[dict[str,Any]]:
+    return _architect_contract(a)
+
 ORACLES={"guardian":guardian,"sentinel":sentinel,"bastion":bastion,"autonomous-recovery-agent":recovery,
          "security-reviewer":security_reviewer,"recovery-engineer":recovery_engineer,
          "platform-cloud-engineer":platform_cloud_engineer,"data-architect":data_architect,
          "release-engineer":release_engineer,"backend-api-architect":backend_api_architect,
          "frontend-architect":frontend_architect,"product-domain-architect":product_domain_architect,
-         "documentation-adr-agent":documentation_adr_agent,"agent-foundry-architect":agent_foundry_architect,"branch-foundry-architect":branch_foundry_architect,"capability-foundry-architect":capability_foundry_architect,"logician":logician_agent,"technology-watch-agent":technology_watch_agent,"acceptance-engineer":acceptance_engineer,"contract-integrator":contract_integrator,"integration-architect":integration_architect,"ergonomist":ergonomist_agent}
+         "documentation-adr-agent":documentation_adr_agent,"test-engineer":test_engineer,
+         "performance-engineer":performance_engineer,"sre-observability-engineer":sre_observability_engineer,
+         "agent-foundry-architect":agent_foundry_architect,"branch-foundry-architect":branch_foundry_architect,"capability-foundry-architect":capability_foundry_architect,"logician":logician_agent,"technology-watch-agent":technology_watch_agent,"acceptance-engineer":acceptance_engineer,"contract-integrator":contract_integrator,"integration-architect":integration_architect,"ergonomist":ergonomist_agent}
 
 def verify(agent_id:str,raw:dict[str,Any])->dict[str,Any]:
     fn=ORACLES.get(agent_id)

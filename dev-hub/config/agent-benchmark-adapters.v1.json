@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-benchmark-adapters/v1",
-  "version": "5.0.0",
+  "version": "6.0.0",
   "purpose": "Execute real agent code against isolated deterministic fixtures and verify outputs through a separate benchmark oracle.",
   "supported_agents": {
     "guardian": {
@@ -473,6 +473,72 @@
     "documentation-adr-agent": {
       "adapter": "architecture-specialist-documentation-adr",
       "risk": "low",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "test-engineer": {
+      "adapter": "architecture-specialist-test-strategy",
+      "risk": "low",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "performance-engineer": {
+      "adapter": "architecture-specialist-performance",
+      "risk": "low",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "sre-observability-engineer": {
+      "adapter": "architecture-specialist-observability",
+      "risk": "medium",
       "dimensions": [
         "accuracy",
         "robustness",

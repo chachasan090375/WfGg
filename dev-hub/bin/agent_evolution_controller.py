@@ -50,6 +50,17 @@ def score(agent_id:str,metrics:dict[str,Any],policy:dict[str,Any])->dict[str,Any
     benchmark_coverage=round(100.0*len(benchmark_measured)/len(DIMENSIONS),1)
     production_coverage=round(100.0*len(production_measured)/len(DIMENSIONS),1)
     measurement_policy=policy.get("measurement") or {}
+    maturity_policy=measurement_policy.get("evidence_maturity") or {}
+    production_weight=float(maturity_policy.get("production_weight",0.70))
+    benchmark_weight=float(maturity_policy.get("benchmark_weight",0.30))
+    weight_total=production_weight+benchmark_weight
+    if weight_total<=0: raise ValueError("INVALID_EVIDENCE_MATURITY_WEIGHTS")
+    production_weight/=weight_total;benchmark_weight/=weight_total
+    production_weighted_maturity=round(min(100.0,production_coverage*production_weight+benchmark_coverage*benchmark_weight),1)
+    maturity_label=("PRODUCTION_MATURE" if production_coverage>=float(maturity_policy.get("production_mature_coverage_pct",70)) and production_weighted_maturity>=float(maturity_policy.get("production_mature_score_pct",60))
+      else "MIXED_EVIDENCE" if production_coverage>=float(maturity_policy.get("mixed_evidence_min_production_pct",30)) and production_weighted_maturity>=float(maturity_policy.get("mixed_evidence_score_pct",30))
+      else "BENCHMARK_HEAVY" if benchmark_coverage>production_coverage
+      else "INSUFFICIENT_EVIDENCE")
     min_score=float(measurement_policy.get("minimum_scored_dimension_coverage_pct",40))
     min_keep=float(measurement_policy.get("minimum_keep_dimension_coverage_pct",80))
     th=policy.get("recommendation_thresholds") or {}
@@ -74,9 +85,10 @@ def score(agent_id:str,metrics:dict[str,Any],policy:dict[str,Any])->dict[str,Any
             rec="MEASURE_MORE"
         else:
             rec="KEEP"
-    maturity=measurement_policy.get("evidence_maturity") or {}
+    maturity=maturity_policy
     min_prod_keep=float(maturity.get("minimum_production_dimension_coverage_for_keep_pct",40))
-    if rec=="KEEP" and production_coverage<min_prod_keep:
+    min_weighted_keep=float(maturity.get("minimum_production_weighted_maturity_for_keep_pct",50))
+    if rec=="KEEP" and (production_coverage<min_prod_keep or production_weighted_maturity<min_weighted_keep):
         rec="MEASURE_REAL_WORLD"
     scorecard={
       "schema":"chacha.dev/agent-evolution-scorecard/v1",
@@ -86,6 +98,9 @@ def score(agent_id:str,metrics:dict[str,Any],policy:dict[str,Any])->dict[str,Any
       "measurement_coverage_pct":measurement_coverage,
       "production_measurement_coverage_pct":production_coverage,
       "benchmark_measurement_coverage_pct":benchmark_coverage,
+      "production_weighted_maturity_pct":production_weighted_maturity,
+      "evidence_maturity_label":maturity_label,
+      "evidence_maturity_weights":{"production":round(production_weight,3),"benchmark":round(benchmark_weight,3)},
       "production_measured_dimensions":sorted(production_measured),
       "benchmark_measured_dimensions":sorted(benchmark_measured),
       "measured_dimensions":sorted(measured),
@@ -105,8 +120,10 @@ def plan(agent_id:str,scorecard:dict[str,Any],policy:dict[str,Any])->dict[str,An
     material=rec in {"SHADOW_CANDIDATE","BLOCK_AND_REVIEW"}
     maturity=(policy.get("measurement") or {}).get("evidence_maturity") or {}
     min_prod=float(maturity.get("minimum_production_dimension_coverage_for_candidate_pct",40))
+    min_weighted=float(maturity.get("minimum_production_weighted_maturity_for_candidate_pct",40))
     production_coverage=float(scorecard.get("production_measurement_coverage_pct") or 0)
-    candidate_evidence_mature=production_coverage>=min_prod
+    weighted_maturity=float(scorecard.get("production_weighted_maturity_pct") or 0)
+    candidate_evidence_mature=production_coverage>=min_prod and weighted_maturity>=min_weighted
     candidate_requested=rec in {"OPTIMIZE","SHADOW_CANDIDATE","BLOCK_AND_REVIEW"}
     candidate_needed=candidate_requested and candidate_evidence_mature
     return {
@@ -115,6 +132,8 @@ def plan(agent_id:str,scorecard:dict[str,Any],policy:dict[str,Any])->dict[str,An
       "measurement_required":rec in {"MEASURE_FIRST","MEASURE_MORE","MEASURE_REAL_WORLD"} or (candidate_requested and not candidate_evidence_mature),
       "evidence_maturity":{"candidate_requested":candidate_requested,"candidate_evidence_mature":candidate_evidence_mature,
         "production_measurement_coverage_pct":production_coverage,"minimum_required_pct":min_prod,
+        "production_weighted_maturity_pct":weighted_maturity,"minimum_weighted_required_pct":min_weighted,
+        "evidence_maturity_label":scorecard.get("evidence_maturity_label"),
         "benchmark_only_cannot_materialize_candidate":True},
       "self_evolution":{"proposal_allowed":True,"active_self_mutation":False,"self_promotion":False,"permission_expansion":False},
       "candidate":{"owner":"agent-foundry" if candidate_needed else None,"isolated":candidate_needed,"incumbent_control_group":True,"shadow_required":candidate_needed,"pilot_required":material},
