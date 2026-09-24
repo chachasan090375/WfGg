@@ -90,12 +90,22 @@ jobs:
           coverage=json.load(open('dev-hub/config/guardian-coverage-manifest.v1.json',encoding='utf-8'))
           q=lambda s:"'"+str(s).replace("'","''")+"'"
           j=lambda v:json.dumps(v,separators=(',',':'),sort_keys=True)
-          sql=['DELETE FROM expected_components;']
-          for c in coverage.get('expected_components') or []:
+          components=coverage.get('expected_components') or []
+          sql=[]
+          for c in components:
               dig=hashlib.sha256(j(c).encode()).hexdigest()
               sql.append("INSERT INTO expected_components(component_id,role,kind,enforcement_point,criticality,source_digest,updated_at) VALUES("
                          +q(c['component_id'])+','+q(c['role'])+','+q(c['kind'])+','+q(c['enforcement_point'])+','
-                         +q(c['criticality'])+','+q(dig)+",datetime('now'));")
+                         +q(c['criticality'])+','+q(dig)+",datetime('now')) "
+                         "ON CONFLICT(component_id) DO UPDATE SET role=excluded.role,kind=excluded.kind,"
+                         "enforcement_point=excluded.enforcement_point,criticality=excluded.criticality,"
+                         "source_digest=excluded.source_digest,updated_at=datetime('now') "
+                         "WHERE expected_components.source_digest<>excluded.source_digest;")
+          ids=[str(c['component_id']) for c in components]
+          if ids:
+              sql.append("DELETE FROM expected_components WHERE component_id NOT IN ("+",".join(q(x) for x in ids)+");")
+          else:
+              sql.append("DELETE FROM expected_components;")
           status,payload=call(query,'POST',{'sql':'\n'.join(sql)})
           if status!=200 or not payload.get('success'):
               raise SystemExit('GUARDIAN_COVERAGE_SYNC_FAILED:'+str(status)+':'+json.dumps(payload)[:600])
@@ -110,5 +120,7 @@ jobs:
           print('CHACHA_DEV_V7_GUARDIAN_GATEWAY_EXPECTED=YES')
           print('CHACHA_DEV_V7_GUARDIAN_DIRECT_OPERATOR_EXPECTED=YES')
           print('EXPECTED_COMPONENTS='+str(expected))
+          print('D1_SYNC_MODE=DIGEST_AWARE_DELTA')
+          print('FULL_TABLE_REWRITE=NO')
           print('AUTOMATIC_EXTERNAL_SPEND_EUR=0')
           PY
