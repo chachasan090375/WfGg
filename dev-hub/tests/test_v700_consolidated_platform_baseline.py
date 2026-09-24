@@ -93,20 +93,20 @@ with tempfile.TemporaryDirectory(prefix="v700-qualification-") as td:
     assert blocked.returncode!=0,(blocked.stdout,blocked.stderr)
     assert stale1.is_dir() and stale2.is_dir()
 
-    approval=td/"approval.json"
-    save(approval,{
-      "schema":"chacha.dev/platform-consolidation-approval/v1",
-      "revision":v7rev,
-      "checks":{
-        "guardian_pass":True,
-        "sentinel_exact_revision_pass":True,
-        "architecture_council_approval":True,
-        "v7_runtime_health_pass":True,
-        "rollback_release_verified":True
-      },
-      "destructive_apply_authorized":True,
-      "automatic_external_spend_eur":0
-    })
+    approval=td/"approval.json";guardian=td/"guardian.json";runs=td/"github-runs.json"
+    save(guardian,{"all_hooks_active":True})
+    save(runs,{"workflow_runs":[
+      {"name":"ChaCha DEV Sentinel technical assurance","head_sha":v7rev,"status":"completed","conclusion":"success"},
+      {"name":"ChaCha DEV V7 consolidated platform baseline qualification","head_sha":v7rev,"status":"completed","conclusion":"success"}
+    ]})
+    council=run([sys.executable,str(BIN/"architecture-council-platform-consolidation-v7.py"),
+      "--plan",str(plan),"--policy",str(CFG/"platform-consolidation.v1.json"),
+      "--guardian-coverage",str(guardian),"--revision",v7rev,"--github-runs-json",str(runs),
+      "--operator-explicit-purge-approval","--output",str(approval)])
+    assert "CHACHA_DEV_V7_CONSOLIDATION_COUNCIL=PASS" in council,council
+    ar0=load(approval)
+    assert ar0["decision"]=="APPROVE_INTENDANT_CONSOLIDATION",ar0
+    assert ar0["destructive_apply_authorized"] is True,ar0
     applied=td/"applied.json";archive=td/"archive.json"
     out=run([sys.executable,str(BIN/"intendant-platform-consolidator.py"),
        "--platform-root",str(platform),"--policy",str(CFG/"platform-consolidation.v1.json"),
@@ -127,6 +127,7 @@ print("CHACHA_DEV_V700_COMPILED_RUNTIME=PASS")
 print("CHACHA_DEV_V700_INTENDANT_CONSOLIDATOR=PASS")
 print("CHACHA_DEV_V700_DRY_RUN_NON_DESTRUCTIVE=PASS")
 print("CHACHA_DEV_V700_APPLY_REQUIRES_APPROVAL=PASS")
+print("CHACHA_DEV_V700_ARCHITECTURE_COUNCIL_CONSOLIDATION=PASS")
 print("CHACHA_DEV_V700_THREE_RELEASE_RETENTION=PASS")
 print("CHACHA_DEV_V700_RADAR_PROJECT_ONLY=PASS")
 print("CHACHA_DEV_V700_ACCEPTANCE_PRODUCTION_ACTIVATION=NO")
