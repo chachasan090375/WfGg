@@ -111,7 +111,7 @@ for marker in [
 ]:
     assert marker in exchange_worker,marker
 
-assert any(v in orchestrator for v in ['"version":"6.33.0"','"version":"6.34.0"','"version":"6.35.0"'])
+assert any(v in orchestrator for v in ['"version":"6.33.0"','"version":"6.34.0"','"version":"6.35.0"','"version":"6.40.0"'])
 for marker in [
     '"curator_local_enabled"',
     '"bastion_local_enabled"',
