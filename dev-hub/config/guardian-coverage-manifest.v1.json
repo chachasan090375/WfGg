@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 900,
   "action_lease_default_seconds": 300,
@@ -543,6 +543,17 @@
         "file": "dev-hub/bin/platform-component-adapter-binding-gate.py",
         "marker": "BINDING_PROPOSAL_READY_AWAIT_PROTECTED_REGISTRATION"
       }
+    },
+    {
+      "component_id": "platform-component-adapter-registry-writer",
+      "role": "platform-component-adapter-registry-writer",
+      "kind": "controller",
+      "enforcement_point": "platform-component-adapter-registry-writer.contract-bound-additive-write",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/platform-component-adapter-registry-writer.py",
+        "marker": "REGISTRATION_CONTRACT_REPLAY_BLOCKED"
+      }
     }
   ],
   "safety_exemptions": [
@@ -554,8 +565,8 @@
   "automatic_external_spend_eur": 0,
   "d1_write_budget": {
     "coverage_heartbeat_interval_seconds": 300,
-    "expected_max_component_heartbeat_writes_per_day": 14112,
-    "calculation": "49 components * 12 heartbeats/hour * 24 hours",
+    "expected_max_component_heartbeat_writes_per_day": 14400,
+    "calculation": "50 components * 12 heartbeats/hour * 24 hours",
     "ci_sync_mode": "DIGEST_AWARE_DELTA",
     "automatic_paid_upgrade": false,
     "automatic_external_spend_eur": 0
