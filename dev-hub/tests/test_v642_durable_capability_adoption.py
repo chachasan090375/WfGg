@@ -164,6 +164,8 @@ with tempfile.TemporaryDirectory(prefix="v642-e2e-") as td_raw:
       **claims_value,
       "verification_status":"VERIFIED",
       "project_control_receipt":str(pc_receipt),
+      "project_control_ledger":str(pc_ledger),
+      "verified_success_artifact_id":success_artifact_id,
       "verified_task_id":"v642-project-success",
       "verified_claims_path":str(claims),
       "verified_claims_digest":sha256_file(claims)
@@ -385,7 +387,59 @@ assert '"schema":"chacha.dev/capability-adoption-candidates/v1"' in orch_text
 assert '"adoption_state":"PENDING_PROJECT_SUCCESS"' in orch_text
 assert '"durable_registry_merged_before_gap_detection":True' in orch_text
 
+# A self-declared VERIFIED success without the committed Project Control ledger
+# must never be sufficient for durable adoption.
+with tempfile.TemporaryDirectory(prefix="v642-self-verified-block-") as td_raw:
+    td=Path(td_raw)
+    cap="v642-self-verified"
+    provider="playwright-mcp"
+    adapter="playwright-mcp-adapter"
+    project="v642-self-verified-project"
+    claims=td/"claims.json"
+    claims_value={
+      "project_id":project,"capability":cap,"provider":provider,"adapter":adapter,
+      "status":"PASS","project_success":True,"quality_gates_pass":True,
+      "runtime_use_count":1,"incident_count":0,"technology_watch_revalidated":True,
+      "architecture_council":{"decision":"APPROVED","decision_id":"v642-self-council"},
+      "automatic_external_spend_eur":0,"evidence_refs":["evidence:self"]
+    }
+    save(claims,claims_value)
+    artifact_id="capability-project-success:"+cap
+    pc_receipt,pc_ledger=project_control_proof(td,project,"v642-self-success",claims,artifact_id)
+    success=td/"success.json"
+    save(success,{
+      "schema":"chacha.dev/capability-project-success/v1",**claims_value,
+      "verification_status":"VERIFIED",
+      "project_control_receipt":str(pc_receipt),
+      "verified_task_id":"v642-self-success",
+      "verified_claims_path":str(claims),
+      "verified_claims_digest":sha256_file(claims),
+      "verified_success_artifact_id":artifact_id
+    })
+    candidate=td/"candidate.json"
+    save(candidate,{
+      "schema":"chacha.dev/capability-adoption-candidate/v1",
+      "source_kind":"EXISTING_PROVIDER","project_id":project,
+      "capability":cap,"provider":provider,"adapter":adapter,
+      "build_result":None,"production_capable":False,
+      "network_access":False,"credentials_required":False,
+      "automatic_external_spend_eur":0
+    })
+    p=run([
+      "python3",BIN/"durable-capability-registry.py","adopt",
+      "--policy",CFG/"durable-capability-adoption.v1.json",
+      "--candidate",candidate,"--success",success,
+      "--base-capability-registry",CFG/"capability-registry.v1.json",
+      "--base-provider-registry",CFG/"provider-adapters.v1.json",
+      "--registry",td/"durable.json","--repo-root",ROOT,"--adapter-root",td/"adapters",
+      "--source-archive-root",td/"sources","--evidence-root",td/"evidence",
+      "--experience-db",td/"experience.db","--actor","central-orchestrator",
+      "--receipt",td/"receipt.json","--apply"
+    ],expect=1)
+    assert "PROJECT_CONTROL_EVIDENCE_LEDGER_REQUIRED" in (p.stderr+p.stdout),p.stderr+p.stdout
+
 print("CHACHA_DEV_V642_VERIFIED_SUCCESS_BEFORE_ADOPTION=PASS")
+print("CHACHA_DEV_V642_SELF_DECLARED_VERIFIED_REJECTED=PASS")
 print("CHACHA_DEV_V642_PROJECT_CONTROL_COMMITTED_PROOF=PASS")
 print("CHACHA_DEV_V642_SUCCESS_CLAIMS_BOUND_TO_VERIFIED_RESULT=PASS")
 print("CHACHA_DEV_V642_PROJECT_CONTROL_LEDGER_COMMIT_PROOF=PASS")
