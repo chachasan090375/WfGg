@@ -58,6 +58,9 @@ assert 'UNIT_MARKER="# ChaCha-DEV-V710-Revision: $REV"' in installer
 assert 'grep -Fqx "$UNIT_MARKER" "$TIMER"' in installer
 assert 'grep -Fqx "$UNIT_MARKER" "$SERVICE"' in installer
 assert 'UNITS_TOUCHED=1' in installer
+assert 'CHACHA_DEV_V710_PURGE_COMMITTED=NO_RETIREMENT_NEEDED' in installer
+evidence_tail=installer[installer.index("stage evidence"):]
+assert '[ "$PURGE_COMMITTED" -eq 1 ]' not in evidence_tail
 
 src=(BIN/"autonomous-project-orchestrator.py").read_text()
 assert '"version":"7.1.0"' in src,src[-5000:]
