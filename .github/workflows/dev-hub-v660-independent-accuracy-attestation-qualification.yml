@@ -5,6 +5,7 @@ on:
     branches:
       - dev-hub-v660-independent-accuracy-attestation-real-world-deepening
     paths:
+      - 'dev-hub/bin/install-v660-independent-accuracy-attestation.sh'
       - 'dev-hub/bin/independent-accuracy-attestor.py'
       - 'dev-hub/bin/agent_fleet_observatory.py'
       - 'dev-hub/bin/autonomous-project-orchestrator.py'
@@ -28,6 +29,7 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
+          bash -n dev-hub/bin/install-v660-independent-accuracy-attestation.sh
           python3 -m py_compile dev-hub/bin/independent-accuracy-attestor.py dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v660_independent_accuracy_attestation.py
           python3 -m json.tool dev-hub/config/agent-fleet-observatory.v1.json >/dev/null
           grep -Fq '"version":"6.60.0"' dev-hub/bin/autonomous-project-orchestrator.py
