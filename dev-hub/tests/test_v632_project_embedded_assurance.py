@@ -110,7 +110,7 @@ for body in [guardian,sentinel]:
     assert "project_assurance_identity_registration:true" in body
     assert "requireProjectAssurance" in body
 
-assert any(v in orchestrator for v in ['"version":"6.32.0"','"version":"6.33.0"','"version":"6.34.0"','"version":"6.35.0"'])
+assert any(v in orchestrator for v in ['"version":"6.32.0"','"version":"6.33.0"','"version":"6.34.0"','"version":"6.35.0"','"version":"6.40.0"'])
 assert "project-embedded-assurance.py" in orchestrator
 assert "project-assurance-identity-manager.py" in orchestrator
 assert '"embedded_assurance_required":True' in orchestrator
