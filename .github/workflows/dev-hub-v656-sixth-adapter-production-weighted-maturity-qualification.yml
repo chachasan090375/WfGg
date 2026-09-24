@@ -6,6 +6,7 @@ on:
       - dev-hub-v656-sixth-adapter-wave-production-weighted-maturity
     paths:
       - 'dev-hub/bin/agent_evolution_controller.py'
+      - 'dev-hub/bin/install-v656-sixth-adapter-production-weighted-maturity.sh'
       - 'dev-hub/bin/agent_benchmark_adapters.py'
       - 'dev-hub/bin/agent_benchmark_oracles.py'
       - 'dev-hub/bin/autonomous-project-orchestrator.py'
@@ -30,6 +31,7 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
+          bash -n dev-hub/bin/install-v656-sixth-adapter-production-weighted-maturity.sh
           python3 -m py_compile dev-hub/bin/agent_evolution_controller.py dev-hub/bin/agent_benchmark_adapters.py dev-hub/bin/agent_benchmark_oracles.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v656_sixth_adapter_production_weighted_maturity.py
           python3 -m json.tool dev-hub/config/agent-evolution.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-benchmark-adapters.v1.json >/dev/null
