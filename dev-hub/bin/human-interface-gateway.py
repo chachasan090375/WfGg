@@ -159,7 +159,10 @@ def response_base(intent:dict[str,Any],status:str,authority:str,next_action:str,
       "project_id":intent.get("project_id"),
       "status":status,
       "authority":authority,
-      "brain_decision_obtained":authority in {"central-orchestrator","central-orchestrator-prior-receipt"},
+      "brain_decision_obtained":(
+        authority in {"central-orchestrator","central-orchestrator-prior-receipt"}
+        and status not in {"BRAIN_UNAVAILABLE","BRAIN_RECEIPT_INVALID"}
+      ),
       "next_action":next_action,
       "evidence_refs":evidence_refs,
       "interface_direct_technical_decision":False,
