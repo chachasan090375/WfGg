@@ -224,7 +224,7 @@ public class OperatorActivity extends Activity {
     }
 
     private String escapeHtml(String value) {
-        return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace(""", "&quot;");
+        return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
     }
 
     @Override
