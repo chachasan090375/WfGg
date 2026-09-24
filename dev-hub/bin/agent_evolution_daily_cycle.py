@@ -121,8 +121,22 @@ def main()->int:
     save(ae/"component-governance-latest.json",component_index)
     platform_dispatch=pcec.build_dispatch(platform_idx,component_index)
     save(pe/"foundry-dispatch-latest.json",platform_dispatch)
-    platform_shadow=pcec.execute_shadow_dispatches(platform_dispatch,component_index,root)
+    shadow_ledger_path=pe/"foundry-shadow-ledger.json"
+    shadow_ledger=safe(shadow_ledger_path)
+    completed_map=shadow_ledger.get("completed") if isinstance(shadow_ledger.get("completed"),dict) else {}
+    platform_shadow=pcec.execute_shadow_dispatches(platform_dispatch,component_index,root,
+      completed_dispatch_ids=set(completed_map))
     save(pe/"foundry-shadow-latest.json",platform_shadow)
+    for result in platform_shadow.get("results") or []:
+        if str(result.get("state") or "")!="SHADOW_ASSESSED":continue
+        did=str(result.get("dispatch_id") or "")
+        if not did:continue
+        completed_map[did]={"component_id":result.get("component_id"),"candidate_owner":result.get("candidate_owner"),
+          "state":"SHADOW_ASSESSED","completed_at":iso(stamp),"result_digest":"sha256:"+pcec.digest(result)}
+    shadow_ledger={"schema":"chacha.dev/platform-foundry-shadow-ledger/v1","completed":completed_map,
+      "completed_count":len(completed_map),"append_only_logical":True,
+      "queue_file_deletion_required":False,"automatic_external_spend_eur":0}
+    save(shadow_ledger_path,shadow_ledger)
     receipt={"schema":"chacha.dev/agent-evolution-daily-cycle/v1","generated_at":iso(stamp),"agent_count":report.get("agent_count"),
       "optimization_count":len(report.get("optimization_queue") or []),"measurement_count":len(report.get("measurement_queue") or []),
       "event_request_count":len(requests),"scheduled_action_count":len(scheduled),
@@ -133,7 +147,9 @@ def main()->int:
       "platform_foundry_dispatch_blocked_count":platform_dispatch.get("blocked_count"),
       "platform_foundry_dispatch_complete":platform_dispatch.get("dispatch_complete"),
       "platform_foundry_shadow_result_count":platform_shadow.get("shadow_result_count"),
+      "platform_foundry_shadow_skipped_completed_count":platform_shadow.get("skipped_completed_count"),
       "platform_foundry_shadow_blocked_count":platform_shadow.get("blocked_count"),
+      "platform_foundry_shadow_ledger_count":shadow_ledger.get("completed_count"),
       "platform_foundry_shadow_execution_complete":platform_shadow.get("shadow_execution_complete"),
       "deep_audit_due":deep,"ecosystem_benchmark_due":bench,
       "benchmark_campaign_created":benchmark_campaign is not None,

@@ -71,13 +71,19 @@ def build_dispatch(index:dict[str,Any],governance:dict[str,Any])->dict[str,Any]:
       "materialization_authorized":False,"promotion_authorized":False,
       "direct_component_mutation":False,"self_promotion":False,
       "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
-def execute_shadow_dispatches(dispatch_index:dict[str,Any],governance:dict[str,Any],repo_root:Path,watch_provider=None)->dict[str,Any]:
+def execute_shadow_dispatches(dispatch_index:dict[str,Any],governance:dict[str,Any],repo_root:Path,watch_provider=None,completed_dispatch_ids:set[str]|None=None)->dict[str,Any]:
     watch_provider=watch_provider or (lambda consumer,cid:tw.consult(
         repo_root,consumer=consumer,domain="platform-component-evolution",capabilities=[cid]))
     branch_mod=load_module("platform_branch_foundry",repo_root/"dev-hub/bin/branch-foundry-planner.py")
     capability_mod=load_module("platform_capability_foundry",repo_root/"dev-hub/bin/capability-foundry.py")
-    results=[];blocked=[]
+    completed_dispatch_ids=set(completed_dispatch_ids or set())
+    results=[];blocked=[];skipped=[]
     for contract in dispatch_index.get("dispatches") or []:
+        did=str(contract.get("dispatch_id") or "")
+        if did and did in completed_dispatch_ids:
+            skipped.append({"dispatch_id":did,"component_id":contract.get("component_id"),
+                "target_foundry":contract.get("target_foundry"),"reason":"ALREADY_SHADOW_ASSESSED"})
+            continue
         cid=str(contract.get("component_id") or "")
         row=resolve_component(governance,cid)
         if row is None:
@@ -99,9 +105,9 @@ def execute_shadow_dispatches(dispatch_index:dict[str,Any],governance:dict[str,A
     all_shadow=all(str(x.get("state") or "")=="SHADOW_ASSESSED" for x in results)
     return {"schema":"chacha.dev/platform-foundry-shadow-execution-index/v1",
       "input_dispatch_count":len(dispatch_index.get("dispatches") or []),
-      "shadow_result_count":len(results),"blocked_count":len(blocked),
-      "results":results,"blocked":blocked,
-      "shadow_execution_complete":len(results)==len(dispatch_index.get("dispatches") or []) and not blocked and all_shadow,
+      "shadow_result_count":len(results),"skipped_completed_count":len(skipped),"blocked_count":len(blocked),
+      "results":results,"skipped_completed":skipped,"blocked":blocked,
+      "shadow_execution_complete":len(results)+len(skipped)==len(dispatch_index.get("dispatches") or []) and not blocked and all_shadow,
       "materialization_authorized":False,"active_component_mutation":False,
       "promotion_authorized":False,"self_promotion":False,
       "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
