@@ -32,25 +32,58 @@ def run(args,cwd=None,expect=0):
 def sha256_file(path:Path)->str:
     return "sha256:"+hashlib.sha256(path.read_bytes()).hexdigest()
 
-def project_control_proof(root:Path,project_id:str,task_id:str,claims_path:Path)->Path:
+def digest_obj(value)->str:
+    raw=json.dumps(value,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
+    return "sha256:"+hashlib.sha256(raw).hexdigest()
+
+def project_control_proof(root:Path,project_id:str,task_id:str,claims_path:Path,artifact_id:str):
     verified=root/"verified-task-result.json"
+    ledger=root/"evidence-ledger.json"
     receipt=root/"project-control-receipt.json"
     claims_digest=sha256_file(claims_path)
-    save(verified,{
+    verified_value={
       "schema":"chacha.dev/task-result/v1","project":project_id,"task_id":task_id,
       "producer":"v642-project-runtime","status":"OK","summary":"Verified project capability success.",
-      "observed_at":"2026-09-24T00:00:00+00:00","outputs":[],
+      "observed_at":"2026-09-24T00:00:00+00:00",
+      "outputs":[{"type":"artifact","id":artifact_id,"status":"OK"}],
       "evidence":[{"source":str(claims_path.resolve()),"digest":claims_digest}],
       "verification":{"status":"VERIFIED","method":"machine","verifier":"verification-broker"}
-    })
+    }
+    save(verified,verified_value)
+    verified_digest=digest_obj(verified_value)
+    ledger_value={
+      "schema":"chacha.dev/evidence-ledger/v1","project":project_id,
+      "updated_at":"2026-09-24T00:00:00+00:00",
+      "artifacts":{artifact_id:{
+        "status":"OK","source":str(claims_path.resolve()),
+        "observed_at":"2026-09-24T00:00:00+00:00",
+        "digest":verified_digest,"producer":"v642-project-runtime",
+        "verifier":"verification-broker","verification_method":"machine",
+        "task_id":task_id,"summary":"Verified project capability success.",
+        "learning_eligibility":"NO_CONFIDENCE_NO_PENALTY"
+      }},
+      "gates":{},"approvals":{},"risk_acceptances":[],
+      "history":[{
+        "event":"task-result-ingested","task_id":task_id,
+        "producer":"v642-project-runtime","verifier":"verification-broker",
+        "verification_method":"machine","verification_status":"VERIFIED",
+        "result_status":"OK","result_digest":verified_digest,
+        "learning_eligibility":"NO_CONFIDENCE_NO_PENALTY",
+        "learning_context":None,
+        "changes":["artifact:"+artifact_id+":OK"],
+        "observed_at":"2026-09-24T00:00:00+00:00"
+      }]
+    }
+    save(ledger,ledger_value)
     save(receipt,{
       "schema":"chacha.dev/control-transaction-receipt/v1",
       "transaction_id":"ctx-v642-test","project":project_id,"operation":"verify-result",
       "status":"COMMITTED","verification_status":"VERIFIED",
       "verified_result":str(verified),"report":str(root/"verification-report.json"),
+      "new_ledger_digest":digest_obj(ledger_value),
       "updated_at":"2026-09-24T00:00:00+00:00"
     })
-    return receipt
+    return receipt,ledger
 
 with tempfile.TemporaryDirectory(prefix="v642-e2e-") as td_raw:
     td=Path(td_raw)
@@ -124,7 +157,8 @@ with tempfile.TemporaryDirectory(prefix="v642-e2e-") as td_raw:
       "evidence_refs":["evidence:v642-project-success","evidence:v642-runtime-use"]
     }
     save(claims,claims_value)
-    pc_receipt=project_control_proof(td,project,"v642-project-success",claims)
+    success_artifact_id="capability-project-success:"+capability
+    pc_receipt,pc_ledger=project_control_proof(td,project,"v642-project-success",claims,success_artifact_id)
     save(success,{
       "schema":"chacha.dev/capability-project-success/v1",
       **claims_value,
@@ -235,6 +269,25 @@ with tempfile.TemporaryDirectory(prefix="v642-e2e-") as td_raw:
     assert memory["single_observation_never_trusted"] is True,memory
     assert memory["trusted_generalizable_count"]==0,memory
 
+    # The committed receipt is insufficient if the canonical Evidence Ledger no
+    # longer matches its digest.
+    ledger_saved=load(pc_ledger)
+    tampered=load(pc_ledger);tampered["updated_at"]="2099-01-01T00:00:00+00:00";save(pc_ledger,tampered)
+    tamper_receipt=td/"tampered-adoption-receipt.json"
+    tamper=run([
+      "python3",repo/"dev-hub/bin/durable-capability-registry.py","adopt",
+      "--policy",repo/"dev-hub/config/durable-capability-adoption.v1.json",
+      "--candidate",candidate,"--success",success,
+      "--base-capability-registry",repo/"dev-hub/config/capability-registry.v1.json",
+      "--base-provider-registry",repo/"dev-hub/config/provider-adapters.v1.json",
+      "--registry",durable,"--repo-root",repo,"--adapter-root",adapter_root,
+      "--source-archive-root",archive,"--evidence-root",evidence,
+      "--experience-db",experience_db,"--actor","central-orchestrator",
+      "--receipt",tamper_receipt,"--apply"
+    ],expect=1)
+    assert "PROJECT_CONTROL_LEDGER_DIGEST_MISMATCH" in (tamper.stderr+tamper.stdout),tamper.stderr+tamper.stdout
+    save(pc_ledger,ledger_saved)
+
     # Replaying the same verified success is idempotent.
     receipt2=td/"adoption-receipt-2.json"
     replay=run([
@@ -298,7 +351,8 @@ with tempfile.TemporaryDirectory(prefix="v642-human-boundary-") as td_raw:
       "automatic_external_spend_eur":0,"evidence_refs":["evidence:protected"]
     }
     save(protected_claims,protected_claims_value)
-    protected_pc_receipt=project_control_proof(td,"v642-protected-project","v642-protected-success",protected_claims)
+    protected_artifact_id="capability-project-success:v642-protected-capability"
+    protected_pc_receipt,protected_pc_ledger=project_control_proof(td,"v642-protected-project","v642-protected-success",protected_claims,protected_artifact_id)
     save(success,{
       "schema":"chacha.dev/capability-project-success/v1",
       **protected_claims_value,
@@ -334,6 +388,7 @@ assert '"durable_registry_merged_before_gap_detection":True' in orch_text
 print("CHACHA_DEV_V642_VERIFIED_SUCCESS_BEFORE_ADOPTION=PASS")
 print("CHACHA_DEV_V642_PROJECT_CONTROL_COMMITTED_PROOF=PASS")
 print("CHACHA_DEV_V642_SUCCESS_CLAIMS_BOUND_TO_VERIFIED_RESULT=PASS")
+print("CHACHA_DEV_V642_PROJECT_CONTROL_LEDGER_COMMIT_PROOF=PASS")
 print("CHACHA_DEV_V642_RELEASE_INDEPENDENT_DURABLE_REGISTRY=PASS")
 print("CHACHA_DEV_V642_DURABLE_ADAPTER_REPROBE=PASS")
 print("CHACHA_DEV_V642_CROSS_PROJECT_REUSE_WITHOUT_REBUILD=PASS")
