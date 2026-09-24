@@ -4,6 +4,6 @@
     android:initialLayout="@layout/widget_chacha"
     android:previewLayout="@layout/widget_chacha"
     android:resizeMode="horizontal|vertical"
-    android:updatePeriodMillis="0"
+    android:updatePeriodMillis="1800000"
     android:widgetCategory="home_screen"
     android:description="@string/widget_description" />
