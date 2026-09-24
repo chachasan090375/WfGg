@@ -12,6 +12,7 @@ on:
       - 'dev-hub/config/guardian-coverage-manifest.v1.json'
       - 'dev-hub/config/guardian-role-contracts.v1.json'
       - '.github/workflows/dev-hub-v7-guardian-contract-sync.yml'
+      - '.github/workflows/dev-hub-v7-guardian-coverage-sync.yml'
       - 'dev-hub/tests/test_v720_human_interface_gateway.py'
       - '.github/workflows/dev-hub-v720-human-interface-gateway-qualification.yml'
   workflow_dispatch:
