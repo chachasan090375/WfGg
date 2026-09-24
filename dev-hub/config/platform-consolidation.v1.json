@@ -83,6 +83,19 @@
     ],
     "destructive_apply_requires_explicit_flag": true,
     "standing_operator_approval_allowed_for_safe_release_retirement": true,
-    "source_code_retirement_requires_fresh_explicit_review": true
+    "source_code_retirement_requires_fresh_explicit_review": true,
+    "planner_owner": "intendant",
+    "physical_retirement_executor": "central-orchestrator",
+    "intendant_direct_mutation": false,
+    "guardian_realtime_verdict_required": true,
+    "architecture_council_plan_digest_binding_required": true,
+    "standing_operator_approval_scope": "SAFE_SUPERSEDED_PHYSICAL_RELEASES_ONLY",
+    "never_auto_delete": [
+      "git-remote-branches",
+      "source-code",
+      "canonical-observation-bus",
+      "benchmark-evidence",
+      "acquisition-evidence"
+    ]
   }
 }
