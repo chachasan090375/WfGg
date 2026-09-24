@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/platform-component-branch-foundry-source-integrator/v1",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "adapter_id": "branch-foundry-source-integrator-v1",
   "candidate_owner": "branch-foundry",
   "mode": "SOURCE_RELEASE_CANDIDATE_INTEGRATION",
@@ -49,5 +49,21 @@
     "automatic_apply": false,
     "secrets_required": false,
     "automatic_external_spend_eur": 0
+  },
+  "status": "QUALIFIED",
+  "qualification": {
+    "basis_sha": "c6d67adb62788cb5f35ff99b7ef42b49610a99c6",
+    "workflow_name": "ChaCha DEV Branch Foundry source integrator qualification",
+    "workflow_run_id": 36055964452,
+    "workflow_conclusion": "success",
+    "universal_workflow_name": "ChaCha DEV universal evolution coverage sync qualification",
+    "universal_workflow_run_id": 36055964355,
+    "universal_workflow_conclusion": "success",
+    "sentinel_workflow_name": "ChaCha DEV Sentinel technical assurance",
+    "sentinel_workflow_run_id": 36055964598,
+    "sentinel_workflow_conclusion": "success",
+    "real_source_repo_mutation": false,
+    "isolated_temporary_git_repo": true,
+    "registered_for_live_component": false
   }
 }
