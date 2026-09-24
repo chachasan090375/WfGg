@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 180,
   "action_lease_default_seconds": 300,
@@ -454,6 +454,28 @@
       "proof": {
         "file": "dev-hub/bin/human-interface-gateway.py",
         "marker": "interface_direct_technical_decision"
+      }
+    },
+    {
+      "component_id": "direct-operator-service",
+      "role": "direct-operator-interface",
+      "kind": "interface",
+      "enforcement_point": "tailscale-identity+central-interface-controller-boundary",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/direct-operator-service.py",
+        "marker": "TAILSCALE_IDENTITY_REQUIRED"
+      }
+    },
+    {
+      "component_id": "functional-translator-satellite",
+      "role": "functional-translator",
+      "kind": "satellite-agent",
+      "enforcement_point": "direct-operator-service+central-orchestrator-independent-recompile",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/functional-translator-agent.py",
+        "marker": "translator_execution_authority"
       }
     }
   ],
