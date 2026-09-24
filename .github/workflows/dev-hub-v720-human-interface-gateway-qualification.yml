@@ -7,6 +7,7 @@ on:
     paths:
       - 'dev-hub/bin/install-v720-human-interface-gateway.sh'
       - 'dev-hub/bin/human-interface-gateway.py'
+      - 'dev-hub/bin/central-interface-controller.py'
       - 'dev-hub/bin/autonomous-project-orchestrator.py'
       - 'dev-hub/config/human-interface-gateway.v1.json'
       - 'dev-hub/config/guardian-coverage-manifest.v1.json'
@@ -36,7 +37,7 @@ jobs:
           if [ -f dev-hub/bin/install-v720-human-interface-gateway.sh ]; then
             bash -n dev-hub/bin/install-v720-human-interface-gateway.sh
           fi
-          python3 -m py_compile             dev-hub/bin/human-interface-gateway.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/tests/test_v720_human_interface_gateway.py
+          python3 -m py_compile             dev-hub/bin/human-interface-gateway.py             dev-hub/bin/central-interface-controller.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/tests/test_v720_human_interface_gateway.py
           python3 -m json.tool dev-hub/config/human-interface-gateway.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
           grep -Fq '"version":"7.2.0"' dev-hub/bin/autonomous-project-orchestrator.py
@@ -47,8 +48,9 @@ jobs:
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v720_human_interface_gateway.py | tee /tmp/v720.out
           grep -Fq 'CHACHA_DEV_V720_HUMAN_INTERFACE_GATEWAY=PASS' /tmp/v720.out
           grep -Fq 'CHACHA_DEV_V720_INSTRUCTION_TO_CENTRAL_ORCHESTRATOR=PASS' /tmp/v720.out
-          grep -Fq 'CHACHA_DEV_V720_GO_CONTINUES_PRIOR_BRAIN_RECEIPT=PASS' /tmp/v720.out
-          grep -Fq 'CHACHA_DEV_V720_ALLO_CANONICAL_STATUS=PASS' /tmp/v720.out
+          grep -Fq 'CHACHA_DEV_V720_GO_FRESH_CENTRAL_REORCHESTRATION=PASS' /tmp/v720.out
+          grep -Fq 'CHACHA_DEV_V720_GO_TRANSACTIONAL_PROJECT_CONTROL_ADVANCE=PASS' /tmp/v720.out
+          grep -Fq 'CHACHA_DEV_V720_ALLO_CENTRAL_STATUS=PASS' /tmp/v720.out
           grep -Fq 'CHACHA_DEV_V720_STOP_OUT_OF_BAND=PASS' /tmp/v720.out
           grep -Fq 'CHACHA_DEV_V720_BRAIN_UNAVAILABLE_FAIL_CLOSED=PASS' /tmp/v720.out
           grep -Fq 'CHACHA_DEV_V720_INTERFACE_TECHNICAL_DECISION_AUTHORITY=NO' /tmp/v720.out
@@ -77,8 +79,8 @@ jobs:
           echo COMPONENT=human-interface-gateway
           echo COMPONENT_IS_AGENT=NO
           echo DECISION_AUTHORITY=central-orchestrator
-          echo ALLO=STATUS
-          echo GO=CONTINUE_PRIOR_BRAIN_RECEIPT
+          echo ALLO=CENTRAL_CONTROLLER_STATUS
+          echo GO=FRESH_CENTRAL_CONTINUATION
           echo STOP=OUT_OF_BAND_EMERGENCY_CONTROL
           echo INSTRUCTION=CENTRAL_ORCHESTRATOR
           echo BRAIN_UNAVAILABLE=FAIL_CLOSED
