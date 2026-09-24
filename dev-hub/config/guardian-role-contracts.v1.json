@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-role-contracts/v1",
-  "version": "1.9.0",
+  "version": "2.0.0",
   "scope": "PLATFORM_GLOBAL",
   "principles": {
     "guardian_is_external_to_central_brain": true,
@@ -49,7 +49,8 @@
         "INVOKE_COMPONENT",
         "FINALIZE_PROJECT_PLAN",
         "FINAL_ARCHITECTURE_DECISION",
-        "REPORT_DECISION"
+        "REPORT_DECISION",
+        "EXECUTE_PLATFORM_RETIREMENT"
       ],
       "forbidden_actions": [
         "EXECUTE_PROVIDER_DIRECTLY",
@@ -58,7 +59,8 @@
       "allowed_permissions": [
         "read",
         "plan",
-        "workspace-write"
+        "workspace-write",
+        "destructive-operation"
       ],
       "required_evidence": []
     },
@@ -728,6 +730,31 @@
         "compromise_digest"
       ],
       "authority_scope": "COST_RESOURCES"
+    },
+    {
+      "contract_id": "role:platform-retirement-executor",
+      "kind": "role",
+      "allowed_actions": [
+        "EXECUTE_PLATFORM_RETIREMENT",
+        "REPORT_PLATFORM_RETIREMENT"
+      ],
+      "forbidden_actions": [
+        "FINAL_ARCHITECTURE_DECISION",
+        "MODIFY_GUARDIAN_CONTRACTS",
+        "MUTATE_APPLICATION_DIRECTLY",
+        "PRODUCTION_DEPLOY"
+      ],
+      "allowed_permissions": [
+        "read",
+        "destructive-operation"
+      ],
+      "required_evidence": [
+        "human_approval",
+        "consolidation_plan",
+        "architecture_council_approval",
+        "rollback_verified"
+      ],
+      "authority_scope": "PLATFORM_PHYSICAL_RELEASE_RETIREMENT"
     }
   ]
 }
