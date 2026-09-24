@@ -6,6 +6,7 @@ on:
       - dev-hub-v653-calibration-handoff-learning-third-adapter-wave
     paths:
       - 'dev-hub/bin/agent_benchmark_adapters.py'
+      - 'dev-hub/bin/install-v653-calibration-handoff-learning-third-wave.sh'
       - 'dev-hub/bin/agent_benchmark_oracles.py'
       - 'dev-hub/bin/agent_benchmark_adapter_runner.py'
       - 'dev-hub/bin/agent_evolution_controller.py'
@@ -34,6 +35,7 @@ jobs:
           python3 -m py_compile dev-hub/bin/agent_benchmark_adapters.py dev-hub/bin/agent_benchmark_oracles.py dev-hub/bin/agent_benchmark_adapter_runner.py dev-hub/bin/agent_evolution_controller.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v653_calibration_handoff_learning_third_wave.py
           python3 -m json.tool dev-hub/config/agent-benchmark-adapters.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-evolution.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v653-calibration-handoff-learning-third-wave.sh
           grep -Fq '"version":"6.53.0"' dev-hub/bin/autonomous-project-orchestrator.py
       - name: V6.53 evidence maturity and third wave
         run: |
@@ -65,5 +67,6 @@ jobs:
             echo 'PRODUCTION_MEASUREMENT_PRECEDENCE=PRESERVED'
             echo 'KEEP_REQUIRES_DIMENSION_COVERAGE_PCT=100'
             echo 'ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES'
+            echo 'REAL_VPS_PILOT_INSTALLER=VALIDATED'
             echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
           } | tee /tmp/v653-receipt.txt
