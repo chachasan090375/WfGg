@@ -68,7 +68,7 @@ def reconcile_dynamic(plan,component_batch):
 
 def main():
     ap=argparse.ArgumentParser()
-    ap.add_argument("--bundle");ap.add_argument("--plan");ap.add_argument("--component-contracts");ap.add_argument("--output",required=True)
+    ap.add_argument("--bundle");ap.add_argument("--plan");ap.add_argument("--component-contracts");ap.add_argument("--project-id");ap.add_argument("--output",required=True)
     a=ap.parse_args()
     if a.bundle:
         if a.plan or a.component_contracts:raise SystemExit("CONTRACT_REGISTRY_MODE_CONFLICT")
@@ -76,6 +76,7 @@ def main():
     else:
         if not a.plan or not a.component_contracts:raise SystemExit("CONTRACT_REGISTRY_DYNAMIC_INPUTS_REQUIRED")
         result=reconcile_dynamic(load(a.plan),load(a.component_contracts))
+    if a.project_id: result["project_id"]=str(a.project_id)
     Path(a.output).write_text(json.dumps(result,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
     print("CHACHA_CONTRACT_REGISTRY=PASS")
     print("CONTRACTS_COMPATIBLE="+("YES" if result["compatible"] else "NO"))
