@@ -36,6 +36,280 @@ on:
       - 'dev-hub/bin/architecture-council-platform-component-review.py'
       - 'dev-hub/tests/test_project_control_bootstrap.py'
       - 'dev-hub/tests/test_platform_component_apply_handoff.py'
+      - 'dev-hub/tests/test_platform_component_adapter_registration.py'
+      - 'dev-hub/config/project-control.v1.json'
+      - 'dev-hub/config/control-plane-state.v1.json'
+      - 'dev-hub/bin/project-control-api.py'
+      - 'dev-hub/bin/project-control.py'
+      - 'dev-hub/tests/test_platform_foundry_native_reassessment.py'
+      - 'dev-hub/tests/test_platform_shadow_idempotency.py'
+      - 'dev-hub/tests/test_platform_pilot_readiness.py'
+      - 'dev-hub/tests/test_platform_pilot_contract_gate.py'
+      - 'dev-hub/config/platform-component-pilot-harness-registry.v1.json'
+      - 'dev-hub/config/capability-foundry.v1.json'
+      - 'dev-hub/config/branch-foundry.v1.json'
+      - 'dev-hub/bin/capability-foundry.py'
+      - 'dev-hub/bin/branch-foundry-planner.py'
+      - 'dev-hub/config/universal-evolution-governance.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/config/agent-observation-bus.v1.json'
+      - 'dev-hub/tests/test_universal_evolution_coverage_sync.py'
+      - 'dev-hub/tests/test_evolution_source_catalog_drift.py'
+      - 'dev-hub/tests/test_platform_reassessment_routing.py'
+      - 'dev-hub/tests/test_platform_foundry_dispatch.py'
+      - 'dev-hub/docs/CHACHA_DEV_CHECKPOINT_2026-09-24_POST_V730_PLATFORM_EVOLUTION_CONTROL.md'
+      - '.github/workflows/dev-hub-universal-evolution-coverage-sync-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/component_evolution_governance.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_observation_bus_health.py dev-hub/bin/platform_component_evolution_controller.py dev-hub/bin/branch-foundry-planner.py dev-hub/bin/capability-foundry.py dev-hub/tests/test_universal_evolution_coverage_sync.py dev-hub/tests/test_evolution_source_catalog_drift.py dev-hub/tests/test_platform_reassessment_routing.py dev-hub/tests/test_platform_foundry_dispatch.py dev-hub/tests/test_platform_foundry_native_reassessment.py dev-hub/tests/test_platform_shadow_idempotency.py dev-hub/tests/test_platform_pilot_readiness.py dev-hub/tests/test_platform_pilot_contract_gate.py dev-hub/tests/test_platform_component_pilot_runner.py dev-hub/bin/architecture-council-platform-component-review.py dev-hub/tests/test_architecture_council_platform_component_review.py dev-hub/bin/project-control.py dev-hub/bin/project-control-api.py dev-hub/tests/test_project_control_bootstrap.py dev-hub/bin/platform-component-promotion-gate.py dev-hub/tests/test_platform_component_promotion_gate.py dev-hub/bin/platform-component-controlled-apply-planner.py dev-hub/tests/test_platform_component_controlled_apply_planner.py dev-hub/bin/platform-component-source-integration-executor.py dev-hub/tests/test_platform_component_source_integration_executor.py dev-hub/bin/platform-component-adapter-binding-gate.py dev-hub/tests/test_platform_component_adapter_binding_gate.py dev-hub/tests/test_platform_component_apply_handoff.py dev-hub/adapters/platform-component-branch-foundry-source-integrator.py dev-hub/tests/test_platform_component_branch_foundry_source_integrator.py dev-hub/bin/adapter-provision.py dev-hub/tests/test_platform_component_branch_foundry_source_integrator_provisioning.py
+          python3 -m json.tool dev-hub/config/universal-evolution-governance.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/agent-observation-bus.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/branch-foundry.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/capability-foundry.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/platform-component-pilot-harness-registry.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/technology-core-watch.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/architecture-decision-council.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/project-control.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/control-plane-state.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/platform-component-apply-adapter-registry.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/platform-component-adapter-binding-gate.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/platform-component-branch-foundry-source-integrator.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/adapter-provisioning.v1.json >/dev/null
+      - name: Guardian to evolution coverage sync
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_universal_evolution_coverage_sync.py | tee /tmp/coverage-sync.out
+          grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_GUARDIAN_SYNC=PASS' /tmp/coverage-sync.out
+          grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_CENTRAL_INTERFACE_CONTROLLER=GOVERNED' /tmp/coverage-sync.out
+          grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_UNMAPPED_KIND=FAIL_CLOSED' /tmp/coverage-sync.out
+          grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_BACKWARD_COMPATIBILITY=PASS' /tmp/coverage-sync.out
+          grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_SELF_MUTATION=NO' /tmp/coverage-sync.out
+          grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/coverage-sync.out
+      - name: Evolution source catalog drift
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_evolution_source_catalog_drift.py | tee /tmp/source-drift.out
+          grep -Fq 'CHACHA_DEV_EVOLUTION_SOURCE_DRIFT=PASS' /tmp/source-drift.out
+          grep -Fq 'CHACHA_DEV_GUARDIAN_MANIFEST_DRIFT_REASSESS=PASS' /tmp/source-drift.out
+          grep -Fq 'CHACHA_DEV_BUS_EVOLUTION_OWNER=BRANCH_FOUNDRY' /tmp/source-drift.out
+          grep -Fq 'CHACHA_DEV_MCP_CATALOG_DRIFT_REASSESS=PASS' /tmp/source-drift.out
+          grep -Fq 'CHACHA_DEV_EVOLUTION_SOURCE_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/source-drift.out
+      - name: Platform reassessment routing
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_reassessment_routing.py | tee /tmp/platform-routing.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_REASSESSMENT_QUEUE_CONSUMED=PASS' /tmp/platform-routing.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_CAPABILITY_FOUNDRY_ROUTING=PASS' /tmp/platform-routing.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_BRANCH_FOUNDRY_ROUTING=PASS' /tmp/platform-routing.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_UNKNOWN_OWNER=BLOCKED' /tmp/platform-routing.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/platform-routing.out
+      - name: Platform foundry dispatch contract
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_foundry_dispatch.py | tee /tmp/foundry-dispatch.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_FOUNDRY_DISPATCH=PASS' /tmp/foundry-dispatch.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_BRANCH_FOUNDRY_CONTRACT=PASS' /tmp/foundry-dispatch.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_CAPABILITY_FOUNDRY_CONTRACT=PASS' /tmp/foundry-dispatch.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_OWNER_MISMATCH=BLOCKED' /tmp/foundry-dispatch.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_FOUNDRY_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/foundry-dispatch.out
+      - name: Native platform reassessment in foundries
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_foundry_native_reassessment.py | tee /tmp/native-reassessment.out
+          grep -Fq 'CHACHA_DEV_BRANCH_FOUNDRY_PLATFORM_REASSESSMENT=PASS' /tmp/native-reassessment.out
+          grep -Fq 'CHACHA_DEV_CAPABILITY_FOUNDRY_PLATFORM_REASSESSMENT=PASS' /tmp/native-reassessment.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_REASSESSMENT_SHADOW_EXECUTION=PASS' /tmp/native-reassessment.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_REASSESSMENT_STALE_WATCH=BLOCKED' /tmp/native-reassessment.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_REASSESSMENT_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/native-reassessment.out
+      - name: Platform shadow idempotency
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_shadow_idempotency.py | tee /tmp/shadow-idempotency.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_SHADOW_IDEMPOTENCY=PASS' /tmp/shadow-idempotency.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_SHADOW_REPEAT_WATCH_CALL=NO' /tmp/shadow-idempotency.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_SHADOW_NEW_DISPATCH_EXECUTES=YES' /tmp/shadow-idempotency.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_SHADOW_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/shadow-idempotency.out
+      - name: Platform pilot readiness gate
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_pilot_readiness.py | tee /tmp/pilot-readiness.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_PILOT_GATE=PASS' /tmp/pilot-readiness.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_CANDIDATE_ALONE_PILOT=NO' /tmp/pilot-readiness.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_INDEPENDENT_EVIDENCE_REQUIRED=YES' /tmp/pilot-readiness.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_PILOT_EXECUTION_AUTHORIZED=NO' /tmp/pilot-readiness.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_PILOT_GATE_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/pilot-readiness.out
+      - name: Platform pilot contract gate
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_pilot_contract_gate.py | tee /tmp/pilot-contract.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_PILOT_CONTRACT_GATE=PASS' /tmp/pilot-contract.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_PILOT_EXACT_ARTIFACTS_REQUIRED=YES' /tmp/pilot-contract.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_REAL_HARNESS_REGISTRY_REQUIRED=YES' /tmp/pilot-contract.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_ISOLATED_PILOT_CONTRACT=PASS' /tmp/pilot-contract.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_PILOT_CONTRACT_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/pilot-contract.out
+      - name: Platform component comparative pilot runner
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_component_pilot_runner.py | tee /tmp/platform-pilot-runner.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PILOT_RUNNER=PASS' /tmp/platform-pilot-runner.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PILOT_ISOLATED_SYSTEMD=YES' /tmp/platform-pilot-runner.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PILOT_EXACT_SENTINEL_SHA=YES' /tmp/platform-pilot-runner.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PILOT_GUARDIAN_COVERAGE=PASS' /tmp/platform-pilot-runner.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PILOT_GUARDIAN_ROLE=PASS' /tmp/platform-pilot-runner.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PILOT_COUNCIL_HANDOFF=YES' /tmp/platform-pilot-runner.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PILOT_PRODUCTION_CHANGE=NO' /tmp/platform-pilot-runner.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PILOT_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/platform-pilot-runner.out
+      - name: Architecture Council platform component review
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_architecture_council_platform_component_review.py | tee /tmp/platform-council.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_COUNCIL_REVIEW=PASS' /tmp/platform-council.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_COUNCIL_EXACT_SHA_GATES=PASS' /tmp/platform-council.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_COUNCIL_POLICY_FAIL_CLOSED=PASS' /tmp/platform-council.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_COUNCIL_HOLD_INCUMBENT=YES' /tmp/platform-council.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_COUNCIL_PRODUCTION_ACTIVATION=NO' /tmp/platform-council.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_COUNCIL_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/platform-council.out
+      - name: Canonical Project Control bootstrap and human approval boundary
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_project_control_bootstrap.py | tee /tmp/project-control-bootstrap.out
+          grep -Fq 'CHACHA_DEV_PROJECT_CONTROL_BOOTSTRAP=PASS' /tmp/project-control-bootstrap.out
+          grep -Fq 'CHACHA_DEV_PROJECT_CONTROL_BOOTSTRAP_CANONICAL_ENGINES=YES' /tmp/project-control-bootstrap.out
+          grep -Fq 'CHACHA_DEV_PROJECT_CONTROL_BOOTSTRAP_IDEMPOTENT=YES' /tmp/project-control-bootstrap.out
+          grep -Fq 'CHACHA_DEV_PROJECT_CONTROL_BOOTSTRAP_FORWARD_ONLY=YES' /tmp/project-control-bootstrap.out
+          grep -Fq 'CHACHA_DEV_PROJECT_CONTROL_HUMAN_APPROVAL_PROTECTED=YES' /tmp/project-control-bootstrap.out
+          grep -Fq 'CHACHA_DEV_PROJECT_CONTROL_API_APPROVAL_SYNTHESIS=NO' /tmp/project-control-bootstrap.out
+          grep -Fq 'CHACHA_DEV_PROJECT_CONTROL_BOOTSTRAP_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/project-control-bootstrap.out
+      - name: Canonical Project Control central apply handoff
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_component_apply_handoff.py | tee /tmp/platform-apply-handoff.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_APPLY_HANDOFF=PASS' /tmp/platform-apply-handoff.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_APPLY_HANDOFF_PROJECT_CONTROL=CANONICAL' /tmp/platform-apply-handoff.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_APPLY_HANDOFF_HUMAN_APPROVAL=REVALIDATED' /tmp/platform-apply-handoff.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_APPLY_HANDOFF_ACTOR=CENTRAL_ORCHESTRATOR' /tmp/platform-apply-handoff.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_APPLY_HANDOFF_SINGLE_USE=YES' /tmp/platform-apply-handoff.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_APPLY_HANDOFF_AUDITED=YES' /tmp/platform-apply-handoff.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_APPLY_HANDOFF_API_SYNTHESIS=NO' /tmp/platform-apply-handoff.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_APPLY_HANDOFF_PRODUCTION_ACTIVATION=NO' /tmp/platform-apply-handoff.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_APPLY_HANDOFF_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/platform-apply-handoff.out
+      - name: Protected platform component adapter registration contract
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_component_adapter_registration.py | tee /tmp/platform-adapter-registration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_CONTRACT=PASS' /tmp/platform-adapter-registration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_PROJECT_CONTROL=CANONICAL' /tmp/platform-adapter-registration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_SEPARATE_HUMAN_APPROVAL=YES' /tmp/platform-adapter-registration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_SYSTEM_APPROVAL=BLOCKED' /tmp/platform-adapter-registration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_ADDITIVE_ONLY=YES' /tmp/platform-adapter-registration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_OVERWRITE=NO' /tmp/platform-adapter-registration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_DELETE=NO' /tmp/platform-adapter-registration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_SOURCE_INTEGRATION=NO' /tmp/platform-adapter-registration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_GENERIC_EVENT=BLOCKED' /tmp/platform-adapter-registration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_API_SYNTHESIS=NO' /tmp/platform-adapter-registration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_MUTATION_DURING_ISSUANCE=NO' /tmp/platform-adapter-registration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/platform-adapter-registration.out
+      - name: Protected platform component promotion gate
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_component_promotion_gate.py | tee /tmp/platform-promotion-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_GATE=PASS' /tmp/platform-promotion-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_NO_APPROVAL=AWAIT' /tmp/platform-promotion-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_SYSTEM_APPROVAL=BLOCKED' /tmp/platform-promotion-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_HUMAN_APPROVAL=VERIFIED' /tmp/platform-promotion-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_AUTOMATIC_APPLY=NO' /tmp/platform-promotion-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_CONTROLLED_APPLY_CONTRACT=PASS' /tmp/platform-promotion-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_CONTROLLED_APPLY_SCOPE=SOURCE_RELEASE_CANDIDATE_ONLY' /tmp/platform-promotion-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_GUARDIAN_COVERAGE=PASS' /tmp/platform-promotion-gate.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_PROMOTION_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/platform-promotion-gate.out
+      - name: Deny-by-default platform component controlled apply planner
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_component_controlled_apply_planner.py | tee /tmp/platform-controlled-apply.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_CONTROLLED_APPLY_PLANNER=PASS' /tmp/platform-controlled-apply.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_APPLY_ADAPTER_DEFAULT=DENY' /tmp/platform-controlled-apply.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_APPLY_NO_ADAPTER=AWAIT' /tmp/platform-controlled-apply.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_APPLY_VALID_ADAPTER=PLAN_READY' /tmp/platform-controlled-apply.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_APPLY_EXECUTION_AUTHORIZED_BY_PLANNER=NO' /tmp/platform-controlled-apply.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_APPLY_RUNTIME_MUTATION=NO' /tmp/platform-controlled-apply.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_APPLY_PRODUCTION_ACTIVATION=NO' /tmp/platform-controlled-apply.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_APPLY_GUARDIAN_COVERAGE=PASS' /tmp/platform-controlled-apply.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_APPLY_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/platform-controlled-apply.out
+      - name: Controlled source integration executor
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_component_source_integration_executor.py | tee /tmp/platform-source-integration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_SOURCE_INTEGRATION_EXECUTOR=PASS' /tmp/platform-source-integration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_SOURCE_INTEGRATION_CENTRAL_HANDOFF=REQUIRED' /tmp/platform-source-integration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_SOURCE_INTEGRATION_SINGLE_USE=YES' /tmp/platform-source-integration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_SOURCE_INTEGRATION_TRUSTED_ADAPTER_ROOT=ENFORCED' /tmp/platform-source-integration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_SOURCE_INTEGRATION_POST_GATE_FAILURE=ROLLBACK' /tmp/platform-source-integration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_SOURCE_INTEGRATION_EMERGENCY_STOP=ENFORCED' /tmp/platform-source-integration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_SOURCE_INTEGRATION_RUNTIME_MUTATION=NO' /tmp/platform-source-integration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_SOURCE_INTEGRATION_PRODUCTION_ACTIVATION=NO' /tmp/platform-source-integration.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_SOURCE_INTEGRATION_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/platform-source-integration.out
+      - name: Protected component adapter binding proposal gate
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_component_adapter_binding_gate.py | tee /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_GATE=PASS' /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_PROPOSAL=PASS' /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_EXISTING_BINDING=BLOCKED' /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_OWNER_MISMATCH=BLOCKED' /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_DIGEST_MISMATCH=BLOCKED' /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_EXACT_SHA_GATES=REQUIRED' /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRATION_AUTHORIZED=NO' /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_MUTATION=NO' /tmp/platform-adapter-binding.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/platform-adapter-binding.out
+      - name: Receipt
+        run: |
+          echo CHACHA_DEV_UNIVERSAL_EVOLUTION_COVERAGE_SYNC_QUALIFICATION=PASS
+          echo GUARDIAN_IS_EVOLUTION_SOURCE=YES
+          echo UNMAPPED_GUARDIAN_KIND_FAILS_CLOSED=YES
+          echo BACKWARD_COMPATIBILITY_WITHOUT_GUARDIAN_INPUT=YES
+          echo CENTRAL_INTERFACE_CONTROLLER_GOVERNED=YES
+          echo EVOLUTION_SOURCE_CATALOG_DRIFT_REASSESSMENT=YES
+          echo PLATFORM_REASSESSMENT_QUEUE_ROUTED=YES
+          echo BUS_EVOLUTION_OWNER=BRANCH_FOUNDRY
+          echo PLATFORM_FOUNDRY_DISPATCH_CONTRACT=YES
+          echo PLATFORM_FOUNDRY_NATIVE_SHADOW_REASSESSMENT=YES
+          echo PLATFORM_FOUNDRY_SHADOW_IDEMPOTENT=YES
+          echo PLATFORM_PILOT_READINESS_EVIDENCE_GATED=YES
+          echo PLATFORM_PILOT_REAL_HARNESS_REGISTRY_GATE=YES
+          echo PLATFORM_COMPONENT_COMPARATIVE_PILOT_RUNNER=YES
+          echo PLATFORM_COMPONENT_ARCHITECTURE_COUNCIL_REVIEW=YES
+          echo PROJECT_CONTROL_PLATFORM_BOOTSTRAP=YES
+          echo PROJECT_CONTROL_HUMAN_APPROVAL_BOUNDARY=PROTECTED
+          echo PLATFORM_COMPONENT_PROMOTION_GATE=PROTECTED_HUMAN_APPROVAL
+          echo PLATFORM_COMPONENT_AUTOMATIC_PROMOTION=NO
+          echo PLATFORM_COMPONENT_CONTROLLED_APPLY_SCOPE=SOURCE_RELEASE_CANDIDATE_ONLY
+          echo PLATFORM_COMPONENT_CONTROLLED_APPLY_PLANNER=DENY_BY_DEFAULT
+          echo PLATFORM_COMPONENT_APPLY_HANDOFF=PROJECT_CONTROL_CANONICAL
+          echo PLATFORM_COMPONENT_SOURCE_INTEGRATION_EXECUTOR=GUARDED
+          echo PLATFORM_COMPONENT_ADAPTER_BINDING_GATE=PROPOSAL_ONLY
+          echo PLATFORM_COMPONENT_ADAPTER_AUTOMATIC_REGISTRATION=NO
+          echo PLATFORM_COMPONENT_ADAPTER_REGISTRATION_CONTRACT=PROJECT_CONTROL_PROTECTED
+          echo SELF_MUTATION=NO
+          echo SELF_PROMOTION=NO
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0 dev-hub/tests/test_platform_component_adapter_registration.py
+      - 'dev-hub/tests/test_platform_component_adapter_registration.py'
       - 'dev-hub/config/project-control.v1.json'
       - 'dev-hub/config/control-plane-state.v1.json'
       - 'dev-hub/bin/project-control-api.py'
