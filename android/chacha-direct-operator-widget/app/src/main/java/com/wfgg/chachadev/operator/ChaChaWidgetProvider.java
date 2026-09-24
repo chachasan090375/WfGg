@@ -17,14 +17,18 @@ public class ChaChaWidgetProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager manager, int[] ids) {
         for (int id : ids) {
-            RemoteViews views = buildViews(context, id, context.getString(R.string.widget_prompt));
+            RemoteViews views = buildViews(context, id, context.getString(R.string.widget_prompt), 86, 0, "PRÊT");
             manager.updateAppWidget(id, views);
         }
     }
 
-    private static RemoteViews buildViews(Context context, int widgetId, String prompt) {
+    private static RemoteViews buildViews(Context context, int widgetId, String prompt, int globalPercent, int workPercent, String state) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_chacha);
         views.setTextViewText(R.id.widget_prompt, prompt);
+        views.setTextViewText(R.id.widget_global, globalPercent + "%");
+        views.setProgressBar(R.id.widget_global_progress, 100, Math.max(0, Math.min(100, globalPercent)), false);
+        views.setProgressBar(R.id.widget_work_progress, 100, Math.max(0, Math.min(100, workPercent)), false);
+        views.setTextViewText(R.id.widget_status, "ERREUR".equals(state) ? "!" : ("COMPLETE".equals(state) ? "✓" : "●"));
         views.setOnClickPendingIntent(R.id.widget_prompt, activityIntent(context, widgetId * 10 + 1, MODE_TYPE));
         views.setOnClickPendingIntent(R.id.widget_mic, activityIntent(context, widgetId * 10 + 2, MODE_VOICE));
         views.setOnClickPendingIntent(R.id.widget_status, activityIntent(context, widgetId * 10 + 3, MODE_STATUS));
@@ -44,11 +48,15 @@ public class ChaChaWidgetProvider extends AppWidgetProvider {
     }
 
     public static void updatePrompt(Context context, String prompt) {
+        updateContext(context, 86, 0, prompt, "PRÊT");
+    }
+
+    public static void updateContext(Context context, int globalPercent, int workPercent, String message, String state) {
         AppWidgetManager manager = AppWidgetManager.getInstance(context);
         ComponentName component = new ComponentName(context, ChaChaWidgetProvider.class);
         int[] ids = manager.getAppWidgetIds(component);
         for (int id : ids) {
-            manager.updateAppWidget(id, buildViews(context, id, prompt));
+            manager.updateAppWidget(id, buildViews(context, id, message, globalPercent, workPercent, state));
         }
     }
 }
