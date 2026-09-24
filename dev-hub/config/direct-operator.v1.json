@@ -1,0 +1,41 @@
+{
+  "schema": "chacha.dev/direct-operator-policy/v1",
+  "version": "1.0.0",
+  "component": "direct-operator-service",
+  "bind": "127.0.0.1",
+  "port": 8792,
+  "runtime_root": "/opt/chacha-dev/runtime/direct-operator",
+  "ui_root": "dev-hub/direct-operator-ui",
+  "max_request_bytes": 65536,
+  "default_project": "chacha-dev-platform",
+  "authentication": {
+    "mode": "TAILSCALE_SERVE_IDENTITY",
+    "login_header": "Tailscale-User-Login",
+    "authorized_users_file": "/opt/chacha-dev/runtime/secrets/direct-operator-authorized-users.json",
+    "fail_closed_if_identity_missing": true,
+    "backend_must_bind_loopback": true
+  },
+  "transport": {
+    "public_funnel_forbidden": true,
+    "tailscale_serve_private_only": true,
+    "tailscale_https_port": 8443,
+    "expected_url": "https://chachavps.tail3ab05a.ts.net:8443"
+  },
+  "translator": {
+    "id": "functional-translator-satellite",
+    "script": "dev-hub/bin/functional-translator-agent.py",
+    "execution_authority": false,
+    "architecture_authority": false,
+    "raw_text_preserved": true
+  },
+  "central_controller": "dev-hub/bin/central-interface-controller.py",
+  "emergency_controller": "dev-hub/bin/emergency-stop-controller.py",
+  "invariants": {
+    "chatgpt_not_in_direct_path": true,
+    "direct_operator_has_no_technical_decision_authority": true,
+    "direct_operator_has_no_direct_mutation": true,
+    "central_orchestrator_required": true,
+    "guardian_and_platform_governance_preserved": true,
+    "automatic_external_spend_eur": 0
+  }
+}
