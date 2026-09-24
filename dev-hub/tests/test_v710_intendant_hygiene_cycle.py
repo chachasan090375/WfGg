@@ -95,14 +95,20 @@ with tempfile.TemporaryDirectory(prefix="v710-hygiene-") as td:
 
     # Scheduler threshold forces weekly dry-run but does not mutate in dry-run mode.
     platform=td/"platform";(platform/"releases").mkdir(parents=True)
-    active_rev="7"*40;v700="b061f1405fc758ff22be241c5c791a3ecb58c9ec";v663="a3803180a64f1ea95d94466b7b10529a7a4af92f";v660="f78cb1972112d32b1ac3ae582009bc96385be58c"
+    active_rev="7"*40;prev71="8"*40;v700="b061f1405fc758ff22be241c5c791a3ecb58c9ec";v663="a3803180a64f1ea95d94466b7b10529a7a4af92f";v660="f78cb1972112d32b1ac3ae582009bc96385be58c"
     active=write_release(platform,"20260924T180000Z-"+active_rev,active_rev,"7.1.0")
     duplicate_active=write_release(platform,"20260924T175500Z-duplicate-"+active_rev,active_rev,"7.1.0")
+    previous_v71=write_release(platform,"20260924T171500Z-"+prev71,prev71,"7.1.0")
     r700=write_release(platform,"20260924T170000Z-"+v700,v700,"7.0.0")
-    r663=write_release(platform,"20260924T160000Z-"+v663,v663,"6.63.0")
+    # Simulate an old acquired rollback physically restored later than V7.0.
+    # Selection must follow acquisition evidence time, not directory timestamp.
+    r663=write_release(platform,"20260924T175900Z-restored-"+v663,v663,"6.63.0")
     r660=write_release(platform,"20260924T150000Z-"+v660,v660,"6.60.0")
     (platform/"current").symlink_to(active)
-    evidence=td/"evidence";evidence.mkdir();save(evidence/"v700.json",{"revision":v700});save(evidence/"v663.json",{"revision":v663})
+    evidence=td/"evidence";evidence.mkdir()
+    save(evidence/"prev71.json",{"revision":prev71,"observed_at":"20260924T162520Z"})
+    save(evidence/"v700.json",{"revision":v700,"observed_at":"20260924T153443Z"})
+    save(evidence/"v663.json",{"revision":v663,"observed_at":"20260924T144805Z"})
     cp=json.loads(json.dumps(consolidation));cp["physical_release_retention"]["verification_evidence_root"]=str(evidence)
     cp["physical_release_retention"]["fallback_verified_rollback_revisions"]=[v700,v663]
     cp_path=td/"consolidation.json";save(cp_path,cp)
@@ -127,9 +133,10 @@ with tempfile.TemporaryDirectory(prefix="v710-hygiene-") as td:
     assert "RELEASE_OVERAGE" in latest["threshold_reasons"],latest
     weekly=next(x for x in latest["results"] if x["cycle"]=="WEEKLY_DRY_RUN")
     action=next(x for x in weekly["actions"] if x["action"]=="RELEASE_RETIREMENT_DRY_RUN")
-    assert action["retire_count"]==2,action
-    assert action["selected_rollback_revisions"]==[v700,v663],action
-    assert all(x.exists() for x in (active,duplicate_active,r700,r663,r660)),"dry-run mutated releases"
+    assert action["retire_count"]==3,action
+    assert action["selected_rollback_revisions"]==[prev71,v700],action
+    assert action.get("rollback_selection_basis")=="PLATFORM_VERSION_THEN_ACQUISITION_EVIDENCE_TIME",action
+    assert all(x.exists() for x in (active,duplicate_active,previous_v71,r700,r663,r660)),"dry-run mutated releases"
     assert active_rev not in action["selected_rollback_revisions"],action
 
     # Forced cycles are exclusive: daily means daily only; monthly remains review-only.
@@ -196,9 +203,10 @@ print(json.dumps({'schema':'chacha.dev/guardian-verdict/v3','event_id':event['ev
     latest=load(runtime/"intendant/latest.json")
     weekly=next(x for x in latest["results"] if x["cycle"]=="WEEKLY_DRY_RUN")
     applied=next(x for x in weekly["actions"] if x["action"]=="SAFE_RELEASE_RETIREMENT_APPLY")
-    assert applied["executor"]=="central-orchestrator" and applied["deleted_release_count"]==2,applied
+    assert applied["executor"]=="central-orchestrator" and applied["deleted_release_count"]==3,applied
     assert applied["guardian_post_action"] is True,applied
-    assert active.is_dir() and r700.is_dir() and r663.is_dir() and not r660.exists() and not duplicate_active.exists()
+    assert active.is_dir() and previous_v71.is_dir() and r700.is_dir()
+    assert not r663.exists() and not r660.exists() and not duplicate_active.exists()
     assert sum(1 for p in (platform/"releases").iterdir() if p.is_dir())==3
 
 print("CHACHA_DEV_V710_SINGLE_HYGIENE_TIMER=PASS")
