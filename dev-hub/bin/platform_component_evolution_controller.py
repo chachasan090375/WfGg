@@ -112,6 +112,48 @@ def execute_shadow_dispatches(dispatch_index:dict[str,Any],governance:dict[str,A
       "promotion_authorized":False,"self_promotion":False,
       "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
 
+def build_pilot_readiness(shadow_ledger:dict[str,Any],evidence_index:dict[str,Any])->dict[str,Any]:
+    evidence_by={}
+    for row in evidence_index.get("evidence") or []:
+        if isinstance(row,dict) and str(row.get("dispatch_id") or ""):
+            evidence_by[str(row.get("dispatch_id"))]=row
+    rows=[];ready=[];blocked=[]
+    required=[
+      "independent_verification","measurable_gain","no_material_regression",
+      "permission_non_escalation","rollback_ready","exact_revision_evidence",
+      "logician_falsification_pass","technology_watch_revalidation_pass","real_harness_available"
+    ]
+    completed=shadow_ledger.get("completed") if isinstance(shadow_ledger.get("completed"),dict) else {}
+    for did,entry in sorted(completed.items()):
+        result=entry.get("shadow_result") if isinstance(entry.get("shadow_result"),dict) else {}
+        cid=str(entry.get("component_id") or result.get("component_id") or "")
+        signals=list(result.get("shadow_candidate_signals") or [])
+        pilot_required=bool(result.get("pilot_required") is True)
+        ev=evidence_by.get(str(did)) or {}
+        refs=[str(x) for x in ev.get("evidence_refs") or [] if str(x)]
+        missing=[k for k in required if ev.get(k) is not True]
+        if not refs:missing.append("evidence_refs")
+        if not signals:missing.append("shadow_candidate_signals")
+        state="NOT_REQUIRED" if not pilot_required else ("PILOT_READY" if not missing else "HOLD_SHADOW")
+        row={"dispatch_id":did,"component_id":cid,"candidate_owner":entry.get("candidate_owner"),
+          "state":state,"pilot_required":pilot_required,"shadow_candidate_signal_count":len(signals),
+          "evidence_refs":refs,"missing_evidence":sorted(set(missing)),
+          "pilot_execution_authorized":False,"production_change_authorized":False,
+          "active_component_mutation":False,"promotion_authorized":False,
+          "permission_expansion":False,"real_harness_required":True,
+          "isolated_pilot_required":True,"guardian_required":True,"sentinel_required":True,
+          "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+        rows.append(row)
+        if state=="PILOT_READY":ready.append(row)
+        elif state=="HOLD_SHADOW":blocked.append(row)
+    return {"schema":"chacha.dev/platform-component-pilot-readiness-index/v1",
+      "evaluated_count":len(rows),"pilot_ready_count":len(ready),"hold_shadow_count":len(blocked),
+      "rows":rows,"pilot_ready":ready,"hold_shadow":blocked,
+      "candidate_presence_alone_never_authorizes_pilot":True,
+      "pilot_execution_authorized":False,"production_change_authorized":False,
+      "promotion_authorized":False,"architecture_council_final_authority":True,
+      "automatic_external_spend_eur":0}
+
 def main()->int:
     ap=argparse.ArgumentParser()
     ap.add_argument("--reassessment-index",type=Path,required=True)

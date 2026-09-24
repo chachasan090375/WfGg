@@ -11,6 +11,7 @@ on:
       - 'dev-hub/bin/platform_component_evolution_controller.py'
       - 'dev-hub/tests/test_platform_foundry_native_reassessment.py'
       - 'dev-hub/tests/test_platform_shadow_idempotency.py'
+      - 'dev-hub/tests/test_platform_pilot_readiness.py'
       - 'dev-hub/config/capability-foundry.v1.json'
       - 'dev-hub/config/branch-foundry.v1.json'
       - 'dev-hub/bin/capability-foundry.py'
@@ -40,7 +41,7 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
-          python3 -m py_compile dev-hub/bin/component_evolution_governance.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_observation_bus_health.py dev-hub/bin/platform_component_evolution_controller.py dev-hub/bin/branch-foundry-planner.py dev-hub/bin/capability-foundry.py dev-hub/tests/test_universal_evolution_coverage_sync.py dev-hub/tests/test_evolution_source_catalog_drift.py dev-hub/tests/test_platform_reassessment_routing.py dev-hub/tests/test_platform_foundry_dispatch.py dev-hub/tests/test_platform_foundry_native_reassessment.py dev-hub/tests/test_platform_shadow_idempotency.py
+          python3 -m py_compile dev-hub/bin/component_evolution_governance.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_observation_bus_health.py dev-hub/bin/platform_component_evolution_controller.py dev-hub/bin/branch-foundry-planner.py dev-hub/bin/capability-foundry.py dev-hub/tests/test_universal_evolution_coverage_sync.py dev-hub/tests/test_evolution_source_catalog_drift.py dev-hub/tests/test_platform_reassessment_routing.py dev-hub/tests/test_platform_foundry_dispatch.py dev-hub/tests/test_platform_foundry_native_reassessment.py dev-hub/tests/test_platform_shadow_idempotency.py dev-hub/tests/test_platform_pilot_readiness.py
           python3 -m json.tool dev-hub/config/universal-evolution-governance.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-observation-bus.v1.json >/dev/null
@@ -100,6 +101,15 @@ jobs:
           grep -Fq 'CHACHA_DEV_PLATFORM_SHADOW_REPEAT_WATCH_CALL=NO' /tmp/shadow-idempotency.out
           grep -Fq 'CHACHA_DEV_PLATFORM_SHADOW_NEW_DISPATCH_EXECUTES=YES' /tmp/shadow-idempotency.out
           grep -Fq 'CHACHA_DEV_PLATFORM_SHADOW_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/shadow-idempotency.out
+      - name: Platform pilot readiness gate
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_pilot_readiness.py | tee /tmp/pilot-readiness.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_PILOT_GATE=PASS' /tmp/pilot-readiness.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_CANDIDATE_ALONE_PILOT=NO' /tmp/pilot-readiness.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_INDEPENDENT_EVIDENCE_REQUIRED=YES' /tmp/pilot-readiness.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_PILOT_EXECUTION_AUTHORIZED=NO' /tmp/pilot-readiness.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_PILOT_GATE_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/pilot-readiness.out
       - name: Receipt
         run: |
           echo CHACHA_DEV_UNIVERSAL_EVOLUTION_COVERAGE_SYNC_QUALIFICATION=PASS
@@ -113,6 +123,7 @@ jobs:
           echo PLATFORM_FOUNDRY_DISPATCH_CONTRACT=YES
           echo PLATFORM_FOUNDRY_NATIVE_SHADOW_REASSESSMENT=YES
           echo PLATFORM_FOUNDRY_SHADOW_IDEMPOTENT=YES
+          echo PLATFORM_PILOT_READINESS_EVIDENCE_GATED=YES
           echo SELF_MUTATION=NO
           echo SELF_PROMOTION=NO
           echo AUTOMATIC_EXTERNAL_SPEND_EUR=0

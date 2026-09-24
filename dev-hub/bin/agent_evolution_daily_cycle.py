@@ -132,11 +132,15 @@ def main()->int:
         did=str(result.get("dispatch_id") or "")
         if not did:continue
         completed_map[did]={"component_id":result.get("component_id"),"candidate_owner":result.get("candidate_owner"),
-          "state":"SHADOW_ASSESSED","completed_at":iso(stamp),"result_digest":"sha256:"+pcec.digest(result)}
+          "state":"SHADOW_ASSESSED","completed_at":iso(stamp),"result_digest":"sha256:"+pcec.digest(result),
+          "shadow_result":result}
     shadow_ledger={"schema":"chacha.dev/platform-foundry-shadow-ledger/v1","completed":completed_map,
       "completed_count":len(completed_map),"append_only_logical":True,
       "queue_file_deletion_required":False,"automatic_external_spend_eur":0}
     save(shadow_ledger_path,shadow_ledger)
+    shadow_evidence=safe(pe/"shadow-evidence.json")
+    pilot_readiness=pcec.build_pilot_readiness(shadow_ledger,shadow_evidence)
+    save(pe/"pilot-readiness-latest.json",pilot_readiness)
     receipt={"schema":"chacha.dev/agent-evolution-daily-cycle/v1","generated_at":iso(stamp),"agent_count":report.get("agent_count"),
       "optimization_count":len(report.get("optimization_queue") or []),"measurement_count":len(report.get("measurement_queue") or []),
       "event_request_count":len(requests),"scheduled_action_count":len(scheduled),
@@ -151,6 +155,9 @@ def main()->int:
       "platform_foundry_shadow_blocked_count":platform_shadow.get("blocked_count"),
       "platform_foundry_shadow_ledger_count":shadow_ledger.get("completed_count"),
       "platform_foundry_shadow_execution_complete":platform_shadow.get("shadow_execution_complete"),
+      "platform_pilot_ready_count":pilot_readiness.get("pilot_ready_count"),
+      "platform_hold_shadow_count":pilot_readiness.get("hold_shadow_count"),
+      "platform_pilot_execution_authorized":pilot_readiness.get("pilot_execution_authorized"),
       "deep_audit_due":deep,"ecosystem_benchmark_due":bench,
       "benchmark_campaign_created":benchmark_campaign is not None,
       "benchmark_contract_count":len((benchmark_campaign or {}).get("contracts") or []),
@@ -174,5 +181,7 @@ def main()->int:
     print("PLATFORM_REASSESSMENT_ROUTING="+("PASS" if platform_idx["routing_complete"] else "BLOCKED"))
     print("PLATFORM_FOUNDRY_DISPATCH="+("PASS" if platform_dispatch["dispatch_complete"] else "BLOCKED"))
     print("PLATFORM_FOUNDRY_SHADOW="+("PASS" if platform_shadow["shadow_execution_complete"] else ("IDLE" if platform_shadow["input_dispatch_count"]==0 else "BLOCKED")))
+    print("PLATFORM_PILOT_READY="+str(pilot_readiness["pilot_ready_count"]))
+    print("PLATFORM_HOLD_SHADOW="+str(pilot_readiness["hold_shadow_count"]))
     print("CHACHA_DEV_V648_AUTOMATIC_EXTERNAL_SPEND_EUR=0");return 0
 if __name__=="__main__":raise SystemExit(main())

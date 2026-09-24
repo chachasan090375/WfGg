@@ -63,6 +63,7 @@ def platform_component_reassessment(contract:dict[str,Any],governance:dict[str,A
         "candidate_count":len(candidates),"zero_spend_candidate_count":len(zero),
         "automatic_external_spend_eur":0},
       "shadow_candidate_signals":[str(x.get("id") or x.get("name") or "") for x in zero[:10] if str(x.get("id") or x.get("name") or "")],
+      "pilot_required":bool(contract.get("pilot_required") is True),
       "next_stage":"SHADOW_EVIDENCE_COLLECTION" if watch_ok else "TECHNOLOGY_WATCH_REVALIDATION",
       "materialization_authorized":False,"active_component_mutation":False,
       "promotion_authorized":False,"permission_expansion":False,
