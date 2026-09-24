@@ -53,9 +53,9 @@ root=pathlib.Path(sys.argv[1])
 src=(root/"dev-hub/bin/autonomous-project-orchestrator.py").read_text(encoding="utf-8")
 assert '"version":"6.53.0"' in src,"V653_RUNTIME_VERSION_NOT_ACTIVE"
 rev=(root/".revision").read_text(encoding="utf-8").strip()
-assert rev=="7c1bec95e168bfc9c022f6d1b6ecf9c6ee2ccc63",("V653_ACQUIRED_REVISION_MISMATCH",rev)
+assert rev=="9c8ba1b2c279adc0ac67a66e11b49093fb0e8397",("V653_ACQUIRED_REVISION_MISMATCH",rev)
 ev=list(pathlib.Path("/opt/chacha-dev/evidence").glob("v653-calibration-handoff-learning-third-wave-*.json"))
-assert any("7c1bec95e168bfc9c022f6d1b6ecf9c6ee2ccc63" in p.read_text(encoding="utf-8") for p in ev),"V653_REAL_EVIDENCE_MISSING"
+assert any("9c8ba1b2c279adc0ac67a66e11b49093fb0e8397" in p.read_text(encoding="utf-8") for p in ev),"V653_REAL_EVIDENCE_MISSING"
 print("CHACHA_DEV_V654_V653_REAL_BASELINE=PASS")
 PY
 
