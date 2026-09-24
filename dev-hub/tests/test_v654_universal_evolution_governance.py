@@ -47,7 +47,7 @@ with tempfile.TemporaryDirectory(prefix="v654-profile-") as td:
     radar=byid["technology-radar-agent"]
     assert radar["identity"]["scope"]=="PROJECT" and radar["evolution"]["scope"]=="PROJECT_LOCAL",radar
     assert radar["evolution"]["platform_global_promotion_forbidden"] is True,radar
-    assert byid["technology-watch-agent"]["measurement"]["next_action"]=="ACCUMULATE_PRODUCTION_EVIDENCE",byid["technology-watch-agent"]
+    assert byid["technology-watch-agent"]["measurement"]["next_action"]=="RUN_EXECUTABLE_BENCHMARK",byid["technology-watch-agent"]
     outroot=rt/"agent-evolution/profiles";aep.write_profiles(outroot,idx)
     assert (outroot/"index.json").is_file()
     # Bus health fingerprints the profile policy and must request reassessment if that policy later changes.
