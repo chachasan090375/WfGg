@@ -34,6 +34,7 @@ _STAGE_ROLE={
     "component-role-contract-manager.py":"component-contract-registry",
     "branch-foundry-planner.py":"branch-foundry",
     "capability-foundry.py":"capability-foundry",
+    "capability-foundry-closure.py":"capability-foundry",
     "central-memory-recall.py":"central-memory-recall",
     "logic-search-engine.py":"logician",
     "ux-planning-engine.py":"ergonomist",
@@ -359,18 +360,38 @@ def main():
     ])
     foundry_v=load(foundry_plan)
 
+    # V6.40: a logical Foundry overlay is not executable authority by itself.
+    # Close only through an already-known, already-ENABLED provider adapter.
+    # Anything else becomes an explicit BUILD_REQUIRED blocker.
+    closure_plan=out/"capability-foundry-closure.json"
+    closure_overlay=out/"capability-closure-overlay.json"
+    run(bin_dir/"capability-foundry-closure.py",[
+       "--policy",cfg/"capability-foundry-closure.v1.json",
+       "--foundry-plan",foundry_plan,
+       "--capability-registry",cfg/"capability-registry.v1.json",
+       "--provider-adapters",cfg/"provider-adapters.v1.json",
+       "--output",closure_plan,
+       "--overlay",closure_overlay,
+       "plan"
+    ])
+    closure_v=load(closure_plan)
+    closure_summary=closure_v.get("summary") or {}
+    capability_build_required_count=int(closure_summary.get("build_required_count") or 0)
+
     active_pre=pre
     active_intent=a.intent
     active_domain=cfg/"domain-orchestration.v1.json"
     active_routing=cfg/"agent-routing.v1.json"
+    active_capabilities=cfg/"capability-registry.v1.json"
 
     if foundry_v.get("created_domain_count") or foundry_v.get("created_capability_count"):
         merged_domain=out/"runtime-domain-orchestration.json"
         merged_caps=out/"runtime-capabilities.json"
         merged_routing=out/"runtime-routing.json"
         merge_domain(cfg/"domain-orchestration.v1.json",dom_overlay,merged_domain)
-        merge_caps(cfg/"capability-registry.v1.json",cap_overlay,merged_caps)
+        merge_caps(cfg/"capability-registry.v1.json",closure_overlay,merged_caps)
         merge_routing(cfg/"agent-routing.v1.json",routing_overlay,merged_routing)
+        active_capabilities=merged_caps
 
         revised_intent=out/"revised-intent.json"
         intent_v=load(a.intent)
@@ -542,7 +563,17 @@ def main():
     final_v=load(final);branch_v=load(effective_branch_topology)
     final_v["architecture_council"]=str(architecture_council)
     final_v["architecture_decision_allowed"]=bool(architecture_council_v.get("dispatch_allowed"))
+    final_v["active_capability_registry"]=str(active_capabilities)
+    final_v["capability_foundry_closure"]=str(closure_plan)
+    final_v["capability_build_required_count"]=capability_build_required_count
     final_v["dispatch_allowed"]=bool(final_v.get("dispatch_allowed")) and bool(architecture_council_v.get("dispatch_allowed"))
+    if capability_build_required_count:
+        final_v["dispatch_allowed"]=False
+        final_v.setdefault("blocked",[]).append({
+          "scope":"capability-foundry-closure",
+          "reason":"CAPABILITY_BUILD_REQUIRED",
+          "count":capability_build_required_count
+        })
     save(final,final_v)
 
     wave_plan=out/"runtime-wave-plan.json"
@@ -557,7 +588,9 @@ def main():
                and int((branch_v.get("summary") or {}).get("materialized") or 0)==0)
     assurance_recommendations=aer.recommendations(project_id=pid)
 
-    if fast_path:
+    if capability_build_required_count:
+        next_stage="CAPABILITY_BUILD_REQUIRED"
+    elif fast_path:
         next_stage="KNOWLEDGE_FAST_PATH"
     elif final_v.get("dispatch_allowed"):
         next_stage="DOMAIN_FACTORIES"
@@ -568,7 +601,7 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.35.0",
+      "version":"6.40.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
@@ -621,6 +654,13 @@ def main():
       "runtime_wave_count":int(wave_v.get("wave_count") or 0),
       "runtime_schedulable":bool(wave_v.get("schedulable")),
       "capability_foundry":str(foundry_plan),
+      "capability_foundry_closure":str(closure_plan),
+      "active_capability_registry":str(active_capabilities),
+      "capability_foundry_auto_closed_count":sum(1 for x in closure_v.get("plans") or [] if x.get("state")=="PROJECT_LOCAL_READY"),
+      "capability_foundry_reused_registered_count":sum(1 for x in closure_v.get("plans") or [] if x.get("state")=="REUSE_REGISTERED"),
+      "capability_foundry_build_required_count":capability_build_required_count,
+      "capability_foundry_same_project_resume_allowed":bool(closure_summary.get("same_project_resume_allowed")),
+      "capability_foundry_automatic_external_spend_eur":float(closure_v.get("automatic_external_spend_eur") or 0),
       "agent_foundry_memory_guided_decisions":int((agent_topology_v.get("summary") or {}).get("memory_guided_decisions") or 0),
       "branch_foundry_memory_guided_decisions":int((branch_v.get("summary") or {}).get("memory_guided_decisions") or 0),
       "capability_foundry_memory_guided_plans":int(foundry_v.get("memory_guided_plans") or 0),
@@ -672,6 +712,10 @@ def main():
     print("AGENT_FOUNDRY_MEMORY_GUIDED_DECISIONS="+str(state["agent_foundry_memory_guided_decisions"]))
     print("BRANCH_FOUNDRY_MEMORY_GUIDED_DECISIONS="+str(state["branch_foundry_memory_guided_decisions"]))
     print("CAPABILITY_FOUNDRY_MEMORY_GUIDED_PLANS="+str(state["capability_foundry_memory_guided_plans"]))
+    print("CAPABILITY_FOUNDRY_AUTO_CLOSED="+str(state["capability_foundry_auto_closed_count"]))
+    print("CAPABILITY_FOUNDRY_BUILD_REQUIRED="+str(state["capability_foundry_build_required_count"]))
+    print("CAPABILITY_FOUNDRY_SAME_PROJECT_RESUME="+("YES" if state["capability_foundry_same_project_resume_allowed"] else "NO"))
+    print("ACTIVE_CAPABILITY_REGISTRY="+str(state["active_capability_registry"]))
     print("LOGIC_CHALLENGE_STATUS="+str(state["logic_challenge_status"]))
     print("UX_CHALLENGE_STATUS="+str(state["ux_challenge_status"]))
     print("CENTRAL_COMPROMISE_FOUND="+("YES" if state["central_compromise_found"] else "NO"))
