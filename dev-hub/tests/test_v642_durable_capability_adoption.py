@@ -360,6 +360,8 @@ with tempfile.TemporaryDirectory(prefix="v642-human-boundary-") as td_raw:
       **protected_claims_value,
       "verification_status":"VERIFIED",
       "project_control_receipt":str(protected_pc_receipt),
+      "project_control_ledger":str(protected_pc_ledger),
+      "verified_success_artifact_id":protected_artifact_id,
       "verified_task_id":"v642-protected-success",
       "verified_claims_path":str(protected_claims),
       "verified_claims_digest":sha256_file(protected_claims)
