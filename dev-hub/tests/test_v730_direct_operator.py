@@ -17,7 +17,7 @@ assert mod.normalize("Go!")=="CONTINUE"
 assert mod.normalize("STOP.")=="STOP"
 assert mod.normalize("Ajoute un widget")=="INSTRUCTION"
 
-satellite=load(ROOT/"dev-hub/config/functional-translator-satellite.v1.json")
+satellite=mod.load(ROOT/"dev-hub/config/functional-translator-satellite.v1.json")
 assert satellite["scope"]=="PLATFORM_EDGE_SATELLITE",satellite
 assert satellite["fleet_membership"]=="EXCLUDED_EDGE_SATELLITE",satellite
 assert satellite["permissions"]["repository_write"] is False,satellite
