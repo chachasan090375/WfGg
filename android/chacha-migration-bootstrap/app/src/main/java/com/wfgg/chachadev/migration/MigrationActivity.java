@@ -388,7 +388,7 @@ public final class MigrationActivity extends Activity {
         if (installStatus == PackageInstaller.STATUS_SUCCESS) {
             setPhase("DONE");
             setStatus("Migration terminée 🎉",
-                    "ChaCha 0.6.0 est maintenant installée avec sa clé release permanente.", 100);
+                    "ChaCha 0.6.0 est maintenant installée avec sa clé release permanente. Si Android a retiré l’ancien widget pendant la désinstallation, rajoute une seule fois « ChaCha j’ai pété » à l’écran d’accueil.", 100);
             primary.setEnabled(true);
             primary.setText("Ouvrir ChaCha");
             primary.setOnClickListener(v -> launchTarget());
