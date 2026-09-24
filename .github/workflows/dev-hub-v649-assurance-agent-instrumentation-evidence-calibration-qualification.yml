@@ -6,6 +6,7 @@ on:
       - dev-hub-v649-assurance-agent-instrumentation-evidence-calibration
     paths:
       - 'dev-hub/bin/agent_fleet_observatory.py'
+      - 'dev-hub/bin/install-v649-assurance-agent-instrumentation.sh'
       - 'dev-hub/bin/recovery-orchestrator.py'
       - 'dev-hub/bin/autonomous-project-orchestrator.py'
       - 'dev-hub/config/agent-fleet-observatory.v1.json'
@@ -35,6 +36,7 @@ jobs:
           python3 -m json.tool dev-hub/config/agent-fleet-observatory.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-observation-bus.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/assurance-agent-instrumentation.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v649-assurance-agent-instrumentation.sh
           grep -Fq '"version":"6.49.0"' dev-hub/bin/autonomous-project-orchestrator.py
       - name: V6.49 assurance instrumentation
         run: |
@@ -71,5 +73,6 @@ jobs:
             echo 'AGENT_FOUNDRY_CANDIDATE_OWNER=YES'
             echo 'TECHNOLOGY_WATCH_REVALIDATION=REQUIRED'
             echo 'ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES'
+            echo 'REAL_VPS_PILOT_INSTALLER=VALIDATED'
             echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
           } | tee /tmp/v649-receipt.txt
