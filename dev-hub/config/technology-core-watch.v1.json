@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/technology-core-watch/v1",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "purpose": "Continuously monitor the technology health and debt of ChaCha DEV itself.",
   "components": [
     {
@@ -190,6 +190,11 @@
     },
     {
       "id": "progress-state-controller",
+      "class": "verification",
+      "criticality": "high"
+    },
+    {
+      "id": "live-ui-publisher",
       "class": "verification",
       "criticality": "high"
     }
