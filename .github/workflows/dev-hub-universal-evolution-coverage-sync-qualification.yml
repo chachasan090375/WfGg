@@ -10,6 +10,7 @@ on:
       - 'dev-hub/bin/agent_observation_bus_health.py'
       - 'dev-hub/config/universal-evolution-governance.v1.json'
       - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/config/agent-observation-bus.v1.json'
       - 'dev-hub/tests/test_universal_evolution_coverage_sync.py'
       - 'dev-hub/tests/test_evolution_source_catalog_drift.py'
       - 'dev-hub/tests/test_platform_reassessment_routing.py'
@@ -34,6 +35,7 @@ jobs:
           python3 -m py_compile dev-hub/bin/component_evolution_governance.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_observation_bus_health.py dev-hub/tests/test_universal_evolution_coverage_sync.py dev-hub/tests/test_evolution_source_catalog_drift.py dev-hub/tests/test_platform_reassessment_routing.py
           python3 -m json.tool dev-hub/config/universal-evolution-governance.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/agent-observation-bus.v1.json >/dev/null
       - name: Guardian to evolution coverage sync
         run: |
           set -euo pipefail
@@ -50,6 +52,7 @@ jobs:
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_evolution_source_catalog_drift.py | tee /tmp/source-drift.out
           grep -Fq 'CHACHA_DEV_EVOLUTION_SOURCE_DRIFT=PASS' /tmp/source-drift.out
           grep -Fq 'CHACHA_DEV_GUARDIAN_MANIFEST_DRIFT_REASSESS=PASS' /tmp/source-drift.out
+          grep -Fq 'CHACHA_DEV_BUS_EVOLUTION_OWNER=BRANCH_FOUNDRY' /tmp/source-drift.out
           grep -Fq 'CHACHA_DEV_MCP_CATALOG_DRIFT_REASSESS=PASS' /tmp/source-drift.out
           grep -Fq 'CHACHA_DEV_EVOLUTION_SOURCE_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/source-drift.out
       - name: Platform reassessment routing
@@ -70,6 +73,7 @@ jobs:
           echo CENTRAL_INTERFACE_CONTROLLER_GOVERNED=YES
           echo EVOLUTION_SOURCE_CATALOG_DRIFT_REASSESSMENT=YES
           echo PLATFORM_REASSESSMENT_QUEUE_ROUTED=YES
+          echo BUS_EVOLUTION_OWNER=BRANCH_FOUNDRY
           echo SELF_MUTATION=NO
           echo SELF_PROMOTION=NO
           echo AUTOMATIC_EXTERNAL_SPEND_EUR=0

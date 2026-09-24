@@ -19,6 +19,16 @@ def inventory(repo:Path):
  return aec.build_inventory(load(repo/"dev-hub/config/agent-routing.v1.json"),load(repo/"dev-hub/config/seven-agent-final-compromise.v1.json"),regs)
 def proj(inv):
  return sorted([{"agent_id":a.get("agent_id"),"scope":a.get("scope"),"project_id":a.get("project_id"),"capabilities":sorted(a.get("capabilities") or [])} for a in inv.get("agents") or []],key=lambda x:(str(x["scope"]),str(x.get("project_id") or ""),str(x["agent_id"])))
+def evolution_owner(repo:Path,component_id:str)->str:
+ universal=load(repo/"dev-hub/config/universal-evolution-governance.v1.json")
+ core=load(repo/"dev-hub/config/technology-core-watch.v1.json")
+ row=next((x for x in core.get("components") or [] if str(x.get("id") or "")==component_id),None)
+ if not isinstance(row,dict):raise ValueError("EVOLUTION_COMPONENT_NOT_IN_CORE_WATCH:"+component_id)
+ gclass=str((universal.get("core_class_map") or {}).get(str(row.get("class") or "")) or "")
+ spec=(universal.get("classes") or {}).get(gclass) or {}
+ owner=str(spec.get("candidate_owner") or "")
+ if not owner or owner=="INHERIT_OWNER":raise ValueError("EVOLUTION_OWNER_UNRESOLVED:"+component_id)
+ return owner
 def diff(a,b):
  key=lambda x:(x["scope"],str(x.get("project_id") or ""),x["agent_id"]);A={key(x):x for x in a};B={key(x):x for x in b}
  added=[B[k] for k in sorted(B.keys()-A.keys())];removed=[A[k] for k in sorted(A.keys()-B.keys())];changed=[{"before":A[k],"after":B[k]} for k in sorted(A.keys()&B.keys()) if A[k]!=B[k]]
@@ -33,6 +43,7 @@ def shadow(policy,n=12):
   vals.sort();return {"status":aob.verify_chain(rt,policy)["status"],"runtime_root_isolated":str(aob.db_path(rt,policy)).startswith(str(rt)),"p95_ms":round(vals[max(0,min(len(vals)-1,int(.95*(len(vals)-1))))],3)}
 def assess(repo:Path,root:Path,policy:dict,state:Path,report:Path,deep=False):
  inv=inventory(repo);p=proj(inv);fp=dg(p);old={}
+ candidate_owner=evolution_owner(repo,"agent-observation-bus")
  profile_path=repo/"dev-hub/config/agent-evolution-profile.v1.json"
  profile_digest=dg(load(profile_path)) if profile_path.is_file() else None
  universal_path=repo/"dev-hub/config/universal-evolution-governance.v1.json"
@@ -59,7 +70,7 @@ def assess(repo:Path,root:Path,policy:dict,state:Path,report:Path,deep=False):
   con=sqlite3.connect(db);q=con.execute("pragma quick_check").fetchone();n=con.execute("select count(*) from observations").fetchone()[0];con.close();sql={"status":"PASS" if q and str(q[0]).lower()=="ok" else "FAIL","event_count":int(n)}
  chain=aob.verify_chain(root,policy) if sql["status"]=="PASS" else {"status":"FAIL"}
  sh=shadow(policy,40 if deep else 12);evo=((policy.get("self_health") or {}).get("evolution") or {})
- checks={"runtime_root_relative":(policy.get("storage") or {}).get("runtime_root_relative") is True,"self_verify_forbidden":(policy.get("verification") or {}).get("producer_self_assertion_can_be_verified") is False,"self_mutation_forbidden":evo.get("direct_self_mutation") is False,"self_promotion_forbidden":evo.get("self_promotion") is False,"capability_foundry_owner":evo.get("candidate_owner")=="capability-foundry","shadow_required":evo.get("shadow_required") is True,"pilot_required":evo.get("pilot_required") is True}
+ checks={"runtime_root_relative":(policy.get("storage") or {}).get("runtime_root_relative") is True,"self_verify_forbidden":(policy.get("verification") or {}).get("producer_self_assertion_can_be_verified") is False,"self_mutation_forbidden":evo.get("direct_self_mutation") is False,"self_promotion_forbidden":evo.get("self_promotion") is False,"candidate_owner_matches_universal_governance":evo.get("candidate_owner")==candidate_owner,"shadow_required":evo.get("shadow_required") is True,"pilot_required":evo.get("pilot_required") is True}
  reasons=[]
  if sql["status"]!="PASS":reasons.append("BUS_SQLITE_INTEGRITY")
  if chain.get("status")!="PASS":reasons.append("BUS_HASH_CHAIN")
@@ -88,12 +99,12 @@ def assess(repo:Path,root:Path,policy:dict,state:Path,report:Path,deep=False):
  out={"schema":"chacha.dev/agent-observation-bus-health/v1","status":"REASSESS_REQUIRED" if reasons else "PASS","component_id":"agent-observation-bus","integrity":{"sqlite":sql,"hash_chain":chain},"contract_checks":checks,"shadow_benchmark":sh,"inventory":{"agent_count":inv.get("agent_count"),"fingerprint":fp,"delta":d},"evolution_profile_policy":{"digest":profile_digest,"change_requires_reassessment":True},
  "universal_evolution_governance_policy":{"digest":universal_digest,"change_requires_reassessment":True},
  "lightweight_agent_runtime_profile":{"digest":lightweight_digest,"change_requires_reassessment":True},
- "evolution_source_catalogs":{"digests":source_catalog_digests,"change_requires_reassessment":True},"candidate_owner":"capability-foundry","technology_watch_revalidation_required":True,"logician_falsification_required":True,"direct_self_mutation":False,"self_promotion":False,"shadow_required":True,"pilot_required":True,"architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+ "evolution_source_catalogs":{"digests":source_catalog_digests,"change_requires_reassessment":True},"candidate_owner":candidate_owner,"technology_watch_revalidation_required":True,"logician_falsification_required":True,"direct_self_mutation":False,"self_promotion":False,"shadow_required":True,"pilot_required":True,"architecture_council_final_authority":True,"automatic_external_spend_eur":0}
  if reasons:
   q=rel(root,str((policy.get("self_health") or {}).get("platform_reassessment_queue") or "platform-evolution/reassessment-queue"));q.mkdir(parents=True,exist_ok=True)
   source_fp=dg(source_catalog_digests)
   rid="bus-"+hashlib.sha256(("|".join(sorted(reasons))+fp+source_fp).encode()).hexdigest()[:20]
-  req={"schema":"chacha.dev/platform-component-reassessment-request/v1","request_id":rid,"component_id":"agent-observation-bus","trigger_reasons":sorted(reasons),"candidate_owner":"capability-foundry","direct_self_mutation":False,"self_promotion":False,"technology_watch_revalidation_required":True,"logician_falsification_required":True,"shadow_required":True,"pilot_required":True,"architecture_council_final_authority":True,"automatic_external_spend_eur":0};rp=q/(rid+".json");save(rp,req);out["reassessment"]={"path":str(rp)}
+  req={"schema":"chacha.dev/platform-component-reassessment-request/v1","request_id":rid,"component_id":"agent-observation-bus","trigger_reasons":sorted(reasons),"candidate_owner":candidate_owner,"direct_self_mutation":False,"self_promotion":False,"technology_watch_revalidation_required":True,"logician_falsification_required":True,"shadow_required":True,"pilot_required":True,"architecture_council_final_authority":True,"automatic_external_spend_eur":0};rp=q/(rid+".json");save(rp,req);out["reassessment"]={"path":str(rp)}
  save(report,out);save(state,{"inventory_projection":p,"inventory_fingerprint":fp,
   "evolution_profile_policy_digest":profile_digest,
   "universal_evolution_governance_policy_digest":universal_digest,
@@ -101,5 +112,5 @@ def assess(repo:Path,root:Path,policy:dict,state:Path,report:Path,deep=False):
   "evolution_source_catalog_digests":source_catalog_digests,
   "status":out["status"]});return out
 def main():
- ap=argparse.ArgumentParser();ap.add_argument("--repo-root",type=Path,required=True);ap.add_argument("--runtime-root",type=Path,default=Path("/opt/chacha-dev/runtime"));ap.add_argument("--policy",type=Path,required=True);ap.add_argument("--mode",choices=["lightweight","deep"],default="lightweight");a=ap.parse_args();p=load(a.policy);cfg=p.get("self_health") or {};r=rel(a.runtime_root,cfg.get("health_report","agent-observation/bus-health-latest.json"));s=rel(a.runtime_root,cfg.get("state","agent-observation/bus-health-state.json"));x=assess(a.repo_root,a.runtime_root,p,s,r,a.mode=="deep");print(json.dumps(x,ensure_ascii=False));print("CHACHA_DEV_V650_BUS_HEALTH="+x["status"]);print("CHACHA_DEV_V650_BUS_SELF_MUTATION=NO");print("CHACHA_DEV_V650_BUS_CANDIDATE_OWNER=CAPABILITY_FOUNDRY")
+ ap=argparse.ArgumentParser();ap.add_argument("--repo-root",type=Path,required=True);ap.add_argument("--runtime-root",type=Path,default=Path("/opt/chacha-dev/runtime"));ap.add_argument("--policy",type=Path,required=True);ap.add_argument("--mode",choices=["lightweight","deep"],default="lightweight");a=ap.parse_args();p=load(a.policy);cfg=p.get("self_health") or {};r=rel(a.runtime_root,cfg.get("health_report","agent-observation/bus-health-latest.json"));s=rel(a.runtime_root,cfg.get("state","agent-observation/bus-health-state.json"));x=assess(a.repo_root,a.runtime_root,p,s,r,a.mode=="deep");print(json.dumps(x,ensure_ascii=False));print("CHACHA_DEV_V650_BUS_HEALTH="+x["status"]);print("CHACHA_DEV_V650_BUS_SELF_MUTATION=NO");print("CHACHA_DEV_V650_BUS_CANDIDATE_OWNER="+evolution_owner(a.repo_root,"agent-observation-bus").upper())
 if __name__=="__main__":main()

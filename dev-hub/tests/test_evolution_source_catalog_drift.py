@@ -19,6 +19,8 @@ with tempfile.TemporaryDirectory(prefix="bus-source-drift-") as td:
     state=runtime/"state.json";report=runtime/"report.json"
     first=aobh.assess(repo,runtime,policy,state,report,False)
     assert first["status"]=="PASS",first
+    assert first["candidate_owner"]=="branch-foundry",first
+    assert first["contract_checks"]["candidate_owner_matches_universal_governance"] is True,first
     catalogs=first["evolution_source_catalogs"]["digests"]
     assert set(catalogs)=={"guardian_coverage_manifest","technology_core_watch","provider_adapters","mcp_provider_catalog","project_embedded_assurance"}
     mutations={
@@ -33,6 +35,7 @@ with tempfile.TemporaryDirectory(prefix="bus-source-drift-") as td:
     second=aobh.assess(repo,runtime,policy,state,report,False)
     assert second["status"]=="REASSESS_REQUIRED",second
     req=load(Path(second["reassessment"]["path"]))
+    assert req["candidate_owner"]=="branch-foundry",req
     reasons=set(req["trigger_reasons"])
     expected={
       "GUARDIAN_COVERAGE_MANIFEST_CHANGED","TECHNOLOGY_CORE_WATCH_CHANGED",
@@ -44,6 +47,7 @@ with tempfile.TemporaryDirectory(prefix="bus-source-drift-") as td:
     assert third["status"]=="PASS",third
 
 print("CHACHA_DEV_EVOLUTION_SOURCE_DRIFT=PASS")
+print("CHACHA_DEV_BUS_EVOLUTION_OWNER=BRANCH_FOUNDRY")
 print("CHACHA_DEV_GUARDIAN_MANIFEST_DRIFT_REASSESS=PASS")
 print("CHACHA_DEV_CORE_WATCH_DRIFT_REASSESS=PASS")
 print("CHACHA_DEV_PROVIDER_ADAPTER_DRIFT_REASSESS=PASS")
