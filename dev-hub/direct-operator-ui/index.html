@@ -2,44 +2,125 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#6650a4"><title>ChaCha DEV</title>
+<meta name="theme-color" content="#6f4cff"><title>ChaCha j’ai pété</title>
 <style>
-:root{font-family:system-ui,-apple-system,sans-serif;color-scheme:dark;--p:#7c5cff;--bg:#17171b;--card:#24242a;--muted:#aaa9b2;--line:#3a3942}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f7f5ff;min-height:100vh}
-main{max-width:760px;margin:auto;padding:22px 16px 48px}.head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.brand{font-weight:800;font-size:22px}.dot{width:10px;height:10px;border-radius:50%;background:#66d17a;display:inline-block;margin-right:7px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:0 8px 30px #0003}
-textarea{width:100%;min-height:120px;resize:vertical;background:#1c1c21;color:white;border:1px solid #4a4855;border-radius:16px;padding:15px;font-size:17px;outline:none}
-textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px #7c5cff22}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
-button{border:0;border-radius:14px;padding:12px 16px;font-weight:700;font-size:15px;background:#35343d;color:white}
-button.primary{background:var(--p)}button:disabled{opacity:.5}.state{margin-top:18px}.badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#313039;color:var(--muted);font-size:13px}
-pre{white-space:pre-wrap;word-break:break-word;font-family:inherit;line-height:1.45;color:#e6e1f8;margin:12px 0 0}
-.small{color:var(--muted);font-size:13px;margin-top:10px}
+:root{
+  font-family:Inter,ui-rounded,"SF Pro Rounded",system-ui,-apple-system,sans-serif;color-scheme:dark;
+  --bg:#111116;--panel:#1b1a22;--panel2:#24232d;--line:#373541;--text:#faf8ff;--muted:#aaa5b7;
+  --violet:#7c5cff;--violet2:#a98cff;--pink:#ec77c8;--mint:#6de0b6;--amber:#ffc66d;--red:#ff7272
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--text);background:
+ radial-gradient(circle at 12% 0%,#7c5cff2e 0,transparent 34%),
+ radial-gradient(circle at 100% 15%,#ec77c81f 0,transparent 30%),var(--bg)}
+main{width:min(920px,100%);margin:auto;padding:18px 16px 60px}
+.top{display:flex;gap:14px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.logo{display:flex;gap:12px;align-items:center}.avatar{width:48px;height:48px;border-radius:17px;display:grid;place-items:center;
+ background:linear-gradient(135deg,var(--violet),var(--pink));font-size:25px;box-shadow:0 10px 30px #7c5cff35}
+h1{font-size:22px;line-height:1.05;margin:0}.subtitle{font-size:12px;color:var(--muted);margin-top:5px}
+.live{display:flex;align-items:center;gap:7px;padding:8px 11px;border:1px solid #3a3b43;border-radius:999px;background:#191920cc;font-size:12px;color:#d7d2e4}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 5px #6de0b619}
+.grid{display:grid;grid-template-columns:1.05fr .95fr;gap:14px}
+.card{background:linear-gradient(180deg,#24232ccc,#1a1921e8);border:1px solid var(--line);border-radius:24px;padding:17px;
+ box-shadow:0 16px 50px #0005;backdrop-filter:blur(16px)}
+.card.hero{background:linear-gradient(145deg,#282238,#1b1924 62%,#2b1d35)}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#bdb4d1;font-weight:800}
+.metric{display:flex;align-items:end;justify-content:space-between;gap:15px;margin:8px 0 10px}.metric strong{font-size:38px;letter-spacing:-.05em}
+.metric span{font-size:13px;color:var(--muted);padding-bottom:6px;text-align:right}
+.bar{height:12px;background:#302e39;border-radius:99px;overflow:hidden;border:1px solid #3e3a49}
+.fill{height:100%;width:0;border-radius:99px;transition:width .45s ease;background:linear-gradient(90deg,var(--violet),var(--pink))}
+.fill.work{background:linear-gradient(90deg,var(--mint),var(--violet2))}
+.headline{font-weight:800;font-size:16px;margin-top:14px}.tiny{font-size:12px;color:var(--muted);margin-top:5px}
+.modules{display:grid;gap:8px;margin-top:12px}.module{padding:10px 11px;background:#17161d;border:1px solid #302f38;border-radius:15px}
+.moduleTop{display:flex;align-items:center;justify-content:space-between;gap:10px}.moduleName{font-size:13px;font-weight:700}.modulePct{font-size:12px;color:#c6bdd8}
+.module .bar{height:6px;margin-top:7px}.moduleDetail{font-size:11px;color:#8f899b;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.command{margin-top:14px}.promptWrap{position:relative}
+textarea{width:100%;min-height:120px;resize:vertical;border:1px solid #45414f;border-radius:20px;background:#14131a;color:white;padding:17px 56px 17px 16px;
+ font-size:17px;outline:none;line-height:1.4;box-shadow:inset 0 1px 0 #ffffff08}
+textarea:focus{border-color:#8e73ff;box-shadow:0 0 0 4px #7c5cff20}
+textarea::placeholder{color:#77717f}.mic{position:absolute;right:10px;bottom:10px;width:40px;height:40px;border-radius:14px}
+.actions{display:grid;grid-template-columns:1fr repeat(3,auto);gap:8px;margin-top:10px}
+button{border:1px solid #403d49;border-radius:15px;padding:12px 14px;background:#2b2933;color:#f8f5ff;font-weight:800;font-size:14px;cursor:pointer}
+button:hover{filter:brightness(1.12)}button.primary{border:0;background:linear-gradient(135deg,var(--violet),#9b70ff);box-shadow:0 8px 22px #7c5cff30}
+button.stop{color:#ffb8b8;background:#351f25;border-color:#5a3038}button:disabled{opacity:.48;cursor:default}
+.reply{margin-top:14px;min-height:86px}.stateRow{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:99px;background:#312c42;color:#cabdff;font-size:11px;font-weight:800}
+pre{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:14px;line-height:1.5;color:#e8e2f4;margin:12px 0 0}
+.spark{position:absolute;pointer-events:none;opacity:.45}
+@media(max-width:720px){.grid{grid-template-columns:1fr}.top{align-items:flex-start}.live{margin-top:4px}.metric strong{font-size:34px}.actions{grid-template-columns:1fr 1fr 1fr 1fr}button{padding:12px 9px}}
 </style>
 </head>
 <body><main>
-<div class="head"><div class="brand">ChaCha DEV</div><div><span class="dot"></span><span id="conn">Direct</span></div></div>
-<div class="card">
-<textarea id="q" placeholder="Demander à ChaCha DEV…"></textarea>
-<div class="actions"><button class="primary" id="send">Envoyer</button><button id="go">Go</button><button id="status">Allo</button><button id="stop">Stop</button></div>
-<div class="small">Entrée directe → Functional Translator → cerveau central</div>
+<div class="top">
+  <div class="logo"><div class="avatar">💨</div><div><h1>ChaCha j’ai pété</h1><div class="subtitle">Ton accès direct à ChaCha DEV</div></div></div>
+  <div class="live"><span class="dot"></span><span id="conn">Direct privé</span></div>
 </div>
-<div class="card state"><span class="badge" id="stage">Prêt</span><pre id="result">Aucune demande en cours.</pre></div>
+
+<div class="grid">
+  <section class="card hero">
+    <div class="eyebrow">ChaCha DEV global</div>
+    <div class="metric"><strong id="globalPct">86%</strong><span id="globalLabel">Maturité plateforme</span></div>
+    <div class="bar"><div class="fill" id="globalFill" style="width:86%"></div></div>
+    <div class="headline" id="headline">ChaCha est prêt ✨</div>
+    <div class="tiny">Ce pourcentage ne redescend pas quand une nouvelle tâche démarre.</div>
+  </section>
+
+  <section class="card">
+    <div class="eyebrow">Opération en cours</div>
+    <div class="metric"><strong id="workPct">0%</strong><span id="workState">En attente</span></div>
+    <div class="bar"><div class="fill work" id="workFill"></div></div>
+    <div class="modules" id="modules"></div>
+  </section>
+</div>
+
+<section class="card command">
+  <div class="eyebrow">Qu’est-ce qu’on fait ?</div>
+  <div class="promptWrap">
+    <textarea id="q" placeholder="Dis-moi ce que tu veux faire…"></textarea>
+    <button class="mic" id="mic" title="Dicter">🎤</button>
+  </div>
+  <div class="actions">
+    <button class="primary" id="send">Envoyer ✨</button>
+    <button id="status">Allo</button>
+    <button id="go">Go</button>
+    <button class="stop" id="stop">Stop</button>
+  </div>
+</section>
+
+<section class="card reply">
+  <div class="stateRow"><div class="eyebrow">Réponse de ChaCha</div><span class="badge" id="stage">PRÊT</span></div>
+  <pre id="result">Je suis là. Lance une demande quand tu veux.</pre>
+</section>
 </main>
 <script>
 const q=document.querySelector('#q'),send=document.querySelector('#send'),stage=document.querySelector('#stage'),result=document.querySelector('#result');
+const globalPct=document.querySelector('#globalPct'),globalFill=document.querySelector('#globalFill'),globalLabel=document.querySelector('#globalLabel');
+const workPct=document.querySelector('#workPct'),workFill=document.querySelector('#workFill'),workState=document.querySelector('#workState'),headline=document.querySelector('#headline'),modules=document.querySelector('#modules');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function renderProgress(p){
+ const g=Math.max(0,Math.min(100,Number(p.platform_maturity_percent||0))),w=Math.max(0,Math.min(100,Number(p.active_work_percent||0)));
+ globalPct.textContent=g+'%';globalFill.style.width=g+'%';globalLabel.textContent=p.platform_maturity_label||'ChaCha DEV global';
+ workPct.textContent=w+'%';workFill.style.width=w+'%';workState.textContent=p.status||'IDLE';headline.textContent=p.headline||'ChaCha est prêt ✨';
+ const rows=Object.values(p.modules||{});
+ modules.innerHTML=rows.map(m=>'<div class="module"><div class="moduleTop"><div class="moduleName">'+esc((m.icon||'•')+' '+(m.label||m.id))+'</div><div class="modulePct">'+Number(m.percent||0)+'%</div></div><div class="bar"><div class="fill work" style="width:'+Number(m.percent||0)+'%"></div></div><div class="moduleDetail">'+esc(m.detail||m.state||'')+'</div></div>').join('');
+}
+async function refreshProgress(){
+ try{const r=await fetch('/api/v1/progress',{cache:'no-store'});if(r.ok)renderProgress(await r.json())}catch(_){}
+}
 async function submit(text){
- if(!text.trim())return;[send].forEach(b=>b.disabled=true);stage.textContent='QUEUED';result.textContent='Transmission à ChaCha DEV…';
+ if(!text.trim())return;send.disabled=true;stage.textContent='ENVOI';result.textContent='ChaCha prend la demande…';await refreshProgress();
  try{
   const r=await fetch('/api/v1/intent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
   const x=await r.json();if(!r.ok)throw new Error(x.reason||x.status||'Erreur');
-  for(;;){await sleep(900);const j=await (await fetch('/api/v1/jobs/'+x.job_id,{cache:'no-store'})).json();stage.textContent=j.state||'…';
-   if(j.state==='COMPLETE'){const z=j.response||{};result.textContent=(z.status||'OK')+'\n\n'+(z.next_action||'')+(z.project_id?'\n\nProjet : '+z.project_id:'');break}
-   if(j.state==='FAILED'){throw new Error(j.error||'Échec')}
+  for(;;){await sleep(700);await refreshProgress();const jr=await fetch('/api/v1/jobs/'+x.job_id,{cache:'no-store'});const j=await jr.json();stage.textContent=j.state||'…';
+   if(j.state==='COMPLETE'){const z=j.response||{};result.textContent=(z.status||'OK')+(z.next_action?'\n\n'+z.next_action:'')+(z.project_id?'\n\nProjet : '+z.project_id:'');break}
+   if(j.state==='FAILED')throw new Error(j.error||'Échec')
   }
- }catch(e){stage.textContent='ERREUR';result.textContent=String(e)}finally{send.disabled=false}
+ }catch(e){stage.textContent='ERREUR';result.textContent=String(e)}finally{send.disabled=false;await refreshProgress()}
 }
 send.onclick=()=>submit(q.value);document.querySelector('#go').onclick=()=>submit('Go');document.querySelector('#status').onclick=()=>submit('Allo');document.querySelector('#stop').onclick=()=>submit('Stop');
+document.querySelector('#mic').onclick=()=>{q.focus();result.textContent='Sur le widget Android, le micro utilise la dictée native. Ici, utilise le micro du clavier.'};
 q.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')submit(q.value)});
+refreshProgress();setInterval(refreshProgress,1500);
 </script></body></html>
