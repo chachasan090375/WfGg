@@ -59,6 +59,13 @@ jobs:
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v661_real_world_evidence_isolated_candidate.py >/tmp/v661.out
           grep -Fq 'CHACHA_DEV_V661_REAL_WORLD_STRUCTURAL_ATTESTATION=PASS' /tmp/v661.out
           grep -Fq 'CHACHA_DEV_V661_ACCEPTANCE_ISOLATED_PILOT=PASS' /tmp/v661.out
+      - name: V6.60 independent accuracy regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v660_independent_accuracy_attestation.py >/tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_GUARDIAN_INDEPENDENT_ACCURACY=PASS' /tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_SENTINEL_GITHUB_RUN_JOB_ARTIFACT_ACCURACY=PASS' /tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_ACCEPTANCE_RECOMPUTED_ACCURACY=PASS' /tmp/v660.out
       - name: Qualification receipt
         run: |
           echo CHACHA_DEV_V662_QUALIFICATION=PASS
