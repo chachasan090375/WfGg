@@ -56,6 +56,7 @@ public final class MigrationActivity extends Activity {
     private Button primary;
     private Button secondary;
     private boolean firstResume = true;
+    private boolean installStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -321,8 +322,11 @@ public final class MigrationActivity extends Activity {
     }
 
     private void installDownloadedApk() {
+        if (installStarted || "INSTALL_COMMITTED".equals(phase())) return;
+        installStarted = true;
         File apk = downloadedApk();
         if (!apk.isFile()) {
+            installStarted = false;
             retry("APK introuvable", "Relance la migration pour le télécharger à nouveau.");
             return;
         }
@@ -487,6 +491,7 @@ public final class MigrationActivity extends Activity {
     }
 
     private void retry(String headline, String body) {
+        installStarted = false;
         setStatus(headline, body, Math.max(20, progress.getProgress()));
         primary.setEnabled(true);
         primary.setText("Reprendre");
