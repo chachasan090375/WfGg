@@ -143,6 +143,36 @@ def validate_success(candidate:dict[str,Any],success:dict[str,Any],policy:dict[s
     if expected_task and verified.get("task_id")!=expected_task:
         raise SystemExit("PROJECT_CONTROL_VERIFIED_TASK_MISMATCH")
 
+    claims_path=Path(str(success.get("verified_claims_path") or ""))
+    declared_claims_digest=str(success.get("verified_claims_digest") or "")
+    if not claims_path.is_file() or not declared_claims_digest.startswith("sha256:"):
+        raise SystemExit("PROJECT_SUCCESS_VERIFIED_CLAIMS_REQUIRED")
+    if digest_file(claims_path)!=declared_claims_digest:
+        raise SystemExit("PROJECT_SUCCESS_CLAIMS_DIGEST_INVALID")
+    claims=load(claims_path)
+    claim_keys=(
+      "project_id","capability","provider","adapter","status","project_success",
+      "quality_gates_pass","runtime_use_count","incident_count",
+      "technology_watch_revalidated","architecture_council",
+      "automatic_external_spend_eur","evidence_refs"
+    )
+    for key in claim_keys:
+        if claims.get(key)!=success.get(key):
+            raise SystemExit("PROJECT_SUCCESS_CLAIMS_MISMATCH:"+key)
+    evidence=verified.get("evidence") if isinstance(verified.get("evidence"),list) else []
+    matched=False
+    try: claims_resolved=str(claims_path.resolve())
+    except Exception: claims_resolved=str(claims_path)
+    for item in evidence:
+        if not isinstance(item,dict): continue
+        src=Path(str(item.get("source") or ""))
+        try: src_value=str(src.resolve())
+        except Exception: src_value=str(src)
+        if src_value==claims_resolved and item.get("digest")==declared_claims_digest:
+            matched=True;break
+    if not matched:
+        raise SystemExit("PROJECT_SUCCESS_CLAIMS_NOT_IN_VERIFIED_RESULT")
+
     protected=bool(candidate.get("production_capable") or candidate.get("credentials_required") or candidate.get("network_access"))
     if protected:
         a=human_approval or {}
