@@ -59,6 +59,11 @@ def latest_for_revision(rows:list[dict[str,Any]],revision:str)->dict[str,Any]|No
     hits=[x for x in rows if x["revision"]==revision]
     return sorted(hits,key=lambda x:x["name"])[-1] if hits else None
 
+def version_rank(version:str)->tuple[int,int,int,int]:
+    import re
+    nums=[int(x) for x in re.findall(r"\d+",str(version or ""))[:4]]
+    return tuple((nums+[0,0,0,0])[:4])
+
 def _evidence_epoch(x:dict[str,Any],path:Path)->float:
     for key in ("observed_at","generated_at","applied_at","executed_at"):
         raw=str(x.get(key) or "").strip()
@@ -122,17 +127,33 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
     evidence_root=evidence_root or Path(str(retention.get("verification_evidence_root") or "/opt/chacha-dev/evidence"))
     verified_ranks=verified_revision_ranks(evidence_root)
     verified=set(verified_ranks)
-    selected=[];seen=set()
+    selected=[];seen=set();selected_versions=set();all_candidates=[]
     if strategy=="MOST_RECENT_VERIFIED_PRIOR_RELEASES":
-        candidates=[]
         for rev,rank in verified_ranks.items():
             if rev==str(active_revision or "").lower():continue
             hit=latest_for_revision(rows,rev)
-            if hit is not None:candidates.append((rank,rev,hit))
-        for rank,rev,row in sorted(candidates,key=lambda x:(x[0],x[1]),reverse=True):
+            if hit is not None:
+                all_candidates.append((version_rank(str(hit.get("version") or "")),rank,rev,hit))
+        # First pass: preserve rollback generation diversity. Keep only the newest
+        # acquired revision for each platform version, then prefer the newest
+        # platform versions.
+        best_by_version={}
+        for vrank,rank,rev,row in all_candidates:
+            version=str(row.get("version") or "")
+            current=best_by_version.get(version)
+            if current is None or (rank,rev)>(current[1],current[2]):
+                best_by_version[version]=(vrank,rank,rev,row)
+        for vrank,rank,rev,row in sorted(best_by_version.values(),key=lambda x:(x[0],x[1],x[2]),reverse=True):
             if rev in seen:continue
-            selected.append(row);seen.add(rev)
+            selected.append(row);seen.add(rev);selected_versions.add(str(row.get("version") or ""))
             if len(selected)>=slots:break
+        # Second pass: if fewer distinct platform generations exist physically,
+        # fill remaining slots with the next newest verified revisions.
+        if len(selected)<slots:
+            for vrank,rank,rev,row in sorted(all_candidates,key=lambda x:(x[0],x[1],x[2]),reverse=True):
+                if rev in seen:continue
+                selected.append(row);seen.add(rev)
+                if len(selected)>=slots:break
     for rev in retention.get("fallback_verified_rollback_revisions") or []:
         if len(selected)>=slots:break
         rev=str(rev).lower()
@@ -163,7 +184,8 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
       "rollback_revision_must_differ_from_active":True,
       "selected_rollback_revisions":[str(x.get("revision") or "") for x in selected[:slots]],
       "selected_rollback_evidence_epochs":[verified_ranks.get(str(x.get("revision") or "").lower(),0.0) for x in selected[:slots]],
-      "rollback_selection_basis":"ACQUISITION_EVIDENCE_TIME",
+      "selected_rollback_versions":[str(x.get("version") or "") for x in selected[:slots]],
+      "rollback_selection_basis":"PLATFORM_VERSION_THEN_ACQUISITION_EVIDENCE_TIME",
       "verified_revision_count":len(verified),
       "missing_verified_rollback_count":missing_rollbacks,
       "rows":rows,
@@ -234,6 +256,8 @@ def main()->int:
     print("ACTIVE_VERSION="+str(plan.get("active_version") or ""))
     print("RELEASES_BEFORE="+str(plan.get("release_count_before")))
     print("RELEASES_RETIRE="+str(plan.get("retire_count")))
+    print("ROLLBACK_SELECTION_BASIS="+str(plan.get("rollback_selection_basis") or ""))
+    print("SELECTED_ROLLBACK_REVISIONS="+",".join(plan.get("selected_rollback_revisions") or []))
     print("ESTIMATED_SAVINGS_MIB="+str(mib(plan.get("bytes_retirable"))))
     if plan["mode"]=="APPLY":
         print("DELETED_RELEASES="+str(plan.get("deleted_release_count")))
