@@ -1,0 +1,31 @@
+{
+  "schema": "chacha.dev/android-migration-bootstrap/v1",
+  "version": "1.0.0",
+  "migration_package": "com.wfgg.chachadev.migration",
+  "target_package": "com.wfgg.chachadev.operator",
+  "target_version_code": 6,
+  "target_version_name": "0.6.0",
+  "target_apk_private_url": "https://chachavps.tail3ab05a.ts.net:8445/chacha-jai-pete-v0.6.0-200cbe417be3.apk",
+  "target_apk_sha256": "b5088f7965c56b8298e88812ba73f7630dffdf71937bf3bd2e574531c967428e",
+  "target_signing_cert_sha256": "3a39f13de1191aec28526d5d8e7c9b490723d514b8dd87e5cb30aaa86a6bff88",
+  "flow": [
+    "DETECT_INSTALLED_SIGNATURE",
+    "UNINSTALL_LEGACY_SIGNATURE_WITH_ANDROID_CONFIRMATION",
+    "DOWNLOAD_PRIVATE_RELEASE_APK",
+    "VERIFY_SHA_PACKAGE_VERSION_CERTIFICATE",
+    "INSTALL_WITH_ANDROID_CONFIRMATION",
+    "OFFER_MIGRATOR_REMOVAL"
+  ],
+  "invariants": {
+    "silent_uninstall": false,
+    "silent_install": false,
+    "uninstall_skipped_if_release_certificate_matches": true,
+    "private_tailscale_distribution": true,
+    "apk_sha256_required": true,
+    "package_id_required": true,
+    "version_code_required": true,
+    "certificate_pin_required": true,
+    "migration_helper_self_removal_offered": true,
+    "automatic_external_spend_eur": 0
+  }
+}
