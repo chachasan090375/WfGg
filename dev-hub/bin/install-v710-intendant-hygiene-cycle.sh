@@ -45,10 +45,17 @@ rollback(){
       if [ "$TIMER_EXISTED" -eq 1 ]; then cp -a "$TIMER_BACKUP" "$TIMER"; else rm -f "$TIMER"; fi
       systemctl daemon-reload >/dev/null 2>&1 || true
       if [ "$ACTIVATED" -eq 1 ] && [ -n "$PREVIOUS" ] && [ -d "$PREVIOUS" ]; then
-        ln -sfn "$PREVIOUS" "$CURRENT"
-        echo "CHACHA_DEV_V710_RUNTIME_ROLLBACK=PASS"
+        actual="$(readlink -f "$CURRENT" 2>/dev/null || true)"
+        if [ "$actual" = "$RELEASE" ] || [ -z "$actual" ]; then
+          ln -sfn "$PREVIOUS" "$CURRENT"
+          echo "CHACHA_DEV_V710_RUNTIME_ROLLBACK=PASS"
+          rm -rf "$RELEASE" 2>/dev/null || true
+        else
+          echo "CHACHA_DEV_V710_RUNTIME_ROLLBACK=SKIPPED_EXTERNAL_CURRENT actual=$actual"
+        fi
+      else
+        rm -rf "$RELEASE" 2>/dev/null || true
       fi
-      rm -rf "$RELEASE" 2>/dev/null || true
     else
       echo "CHACHA_DEV_V710_ROLLBACK=SKIPPED_COMMITTED_PHYSICAL_RETIREMENT"
     fi
