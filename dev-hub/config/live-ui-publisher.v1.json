@@ -1,0 +1,27 @@
+{
+  "schema": "chacha.dev/live-ui-publisher-policy/v1",
+  "version": "1.0.0",
+  "scope": "CHACHA_LIVE_UI_ONLY",
+  "runtime_root": "/opt/chacha-dev/runtime/live-ui",
+  "source_ui_root": "dev-hub/direct-operator-ui",
+  "source_app_config": "dev-hub/config/android-live-shell.v1.json",
+  "current_symlink": "current",
+  "retention": 3,
+  "required_workflows": [
+    "ChaCha DEV V7.5 live update shell qualification",
+    "ChaCha DEV Sentinel technical assurance"
+  ],
+  "invariants": {
+    "central_orchestrator_handoff_required": true,
+    "exact_sha_required": true,
+    "ui_files_only": true,
+    "android_native_files_forbidden": true,
+    "apk_install_authority": false,
+    "systemd_mutation_authority": false,
+    "arbitrary_runtime_mutation_forbidden": true,
+    "atomic_switch_required": true,
+    "rollback_required": true,
+    "keep_previous_releases": 3,
+    "automatic_external_spend_eur": 0
+  }
+}
