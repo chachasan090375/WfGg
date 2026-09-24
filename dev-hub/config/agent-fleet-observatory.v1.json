@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-fleet-observatory-policy/v1",
-  "version": "1.12.0",
+  "version": "1.13.0",
   "purpose": "Build evidence-backed agent metrics from ChaCha DEV runtime artifacts without assigning scores to unmeasured dimensions.",
   "runtime_sources": {
     "task_graphs": "plans/**/*.task-graph.json",
@@ -110,7 +110,24 @@
       "central-orchestrator",
       "recovery-orchestrator"
     ],
-    "untrusted_observed_capability_evidence_ignored": true
+    "untrusted_observed_capability_evidence_ignored": true,
+    "aborted_revision_quarantine": {
+      "enabled": true,
+      "event_type": "RUNTIME_REVISION_ABORTED",
+      "allowed_verifications": [
+        "OBSERVED",
+        "VERIFIED"
+      ],
+      "trusted_sources": [
+        "central-orchestrator",
+        "guardian",
+        "sentinel"
+      ],
+      "required_outcome": "ABORTED",
+      "require_evidence_refs": true,
+      "metric_action": "EXCLUDE_ABORTED_REVISION_EVENTS",
+      "historical_bus_rewrite": false
+    }
   },
   "benchmark_evidence": {
     "promoted_dir": "agent-evolution/benchmark-evidence",
