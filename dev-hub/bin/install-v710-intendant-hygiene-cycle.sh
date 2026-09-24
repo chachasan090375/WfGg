@@ -22,6 +22,13 @@ TIMER_EXISTED=0
 STAGE="bootstrap"
 
 stage(){ STAGE="$1"; echo "CHACHA_DEV_V710_STAGE=$STAGE"; }
+assert_current(){
+  local actual
+  actual="$(readlink -f "$CURRENT" 2>/dev/null || true)"
+  [ "$actual" = "$RELEASE" ] || { echo "CHACHA_DEV_V710_CURRENT_DRIFT expected=$RELEASE actual=$actual"; return 42; }
+  [ -f "$RELEASE/dev-hub/bin/intendant-hygiene-cycle.py" ] || { echo "CHACHA_DEV_V710_RELEASE_SURFACE_MISSING=intendant-hygiene-cycle.py"; return 43; }
+  [ -f "$RELEASE/dev-hub/bin/central-platform-hygiene-executor.py" ] || { echo "CHACHA_DEV_V710_RELEASE_SURFACE_MISSING=central-platform-hygiene-executor.py"; return 44; }
+}
 cleanup(){ rm -rf "$WORK" 2>/dev/null || true; }
 rollback(){
   rc=$?
@@ -170,10 +177,11 @@ mkdir -p "$RUNTIME/intendant" "$RUNTIME/tmp"
 
 stage activate
 ln -sfn "$RELEASE" "$CURRENT"; ACTIVATED=1
-[ "$(readlink -f "$CURRENT")" = "$RELEASE" ]
+assert_current
 echo "CHACHA_DEV_V710_RELEASE_ACTIVATED=PASS"
 
 stage install-units
+assert_current
 cp "$CURRENT/dev-hub/systemd/chacha-dev-intendant-hygiene.service" "$SERVICE"
 cp "$CURRENT/dev-hub/systemd/chacha-dev-intendant-hygiene.timer" "$TIMER"
 chmod 0644 "$SERVICE" "$TIMER"
@@ -184,12 +192,14 @@ systemd-analyze verify "$SERVICE" "$TIMER" >"$WORK/systemd-verify.out" 2>"$WORK/
 echo "CHACHA_DEV_V710_SYSTEMD_UNITS=PASS"
 
 stage runtime-dry-run
-PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/intendant-hygiene-cycle.py"   --repo-root "$CURRENT" --runtime-root "$RUNTIME" --platform-root "$BASE"   --policy "$CURRENT/dev-hub/config/intendant-hygiene-cycle.v1.json"   --consolidation-policy "$CURRENT/dev-hub/config/platform-consolidation.v1.json"   --guardian-client "$CURRENT/dev-hub/bin/guardian-client.py"   --guardian-policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json"   --guardian-coverage "$RUNTIME/guardian/coverage-latest.json"   --council "$CURRENT/dev-hub/bin/architecture-council-platform-consolidation-v7.py"   --consolidator "$CURRENT/dev-hub/bin/intendant-platform-consolidator.py"   --hygiene-executor "$CURRENT/dev-hub/bin/central-platform-hygiene-executor.py"   --force-cycle WEEKLY_DRY_RUN --dry-run >"$WORK/runtime-dry.out" 2>"$WORK/runtime-dry.err"
+assert_current
+PYTHONPATH="$RELEASE/dev-hub/bin" python3 "$RELEASE/dev-hub/bin/intendant-hygiene-cycle.py"   --repo-root "$RELEASE" --runtime-root "$RUNTIME" --platform-root "$BASE"   --policy "$RELEASE/dev-hub/config/intendant-hygiene-cycle.v1.json"   --consolidation-policy "$RELEASE/dev-hub/config/platform-consolidation.v1.json"   --guardian-client "$RELEASE/dev-hub/bin/guardian-client.py"   --guardian-policy "$RELEASE/dev-hub/config/guardian-runtime-policy.v1.json"   --guardian-coverage "$RUNTIME/guardian/coverage-latest.json"   --council "$RELEASE/dev-hub/bin/architecture-council-platform-consolidation-v7.py"   --consolidator "$RELEASE/dev-hub/bin/intendant-platform-consolidator.py"   --hygiene-executor "$RELEASE/dev-hub/bin/central-platform-hygiene-executor.py"   --force-cycle WEEKLY_DRY_RUN --dry-run >"$WORK/runtime-dry.out" 2>"$WORK/runtime-dry.err"
 grep -Fq 'CHACHA_DEV_V710_INTENDANT_HYGIENE_CYCLE=PASS' "$WORK/runtime-dry.out"
 grep -Fq 'INTENDANT_DIRECT_MUTATION=NO' "$WORK/runtime-dry.out"
 echo "CHACHA_DEV_V710_RUNTIME_DRY_RUN=PASS"
 
 stage enable-timer
+assert_current
 systemctl enable chacha-dev-intendant-hygiene.timer >/dev/null
 systemctl start chacha-dev-intendant-hygiene.timer
 systemctl is-active --quiet chacha-dev-intendant-hygiene.timer
@@ -198,19 +208,21 @@ systemctl list-timers chacha-dev-intendant-hygiene.timer --no-pager >"$WORK/time
 echo "CHACHA_DEV_V710_TIMER_ACTIVE=PASS"
 
 stage post-health
+assert_current
 systemctl is-active --quiet chacha-remote-desktop-commander.service
 systemctl is-active --quiet chacha-dev-agent-fleet-observatory.timer
 systemctl is-active --quiet chacha-dev-agent-observation-bus-health.timer
-PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/guardian-coverage-heartbeat.py"   --repo-root "$CURRENT" --manifest "$CURRENT/dev-hub/config/guardian-coverage-manifest.v1.json"   --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json"   --client "$CURRENT/dev-hub/bin/guardian-client.py"   --output "$RUNTIME/guardian/coverage-latest.json" >"$WORK/guardian.out"
+PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/guardian-coverage-heartbeat.py"   --repo-root "$RELEASE" --manifest "$CURRENT/dev-hub/config/guardian-coverage-manifest.v1.json"   --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json"   --client "$CURRENT/dev-hub/bin/guardian-client.py"   --output "$RUNTIME/guardian/coverage-latest.json" >"$WORK/guardian.out"
 grep -Fq 'ALL_HOOKS_ACTIVE=YES' "$WORK/guardian.out"
-PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/technology-watch-service.py" --repo-root "$CURRENT" status >"$WORK/watch.out"
+PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/technology-watch-service.py" --repo-root "$RELEASE" status >"$WORK/watch.out"
 grep -Fq 'CHACHA_TECHNOLOGY_WATCH_STATUS=FRESH' "$WORK/watch.out"
 echo "CHACHA_DEV_V710_POST_HEALTH=PASS"
 
 stage real-governed-pilot
+assert_current
 # V7.1 adds a fourth physical release. Force one governed weekly cycle to prove
 # automatic retirement returns the platform to active + two verified rollbacks.
-PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/intendant-hygiene-cycle.py"   --repo-root "$CURRENT" --runtime-root "$RUNTIME" --platform-root "$BASE"   --policy "$CURRENT/dev-hub/config/intendant-hygiene-cycle.v1.json"   --consolidation-policy "$CURRENT/dev-hub/config/platform-consolidation.v1.json"   --guardian-client "$CURRENT/dev-hub/bin/guardian-client.py"   --guardian-policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json"   --guardian-coverage "$RUNTIME/guardian/coverage-latest.json"   --council "$CURRENT/dev-hub/bin/architecture-council-platform-consolidation-v7.py"   --consolidator "$CURRENT/dev-hub/bin/intendant-platform-consolidator.py"   --hygiene-executor "$CURRENT/dev-hub/bin/central-platform-hygiene-executor.py"   --force-cycle WEEKLY_DRY_RUN >"$WORK/runtime-pilot.out" 2>"$WORK/runtime-pilot.err"
+PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/intendant-hygiene-cycle.py"   --repo-root "$RELEASE" --runtime-root "$RUNTIME" --platform-root "$BASE"   --policy "$RELEASE/dev-hub/config/intendant-hygiene-cycle.v1.json"   --consolidation-policy "$RELEASE/dev-hub/config/platform-consolidation.v1.json"   --guardian-client "$RELEASE/dev-hub/bin/guardian-client.py"   --guardian-policy "$RELEASE/dev-hub/config/guardian-runtime-policy.v1.json"   --guardian-coverage "$RUNTIME/guardian/coverage-latest.json"   --council "$RELEASE/dev-hub/bin/architecture-council-platform-consolidation-v7.py"   --consolidator "$RELEASE/dev-hub/bin/intendant-platform-consolidator.py"   --hygiene-executor "$RELEASE/dev-hub/bin/central-platform-hygiene-executor.py"   --force-cycle WEEKLY_DRY_RUN >"$WORK/runtime-pilot.out" 2>"$WORK/runtime-pilot.err"
 grep -Fq 'CHACHA_DEV_V710_INTENDANT_HYGIENE_CYCLE=PASS' "$WORK/runtime-pilot.out"
 python3 - "$RUNTIME/intendant/hygiene-latest.json" "$REV" <<'PY'
 import json,sys,pathlib
@@ -234,6 +246,7 @@ echo "CHACHA_DEV_V710_PURGE_COMMITTED=YES"
 
 
 stage evidence
+assert_current
 [ "$PURGE_COMMITTED" -eq 1 ]
 [ "$(readlink -f "$CURRENT")" = "$RELEASE" ]
 [ "$(find "$BASE/releases" -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 3 ]
