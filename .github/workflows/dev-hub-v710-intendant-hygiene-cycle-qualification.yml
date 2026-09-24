@@ -1,0 +1,96 @@
+name: ChaCha DEV V7.1 Intendant hygiene cycle qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v710-intendant-hygiene-cycle
+    paths:
+      - 'dev-hub/bin/install-v710-intendant-hygiene-cycle.sh'
+      - 'dev-hub/bin/intendant-hygiene-cycle.py'
+      - 'dev-hub/bin/intendant-platform-consolidator.py'
+      - 'dev-hub/bin/central-platform-hygiene-executor.py'
+      - 'dev-hub/bin/architecture-council-platform-consolidation-v7.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/intendant-hygiene-cycle.v1.json'
+      - 'dev-hub/config/platform-consolidation.v1.json'
+      - 'dev-hub/systemd/chacha-dev-intendant-hygiene.service'
+      - 'dev-hub/systemd/chacha-dev-intendant-hygiene.timer'
+      - 'dev-hub/tests/test_v710_intendant_hygiene_cycle.py'
+      - 'dev-hub/tests/test_v700_consolidated_platform_baseline.py'
+      - 'dev-hub/tests/test_v623_contextual_memory_recall.py'
+      - 'dev-hub/tests/test_v660_independent_accuracy_attestation.py'
+      - 'dev-hub/tests/test_v661_real_world_evidence_isolated_candidate.py'
+      - 'dev-hub/tests/test_v663_runtime_surface_instrumentation_readiness.py'
+      - 'dev-hub/tests/test_v664_real_instrumented_project_acceptance_council.py'
+      - '.github/workflows/dev-hub-v710-intendant-hygiene-cycle-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          if [ -f dev-hub/bin/install-v710-intendant-hygiene-cycle.sh ]; then
+            bash -n dev-hub/bin/install-v710-intendant-hygiene-cycle.sh
+          fi
+          python3 -m py_compile             dev-hub/bin/intendant-hygiene-cycle.py             dev-hub/bin/intendant-platform-consolidator.py             dev-hub/bin/central-platform-hygiene-executor.py             dev-hub/bin/architecture-council-platform-consolidation-v7.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/tests/test_v710_intendant_hygiene_cycle.py
+          python3 -m json.tool dev-hub/config/intendant-hygiene-cycle.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/platform-consolidation.v1.json >/dev/null
+          grep -Fq '"version":"7.1.0"' dev-hub/bin/autonomous-project-orchestrator.py
+          grep -Fq -- '--hygiene-executor /opt/chacha-dev/platform/current/dev-hub/bin/central-platform-hygiene-executor.py' dev-hub/systemd/chacha-dev-intendant-hygiene.service
+          test "$(find dev-hub/systemd -maxdepth 1 -name 'chacha-dev-intendant-hygiene.timer' | wc -l)" -eq 1
+      - name: V7.1 hygiene qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v710_intendant_hygiene_cycle.py | tee /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_SINGLE_HYGIENE_TIMER=PASS' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_DAILY_LIGHT_CYCLE=PASS' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_WEEKLY_DRY_RUN=PASS' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_MONTHLY_REVIEW_ONLY=PASS' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_THRESHOLD_WATCH=PASS' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_DYNAMIC_TWO_ROLLBACK_RETENTION=PASS' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_INTENDANT_DIRECT_MUTATION=NO' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_PHYSICAL_EXECUTOR=central-orchestrator' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_REALTIME_GUARDIAN_GATE=PASS' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_COUNCIL_GUARDIAN_PRE_EXECUTOR_POST_CHAIN=PASS' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_REMOTE_BRANCH_AUTO_DELETE=NO' /tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_SOURCE_CODE_AUTO_DELETE=NO' /tmp/v710.out
+      - name: Consolidated V7 regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v700_consolidated_platform_baseline.py >/tmp/v700.out
+          grep -Fq 'CHACHA_DEV_V700_CANONICAL_BASELINE=PASS' /tmp/v700.out
+          grep -Fq 'CHACHA_DEV_V700_CENTRAL_ORCHESTRATOR_RETIREMENT=PASS' /tmp/v700.out
+          grep -Fq 'CHACHA_DEV_V700_THREE_RELEASE_RETENTION=PASS' /tmp/v700.out
+      - name: Critical inherited invariants
+        run: |
+          set -euo pipefail
+          for t in             dev-hub/tests/test_v623_contextual_memory_recall.py             dev-hub/tests/test_v660_independent_accuracy_attestation.py             dev-hub/tests/test_v661_real_world_evidence_isolated_candidate.py             dev-hub/tests/test_v663_runtime_surface_instrumentation_readiness.py             dev-hub/tests/test_v664_real_instrumented_project_acceptance_council.py; do
+            PYTHONPATH=dev-hub/bin python3 "$t"
+          done
+      - name: Qualification receipt
+        run: |
+          echo CHACHA_DEV_V710_QUALIFICATION=PASS
+          echo PLATFORM_VERSION=7.1.0
+          echo OWNER_AGENT=intendant
+          echo SINGLE_TIMER=YES
+          echo DAILY_LIGHT=PASS
+          echo WEEKLY_DRY_RUN=PASS
+          echo MONTHLY_REVIEW=PASS
+          echo THRESHOLD_WATCH=PASS
+          echo INTENDANT_DIRECT_MUTATION=NO
+          echo PHYSICAL_EXECUTOR=central-orchestrator
+          echo REMOTE_BRANCH_AUTO_DELETE=NO
+          echo SOURCE_CODE_AUTO_DELETE=NO
+          echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
