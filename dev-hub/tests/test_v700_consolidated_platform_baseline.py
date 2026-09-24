@@ -40,7 +40,7 @@ assert policy["invariants"]["architecture_council_final_authority"] is True
 assert policy["invariants"]["automatic_external_spend_eur"]==0
 
 src=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
-assert any(v in src for v in ('"version":"7.0.0"','"version":"7.1.0"','"version":"7.2.0"')),src[-5000:]
+assert any(v in src for v in ('"version":"7.0.0"','"version":"7.1.0"','"version":"7.2.0"','"version":"7.3.0"')),src[-5000:]
 
 with tempfile.TemporaryDirectory(prefix="v700-qualification-") as td:
     td=Path(td)
