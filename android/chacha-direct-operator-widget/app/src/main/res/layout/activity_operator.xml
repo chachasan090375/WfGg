@@ -1,77 +1,279 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E617171B"
-    android:padding="18dp">
+    android:fillViewport="true"
+    android:background="#111116">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:orientation="vertical"
-        android:padding="18dp"
-        android:background="@drawable/panel_bg">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="ChaCha DEV"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            android:textSize="22sp" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Direct Operator"
-            android:textColor="#AAA9B2"
-            android:textSize="13sp" />
-        <EditText
-            android:id="@+id/operator_input"
+        android:padding="16dp">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="110dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:gravity="center"
+                android:text="💨"
+                android:textSize="25sp"
+                android:background="@drawable/hero_bg" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ChaCha j’ai pété"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:textSize="22sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="Ton accès direct à ChaCha DEV"
+                    android:textColor="#AAA5B7"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            android:background="@drawable/hero_bg">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CHACHA DEV GLOBAL"
+                android:textColor="#BDB4D1"
+                android:textStyle="bold"
+                android:textSize="11sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="bottom"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/global_percent"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="86%"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:textSize="34sp" />
+                <TextView
+                    android:id="@+id/global_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Maturité plateforme"
+                    android:textColor="#AAA5B7"
+                    android:textSize="12sp" />
+            </LinearLayout>
+            <ProgressBar
+                android:id="@+id/global_progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:layout_marginTop="8dp"
+                android:max="100"
+                android:progress="86"
+                android:progressTint="#8B68FF"
+                android:progressBackgroundTint="#393445" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/operator_input_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            android:gravity="top|start"
-            android:hint="Demander à ChaCha DEV…"
-            android:inputType="textCapSentences|textMultiLine"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#85838E"
-            android:backgroundTint="#7C5CFF"
-            android:padding="12dp" />
+            android:orientation="vertical"
+            android:background="@drawable/module_bg">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="QU’EST-CE QU’ON FAIT ?"
+                android:textColor="#BDB4D1"
+                android:textStyle="bold"
+                android:textSize="11sp" />
+            <EditText
+                android:id="@+id/operator_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="112dp"
+                android:layout_marginTop="8dp"
+                android:gravity="top|start"
+                android:hint="Dis-moi ce que tu veux faire…"
+                android:inputType="textCapSentences|textMultiLine"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#77717F"
+                android:background="@drawable/input_bg"
+                android:padding="14dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/operator_send"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Envoyer ✨"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#7C5CFF" />
+                <Button
+                    android:id="@+id/operator_mic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="🎤"
+                    android:contentDescription="Dicter" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/operator_context_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:background="@drawable/hero_bg">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="CHA CHA TE RÉPOND"
+                    android:textColor="#BDB4D1"
+                    android:textStyle="bold"
+                    android:textSize="11sp" />
+                <TextView
+                    android:id="@+id/operator_state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PRÊT"
+                    android:textColor="#C9BBFF"
+                    android:textStyle="bold"
+                    android:textSize="11sp" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/context_headline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="ChaCha s’occupe de ta demande ✨"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"
+                android:textSize="17sp" />
+            <ProgressBar
+                android:id="@+id/work_progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:layout_marginTop="10dp"
+                android:max="100"
+                android:progress="0"
+                android:progressTint="#6DE0B6"
+                android:progressBackgroundTint="#393445" />
+            <TextView
+                android:id="@+id/work_percent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="0%"
+                android:textColor="#AAA5B7"
+                android:textSize="12sp" />
+            <TextView
+                android:id="@+id/operator_result"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="En attente du cerveau central…"
+                android:textColor="#EEE8FA"
+                android:textSize="15sp"
+                android:lineSpacingExtra="4dp" />
+            <Button
+                android:id="@+id/operator_new"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Nouvelle demande"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#4A4358" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/modules_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="vertical"
+            android:background="@drawable/module_bg">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PROGRESSION DES MODULES"
+                android:textColor="#BDB4D1"
+                android:textStyle="bold"
+                android:textSize="11sp" />
+
+            <TextView android:id="@+id/module_1_label" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="⚡ Entrée directe" android:textColor="#EEE8FA" android:textSize="13sp" />
+            <ProgressBar android:id="@+id/module_1_progress" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="7dp" android:max="100" android:progressTint="#A98CFF" android:progressBackgroundTint="#34313A" />
+
+            <TextView android:id="@+id/module_2_label" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="✨ Traduction fonctionnelle" android:textColor="#EEE8FA" android:textSize="13sp" />
+            <ProgressBar android:id="@+id/module_2_progress" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="7dp" android:max="100" android:progressTint="#A98CFF" android:progressBackgroundTint="#34313A" />
+
+            <TextView android:id="@+id/module_3_label" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="🧭 Interface centrale" android:textColor="#EEE8FA" android:textSize="13sp" />
+            <ProgressBar android:id="@+id/module_3_progress" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="7dp" android:max="100" android:progressTint="#A98CFF" android:progressBackgroundTint="#34313A" />
+
+            <TextView android:id="@+id/module_4_label" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="🧠 Cerveau central" android:textColor="#EEE8FA" android:textSize="13sp" />
+            <ProgressBar android:id="@+id/module_4_progress" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="7dp" android:max="100" android:progressTint="#A98CFF" android:progressBackgroundTint="#34313A" />
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:orientation="horizontal">
             <Button
-                android:id="@+id/operator_send"
+                android:id="@+id/operator_allo"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Envoyer"
-                android:textColor="#FFFFFF"
-                android:backgroundTint="#7C5CFF" />
+                android:text="Allo" />
             <Button
-                android:id="@+id/operator_mic"
-                android:layout_width="wrap_content"
+                android:id="@+id/operator_go"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="🎤"
-                android:contentDescription="Dicter" />
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:text="Go" />
+            <Button
+                android:id="@+id/operator_stop"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:text="Stop"
+                android:textColor="#FFB7B7"
+                android:backgroundTint="#4A2630" />
         </LinearLayout>
-        <TextView
-            android:id="@+id/operator_state"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:text="Prêt"
-            android:textColor="#B8A8FF"
-            android:textStyle="bold" />
-        <TextView
-            android:id="@+id/operator_result"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="#E6E1F8"
-            android:textSize="14sp" />
     </LinearLayout>
-</FrameLayout>
+</ScrollView>
