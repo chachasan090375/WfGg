@@ -26,7 +26,9 @@
     "script": "dev-hub/bin/functional-translator-agent.py",
     "execution_authority": false,
     "architecture_authority": false,
-    "raw_text_preserved": true
+    "raw_text_preserved": true,
+    "contract": "dev-hub/config/functional-translator-satellite.v1.json",
+    "fleet_membership": "EXCLUDED_EDGE_SATELLITE"
   },
   "central_controller": "dev-hub/bin/central-interface-controller.py",
   "emergency_controller": "dev-hub/bin/emergency-stop-controller.py",
