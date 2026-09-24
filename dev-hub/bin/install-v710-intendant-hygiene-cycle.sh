@@ -21,6 +21,9 @@ SERVICE_BACKUP="$WORK/service.backup"
 TIMER_BACKUP="$WORK/timer.backup"
 SERVICE_EXISTED=0
 TIMER_EXISTED=0
+TIMER_WAS_ACTIVE=0
+TIMER_WAS_ENABLED=0
+TIMER_PAUSED=0
 UNITS_TOUCHED=0
 DEPLOY_LOCK="$RUNTIME/control/platform-deploy.lock"
 UNIT_MARKER="# ChaCha-DEV-V710-Revision: $REV"
@@ -56,6 +59,11 @@ rollback(){
         units_restored=1
       fi
       if [ "$units_restored" -eq 1 ]; then systemctl daemon-reload >/dev/null 2>&1 || true; fi
+      if [ "$TIMER_PAUSED" -eq 1 ]; then
+        if [ "$TIMER_WAS_ENABLED" -eq 1 ]; then systemctl enable chacha-dev-intendant-hygiene.timer >/dev/null 2>&1 || true; fi
+        if [ "$TIMER_WAS_ACTIVE" -eq 1 ]; then systemctl start chacha-dev-intendant-hygiene.timer >/dev/null 2>&1 || true; fi
+        TIMER_PAUSED=0
+      fi
       if [ "$ACTIVATED" -eq 1 ] && [ -n "$PREVIOUS" ] && [ -d "$PREVIOUS" ]; then
         actual="$(readlink -f "$CURRENT" 2>/dev/null || true)"
         if [ "$actual" = "$RELEASE" ] || [ -z "$actual" ]; then
@@ -108,21 +116,51 @@ if [ "$CURRENT_REV" = "$REV" ]; then
   exit 0
 fi
 
-stage v700-acquired-baseline
+stage v7-acquired-baseline
 python3 - "$PREVIOUS" <<'PY'
-import pathlib,json,sys
+import pathlib,json,sys,re
 root=pathlib.Path(sys.argv[1]);rev=(root/".revision").read_text().strip()
-assert rev=="b061f1405fc758ff22be241c5c791a3ecb58c9ec",rev
 src=(root/"dev-hub/bin/autonomous-project-orchestrator.py").read_text()
-assert '"version":"7.0.0"' in src
-ev=sorted(pathlib.Path("/opt/chacha-dev/evidence").glob("v700-consolidated-platform-baseline-*.json"))
-assert ev,"V700_EVIDENCE_MISSING"
-x=json.loads(ev[-1].read_text())
-assert x.get("revision")==rev,x
-assert x.get("platform_version")=="7.0.0",x
-assert x["consolidation"]["applied"] is True,x
-print("CHACHA_DEV_V710_V700_BASELINE=PASS")
+m=re.search(r'"version"\s*:\s*"([^"]+)"',src)
+version=m.group(1) if m else ""
+evidence_root=pathlib.Path("/opt/chacha-dev/evidence")
+if version=="7.0.0":
+    matches=[]
+    for p in sorted(evidence_root.glob("v700-consolidated-platform-baseline-*.json")):
+        try:x=json.loads(p.read_text())
+        except Exception:continue
+        if x.get("revision")==rev and x.get("platform_version")=="7.0.0":matches.append(x)
+    assert matches,"V700_ACQUIRED_EVIDENCE_MISSING"
+    assert matches[-1]["consolidation"]["applied"] is True,matches[-1]
+elif version=="7.1.0":
+    matches=[]
+    for p in sorted(evidence_root.glob("v710-intendant-hygiene-cycle-*.json")):
+        try:x=json.loads(p.read_text())
+        except Exception:continue
+        if x.get("revision")==rev and x.get("platform_version")=="7.1.0":matches.append(x)
+    assert matches,("V710_ACQUIRED_EVIDENCE_MISSING",rev)
+    x=matches[-1]
+    assert x.get("single_timer") is True,x
+    assert x.get("physical_executor")=="central-orchestrator",x
+    assert x.get("intendant_direct_mutation") is False,x
+else:
+    raise AssertionError(("UNSUPPORTED_V7_BASELINE",version,rev))
+print("CHACHA_DEV_V710_V7_BASELINE=PASS")
+print("PREVIOUS_VERSION="+version)
+print("PREVIOUS_REVISION="+rev)
 PY
+
+if systemctl is-enabled --quiet chacha-dev-intendant-hygiene.timer 2>/dev/null; then TIMER_WAS_ENABLED=1; fi
+if systemctl is-active --quiet chacha-dev-intendant-hygiene.timer 2>/dev/null; then
+  TIMER_WAS_ACTIVE=1
+  systemctl stop chacha-dev-intendant-hygiene.timer
+  TIMER_PAUSED=1
+fi
+if systemctl is-active --quiet chacha-dev-intendant-hygiene.service 2>/dev/null; then
+  if [ "$TIMER_WAS_ACTIVE" -eq 1 ]; then systemctl start chacha-dev-intendant-hygiene.timer >/dev/null 2>&1 || true; TIMER_PAUSED=0; fi
+  echo "CHACHA_DEV_V710_INSTALL=BLOCKED reason=hygiene_service_active"
+  exit 74
+fi
 
 stage source
 if [ -n "$SOURCE_ROOT" ]; then
@@ -250,6 +288,7 @@ systemctl enable chacha-dev-intendant-hygiene.timer >/dev/null
 systemctl start chacha-dev-intendant-hygiene.timer
 systemctl is-active --quiet chacha-dev-intendant-hygiene.timer
 systemctl is-enabled --quiet chacha-dev-intendant-hygiene.timer
+TIMER_PAUSED=0
 systemctl list-timers chacha-dev-intendant-hygiene.timer --no-pager >"$WORK/timer-status.out"
 echo "CHACHA_DEV_V710_TIMER_ACTIVE=PASS"
 
