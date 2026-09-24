@@ -747,6 +747,176 @@ def advance_operation(project: str, target: str | None, actor: str, policy: dict
 
 
 
+def bootstrap_control_plane_operation(project: str, actor: str, profile: str,
+                                      policy: dict[str, Any], repo_root: Path) -> dict[str, Any]:
+    """Initialize Project Control state+journal+Evidence Ledger through canonical engines.
+
+    Bootstrap is idempotent and forward-only. A valid partial bootstrap may be
+    completed, but inconsistent partial state is never deleted or rewritten.
+    """
+    project=str(project or "").strip()
+    actor=str(actor or "").strip()
+    profile=str(profile or "project").strip().lower()
+    if not project:
+        return response(project or "unknown","bootstrap-control-plane","BLOCKED","Project id is required.",
+                        blockers=["PROJECT_ID_MISSING"])
+    if not actor:
+        return response(project,"bootstrap-control-plane","BLOCKED","Bootstrap actor is required.",
+                        blockers=["BOOTSTRAP_ACTOR_MISSING"])
+    if profile not in {"project","platform"}:
+        return response(project,"bootstrap-control-plane","BLOCKED","Unsupported control-plane profile.",
+                        {"profile":profile},["CONTROL_PLANE_PROFILE_INVALID"])
+
+    p=project_paths(policy,project)
+    tools=policy.get("engine_paths") or {}
+    state_policy,state_root=state_policy_root(policy,repo_root)
+    expected_state_root=p["state"].parent.parent
+    if state_root.resolve()!=expected_state_root.resolve():
+        return response(project,"bootstrap-control-plane","BLOCKED",
+                        "Project Control and Control Plane Store state roots differ.",
+                        {"project_control_root":str(expected_state_root),"store_root":str(state_root)},
+                        ["CONTROL_PLANE_STATE_ROOT_MISMATCH"])
+
+    def ledger_check()->tuple[bool,str|None]:
+        if not p["ledger"].exists():return False,None
+        try:x=load(p["ledger"])
+        except Exception as exc:return False,"EVIDENCE_LEDGER_INVALID:"+str(exc)
+        if x.get("schema")!=LEDGER_SCHEMA:return False,"EVIDENCE_LEDGER_SCHEMA_INVALID"
+        if str(x.get("project") or "")!=project:return False,"EVIDENCE_LEDGER_PROJECT_MISMATCH"
+        return True,None
+
+    with project_lock(p["lock"]):
+        state_exists=p["state"].exists()
+        journal_exists=p["journal"].exists()
+        if state_exists!=journal_exists:
+            return response(project,"bootstrap-control-plane","BLOCKED",
+                            "Control-plane state/journal are partially initialized.",
+                            {"state_exists":state_exists,"journal_exists":journal_exists},
+                            ["CONTROL_PLANE_STATE_JOURNAL_PARTIAL"])
+
+        ledger_exists=p["ledger"].exists()
+        ledger_ok,ledger_error=ledger_check()
+        if ledger_exists and not ledger_ok:
+            return response(project,"bootstrap-control-plane","BLOCKED","Existing Evidence Ledger is invalid.",
+                            {"ledger":str(p["ledger"])},[str(ledger_error or "EVIDENCE_LEDGER_INVALID")])
+        if not state_exists and ledger_exists:
+            lv=load(p["ledger"])
+            nonempty=bool((lv.get("artifacts") or {}) or (lv.get("gates") or {}) or
+                          (lv.get("approvals") or {}) or (lv.get("risk_acceptances") or []) or
+                          (lv.get("history") or []))
+            if nonempty:
+                return response(project,"bootstrap-control-plane","BLOCKED",
+                                "A non-empty ledger exists without control-plane state.",
+                                {"ledger":str(p["ledger"])},["ORPHAN_NONEMPTY_EVIDENCE_LEDGER"])
+
+        if state_exists:
+            rc0,_,out0,err0=state_verify_raw(project,policy,repo_root)
+            if rc0!=0:
+                return response(project,"bootstrap-control-plane","BLOCKED",
+                                "Existing control-plane integrity check failed.",
+                                {"stdout":out0.strip(),"stderr":err0.strip()},
+                                ["CONTROL_PLANE_INTEGRITY_FAILED"])
+            projection=load(p["state"])
+            existing_profile=str(((projection.get("state") or {}).get("identity") or {}).get("control_profile") or "")
+            if existing_profile and existing_profile!=profile:
+                return response(project,"bootstrap-control-plane","BLOCKED","Existing control profile differs.",
+                                {"existing_profile":existing_profile,"requested_profile":profile},
+                                ["CONTROL_PLANE_PROFILE_MISMATCH"])
+
+        state_created=False
+        ledger_created=False
+        if not state_exists:
+            with tempfile.TemporaryDirectory(prefix="chacha-control-bootstrap-") as td:
+                initial=Path(td)/"initial.json"
+                save(initial,{"identity":{"control_profile":profile,"bootstrap_actor":actor},
+                              "lifecycle":{"stage":"IDEA"}})
+                rc,out,err=run_tool(resolve_repo(repo_root,tools["control_plane_store"]),[
+                    "--policy",str(state_policy),"--root",str(state_root),"init",
+                    "--project",project,"--actor",actor,"--initial",str(initial)
+                ])
+            if rc!=0:
+                return response(project,"bootstrap-control-plane","FAILED",
+                                "Control Plane Store initialization failed.",
+                                {"stdout":out.strip(),"stderr":err.strip()},
+                                ["CONTROL_PLANE_STATE_INIT_FAILED"])
+            state_created=True
+
+        rc1,_,out1,err1=state_verify_raw(project,policy,repo_root)
+        if rc1!=0:
+            return response(project,"bootstrap-control-plane","BLOCKED",
+                            "Control-plane integrity failed after initialization.",
+                            {"stdout":out1.strip(),"stderr":err1.strip()},
+                            ["CONTROL_PLANE_POST_INIT_INTEGRITY_FAILED"])
+
+        ledger_ok,ledger_error=ledger_check()
+        if not p["ledger"].exists():
+            rc,out,err=run_tool(resolve_repo(repo_root,tools["evidence_collector"]),[
+                "init","--project",project,"--ledger",str(p["ledger"])
+            ])
+            if rc!=0:
+                return response(project,"bootstrap-control-plane","BLOCKED",
+                                "Control-plane state exists; Evidence Ledger initialization must resume.",
+                                {"stdout":out.strip(),"stderr":err.strip(),"state_created":state_created},
+                                ["CONTROL_PLANE_BOOTSTRAP_LEDGER_PENDING"],
+                                ["rerun bootstrap-control-plane after resolving ledger initialization"])
+            ledger_created=True
+            ledger_ok,ledger_error=ledger_check()
+        if not ledger_ok:
+            return response(project,"bootstrap-control-plane","BLOCKED","Evidence Ledger validation failed.",
+                            {"ledger":str(p["ledger"])},[str(ledger_error or "EVIDENCE_LEDGER_INVALID")])
+
+        projection=load(p["state"])
+        evidence_state=((projection.get("state") or {}).get("evidence") or {})
+        marker_ok=(
+            evidence_state.get("control_plane_ledger_initialized") is True and
+            str(evidence_state.get("ledger_path") or "")==str(p["ledger"])
+        )
+        event_recorded=False
+        if not marker_ok:
+            ledger_digest=canonical_digest(load(p["ledger"]))
+            with tempfile.TemporaryDirectory(prefix="chacha-control-bootstrap-event-") as td:
+                payload=Path(td)/"payload.json";patch=Path(td)/"patch.json"
+                save(payload,{"kind":"control-plane-bootstrap","ledger":str(p["ledger"]),
+                              "ledger_digest":ledger_digest,"profile":profile})
+                save(patch,{"evidence":{"control_plane_ledger_initialized":True,
+                                       "ledger_path":str(p["ledger"]),
+                                       "ledger_digest":ledger_digest}})
+                rc_evt,values,out_evt,err_evt=store_record(
+                    project,"EVIDENCE_RECORDED",actor,payload,patch,None,policy,repo_root)
+            if rc_evt!=0:
+                return response(project,"bootstrap-control-plane","BLOCKED",
+                                "Ledger exists but bootstrap audit event could not be committed.",
+                                {"stdout":out_evt.strip(),"stderr":err_evt.strip()},
+                                ["CONTROL_PLANE_BOOTSTRAP_AUDIT_PENDING"],
+                                ["rerun bootstrap-control-plane after resolving audit commit"])
+            event_recorded=True
+
+        rc2,verify_values,out2,err2=state_verify_raw(project,policy,repo_root)
+        if rc2!=0:
+            return response(project,"bootstrap-control-plane","BLOCKED",
+                            "Bootstrap completed but final integrity check failed.",
+                            {"stdout":out2.strip(),"stderr":err2.strip()},
+                            ["CONTROL_PLANE_BOOTSTRAP_FINAL_INTEGRITY_FAILED"])
+        final=load(p["state"])
+        final_evidence=((final.get("state") or {}).get("evidence") or {})
+        if final_evidence.get("control_plane_ledger_initialized") is not True:
+            return response(project,"bootstrap-control-plane","BLOCKED",
+                            "Bootstrap evidence marker is missing after commit.",
+                            blockers=["CONTROL_PLANE_BOOTSTRAP_MARKER_MISSING"])
+
+        idempotent=not state_created and not ledger_created and not event_recorded
+        return response(project,"bootstrap-control-plane","OK",
+                        "Control plane and Evidence Ledger are initialized and integrity-checked.",
+                        {"profile":profile,"state":str(p["state"]),"journal":str(p["journal"]),
+                         "ledger":str(p["ledger"]),"state_created":state_created,
+                         "ledger_created":ledger_created,"audit_event_recorded":event_recorded,
+                         "idempotent":idempotent,"integrity":verify_values},
+                        artifacts=[
+                          {"type":"control-plane-state","path":str(p["state"])},
+                          {"type":"evidence-ledger","path":str(p["ledger"])}
+                        ])
+
+
 def record_approval_operation(project: str, approval_id: str, actor: str, evidence: str | None,
                               policy: dict[str, Any], repo_root: Path) -> dict[str, Any]:
     """Record an explicit human approval through the protected control path.
@@ -1185,6 +1355,11 @@ def main() -> int:
     verify.add_argument("--verifier", default="verification-broker")
     verify.add_argument("--ingest", action="store_true")
 
+    bootstrap = sub.add_parser("bootstrap-control-plane")
+    bootstrap.add_argument("--project", required=True)
+    bootstrap.add_argument("--actor", default="central-orchestrator")
+    bootstrap.add_argument("--profile", choices=["project","platform"], default="project")
+
     approve = sub.add_parser("record-approval")
     approve.add_argument("--project", required=True)
     approve.add_argument("--approval-id", required=True)
@@ -1235,6 +1410,8 @@ def main() -> int:
     elif args.command == "verify-result":
         result = verify_result_operation(args.project, args.result, args.graph, args.method, args.verifier,
                                          args.ingest, policy, args.repo_root)
+    elif args.command == "bootstrap-control-plane":
+        result = bootstrap_control_plane_operation(args.project,args.actor,args.profile,policy,args.repo_root)
     elif args.command == "record-approval":
         result = record_approval_operation(args.project, args.approval_id, args.actor, args.evidence,
                                            policy, args.repo_root)
