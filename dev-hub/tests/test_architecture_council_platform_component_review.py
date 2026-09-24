@@ -93,6 +93,14 @@ assert ok["decision"]=="TECHNICALLY_ADMISSIBLE_AWAIT_EXPLICIT_HUMAN_PROMOTION_AP
 assert ok["next_action"]=="AWAIT_EXPLICIT_HUMAN_PROMOTION_APPROVAL",ok
 assert ok["production_activation_allowed"] is False,ok
 assert ok["promotion_allowed"] is False,ok
+assert ok["human_approval_request_created"] is True,ok
+req=ok["approval_request"]
+assert req["schema"]=="chacha.dev/protected-human-approval-request/v1",req
+assert req["project"]=="chacha-dev-platform" and req["operation"]=="record-approval",req
+assert req["actor_requirement"]=="real-human",req
+assert req["agent_or_api_approval_synthesis_forbidden"] is True,req
+assert req["promotion_before_approval"] is False and req["production_activation_before_approval"] is False,req
+assert req["evidence"]=="architecture-council-platform-review:"+ok["technical_review_digest"],req
 assert ok["human_explicit_promotion_approval_present"] is False,ok
 assert ok["incumbent_control_group"] is True,ok
 
@@ -101,6 +109,8 @@ blocked=review.build_review(policy,pilot,contract,sentinel,watch,missing_runs)
 assert blocked["technical_review_passed"] is False,blocked
 assert blocked["checks"]["qualification_exact_revision_workflow_success"] is False,blocked
 assert blocked["decision"]=="COUNCIL_REVIEW_BLOCKED_HOLD_INCUMBENT",blocked
+assert blocked["human_approval_request_created"] is False,blocked
+assert blocked["approval_request"] is None,blocked
 
 bad_pilot=json.loads(json.dumps(pilot))
 bad_pilot["production_change_authorized"]=True
@@ -119,6 +129,8 @@ print("CHACHA_DEV_PLATFORM_COMPONENT_COUNCIL_EXACT_SHA_GATES=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_COUNCIL_POLICY_FAIL_CLOSED=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_COUNCIL_HOLD_INCUMBENT=YES")
 print("CHACHA_DEV_PLATFORM_COMPONENT_COUNCIL_HUMAN_PROMOTION_APPROVAL_REQUIRED=YES")
+print("CHACHA_DEV_PLATFORM_COMPONENT_COUNCIL_APPROVAL_REQUEST=PROTECTED")
+print("CHACHA_DEV_PLATFORM_COMPONENT_COUNCIL_AGENT_APPROVAL_SYNTHESIS=NO")
 print("CHACHA_DEV_PLATFORM_COMPONENT_COUNCIL_PRODUCTION_ACTIVATION=NO")
 print("CHACHA_DEV_PLATFORM_COMPONENT_COUNCIL_PROMOTION=NO")
 print("CHACHA_DEV_PLATFORM_COMPONENT_COUNCIL_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
