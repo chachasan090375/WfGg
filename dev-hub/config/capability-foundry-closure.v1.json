@@ -1,0 +1,50 @@
+{
+  "schema": "chacha.dev/capability-foundry-closure/v1",
+  "version": "1.0.0",
+  "purpose": "Close missing capability gaps automatically only through already-known, already-enabled provider adapters; otherwise fail closed into a build work order.",
+  "principles": {
+    "no_adapter_invention": true,
+    "technology_watch_evidence_required": true,
+    "enabled_adapter_required": true,
+    "zero_incremental_external_spend_required": true,
+    "no_new_credential_boundary": true,
+    "project_local_pilot_before_durable_adoption": true,
+    "verified_project_success_required_before_adoption": true,
+    "architecture_council_remains_final_authority": true,
+    "guardian_governance_remains_required": true,
+    "production_permissions_keep_existing_human_boundaries": true,
+    "atomic_registry_mutation": true,
+    "idempotent_replay": true
+  },
+  "provider_candidate_fields": [
+    "provider_id",
+    "id"
+  ],
+  "eligible_adapter_statuses": [
+    "ENABLED"
+  ],
+  "protected_permissions": [
+    "production-deploy",
+    "production-data-write",
+    "secret-change",
+    "destructive-operation",
+    "technology-replacement"
+  ],
+  "project_local_provider_status": "PILOT",
+  "durable_provider_status": "ADOPT",
+  "adoption": {
+    "verification_schema": "chacha.dev/capability-adoption-evidence/v1",
+    "required_status": "PASS",
+    "require_same_capability": true,
+    "require_same_provider": true,
+    "require_project_success": true,
+    "human_approval_if_production_capable": true,
+    "human_approval_if_external_spend_nonzero": true,
+    "human_approval_if_credential_boundary_changes": true
+  },
+  "mutation": {
+    "allowed_registry_schema": "chacha.dev/capability-registry/v1",
+    "strategy": "temp-file-fsync-rename"
+  },
+  "automatic_external_spend_eur": 0
+}
