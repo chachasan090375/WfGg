@@ -103,7 +103,8 @@ with tempfile.TemporaryDirectory(prefix="v700-qualification-") as td:
     save(guardian,{"all_hooks_active":True})
     save(runs,{"workflow_runs":[
       {"name":"ChaCha DEV Sentinel technical assurance","head_sha":v7rev,"status":"completed","conclusion":"success"},
-      {"name":"ChaCha DEV V7 consolidated platform baseline qualification","head_sha":v7rev,"status":"completed","conclusion":"success"}
+      {"name":"ChaCha DEV V7 consolidated platform baseline qualification","head_sha":v7rev,"status":"completed","conclusion":"success"},
+      {"name":"ChaCha DEV V7 platform qualification","head_sha":v7rev,"status":"completed","conclusion":"success"}
     ]})
     council=run([sys.executable,str(BIN/"architecture-council-platform-consolidation-v7.py"),
       "--plan",str(plan),"--policy",str(test_policy),
@@ -113,10 +114,12 @@ with tempfile.TemporaryDirectory(prefix="v700-qualification-") as td:
     ar0=load(approval)
     assert ar0["decision"]=="APPROVE_INTENDANT_CONSOLIDATION",ar0
     assert ar0["destructive_apply_authorized"] is True,ar0
-    applied=td/"applied.json";archive=td/"archive.json"
+    applied=td/"applied.json";archive=td/"archive.json";guardian_receipt=td/"guardian-receipt.json"
+    save(guardian_receipt,{"verdict":"PASS","action":"SAFE_SUPERSEDED_PHYSICAL_RELEASE_RETIREMENT"})
     out=run([sys.executable,str(BIN/"central-retirement-executor.py"),
        "--platform-root",str(platform),"--plan",str(plan),"--approval",str(approval),
-       "--archive-manifest",str(archive),"--output",str(applied),"--explicit-destructive-apply"])
+       "--guardian-receipt",str(guardian_receipt),"--archive-manifest",str(archive),
+       "--output",str(applied),"--explicit-destructive-apply"])
     assert "CHACHA_DEV_V710_CENTRAL_RETIREMENT_EXECUTION=PASS" in out,out
     a=load(applied)
     assert a["deleted_release_count"]==2,a
