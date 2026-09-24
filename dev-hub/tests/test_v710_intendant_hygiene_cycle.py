@@ -23,6 +23,7 @@ def digest(p):return "sha256:"+hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 hygiene=load(CFG/"intendant-hygiene-cycle.v1.json")
 consolidation=load(CFG/"platform-consolidation.v1.json")
+guardian_contracts=load(CFG/"guardian-role-contracts.v1.json")
 assert hygiene["scheduler"]["single_timer"] is True
 assert hygiene["scheduler"]["poll_interval_minutes"]==60
 assert hygiene["cycles"]["LIGHT_DAILY"]["minimum_interval_hours"]==24
@@ -37,6 +38,12 @@ assert hygiene["invariants"]["source_code_auto_delete"] is False
 assert consolidation["execution"]["planner_owner"]=="intendant"
 assert consolidation["execution"]["physical_retirement_executor"]=="central-orchestrator"
 assert consolidation["execution"]["intendant_direct_mutation"] is False
+contracts=guardian_contracts.get("contracts") or guardian_contracts.get("role_contracts") or []
+co=next(x for x in contracts if x["contract_id"]=="component:central-orchestrator")
+ph=next(x for x in contracts if x["contract_id"]=="role:platform-hygiene-executor")
+assert {"EXECUTE_SAFE_TEMP_CLEANUP","EXECUTE_PLATFORM_RETIREMENT"}<=set(co["allowed_actions"])
+assert set(ph["allowed_actions"])=={"EXECUTE_SAFE_TEMP_CLEANUP","EXECUTE_PLATFORM_RETIREMENT"}
+assert ph["allowed_permissions"]==["destructive-operation"]
 assert not (BIN/"central-retirement-executor.py").exists(),"superseded executor must not remain"
 
 service=(SYSTEMD/"chacha-dev-intendant-hygiene.service").read_text()
@@ -188,6 +195,7 @@ print("CHACHA_DEV_V710_DYNAMIC_TWO_ROLLBACK_RETENTION=PASS")
 print("CHACHA_DEV_V710_INTENDANT_DIRECT_MUTATION=NO")
 print("CHACHA_DEV_V710_PHYSICAL_EXECUTOR=central-orchestrator")
 print("CHACHA_DEV_V710_REALTIME_GUARDIAN_GATE=PASS")
+print("CHACHA_DEV_V710_GUARDIAN_HYGIENE_CONTRACT=PASS")
 print("CHACHA_DEV_V710_COUNCIL_GUARDIAN_PRE_EXECUTOR_POST_CHAIN=PASS")
 print("CHACHA_DEV_V710_REMOTE_BRANCH_AUTO_DELETE=NO")
 print("CHACHA_DEV_V710_SOURCE_CODE_AUTO_DELETE=NO")
