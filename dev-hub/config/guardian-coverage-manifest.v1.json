@@ -1,8 +1,8 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "2.6.0",
+  "version": "2.7.0",
   "scope": "PLATFORM_GLOBAL",
-  "heartbeat_max_age_seconds": 180,
+  "heartbeat_max_age_seconds": 900,
   "action_lease_default_seconds": 300,
   "expected_components": [
     {
@@ -485,5 +485,13 @@
       "reason": "OUT_OF_BAND_STOP_PATH_MUST_NOT_DEPEND_ON_GUARDIAN_AVAILABILITY"
     }
   ],
-  "automatic_external_spend_eur": 0
+  "automatic_external_spend_eur": 0,
+  "d1_write_budget": {
+    "coverage_heartbeat_interval_seconds": 300,
+    "expected_max_component_heartbeat_writes_per_day": 12384,
+    "calculation": "43 components * 12 heartbeats/hour * 24 hours",
+    "ci_sync_mode": "DIGEST_AWARE_DELTA",
+    "automatic_paid_upgrade": false,
+    "automatic_external_spend_eur": 0
+  }
 }
