@@ -424,6 +424,41 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
             a["authority_checks"]+=total;a["authority_points"]+=100.0*passed
             a["refs"]["authority_discipline"].append(str(path))
 
+    # V6.62 project-local real runtime capability coverage.
+    radar_cov_cfg=policy.get("project_local_runtime_coverage") or {}
+    project_runtime_coverage={}
+    if radar_cov_cfg.get("enabled") is True:
+        aid=str(radar_cov_cfg.get("eligible_agent") or "")
+        project_id=str(radar_cov_cfg.get("project_id") or "")
+        required_scope=str(radar_cov_cfg.get("required_scope") or "PROJECT")
+        provider=str(radar_cov_cfg.get("provider") or "")
+        adapter=str(radar_cov_cfg.get("adapter") or "")
+        required_status=str(radar_cov_cfg.get("required_task_status") or "SUCCEEDED")
+        allowed=set(str(x) for x in (radar_cov_cfg.get("allowed_capabilities") or []))
+        require_no_fallback=radar_cov_cfg.get("require_no_fallback") is True
+        observed=set();refs=[]
+        if aid in agg and scopes.get(aid)==required_scope:
+            for path in runtime_root.glob(str(radar_cov_cfg.get("run_glob") or ("runs/"+project_id+"/**/run-record.json"))):
+                x=safe_load(path)
+                if not x or x.get("schema")!="chacha.dev/run-record/v1":continue
+                if str(x.get("project") or "")!=project_id:continue
+                for wave in x.get("waves") or []:
+                    if not isinstance(wave,dict):continue
+                    for task in wave.get("tasks") or []:
+                        if not isinstance(task,dict) or str(task.get("status") or "")!=required_status:continue
+                        for binding in task.get("provider_bindings") or []:
+                            if not isinstance(binding,dict):continue
+                            cap=str(binding.get("capability") or "")
+                            if cap not in allowed:continue
+                            if str(binding.get("provider") or "")!=provider or str(binding.get("adapter") or "")!=adapter:continue
+                            if require_no_fallback and binding.get("fallback_used") is not False:continue
+                            if str(binding.get("health_state") or "") not in {"","HEALTHY"}:continue
+                            observed.add(cap);refs.append(str(path))
+            if observed:
+                agg[aid]["observed_capabilities"].update(observed)
+                agg[aid]["refs"]["coverage"].extend(sorted(set(refs))[:25])
+                project_runtime_coverage[aid]={"capabilities":sorted(observed),"refs":sorted(set(refs))}
+
     # V6.51 promoted benchmark evidence: benchmark-only measurements may fill UNKNOWN dimensions,
     # but never overwrite production/runtime measurements.
     benchmark_evidence={}
@@ -521,6 +556,8 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
             "independent_accuracy_attestation_present":aid in accuracy_attestations,
             "real_world_structural_attestation_cases":a["real_world_structural_total"],
             "real_world_structural_attestation_present":aid in real_world_attestations,
+            "project_local_runtime_coverage_present":aid in project_runtime_coverage,
+            "project_local_runtime_coverage_capabilities":sorted((project_runtime_coverage.get(aid) or {}).get("capabilities") or []),
             "operational_structural_evidence":a["operational_evidence_total"],
             "observed_capabilities":sorted(a["observed_capabilities"]),
             "declared_capabilities":sorted(declared.get(aid) or set()),
