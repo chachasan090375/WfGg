@@ -220,7 +220,9 @@ def main()->int:
             if p.returncode!=0:
                 row.update({"status":"BLOCKED","reason":"CONSOLIDATOR_FAILED","stderr":p.stderr[-1200:]});results.append(row);continue
             px=load(plan);row["actions"].append({"action":"RELEASE_RETIREMENT_DRY_RUN","retire_count":px.get("retire_count"),
-              "bytes_retirable":px.get("bytes_retirable"),"selected_rollback_revisions":px.get("selected_rollback_revisions")})
+              "bytes_retirable":px.get("bytes_retirable"),"selected_rollback_revisions":px.get("selected_rollback_revisions"),
+              "selected_rollback_evidence_epochs":px.get("selected_rollback_evidence_epochs"),
+              "rollback_selection_basis":px.get("rollback_selection_basis")})
             safe=((cycle_cfg.get("WEEKLY_DRY_RUN") or {}).get("safe_release_retirement") or {})
             standing=bool(sched.get("standing_operator_approval_authorized")) and bool(safe.get("standing_operator_approval"))
             if int(px.get("retire_count") or 0)>0 and safe.get("auto_apply_when_fully_governed") is True and standing and not a.dry_run:
