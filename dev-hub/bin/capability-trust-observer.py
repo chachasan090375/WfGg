@@ -168,7 +168,7 @@ def observe(args)->dict[str,Any]:
            "last_project_outcome":action,"technology_watch_revalidated":True}
     obs=ul.observe(project_id=project,
                    source_id="capability-trust:"+capability,
-                   source_kind="capability",
+                   source_kind="learning-module",
                    deployment_id=adoption_id,
                    state=state,anomaly=anomaly,evaluation=evaluation,
                    lineage=lineage,evidence_refs=[str(x) for x in (outcome.get("evidence_refs") or [])],
