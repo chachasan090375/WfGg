@@ -237,6 +237,11 @@ def snapshot_status(repo_root: Path) -> dict[str, Any]:
         age=max(0.0,time.time()-_parse_ts(str(snap.get("generated_at") or "")))
     except Exception as exc:
         return {"state":"INVALID","fresh":False,"path":str(path),"age_seconds":None,"reason":str(exc)}
+    required=[str(x) for x in cfg.get("required_snapshot_sections") or [] if str(x)]
+    missing=[x for x in required if not isinstance(snap.get(x),dict) or not snap.get(x)]
+    if missing:
+        return {"state":"INCOMPATIBLE","fresh":False,"path":str(path),"age_seconds":round(age,3),
+                "snapshot_digest":snap.get("snapshot_digest"),"missing_required_sections":missing}
     max_age=int(cfg.get("maximum_snapshot_age_minutes") or 60)*60
     return {"state":"FRESH" if age<=max_age else "STALE","fresh":age<=max_age,
             "path":str(path),"age_seconds":round(age,3),

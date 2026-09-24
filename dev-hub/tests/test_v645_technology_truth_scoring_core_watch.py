@@ -71,3 +71,23 @@ print("CHACHA_DEV_V645_TECHNOLOGY_DEBT_RADAR=PASS")
 print("CHACHA_DEV_V645_PERMISSION_ESCALATION=NO")
 print("CHACHA_DEV_V645_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
 print("CHACHA_DEV_V645_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
+
+# A time-fresh V6.44-style snapshot is not semantically fresh for V6.45.
+import os,tempfile,time
+import technology_watch_runtime as tw
+with tempfile.TemporaryDirectory(prefix="v645-snapshot-contract-") as td:
+    p=Path(td)/"legacy-fresh.json"
+    legacy={"schema":"chacha.dev/technology-watch-snapshot/v1",
+            "generated_at":"2026-09-24T00:00:00Z",
+            "snapshot_digest":"legacy-v644"}
+    p.write_text(json.dumps(legacy),encoding="utf-8")
+    old_env=os.environ.get("CHACHA_TECHNOLOGY_WATCH_SNAPSHOT")
+    os.environ["CHACHA_TECHNOLOGY_WATCH_SNAPSHOT"]=str(p)
+    try:
+        status=tw.snapshot_status(ROOT)
+        assert status["state"]=="INCOMPATIBLE" and status["fresh"] is False,status
+        assert set(status["missing_required_sections"])=={"technology_truth_assurance","core_architecture_watch"},status
+    finally:
+        if old_env is None: os.environ.pop("CHACHA_TECHNOLOGY_WATCH_SNAPSHOT",None)
+        else: os.environ["CHACHA_TECHNOLOGY_WATCH_SNAPSHOT"]=old_env
+print("CHACHA_DEV_V645_LEGACY_FRESH_SNAPSHOT_COMPATIBILITY=BLOCKED")

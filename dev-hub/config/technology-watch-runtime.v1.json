@@ -62,5 +62,11 @@
     "revalidate_before_reuse": true,
     "reusable_architecture_versions": true,
     "complete_architecture_functional_signatures": true
-  }
+  },
+  "required_snapshot_sections": [
+    "technology_truth_assurance",
+    "core_architecture_watch"
+  ],
+  "snapshot_contract_version": "V6.45",
+  "incompatible_snapshot_triggers_targeted_refresh": true
 }
