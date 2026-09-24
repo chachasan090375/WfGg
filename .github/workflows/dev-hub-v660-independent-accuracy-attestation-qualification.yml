@@ -1,0 +1,63 @@
+name: ChaCha DEV V6.60 independent accuracy attestation qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v660-independent-accuracy-attestation-real-world-deepening
+    paths:
+      - 'dev-hub/bin/independent-accuracy-attestor.py'
+      - 'dev-hub/bin/agent_fleet_observatory.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/agent-fleet-observatory.v1.json'
+      - 'dev-hub/tests/test_v660_independent_accuracy_attestation.py'
+      - '.github/workflows/dev-hub-v660-independent-accuracy-attestation-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/independent-accuracy-attestor.py dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v660_independent_accuracy_attestation.py
+          python3 -m json.tool dev-hub/config/agent-fleet-observatory.v1.json >/dev/null
+          grep -Fq '"version":"6.60.0"' dev-hub/bin/autonomous-project-orchestrator.py
+      - name: V6.60 independent accuracy attestation
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v660_independent_accuracy_attestation.py | tee /tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_GUARDIAN_INDEPENDENT_ACCURACY=PASS' /tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_SENTINEL_GITHUB_INDEPENDENT_ACCURACY=PASS' /tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_ACCEPTANCE_RECOMPUTED_ACCURACY=PASS' /tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_PRODUCTION_ACCURACY_DIMENSIONS=3' /tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_SELF_MUTATION=NO' /tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_SELF_PROMOTION=NO' /tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES' /tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v660.out
+      - name: V6.59 regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v659_production_evidence_operational_maturity.py >/tmp/v659.out
+          grep -Fq 'CHACHA_DEV_V659_GUARDIAN_ACCURACY_INFERENCE=NO' /tmp/v659.out
+          grep -Fq 'CHACHA_DEV_V659_SENTINEL_ACCURACY_INFERENCE=NO' /tmp/v659.out
+          grep -Fq 'CHACHA_DEV_V659_ACCEPTANCE_ACCURACY_INFERENCE=NO' /tmp/v659.out
+      - name: Qualification receipt
+        run: |
+          echo CHACHA_DEV_V660_QUALIFICATION=PASS
+          echo GUARDIAN_INDEPENDENT_ACCURACY=PASS
+          echo SENTINEL_GITHUB_INDEPENDENT_ACCURACY=PASS
+          echo ACCEPTANCE_RECOMPUTED_ACCURACY=PASS
+          echo PRODUCTION_ACCURACY_DIMENSIONS=3
+          echo SELF_MUTATION=NO
+          echo SELF_PROMOTION=NO
+          echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
