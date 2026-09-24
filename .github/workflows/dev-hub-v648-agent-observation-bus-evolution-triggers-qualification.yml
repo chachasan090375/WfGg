@@ -1,0 +1,83 @@
+name: ChaCha DEV V6.48 agent observation bus evolution triggers qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v648-agent-observation-bus-evolution-triggers
+    paths:
+      - 'dev-hub/bin/agent_observation_bus.py'
+      - 'dev-hub/bin/agent_fleet_observatory.py'
+      - 'dev-hub/bin/run-controller.py'
+      - 'dev-hub/bin/project-control.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/agent-observation-bus.v1.json'
+      - 'dev-hub/config/agent-fleet-observatory.v1.json'
+      - 'dev-hub/tests/test_v648_agent_observation_bus.py'
+      - 'dev-hub/tests/test_v647_agent_fleet_observatory.py'
+      - '.github/workflows/dev-hub-v648-agent-observation-bus-evolution-triggers-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/agent_observation_bus.py dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/run-controller.py dev-hub/bin/project-control.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v648_agent_observation_bus.py
+          python3 -m json.tool dev-hub/config/agent-observation-bus.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/agent-fleet-observatory.v1.json >/dev/null
+          grep -Fq '"version":"6.48.0"' dev-hub/bin/autonomous-project-orchestrator.py
+
+      - name: V6.48 observation bus
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v648_agent_observation_bus.py | tee /tmp/v648.out
+          grep -Fq 'CHACHA_DEV_V648_SELF_ASSERTION_VERIFIED=NO' /tmp/v648.out
+          grep -Fq 'CHACHA_DEV_V648_PROJECT_CONTROL_VERIFIED_BOUNDARY=PASS' /tmp/v648.out
+          grep -Fq 'CHACHA_DEV_V648_EVENT_ID_DEDUPLICATION=PASS' /tmp/v648.out
+          grep -Fq 'CHACHA_DEV_V648_HASH_CHAIN=PASS' /tmp/v648.out
+          grep -Fq 'CHACHA_DEV_V648_VERIFIED_FAILURE_REASSESSMENT_TRIGGER=PASS' /tmp/v648.out
+          grep -Fq 'CHACHA_DEV_V648_TECHNOLOGY_WATCH_DELTA_TRIGGER=PASS' /tmp/v648.out
+          grep -Fq 'CHACHA_DEV_V648_DIRECT_AGENT_MUTATION=NO' /tmp/v648.out
+          grep -Fq 'CHACHA_DEV_V648_COVERAGE_FROM_OBSERVATION_BUS=PASS' /tmp/v648.out
+          grep -Fq 'CHACHA_DEV_V648_HANDOFF_FROM_VERIFIED_BOUNDARY=PASS' /tmp/v648.out
+          grep -Fq 'CHACHA_DEV_V648_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v648.out
+
+      - name: V6.47 regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v647_agent_fleet_observatory.py | tee /tmp/v647.out
+          grep -Fq 'CHACHA_DEV_V647_AGENT_INVENTORY_35=PASS' /tmp/v647.out
+          grep -Fq 'CHACHA_DEV_V647_UNKNOWN_DIMENSION_DEFAULT=NONE' /tmp/v647.out
+          grep -Fq 'CHACHA_DEV_V647_AGENT_SELF_SCORING_AUTHORITY=NO' /tmp/v647.out
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo 'CHACHA_DEV_V648_QUALIFICATION=PASS'
+            echo 'COMMON_OBSERVATION_BUS=YES'
+            echo 'SELF_ASSERTION_VERIFIED=NO'
+            echo 'INDEPENDENT_VERIFICATION_REQUIRED=YES'
+            echo 'EVENT_ID_DEDUPLICATION=YES'
+            echo 'HASH_CHAIN=YES'
+            echo 'RUN_CONTROLLER_BOUNDARY=OBSERVED'
+            echo 'PROJECT_CONTROL_BOUNDARY=VERIFIED'
+            echo 'CONTINUOUS_REASSESSMENT_TRIGGERS=YES'
+            echo 'DIRECT_AGENT_MUTATION=NO'
+            echo 'DIRECT_CANDIDATE_MATERIALIZATION=NO'
+            echo 'AGENT_FOUNDRY_CANDIDATE_OWNER=YES'
+            echo 'ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES'
+            echo 'GUARDIAN_AUTHORITY=PRESERVED'
+            echo 'SENTINEL_AUTHORITY=PRESERVED'
+            echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
+          } | tee /tmp/v648-receipt.txt

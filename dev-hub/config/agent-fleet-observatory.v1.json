@@ -1,12 +1,13 @@
 {
   "schema": "chacha.dev/agent-fleet-observatory-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "purpose": "Build evidence-backed agent metrics from ChaCha DEV runtime artifacts without assigning scores to unmeasured dimensions.",
   "runtime_sources": {
     "task_graphs": "plans/**/*.task-graph.json",
     "run_records": "runs/**/run-record.json",
     "verified_task_results": "transactions/**/verified-task-result.json",
-    "component_confidence": "knowledge/component-confidence.json"
+    "component_confidence": "knowledge/component-confidence.json",
+    "agent_observation_bus": "agent-observation/observations.db"
   },
   "role_aliases": {
     "product-domain": "product-domain-architect",
@@ -50,7 +51,9 @@
     "robustness": "actual dispatched executions excluding PREPARED/SKIPPED",
     "efficiency": "attempt/retry overhead on actual executions",
     "authority_discipline": "Guardian pre/post verdicts attached to executions",
-    "learning_quality": "exact agent component-confidence state"
+    "learning_quality": "exact agent component-confidence state",
+    "coverage": "Agent Observation Bus capability exercise versus declared routing capabilities",
+    "handoff_quality": "independently verified Project Control task-result handoffs"
   },
   "confidence_state_scores": {
     "TRUSTED": 95,
@@ -67,7 +70,9 @@
     "ambiguous_task_role_is_not_attributed": true,
     "unverified_results_do_not_count_as_accuracy_evidence": true,
     "unknown_is_not_zero": true,
-    "unknown_is_not_fifty": true
+    "unknown_is_not_fifty": true,
+    "self_asserted_bus_events_are_verified_evidence": false,
+    "verified_handoff_requires_independent_bus_event": true
   },
   "queues": {
     "optimization_recommendations": [

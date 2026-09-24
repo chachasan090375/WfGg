@@ -6,6 +6,7 @@ from datetime import datetime,timezone
 from pathlib import Path
 from typing import Any
 import agent_evolution_controller as aec
+import agent_observation_bus as aob
 
 def load(path:Path)->dict[str,Any]:
     x=json.loads(path.read_text(encoding="utf-8"))
@@ -67,10 +68,12 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
     agents=inventory.get("agents") or []
     ids={str(a.get("agent_id")) for a in agents if a.get("agent_id")}
     idx=task_role_index(runtime_root,ids,policy)
+    declared={str(a.get("agent_id")):set(str(x) for x in (a.get("capabilities") or [])) for a in agents if a.get("agent_id")}
     agg={aid:{
       "exec_success":0,"exec_failure":0,"timeouts":0,"attempts":0,"exec_events":0,
       "guardian_checks":0,"guardian_points":0.0,
       "verified_total":0,"verified_ok":0,"verified_with_evidence":0,
+      "handoff_total":0,"handoff_ok":0,
       "observed_capabilities":set(),"refs":defaultdict(list)
     } for aid in ids}
 
@@ -121,6 +124,23 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
         if isinstance(x.get("evidence"),list) and len(x.get("evidence") or [])>0:a["verified_with_evidence"]+=1
         a["refs"]["accuracy"].append(str(path));a["refs"]["evidence_quality"].append(str(path))
 
+    # V6.48 common observation bus: adds exact capability coverage and independent handoff evidence.
+    try:
+        for event in aob.read_events(runtime_root):
+            if not isinstance(event,dict):continue
+            aid=normalize_role(str(event.get("subject_role") or ""),ids,policy)
+            if not aid:continue
+            a=agg[aid]
+            for cap in event.get("capabilities") or []:
+                if str(cap):a["observed_capabilities"].add(str(cap))
+            a["refs"]["coverage"].append("agent-observation:"+str(event.get("event_id") or ""))
+            if str(event.get("event_type") or "")=="TASK_RESULT_VERIFIED" and str(event.get("verification") or "")=="VERIFIED":
+                a["handoff_total"]+=1
+                if str(event.get("outcome") or "").upper()=="OK":a["handoff_ok"]+=1
+                a["refs"]["handoff_quality"].append("agent-observation:"+str(event.get("event_id") or ""))
+    except Exception:
+        pass
+
     # Exact component-confidence entries only; no fuzzy attribution.
     conf_path=runtime_root/"knowledge/component-confidence.json"
     conf=safe_load(conf_path) if conf_path.is_file() else None
@@ -144,14 +164,18 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
         evidence_quality=pct(a["verified_with_evidence"],a["verified_total"])
         authority=(round(a["guardian_points"]/a["guardian_checks"],1) if a["guardian_checks"] else None)
         learning=a.get("learning_quality_value")
+        declared_caps=declared.get(aid) or set()
+        observed_declared=set(a["observed_capabilities"]) & declared_caps
+        coverage=pct(len(observed_declared),len(declared_caps)) if declared_caps and a["observed_capabilities"] else None
+        handoff=pct(a["handoff_ok"],a["handoff_total"])
         dims={
           "accuracy":measured(accuracy,a["verified_total"],a["refs"]["accuracy"]),
-          "coverage":{"status":"UNMEASURED","value":None,"evidence_count":0,"source_refs":[]},
+          "coverage":measured(coverage,len(observed_declared),a["refs"]["coverage"]),
           "calibration":{"status":"UNMEASURED","value":None,"evidence_count":0,"source_refs":[]},
           "evidence_quality":measured(evidence_quality,a["verified_total"],a["refs"]["evidence_quality"]),
           "robustness":measured(robustness,a["exec_events"],a["refs"]["robustness"]),
           "efficiency":measured(efficiency,a["exec_events"],a["refs"]["efficiency"]),
-          "handoff_quality":{"status":"UNMEASURED","value":None,"evidence_count":0,"source_refs":[]},
+          "handoff_quality":measured(handoff,a["handoff_total"],a["refs"]["handoff_quality"]),
           "learning_quality":measured(learning,1 if learning is not None else 0,a["refs"]["learning_quality"]),
           "drift_resistance":{"status":"UNMEASURED","value":None,"evidence_count":0,"source_refs":[]},
           "authority_discipline":measured(authority,a["guardian_checks"],a["refs"]["authority_discipline"])
@@ -172,6 +196,8 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
             "attempts":a["attempts"],"verified_results":a["verified_total"],
             "verified_ok":a["verified_ok"],"guardian_checks":a["guardian_checks"],
             "observed_capabilities":sorted(a["observed_capabilities"]),
+            "declared_capabilities":sorted(declared.get(aid) or set()),
+            "handoff_total":a["handoff_total"],"handoff_ok":a["handoff_ok"],
             "component_confidence_state":a.get("learning_quality_state")
           }
         }

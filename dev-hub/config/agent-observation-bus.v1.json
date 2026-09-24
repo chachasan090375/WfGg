@@ -1,0 +1,102 @@
+{
+  "schema": "chacha.dev/agent-observation-bus-policy/v1",
+  "version": "1.0.0",
+  "purpose": "Collect evidence-backed agent observations at common ChaCha DEV boundaries and trigger reassessment without self-mutation.",
+  "storage": {
+    "database": "/opt/chacha-dev/runtime/agent-observation/observations.db",
+    "reassessment_queue": "/opt/chacha-dev/runtime/agent-evolution/reassessment-queue",
+    "append_only": true,
+    "hash_chain": true,
+    "event_id_deduplication": true
+  },
+  "verification": {
+    "levels": [
+      "SELF_ASSERTED",
+      "OBSERVED",
+      "VERIFIED"
+    ],
+    "independent_verified_sources": [
+      "project-control",
+      "verification-broker",
+      "guardian",
+      "sentinel",
+      "architecture-decision-council",
+      "technology-watch-agent"
+    ],
+    "producer_self_assertion_can_be_verified": false,
+    "verified_requires_evidence_refs": true,
+    "unknown_source_requested_verified_downgrades_to_observed": true
+  },
+  "lineage": {
+    "required": [
+      "event_id",
+      "event_type",
+      "source_id",
+      "source_surface",
+      "project_id",
+      "subject_role",
+      "outcome"
+    ],
+    "optional": [
+      "run_id",
+      "task_id",
+      "revision",
+      "capabilities",
+      "severity",
+      "details"
+    ]
+  },
+  "triggers": {
+    "verified_only": true,
+    "event_types": [
+      "VERIFIED_FAILURE",
+      "ROLLBACK",
+      "SECURITY_INCIDENT",
+      "REPEATED_REMEDIATION",
+      "HANDOFF_FAILURE",
+      "TECHNOLOGY_WATCH_MATERIAL_DELTA",
+      "SOURCE_CONFIDENCE_DROP",
+      "DEPENDENCY_EOL_OR_DEPRECATION",
+      "PERFORMANCE_REGRESSION",
+      "PERMISSION_DRIFT"
+    ],
+    "derived": [
+      {
+        "event_type": "TASK_RESULT_VERIFIED",
+        "outcome": "FAILED",
+        "trigger": "VERIFIED_FAILURE"
+      },
+      {
+        "event_type": "TASK_RESULT_VERIFIED",
+        "outcome": "BLOCKED",
+        "trigger": "VERIFIED_FAILURE"
+      }
+    ],
+    "action": "REASSESS",
+    "direct_agent_mutation": false,
+    "direct_candidate_materialization": false,
+    "candidate_owner": "agent-foundry",
+    "architecture_council_final_authority": true
+  },
+  "boundaries": {
+    "run_controller": {
+      "event_type": "TASK_EXECUTION_OBSERVED",
+      "verification": "OBSERVED"
+    },
+    "project_control": {
+      "event_type": "TASK_RESULT_VERIFIED",
+      "verification": "VERIFIED"
+    }
+  },
+  "authority": {
+    "agent_self_scoring_authority": false,
+    "logician_advisory": true,
+    "technology_watch_revalidation_required": true,
+    "guardian_preserved": true,
+    "sentinel_preserved": true,
+    "architecture_council_final_authority": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}

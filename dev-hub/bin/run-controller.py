@@ -30,6 +30,7 @@ from typing import Any
 
 import guardian_remediation_runtime as grr
 import universal_learning_runtime as ulr
+import agent_observation_bus as aob
 
 PLAN_SCHEMA = "chacha.dev/execution-plan/v1"
 GRAPH_SCHEMA = "chacha.dev/task-graph/v1"
@@ -366,11 +367,34 @@ def record_task_learning(task_rec:dict[str,Any],envelope:dict[str,Any])->dict[st
       "guardian_post":str((task_rec.get("guardian_post") or {}).get("verdict") or (task_rec.get("guardian_post") or {}).get("status") or "")
     }
     try:
-        return ulr.observe_platform(project_id=str(envelope.get("project") or "platform-global"),
-                                    source_id=subject,source_kind=kind,state=state,
-                                    evidence_refs=[str(task_rec.get("dispatch_envelope") or "")])
+        learning=ulr.observe_platform(project_id=str(envelope.get("project") or "platform-global"),
+                                      source_id=subject,source_kind=kind,state=state,
+                                      evidence_refs=[str(task_rec.get("dispatch_envelope") or "")])
     except Exception as exc:
-        return {"status":"LEARNING_QUEUE_ERROR","queued":False,"reason":type(exc).__name__+":"+str(exc)[:240]}
+        learning={"status":"LEARNING_QUEUE_ERROR","queued":False,"reason":type(exc).__name__+":"+str(exc)[:240]}
+    try:
+        refs=[str(x) for x in [task_rec.get("dispatch_envelope"),task_rec.get("task_result")] if x]
+        obs=aob.publish({
+          "schema":"chacha.dev/agent-observation-event/v1",
+          "event_id":"aobs-run-"+str(envelope.get("run_id") or "")+"-"+str(task.get("id") or "")+"-"+str(task_rec.get("status") or ""),
+          "event_type":"TASK_EXECUTION_OBSERVED",
+          "source_id":"run-controller",
+          "source_surface":"run-controller",
+          "project_id":str(envelope.get("project") or "platform-global"),
+          "run_id":str(envelope.get("run_id") or ""),
+          "task_id":str(task.get("id") or ""),
+          "subject_role":subject,
+          "outcome":str(task_rec.get("status") or "UNKNOWN").upper(),
+          "verification":"OBSERVED",
+          "capabilities":[str(x) for x in (task.get("capabilities") or [])],
+          "evidence_refs":refs,
+          "details":{"attempts":int(task_rec.get("attempts") or 0),"failure_class":task_rec.get("failure_class"),
+                     "guardian_pre":state["guardian_pre"],"guardian_post":state["guardian_post"]}
+        })
+        if isinstance(learning,dict):learning["agent_observation"]={"status":obs.get("status"),"event_digest":obs.get("event_digest")}
+    except Exception as exc:
+        if isinstance(learning,dict):learning["agent_observation"]={"status":"OBSERVATION_ERROR","reason":type(exc).__name__+":"+str(exc)[:240]}
+    return learning
 
 def emergency_stop_active() -> bool:
     path = Path("/opt/chacha-dev/runtime/control/emergency-stop.json")

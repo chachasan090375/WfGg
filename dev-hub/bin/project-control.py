@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Any
 
 import trusted_dispatch_learning as tdl
+import agent_observation_bus as aob
 
 POLICY_SCHEMA = "chacha.dev/project-control/v1"
 STATE_SCHEMA = "chacha.dev/control-plane-state/v1"
@@ -974,6 +975,39 @@ def verify_result_operation(project: str, result_path: Path, graph: Path, method
     )
     save(verified, verified_value)
     trusted_learning_context = isinstance(verified_value.get("learning_context"), dict)
+
+    # V6.48: independent verification is a trusted Agent Observation Bus boundary.
+    try:
+        task_id=str(source_result.get("task_id") or "")
+        owner_role=""
+        capabilities=[]
+        for row in graph_value.get("tasks") or []:
+            if isinstance(row,dict) and str(row.get("id") or "")==task_id:
+                owner_role=str(row.get("owner_role") or "")
+                capabilities=[str(x) for x in (row.get("capabilities") or [])]
+                break
+        if owner_role:
+            refs=[str(verified),str(report)]
+            if dispatch_envelope:refs.append(str(dispatch_envelope))
+            aob.publish({
+              "schema":"chacha.dev/agent-observation-event/v1",
+              "event_id":"aobs-verify-"+project+"-"+task_id+"-"+txid,
+              "event_type":"TASK_RESULT_VERIFIED",
+              "source_id":"project-control",
+              "source_surface":"project-control:verification-broker",
+              "project_id":project,
+              "task_id":task_id,
+              "subject_role":owner_role,
+              "outcome":str(verified_value.get("status") or "UNKNOWN").upper(),
+              "verification":"VERIFIED",
+              "capabilities":capabilities,
+              "evidence_refs":refs,
+              "details":{"verifier":verifier,"method":method,"producer":verified_value.get("producer"),
+                         "learning_context_status":learning_context_status}
+            })
+    except Exception:
+        # Observability must never rewrite verification semantics or block evidence ingestion.
+        pass
 
     if not ingest:
         write_receipt(receipt, {
