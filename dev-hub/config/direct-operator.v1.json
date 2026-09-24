@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/direct-operator-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "component": "direct-operator-service",
   "bind": "127.0.0.1",
   "port": 8792,
@@ -38,6 +38,18 @@
     "direct_operator_has_no_direct_mutation": true,
     "central_orchestrator_required": true,
     "guardian_and_platform_governance_preserved": true,
-    "automatic_external_spend_eur": 0
+    "automatic_external_spend_eur": 0,
+    "persistent_progress_required": true,
+    "same_progress_source_for_all_interfaces": true
+  },
+  "progress": {
+    "coordinator": "platform-progress-coordinator",
+    "script": "dev-hub/bin/progress-coordinator.py",
+    "policy": "dev-hub/config/progress-coordinator.v1.json",
+    "state_file": "/opt/chacha-dev/runtime/progress/platform.json",
+    "api_path": "/api/v1/progress",
+    "persistent": true,
+    "module_breakdown": true,
+    "shared_by_web_and_android": true
   }
 }
