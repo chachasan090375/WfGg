@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,fnmatch,hashlib,json,py_compile,shutil
+import argparse,fnmatch,hashlib,json,shutil
 from pathlib import Path
 from typing import Any
 
@@ -38,7 +38,9 @@ def main()->int:
     out.mkdir(parents=True)
     patterns=list(DEFAULT_EXCLUDES)
     copied=[];excluded=[]
-    for p in src.rglob("*"):
+    dev_hub=src/"dev-hub"
+    if not dev_hub.is_dir():raise SystemExit("DEV_HUB_SOURCE_MISSING")
+    for p in dev_hub.rglob("*"):
         if not p.is_file():continue
         rel=p.relative_to(src).as_posix()
         if match(rel,patterns):
@@ -47,11 +49,11 @@ def main()->int:
     # compiled runtime must not contain old version-specific installers/tests/docs.
     violations=[p for p in copied if match(p,patterns)]
     if violations:raise SystemExit("V7_COMPILED_RELEASE_EXCLUSION_VIOLATION")
-    # Syntax-check runtime Python sources.
+    # Syntax-check runtime Python sources without generating __pycache__.
     checked=0
     for p in (out/"dev-hub/bin").glob("*.py"):
-        py_compile.compile(str(p),doraise=True);checked+=1
-    source_files,source_bytes=tree_stats(src);out_files,out_bytes=tree_stats(out)
+        compile(p.read_text(encoding="utf-8"),str(p),"exec");checked+=1
+    source_files,source_bytes=tree_stats(dev_hub);out_files,out_bytes=tree_stats(out/"dev-hub")
     manifest={
       "schema":"chacha.dev/v7-compiled-runtime-release/v1",
       "source_root":str(src),"output_root":str(out),
