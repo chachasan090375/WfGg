@@ -14,6 +14,7 @@ on:
       - 'dev-hub/bin/verify-v639-cloudflare-pages-wfgg-target.py'
       - 'dev-hub/bin/run-v639-wfgg-real-production-pilot.sh'
       - 'dev-hub/bin/finalize-v639-post-release-operate.sh'
+      - 'dev-hub/bin/resume-v639-release-to-operate.sh'
       - 'dev-hub/bin/read-v639-cloudflare-pages-target-discovery.sh'
       - 'dev-hub/bin/controlled-production-adapter.py'
       - 'dev-hub/adapters/cloudflare-pages-production-adapter.py'
@@ -101,6 +102,7 @@ jobs:
           bash -n dev-hub/bin/read-v639-cloudflare-pages-target-discovery.sh
           bash -n dev-hub/bin/run-v639-wfgg-real-production-pilot.sh
           bash -n dev-hub/bin/finalize-v639-post-release-operate.sh
+          bash -n dev-hub/bin/resume-v639-release-to-operate.sh
           echo CHACHA_DEV_V639_STATIC=PASS
 
       - name: V6.39 controlled production handoff
