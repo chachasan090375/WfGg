@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 180,
   "action_lease_default_seconds": 300,
@@ -443,6 +443,17 @@
       "proof": {
         "file": "dev-hub/bin/project-control.py",
         "marker": "record_approval_operation"
+      }
+    },
+    {
+      "component_id": "human-interface-gateway",
+      "role": "human-interface-adapter",
+      "kind": "interface",
+      "enforcement_point": "human-interface-gateway.central-orchestrator-boundary",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/human-interface-gateway.py",
+        "marker": "interface_direct_technical_decision"
       }
     }
   ],
