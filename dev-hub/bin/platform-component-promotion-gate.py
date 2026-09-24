@@ -55,7 +55,7 @@ def evaluate(review:dict[str,Any],status:dict[str,Any],state:dict[str,Any],ledge
       "state_schema":state.get("schema")=="chacha.dev/control-plane-state/v1",
       "state_project":state.get("project")=="chacha-dev-platform",
       "state_profile_platform":str((((state.get("state") or {}).get("identity") or {}).get("control_profile") or ""))=="platform",
-      "state_bootstrap_marker":bool((((state.get("state") or {}).get("evidence") or {}).get("control_plane_ledger_initialized") is True),
+      "state_bootstrap_marker":(((state.get("state") or {}).get("evidence") or {}).get("control_plane_ledger_initialized") is True),
       "ledger_schema":ledger.get("schema")=="chacha.dev/evidence-ledger/v1",
       "ledger_project":ledger.get("project")=="chacha-dev-platform",
       "approval_id_present":bool(approval_id),
