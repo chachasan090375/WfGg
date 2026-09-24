@@ -173,6 +173,32 @@ def validate_success(candidate:dict[str,Any],success:dict[str,Any],policy:dict[s
     if not matched:
         raise SystemExit("PROJECT_SUCCESS_CLAIMS_NOT_IN_VERIFIED_RESULT")
 
+    ledger_path=Path(str(success.get("project_control_ledger") or ""))
+    if not ledger_path.is_file():
+        raise SystemExit("PROJECT_CONTROL_EVIDENCE_LEDGER_REQUIRED")
+    ledger=load(ledger_path)
+    if ledger.get("schema")!="chacha.dev/evidence-ledger/v1" or ledger.get("project")!=candidate["project_id"]:
+        raise SystemExit("PROJECT_CONTROL_EVIDENCE_LEDGER_SCOPE_INVALID")
+    if receipt.get("new_ledger_digest")!=digest_obj(ledger):
+        raise SystemExit("PROJECT_CONTROL_LEDGER_DIGEST_MISMATCH")
+    artifact_id=str(success.get("verified_success_artifact_id") or ("capability-project-success:"+candidate["capability"]))
+    artifact=(ledger.get("artifacts") or {}).get(artifact_id)
+    if not isinstance(artifact,dict):
+        raise SystemExit("PROJECT_CONTROL_SUCCESS_ARTIFACT_MISSING")
+    verified_digest=digest_obj(verified)
+    if artifact.get("status")!="OK" or artifact.get("digest")!=verified_digest:
+        raise SystemExit("PROJECT_CONTROL_SUCCESS_ARTIFACT_INVALID")
+    if expected_task and artifact.get("task_id")!=expected_task:
+        raise SystemExit("PROJECT_CONTROL_SUCCESS_ARTIFACT_TASK_MISMATCH")
+    history=ledger.get("history") or []
+    if not any(isinstance(row,dict)
+               and row.get("event")=="task-result-ingested"
+               and row.get("task_id")==verified.get("task_id")
+               and row.get("result_digest")==verified_digest
+               and row.get("verification_status")=="VERIFIED"
+               for row in history):
+        raise SystemExit("PROJECT_CONTROL_LEDGER_HISTORY_PROOF_MISSING")
+
     protected=bool(candidate.get("production_capable") or candidate.get("credentials_required") or candidate.get("network_access"))
     if protected:
         a=human_approval or {}
