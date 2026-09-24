@@ -32,7 +32,7 @@ The post-V7.3 work in this branch must not mutate the frozen V7.3 candidate.
 
 Guardian coverage is now a source of universal evolution governance.
 
-Current expected Guardian component count: 46.
+Current expected Guardian component count: 47.
 
 Universal evolution:
 - maps Guardian-covered components into the canonical evolution index;
@@ -253,7 +253,61 @@ VPS source qualification PASS included:
 - Project Control bootstrap/platform profile;
 - PILOT runner;
 - pilot contract gate;
-- universal evolution coverage 46/46.
+- universal evolution coverage 47/47.
+
+## Controlled apply planner
+
+A deny-by-default source-integration planner is now present:
+
+`dev-hub/bin/platform-component-controlled-apply-planner.py`
+
+Registry:
+
+`dev-hub/config/platform-component-apply-adapter-registry.v1.json`
+
+Current registry state:
+- schema: `chacha.dev/platform-component-apply-adapter-registry/v1`;
+- `default_admission=DENY`;
+- registered adapters: none.
+
+The planner is itself:
+- covered by Guardian;
+- watched by Technology Core Watch;
+- governed by a plan-only Guardian role;
+- forbidden from production deployment;
+- forbidden from component promotion;
+- forbidden from runtime mutation;
+- forbidden from permission expansion.
+
+Planner behavior:
+- invalid/forged promotion gate -> BLOCK;
+- permissive or weakened adapter registry -> BLOCK;
+- no registered adapter -> `AWAITING_APPLY_ADAPTER`;
+- unqualified/wrong-owner/mutating adapter -> BLOCK;
+- qualified exact/reversible zero-spend adapter -> only `READY_FOR_CENTRAL_ORCHESTRATOR_APPLY`.
+
+Even when a plan is ready:
+- `apply_execution_authorized_by_planner=false`;
+- `automatic_apply=false`;
+- direct runtime mutation=false;
+- production activation=false;
+- production deployment=false;
+- production merge=false.
+
+Latest qualified planner SHA before this checkpoint update:
+
+`6207af20d869ad116f7d97c2187deff77ce1a83a`
+
+GitHub Actions for that SHA:
+- universal evolution coverage sync qualification: run `36053931054` SUCCESS;
+- Sentinel technical assurance: run `36053930863` SUCCESS.
+
+VPS source qualification PASS included:
+- controlled apply planner;
+- default DENY registry;
+- invalid registry fail-closed;
+- promotion gate;
+- universal evolution coverage 47/47.
 
 ## Resume rules
 
@@ -264,5 +318,8 @@ On resume:
 4. Do not deploy this post-V7.3 branch directly over V7.2.
 5. Do not record any human promotion approval unless a real component candidate has completed SHADOW, real comparative PILOT, Council review, and the user explicitly approves that exact approval request.
 6. Do not create a generic unrestricted component mutator.
-7. Continue from the controlled apply boundary: design/qualify a candidate-owner controlled source integration executor with exact scope, rollback and post-apply gates, while production deployment remains a separate protected handoff.
-8. Preserve automatic external spend EUR 0.
+7. Continue from the controlled apply boundary: design and qualify candidate-owner source integration adapters with exact scope, rollback and post-apply gates.
+8. Keep the canonical adapter registry DENY-by-default; do not mark an adapter QUALIFIED until its exact-SHA workflow, rollback behavior and source-only scope pass.
+9. Do not execute a controlled apply on real source until a real component candidate has a valid Project Control human approval and the promotion gate emits the exact controlled apply contract.
+10. Production deployment remains a separate protected handoff after source candidate integration and post-apply qualification.
+11. Preserve automatic external spend EUR 0.
