@@ -1,0 +1,84 @@
+name: ChaCha DEV V7.2 Human Interface Gateway qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v720-human-interface-gateway
+    paths:
+      - 'dev-hub/bin/install-v720-human-interface-gateway.sh'
+      - 'dev-hub/bin/human-interface-gateway.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/human-interface-gateway.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/tests/test_v720_human_interface_gateway.py'
+      - '.github/workflows/dev-hub-v720-human-interface-gateway-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          if [ -f dev-hub/bin/install-v720-human-interface-gateway.sh ]; then
+            bash -n dev-hub/bin/install-v720-human-interface-gateway.sh
+          fi
+          python3 -m py_compile             dev-hub/bin/human-interface-gateway.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/tests/test_v720_human_interface_gateway.py
+          python3 -m json.tool dev-hub/config/human-interface-gateway.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
+          grep -Fq '"version":"7.2.0"' dev-hub/bin/autonomous-project-orchestrator.py
+
+      - name: V7.2 gateway semantics
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v720_human_interface_gateway.py | tee /tmp/v720.out
+          grep -Fq 'CHACHA_DEV_V720_HUMAN_INTERFACE_GATEWAY=PASS' /tmp/v720.out
+          grep -Fq 'CHACHA_DEV_V720_INSTRUCTION_TO_CENTRAL_ORCHESTRATOR=PASS' /tmp/v720.out
+          grep -Fq 'CHACHA_DEV_V720_GO_CONTINUES_PRIOR_BRAIN_RECEIPT=PASS' /tmp/v720.out
+          grep -Fq 'CHACHA_DEV_V720_ALLO_CANONICAL_STATUS=PASS' /tmp/v720.out
+          grep -Fq 'CHACHA_DEV_V720_STOP_OUT_OF_BAND=PASS' /tmp/v720.out
+          grep -Fq 'CHACHA_DEV_V720_BRAIN_UNAVAILABLE_FAIL_CLOSED=PASS' /tmp/v720.out
+          grep -Fq 'CHACHA_DEV_V720_INTERFACE_TECHNICAL_DECISION_AUTHORITY=NO' /tmp/v720.out
+          grep -Fq 'CHACHA_DEV_V720_INTERFACE_DIRECT_MUTATION=NO' /tmp/v720.out
+          grep -Fq 'CHACHA_DEV_V720_AUDIT_HASH_CHAIN=PASS' /tmp/v720.out
+
+      - name: V7.1 and V7 consolidation regressions
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v710_intendant_hygiene_cycle.py >/tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_DYNAMIC_TWO_ROLLBACK_RETENTION=PASS' /tmp/v710.out
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v700_consolidated_platform_baseline.py >/tmp/v700.out
+          grep -Fq 'CHACHA_DEV_V700_CANONICAL_BASELINE=PASS' /tmp/v700.out
+
+      - name: Critical inherited invariants
+        run: |
+          set -euo pipefail
+          for t in             dev-hub/tests/test_v660_independent_accuracy_attestation.py             dev-hub/tests/test_v661_real_world_evidence_isolated_candidate.py             dev-hub/tests/test_v663_runtime_surface_instrumentation_readiness.py             dev-hub/tests/test_v664_real_instrumented_project_acceptance_council.py; do
+            PYTHONPATH=dev-hub/bin python3 "$t"
+          done
+
+      - name: Qualification receipt
+        run: |
+          echo CHACHA_DEV_V720_QUALIFICATION=PASS
+          echo PLATFORM_VERSION=7.2.0
+          echo COMPONENT=human-interface-gateway
+          echo COMPONENT_IS_AGENT=NO
+          echo DECISION_AUTHORITY=central-orchestrator
+          echo ALLO=STATUS
+          echo GO=CONTINUE_PRIOR_BRAIN_RECEIPT
+          echo STOP=OUT_OF_BAND_EMERGENCY_CONTROL
+          echo INSTRUCTION=CENTRAL_ORCHESTRATOR
+          echo BRAIN_UNAVAILABLE=FAIL_CLOSED
+          echo INTERFACE_DIRECT_TECHNICAL_DECISION=NO
+          echo INTERFACE_DIRECT_MUTATION=NO
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
