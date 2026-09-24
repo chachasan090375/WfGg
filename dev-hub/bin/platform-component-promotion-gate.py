@@ -72,10 +72,13 @@ def evaluate(review:dict[str,Any],status:dict[str,Any],state:dict[str,Any],ledge
     }
     core_ready=all(v for k,v in checks.items() if not k.startswith("ledger_approval_") and not k.startswith("state_approval_"))
     approval_ready=all(checks[k] for k in checks if k.startswith("ledger_approval_") or k.startswith("state_approval_"))
+    approval_record_present=bool(ledger_approval or state_approval)
     if not core_ready:
         gate_status="BLOCKED"
-    elif not approval_ready:
+    elif not approval_record_present:
         gate_status="AWAITING_HUMAN_APPROVAL"
+    elif not approval_ready:
+        gate_status="BLOCKED"
     else:
         gate_status="PROMOTION_AUTHORIZED_FOR_CONTROLLED_APPLY"
     blockers=sorted(k for k,v in checks.items() if not v)
@@ -84,6 +87,7 @@ def evaluate(review:dict[str,Any],status:dict[str,Any],state:dict[str,Any],ledge
       "candidate_revision":review.get("candidate_revision"),"incumbent_revision":review.get("incumbent_revision"),
       "approval_id":approval_id,"approval_actor":actor or None,
       "status":gate_status,"checks":checks,"blockers":blockers,
+      "human_approval_record_present":approval_record_present,
       "human_approval_verified":approval_ready and core_ready,
       "promotion_authorized":gate_status=="PROMOTION_AUTHORIZED_FOR_CONTROLLED_APPLY",
       "controlled_apply_required":True,"automatic_apply":False,
