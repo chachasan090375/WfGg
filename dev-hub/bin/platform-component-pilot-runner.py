@@ -38,6 +38,8 @@ def validate_contract(c:dict[str,Any])->None:
         raise RuntimeError("PLATFORM_COMPONENT_PILOT_PRODUCTION_BOUNDARY_INVALID")
     if c.get("same_benchmark_contract") is not True or c.get("isolated_ephemeral_capsules") is not True:
         raise RuntimeError("PLATFORM_COMPONENT_PILOT_ISOLATION_CONTRACT_INVALID")
+    if c.get("production_entrypoint_unchanged") is not True:
+        raise RuntimeError("PLATFORM_COMPONENT_PILOT_PRODUCTION_ENTRYPOINT_CHANGED")
     if float(c.get("automatic_external_spend_eur") or 0)!=0:
         raise RuntimeError("PLATFORM_COMPONENT_PILOT_EXTERNAL_SPEND_FORBIDDEN")
     if not str(c.get("candidate_artifact_ref") or "") or not str(c.get("incumbent_artifact_ref") or ""):
@@ -196,7 +198,8 @@ def execute(contract:dict[str,Any],sentinel_receipt:dict[str,Any],repo_root:Path
       "run_id":run_id,"contract_id":contract.get("contract_id"),"dispatch_id":contract.get("dispatch_id"),
       "component_id":contract.get("component_id"),"incumbent_revision":contract.get("incumbent_revision"),
       "candidate_revision":contract.get("candidate_revision"),"same_benchmark_contract":True,
-      "isolated_ephemeral_capsules":True,"sentinel_exact_sha_receipt_digest":digest(sentinel_receipt),
+      "isolated_ephemeral_capsules":True,"production_entrypoint_unchanged":True,
+      "sentinel_exact_sha_receipt_digest":digest(sentinel_receipt),
       "guardian_pre_pass":True,"guardian_pre_receipt_digest":digest(guardian_pre),
       "results":{"INCUMBENT":inc,"CANDIDATE":cand},"comparison":comparison,
       "council_handoff_required":True,"production_change_authorized":False,"promotion_authorized":False,
