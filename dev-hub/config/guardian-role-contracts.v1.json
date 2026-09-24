@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-role-contracts/v1",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "scope": "PLATFORM_GLOBAL",
   "principles": {
     "guardian_is_external_to_central_brain": true,
@@ -1009,6 +1009,31 @@
       ],
       "required_evidence": [],
       "authority_scope": "PLANNING_ONLY"
+    },
+    {
+      "contract_id": "role:progress-state-controller",
+      "kind": "role",
+      "allowed_actions": [
+        "REPORT_PROGRESS",
+        "READ_PROGRESS"
+      ],
+      "forbidden_actions": [
+        "PRODUCTION_DEPLOY",
+        "PROMOTE_COMPONENT",
+        "MODIFY_GUARDIAN_CONTRACTS",
+        "EXPAND_PERMISSIONS",
+        "MUTATE_RUNTIME_OUTSIDE_PROGRESS_STATE",
+        "EXECUTE_TECHNICAL_ACTION"
+      ],
+      "allowed_permissions": [
+        "read",
+        "workspace-write"
+      ],
+      "required_evidence": [
+        "persistent_progress_contract",
+        "shared_web_android_source",
+        "no_execution_authority"
+      ]
     }
   ]
 }
