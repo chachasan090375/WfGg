@@ -26,6 +26,10 @@ def digest_file(p:Path)->str:
         for chunk in iter(lambda:f.read(1024*1024),b""):h.update(chunk)
     return "sha256:"+h.hexdigest()
 
+def digest_obj(x:Any)->str:
+    raw=json.dumps(x,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
+    return "sha256:"+hashlib.sha256(raw).hexdigest()
+
 def under(path:Path,root:Path)->bool:
     try:path.resolve(strict=False).relative_to(root.resolve(strict=False));return True
     except Exception:return False
@@ -119,6 +123,7 @@ def evaluate(repo_root:Path,gate_policy:dict[str,Any],promotion_gate:dict[str,An
     blockers=sorted(k for k,v in checks.items() if not v)
     ready=not blockers
     proposal=None
+    approval_request=None
     if ready:
         proposal={
           "schema":PROPOSAL_SCHEMA,
@@ -157,11 +162,32 @@ def evaluate(repo_root:Path,gate_policy:dict[str,Any],promotion_gate:dict[str,An
           "automatic_registration":False,
           "automatic_external_spend_eur":0
         }
+        proposal_digest=digest_obj(proposal)
+        approval_id="platform-component-adapter-registration:"+component+":"+str(contract.get("candidate_revision") or "")
+        approval_request={
+          "schema":"chacha.dev/protected-human-approval-request/v1",
+          "project":"chacha-dev-platform","operation":"record-approval",
+          "approval_id":approval_id,"actor_requirement":"real-human",
+          "evidence":"platform-component-adapter-binding-proposal:"+proposal_digest,
+          "binding_proposal_digest":proposal_digest,
+          "component_id":component,"candidate_revision":contract.get("candidate_revision"),
+          "incumbent_revision":contract.get("incumbent_revision"),
+          "adapter_id":adapter_id,"candidate_owner":owner,
+          "project_control_protected_path_required":True,
+          "agent_or_api_approval_synthesis_forbidden":True,
+          "registration_before_approval":False,
+          "registry_mutation_before_approval":False,
+          "automatic_external_spend_eur":0
+        }
     return {
       "schema":SCHEMA,"generated_at":now_iso(),"status":"BINDING_PROPOSAL_READY_AWAIT_PROTECTED_REGISTRATION" if ready else "BLOCKED",
       "component_id":component,"candidate_revision":contract.get("candidate_revision"),
       "checks":checks,"blockers":blockers,"proposal_created":proposal is not None,
-      "binding_proposal":proposal,"registration_authorized":False,
+      "binding_proposal":proposal,
+      "binding_proposal_digest":digest_obj(proposal) if proposal is not None else None,
+      "human_registration_approval_request_created":approval_request is not None,
+      "registration_approval_request":approval_request,
+      "registration_authorized":False,
       "registry_mutation_authorized":False,"automatic_registration":False,
       "automatic_external_spend_eur":0
     }
@@ -185,6 +211,7 @@ def main()->int:
     save(a.output,result)
     print("CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_BINDING_GATE="+result["status"])
     print("BINDING_PROPOSAL_CREATED="+("YES" if result["proposal_created"] else "NO"))
+    print("HUMAN_REGISTRATION_APPROVAL_REQUEST="+("YES" if result.get("human_registration_approval_request_created") else "NO"))
     print("REGISTRATION_AUTHORIZED=NO")
     print("REGISTRY_MUTATION_AUTHORIZED=NO")
     print("AUTOMATIC_REGISTRATION=NO")
