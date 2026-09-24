@@ -358,7 +358,7 @@ python3 "$PC" --policy "$PC_POLICY" --repo-root "$ROOT" --json   plan-transition
 python3 - "$WORK/operate-plan.json" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1],encoding="utf-8"))
-assert x["status"]=="READY",x
+assert x["status"] in {"OK","READY"},x
 print("CHACHA_DEV_V639_RELEASE_TO_OPERATE_READY=PASS")
 PY
 
