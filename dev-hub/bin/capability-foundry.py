@@ -86,6 +86,30 @@ def main():
           if not (isinstance(x,dict) and str(x.get("id") or "") in avoid_ids)
         ]
         memory_reuse=advice.get("reuse_candidates") or []
+        technology_candidates=list(watch.get("eligible_provider_candidates") or [])
+        # V6.41: an explicit build hint may come from the functional contract.
+        # It is never inferred from the capability name and remains subject to
+        # Technology Watch consultation, V6.40 fail-closed closure, the final
+        # Architecture Council, and the V6.41 safe-build policy.
+        build_profile=str(gap.get("build_profile") or "").strip()
+        build_provider=str(gap.get("provider_id") or "").strip()
+        if build_profile and build_provider:
+            technology_candidates.append({
+              "id":build_provider,
+              "provider_id":build_provider,
+              "adapter_id":gap.get("adapter_id"),
+              "capability":cid,
+              "build_profile":build_profile,
+              "execution":gap.get("execution"),
+              "supports":gap.get("supports"),
+              "network_access":gap.get("network_access"),
+              "credentials_required":gap.get("credentials_required"),
+              "production_capable":gap.get("production_capable"),
+              "external_spend_eur":gap.get("automatic_external_spend_eur",0),
+              "zero_external_spend":gap.get("automatic_external_spend_eur",0)==0,
+              "admissible_for_automatic_selection":False,
+              "evidence":"functional-contract-build-hint-reviewed-by-technology-watch"
+            })
         if create_domain and domain_def:
             domain_overlay[owner]=domain_def
             roles[role]={"capabilities":[cid],"default_risk":"medium","generated_by":"capability-foundry","promotion_state":"PROJECT_LOCAL"}
@@ -97,7 +121,7 @@ def main():
           "domain_factory_id":owner if create_domain else None,
           "generated_role":role,
           "technology_watch_required":True,
-          "technology_candidates":watch.get("eligible_provider_candidates") or [],
+          "technology_candidates":technology_candidates,
           "technology_watch":{
             "consulted":True,
             "snapshot_freshness":watch.get("snapshot_freshness"),
