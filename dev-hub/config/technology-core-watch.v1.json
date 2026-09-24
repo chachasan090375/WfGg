@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/technology-core-watch/v1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "purpose": "Continuously monitor the technology health and debt of ChaCha DEV itself.",
   "components": [
     {
@@ -176,6 +176,11 @@
     {
       "id": "platform-component-source-integration-executor",
       "class": "execution",
+      "criticality": "critical"
+    },
+    {
+      "id": "platform-component-adapter-binding-gate",
+      "class": "verification",
       "criticality": "critical"
     }
   ],
