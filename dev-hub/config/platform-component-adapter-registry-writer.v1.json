@@ -1,0 +1,29 @@
+{
+  "schema": "chacha.dev/platform-component-adapter-registry-writer-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "canonical_registry_path": "dev-hub/config/platform-component-apply-adapter-registry.v1.json",
+  "runtime_consumption_root": "/opt/chacha-dev/runtime/platform-component-adapter-registration",
+  "principles": {
+    "project_control_registration_contract_required": true,
+    "explicit_apply_required": true,
+    "exact_before_digest_required": true,
+    "exact_after_digest_required": true,
+    "additive_single_key_only": true,
+    "overwrite_forbidden": true,
+    "delete_forbidden_in_apply": true,
+    "rollback_exact_insert_only": true,
+    "atomic_registry_write_required": true,
+    "default_deny_must_be_preserved": true,
+    "single_use_registration_contract": true,
+    "commit_not_performed_by_writer": true,
+    "push_forbidden": true,
+    "source_integration_forbidden_until_post_registration_gates": true,
+    "direct_runtime_mutation_forbidden": true,
+    "production_activation_forbidden": true,
+    "production_deployment_forbidden": true,
+    "merge_to_production_branch_forbidden": true,
+    "permission_expansion_forbidden": true,
+    "automatic_external_spend_eur": 0
+  }
+}
