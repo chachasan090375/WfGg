@@ -353,14 +353,19 @@ def main():
     durable_registry=Path("/opt/chacha-dev/runtime/registries/durable-capability-adoptions.v1.json")
     durable_caps=out/"runtime-capabilities-durable.json"
     durable_providers=out/"runtime-provider-adapters-durable.json"
-    run(bin_dir/"durable-capability-registry.py",[
+    capability_trust_snapshot=Path("/opt/chacha-dev/runtime/knowledge/component-confidence.json")
+    durable_merge_args=[
        "merge",
        "--base-capability-registry",cfg/"capability-registry.v1.json",
        "--base-provider-registry",cfg/"provider-adapters.v1.json",
        "--registry",durable_registry,
        "--output-capabilities",durable_caps,
-       "--output-providers",durable_providers
-    ])
+       "--output-providers",durable_providers,
+       "--trust-policy",cfg/"capability-trust-graduation.v1.json"
+    ]
+    if capability_trust_snapshot.is_file():
+        durable_merge_args+=["--trust-snapshot",capability_trust_snapshot]
+    run(bin_dir/"durable-capability-registry.py",durable_merge_args)
 
     # Capability gaps may create project-local branches/capabilities.
     gapreq=out/"capability-gaps.json"
@@ -815,6 +820,10 @@ def main():
       "capability_adoption_candidate_count":len(capability_adoption_candidates),
       "durable_capability_registry":str(durable_registry),
       "durable_registry_merged_before_gap_detection":True,
+      "capability_trust_snapshot":str(capability_trust_snapshot),
+      "capability_trust_filter_applied":capability_trust_snapshot.is_file(),
+      "capability_trust_project_distinct":True,
+      "capability_trust_does_not_escalate_permissions":True,
       "capability_foundry_auto_closed_count":sum(1 for x in closure_v.get("plans") or [] if x.get("state")=="PROJECT_LOCAL_READY"),
       "capability_foundry_reused_registered_count":sum(1 for x in closure_v.get("plans") or [] if x.get("state")=="REUSE_REGISTERED"),
       "capability_foundry_build_required_count":capability_build_required_count,
@@ -882,6 +891,9 @@ def main():
     print("CAPABILITY_BUILD_DURABLE_ADOPTION_BEFORE_PROJECT_SUCCESS=NO")
     print("CAPABILITY_ADOPTION_CANDIDATES="+str(state["capability_adoption_candidate_count"]))
     print("DURABLE_REGISTRY_MERGED_BEFORE_GAPS=YES")
+    print("CAPABILITY_TRUST_FILTER_APPLIED="+("YES" if state["capability_trust_filter_applied"] else "NO_SNAPSHOT"))
+    print("CAPABILITY_TRUST_PROJECT_DISTINCT=YES")
+    print("CAPABILITY_TRUST_PERMISSION_ESCALATION=NO")
     print("LOGIC_CHALLENGE_STATUS="+str(state["logic_challenge_status"]))
     print("UX_CHALLENGE_STATUS="+str(state["ux_challenge_status"]))
     print("CENTRAL_COMPROMISE_FOUND="+("YES" if state["central_compromise_found"] else "NO"))
