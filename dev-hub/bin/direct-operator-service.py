@@ -76,7 +76,9 @@ class State:
         self.responses=self.root/"responses";self.responses.mkdir(parents=True,exist_ok=True)
         self.session_path=self.root/"session.json";self.lock=threading.RLock()
         ui=Path(str(policy.get("ui_root") or "dev-hub/direct-operator-ui"))
-        self.ui=ui if ui.is_absolute() else repo/ui
+        self.ui_root=ui if ui.is_absolute() else repo/ui
+        self.live_ui_root=Path(str(policy.get("live_ui_root") or "/opt/chacha-dev/runtime/live-ui/current/ui"))
+        self.live_app_config=Path(str(policy.get("live_app_config") or "/opt/chacha-dev/runtime/live-ui/current/app-config.json"))
         self.controller=repo/str(policy.get("central_controller") or "dev-hub/bin/central-interface-controller.py")
         self.translator=repo/str(((policy.get("translator") or {}).get("script")) or "dev-hub/bin/functional-translator-agent.py")
         self.emergency=repo/str(policy.get("emergency_controller") or "dev-hub/bin/emergency-stop-controller.py")
@@ -210,8 +212,9 @@ class Handler(BaseHTTPRequestHandler):
             jid=path.rsplit("/",1)[-1];p=self.st.job_path(jid)
             return self.json(200,load(p)) if p.is_file() else self.json(404,{"status":"NOT_FOUND"})
         rel="index.html" if path in {"/","/index.html"} else path.lstrip("/")
-        target=(self.st.ui/rel).resolve()
-        try:target.relative_to(self.st.ui.resolve())
+        ui_root=self.st.effective_ui_root()
+        target=(ui_root/rel).resolve()
+        try:target.relative_to(ui_root.resolve())
         except ValueError:return self.json(403,{"status":"FORBIDDEN"})
         if not target.is_file():return self.json(404,{"status":"NOT_FOUND"})
         raw=target.read_bytes();self.send_response(200)
