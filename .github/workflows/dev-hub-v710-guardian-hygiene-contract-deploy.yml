@@ -8,6 +8,7 @@ on:
       - 'dev-hub/config/guardian-role-contracts.v1.json'
       - 'dev-hub/bin/install-v710-intendant-hygiene-cycle.sh'
       - 'dev-hub/bin/intendant-platform-consolidator.py'
+      - 'dev-hub/bin/intendant-hygiene-cycle.py'
       - 'dev-hub/guardian/**'
       - '.github/workflows/dev-hub-v710-guardian-hygiene-contract-deploy.yml'
   workflow_dispatch:
