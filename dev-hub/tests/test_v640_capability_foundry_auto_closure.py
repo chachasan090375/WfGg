@@ -176,7 +176,7 @@ assert 'merge_caps(cfg/"capability-registry.v1.json",cap_overlay,merged_caps)' n
 assert '"active_capability_registry":str(active_capabilities)' in orch
 assert 'next_stage="CAPABILITY_BUILD_REQUIRED"' in orch
 assert 'final_v["dispatch_allowed"]=False' in orch
-assert any(v in orch for v in ['"version":"6.40.0"','"version":"6.41.0"'])
+assert any(v in orch for v in ['"version":"6.40.0"','"version":"6.41.0"','"version":"6.42.0"'])
 
 print("CHACHA_DEV_V640_EXISTING_ENABLED_PROVIDER_AUTO_CLOSURE=PASS")
 print("CHACHA_DEV_V640_NONZERO_SPEND_FAIL_CLOSED=PASS")
