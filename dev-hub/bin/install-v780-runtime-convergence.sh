@@ -212,6 +212,26 @@ for name in need:
 print("CHACHA_DEV_V780_EXACT_SHA_ASSURANCE=PASS")
 PY
 
+stage guardian-d1-write-capacity-preflight
+# Test Guardian/D1 write capacity against the still-active acquired baseline.
+# This intentionally runs before creating or activating the V7.8 release, so
+# quota exhaustion cannot cause a runtime flip followed by rollback.
+if ! PYTHONPATH="$PREVIOUS/dev-hub/bin" python3 "$PREVIOUS/dev-hub/bin/guardian-coverage-heartbeat.py" \
+  --repo-root "$PREVIOUS" \
+  --manifest "$PREVIOUS/dev-hub/config/guardian-coverage-manifest.v1.json" \
+  --policy "$PREVIOUS/dev-hub/config/guardian-runtime-policy.v1.json" \
+  --client "$PREVIOUS/dev-hub/bin/guardian-client.py" \
+  --output "$WORK/guardian-d1-preflight.json" \
+  >"$WORK/guardian-d1-preflight.out" 2>"$WORK/guardian-d1-preflight.err"; then
+  echo "CHACHA_DEV_V780_INSTALL=BLOCKED reason=guardian_d1_write_capacity_unavailable"
+  restore_guardian_timer
+  restore_timer
+  exit 76
+fi
+grep -Fq 'CHACHA_DEV_GUARDIAN_COVERAGE_HEARTBEAT=PASS' "$WORK/guardian-d1-preflight.out"
+grep -Fq 'ALL_HOOKS_ACTIVE=YES' "$WORK/guardian-d1-preflight.out"
+echo "CHACHA_DEV_V780_GUARDIAN_D1_PREFLIGHT=PASS"
+
 stage build-compiled-release
 mkdir -p "$RELEASE"
 python3 "$SRC/dev-hub/bin/build-v7-runtime-release.py"   --source-root "$SRC" --output-root "$RELEASE" --manifest "$WORK/compiled-manifest.json"   >"$WORK/compile.out" 2>"$WORK/compile.err"
