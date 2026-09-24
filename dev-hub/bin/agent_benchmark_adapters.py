@@ -432,7 +432,7 @@ def technology_watch_agent(repo:Path)->dict[str,Any]:
       "contradiction_detected":cr.get("contradictory_evidence"),"additional_verification":cr.get("additional_verification_required"),
       "selected_version":((selected.get("selected") or {}).get("version")),"latest_version_priority":selected.get("latest_version_priority"),
       "confidence_before":before,"confidence_after_contradiction":after_bad,"confidence_after_confirmation":after_good,
-      "permission_escalation":gr.get("permission_escalation"),"automatic_external_spend_eur":gr.get("automatic_external_spend_eur")
+      "evidence_graph_present":bool((gr.get("evidence_graph") or {}).get("nodes")) and bool((gr.get("evidence_graph") or {}).get("edges")),"permission_escalation":gr.get("permission_escalation"),"automatic_external_spend_eur":gr.get("automatic_external_spend_eur")
     }}
 
 ADAPTERS={"guardian":guardian,"sentinel":sentinel,"bastion":bastion,"autonomous-recovery-agent":recovery,
