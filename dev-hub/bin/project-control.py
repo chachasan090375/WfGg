@@ -1124,6 +1124,227 @@ def record_approval_operation(project: str, approval_id: str, actor: str, eviden
                         artifacts=[{"type":"control-transaction-receipt","path":str(receipt)}])
 
 
+def issue_platform_component_adapter_registration(project: str, binding_gate: Path, output: Path,
+                                                  policy: dict[str, Any], repo_root: Path) -> dict[str, Any]:
+    """Issue a protected, single-use adapter registry registration contract.
+
+    This operation never mutates the source registry. It independently
+    revalidates the component-specific binding proposal and a separate real-human
+    registration approval recorded through Project Control, then commits an
+    auditable protected event and emits an exact additive registry-write contract.
+    """
+    op="issue-platform-component-adapter-registration"
+    if project!="chacha-dev-platform":
+        return response(project,op,"BLOCKED","Platform adapter registration is restricted to chacha-dev-platform.",
+                        blockers=["PLATFORM_CONTROL_PROJECT_REQUIRED"])
+    if not binding_gate.is_file():
+        return response(project,op,"BLOCKED","Adapter binding gate evidence is required.",
+                        {"binding_gate":str(binding_gate)},["ADAPTER_BINDING_GATE_INPUT_MISSING"])
+    try:
+        gate=load(binding_gate)
+    except Exception as exc:
+        return response(project,op,"BLOCKED","Adapter binding gate evidence is invalid.",
+                        {"reason":str(exc)},["ADAPTER_BINDING_GATE_INPUT_INVALID"])
+
+    proposal=gate.get("binding_proposal") if isinstance(gate.get("binding_proposal"),dict) else {}
+    request=gate.get("registration_approval_request") if isinstance(gate.get("registration_approval_request"),dict) else {}
+    binding=proposal.get("binding") if isinstance(proposal.get("binding"),dict) else {}
+    p=project_paths(policy,project)
+    registry_rel=str((policy.get("repository_paths") or {}).get("platform_component_apply_adapter_registry") or "")
+    registry_path=resolve_repo(repo_root,registry_rel) if registry_rel else None
+    system_actors={
+      "central-orchestrator","guardian","sentinel","curator","bastion","intendant",
+      "logician","ergonomist","architecture-council","agent-foundry","branch-foundry",
+      "capability-foundry","platform-component-pilot-runner","platform-component-promotion-gate",
+      "platform-component-controlled-apply-planner","platform-component-source-integration-executor",
+      "platform-component-adapter-binding-gate"
+    }
+
+    with project_lock(p["lock"]):
+        pending=pending_transactions(p["transactions"])
+        if pending:
+            return response(project,op,"BLOCKED","A control transaction requires recovery before registration issuance.",
+                            blockers=pending)
+        rc0,verify0,out0,err0=state_verify_raw(project,policy,repo_root)
+        if rc0!=0:
+            return response(project,op,"BLOCKED","Control-plane integrity failed before registration issuance.",
+                            {"stdout":out0.strip(),"stderr":err0.strip()},["CONTROL_PLANE_INTEGRITY_FAILED"])
+        if not p["state"].is_file() or not p["ledger"].is_file() or registry_path is None or not registry_path.is_file():
+            return response(project,op,"BLOCKED","Platform control state, Evidence Ledger or canonical adapter registry is missing.",
+                            blockers=["PLATFORM_ADAPTER_REGISTRATION_PREREQUISITE_MISSING"])
+
+        projection=load(p["state"]);ledger=load(p["ledger"]);registry=load(registry_path)
+        identity=((projection.get("state") or {}).get("identity") or {})
+        bootstrap=((projection.get("state") or {}).get("evidence") or {})
+        approval_id=str(request.get("approval_id") or "")
+        ledger_approval=((ledger.get("approvals") or {}).get(approval_id) or {}) if approval_id else {}
+        state_approval=((((projection.get("state") or {}).get("approvals") or {}).get(approval_id) or {})
+                        if approval_id else {})
+        actor=str(ledger_approval.get("actor") or "")
+        evidence=str(ledger_approval.get("evidence") or "")
+        expected_evidence=str(request.get("evidence") or "")
+        component=str(proposal.get("component_id") or "")
+        candidate=str(proposal.get("candidate_revision") or "")
+        proposal_digest=str(gate.get("binding_proposal_digest") or "")
+        registry_adapters=registry.get("adapters") if isinstance(registry.get("adapters"),dict) else {}
+        expected_after=copy.deepcopy(registry)
+        if component and isinstance(expected_after.get("adapters"),dict):
+            expected_after["adapters"][component]=copy.deepcopy(binding)
+
+        checks={
+          "state_schema":projection.get("schema")==STATE_SCHEMA,
+          "ledger_schema":ledger.get("schema")==LEDGER_SCHEMA,
+          "state_project":projection.get("project")==project,
+          "ledger_project":ledger.get("project")==project,
+          "platform_profile":identity.get("control_profile")=="platform",
+          "bootstrap_marker":bootstrap.get("control_plane_ledger_initialized") is True,
+          "binding_gate_schema":gate.get("schema")=="chacha.dev/platform-component-adapter-binding-gate/v1",
+          "binding_gate_ready":gate.get("status")=="BINDING_PROPOSAL_READY_AWAIT_PROTECTED_REGISTRATION",
+          "binding_proposal_created":gate.get("proposal_created") is True,
+          "binding_proposal_schema":proposal.get("schema")=="chacha.dev/platform-component-adapter-binding-proposal/v1",
+          "proposal_registration_not_preapproved":proposal.get("registration_authorized") is False,
+          "proposal_registry_mutation_not_preapproved":proposal.get("registry_mutation_authorized") is False,
+          "proposal_protected_registration_required":proposal.get("protected_registration_required") is True,
+          "proposal_digest_present":bool(proposal_digest),
+          "proposal_digest_matches":bool(proposal_digest) and canonical_digest(proposal)==proposal_digest,
+          "approval_request_created":gate.get("human_registration_approval_request_created") is True,
+          "approval_request_schema":request.get("schema")=="chacha.dev/protected-human-approval-request/v1",
+          "approval_request_project":request.get("project")==project,
+          "approval_request_operation":request.get("operation")=="record-approval",
+          "approval_request_actor_real_human":request.get("actor_requirement")=="real-human",
+          "approval_request_api_synthesis_forbidden":request.get("agent_or_api_approval_synthesis_forbidden") is True,
+          "approval_request_digest_matches":request.get("binding_proposal_digest")==proposal_digest and bool(proposal_digest),
+          "approval_request_evidence_exact":bool(proposal_digest) and expected_evidence=="platform-component-adapter-binding-proposal:"+proposal_digest,
+          "component_present":bool(component),
+          "candidate_revision_present":bool(candidate),
+          "binding_adapter_present":bool(str(binding.get("adapter_id") or "")),
+          "binding_status_qualified":binding.get("status")=="QUALIFIED",
+          "binding_owner_matches":binding.get("candidate_owner")==proposal.get("candidate_owner") and bool(binding.get("candidate_owner")),
+          "binding_source_only":binding.get("apply_mode")=="SOURCE_RELEASE_CANDIDATE_INTEGRATION",
+          "binding_reversible":binding.get("reversible") is True,
+          "binding_exact_revision":binding.get("exact_revision_enforced") is True,
+          "binding_runtime_mutation_forbidden":binding.get("direct_runtime_mutation") is False,
+          "binding_production_activation_forbidden":binding.get("production_activation") is False,
+          "binding_production_deployment_forbidden":binding.get("production_deployment") is False,
+          "binding_production_merge_forbidden":binding.get("merge_to_production_branch") is False,
+          "binding_automatic_apply_forbidden":binding.get("automatic_apply") is False,
+          "binding_zero_external_spend":float(binding.get("automatic_external_spend_eur") or 0)==0,
+          "registry_schema":registry.get("schema")=="chacha.dev/platform-component-apply-adapter-registry/v1",
+          "registry_default_deny":registry.get("default_admission")=="DENY",
+          "component_not_already_registered":component not in registry_adapters,
+          "approval_id_present":bool(approval_id),
+          "ledger_approval_status":ledger_approval.get("status")=="APPROVED",
+          "ledger_approval_actor_human":bool(actor) and actor not in system_actors,
+          "ledger_approval_evidence_exact":bool(expected_evidence) and evidence==expected_evidence,
+          "state_approval_status":state_approval.get("status")=="APPROVED",
+          "state_approval_actor_matches":bool(actor) and state_approval.get("actor")==actor,
+          "state_approval_evidence_matches":bool(evidence) and state_approval.get("evidence")==evidence,
+          "zero_automatic_external_spend":float(proposal.get("automatic_external_spend_eur") or 0)==0,
+        }
+        blockers=sorted(k for k,v in checks.items() if not v)
+        if blockers:
+            return response(project,op,"BLOCKED","Platform adapter registration prerequisites are not satisfied.",
+                            {"checks":checks},blockers)
+
+        seed={
+          "project":project,"component_id":component,"candidate_revision":candidate,
+          "adapter_id":binding.get("adapter_id"),"approval_id":approval_id,
+          "binding_proposal_digest":proposal_digest,
+          "registry_before_digest":canonical_digest(registry),
+          "registry_after_digest":canonical_digest(expected_after)
+        }
+        registration_id="pcar-"+hashlib.sha256(
+          json.dumps(seed,sort_keys=True,separators=(",",":")).encode("utf-8")
+        ).hexdigest()[:24]
+        contract={
+          "schema":"chacha.dev/platform-component-adapter-registration-contract/v1",
+          "registration_id":registration_id,"project":project,"actor":"central-orchestrator",
+          "issued_by_project_control":True,"human_approval_verified":True,
+          "approval_id":approval_id,"approval_actor":actor,"approval_evidence":evidence,
+          "binding_proposal_digest":proposal_digest,
+          "component_id":component,"candidate_owner":proposal.get("candidate_owner"),
+          "candidate_revision":candidate,"incumbent_revision":proposal.get("incumbent_revision"),
+          "candidate_artifact_ref":proposal.get("candidate_artifact_ref"),
+          "incumbent_artifact_ref":proposal.get("incumbent_artifact_ref"),
+          "adapter_id":binding.get("adapter_id"),
+          "registry_path":registry_rel,"registry_key":component,
+          "registry_before_digest":canonical_digest(registry),
+          "registry_after_digest":canonical_digest(expected_after),
+          "exact_registry_binding":copy.deepcopy(binding),
+          "registration_authorized":True,
+          "registry_mutation_authorized_for_dedicated_writer":True,
+          "additive_write_only":True,"overwrite_authorized":False,"delete_authorized":False,
+          "default_deny_must_be_preserved":True,"single_use":True,
+          "source_integration_authorized":False,
+          "post_registration_exact_sha_gates_required":[
+            "ChaCha DEV platform adapter binding gate qualification",
+            "ChaCha DEV universal evolution coverage sync qualification",
+            "ChaCha DEV Sentinel technical assurance"
+          ],
+          "direct_runtime_mutation_authorized":False,
+          "production_activation_authorized":False,"production_deployment_authorized":False,
+          "merge_to_production_branch_authorized":False,"automatic_apply":False,
+          "control_plane_state_digest":canonical_digest(projection),
+          "evidence_ledger_digest":canonical_digest(ledger),
+          "automatic_external_spend_eur":0
+        }
+
+        output=output.resolve()
+        if output.exists():
+            try:existing=load(output)
+            except Exception:
+                return response(project,op,"BLOCKED","Existing registration contract output is invalid.",
+                                {"output":str(output)},["ADAPTER_REGISTRATION_OUTPUT_CONFLICT"])
+            stable=all((
+              existing.get("schema")==contract["schema"],
+              existing.get("registration_id")==registration_id,
+              existing.get("component_id")==component,
+              existing.get("candidate_revision")==candidate,
+              existing.get("adapter_id")==binding.get("adapter_id"),
+              existing.get("approval_id")==approval_id,
+              existing.get("binding_proposal_digest")==proposal_digest,
+              existing.get("registry_before_digest")==contract["registry_before_digest"],
+              existing.get("registry_after_digest")==contract["registry_after_digest"],
+              existing.get("single_use") is True,
+              existing.get("registration_authorized") is True,
+              existing.get("overwrite_authorized") is False,
+              existing.get("delete_authorized") is False,
+            ))
+            if stable:
+                return response(project,op,"OK","Identical adapter registration contract already exists.",
+                                {"registration_id":registration_id,"contract":str(output),
+                                 "contract_digest":canonical_digest(existing),"idempotent":True},
+                                artifacts=[{"type":"platform-component-adapter-registration-contract","path":str(output)}])
+            return response(project,op,"BLOCKED","Registration contract output already exists with different content.",
+                            {"output":str(output)},["ADAPTER_REGISTRATION_OUTPUT_CONFLICT"])
+
+        with tempfile.TemporaryDirectory(prefix="chacha-platform-adapter-registration-") as td:
+            payload=Path(td)/"registration.json";save(payload,contract)
+            rc_evt,event_values,out_evt,err_evt=store_record(
+              project,"PLATFORM_COMPONENT_ADAPTER_REGISTRATION_ISSUED","central-orchestrator",
+              payload,None,None,policy,repo_root
+            )
+            if rc_evt!=0:
+                return response(project,op,"BLOCKED","Adapter registration audit event could not be committed.",
+                                {"stdout":out_evt[-2000:],"stderr":err_evt[-1000:]},
+                                ["ADAPTER_REGISTRATION_AUDIT_FAILED"])
+
+        rc1,verify1,out1,err1=state_verify_raw(project,policy,repo_root)
+        if rc1!=0:
+            return response(project,op,"BLOCKED",
+                            "Registration audit event committed but integrity recheck failed; no contract emitted.",
+                            {"stdout":out1.strip(),"stderr":err1.strip()},
+                            ["ADAPTER_REGISTRATION_INTEGRITY_UNCERTAIN"])
+
+        output.parent.mkdir(parents=True,exist_ok=True);save(output,contract)
+        return response(project,op,"OK","Protected component adapter registration contract issued.",
+                        {"registration_id":registration_id,"contract":str(output),
+                         "contract_digest":canonical_digest(contract),"idempotent":False,
+                         "event_sequence":event_values.get("EVENT_SEQUENCE"),
+                         "event_digest":event_values.get("EVENT_DIGEST"),"integrity":verify1},
+                        artifacts=[{"type":"platform-component-adapter-registration-contract","path":str(output)}])
+
+
 def issue_platform_component_apply_handoff(project: str, promotion_gate: Path, planner_result: Path,
                                            output: Path, policy: dict[str, Any], repo_root: Path) -> dict[str, Any]:
     """Issue the single-use Central Orchestrator source-integration handoff.
@@ -1650,6 +1871,11 @@ def main() -> int:
     bootstrap.add_argument("--actor", default="central-orchestrator")
     bootstrap.add_argument("--profile", choices=["project","platform"], default="project")
 
+    registration = sub.add_parser("issue-platform-component-adapter-registration")
+    registration.add_argument("--project", required=True)
+    registration.add_argument("--binding-gate", type=Path, required=True)
+    registration.add_argument("--output", type=Path, required=True)
+
     handoff = sub.add_parser("issue-platform-component-apply-handoff")
     handoff.add_argument("--project", required=True)
     handoff.add_argument("--promotion-gate", type=Path, required=True)
@@ -1708,6 +1934,10 @@ def main() -> int:
                                          args.ingest, policy, args.repo_root)
     elif args.command == "bootstrap-control-plane":
         result = bootstrap_control_plane_operation(args.project,args.actor,args.profile,policy,args.repo_root)
+    elif args.command == "issue-platform-component-adapter-registration":
+        result = issue_platform_component_adapter_registration(
+          args.project,args.binding_gate,args.output,policy,args.repo_root
+        )
     elif args.command == "issue-platform-component-apply-handoff":
         result = issue_platform_component_apply_handoff(
           args.project,args.promotion_gate,args.planner_result,args.output,policy,args.repo_root
