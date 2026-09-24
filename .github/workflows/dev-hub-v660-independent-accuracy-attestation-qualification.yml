@@ -36,7 +36,7 @@ jobs:
           set -euo pipefail
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v660_independent_accuracy_attestation.py | tee /tmp/v660.out
           grep -Fq 'CHACHA_DEV_V660_GUARDIAN_INDEPENDENT_ACCURACY=PASS' /tmp/v660.out
-          grep -Fq 'CHACHA_DEV_V660_SENTINEL_GITHUB_INDEPENDENT_ACCURACY=PASS' /tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_SENTINEL_GITHUB_RUN_JOB_ARTIFACT_ACCURACY=PASS' /tmp/v660.out
           grep -Fq 'CHACHA_DEV_V660_ACCEPTANCE_RECOMPUTED_ACCURACY=PASS' /tmp/v660.out
           grep -Fq 'CHACHA_DEV_V660_PRODUCTION_ACCURACY_DIMENSIONS=3' /tmp/v660.out
           grep -Fq 'CHACHA_DEV_V660_SELF_MUTATION=NO' /tmp/v660.out
@@ -54,7 +54,7 @@ jobs:
         run: |
           echo CHACHA_DEV_V660_QUALIFICATION=PASS
           echo GUARDIAN_INDEPENDENT_ACCURACY=PASS
-          echo SENTINEL_GITHUB_INDEPENDENT_ACCURACY=PASS
+          echo SENTINEL_GITHUB_RUN_JOB_ARTIFACT_ACCURACY=PASS
           echo ACCEPTANCE_RECOMPUTED_ACCURACY=PASS
           echo PRODUCTION_ACCURACY_DIMENSIONS=3
           echo SELF_MUTATION=NO
