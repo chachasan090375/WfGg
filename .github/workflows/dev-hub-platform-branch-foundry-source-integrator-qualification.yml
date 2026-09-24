@@ -8,6 +8,9 @@ on:
       - 'dev-hub/adapters/platform-component-branch-foundry-source-integrator.py'
       - 'dev-hub/config/platform-component-branch-foundry-source-integrator.v1.json'
       - 'dev-hub/tests/test_platform_component_branch_foundry_source_integrator.py'
+      - 'dev-hub/tests/test_platform_component_branch_foundry_source_integrator_provisioning.py'
+      - 'dev-hub/config/adapter-provisioning.v1.json'
+      - 'dev-hub/bin/adapter-provision.py'
       - '.github/workflows/dev-hub-platform-branch-foundry-source-integrator-qualification.yml'
   workflow_dispatch:
 
@@ -26,8 +29,9 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
-          python3 -m py_compile dev-hub/adapters/platform-component-branch-foundry-source-integrator.py dev-hub/tests/test_platform_component_branch_foundry_source_integrator.py
+          python3 -m py_compile dev-hub/adapters/platform-component-branch-foundry-source-integrator.py dev-hub/bin/adapter-provision.py dev-hub/tests/test_platform_component_branch_foundry_source_integrator.py dev-hub/tests/test_platform_component_branch_foundry_source_integrator_provisioning.py
           python3 -m json.tool dev-hub/config/platform-component-branch-foundry-source-integrator.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/adapter-provisioning.v1.json >/dev/null
       - name: Isolated Git source integration qualification
         run: |
           set -euo pipefail
@@ -43,6 +47,24 @@ jobs:
           grep -Fq 'CHACHA_DEV_BRANCH_FOUNDRY_SOURCE_INTEGRATOR_RUNTIME_MUTATION=NO' /tmp/source-integrator.out
           grep -Fq 'CHACHA_DEV_BRANCH_FOUNDRY_SOURCE_INTEGRATOR_PRODUCTION_ACTIVATION=NO' /tmp/source-integrator.out
           grep -Fq 'CHACHA_DEV_BRANCH_FOUNDRY_SOURCE_INTEGRATOR_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/source-integrator.out
+      - name: Sandbox provisioning qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_platform_component_branch_foundry_source_integrator_provisioning.py | tee /tmp/source-integrator-provisioning.out
+          grep -Fq 'CHACHA_DEV_BRANCH_FOUNDRY_SOURCE_INTEGRATOR_PROVISIONING=PASS' /tmp/source-integrator-provisioning.out
+          grep -Fq 'CHACHA_DEV_BRANCH_FOUNDRY_SOURCE_INTEGRATOR_PROVISIONING_SANDBOX=YES' /tmp/source-integrator-provisioning.out
+          grep -Fq 'CHACHA_DEV_BRANCH_FOUNDRY_SOURCE_INTEGRATOR_PROVISIONING_DIGEST_CHAIN=PASS' /tmp/source-integrator-provisioning.out
+          grep -Fq 'CHACHA_DEV_BRANCH_FOUNDRY_SOURCE_INTEGRATOR_PROVISIONING_FAIL_CLOSED_PROBE=PASS' /tmp/source-integrator-provisioning.out
+          grep -Fq 'CHACHA_DEV_BRANCH_FOUNDRY_SOURCE_INTEGRATOR_LIVE_REGISTRY=EMPTY' /tmp/source-integrator-provisioning.out
+          grep -Fq 'CHACHA_DEV_BRANCH_FOUNDRY_SOURCE_INTEGRATOR_PROVISIONING_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/source-integrator-provisioning.out
+      - name: Legacy provisioning regression
+        run: |
+          set -euo pipefail
+          TMP="$(mktemp -d)"
+          python3 dev-hub/bin/adapter-provision.py --root "$TMP/runtime" apply --adapter http-smoke-adapter --actor ci-regression --receipt "$TMP/http-smoke.json" --apply
+          python3 dev-hub/bin/adapter-provision.py --root "$TMP/runtime" verify --adapter http-smoke-adapter --receipt "$TMP/http-smoke.json" | tee /tmp/legacy-provisioning.out
+          grep -Fq 'PROVISIONING_VERIFY=PASS' /tmp/legacy-provisioning.out
+          echo CHACHA_DEV_ADAPTER_PROVISIONING_LEGACY_REGRESSION=PASS
       - name: Receipt
         run: |
           echo CHACHA_DEV_BRANCH_FOUNDRY_SOURCE_INTEGRATOR_QUALIFICATION=PASS
@@ -54,5 +76,7 @@ jobs:
           echo PUSH=NO
           echo NETWORK=NO
           echo ROLLBACK=REQUIRED
+          echo SANDBOX_PROVISIONING=PASS
+          echo LIVE_APPLY_REGISTRY=EMPTY
           echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
           echo EXACT_SHA_CONVERGENCE=YES
