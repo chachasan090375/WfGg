@@ -1,0 +1,94 @@
+name: ChaCha DEV V7.3 Direct Operator qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v730-direct-operator-android-widget
+    paths:
+      - 'dev-hub/bin/direct-operator-service.py'
+      - 'dev-hub/bin/functional-translator-agent.py'
+      - 'dev-hub/config/direct-operator.v1.json'
+      - 'dev-hub/config/agent-routing.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/systemd/chacha-dev-direct-operator.service'
+      - 'dev-hub/tests/test_v730_direct_operator.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'android/chacha-direct-operator-widget/**'
+      - '.github/workflows/dev-hub-v730-direct-operator-qualification.yml'
+      - '.github/workflows/dev-hub-v730-android-widget-build.yml'
+      - '.github/workflows/dev-hub-v7-platform-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/direct-operator-service.py             dev-hub/bin/functional-translator-agent.py             dev-hub/bin/central-interface-controller.py             dev-hub/bin/human-interface-gateway.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/tests/test_v730_direct_operator.py
+          python3 -m json.tool dev-hub/config/direct-operator.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/agent-routing.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
+          grep -Fq '"version":"7.3.0"' dev-hub/bin/autonomous-project-orchestrator.py
+      - name: Direct Operator qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v730_direct_operator.py | tee /tmp/v730.out
+          grep -Fq 'CHACHA_DEV_V730_DIRECT_OPERATOR=PASS' /tmp/v730.out
+          grep -Fq 'CHACHA_DEV_V730_TAILSCALE_IDENTITY_FAIL_CLOSED=PASS' /tmp/v730.out
+          grep -Fq 'CHACHA_DEV_V730_FUNCTIONAL_TRANSLATOR=PASS' /tmp/v730.out
+          grep -Fq 'CHACHA_DEV_V730_TRANSLATOR_EXECUTION_AUTHORITY=NO' /tmp/v730.out
+          grep -Fq 'CHACHA_DEV_V730_CHATGPT_IN_DIRECT_PATH=NO' /tmp/v730.out
+          grep -Fq 'CHACHA_DEV_V730_GO_CENTRAL_CONTINUATION=PASS' /tmp/v730.out
+      - name: Governance contract
+        run: |
+          python3 - <<'PY'
+          import json
+          r=json.load(open('dev-hub/config/agent-routing.v1.json'))
+          role=r['roles']['functional-translator-satellite']
+          assert role['direct_execution'] is False
+          assert role['production_change'] is False
+          g=json.load(open('dev-hub/config/guardian-coverage-manifest.v1.json'))
+          ids={x['component_id'] for x in g['expected_components']}
+          assert {'direct-operator-service','functional-translator-satellite'} <= ids
+          p=json.load(open('dev-hub/config/direct-operator.v1.json'))
+          assert p['transport']['public_funnel_forbidden'] is True
+          assert p['transport']['tailscale_serve_private_only'] is True
+          assert p['invariants']['chatgpt_not_in_direct_path'] is True
+          print('CHACHA_DEV_V730_GOVERNANCE=PASS')
+          PY
+      - name: V7.2 V7.1 and V7 regressions
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v720_human_interface_gateway.py >/tmp/v720.out
+          grep -Fq 'CHACHA_DEV_V720_HUMAN_INTERFACE_GATEWAY=PASS' /tmp/v720.out
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v710_intendant_hygiene_cycle.py >/tmp/v710.out
+          grep -Fq 'CHACHA_DEV_V710_DYNAMIC_TWO_ROLLBACK_RETENTION=PASS' /tmp/v710.out
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v700_consolidated_platform_baseline.py >/tmp/v700.out
+          grep -Fq 'CHACHA_DEV_V700_CANONICAL_BASELINE=PASS' /tmp/v700.out
+      - name: Critical inherited invariants
+        run: |
+          set -euo pipefail
+          for t in             dev-hub/tests/test_v660_independent_accuracy_attestation.py             dev-hub/tests/test_v661_real_world_evidence_isolated_candidate.py             dev-hub/tests/test_v663_runtime_surface_instrumentation_readiness.py             dev-hub/tests/test_v664_real_instrumented_project_acceptance_council.py; do
+            PYTHONPATH=dev-hub/bin python3 "$t"
+          done
+      - name: Qualification receipt
+        run: |
+          echo CHACHA_DEV_V730_QUALIFICATION=PASS
+          echo PLATFORM_VERSION=7.3.0
+          echo DIRECT_OPERATOR=PRIVATE_TAILSCALE
+          echo FUNCTIONAL_TRANSLATOR=SATELLITE_AGENT
+          echo TRANSLATOR_EXECUTION_AUTHORITY=NO
+          echo CHATGPT_IN_DIRECT_PATH=NO
+          echo DIRECT_OPERATOR_DIRECT_MUTATION=NO
+          echo CENTRAL_ORCHESTRATOR_REQUIRED=YES
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
