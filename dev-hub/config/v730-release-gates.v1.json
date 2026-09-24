@@ -1,0 +1,16 @@
+{
+  "schema": "chacha.dev/v730-release-gates/v1",
+  "version": "1.0.0",
+  "required_exact_sha_workflows": [
+    "ChaCha DEV V7.3 Direct Operator qualification",
+    "ChaCha DEV V7.3 Android Operator Widget build",
+    "ChaCha DEV V7 platform qualification",
+    "ChaCha DEV Sentinel technical assurance",
+    "ChaCha DEV V7 Guardian coverage sync",
+    "ChaCha DEV V7.3 Guardian runtime deploy"
+  ],
+  "convergence_trigger": true,
+  "runtime_baseline": "7.2.0",
+  "target_version": "7.3.0",
+  "automatic_external_spend_eur": 0
+}
