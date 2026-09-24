@@ -1,0 +1,69 @@
+name: ChaCha DEV V7.9 Android migration bootstrap
+
+on:
+  push:
+    branches:
+      - dev-hub-v790-android-migration-bootstrap
+    paths:
+      - 'android/chacha-migration-bootstrap/**'
+      - 'dev-hub/config/android-migration-bootstrap.v1.json'
+      - 'dev-hub/tests/test_v790_android_migration_bootstrap.py'
+      - '.github/workflows/dev-hub-v790-android-migration-bootstrap.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Contract qualification
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/tests/test_v790_android_migration_bootstrap.py
+          python3 -m json.tool dev-hub/config/android-migration-bootstrap.v1.json >/dev/null
+          python3 dev-hub/tests/test_v790_android_migration_bootstrap.py | tee /tmp/v790.out
+          grep -Fq 'CHACHA_DEV_V790_ANDROID_MIGRATION_BOOTSTRAP=PASS' /tmp/v790.out
+          grep -Fq 'LEGACY_SIGNATURE_UNINSTALL_CONFIRMATION=REQUIRED' /tmp/v790.out
+          grep -Fq 'ANDROID_INSTALL_CONFIRMATION=REQUIRED' /tmp/v790.out
+      - name: Install Android SDK
+        run: |
+          set -euo pipefail
+          : "${ANDROID_HOME:=/usr/local/lib/android/sdk}"
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -path '*/bin/sdkmanager' | sort -V | tail -1)"
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.6.0'
+      - name: Build migration APK
+        run: |
+          set -euo pipefail
+          gradle -p android/chacha-migration-bootstrap :app:assembleDebug :app:lintDebug
+          test -f android/chacha-migration-bootstrap/app/build/outputs/apk/debug/app-debug.apk
+          echo CHACHA_DEV_V790_MIGRATION_APK_BUILD=PASS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chacha-migration-v790-debug
+          path: android/chacha-migration-bootstrap/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
+      - name: Receipt
+        run: |
+          echo CHACHA_DEV_V790_ANDROID_MIGRATION_BOOTSTRAP_QUALIFICATION=PASS
+          echo TARGET_PACKAGE=com.wfgg.chachadev.operator
+          echo MIGRATION_PACKAGE=com.wfgg.chachadev.migration
+          echo LEGACY_UNINSTALL_USER_CONFIRMATION=YES
+          echo RELEASE_INSTALL_USER_CONFIRMATION=YES
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
