@@ -52,8 +52,20 @@ def build_review(policy:dict[str,Any],pilot:dict[str,Any],contract:dict[str,Any]
     incumbent=(pilot.get("results") or {}).get("INCUMBENT") or {}
     candidate=(pilot.get("results") or {}).get("CANDIDATE") or {}
     comparison=pilot.get("comparison") or {}
+    mandatory_policy_flags=[
+      "pilot_result_required","exact_candidate_and_incumbent_revision_required",
+      "exact_candidate_and_incumbent_artifact_required","same_benchmark_contract_required",
+      "isolated_ephemeral_capsules_required","guardian_pre_post_required",
+      "sentinel_exact_revision_success_required","qualification_exact_revision_success_required",
+      "technology_watch_fresh_required","logician_falsification_required",
+      "permission_non_escalation_required","rollback_ready_required","measurable_gain_required",
+      "no_material_regression_required","zero_automatic_external_spend_required",
+      "incumbent_control_group_required","production_entrypoint_unchanged_required"
+    ]
     checks={
       "policy_enabled":review_policy.get("enabled") is True,
+      "review_policy_requirements_enabled":all(review_policy.get(k) is True for k in mandatory_policy_flags),
+      "council_may_confirm_technical_admissibility":review_policy.get("architecture_council_may_confirm_technical_admissibility") is True,
       "central_orchestrator_final_decider":policy.get("central_orchestrator_is_final_decider") is True,
       "no_single_foundry_final_authority":policy.get("no_single_foundry_may_select_final_architecture") is True,
       "pilot_result_schema":pilot.get("schema")=="chacha.dev/platform-component-comparative-pilot-result/v1",
