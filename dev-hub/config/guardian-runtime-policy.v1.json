@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-runtime-policy/v1",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "scope": "PLATFORM_GLOBAL",
   "external_url": "https://chacha-dev-guardian.chachasan090375.workers.dev",
   "private_key": "/opt/chacha-dev/runtime/secrets/central-learning-key.pem",
@@ -24,7 +24,7 @@
   "action_lease_required": true,
   "action_lease_default_seconds": 300,
   "coverage_heartbeat_required": true,
-  "coverage_heartbeat_max_age_seconds": 180,
+  "coverage_heartbeat_max_age_seconds": 900,
   "safety_exemptions": [
     "emergency-control-bridge"
   ],
@@ -52,5 +52,14 @@
     "guardian_may_modify_application": false,
     "sentinel_may_modify_application": false,
     "remediation_owner": "central-orchestrator"
+  },
+  "d1_write_budget": {
+    "mode": "FREE_TIER_ZERO_COST",
+    "coverage_heartbeat_interval_seconds": 300,
+    "coverage_heartbeat_max_age_seconds": 900,
+    "ci_sync_mode": "DIGEST_AWARE_DELTA",
+    "redundant_ci_rewrites_forbidden": true,
+    "automatic_paid_upgrade": false,
+    "automatic_external_spend_eur": 0
   }
 }
