@@ -1,0 +1,203 @@
+name: ChaCha DEV V7.1 Guardian hygiene contract deploy
+
+on:
+  push:
+    branches:
+      - dev-hub-v710-intendant-hygiene-cycle
+    paths:
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/guardian/**'
+      - '.github/workflows/dev-hub-v710-guardian-hygiene-contract-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate Guardian hygiene contracts
+        run: |
+          set -euo pipefail
+          node --check dev-hub/guardian/worker.js
+          python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
+          python3 - <<'PY'
+          import json
+          x=json.load(open('dev-hub/config/guardian-role-contracts.v1.json'))
+          assert x['version']=='2.0.0',x['version']
+          by={c['contract_id']:c for c in x['contracts']}
+          co=by['component:central-orchestrator']
+          hy=by['role:platform-hygiene-executor']
+          it=by['role:intendant']
+          assert {'EXECUTE_PLATFORM_RETIREMENT','EXECUTE_SAFE_TEMP_CLEANUP'}<=set(co['allowed_actions']),co
+          assert 'destructive-operation' in co['allowed_permissions'],co
+          assert set(hy['allowed_actions'])=={'EXECUTE_SAFE_TEMP_CLEANUP','EXECUTE_PLATFORM_RETIREMENT'},hy
+          assert hy['allowed_permissions']==['destructive-operation'],hy
+          assert 'destructive-operation' not in it['allowed_permissions'],it
+          print('CHACHA_DEV_V710_GUARDIAN_HYGIENE_CONTRACT_STATIC=PASS')
+          PY
+
+      - name: Resolve Cloudflare account and Guardian D1
+        id: cf
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request,urllib.error,sys
+          token=os.environ.get('CF_API_TOKEN','').strip()
+          if not token: raise SystemExit('MISSING_SECRET=CLOUDFLARE_API_TOKEN')
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url):
+              req=urllib.request.Request(url,headers=headers)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode('utf-8','replace')
+                  try:payload=json.loads(raw)
+                  except Exception:payload={'raw':raw[:500]}
+                  return e.code,payload
+          aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          if not aid:
+              status,payload=call('https://api.cloudflare.com/client/v4/accounts?per_page=50')
+              rows=(payload.get('result') or []) if status==200 else []
+              if len(rows)!=1: raise SystemExit('CLOUDFLARE_ACCOUNT_RESOLUTION_AMBIGUOUS='+str(len(rows)))
+              aid=rows[0]['id']
+          status,payload=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name=chacha-dev-guardian')
+          if status!=200: raise SystemExit('GUARDIAN_D1_LIST_FAILED')
+          rows=payload.get('result') or []
+          db=next((r for r in rows if r.get('name')=='chacha-dev-guardian'),None)
+          if not db: raise SystemExit('GUARDIAN_D1_NOT_FOUND')
+          status,payload=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/workers/subdomain')
+          sub=(payload.get('result') or {}).get('subdomain') if status==200 else None
+          if not sub: raise SystemExit('WORKERS_SUBDOMAIN_NOT_FOUND')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('account_id='+aid+'\n')
+              f.write('database_id='+db['uuid']+'\n')
+              f.write('workers_subdomain='+sub+'\n')
+          print('CHACHA_DEV_V710_GUARDIAN_D1_RESOLVED=PASS')
+          PY
+
+      - name: Prepare Wrangler config
+        run: |
+          cat > .wrangler-guardian-v710.jsonc <<EOF
+          {
+            "name": "chacha-dev-guardian",
+            "main": "dev-hub/guardian/worker.js",
+            "compatibility_date": "2026-09-24",
+            "workers_dev": true,
+            "triggers": {"crons": ["* * * * *"]},
+            "d1_databases": [{
+              "binding": "DB",
+              "database_name": "chacha-dev-guardian",
+              "database_id": "${{ steps.cf.outputs.database_id }}"
+            }]
+          }
+          EOF
+
+      - name: Generate current role-contract seed
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,json
+          x=json.load(open('dev-hub/config/guardian-role-contracts.v1.json'))
+          q=lambda s:"'"+str(s).replace("'","''")+"'"
+          stable=lambda v:json.dumps(v,separators=(',',':'),sort_keys=True)
+          sql=[]
+          for c in x['contracts']:
+              dig=hashlib.sha256(stable(c).encode()).hexdigest()
+              sql.append(
+                "INSERT INTO role_contracts(contract_id,kind,allowed_actions_json,forbidden_actions_json,allowed_permissions_json,required_evidence_json,unknown_role,source_digest,updated_at) VALUES("
+                +q(c['contract_id'])+","+q(c.get('kind','role'))+","+q(stable(c.get('allowed_actions',[])))+","
+                +q(stable(c.get('forbidden_actions',[])))+","+q(stable(c.get('allowed_permissions',[])))+","
+                +q(stable(c.get('required_evidence',[])))+","+str(1 if c.get('unknown_role') else 0)+","+q(dig)+",datetime('now')) "
+                "ON CONFLICT(contract_id) DO UPDATE SET kind=excluded.kind,allowed_actions_json=excluded.allowed_actions_json,"
+                "forbidden_actions_json=excluded.forbidden_actions_json,allowed_permissions_json=excluded.allowed_permissions_json,"
+                "required_evidence_json=excluded.required_evidence_json,unknown_role=excluded.unknown_role,"
+                "source_digest=excluded.source_digest,updated_at=datetime('now');"
+              )
+          open('.guardian-v710-role-contracts.sql','w').write('\n'.join(sql)+'\n')
+          print('ROLE_CONTRACT_COUNT='+str(len(x['contracts'])))
+          print('CHACHA_DEV_V710_GUARDIAN_CONTRACT_SEED=PASS')
+          PY
+
+      - name: Seed Guardian D1 role contracts
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --file=.guardian-v710-role-contracts.sql --config=.wrangler-guardian-v710.jsonc
+          echo CHACHA_DEV_V710_GUARDIAN_D1_CONTRACTS=PASS
+
+      - name: Deploy external Guardian Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 deploy --config=.wrangler-guardian-v710.jsonc
+          echo CHACHA_DEV_V710_GUARDIAN_WORKER_DEPLOY=PASS
+
+      - name: Re-read exact hygiene contracts from D1
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote             --command="SELECT contract_id,allowed_actions_json,allowed_permissions_json FROM role_contracts WHERE contract_id IN ('component:central-orchestrator','role:platform-hygiene-executor','role:intendant') ORDER BY contract_id;"             --config=.wrangler-guardian-v710.jsonc --json > /tmp/v710-contracts.json
+          python3 - <<'PY'
+          import json
+          raw=json.load(open('/tmp/v710-contracts.json'))
+          rows=[]
+          def walk(v):
+              if isinstance(v,dict):
+                  if isinstance(v.get('results'),list): rows.extend(v['results'])
+                  for x in v.values(): walk(x)
+              elif isinstance(v,list):
+                  for x in v: walk(x)
+          walk(raw)
+          by={r['contract_id']:r for r in rows if isinstance(r,dict) and r.get('contract_id')}
+          assert set(by)=={'component:central-orchestrator','role:intendant','role:platform-hygiene-executor'},by
+          def arr(row,key):return set(json.loads(row[key] or '[]'))
+          assert {'EXECUTE_PLATFORM_RETIREMENT','EXECUTE_SAFE_TEMP_CLEANUP'}<=arr(by['component:central-orchestrator'],'allowed_actions_json')
+          assert 'destructive-operation' in arr(by['component:central-orchestrator'],'allowed_permissions_json')
+          assert arr(by['role:platform-hygiene-executor'],'allowed_actions_json')=={'EXECUTE_PLATFORM_RETIREMENT','EXECUTE_SAFE_TEMP_CLEANUP'}
+          assert arr(by['role:platform-hygiene-executor'],'allowed_permissions_json')=={'destructive-operation'}
+          assert 'destructive-operation' not in arr(by['role:intendant'],'allowed_permissions_json')
+          print('CHACHA_DEV_V710_GUARDIAN_D1_REREAD=PASS')
+          PY
+
+      - name: Verify external Guardian health
+        env:
+          SUBDOMAIN: ${{ steps.cf.outputs.workers_subdomain }}
+        run: |
+          set -euo pipefail
+          URL="https://chacha-dev-guardian.$SUBDOMAIN.workers.dev"
+          ok=0
+          for i in $(seq 1 30); do
+            if curl -fsS "$URL/healthz" -o /tmp/guardian-health.json &&
+               grep -Fq '"external_governance_plane":true' /tmp/guardian-health.json &&
+               grep -Fq '"corrective_enforcement":true' /tmp/guardian-health.json; then
+              ok=1; break
+            fi
+            sleep 3
+          done
+          test "$ok" = 1
+          echo CHACHA_DEV_V710_EXTERNAL_GUARDIAN_HEALTH=PASS
+
+      - name: Guardian hygiene deployment receipt
+        run: |
+          echo CHACHA_DEV_V710_GUARDIAN_HYGIENE_DEPLOY=PASS
+          echo EXACT_SHA="${GITHUB_SHA}"
+          echo INTENDANT_DESTRUCTIVE_PERMISSION=NO
+          echo CENTRAL_ORCHESTRATOR_HYGIENE_PERMISSION=YES
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
