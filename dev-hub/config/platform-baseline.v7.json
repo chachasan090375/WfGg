@@ -1,0 +1,64 @@
+{
+  "schema": "chacha.dev/platform-baseline/v7",
+  "platform_version": "7.0.0",
+  "baseline_name": "ChaCha DEV V7 Consolidated Platform Baseline",
+  "source_lineage": {
+    "last_acquired_runtime_revision": "a3803180a64f1ea95d94466b7b10529a7a4af92f",
+    "last_acquired_version": "6.63.0",
+    "consolidation_source_revision": "ee40815f4f88cc022e15c9f79734e8c9014d6b1e",
+    "note": "V6.64 changes are absorbed only after V7 requalification; V6.64 is not treated as separately acquired."
+  },
+  "absorbed_capabilities": [
+    "universal governance",
+    "Guardian active enforcement",
+    "Sentinel exact-revision assurance",
+    "Technology Watch freshness",
+    "Agent/Branch/Capability Foundries",
+    "production-weighted Fleet Observatory",
+    "independent accuracy attestation",
+    "real-world structural attestation",
+    "project-local Radar attribution guard",
+    "Contract Integrator runtime stage",
+    "Integration Architect runtime stage",
+    "Acceptance candidate readiness and Architecture Council review gate",
+    "aborted revision quarantine",
+    "Intendant platform consolidation and physical release retirement"
+  ],
+  "canonical_rules": {
+    "one_version": "7.0.0",
+    "one_canonical_branch": "dev-hub-v700-consolidated-platform-baseline",
+    "one_active_release": true,
+    "max_physical_releases": 3,
+    "one_acquired_runtime_sha": true,
+    "one_checkpoint_per_acquired_baseline": true
+  },
+  "project_boundaries": {
+    "technology_radar_agent_scope": "PROJECT_ONLY",
+    "technology_radar_agent_central_brain_role": false,
+    "technology_watch_platform_role": true,
+    "project_execution_credit_requires_explicit_actor_binding": true
+  },
+  "acceptance_candidate": {
+    "production_activation": false,
+    "promotion": false,
+    "incumbent_control_group": true,
+    "explicit_human_promotion_approval_required": true
+  },
+  "consolidation": {
+    "owner_agent": "intendant",
+    "runtime_release_compiled": true,
+    "historical_tests_docs_deployed": false,
+    "git_history_preserved": true,
+    "remote_branch_deletion_automatic": false,
+    "physical_release_retirement_after_v7_acquisition": true
+  },
+  "invariants": {
+    "canonical_observation_bus_rewrite": false,
+    "benchmark_evidence_mutation": false,
+    "active_self_mutation": false,
+    "self_promotion": false,
+    "permission_expansion": false,
+    "architecture_council_final_authority": true,
+    "automatic_external_spend_eur": 0
+  }
+}
