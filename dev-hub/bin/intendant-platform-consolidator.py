@@ -94,7 +94,8 @@ def build_plan(platform_root:Path,policy:dict[str,Any])->dict[str,Any]:
     for rev in retention.get("keep_verified_rollback_revisions") or []:
         hit=latest_for_revision(rows,str(rev))
         if hit:
-            protected_paths.add(hit["path"]);reasons[hit["path"]]="VERIFIED_ROLLBACK"
+            protected_paths.add(hit["path"])
+            reasons.setdefault(hit["path"],"VERIFIED_ROLLBACK")
         else:missing_rollbacks.append(str(rev))
     for row in rows:
         if row["path"] in protected_paths:
