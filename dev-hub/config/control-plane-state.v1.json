@@ -76,7 +76,8 @@
     "SIGNING_KEY_ROTATED",
     "SIGNING_KEY_REVOKED",
     "PROJECT_RETIRED",
-    "PLATFORM_COMPONENT_APPLY_HANDOFF_ISSUED"
+    "PLATFORM_COMPONENT_APPLY_HANDOFF_ISSUED",
+    "PLATFORM_COMPONENT_ADAPTER_REGISTRATION_ISSUED"
   ],
   "cryptographic_trust": {
     "policy": "dev-hub/config/cryptographic-trust.v1.json",
