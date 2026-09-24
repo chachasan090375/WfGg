@@ -1,0 +1,35 @@
+{
+  "schema": "chacha.dev/android-live-shell-config/v1",
+  "version": "1.0.0",
+  "app_id": "com.wfgg.chachadev.operator",
+  "display_name": "ChaCha j’ai pété",
+  "shell_protocol_version": 1,
+  "min_shell_protocol_version": 1,
+  "ui_path": "/",
+  "progress_path": "/api/v1/progress",
+  "live_config_path": "/api/v1/app-config",
+  "refresh_seconds": 2,
+  "widget": {
+    "title": "💨  ChaCha j’ai pété",
+    "idle_prompt": "Dis-moi ce qu’on fait…",
+    "status_ready": "PRÊT",
+    "global_maturity_fallback": 86
+  },
+  "theme": {
+    "accent": "#7C5CFF",
+    "accent_secondary": "#EC77C8",
+    "success": "#6DE0B6",
+    "background": "#111116"
+  },
+  "invariants": {
+    "ui_is_remote_from_private_direct_operator": true,
+    "allowed_origin_only": true,
+    "no_arbitrary_navigation": true,
+    "no_cleartext_http": true,
+    "no_file_or_content_access": true,
+    "remote_ui_has_no_native_install_authority": true,
+    "widget_configuration_is_remote": true,
+    "fallback_ui_is_local": true,
+    "automatic_external_spend_eur": 0
+  }
+}
