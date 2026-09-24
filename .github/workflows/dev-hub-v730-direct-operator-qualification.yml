@@ -6,6 +6,7 @@ on:
       - dev-hub-v730-direct-operator-android-widget
     paths:
       - 'dev-hub/bin/direct-operator-service.py'
+      - 'dev-hub/bin/install-v730-direct-operator-android-widget.sh'
       - 'dev-hub/bin/functional-translator-agent.py'
       - 'dev-hub/config/direct-operator.v1.json'
       - 'dev-hub/config/agent-routing.v1.json'
@@ -18,6 +19,7 @@ on:
       - '.github/workflows/dev-hub-v730-direct-operator-qualification.yml'
       - '.github/workflows/dev-hub-v730-android-widget-build.yml'
       - '.github/workflows/dev-hub-v7-platform-qualification.yml'
+      - '.github/workflows/dev-hub-v7-guardian-coverage-sync.yml'
   workflow_dispatch:
 
 permissions:
