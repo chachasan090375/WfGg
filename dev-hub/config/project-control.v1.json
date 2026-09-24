@@ -428,5 +428,24 @@
     "allow_static_executable_for_external_adapter": false,
     "allow_task_selected_runtime_binding": false,
     "allow_independent_provider_to_mark_verified": false
+  },
+  "control_profiles": {
+    "platform": {
+      "purpose": "platform-governance-control-plane",
+      "application_lifecycle_managed": false,
+      "status_ready_requires": [
+        "valid-control-plane-chain",
+        "valid-evidence-ledger",
+        "bootstrap-marker",
+        "protected-human-approval-boundary"
+      ],
+      "lifecycle_operations_forbidden": [
+        "plan-transition",
+        "schedule",
+        "advance"
+      ],
+      "protected_human_approval_required_for_promotion": true,
+      "automatic_external_spend_eur": 0
+    }
   }
 }
