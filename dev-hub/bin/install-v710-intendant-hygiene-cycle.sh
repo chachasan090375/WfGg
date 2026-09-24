@@ -69,6 +69,7 @@ trap rollback EXIT
 printf '%s' "$REV" | grep -Eq '^[0-9a-f]{40}$' || { echo "CHACHA_DEV_V710_INSTALL=BLOCKED reason=pinned_revision_required"; exit 2; }
 [ -L "$CURRENT" ] || { echo "CHACHA_DEV_V710_INSTALL=BLOCKED reason=current_release_symlink_missing"; exit 2; }
 PREVIOUS="$(readlink -f "$CURRENT")"
+RELEASE_COUNT_BEFORE="$(find "$BASE/releases" -mindepth 1 -maxdepth 1 -type d | wc -l)"
 
 stage v700-acquired-baseline
 python3 - "$PREVIOUS" <<'PY'
@@ -237,8 +238,14 @@ else:
     assert len(rollbacks)==2,rollbacks
     print("CHACHA_DEV_V710_REAL_GOVERNED_RETENTION=PASS_NO_RETIREMENT_NEEDED")
 PY
-PURGE_COMMITTED=1
-echo "CHACHA_DEV_V710_PURGE_COMMITTED=YES"
+RELEASE_COUNT_AFTER="$(find "$BASE/releases" -mindepth 1 -maxdepth 1 -type d | wc -l)"
+if [ "$RELEASE_COUNT_BEFORE" -ge 3 ] && [ "$RELEASE_COUNT_AFTER" -lt "$((RELEASE_COUNT_BEFORE + 1))" ]; then
+  PURGE_COMMITTED=1
+  echo "CHACHA_DEV_V710_PURGE_COMMITTED=YES"
+else
+  PURGE_COMMITTED=0
+  echo "CHACHA_DEV_V710_PURGE_COMMITTED=NO_RETIREMENT_NEEDED"
+fi
 
 stage enable-timer
 assert_current
