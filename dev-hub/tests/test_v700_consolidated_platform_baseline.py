@@ -40,7 +40,7 @@ assert policy["invariants"]["architecture_council_final_authority"] is True
 assert policy["invariants"]["automatic_external_spend_eur"]==0
 
 src=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
-assert '"version":"7.0.0"' in src,src[-5000:]
+assert '"version":"7.0.0"' in src or '"version":"7.1.0"' in src,src[-5000:]
 
 with tempfile.TemporaryDirectory(prefix="v700-qualification-") as td:
     td=Path(td)
@@ -67,10 +67,16 @@ with tempfile.TemporaryDirectory(prefix="v700-qualification-") as td:
     stale1=write_release(platform,"20260924T140000Z-"+"1"*40,"1"*40,"6.59.0",16384)
     stale2=write_release(platform,"20260924T130000Z-"+"2"*40,"2"*40,"6.58.0",32768)
     (platform/"current").symlink_to(active)
+    evidence=td/"evidence";evidence.mkdir()
+    save(evidence/"v663.json",{"revision":v663});save(evidence/"v660.json",{"revision":v660})
+    test_policy=td/"platform-consolidation.json";tp=json.loads(json.dumps(policy))
+    tp["physical_release_retention"]["verification_evidence_root"]=str(evidence)
+    tp["physical_release_retention"]["fallback_verified_rollback_revisions"]=[v663,v660]
+    save(test_policy,tp)
 
     plan=td/"plan.json"
     out=run([sys.executable,str(BIN/"intendant-platform-consolidator.py"),
-             "--platform-root",str(platform),"--policy",str(CFG/"platform-consolidation.v1.json"),
+             "--platform-root",str(platform),"--policy",str(test_policy),
              "--output",str(plan)])
     assert "MODE=DRY_RUN" in out,out
     p=load(plan)
@@ -78,7 +84,7 @@ with tempfile.TemporaryDirectory(prefix="v700-qualification-") as td:
     assert p["release_count_before"]==5,p
     assert p["keep_count"]==3,p
     assert p["retire_count"]==2,p
-    assert p["missing_verified_rollback_revisions"]==[],p
+    assert p["missing_verified_rollback_count"]==0,p
     rows={x["revision"]:x for x in p["rows"]}
     assert rows[v7rev]["action"]=="KEEP" and rows[v7rev]["reason"]=="ACTIVE_RELEASE",rows[v7rev]
     assert rows[v663]["action"]=="KEEP" and rows[v660]["action"]=="KEEP"
@@ -87,7 +93,7 @@ with tempfile.TemporaryDirectory(prefix="v700-qualification-") as td:
 
     # Destructive mode is blocked without explicit receipt.
     blocked=subprocess.run([sys.executable,str(BIN/"intendant-platform-consolidator.py"),
-       "--platform-root",str(platform),"--policy",str(CFG/"platform-consolidation.v1.json"),
+       "--platform-root",str(platform),"--policy",str(test_policy),
        "--output",str(td/"blocked.json"),"--apply","--explicit-destructive-apply"],
        stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False)
     assert blocked.returncode!=0,(blocked.stdout,blocked.stderr)
@@ -100,7 +106,7 @@ with tempfile.TemporaryDirectory(prefix="v700-qualification-") as td:
       {"name":"ChaCha DEV V7 consolidated platform baseline qualification","head_sha":v7rev,"status":"completed","conclusion":"success"}
     ]})
     council=run([sys.executable,str(BIN/"architecture-council-platform-consolidation-v7.py"),
-      "--plan",str(plan),"--policy",str(CFG/"platform-consolidation.v1.json"),
+      "--plan",str(plan),"--policy",str(test_policy),
       "--guardian-coverage",str(guardian),"--revision",v7rev,"--github-runs-json",str(runs),
       "--operator-explicit-purge-approval","--output",str(approval)])
     assert "CHACHA_DEV_V7_CONSOLIDATION_COUNCIL=PASS" in council,council
@@ -108,11 +114,10 @@ with tempfile.TemporaryDirectory(prefix="v700-qualification-") as td:
     assert ar0["decision"]=="APPROVE_INTENDANT_CONSOLIDATION",ar0
     assert ar0["destructive_apply_authorized"] is True,ar0
     applied=td/"applied.json";archive=td/"archive.json"
-    out=run([sys.executable,str(BIN/"intendant-platform-consolidator.py"),
-       "--platform-root",str(platform),"--policy",str(CFG/"platform-consolidation.v1.json"),
-       "--output",str(applied),"--archive-manifest",str(archive),"--approval",str(approval),
-       "--apply","--explicit-destructive-apply"])
-    assert "MODE=APPLY" in out,out
+    out=run([sys.executable,str(BIN/"central-retirement-executor.py"),
+       "--platform-root",str(platform),"--plan",str(plan),"--approval",str(approval),
+       "--archive-manifest",str(archive),"--output",str(applied),"--explicit-destructive-apply"])
+    assert "CHACHA_DEV_V710_CENTRAL_RETIREMENT_EXECUTION=PASS" in out,out
     a=load(applied)
     assert a["deleted_release_count"]==2,a
     assert a["release_count_after"]==3,a
@@ -125,6 +130,7 @@ with tempfile.TemporaryDirectory(prefix="v700-qualification-") as td:
 print("CHACHA_DEV_V700_CANONICAL_BASELINE=PASS")
 print("CHACHA_DEV_V700_COMPILED_RUNTIME=PASS")
 print("CHACHA_DEV_V700_INTENDANT_CONSOLIDATOR=PASS")
+print("CHACHA_DEV_V700_CENTRAL_ORCHESTRATOR_RETIREMENT=PASS")
 print("CHACHA_DEV_V700_DRY_RUN_NON_DESTRUCTIVE=PASS")
 print("CHACHA_DEV_V700_APPLY_REQUIRES_APPROVAL=PASS")
 print("CHACHA_DEV_V700_ARCHITECTURE_COUNCIL_CONSOLIDATION=PASS")
