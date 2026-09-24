@@ -110,6 +110,32 @@ with tempfile.TemporaryDirectory(prefix="v710-hygiene-") as td:
     assert action["selected_rollback_revisions"]==[v700,v663],action
     assert all(x.exists() for x in (active,r700,r663,r660)),"dry-run mutated releases"
 
+    # Forced cycles are exclusive: daily means daily only; monthly remains review-only.
+    hp3=json.loads(json.dumps(hygiene))
+    hp3["scheduler"]["state_file"]=str(runtime/"intendant/forced-state.json")
+    hp3["scheduler"]["report_dir"]=str(runtime/"intendant/forced-reports")
+    hp3["scheduler"]["latest_report"]=str(runtime/"intendant/forced-latest.json")
+    hp3["scheduler"]["lock_file"]=str(runtime/"intendant/forced.lock")
+    hp3["cycles"]["LIGHT_DAILY"]["safe_temp_cleanup"]["roots"]=[{"path":str(td/"none"),"glob":"*"}]
+    hp3_path=td/"hygiene-forced.json";save(hp3_path,hp3)
+    common=[sys.executable,str(BIN/"intendant-hygiene-cycle.py"),"--repo-root",str(ROOT),
+      "--runtime-root",str(runtime),"--platform-root",str(platform),"--policy",str(hp3_path),
+      "--consolidation-policy",str(cp_path),"--guardian-client",str(BIN/"guardian-client.py"),
+      "--guardian-policy",str(CFG/"guardian-runtime-policy.v1.json"),
+      "--guardian-coverage",str(runtime/"guardian/coverage-latest.json"),
+      "--council",str(BIN/"architecture-council-platform-consolidation-v7.py"),
+      "--consolidator",str(BIN/"intendant-platform-consolidator.py"),
+      "--hygiene-executor",str(BIN/"central-platform-hygiene-executor.py"),"--dry-run"]
+    txt=run(common+["--force-cycle","LIGHT_DAILY","--now","2026-09-24T13:00:00Z"])
+    forced=load(runtime/"intendant/forced-latest.json")
+    assert forced["cycles_requested"]==["LIGHT_DAILY"],forced
+    txt=run(common+["--force-cycle","MONTHLY_CONSOLIDATION","--now","2026-09-24T14:00:00Z"])
+    forced=load(runtime/"intendant/forced-latest.json")
+    assert forced["cycles_requested"]==["MONTHLY_CONSOLIDATION"],forced
+    monthly=forced["results"][0]["actions"][0]
+    assert monthly["action"]=="DEEP_CONSOLIDATION_REVIEW",monthly
+    assert monthly["remote_branch_deletion"] is False and monthly["source_code_deletion"] is False,monthly
+
     # Intendant can never apply its own plan.
     p=td/"manual-plan.json"
     run([sys.executable,str(BIN/"intendant-platform-consolidator.py"),"--platform-root",str(platform),
