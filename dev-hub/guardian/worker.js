@@ -33,16 +33,29 @@ function requestMessage(req,ts,body=""){
   return ts+"\n"+req.method+"\n"+u.pathname+u.search+"\n"+body;
 }
 async function requireCentral(req,env,body=""){
-  const keyId=req.headers.get("x-chacha-key-id")||"";
-  const ts=req.headers.get("x-chacha-timestamp")||"";
-  const sig=req.headers.get("x-chacha-signature")||"";
-  const millis=Date.parse(ts);
-  if(!keyId||!sig||!Number.isFinite(millis)||Math.abs(Date.now()-millis)>120000)
-    return {ok:false,response:json({error:"guardian_auth_invalid"},401)};
-  const row=await env.DB.prepare("SELECT public_key_spki_b64 FROM guardian_identities WHERE key_id=?1 AND status='ACTIVE'").bind(keyId).first();
-  if(!row)return {ok:false,response:json({error:"guardian_identity_unknown"},403)};
-  const ok=await verifyEd25519(row.public_key_spki_b64,sig,requestMessage(req,ts,body));
-  return ok?{ok:true,keyId}:{ok:false,response:json({error:"guardian_signature_invalid"},403)};
+  let stage="headers";
+  try{
+    const keyId=req.headers.get("x-chacha-key-id")||"";
+    const ts=req.headers.get("x-chacha-timestamp")||"";
+    const sig=req.headers.get("x-chacha-signature")||"";
+    const millis=Date.parse(ts);
+    if(!keyId||!sig||!Number.isFinite(millis)||Math.abs(Date.now()-millis)>120000)
+      return {ok:false,response:json({error:"guardian_auth_invalid"},401)};
+    stage="identity_lookup";
+    const row=await env.DB.prepare("SELECT public_key_spki_b64 FROM guardian_identities WHERE key_id=?1 AND status='ACTIVE'").bind(keyId).first();
+    if(!row)return {ok:false,response:json({error:"guardian_identity_unknown"},403)};
+    stage="signature_verify";
+    const ok=await verifyEd25519(row.public_key_spki_b64,sig,requestMessage(req,ts,body));
+    return ok?{ok:true,keyId}:{ok:false,response:json({error:"guardian_signature_invalid"},403)};
+  }catch(err){
+    return {ok:false,response:json({
+      error:"guardian_auth_runtime_exception",
+      stage,
+      exception_name:String((err&&err.name)||"Error"),
+      exception_message:String((err&&err.message)||"").slice(0,240),
+      fail_closed:true
+    },503)};
+  }
 }
 async function requireProjectAssurance(req,env,body,projectId){
   const keyId=req.headers.get("x-chacha-key-id")||"";
