@@ -16,13 +16,17 @@ COUNCIL_DIR="/opt/chacha-dev/runtime/agent-evolution/candidate-reviews/acceptanc
 PREVIOUS=""
 ACTIVATED=0
 COUNCIL_WRITTEN=0
+PROJECT_WRITTEN=0
 FLEET_TIMER="chacha-dev-agent-fleet-observatory.timer"
+BUS_TIMER="chacha-dev-agent-observation-bus-health.timer"
 FLEET_ACTIVE=0
+BUS_ACTIVE=0
 STAGE="bootstrap"
 
 stage(){ STAGE="$1";echo "CHACHA_DEV_V664_STAGE=$STAGE"; }
-restore_timer(){
+restore_timers(){
   [ "$FLEET_ACTIVE" -eq 1 ] && systemctl start "$FLEET_TIMER" >/dev/null 2>&1 || true
+  [ "$BUS_ACTIVE" -eq 1 ] && systemctl start "$BUS_TIMER" >/dev/null 2>&1 || true
 }
 backup_runtime(){
   mkdir -p "$WORK/backup"
@@ -32,6 +36,8 @@ backup_runtime(){
       cp -a "$p" "$WORK/backup$p"
     fi
   done
+  [ -d /opt/chacha-dev/runtime/agent-observation ] && cp -a /opt/chacha-dev/runtime/agent-observation "$WORK/backup-agent-observation"
+  [ -d /opt/chacha-dev/runtime/learning ] && cp -a /opt/chacha-dev/runtime/learning "$WORK/backup-learning"
 }
 restore_runtime(){
   for p in     /opt/chacha-dev/runtime/agent-evolution/fleet-observatory-latest.json     /opt/chacha-dev/runtime/agent-evolution/profiles/index.json     /opt/chacha-dev/runtime/agent-evolution/component-governance-latest.json     /opt/chacha-dev/runtime/guardian/coverage-latest.json; do
@@ -40,9 +46,18 @@ restore_runtime(){
       cp -a "$WORK/backup$p" "$p"
     fi
   done
+  if [ -d "$WORK/backup-agent-observation" ]; then
+    rm -rf /opt/chacha-dev/runtime/agent-observation
+    cp -a "$WORK/backup-agent-observation" /opt/chacha-dev/runtime/agent-observation
+  fi
+  if [ -d "$WORK/backup-learning" ]; then
+    rm -rf /opt/chacha-dev/runtime/learning
+    cp -a "$WORK/backup-learning" /opt/chacha-dev/runtime/learning
+  fi
   [ "$COUNCIL_WRITTEN" -eq 1 ] && rm -rf "$COUNCIL_DIR" || true
+  [ "$PROJECT_WRITTEN" -eq 1 ] && rm -rf "$RUN_ROOT" || true
 }
-cleanup(){ restore_timer;rm -rf "$WORK" 2>/dev/null || true; }
+cleanup(){ restore_timers;rm -rf "$WORK" 2>/dev/null || true; }
 rollback(){
   rc=$?
   if [ "$rc" -ne 0 ]; then
@@ -58,7 +73,8 @@ rollback(){
       echo "CHACHA_DEV_V664_ROLLBACK=PASS"
     fi
     rm -rf "$RELEASE" 2>/dev/null || true
-    echo "CHACHA_DEV_V664_OBSERVATION_BUS_APPEND_IF_ANY=RETAIN_REAL_HISTORY"
+    echo "CHACHA_DEV_V664_OBSERVATION_BUS_ROLLBACK=PASS"
+    echo "CHACHA_DEV_V664_LEARNING_STATE_ROLLBACK=PASS"
   fi
   cleanup
   exit "$rc"
@@ -159,7 +175,16 @@ PY
 
 stage runtime-backup-and-bus-baseline
 if systemctl is-active --quiet "$FLEET_TIMER"; then FLEET_ACTIVE=1;systemctl stop "$FLEET_TIMER";fi
+if systemctl is-active --quiet "$BUS_TIMER"; then BUS_ACTIVE=1;systemctl stop "$BUS_TIMER";fi
 backup_runtime
+BENCH_BEFORE="$(python3 - <<'PY'
+import hashlib,pathlib
+root=pathlib.Path("/opt/chacha-dev/runtime/agent-evolution/benchmark-evidence");h=hashlib.sha256()
+for p in sorted(root.glob("**/*.json")):
+    h.update(str(p.relative_to(root)).encode());h.update(p.read_bytes())
+print(h.hexdigest())
+PY
+)"
 python3 - "$WORK/bus-before.json" <<'PY'
 import hashlib,json,sqlite3,sys
 p="/opt/chacha-dev/runtime/agent-observation/observations.db";con=sqlite3.connect(p)
@@ -181,6 +206,7 @@ echo "CHACHA_DEV_V664_ACCEPTANCE_PRODUCTION_ENTRYPOINT_CHANGED=NO"
 
 stage real-instrumented-project
 mkdir -p "$PLAN_DIR"
+PROJECT_WRITTEN=1
 cat >"$INTENT" <<'JSON'
 {
   "name": "V664 Real Instrumented Runtime Evidence App",
@@ -286,6 +312,18 @@ cp "$WORK/acceptance-council-review.json" "$COUNCIL_DIR/architecture-council-rev
 COUNCIL_WRITTEN=1
 echo "CHACHA_DEV_V664_COUNCIL_REVIEW_MATERIALIZED=PASS"
 
+stage benchmark-immutability
+BENCH_AFTER="$(python3 - <<'PY'
+import hashlib,pathlib
+root=pathlib.Path("/opt/chacha-dev/runtime/agent-evolution/benchmark-evidence");h=hashlib.sha256()
+for p in sorted(root.glob("**/*.json")):
+    h.update(str(p.relative_to(root)).encode());h.update(p.read_bytes())
+print(h.hexdigest())
+PY
+)"
+[ "$BENCH_BEFORE" = "$BENCH_AFTER" ] || { echo "BENCHMARK_EVIDENCE_MUTATED"; exit 49; }
+echo "CHACHA_DEV_V664_BENCHMARK_EVIDENCE_MUTATION=NO"
+
 stage universal-regeneration
 PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/agent_evolution_profile.py"   --fleet /opt/chacha-dev/runtime/agent-evolution/fleet-observatory-latest.json   --routing "$CURRENT/dev-hub/config/agent-routing.v1.json"   --seven "$CURRENT/dev-hub/config/seven-agent-final-compromise.v1.json"   --project-registry "$CURRENT/dev-hub/projects/wfgg-radar/project-agent-registry.v1.json"   --adapter-config "$CURRENT/dev-hub/config/agent-benchmark-adapters.v1.json"   --evolution-policy "$CURRENT/dev-hub/config/agent-evolution.v1.json"   --profile-policy "$CURRENT/dev-hub/config/agent-evolution-profile.v1.json"   --output-root /opt/chacha-dev/runtime/agent-evolution/profiles >"$WORK/profiles.out"
 grep -Fq 'CHACHA_DEV_V654_UNIVERSAL_AGENT_PROFILES=PASS' "$WORK/profiles.out"
@@ -298,7 +336,7 @@ grep -Fq 'CHACHA_DEV_GUARDIAN_COVERAGE_HEARTBEAT=PASS' "$WORK/guardian.out"
 grep -Fq 'ALL_HOOKS_ACTIVE=YES' "$WORK/guardian.out"
 PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/technology-watch-service.py" --repo-root "$CURRENT" status >"$WORK/watch.out"
 grep -Fq 'CHACHA_TECHNOLOGY_WATCH_STATUS=FRESH' "$WORK/watch.out"
-restore_timer
+restore_timers
 systemctl is-active --quiet "$FLEET_TIMER"
 systemctl is-active --quiet chacha-dev-agent-observation-bus-health.timer
 systemctl is-active --quiet chacha-remote-desktop-commander.service
@@ -350,6 +388,7 @@ echo "CHACHA_DEV_V664_CONTRACT_INTEGRATOR_REAL_EVENT=PASS"
 echo "CHACHA_DEV_V664_INTEGRATION_ARCHITECT_REAL_EVENT=PASS"
 echo "CHACHA_DEV_V664_CANONICAL_OBSERVATION_BUS_APPEND_ONLY=YES"
 echo "CHACHA_DEV_V664_HISTORICAL_BUS_REWRITE=NO"
+echo "CHACHA_DEV_V664_BENCHMARK_EVIDENCE_MUTATION=NO"
 echo "CHACHA_DEV_V664_ACTIVITY_ACCURACY_INFERENCE=NO"
 echo "CHACHA_DEV_V664_ACCEPTANCE_ARCHITECTURE_COUNCIL_REVIEW=PASS"
 echo "CHACHA_DEV_V664_ACCEPTANCE_TECHNICAL_ADMISSIBILITY=PASS"
