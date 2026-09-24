@@ -446,6 +446,13 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
                     if not isinstance(wave,dict):continue
                     for task in wave.get("tasks") or []:
                         if not isinstance(task,dict) or str(task.get("status") or "")!=required_status:continue
+                        if radar_cov_cfg.get("require_subject_agent_binding") is True:
+                            envelope_path=Path(str(task.get("dispatch_envelope") or ""))
+                            envelope=safe_load(envelope_path) if envelope_path.is_file() else None
+                            etask=(envelope or {}).get("task") or {}
+                            subject=str(etask.get("subject_agent") or etask.get("agent_id") or etask.get("owner_role") or "")
+                            if subject!=str(radar_cov_cfg.get("required_subject_agent") or aid):
+                                continue
                         for binding in task.get("provider_bindings") or []:
                             if not isinstance(binding,dict):continue
                             cap=str(binding.get("capability") or "")
