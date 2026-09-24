@@ -994,7 +994,10 @@ async function coverage(req,env){
       `INSERT INTO coverage_heartbeats(component_id,snapshot_id,last_seen,hook_active,details_json)
        VALUES(?1,?2,datetime('now'),?3,?4)
        ON CONFLICT(component_id) DO UPDATE SET snapshot_id=excluded.snapshot_id,last_seen=datetime('now'),
-       hook_active=excluded.hook_active,details_json=excluded.details_json`
+       hook_active=excluded.hook_active,details_json=excluded.details_json
+       WHERE coverage_heartbeats.hook_active<>excluded.hook_active
+          OR coverage_heartbeats.details_json<>excluded.details_json
+          OR coverage_heartbeats.last_seen < datetime('now','-450 seconds')`
     ).bind(String(e.component_id),snapshotId,active?1:0,stable(c)).run();
     if(!active){
       inactive.push(String(e.component_id));
@@ -1091,7 +1094,7 @@ async function sweep(env){
   const stale=(await env.DB.prepare(
     `SELECT e.component_id,e.criticality,h.last_seen,h.hook_active
      FROM expected_components e LEFT JOIN coverage_heartbeats h ON h.component_id=e.component_id
-     WHERE h.component_id IS NULL OR h.hook_active=0 OR h.last_seen < datetime('now','-180 seconds') LIMIT 100`
+     WHERE h.component_id IS NULL OR h.hook_active=0 OR h.last_seen < datetime('now','-900 seconds') LIMIT 100`
   ).all()).results||[];
   for(const row of stale){
     staleCoverageCount++;

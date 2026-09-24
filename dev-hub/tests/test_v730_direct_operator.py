@@ -24,6 +24,11 @@ coverage_timer=(ROOT/"dev-hub/systemd/chacha-dev-guardian-coverage-heartbeat.tim
 assert guardian_policy["coverage_heartbeat_max_age_seconds"]==900,guardian_policy
 assert coverage_manifest["heartbeat_max_age_seconds"]==900,coverage_manifest
 assert guardian_policy["d1_write_budget"]["coverage_heartbeat_interval_seconds"]==300,guardian_policy
+assert guardian_policy["d1_write_budget"]["coverage_persist_refresh_seconds"]==450,guardian_policy
+guardian_worker=(ROOT/"dev-hub/guardian/worker.js").read_text(encoding="utf-8")
+assert "coverage_heartbeats.last_seen < datetime('now','-450 seconds')" in guardian_worker,guardian_worker
+assert "h.last_seen < datetime('now','-900 seconds')" in guardian_worker,guardian_worker
+assert "h.last_seen < datetime('now','-180 seconds')" not in guardian_worker,guardian_worker
 assert guardian_policy["d1_write_budget"]["automatic_paid_upgrade"] is False,guardian_policy
 assert coverage_manifest["d1_write_budget"]["automatic_paid_upgrade"] is False,coverage_manifest
 assert "OnUnitActiveSec=300s" in coverage_timer,coverage_timer

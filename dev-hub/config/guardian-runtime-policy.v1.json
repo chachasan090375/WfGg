@@ -60,6 +60,7 @@
     "ci_sync_mode": "DIGEST_AWARE_DELTA",
     "redundant_ci_rewrites_forbidden": true,
     "automatic_paid_upgrade": false,
-    "automatic_external_spend_eur": 0
+    "automatic_external_spend_eur": 0,
+    "coverage_persist_refresh_seconds": 450
   }
 }
