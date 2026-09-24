@@ -167,11 +167,16 @@ def _observe_stage(script:Path,args,action_id:str,role:str,returncode:int):
         project_id="platform-global"
         for i,v in enumerate(args):
             if str(v)=="--project-id" and i+1<len(args):project_id=str(args[i+1]);break
+        evidence_refs=["orchestrator-stage:"+action_id]
+        out=_output_arg(args)
+        if out and out.is_file():
+            import hashlib
+            evidence_refs.append(str(out)+"#sha256:"+hashlib.sha256(out.read_bytes()).hexdigest())
         aob.publish({"schema":"chacha.dev/agent-observation-event/v1","event_id":"aobs-stage-"+action_id,
           "event_type":"STAGE_EXECUTION_OBSERVED","source_id":"central-orchestrator","source_surface":"autonomous-project-orchestrator",
           "project_id":project_id,"revision":aob.runtime_revision(),"subject_role":canonical,
           "outcome":"OK" if returncode==0 else "FAILED","verification":"OBSERVED","capabilities":_STAGE_CAPABILITIES.get(script.name,[]),
-          "evidence_refs":["orchestrator-stage:"+action_id],"details":{"script":script.name,"returncode":returncode}})
+          "evidence_refs":evidence_refs,"details":{"script":script.name,"returncode":returncode}})
     except Exception:pass
 
 def run(script,args):
@@ -778,6 +783,7 @@ def main():
     run(bin_dir/"contract-registry.py",[
         "--plan",final,
         "--component-contracts",component_contracts,
+        "--project-id",pid,
         "--output",contract_reconciliation
     ])
     contract_reconciliation_v=load(contract_reconciliation)
@@ -795,6 +801,7 @@ def main():
         "--contract-reconciliation",contract_reconciliation,
         "--component-contracts",component_contracts,
         "--architecture-council",architecture_council,
+        "--project-id",pid,
         "--output",integration_review
     ])
     integration_review_v=load(integration_review)
@@ -832,7 +839,7 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.63.0",
+      "version":"6.64.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
