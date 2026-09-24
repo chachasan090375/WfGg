@@ -167,12 +167,13 @@ def compare_metrics(inc:dict[str,Any],cand:dict[str,Any])->dict[str,Any]:
       "candidate_technically_admissible_for_council_review":admissible,
       "final_architecture_decision_made":False,"promotion_authorized":False}
 
-def execute(contract:dict[str,Any],sentinel_receipt:dict[str,Any],repo_root:Path,run_root:Path,executor=None)->dict[str,Any]:
+def execute(contract:dict[str,Any],sentinel_receipt:dict[str,Any],repo_root:Path,run_root:Path,executor=None,guardian_provider=None)->dict[str,Any]:
     validate_contract(contract);validate_sentinel_receipt(contract,sentinel_receipt)
     if stop_active(DEFAULT_STOP):raise RuntimeError("CHACHA_DEV_EMERGENCY_STOP_ACTIVE")
     run_id="pcp-"+time.strftime("%Y%m%dT%H%M%SZ",time.gmtime())+"-"+uuid.uuid4().hex[:8]
     rr=run_root/run_id;rr.mkdir(parents=True,exist_ok=True)
-    guardian_event(repo_root,rr,"PRE_ACTION",contract)
+    guardian_provider=guardian_provider or guardian_event
+    guardian_provider(repo_root,rr,"PRE_ACTION",contract)
     inc=run_variant(contract,run_id,"INCUMBENT",str(contract["incumbent_artifact_ref"]),rr,executor)
     if stop_active(DEFAULT_STOP):raise RuntimeError("CHACHA_DEV_EMERGENCY_STOP_ACTIVE")
     cand=run_variant(contract,run_id,"CANDIDATE",str(contract["candidate_artifact_ref"]),rr,executor)
@@ -187,7 +188,7 @@ def execute(contract:dict[str,Any],sentinel_receipt:dict[str,Any],repo_root:Path
       "council_handoff_required":True,"production_change_authorized":False,"promotion_authorized":False,
       "permission_expansion":False,"automatic_external_spend_eur":0}
     save(rr/"result.json",result)
-    guardian_event(repo_root,rr,"POST_ACTION",contract,status)
+    guardian_provider(repo_root,rr,"POST_ACTION",contract,status)
     return result
 
 def main()->int:
