@@ -56,10 +56,11 @@ class ProgressStore:
         x["execution_authority"]=False;x["automatic_external_spend_eur"]=0
         atomic(self.path,x);return x
     def begin(self,operation_id:str,title:str,project_id:str)->dict[str,Any]:
-        x=self.snapshot()
-        blank=self.blank()
-        x.update({"status":"RUNNING","platform_maturity_percent":blank["platform_maturity_percent"],
-          "platform_maturity_label":blank["platform_maturity_label"],"active_work_percent":3,
+        previous=self.snapshot()
+        x=self.blank()
+        x["platform_maturity_percent"]=clamp(previous.get("platform_maturity_percent",x["platform_maturity_percent"]))
+        x["platform_maturity_label"]=str(previous.get("platform_maturity_label") or x["platform_maturity_label"])
+        x.update({"status":"RUNNING","active_work_percent":3,
           "headline":title or "Nouvelle demande","active_operation":operation_id,
           "project_id":project_id or "chacha-dev-platform"})
         first=next(iter(x["modules"].values()),None)
