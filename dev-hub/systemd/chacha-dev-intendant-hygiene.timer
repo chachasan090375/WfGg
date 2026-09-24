@@ -1,0 +1,13 @@
+[Unit]
+Description=ChaCha DEV Intendant single hygiene scheduler
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=1h
+RandomizedDelaySec=10min
+AccuracySec=5min
+Persistent=true
+Unit=chacha-dev-intendant-hygiene.service
+
+[Install]
+WantedBy=timers.target
