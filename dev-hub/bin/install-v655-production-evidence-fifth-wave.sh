@@ -115,7 +115,7 @@ echo "CHACHA_DEV_V655_SEMANTIC_QUALIFICATION=PASS"
 
 stage real-readonly-backfill-preflight
 PYTHONPATH="$RELEASE/dev-hub/bin" python3 "$RELEASE/dev-hub/bin/agent_verified_evidence_backfill.py"  --runtime-root /opt/chacha-dev/runtime  --fleet-policy "$RELEASE/dev-hub/config/agent-fleet-observatory.v1.json"  --bus-policy "$RELEASE/dev-hub/config/agent-observation-bus.v1.json"  --routing "$RELEASE/dev-hub/config/agent-routing.v1.json"  --seven "$RELEASE/dev-hub/config/seven-agent-final-compromise.v1.json"  --project-registry "$RELEASE/dev-hub/projects/wfgg-radar/project-agent-registry.v1.json"  --output "$WORK/backfill-dry.json" --dry-run >"$WORK/backfill-dry.out" 2>"$WORK/backfill-dry.err"
-python3 - "$WORK/backfill-dry.json" <<'PY'
+python3 - "$WORK/backfill-dry.json" "$WORK/backfill-accounted.txt" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1],encoding="utf-8"))
 assert x["dry_run"] is True,x
@@ -126,7 +126,7 @@ assert accounted>=100,x
 assert x["counts"].get("inserted",0)==0,x
 assert x["production_truth"] is True and x["independent_verification_required"] is True,x
 assert x["retroactive_reassessment"] is False,x
-open("/tmp/chacha-v655-backfill-accounted.txt","w",encoding="utf-8").write(str(accounted))
+open(sys.argv[2],"w",encoding="utf-8").write(str(accounted))
 print("CHACHA_DEV_V655_REAL_READONLY_BACKFILL_PREFLIGHT=PASS")
 print("CHACHA_DEV_V655_REAL_ELIGIBLE_PRODUCTION_EVIDENCE="+str(eligible))
 print("CHACHA_DEV_V655_REAL_ALREADY_PRESENT_PRODUCTION_EVIDENCE="+str(already))
@@ -165,10 +165,10 @@ echo "CHACHA_DEV_V655_RELEASE_ACTIVATED=PASS"
 stage canonical-production-backfill
 BUS_MUTATED=1
 PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/agent_verified_evidence_backfill.py"  --runtime-root /opt/chacha-dev/runtime  --fleet-policy "$CURRENT/dev-hub/config/agent-fleet-observatory.v1.json"  --bus-policy "$CURRENT/dev-hub/config/agent-observation-bus.v1.json"  --routing "$CURRENT/dev-hub/config/agent-routing.v1.json"  --seven "$CURRENT/dev-hub/config/seven-agent-final-compromise.v1.json"  --project-registry "$CURRENT/dev-hub/projects/wfgg-radar/project-agent-registry.v1.json"  --output /opt/chacha-dev/runtime/agent-evolution/verified-evidence-backfill-latest.json  >"$WORK/backfill.out" 2>"$WORK/backfill.err"
-python3 - /opt/chacha-dev/runtime/agent-evolution/verified-evidence-backfill-latest.json <<'PY'
+python3 - /opt/chacha-dev/runtime/agent-evolution/verified-evidence-backfill-latest.json "$WORK/backfill-accounted.txt" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1],encoding="utf-8"))
-expected=int(open("/tmp/chacha-v655-backfill-accounted.txt",encoding="utf-8").read().strip())
+expected=int(open(sys.argv[2],encoding="utf-8").read().strip())
 inserted=int((x.get("counts") or {}).get("inserted") or 0)
 already=int((x.get("counts") or {}).get("already_present") or 0)
 assert inserted+already>=expected,(x,expected)
@@ -215,7 +215,7 @@ PY
 
 stage backfill-idempotency
 PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/agent_verified_evidence_backfill.py"  --runtime-root /opt/chacha-dev/runtime  --fleet-policy "$CURRENT/dev-hub/config/agent-fleet-observatory.v1.json"  --bus-policy "$CURRENT/dev-hub/config/agent-observation-bus.v1.json"  --routing "$CURRENT/dev-hub/config/agent-routing.v1.json"  --seven "$CURRENT/dev-hub/config/seven-agent-final-compromise.v1.json"  --project-registry "$CURRENT/dev-hub/projects/wfgg-radar/project-agent-registry.v1.json"  --output "$WORK/backfill-second.json" >"$WORK/backfill-second.out" 2>"$WORK/backfill-second.err"
-python3 - "$WORK/backfill-second.json" <<'PY'
+python3 - "$WORK/backfill-second.json" "$WORK/backfill-accounted.txt" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1],encoding="utf-8"))
 expected=int(open("/tmp/chacha-v655-backfill-accounted.txt",encoding="utf-8").read().strip())
