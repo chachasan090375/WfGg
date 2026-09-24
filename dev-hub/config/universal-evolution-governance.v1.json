@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/universal-evolution-governance-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "purpose": "Apply the right evolution controls to every evolvable ChaCha DEV component without duplicating agent responsibilities.",
   "principles": {
     "one_evolution_owner_per_component": true,
@@ -16,7 +16,9 @@
     "guardian_required_for_material_change": true,
     "sentinel_required_for_material_change": true,
     "architecture_council_final_authority": true,
-    "automatic_external_spend_eur": 0
+    "automatic_external_spend_eur": 0,
+    "guardian_coverage_is_evolution_source": true,
+    "unmapped_guardian_component_kind_fails_closed": true
   },
   "core_class_map": {
     "orchestration": "CORE_PLATFORM_COMPONENT",
@@ -221,9 +223,42 @@
     "core_watch": "dev-hub/config/technology-core-watch.v1.json",
     "provider_adapters": "dev-hub/config/provider-adapters.v1.json",
     "mcp_catalog": "dev-hub/config/mcp-provider-catalog.v1.json",
-    "embedded_assurance": "dev-hub/config/project-embedded-assurance.v1.json"
+    "embedded_assurance": "dev-hub/config/project-embedded-assurance.v1.json",
+    "guardian_coverage_manifest": "dev-hub/config/guardian-coverage-manifest.v1.json"
   },
   "economics": {
     "automatic_external_spend_eur": 0
-  }
+  },
+  "guardian_kind_class_map": {
+    "orchestrator": "CORE_PLATFORM_COMPONENT",
+    "component": "CORE_PLATFORM_COMPONENT",
+    "foundry": "CORE_PLATFORM_COMPONENT",
+    "registry": "CORE_PLATFORM_COMPONENT",
+    "memory-reconciler": "CORE_PLATFORM_COMPONENT",
+    "memory-advisor": "CORE_PLATFORM_COMPONENT",
+    "scheduler": "CORE_PLATFORM_COMPONENT",
+    "observer": "CORE_PLATFORM_COMPONENT",
+    "dispatcher": "CORE_PLATFORM_COMPONENT",
+    "dynamic-class": "CORE_PLATFORM_COMPONENT",
+    "binder": "CORE_PLATFORM_COMPONENT",
+    "controller": "CORE_PLATFORM_COMPONENT",
+    "learning-plane": "CORE_PLATFORM_COMPONENT",
+    "feedback-controller": "CORE_PLATFORM_COMPONENT",
+    "learning-bridge": "CORE_PLATFORM_COMPONENT",
+    "learning-reconciler": "CORE_PLATFORM_COMPONENT",
+    "internal-advisor": "CORE_PLATFORM_COMPONENT",
+    "decision-synthesis": "CORE_PLATFORM_COMPONENT",
+    "release-gate": "CORE_PLATFORM_COMPONENT",
+    "external-authority": "CORE_PLATFORM_COMPONENT",
+    "post-implementation-review": "CORE_PLATFORM_COMPONENT",
+    "final-delivery-gate": "CORE_PLATFORM_COMPONENT",
+    "finalization-input-contract": "CORE_PLATFORM_COMPONENT",
+    "automatic-release-finalization": "CORE_PLATFORM_COMPONENT",
+    "full-autonomous-lifecycle": "CORE_PLATFORM_COMPONENT",
+    "canonical-materializer": "CORE_PLATFORM_COMPONENT",
+    "human-approval-transaction": "CORE_PLATFORM_COMPONENT",
+    "interface": "CORE_PLATFORM_COMPONENT",
+    "satellite-agent": "CORE_PLATFORM_COMPONENT"
+  },
+  "guardian_component_class_overrides": {}
 }

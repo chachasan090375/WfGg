@@ -15,7 +15,7 @@ def digest(x:Any)->str:
     return "sha256:"+hashlib.sha256(json.dumps(x,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()).hexdigest()
 
 def build_index(agent_profiles:dict[str,Any],core:dict[str,Any],providers:dict[str,Any],mcp:dict[str,Any],
-                embedded:dict[str,Any],policy:dict[str,Any])->dict[str,Any]:
+                embedded:dict[str,Any],policy:dict[str,Any],guardian:dict[str,Any]|None=None)->dict[str,Any]:
     classes=policy.get("classes") or {};core_map=policy.get("core_class_map") or {};entries={}
     def add(cid:str,name:str,gclass:str,sources:list[str],meta:dict[str,Any]|None=None):
         spec=classes.get(gclass)
@@ -74,15 +74,38 @@ def build_index(agent_profiles:dict[str,Any],core:dict[str,Any],providers:dict[s
              "risk_class":m.get("risk_class"),"write_scope":m.get("write_scope") or [],
              "health_probe":m.get("health_probe")})
 
+    guardian=guardian or {}
+    guardian_ids=[]
+    guardian_kind_map=policy.get("guardian_kind_class_map") or {}
+    guardian_overrides=policy.get("guardian_component_class_overrides") or {}
+    for comp in guardian.get("expected_components") or []:
+        gid=str(comp.get("component_id") or "")
+        if not gid:raise ValueError("GUARDIAN_COMPONENT_ID_MISSING")
+        kind=str(comp.get("kind") or "")
+        gclass=str(guardian_overrides.get(gid) or guardian_kind_map.get(kind) or "")
+        if not gclass:raise ValueError("UNMAPPED_GUARDIAN_KIND:"+gid+":"+kind)
+        guardian_ids.append(gid)
+        add("core:"+gid,gid,gclass,["guardian-coverage-manifest"],
+            {"guardian_role":comp.get("role"),"guardian_kind":kind,
+             "guardian_enforcement_point":comp.get("enforcement_point"),
+             "guardian_criticality":comp.get("criticality"),"guardian_proof":comp.get("proof") or {}})
+
     rows=sorted(entries.values(),key=lambda x:x["component_id"])
     counts=dict(sorted(Counter(x["governance_class"] for x in rows).items()))
     owners_ok=all(bool(x.get("evolution_owner")) for x in rows)
     lightweight=[x for x in rows if x["governance_class"] in {"LIGHTWEIGHT_PROJECT_AGENT","LIGHTWEIGHT_EMBEDDED_AGENT"}]
     no_local_heavy=all(not(set(x.get("required_controls") or []) & {"technology-watch","logician","foundries","benchmark-orchestrator"}) for x in lightweight)
+    guardian_uncovered=sorted(gid for gid in set(guardian_ids) if "core:"+gid not in entries)
+    guardian_sync_complete=not guardian_uncovered
+    if guardian_ids and not guardian_sync_complete:
+        raise ValueError("GUARDIAN_EVOLUTION_COVERAGE_GAP:"+",".join(guardian_uncovered))
     return {"schema":"chacha.dev/universal-evolution-governance-index/v1",
       "policy_version":policy.get("version"),"component_count":len(rows),"components":rows,"class_counts":counts,
       "single_evolution_owner_per_component":owners_ok,"no_parallel_governance_engines":True,
       "lightweight_agents_do_not_duplicate_central_intelligence":no_local_heavy,
+      "guardian_component_count":len(set(guardian_ids)),
+      "guardian_evolution_coverage_sync_complete":guardian_sync_complete,
+      "guardian_uncovered_components":guardian_uncovered,
       "passive_artifact_governance":policy.get("passive_artifacts"),
       "policy_digest":digest(policy),"automatic_external_spend_eur":0}
 
@@ -91,13 +114,17 @@ def main()->int:
     ap.add_argument("--agent-profiles",type=Path,required=True);ap.add_argument("--core-watch",type=Path,required=True)
     ap.add_argument("--provider-adapters",type=Path,required=True);ap.add_argument("--mcp-catalog",type=Path,required=True)
     ap.add_argument("--embedded-assurance",type=Path,required=True);ap.add_argument("--policy",type=Path,required=True)
+    ap.add_argument("--guardian-coverage",type=Path)
     ap.add_argument("--output",type=Path,required=True);a=ap.parse_args()
-    x=build_index(load(a.agent_profiles),load(a.core_watch),load(a.provider_adapters),load(a.mcp_catalog),load(a.embedded_assurance),load(a.policy))
+    guardian=load(a.guardian_coverage) if a.guardian_coverage else {}
+    x=build_index(load(a.agent_profiles),load(a.core_watch),load(a.provider_adapters),load(a.mcp_catalog),load(a.embedded_assurance),load(a.policy),guardian)
     save(a.output,x)
     print("CHACHA_DEV_V654_UNIVERSAL_COMPONENT_GOVERNANCE=PASS")
     print("COMPONENT_COUNT="+str(x["component_count"]))
     print("SINGLE_EVOLUTION_OWNER=YES" if x["single_evolution_owner_per_component"] else "SINGLE_EVOLUTION_OWNER=NO")
     print("NO_PARALLEL_GOVERNANCE_ENGINES=YES")
+    print("GUARDIAN_EVOLUTION_COVERAGE_SYNC=YES" if x["guardian_evolution_coverage_sync_complete"] else "GUARDIAN_EVOLUTION_COVERAGE_SYNC=NO")
+    print("GUARDIAN_COMPONENT_COUNT="+str(x["guardian_component_count"]))
     print("CHACHA_DEV_V654_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
     return 0
 if __name__=="__main__":raise SystemExit(main())

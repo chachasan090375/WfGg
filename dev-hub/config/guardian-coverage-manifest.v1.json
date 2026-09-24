@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 900,
   "action_lease_default_seconds": 300,
@@ -457,6 +457,17 @@
       }
     },
     {
+      "component_id": "central-interface-controller",
+      "role": "central-interface-controller",
+      "kind": "controller",
+      "enforcement_point": "human-interface-gateway+direct-operator-service.central-controller",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/central-interface-controller.py",
+        "marker": "RECEIPT_SCHEMA=\"chacha.dev/central-interface-receipt/v1\""
+      }
+    },
+    {
       "component_id": "direct-operator-service",
       "role": "direct-operator-interface",
       "kind": "interface",
@@ -488,8 +499,8 @@
   "automatic_external_spend_eur": 0,
   "d1_write_budget": {
     "coverage_heartbeat_interval_seconds": 300,
-    "expected_max_component_heartbeat_writes_per_day": 12384,
-    "calculation": "43 components * 12 heartbeats/hour * 24 hours",
+    "expected_max_component_heartbeat_writes_per_day": 12672,
+    "calculation": "44 components * 12 heartbeats/hour * 24 hours",
     "ci_sync_mode": "DIGEST_AWARE_DELTA",
     "automatic_paid_upgrade": false,
     "automatic_external_spend_eur": 0
