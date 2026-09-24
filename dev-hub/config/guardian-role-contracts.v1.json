@@ -948,6 +948,34 @@
       ],
       "required_evidence": [],
       "authority_scope": "PLANNING_ONLY"
+    },
+    {
+      "contract_id": "role:platform-component-apply-adapter-binding-gate",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "REPORT_PLAN"
+      ],
+      "forbidden_actions": [
+        "REGISTER_ADAPTER",
+        "MUTATE_REGISTRY",
+        "PRODUCTION_DEPLOY",
+        "PROMOTE_COMPONENT",
+        "EXPAND_PERMISSIONS",
+        "MUTATE_RUNTIME",
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "required_evidence": [
+        "human_approval_verified",
+        "adapter_exact_sha_qualified",
+        "provisioning_receipt",
+        "exact_component_scope",
+        "default_deny_registry"
+      ]
     }
   ]
 }
