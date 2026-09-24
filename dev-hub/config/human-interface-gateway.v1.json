@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/human-interface-gateway-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "platform_version": "7.2.0",
   "component_id": "human-interface-gateway",
   "component_type": "interface-adapter",
@@ -26,13 +26,20 @@
   "commands": {
     "STATUS": {
       "brain_read_only": true,
+      "central_controller_required": true,
+      "interface_runtime_reconstruction_forbidden": true,
       "project_control_first": true,
-      "platform_status_fallback": true
+      "platform_status_fallback": "CENTRAL_CONTROLLER_ONLY"
     },
     "CONTINUE": {
       "require_prior_brain_receipt": true,
-      "create_new_technical_decision": false,
-      "continue_only_prior_next_action": true
+      "require_prior_response_digest_match": true,
+      "central_controller_required": true,
+      "fresh_central_brain_call_required": true,
+      "copy_prior_next_action_only_forbidden": true,
+      "transactional_project_control_advance_when_ready": true,
+      "fresh_central_reorchestration_when_control_plane_uninitialized": true,
+      "create_new_technical_decision_only_inside_central_brain": true
     },
     "STOP": {
       "out_of_band": true,
@@ -41,6 +48,7 @@
       "interface_may_not_reset_stop": true
     },
     "INSTRUCTION": {
+      "central_controller": "dev-hub/bin/central-interface-controller.py",
       "orchestrator": "dev-hub/bin/autonomous-project-orchestrator.py",
       "planning_only": true,
       "automatic_execution": false,
@@ -54,7 +62,9 @@
     "response_must_include_next_action": true,
     "response_must_include_evidence_refs": true,
     "interface_may_execute_only_brain_authorized_next_actions": true,
-    "fabricated_brain_decision_forbidden": true
+    "fabricated_brain_decision_forbidden": true,
+    "brain_receipt_must_come_from_central_controller": true,
+    "interface_may_reconstruct_platform_status": false
   },
   "failure": {
     "brain_unavailable_status": "BRAIN_UNAVAILABLE",
@@ -74,6 +84,9 @@
     "sentinel_preserved": true,
     "technology_watch_preserved": true,
     "canonical_observation_bus_rewrite": false,
-    "automatic_external_spend_eur": 0
-  }
+    "automatic_external_spend_eur": 0,
+    "interface_may_copy_prior_brain_action_as_new_decision": false,
+    "chacha_route_requires_fresh_central_controller_call": true
+  },
+  "central_controller": "dev-hub/bin/central-interface-controller.py"
 }
