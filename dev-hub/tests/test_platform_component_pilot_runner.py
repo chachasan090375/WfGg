@@ -55,6 +55,9 @@ with tempfile.TemporaryDirectory(prefix="platform-pilot-runner-") as td:
 assert out["status"]=="PASS",out
 assert len(calls)==2,calls
 assert [x["phase"] for x in guardian_calls]==["PRE_ACTION","POST_ACTION"],guardian_calls
+assert out["guardian_pre_pass"] is True and out["guardian_post_pass"] is True,out
+assert str(out["guardian_pre_receipt_digest"]).startswith("sha256:"),out
+assert str(out["guardian_post_receipt_digest"]).startswith("sha256:"),out
 assert calls[0]["variant"]=="INCUMBENT" and calls[1]["variant"]=="CANDIDATE",calls
 assert calls[0]["cmd"][0]=="/usr/bin/systemd-run",calls[0]
 assert calls[1]["cmd"][0]=="/usr/bin/systemd-run",calls[1]
@@ -99,6 +102,7 @@ print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_SAME_HARNESS=YES")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_ISOLATED_SYSTEMD=YES")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_EXACT_SENTINEL_SHA=YES")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_GUARDIAN_PRE_POST=PASS")
+print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_GUARDIAN_RECEIPTS=PERSISTED")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_GUARDIAN_COVERAGE=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_CORE_WATCH=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_GUARDIAN_ROLE=PASS")
