@@ -7,6 +7,10 @@ on:
     paths:
       - 'android/chacha-direct-operator-widget/**'
       - '.github/workflows/dev-hub-v730-android-widget-build.yml'
+      - 'dev-hub/config/direct-operator.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/bin/install-v730-direct-operator-android-widget.sh'
+      - '.github/workflows/dev-hub-v730-direct-operator-qualification.yml'
   workflow_dispatch:
 
 permissions:
