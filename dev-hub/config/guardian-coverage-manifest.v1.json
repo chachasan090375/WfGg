@@ -532,6 +532,17 @@
         "file": "dev-hub/bin/platform-component-source-integration-executor.py",
         "marker": "PLATFORM_COMPONENT_SOURCE_INTEGRATION_GUARDIAN_PRE_POST"
       }
+    },
+    {
+      "component_id": "platform-component-adapter-binding-gate",
+      "role": "platform-component-adapter-binding-gate",
+      "kind": "release-gate",
+      "enforcement_point": "platform-component-adapter-binding-gate.proposal-only",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/platform-component-adapter-binding-gate.py",
+        "marker": "BINDING_PROPOSAL_READY_AWAIT_PROTECTED_REGISTRATION"
+      }
     }
   ],
   "safety_exemptions": [
@@ -543,8 +554,8 @@
   "automatic_external_spend_eur": 0,
   "d1_write_budget": {
     "coverage_heartbeat_interval_seconds": 300,
-    "expected_max_component_heartbeat_writes_per_day": 13824,
-    "calculation": "48 components * 12 heartbeats/hour * 24 hours",
+    "expected_max_component_heartbeat_writes_per_day": 14112,
+    "calculation": "49 components * 12 heartbeats/hour * 24 hours",
     "ci_sync_mode": "DIGEST_AWARE_DELTA",
     "automatic_paid_upgrade": false,
     "automatic_external_spend_eur": 0
