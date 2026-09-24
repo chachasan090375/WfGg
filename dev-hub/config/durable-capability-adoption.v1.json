@@ -26,7 +26,10 @@
     "network_capability_requires_human_approval": true,
     "durable_adapter_reprobe_required": true,
     "experience_event_required": true,
-    "central_memory_refresh_required": true
+    "central_memory_refresh_required": true,
+    "project_control_verification_receipt_required": true,
+    "project_control_receipt_status_required": "COMMITTED",
+    "verified_task_result_required": true
   },
   "protected_adapter_permissions": [
     "production-deploy",
