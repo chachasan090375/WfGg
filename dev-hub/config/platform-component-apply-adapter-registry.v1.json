@@ -1,0 +1,25 @@
+{
+  "schema": "chacha.dev/platform-component-apply-adapter-registry/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "default_admission": "DENY",
+  "principles": {
+    "source_release_candidate_only": true,
+    "exact_candidate_and_incumbent_revision_required": true,
+    "exact_candidate_and_incumbent_artifact_required": true,
+    "candidate_owner_adapter_required": true,
+    "reversible_apply_required": true,
+    "rollback_adapter_required": true,
+    "direct_runtime_mutation_forbidden": true,
+    "production_activation_forbidden": true,
+    "production_deployment_forbidden": true,
+    "merge_to_production_branch_forbidden": true,
+    "post_apply_exact_sha_qualification_required": true,
+    "guardian_post_apply_assurance_required": true,
+    "sentinel_post_apply_exact_sha_required": true,
+    "central_orchestrator_apply_authority": true,
+    "automatic_apply_forbidden": true,
+    "automatic_external_spend_eur": 0
+  },
+  "adapters": {}
+}
