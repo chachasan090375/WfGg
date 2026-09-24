@@ -46,6 +46,17 @@ def validate_contract(c:dict[str,Any])->None:
         raise RuntimeError("PLATFORM_COMPONENT_PILOT_EXACT_REVISIONS_REQUIRED")
     if not isinstance(c.get("harness_argv"),list) or not c.get("harness_argv"):
         raise RuntimeError("PLATFORM_COMPONENT_PILOT_HARNESS_ARGV_MISSING")
+    required_checks=[
+      "independent_verification","measurable_gain","no_material_regression",
+      "permission_non_escalation","rollback_ready","exact_revision_evidence",
+      "logician_falsification_pass","technology_watch_revalidation_pass","real_harness_available"
+    ]
+    checks=c.get("pre_pilot_checks") if isinstance(c.get("pre_pilot_checks"),dict) else {}
+    missing=[k for k in required_checks if checks.get(k) is not True]
+    if missing:
+        raise RuntimeError("PLATFORM_COMPONENT_PILOT_PRECHECKS_INCOMPLETE:"+",".join(missing))
+    if not list(c.get("pre_pilot_evidence_refs") or []):
+        raise RuntimeError("PLATFORM_COMPONENT_PILOT_PRECHECK_EVIDENCE_MISSING")
 
 def validate_sentinel_receipt(c:dict[str,Any],receipt:dict[str,Any])->None:
     if receipt.get("schema")!="chacha.dev/sentinel-exact-sha-receipt/v1":
