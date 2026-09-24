@@ -178,8 +178,8 @@ def technology_watch_case(run:Path,runtime_root:Path)->dict[str,Any]|None:
     a=load(agentp);br=load(branchp);cap=load(capp);c=load(councilp);b=load(bootp);s=load(snap)
     if s.get("schema")!="chacha.dev/technology-watch-snapshot/v1":return None
     candidates=[x for x in (s.get("provider_candidates") or []) if isinstance(x,dict)]
-    zero_count=sum(1 for x in candidates if x.get("zero_external_spend") is True)
     eligible_count=sum(1 for x in candidates if x.get("admissible_for_automatic_selection") is True)
+    zero_count=sum(1 for x in candidates if x.get("admissible_for_automatic_selection") is True and x.get("zero_external_spend") is True)
     checks={
       "agent_foundry_consumed_watch":a.get("technology_watch_consulted") is True,
       "branch_foundry_consumed_watch":br.get("technology_watch_consulted") is True,
