@@ -397,6 +397,33 @@ def main():
     closure_summary=closure_v.get("summary") or {}
     capability_build_required_count=int(closure_summary.get("build_required_count") or 0)
 
+    # V6.42: every project-local capability that could become durable is
+    # materialized as a pending candidate. Adoption is NOT performed here.
+    capability_adoption_candidates=[]
+    durable_provider_v=load(durable_providers)
+    for row in closure_v.get("plans") or []:
+        if not isinstance(row,dict) or row.get("state")!="PROJECT_LOCAL_READY":
+            continue
+        provider=str(row.get("selected_provider") or "")
+        adapter=str(row.get("selected_adapter") or "")
+        provider_cfg=(durable_provider_v.get("providers") or {}).get(provider) or {}
+        capability_adoption_candidates.append({
+          "schema":"chacha.dev/capability-adoption-candidate/v1",
+          "source_kind":"EXISTING_PROVIDER",
+          "project_id":pid,
+          "capability":str(row.get("capability") or ""),
+          "provider":provider,
+          "adapter":adapter,
+          "build_result":None,
+          "production_capable":bool(row.get("production_capable")),
+          "network_access":str(provider_cfg.get("execution") or "")=="external",
+          "credentials_required":False,
+          "automatic_external_spend_eur":0,
+          "technology_watch_plan":str(foundry_plan),
+          "architecture_council":None,
+          "adoption_state":"PENDING_PROJECT_SUCCESS"
+        })
+
     active_pre=pre
     active_intent=a.intent
     active_domain=cfg/"domain-orchestration.v1.json"
@@ -607,6 +634,22 @@ def main():
                 if result_v.get("status")!="PASS" or result_v.get("same_project_resume_allowed") is not True:
                     raise RuntimeError("CAPABILITY_BUILD_LOOP_NOT_RESUMABLE:"+capability)
                 capability_build_results.append(str(result_path))
+                capability_adoption_candidates.append({
+                  "schema":"chacha.dev/capability-adoption-candidate/v1",
+                  "source_kind":"BUILT_ADAPTER",
+                  "project_id":pid,
+                  "capability":str(result_v.get("capability") or capability),
+                  "provider":str(result_v.get("provider") or ""),
+                  "adapter":str(result_v.get("adapter") or ""),
+                  "build_result":str(result_path),
+                  "production_capable":bool(result_v.get("production_capable")),
+                  "network_access":bool(result_v.get("network_access")),
+                  "credentials_required":bool(result_v.get("credentials_required")),
+                  "automatic_external_spend_eur":float(result_v.get("automatic_external_spend_eur") or 0),
+                  "technology_watch_plan":str(foundry_plan),
+                  "architecture_council":str(architecture_council),
+                  "adoption_state":"PENDING_PROJECT_SUCCESS"
+                })
                 current_provider_registry=Path(str((result_v.get("artifacts") or {}).get("registry") or ""))
                 if not current_provider_registry.is_file():
                     raise RuntimeError("CAPABILITY_BUILD_PROVIDER_REGISTRY_MISSING:"+capability)
@@ -620,6 +663,17 @@ def main():
 
         # Only unresolved specialist-required gaps remain blockers.
         capability_build_required_count=capability_build_specialist_required_count
+
+    capability_adoption_batch=out/"capability-adoption-candidates.json"
+    save(capability_adoption_batch,{
+      "schema":"chacha.dev/capability-adoption-candidates/v1",
+      "project_id":pid,
+      "status":"PENDING_PROJECT_SUCCESS" if capability_adoption_candidates else "NONE",
+      "candidate_count":len(capability_adoption_candidates),
+      "candidates":capability_adoption_candidates,
+      "durable_adoption_before_project_success":False,
+      "automatic_external_spend_eur":0
+    })
 
     # The Council is not advisory-only: its selected/revalidated architecture becomes
     # the effective topology consumed by planning and runtime scheduling.
@@ -757,6 +811,10 @@ def main():
       "capability_build_specialist_required_count":capability_build_specialist_required_count,
       "capability_build_same_project_resume":bool(capability_build_auto_built_count) and capability_build_required_count==0,
       "capability_build_durable_adoption_before_project_success":False,
+      "capability_adoption_candidates":str(capability_adoption_batch),
+      "capability_adoption_candidate_count":len(capability_adoption_candidates),
+      "durable_capability_registry":str(durable_registry),
+      "durable_registry_merged_before_gap_detection":True,
       "capability_foundry_auto_closed_count":sum(1 for x in closure_v.get("plans") or [] if x.get("state")=="PROJECT_LOCAL_READY"),
       "capability_foundry_reused_registered_count":sum(1 for x in closure_v.get("plans") or [] if x.get("state")=="REUSE_REGISTERED"),
       "capability_foundry_build_required_count":capability_build_required_count,
@@ -822,6 +880,8 @@ def main():
     print("CAPABILITY_BUILD_SPECIALIST_REQUIRED="+str(state["capability_build_specialist_required_count"]))
     print("CAPABILITY_BUILD_SAME_PROJECT_RESUME="+("YES" if state["capability_build_same_project_resume"] else "NO"))
     print("CAPABILITY_BUILD_DURABLE_ADOPTION_BEFORE_PROJECT_SUCCESS=NO")
+    print("CAPABILITY_ADOPTION_CANDIDATES="+str(state["capability_adoption_candidate_count"]))
+    print("DURABLE_REGISTRY_MERGED_BEFORE_GAPS=YES")
     print("LOGIC_CHALLENGE_STATUS="+str(state["logic_challenge_status"]))
     print("UX_CHALLENGE_STATUS="+str(state["ux_challenge_status"]))
     print("CENTRAL_COMPROMISE_FOUND="+("YES" if state["central_compromise_found"] else "NO"))
