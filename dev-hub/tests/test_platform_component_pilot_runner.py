@@ -15,6 +15,7 @@ contract={
  "schema":"chacha.dev/platform-component-comparative-pilot-contract/v1",
  "contract_id":"pcp-test","dispatch_id":"d1","component_id":"central-orchestrator",
  "candidate_owner":"branch-foundry","harness_id":"real-test-harness",
+ "qualification_workflow_name":"ChaCha DEV universal evolution coverage sync qualification",
  "harness_argv":["/usr/bin/python3","real-harness.py","--variant","{variant}","--artifact","{artifact_ref}","--output","{result_json}"],
  "resource_budget":{"memory_mb":128,"cpu_weight":50,"tasks_max":4,"timeout_seconds":30},
  "incumbent_artifact_ref":"git:incumbent@def","candidate_artifact_ref":"git:candidate@abc",
