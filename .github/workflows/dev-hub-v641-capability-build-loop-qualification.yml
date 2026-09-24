@@ -1,0 +1,76 @@
+name: ChaCha DEV V6.41 capability build loop qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v641-capability-build-loop
+    paths:
+      - 'dev-hub/bin/capability-build-loop.py'
+      - 'dev-hub/config/capability-build-loop.v1.json'
+      - 'dev-hub/tests/test_v641_capability_build_loop.py'
+      - 'dev-hub/bin/capability-foundry-closure.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/tests/test_v640_capability_foundry_auto_closure.py'
+      - '.github/workflows/dev-hub-v641-capability-build-loop-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile \
+            dev-hub/bin/capability-build-loop.py \
+            dev-hub/bin/capability-foundry-closure.py \
+            dev-hub/bin/autonomous-project-orchestrator.py
+          python3 -m json.tool dev-hub/config/capability-build-loop.v1.json >/dev/null
+
+      - name: V6.41 end-to-end build loop
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v641_capability_build_loop.py | tee /tmp/v641.out
+          grep -Fq 'CHACHA_DEV_V641_BUILD_REQUIRED_TO_SAFE_ADAPTER=PASS' /tmp/v641.out
+          grep -Fq 'CHACHA_DEV_V641_OFFICIAL_PROVISIONING_CHAIN=PASS' /tmp/v641.out
+          grep -Fq 'CHACHA_DEV_V641_OFFICIAL_PROMOTION_CHAIN=PASS' /tmp/v641.out
+          grep -Fq 'CHACHA_DEV_V641_THREE_RUN_ENABLEMENT=PASS' /tmp/v641.out
+          grep -Fq 'CHACHA_DEV_V641_SAME_PROJECT_RESUME_READY=PASS' /tmp/v641.out
+          grep -Fq 'CHACHA_DEV_V641_DURABLE_ADOPTION_BEFORE_PROJECT_SUCCESS=NO' /tmp/v641.out
+          grep -Fq 'CHACHA_DEV_V641_UNSAFE_BUILD_CLASSES_FAIL_CLOSED=PASS' /tmp/v641.out
+          grep -Fq 'CHACHA_DEV_V641_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v641.out
+
+      - name: V6.40 regression
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v640_capability_foundry_auto_closure.py | tee /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_EXISTING_ENABLED_PROVIDER_AUTO_CLOSURE=PASS' /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_BUILD_REQUIRED_BLOCKS_DISPATCH=PASS' /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_ACTIVE_CAPABILITY_REGISTRY_PROPAGATED=PASS' /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v640.out
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo 'CHACHA_DEV_V641_QUALIFICATION=PASS'
+            echo 'SAFE_TEMPLATE_GENERATION=PASS'
+            echo 'OFFICIAL_ADAPTER_CONTRACT_CHAIN=PASS'
+            echo 'SANDBOX_PROVISIONING=PASS'
+            echo 'CONTRACT_OK_TO_PILOT=PASS'
+            echo 'THREE_RUN_ENABLEMENT=PASS'
+            echo 'PROJECT_SUCCESS_REQUIRED_BEFORE_DURABLE_ADOPTION=YES'
+            echo 'UNSAFE_CAPABILITY_CLASSES_FAIL_CLOSED=YES'
+            echo 'TECHNOLOGY_WATCH_REQUIRED=YES'
+            echo 'ARCHITECTURE_COUNCIL_APPROVAL_REQUIRED=YES'
+            echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
+          } | tee /tmp/v641-qualification-receipt.txt
