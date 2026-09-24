@@ -84,14 +84,32 @@ with tempfile.TemporaryDirectory(prefix="v660-accuracy-") as td:
             }
             gh={"id":int(run_id),"name":"ChaCha DEV Sentinel technical assurance","head_sha":rev,
                 "status":"completed","conclusion":"success","repository":{"full_name":"chachasan090375/WfGg"}}
-            save(ext/"sentinel-technical-receipt.json",sentinel);save(ghdir/(run_id+".json"),gh);sentinel_runs.append(run)
+            jobs={"total_count":1,"jobs":[{
+              "id":2000+i,"name":"sentinel","head_sha":rev,"status":"completed","conclusion":"success",
+              "steps":[
+                {"name":"External technical audit","status":"completed","conclusion":"success"},
+                {"name":"Audit receipt","status":"completed","conclusion":"success"},
+                {"name":"Enforce Sentinel verdict","status":"completed","conclusion":"success"},
+                {"name":"Persist and verify exact-revision Sentinel attestation","status":"completed","conclusion":"success"}
+              ]
+            }]}
+            artifacts={"total_count":1,"artifacts":[{
+              "id":3000+i,"name":"chacha-dev-sentinel-technical-audit-"+rev,"expired":False,
+              "digest":"sha256:"+("c"*63)+str(i),
+              "workflow_run":{"id":int(run_id),"head_sha":rev}
+            }]}
+            save(ext/"sentinel-technical-receipt.json",sentinel)
+            save(ghdir/(run_id+".json"),gh);save(ghdir/(run_id+"-jobs.json"),jobs);save(ghdir/(run_id+"-artifacts.json"),artifacts)
+            sentinel_runs.append(run)
 
     # Independent attestor must reject a GitHub run that does not bind to the receipt revision.
     bad_dir=rt/"bad-github";bad_dir.mkdir()
     bad=load(ghdir/"1001.json");bad["head_sha"]="f"*40;save(bad_dir/"1001.json",bad)
+    save(bad_dir/"1001-jobs.json",load(ghdir/"1001-jobs.json"))
+    save(bad_dir/"1001-artifacts.json",load(ghdir/"1001-artifacts.json"))
     bad_run=rt/"golden-path-runs"/"run-1"
     assert (bad_run/"external-assurance/sentinel-technical-receipt.json").is_file()
-    assert (bad_dir/"1001.json").is_file()
+    assert all((bad_dir/name).is_file() for name in ("1001.json","1001-jobs.json","1001-artifacts.json"))
     bad_case=att.sentinel_case(bad_run,bad_dir,False,rt/"bad-sources")
     assert bad_case is not None,{"receipt":load(bad_run/"external-assurance/sentinel-technical-receipt.json"),"github_files":[p.name for p in bad_dir.iterdir()]}
     assert bad_case["passed"] is False,bad_case
@@ -132,7 +150,7 @@ with tempfile.TemporaryDirectory(prefix="v660-accuracy-") as td:
             assert pl["candidate"]["owner"]=="agent-foundry" and pl["candidate"]["isolated"] is True,(aid,pl)
 
 print("CHACHA_DEV_V660_GUARDIAN_INDEPENDENT_ACCURACY=PASS")
-print("CHACHA_DEV_V660_SENTINEL_GITHUB_INDEPENDENT_ACCURACY=PASS")
+print("CHACHA_DEV_V660_SENTINEL_GITHUB_RUN_JOB_ARTIFACT_ACCURACY=PASS")
 print("CHACHA_DEV_V660_ACCEPTANCE_RECOMPUTED_ACCURACY=PASS")
 print("CHACHA_DEV_V660_PRODUCTION_ACCURACY_DIMENSIONS=3")
 print("CHACHA_DEV_V660_SELF_MUTATION=NO")
