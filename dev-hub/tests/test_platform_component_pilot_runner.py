@@ -74,10 +74,27 @@ except RuntimeError as e:
 else:
     raise AssertionError("production-enabled pilot contract accepted")
 
+guardian=json.loads((ROOT/"dev-hub/config/guardian-coverage-manifest.v1.json").read_text(encoding="utf-8"))
+assert any(x.get("component_id")=="platform-component-pilot-runner" for x in guardian.get("expected_components") or []),guardian
+assert guardian["d1_write_budget"]["expected_max_component_heartbeat_writes_per_day"]==len(guardian["expected_components"])*12*24
+
+core=json.loads((ROOT/"dev-hub/config/technology-core-watch.v1.json").read_text(encoding="utf-8"))
+row=next(x for x in core["components"] if x["id"]=="platform-component-pilot-runner")
+assert row["class"]=="verification" and row["criticality"]=="critical",row
+
+roles=json.loads((ROOT/"dev-hub/config/guardian-role-contracts.v1.json").read_text(encoding="utf-8"))
+role=next(x for x in roles["contracts"] if x["contract_id"]=="role:platform-component-pilot-runner")
+assert "RUN_COMPARATIVE_PILOT" in role["allowed_actions"],role
+assert {"PRODUCTION_DEPLOY","PROMOTE_COMPONENT","MODIFY_GUARDIAN_CONTRACTS","EXPAND_PERMISSIONS"}<=set(role["forbidden_actions"]),role
+assert set(role["required_evidence"])=={"isolated_capsules","same_benchmark_contract","exact_artifacts","sentinel_exact_sha_pass"},role
+
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_RUNNER=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_SAME_HARNESS=YES")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_ISOLATED_SYSTEMD=YES")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_EXACT_SENTINEL_SHA=YES")
+print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_GUARDIAN_COVERAGE=PASS")
+print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_CORE_WATCH=PASS")
+print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_GUARDIAN_ROLE=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_COUNCIL_HANDOFF=YES")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_FINAL_DECISION=NO")
 print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_PRODUCTION_CHANGE=NO")
