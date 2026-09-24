@@ -1,0 +1,40 @@
+{
+  "schema": "chacha.dev/progress-coordinator-policy/v1",
+  "version": "1.0.0",
+  "component": "platform-progress-coordinator",
+  "runtime_root": "/opt/chacha-dev/runtime/progress",
+  "canonical_state": "/opt/chacha-dev/runtime/progress/platform.json",
+  "history_limit": 120,
+  "stale_after_seconds": 900,
+  "stages": {
+    "IDLE": 0,
+    "QUEUED": 5,
+    "TRANSLATING": 25,
+    "CENTRAL_ORCHESTRATION": 55,
+    "VALIDATING": 82,
+    "FINALIZING": 94,
+    "COMPLETE": 100,
+    "FAILED": 100,
+    "STOPPED": 100
+  },
+  "modules": [
+    "direct-operator-service",
+    "functional-translator-satellite",
+    "central-interface-controller",
+    "central-orchestrator",
+    "guardian",
+    "sentinel"
+  ],
+  "invariants": {
+    "single_canonical_progress_source": true,
+    "interfaces_read_same_state": true,
+    "atomic_writes_required": true,
+    "monotonic_within_run": true,
+    "module_progress_bounded_0_100": true,
+    "overall_progress_bounded_0_100": true,
+    "no_execution_authority": true,
+    "no_architecture_authority": true,
+    "no_production_mutation": true,
+    "automatic_external_spend_eur": 0
+  }
+}
