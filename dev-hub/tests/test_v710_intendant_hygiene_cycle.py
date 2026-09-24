@@ -145,6 +145,40 @@ with tempfile.TemporaryDirectory(prefix="v710-hygiene-") as td:
       "--explicit-destructive-apply"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
     assert blocked.returncode!=0 and "INTENDANT_DIRECT_MUTATION_FORBIDDEN" in (blocked.stdout+blocked.stderr)
 
+    # Full governed weekly apply: Council -> Guardian PRE -> Central executor -> Guardian POST.
+    fake_guardian=td/"fake-guardian.py"
+    fake_guardian.write_text("""#!/usr/bin/env python3
+import json,sys
+event=json.load(open(sys.argv[sys.argv.index('--event')+1]))
+assert event['schema']=='chacha.dev/governance-action/v1'
+assert event['actor']=='central-orchestrator'
+assert event['subject_role']=='platform-hygiene-executor'
+assert event['permission']=='destructive-operation'
+assert event['phase'] in {'PRE_ACTION','POST_ACTION'}
+print(json.dumps({'schema':'chacha.dev/guardian-verdict/v3','event_id':event['event_id'],'action_id':event['action_id'],'verdict':'PASS'}))
+""",encoding="utf-8")
+    guardian_policy=td/"guardian-policy.json";save(guardian_policy,{})
+    runs=td/"github-runs.json";save(runs,{"workflow_runs":[
+      {"name":"ChaCha DEV Sentinel technical assurance","head_sha":active_rev,"status":"completed","conclusion":"success"},
+      {"name":"ChaCha DEV V7 platform qualification","head_sha":active_rev,"status":"completed","conclusion":"success"}
+    ]})
+    txt=run([sys.executable,str(BIN/"intendant-hygiene-cycle.py"),"--repo-root",str(ROOT),
+      "--runtime-root",str(runtime),"--platform-root",str(platform),"--policy",str(hp2_path),
+      "--consolidation-policy",str(cp_path),"--guardian-client",str(fake_guardian),
+      "--guardian-policy",str(guardian_policy),"--guardian-coverage",str(runtime/"guardian/coverage-latest.json"),
+      "--council",str(BIN/"architecture-council-platform-consolidation-v7.py"),
+      "--consolidator",str(BIN/"intendant-platform-consolidator.py"),
+      "--hygiene-executor",str(BIN/"central-platform-hygiene-executor.py"),
+      "--github-runs-json",str(runs),"--force-cycle","WEEKLY_DRY_RUN","--now","2026-09-24T13:00:00Z"])
+    assert "CHACHA_DEV_V710_INTENDANT_HYGIENE_CYCLE=PASS" in txt,txt
+    latest=load(runtime/"intendant/latest.json")
+    weekly=next(x for x in latest["results"] if x["cycle"]=="WEEKLY_DRY_RUN")
+    applied=next(x for x in weekly["actions"] if x["action"]=="SAFE_RELEASE_RETIREMENT_APPLY")
+    assert applied["executor"]=="central-orchestrator" and applied["deleted_release_count"]==1,applied
+    assert applied["guardian_post_action"] is True,applied
+    assert active.is_dir() and r700.is_dir() and r663.is_dir() and not r660.exists()
+    assert sum(1 for p in (platform/"releases").iterdir() if p.is_dir())==3
+
 print("CHACHA_DEV_V710_SINGLE_HYGIENE_TIMER=PASS")
 print("CHACHA_DEV_V710_DAILY_LIGHT_CYCLE=PASS")
 print("CHACHA_DEV_V710_WEEKLY_DRY_RUN=PASS")
@@ -154,6 +188,7 @@ print("CHACHA_DEV_V710_DYNAMIC_TWO_ROLLBACK_RETENTION=PASS")
 print("CHACHA_DEV_V710_INTENDANT_DIRECT_MUTATION=NO")
 print("CHACHA_DEV_V710_PHYSICAL_EXECUTOR=central-orchestrator")
 print("CHACHA_DEV_V710_REALTIME_GUARDIAN_GATE=PASS")
+print("CHACHA_DEV_V710_COUNCIL_GUARDIAN_PRE_EXECUTOR_POST_CHAIN=PASS")
 print("CHACHA_DEV_V710_REMOTE_BRANCH_AUTO_DELETE=NO")
 print("CHACHA_DEV_V710_SOURCE_CODE_AUTO_DELETE=NO")
 print("CHACHA_DEV_V710_GIT_HISTORY_PRESERVED=YES")
