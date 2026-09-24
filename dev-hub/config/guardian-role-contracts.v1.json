@@ -371,6 +371,35 @@
       ]
     },
     {
+      "contract_id": "role:platform-component-adapter-binding-gate",
+      "kind": "role",
+      "allowed_actions": [
+        "VERIFY_ADAPTER_BINDING",
+        "REPORT_BINDING_PROPOSAL"
+      ],
+      "forbidden_actions": [
+        "REGISTER_ADAPTER",
+        "MUTATE_REGISTRY",
+        "PRODUCTION_DEPLOY",
+        "PROMOTE_COMPONENT",
+        "MODIFY_GUARDIAN_CONTRACTS",
+        "EXPAND_PERMISSIONS",
+        "MUTATE_RUNTIME"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "required_evidence": [
+        "human_approval_verified",
+        "exact_component_context",
+        "qualified_adapter",
+        "provisioning_receipt",
+        "exact_sha_gates",
+        "default_deny_registry"
+      ]
+    },
+    {
       "contract_id": "role:platform-component-source-integration-executor",
       "kind": "role",
       "allowed_actions": [
