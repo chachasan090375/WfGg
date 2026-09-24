@@ -1,0 +1,43 @@
+{
+  "schema": "chacha.dev/object-factory-policy/v1",
+  "version": "1.0.0",
+  "scope": "APPLICATION_DOMAIN_OBJECTS",
+  "owner": "component-factory",
+  "architecture_owner": "chacha-dev-architect",
+  "capability_gap_owner": "capability-foundry",
+  "principles": {
+    "reuse_before_build": true,
+    "explicit_object_contract_required": true,
+    "no_provider_selection_authority": true,
+    "no_production_change_authority": true,
+    "object_contract_before_code_generation": true,
+    "relationships_must_be_explicit": true,
+    "sensitive_fields_must_be_marked": true,
+    "storage_mapping_is_a_plan_not_a_deployment": true,
+    "automatic_external_spend_eur": 0
+  },
+  "supported_field_types": [
+    "string",
+    "integer",
+    "number",
+    "boolean",
+    "datetime",
+    "date",
+    "uuid",
+    "json",
+    "binary",
+    "reference"
+  ],
+  "supported_relationships": [
+    "one-to-one",
+    "one-to-many",
+    "many-to-one",
+    "many-to-many"
+  ],
+  "supported_persistence": [
+    "none",
+    "relational",
+    "object-storage",
+    "hybrid"
+  ]
+}
