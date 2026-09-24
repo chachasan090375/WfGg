@@ -12,7 +12,7 @@ def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--plan",required=True);ap.add_argument("--contract-reconciliation",required=True)
     ap.add_argument("--component-contracts",required=True);ap.add_argument("--architecture-council",required=True)
-    ap.add_argument("--output",required=True);a=ap.parse_args()
+    ap.add_argument("--project-id");ap.add_argument("--output",required=True);a=ap.parse_args()
     plan=load(a.plan);rec=load(a.contract_reconciliation);batch=load(a.component_contracts);council=load(a.architecture_council)
     contracts=[x for x in (batch.get("contracts") or []) if isinstance(x,dict) and x.get("component_kind")=="branch"]
     by_pkg={str(x.get("package_id") or ""):x for x in contracts if x.get("package_id")}
@@ -27,7 +27,7 @@ def main():
     council_ok=council.get("schema")=="chacha.dev/architecture-decision-council/v1"
     integration_ready=bool(contract_ok and linkage_ok and council_ok)
     result={
-      "schema":"chacha.dev/integration-architecture-review/v1",
+      "schema":"chacha.dev/integration-architecture-review/v1","project_id":str(a.project_id or ""),
       "runtime_package_count":len(runtime),"linked_package_count":sum(1 for x in link if x["linked"]),
       "linkage":link,"contract_reconciliation_compatible":contract_ok,
       "architecture_council_present":council_ok,
