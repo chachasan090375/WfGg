@@ -1,0 +1,67 @@
+name: ChaCha DEV platform adapter registry writer qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-post-v730-universal-evolution-coverage-sync
+    paths:
+      - 'dev-hub/bin/platform-component-adapter-registry-writer.py'
+      - 'dev-hub/config/platform-component-adapter-registry-writer.v1.json'
+      - 'dev-hub/config/platform-component-apply-adapter-registry.v1.json'
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/config/technology-core-watch.v1.json'
+      - 'dev-hub/tests/test_platform_component_adapter_registry_writer.py'
+      - '.github/workflows/dev-hub-platform-adapter-registry-writer-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/platform-component-adapter-registry-writer.py dev-hub/tests/test_platform_component_adapter_registry_writer.py
+          python3 -m json.tool dev-hub/config/platform-component-adapter-registry-writer.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/platform-component-apply-adapter-registry.v1.json >/dev/null
+      - name: Contract-bound registry writer
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_platform_component_adapter_registry_writer.py | tee /tmp/registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_WRITER=PASS' /tmp/registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_EXPLICIT_APPLY=REQUIRED' /tmp/registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_SINGLE_KEY=YES' /tmp/registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_OVERWRITE=NO' /tmp/registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_UNRELATED_DELETE=NO' /tmp/registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_SINGLE_USE=YES' /tmp/registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_ROLLBACK=PASS' /tmp/registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_POST_GATES=PENDING' /tmp/registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_SOURCE_INTEGRATION=NO' /tmp/registry-writer.out
+          grep -Fq 'CHACHA_DEV_PLATFORM_COMPONENT_ADAPTER_REGISTRY_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/registry-writer.out
+      - name: Universal governance regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_universal_evolution_coverage_sync.py | tee /tmp/universal.out
+          grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_GUARDIAN_SYNC=PASS' /tmp/universal.out
+          grep -Fq 'CHACHA_DEV_UNIVERSAL_EVOLUTION_SELF_MUTATION=NO' /tmp/universal.out
+      - name: Receipt
+        run: |
+          echo CHACHA_DEV_PLATFORM_ADAPTER_REGISTRY_WRITER_QUALIFICATION=PASS
+          echo CONTRACT_BOUND_SINGLE_USE=YES
+          echo ADDITIVE_SINGLE_KEY_ONLY=YES
+          echo OVERWRITE_ALLOWED=NO
+          echo UNRELATED_DELETE_ALLOWED=NO
+          echo ROLLBACK_PROVEN=YES
+          echo COMMIT_PERFORMED=NO
+          echo PUSH_PERFORMED=NO
+          echo SOURCE_INTEGRATION_AUTHORIZED=NO
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
