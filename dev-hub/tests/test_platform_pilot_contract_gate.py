@@ -33,6 +33,7 @@ assert blocked["blocked"][0]["blocker"]=="REAL_HARNESS_NOT_REGISTERED",blocked
 registry={"harnesses":{"central-orchestrator":{
  "harness_id":"central-orchestrator-real-v1","status":"QUALIFIED","real_harness":True,
  "isolated":True,"same_benchmark_contract":True,"automatic_external_spend_eur":0,
+ "qualification_workflow_name":"ChaCha DEV universal evolution coverage sync qualification",
  "argv":["/usr/bin/python3","harness.py","--variant","{variant}"],
  "resource_budget":{"memory_mb":256,"cpu_weight":50,"tasks_max":8,"timeout_seconds":120}
 }}}
@@ -44,11 +45,13 @@ assert c["production_change_authorized"] is False,c
 assert c["promotion_authorized"] is False,c
 assert c["isolated_ephemeral_capsules"] is True,c
 assert c["same_benchmark_contract"] is True,c
+assert c["qualification_workflow_name"]=="ChaCha DEV universal evolution coverage sync qualification",c
 assert c["automatic_external_spend_eur"]==0,c
 
 bad={"harnesses":{"central-orchestrator":{
  "harness_id":"bad","status":"QUALIFIED","real_harness":False,"isolated":True,
- "same_benchmark_contract":True,"automatic_external_spend_eur":0,"argv":["x"]
+ "same_benchmark_contract":True,"automatic_external_spend_eur":0,
+ "qualification_workflow_name":"ChaCha DEV universal evolution coverage sync qualification","argv":["x"]
 }}}
 badout=ctrl.build_pilot_contracts(ready,bad)
 assert badout["contract_count"]==0,badout
