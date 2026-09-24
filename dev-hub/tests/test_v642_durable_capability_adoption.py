@@ -191,7 +191,7 @@ with tempfile.TemporaryDirectory(prefix="v642-e2e-") as td_raw:
       "--experience-db",experience_db,"--central-memory-db",memory_db,
       "--central-memory-snapshot",memory_snapshot,"--memory-refresh",
       "--actor","central-orchestrator","--receipt",receipt,"--apply"
-    ])
+    ],cwd=td)
     assert "CHACHA_DEV_V642_DURABLE_ADOPTION=PASS" in adopted.stdout,adopted.stdout
 
     rr=load(receipt)
@@ -440,6 +440,7 @@ with tempfile.TemporaryDirectory(prefix="v642-self-verified-block-") as td_raw:
     ],expect=1)
     assert "PROJECT_CONTROL_EVIDENCE_LEDGER_REQUIRED" in (p.stderr+p.stdout),p.stderr+p.stdout
 
+print("CHACHA_DEV_V642_MEMORY_REFRESH_CWD_INDEPENDENT=PASS")
 print("CHACHA_DEV_V642_VERIFIED_SUCCESS_BEFORE_ADOPTION=PASS")
 print("CHACHA_DEV_V642_SELF_DECLARED_VERIFIED_REJECTED=PASS")
 print("CHACHA_DEV_V642_PROJECT_CONTROL_COMMITTED_PROOF=PASS")
