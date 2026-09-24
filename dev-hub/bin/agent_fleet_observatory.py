@@ -147,10 +147,30 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
         a["refs"]["accuracy"].append(str(path));a["refs"]["evidence_quality"].append(str(path))
 
     # V6.48 common observation bus: adds exact capability coverage and independent handoff evidence.
+    # V6.64: retain aborted-revision events in the append-only Bus, but quarantine
+    # their metric contribution when a trusted abort tombstone exists.
     try:
-        trusted_observed=set(((policy.get("observation_bus") or {}).get("trusted_observed_sources") or []))
-        for event in aob.read_events(runtime_root):
+        bus_cfg=policy.get("observation_bus") or {}
+        trusted_observed=set(bus_cfg.get("trusted_observed_sources") or [])
+        events=aob.read_events(runtime_root)
+        quarantine=bus_cfg.get("aborted_revision_quarantine") or {}
+        aborted_revisions=set()
+        if quarantine.get("enabled") is True:
+            allowed_ver=set(str(x) for x in (quarantine.get("allowed_verifications") or []))
+            trusted_abort_sources=set(str(x) for x in (quarantine.get("trusted_sources") or []))
+            abort_type=str(quarantine.get("event_type") or "RUNTIME_REVISION_ABORTED")
+            abort_outcome=str(quarantine.get("required_outcome") or "ABORTED")
+            for marker in events:
+                if not isinstance(marker,dict) or str(marker.get("event_type") or "")!=abort_type:continue
+                if str(marker.get("source_id") or "") not in trusted_abort_sources:continue
+                if str(marker.get("verification") or "") not in allowed_ver:continue
+                if str(marker.get("outcome") or "")!=abort_outcome:continue
+                if quarantine.get("require_evidence_refs") is True and not (marker.get("evidence_refs") or []):continue
+                aborted=str((marker.get("details") or {}).get("aborted_revision") or "")
+                if aborted:aborted_revisions.add(aborted)
+        for event in events:
             if not isinstance(event,dict):continue
+            if str(event.get("revision") or "") in aborted_revisions:continue
             aid=normalize_role(str(event.get("subject_role") or ""),ids,policy)
             if not aid:continue
             a=agg[aid]
