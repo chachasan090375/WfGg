@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 import json
 import shutil
 import sqlite3
@@ -28,13 +29,18 @@ def run(args,cwd=None,expect=0):
                                 "stdout":p.stdout,"stderr":p.stderr}
     return p
 
-def project_control_proof(root:Path,project_id:str,task_id:str)->Path:
+def sha256_file(path:Path)->str:
+    return "sha256:"+hashlib.sha256(path.read_bytes()).hexdigest()
+
+def project_control_proof(root:Path,project_id:str,task_id:str,claims_path:Path)->Path:
     verified=root/"verified-task-result.json"
     receipt=root/"project-control-receipt.json"
+    claims_digest=sha256_file(claims_path)
     save(verified,{
       "schema":"chacha.dev/task-result/v1","project":project_id,"task_id":task_id,
-      "producer":"verification-broker","status":"OK","summary":"Verified project capability success.",
-      "observed_at":"2026-09-24T00:00:00+00:00","outputs":[],"evidence":[],
+      "producer":"v642-project-runtime","status":"OK","summary":"Verified project capability success.",
+      "observed_at":"2026-09-24T00:00:00+00:00","outputs":[],
+      "evidence":[{"source":str(claims_path.resolve()),"digest":claims_digest}],
       "verification":{"status":"VERIFIED","method":"machine","verifier":"verification-broker"}
     })
     save(receipt,{
@@ -106,19 +112,27 @@ with tempfile.TemporaryDirectory(prefix="v642-e2e-") as td_raw:
     })
 
     success=td/"success.json"
-    pc_receipt=project_control_proof(td,project,"v642-project-success")
-    save(success,{
-      "schema":"chacha.dev/capability-project-success/v1",
+    claims=td/"project-success-claims.json"
+    claims_value={
       "project_id":project,
       "capability":capability,"provider":provider,"adapter":adapter,
-      "status":"PASS","project_success":True,"verification_status":"VERIFIED",
+      "status":"PASS","project_success":True,
       "quality_gates_pass":True,"runtime_use_count":3,"incident_count":0,
       "technology_watch_revalidated":True,
       "architecture_council":{"decision":"APPROVED","decision_id":"v642-adopt-council"},
       "automatic_external_spend_eur":0,
-      "evidence_refs":["evidence:v642-project-success","evidence:v642-runtime-use"],
+      "evidence_refs":["evidence:v642-project-success","evidence:v642-runtime-use"]
+    }
+    save(claims,claims_value)
+    pc_receipt=project_control_proof(td,project,"v642-project-success",claims)
+    save(success,{
+      "schema":"chacha.dev/capability-project-success/v1",
+      **claims_value,
+      "verification_status":"VERIFIED",
       "project_control_receipt":str(pc_receipt),
-      "verified_task_id":"v642-project-success"
+      "verified_task_id":"v642-project-success",
+      "verified_claims_path":str(claims),
+      "verified_claims_digest":sha256_file(claims)
     })
 
     durable=td/"runtime/registries/durable.json"
@@ -268,18 +282,26 @@ with tempfile.TemporaryDirectory(prefix="v642-human-boundary-") as td_raw:
       "build_result":None,"production_capable":True,"network_access":True,
       "credentials_required":True,"automatic_external_spend_eur":0
     })
-    protected_pc_receipt=project_control_proof(td,"v642-protected-project","v642-protected-success")
-    save(success,{
-      "schema":"chacha.dev/capability-project-success/v1",
+    protected_claims=td/"protected-success-claims.json"
+    protected_claims_value={
       "project_id":"v642-protected-project","capability":"v642-protected-capability",
       "provider":"cloudflare-pages-production","adapter":"cloudflare-pages-production-adapter",
-      "status":"PASS","project_success":True,"verification_status":"VERIFIED",
+      "status":"PASS","project_success":True,
       "quality_gates_pass":True,"runtime_use_count":1,"incident_count":0,
       "technology_watch_revalidated":True,
       "architecture_council":{"decision":"APPROVED","decision_id":"v642-protected-council"},
-      "automatic_external_spend_eur":0,"evidence_refs":["evidence:protected"],
+      "automatic_external_spend_eur":0,"evidence_refs":["evidence:protected"]
+    }
+    save(protected_claims,protected_claims_value)
+    protected_pc_receipt=project_control_proof(td,"v642-protected-project","v642-protected-success",protected_claims)
+    save(success,{
+      "schema":"chacha.dev/capability-project-success/v1",
+      **protected_claims_value,
+      "verification_status":"VERIFIED",
       "project_control_receipt":str(protected_pc_receipt),
-      "verified_task_id":"v642-protected-success"
+      "verified_task_id":"v642-protected-success",
+      "verified_claims_path":str(protected_claims),
+      "verified_claims_digest":sha256_file(protected_claims)
     })
     p=run([
       "python3",BIN/"durable-capability-registry.py","adopt",
@@ -306,6 +328,7 @@ assert '"durable_registry_merged_before_gap_detection":True' in orch_text
 
 print("CHACHA_DEV_V642_VERIFIED_SUCCESS_BEFORE_ADOPTION=PASS")
 print("CHACHA_DEV_V642_PROJECT_CONTROL_COMMITTED_PROOF=PASS")
+print("CHACHA_DEV_V642_SUCCESS_CLAIMS_BOUND_TO_VERIFIED_RESULT=PASS")
 print("CHACHA_DEV_V642_RELEASE_INDEPENDENT_DURABLE_REGISTRY=PASS")
 print("CHACHA_DEV_V642_DURABLE_ADAPTER_REPROBE=PASS")
 print("CHACHA_DEV_V642_CROSS_PROJECT_REUSE_WITHOUT_REBUILD=PASS")
