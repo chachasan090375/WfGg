@@ -6,6 +6,7 @@ on:
       - dev-hub-v655-production-evidence-promotion-fifth-adapter-wave
     paths:
       - 'dev-hub/bin/agent_verified_evidence_backfill.py'
+      - 'dev-hub/bin/install-v655-production-evidence-fifth-wave.sh'
       - 'dev-hub/bin/agent_fleet_observatory.py'
       - 'dev-hub/bin/agent_evolution_daily_cycle.py'
       - 'dev-hub/bin/agent_benchmark_adapters.py'
@@ -35,6 +36,7 @@ jobs:
           python3 -m py_compile dev-hub/bin/agent_verified_evidence_backfill.py dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_benchmark_adapters.py dev-hub/bin/agent_benchmark_oracles.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v655_production_evidence_fifth_wave.py
           python3 -m json.tool dev-hub/config/agent-observation-bus.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-benchmark-adapters.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v655-production-evidence-fifth-wave.sh
           grep -Fq '"version":"6.55.0"' dev-hub/bin/autonomous-project-orchestrator.py
       - name: V6.55 production evidence and fifth wave
         run: |
@@ -62,4 +64,5 @@ jobs:
           echo PRODUCTION_MEASUREMENT_PRECEDENCE=YES
           echo DIRECT_AGENT_MUTATION=NO
           echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+          echo REAL_VPS_PILOT_INSTALLER=VALIDATED
           echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
