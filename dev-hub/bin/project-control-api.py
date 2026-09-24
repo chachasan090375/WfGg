@@ -137,6 +137,11 @@ def main() -> int:
             cmd += ["--verifier", str(args["verifier"])]
         if args.get("ingest") is True:
             cmd.append("--ingest")
+    elif operation == "bootstrap-control-plane":
+        cmd += [operation, "--project", project]
+        cmd += ["--actor", str(args.get("actor") or request.get("actor") or "central-orchestrator")]
+        if args.get("profile"):
+            cmd += ["--profile", str(args["profile"])]
     elif operation == "record-control-event":
         if not args.get("event_type") or not args.get("actor"):
             fail("REQUEST_EVENT_TYPE_AND_ACTOR_REQUIRED", project, operation)
