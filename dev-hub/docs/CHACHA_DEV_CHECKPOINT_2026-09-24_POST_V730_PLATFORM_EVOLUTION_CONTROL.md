@@ -2,7 +2,7 @@
 
 Date: 2026-09-24
 Branch: `dev-hub-post-v730-universal-evolution-coverage-sync`
-Qualified code head before checkpoint commit: `c78094c7f25c5f953679e3f7ec8979253e676fbd`
+Qualified code head before checkpoint commit: `9653fd91718e91b76ac5088d18f57be0dfcec94c`
 
 ## Frozen V7.3 candidate
 
@@ -237,22 +237,33 @@ and requires:
 ## Latest qualified evidence before checkpoint commit
 
 Qualified code SHA:
-`c78094c7f25c5f953679e3f7ec8979253e676fbd`
+`9653fd91718e91b76ac5088d18f57be0dfcec94c`
 
 GitHub Actions:
+- ChaCha DEV Branch Foundry source integrator qualification
+  - run: `36056467439`
+  - conclusion: SUCCESS
 - ChaCha DEV universal evolution coverage sync qualification
-  - run: `36055285403`
+  - run: `36056467136`
   - conclusion: SUCCESS
 - ChaCha DEV Sentinel technical assurance
-  - run: `36055285650`
+  - run: `36056467090`
   - conclusion: SUCCESS
 
 VPS source qualification PASS included:
+- Branch Foundry source integrator on an isolated temporary bare Git repository;
+- namespaced release-candidate ref creation;
+- exact ancestry validation;
+- idempotent apply;
+- exact rollback;
+- zero branch mutation;
+- zero push/network use;
+- sandbox adapter provisioning;
+- legacy adapter-provisioning regression;
 - canonical Project Control central apply handoff;
 - source integration executor;
 - controlled apply planner;
 - platform promotion gate;
-- protected Council approval request;
 - Project Control bootstrap/platform profile;
 - universal evolution coverage 48/48.
 
@@ -387,6 +398,83 @@ The executor never authorizes:
 
 Current adapter registry remains empty and DENY-by-default, so no real controlled apply can execute.
 
+## Qualified Branch Foundry source integration adapter
+
+Candidate adapter:
+
+`dev-hub/adapters/platform-component-branch-foundry-source-integrator.py`
+
+Policy:
+
+`dev-hub/config/platform-component-branch-foundry-source-integrator.v1.json`
+
+Qualified behavior:
+- candidate owner fixed to `branch-foundry`;
+- source-only mode `SOURCE_RELEASE_CANDIDATE_INTEGRATION`;
+- bare Git repository required;
+- candidate must be an exact 40-character commit SHA;
+- incumbent must be an exact 40-character commit SHA;
+- candidate must descend from incumbent;
+- component id is constrained and cannot escape the trusted ref namespace;
+- source integration creates only:
+  `refs/chacha-dev/release-candidates/<component>/<candidate-sha>`;
+- existing conflicting ref fails closed;
+- exact replay is idempotent;
+- rollback token is bound to repository/component/candidate/incumbent/ref;
+- rollback deletes only the exact namespaced ref while it still points to the candidate;
+- no working-tree mutation;
+- no checkout;
+- no merge;
+- no push;
+- no fetch/network;
+- no runtime mutation;
+- no production activation/deployment/merge;
+- automatic external spend EUR 0.
+
+Exact-SHA qualification at `9653fd91718e91b76ac5088d18f57be0dfcec94c`:
+- dedicated source-integrator qualification: SUCCESS;
+- universal evolution qualification: SUCCESS;
+- Sentinel technical assurance: SUCCESS.
+
+The adapter policy status is `QUALIFIED`, but:
+- `registered_for_live_component=false`;
+- the canonical apply adapter registry remains empty and `default_admission=DENY`.
+
+### Real VPS byte provisioning
+
+The qualified adapter bytes were provisioned on the VPS using the canonical adapter provisioner only after the three exact-SHA gates passed.
+
+Installed layout:
+
+`/opt/chacha-dev/adapters/platform-component/branch-foundry-source-integrator/1.0.1/`
+
+Current executable:
+
+`/opt/chacha-dev/adapters/platform-component/branch-foundry-source-integrator/current/branch-foundry-source-integrator`
+
+Verified SHA-256:
+
+`sha256:6326bac2239761810aad426b855b85405bdb28d08fcf83f9f868c34bffb7966f`
+
+Provisioning receipt:
+
+`/opt/chacha-dev/runtime/adapter-provisioning/branch-foundry-source-integrator-1.0.1.json`
+
+Receipt proves:
+- source digest = installed digest = current executable digest;
+- atomic current symlink;
+- fail-closed non-destructive probe PASS;
+- no live registration or promotion.
+
+Runtime boundaries observed after provisioning:
+- V7.2 remains active;
+- exactly 3 physical platform releases remain;
+- Direct Operator remains inactive;
+- Radar Funnel remains the only Funnel and still targets 127.0.0.1:8788;
+- `/opt/chacha-dev/source-integration/WfGg.git` is absent;
+- no runtime platform-component apply registry exists;
+- therefore the provisioned adapter is dormant and cannot execute a real controlled apply.
+
 ## Resume rules
 
 On resume:
@@ -397,8 +485,9 @@ On resume:
 5. Do not record any human promotion approval unless a real component candidate has completed SHADOW, real comparative PILOT, Council review, and the user explicitly approves that exact approval request.
 6. Do not create a generic unrestricted component mutator.
 7. The canonical Project Control Central Orchestrator handoff and guarded source integration executor are qualified; do not bypass either.
-8. Continue by designing and qualifying candidate-owner source integration adapters under `/opt/chacha-dev/adapters/platform-component`, with fixed apply/rollback protocol, exact revision scope and no production/runtime mutation.
-9. Keep the canonical adapter registry DENY-by-default; do not register or mark an adapter QUALIFIED until its exact-SHA workflow, rollback behavior and source-only scope pass.
-10. Do not execute a controlled apply on real source until a real component candidate has a valid Project Control human approval, Promotion Gate contract, ready apply plan, canonical handoff and registered qualified adapter.
-11. Production deployment remains a separate protected handoff after source candidate integration and post-apply qualification.
-12. Preserve automatic external spend EUR 0.
+8. The Branch Foundry source integrator v1.0.1 is exact-SHA qualified and byte-provisioned on the VPS, but remains unregistered/dormant.
+9. Keep the canonical adapter registry DENY-by-default. Do not bind the qualified adapter to any live component until a real component candidate supplies exact component/owner/revision/artifact context.
+10. Continue by designing/qualifying the protected component-specific adapter binding/registration gate; it may emit a proposed registry binding but must not register automatically.
+11. Do not create the real source-integration repository or execute a controlled apply until a real component candidate has a valid Project Control human approval, Promotion Gate contract, ready apply plan, canonical handoff and registered qualified adapter.
+12. Production deployment remains a separate protected handoff after source candidate integration and post-apply qualification.
+13. Preserve automatic external spend EUR 0.
