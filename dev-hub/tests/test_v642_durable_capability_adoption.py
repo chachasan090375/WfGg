@@ -6,6 +6,7 @@ import json
 import shutil
 import sqlite3
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -149,6 +150,11 @@ with tempfile.TemporaryDirectory(prefix="v642-e2e-") as td_raw:
     assert mp["adapters"][adapter]["status"]=="ENABLED",mp
 
     # A second project requiring the same capability now has NO gap.
+    # Import the candidate repo exactly as a runtime would: its sibling helper
+    # modules live in dev-hub/bin and must be resolvable.
+    temp_bin=str(repo/"dev-hub/bin")
+    if temp_bin not in sys.path:
+        sys.path.insert(0,temp_bin)
     spec=importlib.util.spec_from_file_location("v642_orchestrator",repo/"dev-hub/bin/autonomous-project-orchestrator.py")
     orch=importlib.util.module_from_spec(spec);spec.loader.exec_module(orch)
     preplan=td/"project-two-preplan.json"
