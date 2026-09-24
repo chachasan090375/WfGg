@@ -166,7 +166,8 @@
     "intendant_authority": "dev-hub/config/intendant-authority.v1.json",
     "seven_agent_final_compromise_policy": "dev-hub/config/seven-agent-final-compromise.v1.json",
     "automatic_seven_agent_finalization": "dev-hub/config/automatic-seven-agent-finalization.v1.json",
-    "autonomous_golden_path": "dev-hub/config/autonomous-golden-path.v1.json"
+    "autonomous_golden_path": "dev-hub/config/autonomous-golden-path.v1.json",
+    "platform_component_apply_adapter_registry": "dev-hub/config/platform-component-apply-adapter-registry.v1.json"
   },
   "engine_paths": {
     "control_plane_store": "dev-hub/bin/control-plane-store.py",
@@ -402,6 +403,26 @@
       "merge_to_production_branch": false,
       "automatic_apply": false,
       "automatic_external_spend_eur": 0
+    },
+    "issue-platform-component-adapter-registration": {
+      "class": "state-write",
+      "mutating": true,
+      "profile_required": "platform",
+      "project_required": "chacha-dev-platform",
+      "canonical_project_control_only": true,
+      "actor_fixed": "central-orchestrator",
+      "separate_human_registration_approval_required": true,
+      "binding_proposal_required": true,
+      "additive_registry_write_only": true,
+      "overwrite_forbidden": true,
+      "delete_forbidden": true,
+      "single_use": true,
+      "direct_runtime_mutation": false,
+      "production_activation": false,
+      "production_deployment": false,
+      "source_integration_before_post_registration_gates": false,
+      "automatic_apply": false,
+      "automatic_external_spend_eur": 0
     }
   },
   "transaction_policy": {
@@ -423,7 +444,8 @@
       "SIGNING_KEY_ROTATED",
       "SIGNING_KEY_REVOKED",
       "PROJECT_RETIRED",
-      "PLATFORM_COMPONENT_APPLY_HANDOFF_ISSUED"
+      "PLATFORM_COMPONENT_APPLY_HANDOFF_ISSUED",
+      "PLATFORM_COMPONENT_ADAPTER_REGISTRATION_ISSUED"
     ],
     "protected_state_sections": [
       "lifecycle",
