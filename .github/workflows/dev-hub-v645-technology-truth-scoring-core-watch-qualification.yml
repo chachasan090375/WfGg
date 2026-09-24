@@ -6,6 +6,7 @@ on:
       - dev-hub-v645-technology-truth-scoring-core-watch
     paths:
       - 'dev-hub/bin/technology_truth_scoring.py'
+      - 'dev-hub/bin/install-v645-technology-truth-scoring-core-watch.sh'
       - 'dev-hub/bin/technology_source_reputation.py'
       - 'dev-hub/bin/technology_watch_logician.py'
       - 'dev-hub/bin/technology_core_watch.py'
@@ -46,6 +47,7 @@ jobs:
           python3 -m json.tool dev-hub/config/technology-core-watch.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/technology-radar-domain-watch.v2.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-routing.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v645-technology-truth-scoring-core-watch.sh
           grep -Fq '"version":"6.45.0"' dev-hub/bin/autonomous-project-orchestrator.py
       - name: V6.45 technology truth scoring
         run: |
@@ -98,5 +100,6 @@ jobs:
             echo 'ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES'
             echo 'GUARDIAN_AUTHORITY=PRESERVED'
             echo 'SENTINEL_AUTHORITY=PRESERVED'
+            echo 'REAL_VPS_PILOT_INSTALLER=VALIDATED'
             echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
           } | tee /tmp/v645-receipt.txt
