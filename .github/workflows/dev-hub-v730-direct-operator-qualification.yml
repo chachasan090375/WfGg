@@ -9,6 +9,7 @@ on:
       - 'dev-hub/bin/functional-translator-agent.py'
       - 'dev-hub/config/direct-operator.v1.json'
       - 'dev-hub/config/agent-routing.v1.json'
+      - 'dev-hub/config/functional-translator-satellite.v1.json'
       - 'dev-hub/config/guardian-coverage-manifest.v1.json'
       - 'dev-hub/systemd/chacha-dev-direct-operator.service'
       - 'dev-hub/tests/test_v730_direct_operator.py'
@@ -37,6 +38,7 @@ jobs:
           python3 -m py_compile             dev-hub/bin/direct-operator-service.py             dev-hub/bin/functional-translator-agent.py             dev-hub/bin/central-interface-controller.py             dev-hub/bin/human-interface-gateway.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/tests/test_v730_direct_operator.py
           python3 -m json.tool dev-hub/config/direct-operator.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-routing.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/functional-translator-satellite.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
           grep -Fq '"version":"7.3.0"' dev-hub/bin/autonomous-project-orchestrator.py
       - name: Direct Operator qualification
@@ -54,9 +56,12 @@ jobs:
           python3 - <<'PY'
           import json
           r=json.load(open('dev-hub/config/agent-routing.v1.json'))
-          role=r['roles']['functional-translator-satellite']
-          assert role['direct_execution'] is False
-          assert role['production_change'] is False
+          assert 'functional-translator-satellite' not in r['roles']
+          sat=json.load(open('dev-hub/config/functional-translator-satellite.v1.json'))
+          assert sat['scope']=='PLATFORM_EDGE_SATELLITE'
+          assert sat['fleet_membership']=='EXCLUDED_EDGE_SATELLITE'
+          assert sat['permissions']['repository_write'] is False
+          assert sat['permissions']['production_change'] is False
           g=json.load(open('dev-hub/config/guardian-coverage-manifest.v1.json'))
           ids={x['component_id'] for x in g['expected_components']}
           assert {'direct-operator-service','functional-translator-satellite'} <= ids
@@ -86,7 +91,8 @@ jobs:
           echo CHACHA_DEV_V730_QUALIFICATION=PASS
           echo PLATFORM_VERSION=7.3.0
           echo DIRECT_OPERATOR=PRIVATE_TAILSCALE
-          echo FUNCTIONAL_TRANSLATOR=SATELLITE_AGENT
+          echo FUNCTIONAL_TRANSLATOR=EDGE_SATELLITE_AGENT
+          echo CENTRAL_FLEET_AGENT_COUNT=35
           echo TRANSLATOR_EXECUTION_AUTHORITY=NO
           echo CHATGPT_IN_DIRECT_PATH=NO
           echo DIRECT_OPERATOR_DIRECT_MUTATION=NO
