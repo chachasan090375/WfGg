@@ -10,6 +10,7 @@ import agent_benchmark_campaign_runner as abcr
 import technology_watch_runtime as tw
 import agent_evolution_profile as aep
 import component_evolution_governance as ceg
+import platform_component_evolution_controller as pcec
 import agent_verified_evidence_backfill as aveb
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding="utf-8"))
@@ -118,12 +119,17 @@ def main()->int:
       load(cfg/"project-embedded-assurance.v1.json"),universal_policy,
       load(cfg/"guardian-coverage-manifest.v1.json"))
     save(ae/"component-governance-latest.json",component_index)
+    platform_dispatch=pcec.build_dispatch(platform_idx,component_index)
+    save(pe/"foundry-dispatch-latest.json",platform_dispatch)
     receipt={"schema":"chacha.dev/agent-evolution-daily-cycle/v1","generated_at":iso(stamp),"agent_count":report.get("agent_count"),
       "optimization_count":len(report.get("optimization_queue") or []),"measurement_count":len(report.get("measurement_queue") or []),
       "event_request_count":len(requests),"scheduled_action_count":len(scheduled),
       "platform_event_request_count":len(platform_requests),"platform_routed_action_count":len(platform_actions),
       "platform_blocked_request_count":len(platform_blocked),
       "platform_reassessment_routing_complete":platform_idx["routing_complete"],
+      "platform_foundry_dispatch_count":platform_dispatch.get("dispatch_count"),
+      "platform_foundry_dispatch_blocked_count":platform_dispatch.get("blocked_count"),
+      "platform_foundry_dispatch_complete":platform_dispatch.get("dispatch_complete"),
       "deep_audit_due":deep,"ecosystem_benchmark_due":bench,
       "benchmark_campaign_created":benchmark_campaign is not None,
       "benchmark_contract_count":len((benchmark_campaign or {}).get("contracts") or []),
@@ -145,5 +151,6 @@ def main()->int:
     print("EVENT_REQUESTS="+str(len(requests)));print("SCHEDULED_ACTIONS="+str(len(scheduled)))
     print("PLATFORM_EVENT_REQUESTS="+str(len(platform_requests)));print("PLATFORM_ROUTED_ACTIONS="+str(len(platform_actions)))
     print("PLATFORM_REASSESSMENT_ROUTING="+("PASS" if platform_idx["routing_complete"] else "BLOCKED"))
+    print("PLATFORM_FOUNDRY_DISPATCH="+("PASS" if platform_dispatch["dispatch_complete"] else "BLOCKED"))
     print("CHACHA_DEV_V648_AUTOMATIC_EXTERNAL_SPEND_EUR=0");return 0
 if __name__=="__main__":raise SystemExit(main())
