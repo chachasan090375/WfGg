@@ -219,9 +219,10 @@ def handle_continue(a)->dict[str,Any]:
     # No initialized lifecycle: make a fresh central-brain call from the exact original
     # central intent. This is a real continuation/revalidation, never an interface copy.
     brain=prior.get("brain_receipt") or {}
-    central_intent=Path(str(brain.get("central_intent") or ""))
+    brain_decision=(brain.get("decision") or {}) if isinstance(brain,dict) else {}
+    central_intent=Path(str(brain_decision.get("central_intent") or brain.get("central_intent") or ""))
     if not central_intent.is_file():
-        bootstrap=Path(str(brain.get("bootstrap_result") or ""))
+        bootstrap=Path(str(brain_decision.get("bootstrap_result") or brain.get("bootstrap_result") or ""))
         if bootstrap.is_file():
             candidate=bootstrap.parent.parent/"central-intent.json"
             if candidate.is_file():central_intent=candidate
