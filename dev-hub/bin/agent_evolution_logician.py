@@ -18,8 +18,11 @@ ROUTES={
 }
 def build(agent_id:str,scorecard:dict[str,Any])->dict[str,Any]:
     dims=scorecard.get("dimensions") or {}
-    ordered=sorted(((k,float(v)) for k,v in dims.items()),key=lambda x:x[1])
+    measured=[(k,float(v)) for k,v in dims.items() if isinstance(v,(int,float)) and not isinstance(v,bool)]
+    ordered=sorted(measured,key=lambda x:x[1])
     paths=[]
+    for dim in scorecard.get("unmeasured_dimensions") or []:
+        paths.append({"dimension":dim,"route":"EVIDENCE_GAP_INSTRUMENTATION","priority":"HIGH","current_score":None})
     for dim,score in ordered:
         for route in ROUTES.get(dim,[]):
             paths.append({"dimension":dim,"route":route,"priority":"HIGH" if score<65 else "MEDIUM","current_score":score})

@@ -1,0 +1,102 @@
+{
+  "schema": "chacha.dev/agent-fleet-observatory-policy/v1",
+  "version": "1.0.0",
+  "purpose": "Build evidence-backed agent metrics from ChaCha DEV runtime artifacts without assigning scores to unmeasured dimensions.",
+  "runtime_sources": {
+    "task_graphs": "plans/**/*.task-graph.json",
+    "run_records": "runs/**/run-record.json",
+    "verified_task_results": "transactions/**/verified-task-result.json",
+    "component_confidence": "knowledge/component-confidence.json"
+  },
+  "role_aliases": {
+    "product-domain": "product-domain-architect",
+    "frontend": "frontend-architect",
+    "backend-api": "backend-api-architect",
+    "data": "data-architect",
+    "security": "security-reviewer",
+    "testing": "test-engineer",
+    "platform": "platform-cloud-engineer",
+    "sre-observability": "sre-observability-engineer",
+    "performance": "performance-engineer",
+    "recovery": "recovery-engineer",
+    "release": "release-engineer",
+    "documentation": "documentation-adr-agent",
+    "integration": "integration-architect",
+    "technology-watch": "technology-watch-agent",
+    "agent-foundry": "agent-foundry-architect",
+    "branch-foundry": "branch-foundry-architect",
+    "capability-foundry": "capability-foundry-architect",
+    "logician": "logician",
+    "ergonomist": "ergonomist",
+    "guardian": "guardian",
+    "sentinel": "sentinel",
+    "curator": "curator",
+    "bastion": "bastion",
+    "intendant": "intendant"
+  },
+  "default_agent_risk_overrides": {
+    "guardian": "high",
+    "sentinel": "high",
+    "bastion": "critical",
+    "curator": "medium",
+    "intendant": "medium",
+    "logician": "medium",
+    "ergonomist": "medium",
+    "technology-radar-agent": "medium"
+  },
+  "dimension_sources": {
+    "accuracy": "independently verified task results",
+    "evidence_quality": "verified results carrying non-empty evidence",
+    "robustness": "actual dispatched executions excluding PREPARED/SKIPPED",
+    "efficiency": "attempt/retry overhead on actual executions",
+    "authority_discipline": "Guardian pre/post verdicts attached to executions",
+    "learning_quality": "exact agent component-confidence state"
+  },
+  "confidence_state_scores": {
+    "TRUSTED": 95,
+    "PROVISIONAL": 75,
+    "OBSERVED": 60,
+    "RECOVERY_CANDIDATE": 45,
+    "DEGRADED": 30,
+    "QUARANTINED": 5
+  },
+  "scoring_rules": {
+    "minimum_events_per_dimension": 1,
+    "prepared_tasks_are_not_execution_evidence": true,
+    "blocked_tasks_are_not_automatic_agent_failures": true,
+    "ambiguous_task_role_is_not_attributed": true,
+    "unverified_results_do_not_count_as_accuracy_evidence": true,
+    "unknown_is_not_zero": true,
+    "unknown_is_not_fifty": true
+  },
+  "queues": {
+    "optimization_recommendations": [
+      "BLOCK_AND_REVIEW",
+      "SHADOW_CANDIDATE",
+      "OPTIMIZE"
+    ],
+    "measurement_recommendations": [
+      "MEASURE_FIRST",
+      "MEASURE_MORE"
+    ],
+    "risk_priority": [
+      "critical",
+      "high",
+      "medium",
+      "low"
+    ]
+  },
+  "authority": {
+    "read_only": true,
+    "no_self_scoring_authority": true,
+    "agent_foundry_owns_candidate_materialization": true,
+    "logician_is_advisory": true,
+    "technology_watch_revalidation_required": true,
+    "guardian_preserved": true,
+    "sentinel_preserved": true,
+    "architecture_council_final_authority": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}

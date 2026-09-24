@@ -30,34 +30,73 @@ def build_inventory(routing:dict[str,Any],seven:dict[str,Any],project_registries
             rows[key]={"agent_id":aid,"scope":"PROJECT","project_id":reg.get("project_id"),"source":"project-agent-registry","capabilities":agent.get("capabilities") or []}
     return {"schema":"chacha.dev/agent-evolution-inventory/v1","agents":sorted(rows.values(),key=lambda x:(x.get("scope"),x.get("project_id") or "",x["agent_id"])),"agent_count":len(rows),"automatic_external_spend_eur":0}
 
+def _metric_value(value:Any)->float|None:
+    if isinstance(value,dict):
+        if str(value.get("status") or "").upper() not in {"MEASURED","PARTIAL"}:
+            return None
+        value=value.get("value")
+    if isinstance(value,bool) or not isinstance(value,(int,float)):
+        return None
+    return round(max(0,min(100,float(value))),1)
+
 def score(agent_id:str,metrics:dict[str,Any],policy:dict[str,Any])->dict[str,Any]:
     raw=metrics.get("dimensions") or {}
-    dims={d:round(max(0,min(100,float(raw.get(d,50)))),1) for d in DIMENSIONS}
-    weakest=min(dims.values());avg=round(sum(dims.values())/len(dims),1)
+    dims={d:_metric_value(raw.get(d)) for d in DIMENSIONS}
+    measured={k:v for k,v in dims.items() if isinstance(v,(int,float))}
+    measurement_coverage=round(100.0*len(measured)/len(DIMENSIONS),1)
+    measurement_policy=policy.get("measurement") or {}
+    min_score=float(measurement_policy.get("minimum_scored_dimension_coverage_pct",40))
+    min_keep=float(measurement_policy.get("minimum_keep_dimension_coverage_pct",80))
+    th=policy.get("recommendation_thresholds") or {}
     incidents=int(metrics.get("verified_failures") or 0)+int(metrics.get("rollbacks") or 0)+int(metrics.get("handoff_failures") or 0)
     tech_debt=float(metrics.get("technology_debt") or 0)
     overlap=float(metrics.get("scope_overlap_risk") or 0)
-    debt=round(max(0,min(100,(100-avg)*0.45+incidents*8+tech_debt*0.30+overlap*0.25)),1)
-    th=policy.get("recommendation_thresholds") or {}
-    if weakest<float(th.get("block_and_review_below",40)) or debt>=float(th.get("debt_block",70)):
-        rec="BLOCK_AND_REVIEW"
-    elif weakest<float(th.get("shadow_candidate_below",65)) or debt>=float(th.get("debt_shadow",40)):
-        rec="SHADOW_CANDIDATE"
-    elif weakest<float(th.get("keep_min_dimension",80)) or debt>=float(th.get("debt_watch",20)):
-        rec="OPTIMIZE"
-    else:rec="KEEP"
-    scorecard={"schema":"chacha.dev/agent-evolution-scorecard/v1","agent_id":agent_id,"dimensions":dims,"average":avg,"weakest_dimension":min(dims,key=dims.get),"agent_debt":debt,"recommendation":rec,"automatic_external_spend_eur":0}
+    avg=round(sum(measured.values())/len(measured),1) if measured else None
+    weakest=min(measured.values()) if measured else None
+    weakest_dimension=min(measured,key=measured.get) if measured else None
+    debt=None
+    if measurement_coverage<min_score:
+        rec="MEASURE_FIRST"
+    else:
+        debt=round(max(0,min(100,(100-float(avg))*0.45+incidents*8+tech_debt*0.30+overlap*0.25)),1)
+        if float(weakest)<float(th.get("block_and_review_below",40)) or debt>=float(th.get("debt_block",70)):
+            rec="BLOCK_AND_REVIEW"
+        elif float(weakest)<float(th.get("shadow_candidate_below",65)) or debt>=float(th.get("debt_shadow",40)):
+            rec="SHADOW_CANDIDATE"
+        elif float(weakest)<float(th.get("keep_min_dimension",80)) or debt>=float(th.get("debt_watch",20)):
+            rec="OPTIMIZE"
+        elif measurement_coverage<min_keep:
+            rec="MEASURE_MORE"
+        else:
+            rec="KEEP"
+    scorecard={
+      "schema":"chacha.dev/agent-evolution-scorecard/v1",
+      "agent_id":agent_id,
+      "dimensions":dims,
+      "dimension_evidence":metrics.get("dimension_evidence") or {},
+      "measurement_coverage_pct":measurement_coverage,
+      "measured_dimensions":sorted(measured),
+      "unmeasured_dimensions":[d for d in DIMENSIONS if d not in measured],
+      "average":avg,
+      "weakest_dimension":weakest_dimension,
+      "agent_debt":debt,
+      "recommendation":rec,
+      "unknown_dimension_default_score":None,
+      "automatic_external_spend_eur":0
+    }
     scorecard["logician_challenge"]=ael.build(agent_id,scorecard)
     return scorecard
 
 def plan(agent_id:str,scorecard:dict[str,Any],policy:dict[str,Any])->dict[str,Any]:
     rec=scorecard["recommendation"]
     material=rec in {"SHADOW_CANDIDATE","BLOCK_AND_REVIEW"}
+    candidate_needed=rec in {"OPTIMIZE","SHADOW_CANDIDATE","BLOCK_AND_REVIEW"}
     return {
       "schema":"chacha.dev/agent-evolution-plan/v1","agent_id":agent_id,"recommendation":rec,
       "evolution_surfaces":policy.get("evolution_surfaces") or [],
+      "measurement_required":rec in {"MEASURE_FIRST","MEASURE_MORE"},
       "self_evolution":{"proposal_allowed":True,"active_self_mutation":False,"self_promotion":False,"permission_expansion":False},
-      "candidate":{"owner":"agent-foundry","isolated":True,"incumbent_control_group":True,"shadow_required":rec!="KEEP","pilot_required":material},
+      "candidate":{"owner":"agent-foundry" if candidate_needed else None,"isolated":candidate_needed,"incumbent_control_group":True,"shadow_required":candidate_needed,"pilot_required":material},
       "assurance":{"technology_watch_required":True,"logician_falsification_required":True,"guardian_permission_diff_required":True,"sentinel_regression_required":True,"architecture_council_final_authority":True},
       "promotion":{"measurable_gain_required":True,"no_material_regression_required":True,"rollback_required":True,"latest_version_priority":False},
       "automatic_external_spend_eur":0

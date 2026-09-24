@@ -1,0 +1,257 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+import argparse,json
+from collections import defaultdict
+from datetime import datetime,timezone
+from pathlib import Path
+from typing import Any
+import agent_evolution_controller as aec
+
+def load(path:Path)->dict[str,Any]:
+    x=json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(x,dict):raise ValueError("JSON_ROOT_NOT_OBJECT:"+str(path))
+    return x
+
+def safe_load(path:Path)->dict[str,Any]|None:
+    try:return load(path)
+    except Exception:return None
+
+def save(path:Path,x:dict[str,Any])->None:
+    path.parent.mkdir(parents=True,exist_ok=True)
+    path.write_text(json.dumps(x,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+
+def now_iso()->str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00","Z")
+
+def normalize_role(role:str,inventory_ids:set[str],policy:dict[str,Any])->str|None:
+    role=str(role or "").strip()
+    if not role:return None
+    if role in inventory_ids:return role
+    alias=(policy.get("role_aliases") or {}).get(role)
+    if alias in inventory_ids:return str(alias)
+    return None
+
+def task_role_index(runtime_root:Path,inventory_ids:set[str],policy:dict[str,Any])->dict[tuple[str,str],set[str]]:
+    out:dict[tuple[str,str],set[str]]=defaultdict(set)
+    for path in runtime_root.glob("plans/**/*.task-graph.json"):
+        x=safe_load(path)
+        if not x or x.get("schema")!="chacha.dev/task-graph/v1":continue
+        project=str(x.get("project") or "")
+        for task in x.get("tasks") or []:
+            if not isinstance(task,dict):continue
+            tid=str(task.get("id") or "")
+            aid=normalize_role(str(task.get("owner_role") or ""),inventory_ids,policy)
+            if project and tid and aid:out[(project,tid)].add(aid)
+    return out
+
+def unique_agent(index:dict[tuple[str,str],set[str]],project:str,task_id:str)->str|None:
+    rows=index.get((project,task_id)) or set()
+    return next(iter(rows)) if len(rows)==1 else None
+
+def guardian_state(value:Any)->str|None:
+    if isinstance(value,dict):
+        value=value.get("verdict") or value.get("status")
+    s=str(value or "").upper()
+    return s if s in {"PASS","WARNING","BLOCK","CRITICAL"} else None
+
+def pct(num:float,den:float)->float|None:
+    if den<=0:return None
+    return round(max(0.0,min(100.0,100.0*num/den)),1)
+
+def measured(value:float|None,evidence_count:int,source_refs:list[str])->dict[str,Any]:
+    if value is None or evidence_count<=0:
+        return {"status":"UNMEASURED","value":None,"evidence_count":0,"source_refs":[]}
+    return {"status":"MEASURED","value":round(float(value),1),"evidence_count":int(evidence_count),"source_refs":source_refs[:25]}
+
+def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any])->dict[str,dict[str,Any]]:
+    agents=inventory.get("agents") or []
+    ids={str(a.get("agent_id")) for a in agents if a.get("agent_id")}
+    idx=task_role_index(runtime_root,ids,policy)
+    agg={aid:{
+      "exec_success":0,"exec_failure":0,"timeouts":0,"attempts":0,"exec_events":0,
+      "guardian_checks":0,"guardian_points":0.0,
+      "verified_total":0,"verified_ok":0,"verified_with_evidence":0,
+      "observed_capabilities":set(),"refs":defaultdict(list)
+    } for aid in ids}
+
+    # Runtime execution evidence.
+    for path in runtime_root.glob("runs/**/run-record.json"):
+        x=safe_load(path)
+        if not x or x.get("schema")!="chacha.dev/run-record/v1":continue
+        project=str(x.get("project") or "")
+        for wave in x.get("waves") or []:
+            if not isinstance(wave,dict):continue
+            for task in wave.get("tasks") or []:
+                if not isinstance(task,dict):continue
+                tid=str(task.get("task_id") or "")
+                aid=unique_agent(idx,project,tid)
+                if not aid:continue
+                a=agg[aid]
+                for binding in task.get("provider_bindings") or []:
+                    if isinstance(binding,dict) and binding.get("capability"):
+                        a["observed_capabilities"].add(str(binding["capability"]))
+                status=str(task.get("status") or "").upper()
+                if status in {"SUCCEEDED","FAILED","TIMED_OUT"}:
+                    a["exec_events"]+=1
+                    a["attempts"]+=max(1,int(task.get("attempts") or 0))
+                    a["refs"]["robustness"].append(str(path))
+                    a["refs"]["efficiency"].append(str(path))
+                    if status=="SUCCEEDED":a["exec_success"]+=1
+                    else:
+                        a["exec_failure"]+=1
+                        if status=="TIMED_OUT":a["timeouts"]+=1
+                for field in ("guardian_pre","guardian_post"):
+                    gs=guardian_state(task.get(field))
+                    if gs:
+                        a["guardian_checks"]+=1
+                        a["guardian_points"]+=100.0 if gs=="PASS" else 75.0 if gs=="WARNING" else 0.0
+                        a["refs"]["authority_discipline"].append(str(path))
+
+    # Independently verified producer results.
+    for path in runtime_root.glob("transactions/**/verified-task-result.json"):
+        x=safe_load(path)
+        if not x or x.get("schema")!="chacha.dev/task-result/v1":continue
+        verification=x.get("verification") or {}
+        if str(verification.get("status") or "").upper()!="VERIFIED":continue
+        project=str(x.get("project") or "");tid=str(x.get("task_id") or "")
+        aid=unique_agent(idx,project,tid)
+        if not aid:continue
+        a=agg[aid];a["verified_total"]+=1
+        if str(x.get("status") or "").upper()=="OK":a["verified_ok"]+=1
+        if isinstance(x.get("evidence"),list) and len(x.get("evidence") or [])>0:a["verified_with_evidence"]+=1
+        a["refs"]["accuracy"].append(str(path));a["refs"]["evidence_quality"].append(str(path))
+
+    # Exact component-confidence entries only; no fuzzy attribution.
+    conf_path=runtime_root/"knowledge/component-confidence.json"
+    conf=safe_load(conf_path) if conf_path.is_file() else None
+    confidence_scores=policy.get("confidence_state_scores") or {}
+    if conf and conf.get("schema")=="chacha.dev/component-confidence-snapshot/v1":
+        for row in conf.get("items") or []:
+            if not isinstance(row,dict) or str(row.get("component_kind"))!="agent":continue
+            aid=str(row.get("component_id") or "")
+            if aid not in agg:continue
+            state=str(row.get("state") or "").upper()
+            if state in confidence_scores:
+                agg[aid]["learning_quality_value"]=float(confidence_scores[state])
+                agg[aid]["learning_quality_state"]=state
+                agg[aid]["refs"]["learning_quality"].append(str(conf_path))
+
+    out={}
+    for aid,a in agg.items():
+        robustness=pct(a["exec_success"],a["exec_success"]+a["exec_failure"])
+        efficiency=pct(a["exec_events"],a["attempts"]) if a["exec_events"] else None
+        accuracy=pct(a["verified_ok"],a["verified_total"])
+        evidence_quality=pct(a["verified_with_evidence"],a["verified_total"])
+        authority=(round(a["guardian_points"]/a["guardian_checks"],1) if a["guardian_checks"] else None)
+        learning=a.get("learning_quality_value")
+        dims={
+          "accuracy":measured(accuracy,a["verified_total"],a["refs"]["accuracy"]),
+          "coverage":{"status":"UNMEASURED","value":None,"evidence_count":0,"source_refs":[]},
+          "calibration":{"status":"UNMEASURED","value":None,"evidence_count":0,"source_refs":[]},
+          "evidence_quality":measured(evidence_quality,a["verified_total"],a["refs"]["evidence_quality"]),
+          "robustness":measured(robustness,a["exec_events"],a["refs"]["robustness"]),
+          "efficiency":measured(efficiency,a["exec_events"],a["refs"]["efficiency"]),
+          "handoff_quality":{"status":"UNMEASURED","value":None,"evidence_count":0,"source_refs":[]},
+          "learning_quality":measured(learning,1 if learning is not None else 0,a["refs"]["learning_quality"]),
+          "drift_resistance":{"status":"UNMEASURED","value":None,"evidence_count":0,"source_refs":[]},
+          "authority_discipline":measured(authority,a["guardian_checks"],a["refs"]["authority_discipline"])
+        }
+        out[aid]={
+          "schema":"chacha.dev/agent-observed-metrics/v1",
+          "agent_id":aid,
+          "dimensions":dims,
+          "dimension_evidence":{k:v for k,v in dims.items()},
+          "verified_failures":max(0,a["verified_total"]-a["verified_ok"]),
+          "rollbacks":0,
+          "handoff_failures":0,
+          "technology_debt":0,
+          "scope_overlap_risk":0,
+          "signals":{
+            "execution_events":a["exec_events"],"execution_successes":a["exec_success"],
+            "execution_failures":a["exec_failure"],"timeouts":a["timeouts"],
+            "attempts":a["attempts"],"verified_results":a["verified_total"],
+            "verified_ok":a["verified_ok"],"guardian_checks":a["guardian_checks"],
+            "observed_capabilities":sorted(a["observed_capabilities"]),
+            "component_confidence_state":a.get("learning_quality_state")
+          }
+        }
+    return out
+
+def risk_for(agent:dict[str,Any],routing:dict[str,Any],policy:dict[str,Any])->str:
+    aid=str(agent.get("agent_id") or "")
+    if aid in (policy.get("default_agent_risk_overrides") or {}):
+        return str(policy["default_agent_risk_overrides"][aid])
+    if agent.get("scope")=="PLATFORM":
+        r=(routing.get("roles") or {}).get(aid) or {}
+        return str(r.get("default_risk") or "medium")
+    return "medium"
+
+def build_report(repo_root:Path,runtime_root:Path,policy:dict[str,Any],evolution_policy:dict[str,Any],
+                 routing:dict[str,Any],seven:dict[str,Any],project_regs:list[dict[str,Any]])->dict[str,Any]:
+    inventory=aec.build_inventory(routing,seven,project_regs)
+    metrics=build_metrics(inventory,runtime_root,policy)
+    rows=[]
+    for agent in inventory.get("agents") or []:
+        aid=str(agent["agent_id"]);m=metrics.get(aid) or {"dimensions":{}}
+        sc=aec.score(aid,m,evolution_policy);pl=aec.plan(aid,sc,evolution_policy)
+        rows.append({
+          **agent,
+          "risk":risk_for(agent,routing,policy),
+          "metrics":m,
+          "scorecard":sc,
+          "plan":pl
+        })
+    opt_rank={"BLOCK_AND_REVIEW":0,"SHADOW_CANDIDATE":1,"OPTIMIZE":2}
+    risk_rank={r:i for i,r in enumerate(policy.get("queues",{}).get("risk_priority") or ["critical","high","medium","low"])}
+    optimization=[r for r in rows if r["scorecard"]["recommendation"] in set(policy.get("queues",{}).get("optimization_recommendations") or [])]
+    optimization.sort(key=lambda r:(opt_rank.get(r["scorecard"]["recommendation"],9),
+                                    -(r["scorecard"]["agent_debt"] if isinstance(r["scorecard"]["agent_debt"],(int,float)) else -1),
+                                    r["agent_id"]))
+    measurement=[r for r in rows if r["scorecard"]["recommendation"] in set(policy.get("queues",{}).get("measurement_recommendations") or [])]
+    measurement.sort(key=lambda r:(risk_rank.get(r["risk"],99),r["scorecard"]["measurement_coverage_pct"],r["agent_id"]))
+    summary=defaultdict(int)
+    for r in rows:summary[r["scorecard"]["recommendation"]]+=1
+    return {
+      "schema":"chacha.dev/agent-fleet-observatory-report/v1",
+      "generated_at":now_iso(),
+      "agent_count":len(rows),
+      "agents":rows,
+      "summary":dict(summary),
+      "optimization_queue":[{"agent_id":r["agent_id"],"scope":r["scope"],"risk":r["risk"],
+                             "recommendation":r["scorecard"]["recommendation"],"agent_debt":r["scorecard"]["agent_debt"],
+                             "measurement_coverage_pct":r["scorecard"]["measurement_coverage_pct"],
+                             "weakest_dimension":r["scorecard"]["weakest_dimension"]} for r in optimization],
+      "measurement_queue":[{"agent_id":r["agent_id"],"scope":r["scope"],"risk":r["risk"],
+                            "recommendation":r["scorecard"]["recommendation"],
+                            "measurement_coverage_pct":r["scorecard"]["measurement_coverage_pct"],
+                            "unmeasured_dimensions":r["scorecard"]["unmeasured_dimensions"]} for r in measurement],
+      "unknown_dimension_default_score":None,
+      "read_only":True,
+      "agent_self_scoring_authority":False,
+      "architecture_council_final_authority":True,
+      "automatic_external_spend_eur":0
+    }
+
+def main()->int:
+    ap=argparse.ArgumentParser()
+    ap.add_argument("--repo-root",type=Path,required=True)
+    ap.add_argument("--runtime-root",type=Path,default=Path("/opt/chacha-dev/runtime"))
+    ap.add_argument("--policy",type=Path,required=True)
+    ap.add_argument("--evolution-policy",type=Path,required=True)
+    ap.add_argument("--routing",type=Path,required=True)
+    ap.add_argument("--seven",type=Path,required=True)
+    ap.add_argument("--project-registry",type=Path,action="append",default=[])
+    ap.add_argument("--output",type=Path,required=True)
+    a=ap.parse_args()
+    report=build_report(a.repo_root,a.runtime_root,load(a.policy),load(a.evolution_policy),load(a.routing),load(a.seven),[load(p) for p in a.project_registry])
+    save(a.output,report)
+    print("CHACHA_DEV_V647_AGENT_FLEET_OBSERVATORY=PASS")
+    print("AGENT_COUNT="+str(report["agent_count"]))
+    print("OPTIMIZATION_QUEUE="+str(len(report["optimization_queue"])))
+    print("MEASUREMENT_QUEUE="+str(len(report["measurement_queue"])))
+    print("CHACHA_DEV_V647_UNKNOWN_DEFAULT_SCORE=NONE")
+    print("CHACHA_DEV_V647_AGENT_SELF_SCORING_AUTHORITY=NO")
+    print("CHACHA_DEV_V647_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
+    return 0
+
+if __name__=="__main__":raise SystemExit(main())

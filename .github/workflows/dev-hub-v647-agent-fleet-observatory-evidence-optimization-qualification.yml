@@ -1,0 +1,81 @@
+name: ChaCha DEV V6.47 agent fleet observatory evidence optimization qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v647-agent-fleet-observatory-evidence-optimization
+    paths:
+      - 'dev-hub/bin/agent_fleet_observatory.py'
+      - 'dev-hub/bin/agent_evolution_controller.py'
+      - 'dev-hub/bin/agent_evolution_logician.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/agent-fleet-observatory.v1.json'
+      - 'dev-hub/config/agent-evolution.v1.json'
+      - 'dev-hub/tests/test_v647_agent_fleet_observatory.py'
+      - 'dev-hub/tests/test_v646_agent_evolution_continuous_optimization.py'
+      - '.github/workflows/dev-hub-v647-agent-fleet-observatory-evidence-optimization-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/agent_evolution_controller.py dev-hub/bin/agent_evolution_logician.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v647_agent_fleet_observatory.py
+          python3 -m json.tool dev-hub/config/agent-fleet-observatory.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/agent-evolution.v1.json >/dev/null
+          grep -Fq '"version":"6.47.0"' dev-hub/bin/autonomous-project-orchestrator.py
+
+      - name: V6.47 observatory qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v647_agent_fleet_observatory.py | tee /tmp/v647.out
+          grep -Fq 'CHACHA_DEV_V647_AGENT_INVENTORY_35=PASS' /tmp/v647.out
+          grep -Fq 'CHACHA_DEV_V647_UNKNOWN_DIMENSION_DEFAULT=NONE' /tmp/v647.out
+          grep -Fq 'CHACHA_DEV_V647_MEASURE_FIRST_WITHOUT_EVIDENCE=PASS' /tmp/v647.out
+          grep -Fq 'CHACHA_DEV_V647_VERIFIED_ACCURACY_SIGNAL=PASS' /tmp/v647.out
+          grep -Fq 'CHACHA_DEV_V647_RUNTIME_ROBUSTNESS_SIGNAL=PASS' /tmp/v647.out
+          grep -Fq 'CHACHA_DEV_V647_GUARDIAN_AUTHORITY_SIGNAL=PASS' /tmp/v647.out
+          grep -Fq 'CHACHA_DEV_V647_OPTIMIZATION_AND_MEASUREMENT_QUEUES=PASS' /tmp/v647.out
+          grep -Fq 'CHACHA_DEV_V647_AGENT_SELF_SCORING_AUTHORITY=NO' /tmp/v647.out
+          grep -Fq 'CHACHA_DEV_V647_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v647.out
+
+      - name: V6.46 regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v646_agent_evolution_continuous_optimization.py | tee /tmp/v646.out
+          grep -Fq 'CHACHA_DEV_V646_AGENT_INVENTORY_35=PASS' /tmp/v646.out
+          grep -Fq 'CHACHA_DEV_V646_ACTIVE_SELF_MUTATION=NO' /tmp/v646.out
+          grep -Fq 'CHACHA_DEV_V646_SELF_PROMOTION=NO' /tmp/v646.out
+          grep -Fq 'CHACHA_DEV_V646_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES' /tmp/v646.out
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo 'CHACHA_DEV_V647_QUALIFICATION=PASS'
+            echo 'UNKNOWN_DIMENSION_DEFAULT=NONE'
+            echo 'EVIDENCE_BACKED_SCORING=YES'
+            echo 'READ_ONLY_RUNTIME_SCAN=YES'
+            echo 'PREPARED_TASK_IS_EXECUTION_EVIDENCE=NO'
+            echo 'AMBIGUOUS_ROLE_ATTRIBUTION=NO'
+            echo 'UNVERIFIED_RESULT_IS_ACCURACY_EVIDENCE=NO'
+            echo 'OPTIMIZATION_QUEUE=SEPARATE'
+            echo 'MEASUREMENT_QUEUE=SEPARATE'
+            echo 'AGENT_SELF_SCORING_AUTHORITY=NO'
+            echo 'AGENT_FOUNDRY_CANDIDATE_OWNER=YES'
+            echo 'ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES'
+            echo 'GUARDIAN_AUTHORITY=PRESERVED'
+            echo 'SENTINEL_AUTHORITY=PRESERVED'
+            echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
+          } | tee /tmp/v647-receipt.txt
