@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/technology-core-watch/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "purpose": "Continuously monitor the technology health and debt of ChaCha DEV itself.",
   "components": [
     {
@@ -157,6 +157,11 @@
       "id": "agent-fleet-observatory",
       "class": "observability-evolution",
       "criticality": "high"
+    },
+    {
+      "id": "platform-component-pilot-runner",
+      "class": "verification",
+      "criticality": "critical"
     }
   ],
   "watch_dimensions": [
