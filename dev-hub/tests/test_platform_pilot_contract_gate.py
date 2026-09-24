@@ -20,7 +20,8 @@ assert r0["pilot_ready_count"]==0,r0
 assert "candidate_artifact_ref" in r0["rows"][0]["missing_evidence"],r0
 assert "incumbent_artifact_ref" in r0["rows"][0]["missing_evidence"],r0
 
-ev={**base_evidence,"candidate_artifact_ref":"git:candidate@abc","incumbent_artifact_ref":"git:incumbent@def"}
+ev={**base_evidence,"candidate_artifact_ref":"git:candidate@abc","incumbent_artifact_ref":"git:incumbent@def",
+ "candidate_revision":"abc","incumbent_revision":"def"}
 ready=ctrl.build_pilot_readiness(shadow,{"evidence":[ev]})
 assert ready["pilot_ready_count"]==1,ready
 
