@@ -13,6 +13,7 @@ on:
       - 'dev-hub/config/platform-consolidation.v1.json'
       - 'dev-hub/config/platform-baseline.v7.json'
       - 'dev-hub/tests/test_v700_consolidated_platform_baseline.py'
+      - 'dev-hub/tests/test_v623_contextual_memory_recall.py'
       - 'dev-hub/tests/test_v660_independent_accuracy_attestation.py'
       - 'dev-hub/tests/test_v661_real_world_evidence_isolated_candidate.py'
       - 'dev-hub/tests/test_v663_runtime_surface_instrumentation_readiness.py'
