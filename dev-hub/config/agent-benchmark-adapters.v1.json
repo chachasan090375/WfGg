@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-benchmark-adapters/v1",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "purpose": "Execute real agent code against isolated deterministic fixtures and verify outputs through a separate benchmark oracle.",
   "supported_agents": {
     "guardian": {
@@ -12,9 +12,18 @@
         "authority_discipline",
         "evidence_quality",
         "drift_resistance",
-        "efficiency"
+        "efficiency",
+        "coverage",
+        "handoff_quality"
       ],
-      "max_duration_ms": 5000
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
     },
     "sentinel": {
       "adapter": "sentinel-technical-audit",
@@ -25,9 +34,18 @@
         "authority_discipline",
         "evidence_quality",
         "drift_resistance",
-        "efficiency"
+        "efficiency",
+        "coverage",
+        "handoff_quality"
       ],
-      "max_duration_ms": 10000
+      "max_duration_ms": 10000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
     },
     "bastion": {
       "adapter": "bastion-incident-response",
@@ -38,9 +56,18 @@
         "authority_discipline",
         "evidence_quality",
         "drift_resistance",
-        "efficiency"
+        "efficiency",
+        "coverage",
+        "handoff_quality"
       ],
-      "max_duration_ms": 5000
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
     },
     "autonomous-recovery-agent": {
       "adapter": "recovery-orchestrator",
@@ -51,9 +78,18 @@
         "authority_discipline",
         "evidence_quality",
         "drift_resistance",
-        "efficiency"
+        "efficiency",
+        "coverage",
+        "handoff_quality"
       ],
-      "max_duration_ms": 10000
+      "max_duration_ms": 10000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
     },
     "security-reviewer": {
       "adapter": "architecture-specialist-security-contract",
@@ -64,9 +100,18 @@
         "authority_discipline",
         "evidence_quality",
         "drift_resistance",
-        "efficiency"
+        "efficiency",
+        "coverage",
+        "handoff_quality"
       ],
-      "max_duration_ms": 5000
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
     },
     "recovery-engineer": {
       "adapter": "recovery-drill",
@@ -77,9 +122,18 @@
         "authority_discipline",
         "evidence_quality",
         "drift_resistance",
-        "efficiency"
+        "efficiency",
+        "coverage",
+        "handoff_quality"
       ],
-      "max_duration_ms": 120000
+      "max_duration_ms": 120000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
     },
     "platform-cloud-engineer": {
       "adapter": "platform-selftest-readonly",
@@ -90,9 +144,18 @@
         "authority_discipline",
         "evidence_quality",
         "drift_resistance",
-        "efficiency"
+        "efficiency",
+        "coverage",
+        "handoff_quality"
       ],
-      "max_duration_ms": 5000
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
     },
     "data-architect": {
       "adapter": "architecture-specialist-data-contract",
@@ -103,9 +166,18 @@
         "authority_discipline",
         "evidence_quality",
         "drift_resistance",
-        "efficiency"
+        "efficiency",
+        "coverage",
+        "handoff_quality"
       ],
-      "max_duration_ms": 5000
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
     },
     "release-engineer": {
       "adapter": "external-assurance-release-gate",
@@ -116,9 +188,133 @@
         "authority_discipline",
         "evidence_quality",
         "drift_resistance",
-        "efficiency"
+        "efficiency",
+        "coverage",
+        "handoff_quality"
       ],
-      "max_duration_ms": 5000
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "agent-foundry-architect": {
+      "adapter": "agent-foundry-memory-guided-planner",
+      "risk": "medium",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality",
+        "learning_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "branch-foundry-architect": {
+      "adapter": "branch-foundry-memory-guided-planner",
+      "risk": "medium",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality",
+        "learning_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "capability-foundry-architect": {
+      "adapter": "capability-foundry-memory-guided-planner",
+      "risk": "medium",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality",
+        "learning_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "logician": {
+      "adapter": "agent-evolution-logician",
+      "risk": "medium",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "technology-watch-agent": {
+      "adapter": "technology-truth-scoring-and-reputation",
+      "risk": "medium",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality",
+        "calibration",
+        "learning_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
     }
   },
   "evidence": {
@@ -127,7 +323,7 @@
     "truth_scope": "BENCHMARK_ONLY",
     "production_truth_eligible": false,
     "verification": "BENCHMARK_VERIFIED",
-    "independent_oracle_id": "v652-independent-benchmark-oracle",
+    "independent_oracle_id": "v653-independent-benchmark-oracle",
     "exact_revision_required": true,
     "technology_watch_fresh_required": true,
     "guardian_preserved": true,
@@ -162,5 +358,16 @@
     "repeated_oracle_verdicts_required": true,
     "repeated_dimension_scores_required": true,
     "duration_budget_is_guardrail": true
+  },
+  "contract_evidence": {
+    "dimensions": [
+      "coverage",
+      "handoff_quality"
+    ],
+    "semantics": {
+      "coverage": "coverage of declared benchmark contract surfaces, BENCHMARK_ONLY; not production capability coverage",
+      "handoff_quality": "structural compatibility of real agent output with the independent benchmark oracle, BENCHMARK_ONLY"
+    },
+    "minimum_oracle_cases_default": 4
   }
 }

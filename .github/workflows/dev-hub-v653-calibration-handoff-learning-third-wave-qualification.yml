@@ -1,0 +1,69 @@
+name: ChaCha DEV V6.53 calibration handoff learning third adapter wave qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v653-calibration-handoff-learning-third-adapter-wave
+    paths:
+      - 'dev-hub/bin/agent_benchmark_adapters.py'
+      - 'dev-hub/bin/agent_benchmark_oracles.py'
+      - 'dev-hub/bin/agent_benchmark_adapter_runner.py'
+      - 'dev-hub/bin/agent_evolution_controller.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/agent-benchmark-adapters.v1.json'
+      - 'dev-hub/config/agent-evolution.v1.json'
+      - 'dev-hub/tests/test_v653_calibration_handoff_learning_third_wave.py'
+      - '.github/workflows/dev-hub-v653-calibration-handoff-learning-third-wave-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/agent_benchmark_adapters.py dev-hub/bin/agent_benchmark_oracles.py dev-hub/bin/agent_benchmark_adapter_runner.py dev-hub/bin/agent_evolution_controller.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v653_calibration_handoff_learning_third_wave.py
+          python3 -m json.tool dev-hub/config/agent-benchmark-adapters.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/agent-evolution.v1.json >/dev/null
+          grep -Fq '"version":"6.53.0"' dev-hub/bin/autonomous-project-orchestrator.py
+      - name: V6.53 evidence maturity and third wave
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v653_calibration_handoff_learning_third_wave.py | tee /tmp/v653.out
+          grep -Fq 'CHACHA_DEV_V653_BENCHMARK_CONTRACT_COVERAGE=PASS' /tmp/v653.out
+          grep -Fq 'CHACHA_DEV_V653_BENCHMARK_HANDOFF_QUALITY=PASS' /tmp/v653.out
+          grep -Fq 'CHACHA_DEV_V653_AGENT_FOUNDRY_EXECUTABLE_ADAPTER=PASS' /tmp/v653.out
+          grep -Fq 'CHACHA_DEV_V653_BRANCH_FOUNDRY_EXECUTABLE_ADAPTER=PASS' /tmp/v653.out
+          grep -Fq 'CHACHA_DEV_V653_CAPABILITY_FOUNDRY_EXECUTABLE_ADAPTER=PASS' /tmp/v653.out
+          grep -Fq 'CHACHA_DEV_V653_LOGICIAN_EXECUTABLE_ADAPTER=PASS' /tmp/v653.out
+          grep -Fq 'CHACHA_DEV_V653_TECHNOLOGY_WATCH_EXECUTABLE_ADAPTER=PASS' /tmp/v653.out
+          grep -Fq 'CHACHA_DEV_V653_FOUNDRY_LEARNING_QUALITY=PASS' /tmp/v653.out
+          grep -Fq 'CHACHA_DEV_V653_TECHNOLOGY_WATCH_CALIBRATION=PASS' /tmp/v653.out
+          grep -Fq 'CHACHA_DEV_V653_PREVIOUS_NINE_COVERAGE_80=PASS' /tmp/v653.out
+          grep -Fq 'CHACHA_DEV_V653_BENCHMARK_ONLY_CANDIDATE_MATERIALIZATION=BLOCKED' /tmp/v653.out
+          grep -Fq 'CHACHA_DEV_V653_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v653.out
+      - name: Qualification receipt
+        run: |
+          {
+            echo 'CHACHA_DEV_V653_QUALIFICATION=PASS'
+            echo 'EVIDENCE_MATURITY=ENFORCED'
+            echo 'BENCHMARK_ONLY_CANDIDATE_MATERIALIZATION=BLOCKED'
+            echo 'BENCHMARK_CONTRACT_COVERAGE=MEASURED'
+            echo 'BENCHMARK_HANDOFF_QUALITY=MEASURED'
+            echo 'THIRD_WAVE_EXECUTABLE_ADAPTERS=5'
+            echo 'FOUNDRY_LEARNING_QUALITY=MEASURED'
+            echo 'TECHNOLOGY_WATCH_CALIBRATION=MEASURED'
+            echo 'PRODUCTION_MEASUREMENT_PRECEDENCE=PRESERVED'
+            echo 'KEEP_REQUIRES_DIMENSION_COVERAGE_PCT=100'
+            echo 'ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES'
+            echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
+          } | tee /tmp/v653-receipt.txt

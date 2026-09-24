@@ -44,6 +44,11 @@ def score(agent_id:str,metrics:dict[str,Any],policy:dict[str,Any])->dict[str,Any
     dims={d:_metric_value(raw.get(d)) for d in DIMENSIONS}
     measured={k:v for k,v in dims.items() if isinstance(v,(int,float))}
     measurement_coverage=round(100.0*len(measured)/len(DIMENSIONS),1)
+    dimension_evidence=metrics.get("dimension_evidence") or {}
+    benchmark_measured={d:v for d,v in measured.items() if str((dimension_evidence.get(d) or {}).get("evidence_scope") or "").upper()=="BENCHMARK_ONLY"}
+    production_measured={d:v for d,v in measured.items() if d not in benchmark_measured}
+    benchmark_coverage=round(100.0*len(benchmark_measured)/len(DIMENSIONS),1)
+    production_coverage=round(100.0*len(production_measured)/len(DIMENSIONS),1)
     measurement_policy=policy.get("measurement") or {}
     min_score=float(measurement_policy.get("minimum_scored_dimension_coverage_pct",40))
     min_keep=float(measurement_policy.get("minimum_keep_dimension_coverage_pct",80))
@@ -73,8 +78,12 @@ def score(agent_id:str,metrics:dict[str,Any],policy:dict[str,Any])->dict[str,Any
       "schema":"chacha.dev/agent-evolution-scorecard/v1",
       "agent_id":agent_id,
       "dimensions":dims,
-      "dimension_evidence":metrics.get("dimension_evidence") or {},
+      "dimension_evidence":dimension_evidence,
       "measurement_coverage_pct":measurement_coverage,
+      "production_measurement_coverage_pct":production_coverage,
+      "benchmark_measurement_coverage_pct":benchmark_coverage,
+      "production_measured_dimensions":sorted(production_measured),
+      "benchmark_measured_dimensions":sorted(benchmark_measured),
       "measured_dimensions":sorted(measured),
       "unmeasured_dimensions":[d for d in DIMENSIONS if d not in measured],
       "average":avg,
@@ -90,11 +99,19 @@ def score(agent_id:str,metrics:dict[str,Any],policy:dict[str,Any])->dict[str,Any
 def plan(agent_id:str,scorecard:dict[str,Any],policy:dict[str,Any])->dict[str,Any]:
     rec=scorecard["recommendation"]
     material=rec in {"SHADOW_CANDIDATE","BLOCK_AND_REVIEW"}
-    candidate_needed=rec in {"OPTIMIZE","SHADOW_CANDIDATE","BLOCK_AND_REVIEW"}
+    maturity=(policy.get("measurement") or {}).get("evidence_maturity") or {}
+    min_prod=float(maturity.get("minimum_production_dimension_coverage_for_candidate_pct",40))
+    production_coverage=float(scorecard.get("production_measurement_coverage_pct") or 0)
+    candidate_evidence_mature=production_coverage>=min_prod
+    candidate_requested=rec in {"OPTIMIZE","SHADOW_CANDIDATE","BLOCK_AND_REVIEW"}
+    candidate_needed=candidate_requested and candidate_evidence_mature
     return {
       "schema":"chacha.dev/agent-evolution-plan/v1","agent_id":agent_id,"recommendation":rec,
       "evolution_surfaces":policy.get("evolution_surfaces") or [],
-      "measurement_required":rec in {"MEASURE_FIRST","MEASURE_MORE"},
+      "measurement_required":rec in {"MEASURE_FIRST","MEASURE_MORE"} or (candidate_requested and not candidate_evidence_mature),
+      "evidence_maturity":{"candidate_requested":candidate_requested,"candidate_evidence_mature":candidate_evidence_mature,
+        "production_measurement_coverage_pct":production_coverage,"minimum_required_pct":min_prod,
+        "benchmark_only_cannot_materialize_candidate":True},
       "self_evolution":{"proposal_allowed":True,"active_self_mutation":False,"self_promotion":False,"permission_expansion":False},
       "candidate":{"owner":"agent-foundry" if candidate_needed else None,"isolated":candidate_needed,"incumbent_control_group":True,"shadow_required":candidate_needed,"pilot_required":material},
       "assurance":{"technology_watch_required":True,"logician_falsification_required":True,"guardian_permission_diff_required":True,"sentinel_regression_required":True,"architecture_council_final_authority":True},

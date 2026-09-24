@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-evolution/v1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "purpose": "Continuously measure, challenge and safely evolve ChaCha DEV agents without direct self-mutation.",
   "inventory_sources": [
     "dev-hub/config/agent-routing.v1.json",
@@ -124,11 +124,18 @@
     "evidence_backed_only": true,
     "unknown_dimension_default_score": null,
     "minimum_scored_dimension_coverage_pct": 40,
-    "minimum_keep_dimension_coverage_pct": 80,
+    "minimum_keep_dimension_coverage_pct": 100,
     "unmeasured_recommendation": "MEASURE_FIRST",
     "partial_measurement_recommendation": "MEASURE_MORE",
     "optimization_debt_requires_minimum_measurement_coverage": true,
-    "evidence_provenance_required": true
+    "evidence_provenance_required": true,
+    "evidence_maturity": {
+      "minimum_production_dimension_coverage_for_candidate_pct": 40,
+      "benchmark_only_cannot_materialize_candidate": true,
+      "benchmark_only_can_fill_unknown_dimensions": true,
+      "production_measurements_always_override_benchmark": true,
+      "rationale": "Prevent high fixture scores from materializing an optimization candidate before sufficient real-world evidence exists."
+    }
   },
   "observatory": {
     "policy": "dev-hub/config/agent-fleet-observatory.v1.json",

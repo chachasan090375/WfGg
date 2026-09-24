@@ -277,10 +277,168 @@ def release_engineer(repo:Path)->dict[str,Any]:
       "automatic_external_spend_eur":good.get("automatic_external_spend_eur")
     }}
 
+
+def _fresh_watch()->dict[str,Any]:
+    return {"eligible_provider_candidates":[{"id":"v653-zero-cost","external_spend_eur":0}],
+      "branch_blueprints":[],"snapshot_freshness":"FRESH","targeted_refresh_performed":False,
+      "source_snapshot_digest":"v653-benchmark-watch","zero_spend_candidate_available":True,
+      "selection_rule":"ZERO_SPEND_FIRST","automatic_external_spend_eur":0}
+
+def _foundry_memory_brief()->dict[str,Any]:
+    return {"schema":"chacha.dev/central-memory-recall/v1","brief_digest":"v653-memory",
+      "source_memory_snapshot_digest":"v653-memory-snapshot","trusted_memory_count":1,"caution_count":2,
+      "memory_authority":"ADVISORY",
+      "trusted_component_candidates":[{"component_kind":"agent","component_id":"graphics-agent","domain":"graphics",
+        "confidence":0.97,"verified_success_count":6}],
+      "caution_component_candidates":[
+        {"component_kind":"agent","component_id":"graphics-old-agent","domain":"graphics","confidence":0.31},
+        {"component_kind":"architecture","component_id":"graphics-old-architecture","domain":"graphics","confidence":0.25}],
+      "current_best_reuse_candidates":[{"component_kind":"branch","component_id":"graphics-reusable-branch",
+        "domain":"graphics","confidence":0.98,"verified_success_count":8}],
+      "trusted_memory":[],"cautions":[]}
+
+def _foundry_preplan()->dict[str,Any]:
+    return {"schema":"chacha.dev/domain-plan/v1","mode":"implementation","implementation_allowed":True,
+      "intent":{"summary":"graphics generation"},
+      "packages":[{"id":"domain:graphics","domain":"graphics","kind":"primary",
+        "roles":["graphics-old-agent","graphics-agent"],"capabilities":["image-generation"],"toolchain":[]}]}
+
+def agent_foundry_architect(repo:Path)->dict[str,Any]:
+    mod=loadmod("v653_agent_foundry",repo/"dev-hub/bin/agent-foundry-planner.py")
+    old_consult=mod.tw.consult;mod.tw.consult=lambda *a,**k:_fresh_watch()
+    try:
+        cfg=load(repo/"dev-hub/config/agent-foundry.v1.json")
+        routing={"roles":{"graphics-agent":{"capabilities":["image-generation"]},
+                          "graphics-old-agent":{"capabilities":["image-generation"]}}}
+        out=mod.build(_foundry_preplan(),cfg,routing,"v653-project",_foundry_memory_brief())
+        d=out["decisions"][0]
+        return {"agent_id":"agent-foundry-architect","adapter":"agent-foundry-memory-guided-planner","actual":{
+          "decision":d.get("decision"),"agent_id":d.get("agent_id"),"memory_guided_decision":d.get("memory_guided_decision"),
+          "excluded_roles":d.get("memory_excluded_roles") or [],"preferred_roles":d.get("memory_preferred_roles") or [],
+          "technology_watch_consulted":out.get("technology_watch_consulted"),
+          "central_memory_consumed":out.get("central_memory_recall_consumed"),
+          "replan_required":out.get("replan_required"),"dispatch_allowed":out.get("dispatch_allowed"),
+          "capabilities":d.get("capabilities") or [],
+          "auto_spend":((d.get("technology_watch") or {}).get("automatic_external_spend_eur"))
+        }}
+    finally:mod.tw.consult=old_consult
+
+def branch_foundry_architect(repo:Path)->dict[str,Any]:
+    agent=loadmod("v653_agent_for_branch",repo/"dev-hub/bin/agent-foundry-planner.py")
+    mod=loadmod("v653_branch_foundry",repo/"dev-hub/bin/branch-foundry-planner.py")
+    old_a=agent.tw.consult;old_b=mod.tw.consult
+    agent.tw.consult=lambda *a,**k:_fresh_watch();mod.tw.consult=lambda *a,**k:_fresh_watch()
+    try:
+        pre=_foundry_preplan();brief=_foundry_memory_brief()
+        routing={"roles":{"graphics-agent":{"capabilities":["image-generation"]},
+                          "graphics-old-agent":{"capabilities":["image-generation"]}}}
+        atop=agent.build(pre,load(repo/"dev-hub/config/agent-foundry.v1.json"),routing,"v653-project",brief)
+        out=mod.build(pre,load(repo/"dev-hub/config/branch-foundry.v1.json"),"v653-project",atop,brief)
+        d=out["decisions"][0]
+        return {"agent_id":"branch-foundry-architect","adapter":"branch-foundry-memory-guided-planner","actual":{
+          "dispatch_allowed":out.get("dispatch_allowed"),"decision":d.get("decision"),
+          "memory_reuse_candidates_considered":d.get("memory_reuse_candidates_considered"),
+          "negative_fast_reuse_block":d.get("memory_negative_fast_reuse_block"),
+          "memory_guided_decision":d.get("memory_guided_decision"),
+          "technology_watch_consulted":out.get("technology_watch_consulted"),
+          "central_memory_consumed":out.get("central_memory_recall_consumed"),
+          "external_spend_eur":(out.get("summary") or {}).get("external_spend_eur"),
+          "resource_budget":d.get("resource_budget"),"reason":d.get("reason")
+        }}
+    finally:agent.tw.consult=old_a;mod.tw.consult=old_b
+
+def capability_foundry_architect(repo:Path)->dict[str,Any]:
+    mod=loadmod("v653_capability_foundry",repo/"dev-hub/bin/capability-foundry.py")
+    old_consult=mod.tw.consult;mod.tw.consult=lambda *a,**k:_fresh_watch()
+    with tempfile.TemporaryDirectory(prefix="v653-capability-foundry-") as td:
+        t=Path(td);req=t/"request.json";domains=t/"domains.json";caps=t/"caps.json";mem=t/"memory.json"
+        out=t/"out.json";do=t/"domains-out.json";co=t/"caps-out.json";ro=t/"routing-out.json"
+        req.write_text(json.dumps({"project_id":"v653-project","missing_capabilities":[{
+          "id":"image-generation","domain":"graphics",
+          "architecture_candidates":[{"id":"graphics-old-agent"},{"id":"fresh-design"}]}]})+"\n")
+        domains.write_text(json.dumps({"domains":{"graphics":{"orchestrator":"graphics-orchestrator"}}})+"\n")
+        caps.write_text(json.dumps({"capabilities":{}})+"\n")
+        mem.write_text(json.dumps(_foundry_memory_brief())+"\n")
+        oldargv=sys.argv
+        try:
+            sys.argv=["capability-foundry.py","--request",str(req),"--policy",str(repo/"dev-hub/config/capability-foundry.v1.json"),
+              "--domains",str(domains),"--capabilities",str(caps),"--memory-brief",str(mem),"--output",str(out),
+              "--domain-overlay",str(do),"--capability-overlay",str(co),"--routing-overlay",str(ro)]
+            with contextlib.redirect_stdout(io.StringIO()):mod.main()
+        finally:sys.argv=oldargv;mod.tw.consult=old_consult
+        x=load(out);p=x["plans"][0]
+        return {"agent_id":"capability-foundry-architect","adapter":"capability-foundry-memory-guided-planner","actual":{
+          "central_memory_consumed":x.get("central_memory_recall_consumed"),"memory_guided_plans":x.get("memory_guided_plans"),
+          "old_candidate_excluded":all(str(c.get("id") or "")!="graphics-old-agent" for c in p.get("architecture_candidates") or []),
+          "fresh_candidate_present":any(str(c.get("id") or "")=="fresh-design" for c in p.get("architecture_candidates") or []),
+          "technology_watch_consulted":p.get("technology_watch",{}).get("consulted"),
+          "created_capability_count":x.get("created_capability_count"),"created_domain_count":x.get("created_domain_count"),
+          "promotion_requires_qualification":x.get("promotion_requires_qualification"),
+          "sandbox_required":p.get("sandbox_required"),"rollback_required":p.get("rollback_required"),
+          "capability":p.get("capability")
+        }}
+
+def logician_agent(repo:Path)->dict[str,Any]:
+    mod=loadmod("v653_logician",repo/"dev-hub/bin/agent_evolution_logician.py")
+    sc={"dimensions":{"accuracy":45.0,"learning_quality":40.0,"robustness":70.0},
+        "unmeasured_dimensions":["coverage","calibration","handoff_quality"],"measurement_coverage_pct":30.0}
+    out=mod.build("v653-subject",sc);paths=out.get("falsification_paths") or []
+    return {"agent_id":"logician","adapter":"agent-evolution-logician","actual":{
+      "decision_authority":out.get("decision_authority"),"direct_agent_mutation":out.get("direct_agent_mutation"),
+      "automatic_external_spend_eur":out.get("automatic_external_spend_eur"),"path_count":len(paths),
+      "high_accuracy_routes":[x.get("route") for x in paths if x.get("dimension")=="accuracy" and x.get("priority")=="HIGH"],
+      "learning_routes":[x.get("route") for x in paths if x.get("dimension")=="learning_quality"],
+      "gap_routes":[x.get("dimension") for x in paths if x.get("route")=="EVIDENCE_GAP_INSTRUMENTATION"],
+      "shadow_route_present":any(x.get("route")=="INCUMBENT_VS_CANDIDATE_SHADOW_COMPARISON" for x in paths)
+    }}
+
+def technology_watch_agent(repo:Path)->dict[str,Any]:
+    tts=loadmod("v653_truth_scoring",repo/"dev-hub/bin/technology_truth_scoring.py")
+    tsr=loadmod("v653_source_reputation",repo/"dev-hub/bin/technology_source_reputation.py")
+    policy=load(repo/"dev-hub/config/technology-truth-scoring.v1.json")
+    rep=load(repo/"dev-hub/config/technology-source-reputation.v1.json")
+    def dossier(version="1.8.4",release="2026-06-01"):
+        return {"schema":"chacha.dev/technology-candidate-dossier/v1","technology_id":"v653-runtime","publisher":"V653Vendor",
+          "version":version,"release_date":release,"as_of":"2026-09-24T00:00:00Z","blast_radius":"medium",
+          "claims":[{"id":"claim-core","class":"runtime","required":True}],
+          "evidence":[
+            {"id":"doc","claim_id":"claim-core","type":"official_technical","origin":"vendor-doc","independence_group":"vendor","verified":True,"stance":"SUPPORT"},
+            {"id":"ind","claim_id":"claim-core","type":"independent_technical","origin":"independent-lab","independence_group":"independent","verified":True,"stance":"SUPPORT"},
+            {"id":"exec","claim_id":"claim-core","type":"executable_reproduction","origin":"chacha-lab","independence_group":"exec","verified":True,"reproducible":True,"stance":"SUPPORT"},
+            {"id":"pilot","claim_id":"claim-core","type":"project_pilot","origin":"chacha-pilot","independence_group":"pilot","verified":True,"reproducible":True,"stance":"SUPPORT"}],
+          "operational":{"maintenance_health":95,"security_health":95,"unresolved_critical_issues":0,"unresolved_high_impact_issues":0,
+            "unresolved_medium_issues":0,"regression_rate_pct":1,"rollback_tested":True,"shadow_passed":True,"pilot_passed":True},
+          "architecture_fit":{"compatibility":92,"security_fit":92,"resource_efficiency":90,"observability":90,
+            "rollback_readiness":95,"integration_fit":92,"cost_fit":100,"migration_safety":92},"outcomes":[]}
+    good=dossier()
+    marketing=copy.deepcopy(good);marketing["evidence"]=[{"id":"m","claim_id":"claim-core","type":"marketing","origin":"vendor-marketing",
+      "independence_group":"vendor","verified":True,"stance":"SUPPORT"}]
+    contradictory=copy.deepcopy(good);contradictory["evidence"].append({"id":"neg","claim_id":"claim-core","type":"independent_technical",
+      "origin":"failure-lab","independence_group":"negative","verified":True,"stance":"CONTRADICT"})
+    gr=tts.evaluate(good,policy,rep,{})
+    mr=tts.evaluate(marketing,policy,rep,{})
+    cr=tts.evaluate(contradictory,policy,rep,{})
+    before=tsr.profile_confidence(rep,"V653Vendor")
+    rep_bad=tsr.apply_event(rep,{"publisher":"V653Vendor","outcome":"CONTRADICTED","claim_class":"runtime","evidence_ref":"v653:negative"})
+    after_bad=tsr.profile_confidence(rep_bad,"V653Vendor")
+    rep_good=tsr.apply_event(rep_bad,{"publisher":"V653Vendor","outcome":"CONFIRMED_EXECUTABLE","claim_class":"runtime","evidence_ref":"v653:positive"})
+    after_good=tsr.profile_confidence(rep_good,"V653Vendor")
+    new=dossier("2.0.0","2026-09-23");new["operational"].update({"rollback_tested":False,"shadow_passed":False,"pilot_passed":False})
+    nr=tts.evaluate(new,policy,rep,{})
+    selected=tts.select_verified_safe([nr,gr])
+    return {"agent_id":"technology-watch-agent","adapter":"technology-truth-scoring-and-reputation","actual":{
+      "good_recommendation":gr.get("recommendation_class"),"good_truth":gr.get("technical_truth_score"),
+      "marketing_only":mr.get("marketing_only"),"marketing_recommendation":mr.get("recommendation_class"),
+      "contradiction_detected":cr.get("contradictory_evidence"),"additional_verification":cr.get("additional_verification_required"),
+      "selected_version":((selected.get("selected") or {}).get("version")),"latest_version_priority":selected.get("latest_version_priority"),
+      "confidence_before":before,"confidence_after_contradiction":after_bad,"confidence_after_confirmation":after_good,
+      "permission_escalation":gr.get("permission_escalation"),"automatic_external_spend_eur":gr.get("automatic_external_spend_eur")
+    }}
+
 ADAPTERS={"guardian":guardian,"sentinel":sentinel,"bastion":bastion,"autonomous-recovery-agent":recovery,
           "security-reviewer":security_reviewer,"recovery-engineer":recovery_engineer,
           "platform-cloud-engineer":platform_cloud_engineer,"data-architect":data_architect,
-          "release-engineer":release_engineer}
+          "release-engineer":release_engineer,"agent-foundry-architect":agent_foundry_architect,"branch-foundry-architect":branch_foundry_architect,"capability-foundry-architect":capability_foundry_architect,"logician":logician_agent,"technology-watch-agent":technology_watch_agent}
 
 def execute(agent_id:str,repo_root:Path)->dict[str,Any]:
     fn=ADAPTERS.get(agent_id)

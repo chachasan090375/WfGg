@@ -29,7 +29,8 @@ def run(agent_id:str,repo_root:Path,revision:str,config:dict[str,Any])->dict[str
         durations.append(round((time.perf_counter()-started)*1000,3));oracles_seen.append(oracle)
     budget=float(spec.get("max_duration_ms") or 60000)
     deep=oracles.deep_calibration(oracles_seen[0],oracles_seen[-1],durations,budget)
-    cases=list(oracles_seen[0]["cases"])+deep;dimensions=_scores(cases)
+    contract_cases=oracles.contract_evidence(oracles_seen[0],spec)
+    cases=list(oracles_seen[0]["cases"])+deep+contract_cases;dimensions=_scores(cases)
     watch=tw.snapshot_status(repo_root)
     oracle_complete=bool(oracles_seen[0].get("oracle_complete")) and all(isinstance(c.get("passed"),bool) and c.get("dimension") for c in cases)
     evidence={
