@@ -27,8 +27,8 @@ def core(x:dict[str,Any])->dict[str,Any]:
     keys=("schema","accepted","criteria","return_to_factories","delivery_allowed","local_acceptance_candidate",
           "final_delivery_allowed","final_delivery_gate","final_delivery_receipt_required")
     return {k:x.get(k) for k in keys}
-def guardian_ok(runtime_root:Path)->bool:
-    p=runtime_root/"guardian/coverage-latest.json"
+def guardian_ok(runtime_root:Path,override:Path|None=None)->bool:
+    p=override if override is not None else runtime_root/"guardian/coverage-latest.json"
     if not p.is_file():return False
     x=load(p);return x.get("all_hooks_active") is True
 
@@ -63,7 +63,8 @@ def adversarial(repo_root:Path,incumbent:Path,candidate:Path,work:Path)->list[di
     return cases
 
 def main()->int:
-    ap=argparse.ArgumentParser();ap.add_argument("--repo-root",type=Path,required=True);ap.add_argument("--runtime-root",type=Path,required=True);ap.add_argument("--output",type=Path,required=True);a=ap.parse_args()
+    ap=argparse.ArgumentParser();ap.add_argument("--repo-root",type=Path,required=True);ap.add_argument("--runtime-root",type=Path,required=True);ap.add_argument("--output",type=Path,required=True)
+    ap.add_argument("--technology-watch-status",type=Path);ap.add_argument("--guardian-coverage",type=Path);a=ap.parse_args()
     repo=a.repo_root.resolve();runtime=a.runtime_root.resolve()
     incumbent=repo/"dev-hub/bin/acceptance-engine.py"
     candidate=repo/"dev-hub/candidates/acceptance-engineer/v661/acceptance-engine-candidate.py"
@@ -74,8 +75,9 @@ def main()->int:
     challenge=ael.build("acceptance-engineer",sc)
     routes={x.get("route") for x in challenge.get("falsification_paths") or []}
     logician_ok={"ADVERSARIAL_COUNTEREXAMPLES","INDEPENDENT_ORACLE_CHECK","PERMISSION_BOUNDARY_PROBE","INCUMBENT_VS_CANDIDATE_SHADOW_COMPARISON"}<=routes
-    watch=tw.snapshot_status(repo);watch_ok=watch.get("fresh") is True and watch.get("state")=="FRESH"
-    guard=guardian_ok(runtime)
+    watch=load(a.technology_watch_status) if a.technology_watch_status is not None else tw.snapshot_status(repo)
+    watch_ok=watch.get("fresh") is True and watch.get("state")=="FRESH"
+    guard=guardian_ok(runtime,a.guardian_coverage)
     governance_ok=(
       manifest.get("owner")=="agent-foundry" and manifest.get("isolated") is True and
       manifest.get("incumbent_control_group") is True and manifest.get("production_activation_allowed") is False and
