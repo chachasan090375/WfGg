@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-role-contracts/v1",
-  "version": "2.1.0",
+  "version": "1.1.0",
   "scope": "PLATFORM_GLOBAL",
   "principles": {
     "guardian_is_external_to_central_brain": true,
@@ -736,23 +736,24 @@
       "contract_id": "role:platform-hygiene-executor",
       "kind": "role",
       "allowed_actions": [
-        "EXECUTE_PLATFORM_RETIREMENT",
         "EXECUTE_SAFE_TEMP_CLEANUP",
-        "REPORT_PLATFORM_HYGIENE"
+        "EXECUTE_PLATFORM_RETIREMENT"
       ],
       "forbidden_actions": [
         "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
         "MODIFY_GUARDIAN_CONTRACTS",
-        "MUTATE_APPLICATION_DIRECTLY",
-        "PRODUCTION_DEPLOY",
         "DELETE_SOURCE_CODE",
-        "DELETE_REMOTE_BRANCH"
+        "DELETE_REMOTE_BRANCH",
+        "REWRITE_OBSERVATION_BUS",
+        "MUTATE_BENCHMARK_EVIDENCE"
       ],
       "allowed_permissions": [
-        "read",
         "destructive-operation"
       ],
-      "required_evidence": [],
+      "required_evidence": [
+        "human_approval"
+      ],
       "authority_scope": "PLATFORM_PHYSICAL_HYGIENE"
     }
   ]
