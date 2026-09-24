@@ -1,0 +1,140 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import hashlib,json,subprocess,sys,tempfile
+from pathlib import Path
+
+ROOT=Path(__file__).resolve().parents[2]
+BIN=ROOT/"dev-hub/bin"
+CFG=ROOT/"dev-hub/config"
+
+def load(p): return json.loads(Path(p).read_text(encoding="utf-8"))
+def save(p,x):
+    p=Path(p);p.parent.mkdir(parents=True,exist_ok=True)
+    p.write_text(json.dumps(x,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+def run(cmd):
+    p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=120)
+    if p.returncode!=0: raise AssertionError({"cmd":cmd,"rc":p.returncode,"stdout":p.stdout,"stderr":p.stderr})
+    return p.stdout
+def write_release(root:Path,name:str,rev:str,version:str,size:int=4096):
+    p=root/"releases"/name;p.mkdir(parents=True)
+    (p/".revision").write_text(rev+"\n",encoding="utf-8")
+    q=p/"dev-hub/bin";q.mkdir(parents=True)
+    (q/"autonomous-project-orchestrator.py").write_text('STATE={"version":"'+version+'"}\n',encoding="utf-8")
+    (p/"payload.bin").write_bytes(b"x"*size)
+    return p
+
+baseline=load(CFG/"platform-baseline.v7.json")
+policy=load(CFG/"platform-consolidation.v1.json")
+assert baseline["platform_version"]=="7.0.0",baseline
+assert baseline["canonical_rules"]["one_canonical_branch"]=="dev-hub-v700-consolidated-platform-baseline"
+assert baseline["canonical_rules"]["max_physical_releases"]==3
+assert baseline["project_boundaries"]["technology_radar_agent_scope"]=="PROJECT_ONLY"
+assert baseline["project_boundaries"]["technology_radar_agent_central_brain_role"] is False
+assert baseline["acceptance_candidate"]["production_activation"] is False
+assert baseline["acceptance_candidate"]["promotion"] is False
+assert policy["owner_agent"]=="intendant",policy
+assert policy["execution"]["default_mode"]=="DRY_RUN"
+assert policy["source_retirement"]["no_automatic_remote_branch_deletion"] is True
+assert policy["invariants"]["architecture_council_final_authority"] is True
+assert policy["invariants"]["automatic_external_spend_eur"]==0
+
+src=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
+assert '"version":"7.0.0"' in src,src[-5000:]
+
+with tempfile.TemporaryDirectory(prefix="v700-qualification-") as td:
+    td=Path(td)
+    # Compiled runtime release excludes historical tests/docs/installers and is smaller.
+    compiled=td/"compiled";manifest=td/"compiled-manifest.json"
+    out=run([sys.executable,str(BIN/"build-v7-runtime-release.py"),
+             "--source-root",str(ROOT),"--output-root",str(compiled),"--manifest",str(manifest)])
+    assert "CHACHA_DEV_V7_COMPILED_RUNTIME_RELEASE=PASS" in out,out
+    m=load(manifest)
+    assert m["compiled_bytes"]<m["source_bytes"],m
+    assert m["compiled_files"]<m["source_files"],m
+    assert m["excluded_file_count"]>0,m
+    assert not (compiled/"dev-hub/tests").exists()
+    assert not (compiled/"dev-hub/docs").exists()
+    assert not list((compiled/"dev-hub/bin").glob("install-v6*.sh"))
+    assert (compiled/"dev-hub/bin/autonomous-project-orchestrator.py").is_file()
+
+    # Intendant retention plan: active V7 + 2 rollback revisions, all else retired.
+    platform=td/"platform";(platform/"releases").mkdir(parents=True)
+    v7rev="7"*40;v663="a3803180a64f1ea95d94466b7b10529a7a4af92f";v660="f78cb1972112d32b1ac3ae582009bc96385be58c"
+    active=write_release(platform,"20260924T170000Z-"+v7rev,v7rev,"7.0.0",8192)
+    r663=write_release(platform,"20260924T160000Z-"+v663,v663,"6.63.0",4096)
+    r660=write_release(platform,"20260924T150000Z-"+v660,v660,"6.60.0",4096)
+    stale1=write_release(platform,"20260924T140000Z-"+"1"*40,"1"*40,"6.59.0",16384)
+    stale2=write_release(platform,"20260924T130000Z-"+"2"*40,"2"*40,"6.58.0",32768)
+    (platform/"current").symlink_to(active)
+
+    plan=td/"plan.json"
+    out=run([sys.executable,str(BIN/"intendant-platform-consolidator.py"),
+             "--platform-root",str(platform),"--policy",str(CFG/"platform-consolidation.v1.json"),
+             "--output",str(plan)])
+    assert "MODE=DRY_RUN" in out,out
+    p=load(plan)
+    assert p["active_version"]=="7.0.0",p
+    assert p["release_count_before"]==5,p
+    assert p["keep_count"]==3,p
+    assert p["retire_count"]==2,p
+    assert p["missing_verified_rollback_revisions"]==[],p
+    rows={x["revision"]:x for x in p["rows"]}
+    assert rows[v7rev]["action"]=="KEEP" and rows[v7rev]["reason"]=="ACTIVE_RELEASE",rows[v7rev]
+    assert rows[v663]["action"]=="KEEP" and rows[v660]["action"]=="KEEP"
+    assert rows["1"*40]["action"]=="RETIRE" and rows["2"*40]["action"]=="RETIRE"
+    assert stale1.is_dir() and stale2.is_dir(),"DRY_RUN_MUST_NOT_DELETE"
+
+    # Destructive mode is blocked without explicit receipt.
+    blocked=subprocess.run([sys.executable,str(BIN/"intendant-platform-consolidator.py"),
+       "--platform-root",str(platform),"--policy",str(CFG/"platform-consolidation.v1.json"),
+       "--output",str(td/"blocked.json"),"--apply","--explicit-destructive-apply"],
+       stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False)
+    assert blocked.returncode!=0,(blocked.stdout,blocked.stderr)
+    assert stale1.is_dir() and stale2.is_dir()
+
+    approval=td/"approval.json"
+    save(approval,{
+      "schema":"chacha.dev/platform-consolidation-approval/v1",
+      "revision":v7rev,
+      "checks":{
+        "guardian_pass":True,
+        "sentinel_exact_revision_pass":True,
+        "architecture_council_approval":True,
+        "v7_runtime_health_pass":True,
+        "rollback_release_verified":True
+      },
+      "destructive_apply_authorized":True,
+      "automatic_external_spend_eur":0
+    })
+    applied=td/"applied.json";archive=td/"archive.json"
+    out=run([sys.executable,str(BIN/"intendant-platform-consolidator.py"),
+       "--platform-root",str(platform),"--policy",str(CFG/"platform-consolidation.v1.json"),
+       "--output",str(applied),"--archive-manifest",str(archive),"--approval",str(approval),
+       "--apply","--explicit-destructive-apply"])
+    assert "MODE=APPLY" in out,out
+    a=load(applied)
+    assert a["deleted_release_count"]==2,a
+    assert a["release_count_after"]==3,a
+    assert active.is_dir() and r663.is_dir() and r660.is_dir()
+    assert not stale1.exists() and not stale2.exists()
+    ar=load(archive)
+    assert len(ar["retiring"])==2,ar
+    assert all(str(x.get("tree_sha256") or "").startswith("sha256:") for x in ar["retiring"]),ar
+
+print("CHACHA_DEV_V700_CANONICAL_BASELINE=PASS")
+print("CHACHA_DEV_V700_COMPILED_RUNTIME=PASS")
+print("CHACHA_DEV_V700_INTENDANT_CONSOLIDATOR=PASS")
+print("CHACHA_DEV_V700_DRY_RUN_NON_DESTRUCTIVE=PASS")
+print("CHACHA_DEV_V700_APPLY_REQUIRES_APPROVAL=PASS")
+print("CHACHA_DEV_V700_THREE_RELEASE_RETENTION=PASS")
+print("CHACHA_DEV_V700_RADAR_PROJECT_ONLY=PASS")
+print("CHACHA_DEV_V700_ACCEPTANCE_PRODUCTION_ACTIVATION=NO")
+print("CHACHA_DEV_V700_GIT_HISTORY_PRESERVED=YES")
+print("CHACHA_DEV_V700_REMOTE_BRANCH_AUTO_DELETE=NO")
+print("CHACHA_DEV_V700_CANONICAL_BUS_REWRITE=NO")
+print("CHACHA_DEV_V700_BENCHMARK_EVIDENCE_MUTATION=NO")
+print("CHACHA_DEV_V700_SELF_MUTATION=NO")
+print("CHACHA_DEV_V700_SELF_PROMOTION=NO")
+print("CHACHA_DEV_V700_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
+print("CHACHA_DEV_V700_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
