@@ -1199,26 +1199,26 @@ export default {
       seven_agent_final_review:true,post_implementation_second_read:true,
       functional_direct_mutation:false
     });
-    if(req.method==="POST"&&u.pathname==="/v1/check")return check(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/check")return await check(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/project-assurance-identities/register")
-      return registerProjectAssuranceIdentity(req,env);
-    if(req.method==="POST"&&u.pathname==="/v1/project-events")return projectEvents(req,env);
-    if(req.method==="POST"&&u.pathname==="/v1/functional-acceptance")return functionalAcceptance(req,env);
-    if(req.method==="POST"&&u.pathname==="/v1/final-review")return finalAgentReview(req,env);
+      return await registerProjectAssuranceIdentity(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/project-events")return await projectEvents(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/functional-acceptance")return await functionalAcceptance(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/final-review")return await finalAgentReview(req,env);
     if(req.method==="GET"&&u.pathname.startsWith("/v1/final-reviews/"))
-      return publicFinalAgentReview(req,env,decodeURIComponent(u.pathname.slice("/v1/final-reviews/".length)));
+      return await publicFinalAgentReview(req,env,decodeURIComponent(u.pathname.slice("/v1/final-reviews/".length)));
     if(req.method==="GET"&&u.pathname.startsWith("/v1/functional-receipts/"))
-      return publicFunctionalReceipt(req,env,decodeURIComponent(u.pathname.slice("/v1/functional-receipts/".length)));
-    if(req.method==="POST"&&u.pathname==="/v1/dual-release-gate")return dualReleaseGate(req,env);
-    if(req.method==="POST"&&u.pathname==="/v1/learning-anomalies/report")return reportLearningAnomaly(req,env);
-    if(req.method==="POST"&&u.pathname==="/v1/dynamic-contracts/register")return registerDynamicContract(req,env);
-    if(req.method==="POST"&&u.pathname==="/v1/dynamic-components/register")return registerDynamicComponentContract(req,env);
-    if(req.method==="POST"&&u.pathname==="/v1/coverage")return coverage(req,env);
-    if(req.method==="POST"&&u.pathname==="/v1/watchdog/sweep")return watchdogSweep(req,env);
-    if(req.method==="GET"&&u.pathname==="/v1/remediations")return remediations(req,env);
-    if(req.method==="POST"&&u.pathname==="/v1/remediations/delivered")return markRemediationsDelivered(req,env);
-    if(req.method==="GET"&&u.pathname==="/v1/alerts")return alerts(req,env);
-    if(req.method==="POST"&&u.pathname==="/v1/alerts/ack")return ackAlerts(req,env);
+      return await publicFunctionalReceipt(req,env,decodeURIComponent(u.pathname.slice("/v1/functional-receipts/".length)));
+    if(req.method==="POST"&&u.pathname==="/v1/dual-release-gate")return await dualReleaseGate(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/learning-anomalies/report")return await reportLearningAnomaly(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/dynamic-contracts/register")return await registerDynamicContract(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/dynamic-components/register")return await registerDynamicComponentContract(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/coverage")return await coverage(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/watchdog/sweep")return await watchdogSweep(req,env);
+    if(req.method==="GET"&&u.pathname==="/v1/remediations")return await remediations(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/remediations/delivered")return await markRemediationsDelivered(req,env);
+    if(req.method==="GET"&&u.pathname==="/v1/alerts")return await alerts(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/alerts/ack")return await ackAlerts(req,env);
     return json({error:"not_found"},404);
     }catch(err){
       return json({
