@@ -21,7 +21,22 @@
       ],
       "destructive_scope": "SAFE_TEMP_ONLY",
       "guardian_required": true,
-      "architecture_council_required": false
+      "architecture_council_required": false,
+      "safe_temp_cleanup": {
+        "minimum_age_hours": 48,
+        "roots": [
+          {
+            "path": "/tmp",
+            "glob": "chacha-*"
+          },
+          {
+            "path": "/opt/chacha-dev/runtime/tmp",
+            "glob": "*"
+          }
+        ],
+        "require_no_open_file_descriptors": true,
+        "central_orchestrator_executes_delete": true
+      }
     },
     "WEEKLY_DRY_RUN": {
       "enabled": true,
@@ -35,7 +50,13 @@
       "destructive_scope": "NONE",
       "guardian_required": true,
       "sentinel_required": false,
-      "architecture_council_required": false
+      "architecture_council_required": false,
+      "safe_release_retirement": {
+        "auto_apply_when_fully_governed": true,
+        "standing_operator_approval": true,
+        "reason_must_equal": "SUPERSEDED_PHYSICAL_RELEASE",
+        "central_orchestrator_executor": "dev-hub/bin/central-retirement-executor.py"
+      }
     },
     "MONTHLY_CONSOLIDATION": {
       "enabled": true,
