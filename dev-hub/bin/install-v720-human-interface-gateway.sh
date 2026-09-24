@@ -77,7 +77,7 @@ python3 - "$PREVIOUS" <<'PY'
 import json,pathlib,re,sys
 root=pathlib.Path(sys.argv[1])
 rev=(root/".revision").read_text().strip()
-assert rev=="04cb15a998dda8996be2c7cfb6442d4a16d1529d",rev
+assert rev=="a2ab2403f53d1e57b1c976e97595b44692ce6597",rev
 src=(root/"dev-hub/bin/autonomous-project-orchestrator.py").read_text()
 m=re.search(r'"version"\s*:\s*"([^"]+)"',src)
 assert m and m.group(1)=="7.1.0",(m.group(1) if m else None)
@@ -91,6 +91,8 @@ x=matches[-1]
 assert x.get("single_timer") is True,x
 assert x.get("physical_executor")=="central-orchestrator",x
 assert x.get("intendant_direct_mutation") is False,x
+assert x.get("physical_release_count")==3,x
+assert x.get("hygiene_latest",{}).get("physical_executor")=="central-orchestrator",x
 print("CHACHA_DEV_V720_V710_BASELINE=PASS")
 PY
 
