@@ -299,6 +299,24 @@
         "expected_producer": "cloudflare-pages-production-adapter",
         "expected_verification_status": "UNVERIFIED"
       }
+    },
+    "branch-foundry-source-integrator-v1": {
+      "source": "dev-hub/adapters/platform-component-branch-foundry-source-integrator.py",
+      "namespace": "platform-component/branch-foundry-source-integrator",
+      "version": "1.0.1",
+      "executable_name": "branch-foundry-source-integrator",
+      "mode": "0755",
+      "current_link_name": "current",
+      "probe": {
+        "argv": [
+          "apply"
+        ],
+        "input": {},
+        "expected_exit_code": 2,
+        "expected_schema": "chacha.dev/platform-component-source-integration-adapter-result/v1",
+        "expected_status": "BLOCKED",
+        "expected_reason": "APPLY_SCHEMA_INVALID"
+      }
     }
   }
 }
