@@ -1,0 +1,83 @@
+{
+  "schema": "chacha.dev/platform-consolidation-policy/v1",
+  "version": "1.0.0",
+  "target_platform_version": "7.0.0",
+  "owner_agent": "intendant",
+  "purpose": [
+    "compile a single canonical runtime baseline",
+    "retire obsolete physical releases",
+    "reduce version-layering and stale runtime surfaces",
+    "preserve Git and evidence history while minimizing deployed state"
+  ],
+  "invariants": {
+    "git_history_preserved": true,
+    "canonical_observation_bus_rewrite": false,
+    "benchmark_evidence_mutation": false,
+    "active_self_mutation": false,
+    "self_promotion": false,
+    "permission_expansion": false,
+    "guardian_required": true,
+    "sentinel_required": true,
+    "architecture_council_final_authority": true,
+    "automatic_external_spend_eur": 0
+  },
+  "runtime_release_compilation": {
+    "exclude_globs": [
+      "dev-hub/tests/**",
+      "dev-hub/docs/V6*.md",
+      "dev-hub/docs/CHACHA_DEV_CHECKPOINT_*.md",
+      "dev-hub/bin/install-v6*.sh",
+      "dev-hub/install-v*.sh"
+    ],
+    "preserve_globs": [
+      "dev-hub/bin/**",
+      "dev-hub/config/**",
+      "dev-hub/schemas/**",
+      "dev-hub/systemd/**",
+      "dev-hub/adapters/**",
+      "dev-hub/guardian/**",
+      "dev-hub/sentinel/**",
+      "dev-hub/bastion/**",
+      "dev-hub/curator/**",
+      "dev-hub/intendant/**",
+      "dev-hub/projects/**",
+      "dev-hub/specialists/**",
+      "dev-hub/templates/**",
+      "dev-hub/release/**",
+      "dev-hub/candidates/**",
+      "dev-hub/assurance-exchange/**",
+      "dev-hub/learning-relay/**",
+      "dev-hub/tools/**",
+      "dev-hub/evidence/**"
+    ],
+    "compiled_release_must_pass_import_scan": true,
+    "compiled_release_must_pass_v7_qualification": true
+  },
+  "physical_release_retention": {
+    "keep_active_release": true,
+    "keep_verified_rollback_revisions": [
+      "a3803180a64f1ea95d94466b7b10529a7a4af92f",
+      "f78cb1972112d32b1ac3ae582009bc96385be58c"
+    ],
+    "max_physical_releases_after_v7": 3,
+    "archive_manifest_before_delete": true,
+    "archive_sha256_before_delete": true
+  },
+  "source_retirement": {
+    "delete_from_v7_head_only_after_reference_scan": true,
+    "historical_v6_tests_and_docs_not_required_in_runtime_release": true,
+    "branch_retirement_requires_separate_review": true,
+    "no_automatic_remote_branch_deletion": true
+  },
+  "execution": {
+    "default_mode": "DRY_RUN",
+    "apply_requires": [
+      "guardian PASS",
+      "sentinel PASS on exact V7 revision",
+      "architecture council consolidation approval",
+      "V7 active runtime health PASS",
+      "rollback release verified"
+    ],
+    "destructive_apply_requires_explicit_flag": true
+  }
+}
