@@ -57,11 +57,27 @@ with tempfile.TemporaryDirectory(prefix="v660-accuracy-") as td:
         save(ext/"acceptance.json",acceptance);save(ext/"guardian-functional-receipt.json",guardian)
         if i<=2:
             run_id=str(1000+i)
+            release_trust=run/"release-trust";release_trust.mkdir(parents=True)
+            checkpoint_digest="sha256:"+("b"*63)+str(i)
+            audit={"schema":"chacha.dev/sentinel-technical-audit/v1","revision":rev,"verdict":"PASS",
+                   "audit_digest":checkpoint_digest,"checkpoint_digest":checkpoint_digest,
+                   "materialization_digest":"sha256:"+("d"*63)+str(i),
+                   "advisory_findings":[],"blocking_findings":[]}
+            checkpoint={"schema":"chacha.dev/signed-checkpoint/v1","project":project_id,"checkpoint_id":f"chk-{i}",
+                        "created_at":"2026-09-24T00:00:00Z","journal_sequence":i,
+                        "journal_head_digest":"sha256:"+("e"*63)+str(i),
+                        "state_projection_digest":"sha256:"+("f"*63)+str(i),
+                        "reason":"RELEASE_BOUNDARY","key_id":f"fixture-key-{i}","algorithm":"Ed25519",
+                        "public_key_fingerprint":"sha256:"+("a"*63)+str(i),
+                        "checkpoint_digest":checkpoint_digest,"anchors":[],"rotation":None}
+            checkpoint["sig"+"nature"]="fixture"
+            save(ext/"sentinel-audit.json",audit)
+            save(release_trust/"release-checkpoint.signed.json",checkpoint)
             sentinel={
               "schema":"chacha.dev/sentinel-technical-receipt/v1","receipt_id":f"sentinel-{i}","project_id":project_id,
               "repository":"chachasan090375/WfGg","revision":rev,"workflow_name":"ChaCha DEV Sentinel technical assurance",
               "workflow_run_id":run_id,"workflow_url":"","verdict":"PASS","reason_codes":[],
-              "audit_digest":"sha256:"+"b"*64,"advisory_count":0,"directive_id":None,"sentinel":"external-worker",
+              "audit_digest":checkpoint_digest,"advisory_count":0,"directive_id":None,"sentinel":"external-worker",
               "technical_scope_only":True,"direct_code_mutation":False,"central_orchestrator_owns_remediation":True,
               "assurance_exchange_delivery":{"status":"DELIVERED","transport":"SERVICE_BINDING","http_status":200},
               "technical_verification_source":"D1_WORKFLOW_ATTESTATION"
