@@ -33,6 +33,8 @@ def shadow(policy,n=12):
   vals.sort();return {"status":aob.verify_chain(rt,policy)["status"],"runtime_root_isolated":str(aob.db_path(rt,policy)).startswith(str(rt)),"p95_ms":round(vals[max(0,min(len(vals)-1,int(.95*(len(vals)-1))))],3)}
 def assess(repo:Path,root:Path,policy:dict,state:Path,report:Path,deep=False):
  inv=inventory(repo);p=proj(inv);fp=dg(p);old={}
+ profile_path=repo/"dev-hub/config/agent-evolution-profile.v1.json"
+ profile_digest=dg(load(profile_path)) if profile_path.is_file() else None
  if state.is_file():
   try:old=load(state)
   except Exception:old={}
@@ -50,11 +52,13 @@ def assess(repo:Path,root:Path,policy:dict,state:Path,report:Path,deep=False):
  th=(policy.get("self_health") or {}).get("thresholds") or {}
  if sh["status"]!="PASS" or not sh["runtime_root_isolated"] or sh["p95_ms"]>float(th.get("max_shadow_publish_p95_ms",100)):reasons.append("BUS_SHADOW_REGRESSION")
  if old and d["material"]:reasons.append("AGENT_INVENTORY_OR_CAPABILITY_CHANGED")
- out={"schema":"chacha.dev/agent-observation-bus-health/v1","status":"REASSESS_REQUIRED" if reasons else "PASS","component_id":"agent-observation-bus","integrity":{"sqlite":sql,"hash_chain":chain},"contract_checks":checks,"shadow_benchmark":sh,"inventory":{"agent_count":inv.get("agent_count"),"fingerprint":fp,"delta":d},"candidate_owner":"capability-foundry","technology_watch_revalidation_required":True,"logician_falsification_required":True,"direct_self_mutation":False,"self_promotion":False,"shadow_required":True,"pilot_required":True,"architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+ old_profile_digest=str(old.get("evolution_profile_policy_digest") or "")
+ if old_profile_digest and profile_digest and old_profile_digest!=profile_digest:reasons.append("AGENT_EVOLUTION_PROFILE_POLICY_CHANGED")
+ out={"schema":"chacha.dev/agent-observation-bus-health/v1","status":"REASSESS_REQUIRED" if reasons else "PASS","component_id":"agent-observation-bus","integrity":{"sqlite":sql,"hash_chain":chain},"contract_checks":checks,"shadow_benchmark":sh,"inventory":{"agent_count":inv.get("agent_count"),"fingerprint":fp,"delta":d},"evolution_profile_policy":{"digest":profile_digest,"change_requires_reassessment":True},"candidate_owner":"capability-foundry","technology_watch_revalidation_required":True,"logician_falsification_required":True,"direct_self_mutation":False,"self_promotion":False,"shadow_required":True,"pilot_required":True,"architecture_council_final_authority":True,"automatic_external_spend_eur":0}
  if reasons:
   q=rel(root,str((policy.get("self_health") or {}).get("platform_reassessment_queue") or "platform-evolution/reassessment-queue"));q.mkdir(parents=True,exist_ok=True);rid="bus-"+hashlib.sha256(("|".join(sorted(reasons))+fp).encode()).hexdigest()[:20]
   req={"schema":"chacha.dev/platform-component-reassessment-request/v1","request_id":rid,"component_id":"agent-observation-bus","trigger_reasons":sorted(reasons),"candidate_owner":"capability-foundry","direct_self_mutation":False,"self_promotion":False,"technology_watch_revalidation_required":True,"logician_falsification_required":True,"shadow_required":True,"pilot_required":True,"architecture_council_final_authority":True,"automatic_external_spend_eur":0};rp=q/(rid+".json");save(rp,req);out["reassessment"]={"path":str(rp)}
- save(report,out);save(state,{"inventory_projection":p,"inventory_fingerprint":fp,"status":out["status"]});return out
+ save(report,out);save(state,{"inventory_projection":p,"inventory_fingerprint":fp,"evolution_profile_policy_digest":profile_digest,"status":out["status"]});return out
 def main():
  ap=argparse.ArgumentParser();ap.add_argument("--repo-root",type=Path,required=True);ap.add_argument("--runtime-root",type=Path,default=Path("/opt/chacha-dev/runtime"));ap.add_argument("--policy",type=Path,required=True);ap.add_argument("--mode",choices=["lightweight","deep"],default="lightweight");a=ap.parse_args();p=load(a.policy);cfg=p.get("self_health") or {};r=rel(a.runtime_root,cfg.get("health_report","agent-observation/bus-health-latest.json"));s=rel(a.runtime_root,cfg.get("state","agent-observation/bus-health-state.json"));x=assess(a.repo_root,a.runtime_root,p,s,r,a.mode=="deep");print(json.dumps(x,ensure_ascii=False));print("CHACHA_DEV_V650_BUS_HEALTH="+x["status"]);print("CHACHA_DEV_V650_BUS_SELF_MUTATION=NO");print("CHACHA_DEV_V650_BUS_CANDIDATE_OWNER=CAPABILITY_FOUNDRY")
 if __name__=="__main__":main()

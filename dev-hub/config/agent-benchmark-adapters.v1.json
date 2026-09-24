@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-benchmark-adapters/v1",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "purpose": "Execute real agent code against isolated deterministic fixtures and verify outputs through a separate benchmark oracle.",
   "supported_agents": {
     "guardian": {
@@ -306,6 +306,94 @@
         "handoff_quality",
         "calibration",
         "learning_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "acceptance-engineer": {
+      "adapter": "acceptance-engine",
+      "risk": "medium",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "contract-integrator": {
+      "adapter": "architecture-specialist-contract-integrator",
+      "risk": "medium",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "integration-architect": {
+      "adapter": "architecture-specialist-integration",
+      "risk": "medium",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
+      ],
+      "max_duration_ms": 5000,
+      "minimum_oracle_cases": 4,
+      "required_base_dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality"
+      ]
+    },
+    "ergonomist": {
+      "adapter": "ux-planning-engine",
+      "risk": "medium",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency",
+        "coverage",
+        "handoff_quality"
       ],
       "max_duration_ms": 5000,
       "minimum_oracle_cases": 4,

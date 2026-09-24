@@ -435,10 +435,61 @@ def technology_watch_agent(repo:Path)->dict[str,Any]:
       "evidence_graph_present":bool((gr.get("evidence_graph") or {}).get("nodes")) and bool((gr.get("evidence_graph") or {}).get("edges")),"permission_escalation":gr.get("permission_escalation"),"automatic_external_spend_eur":gr.get("automatic_external_spend_eur")
     }}
 
+def acceptance_engineer(repo:Path)->dict[str,Any]:
+    with tempfile.TemporaryDirectory(prefix="v654-acceptance-") as td:
+        t=Path(td);contract=t/"contract.json";good_e=t/"good.json";bad_e=t/"bad.json";good_o=t/"good-out.json";bad_o=t/"bad-out.json"
+        contract.write_text(json.dumps({"criteria":[
+          {"criterion_id":"functional-1","dimension":"functional","required":True,"owner":"acceptance-engineer"},
+          {"criterion_id":"security-1","dimension":"security","required":True,"owner":"security-reviewer"}]})+"\n",encoding="utf-8")
+        good_e.write_text(json.dumps({"criteria":[{"criterion_id":"functional-1","state":"PASS","evidence":["fixture:functional"]},{"criterion_id":"security-1","state":"PASS","evidence":["fixture:security"]}]})+"\n",encoding="utf-8")
+        bad_e.write_text(json.dumps({"criteria":[{"criterion_id":"functional-1","state":"PASS","evidence":["fixture:functional"]},{"criterion_id":"security-1","state":"FAIL","evidence":["fixture:negative"]}]})+"\n",encoding="utf-8")
+        def run(ev,out):
+            p=subprocess.run([sys.executable,str(repo/"dev-hub/bin/acceptance-engine.py"),"--contract",str(contract),"--evidence",str(ev),"--output",str(out)],
+              stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=30)
+            return p,load(out) if out.is_file() else {}
+        gp,g=run(good_e,good_o);bp,b=run(bad_e,bad_o)
+        return {"agent_id":"acceptance-engineer","adapter":"acceptance-engine","actual":{
+          "good_code":gp.returncode,"good_accepted":g.get("accepted"),"good_delivery":g.get("delivery_allowed"),
+          "good_final_delivery":g.get("final_delivery_allowed"),"good_final_gate":g.get("final_delivery_gate"),
+          "good_rows":g.get("criteria") or [],"bad_code":bp.returncode,"bad_accepted":b.get("accepted"),
+          "bad_delivery":b.get("delivery_allowed"),"bad_routes":b.get("return_to_factories") or {},
+          "bad_final_delivery":b.get("final_delivery_allowed"),"schema":g.get("schema")
+        }}
+
+def contract_integrator(repo:Path)->dict[str,Any]:
+    return _architect_role_contract(repo,"contract-integrator","dependencies")
+
+def integration_architect(repo:Path)->dict[str,Any]:
+    return _architect_role_contract(repo,"integration-architect","dependencies")
+
+def ergonomist_agent(repo:Path)->dict[str,Any]:
+    with tempfile.TemporaryDirectory(prefix="v654-ergonomist-") as td:
+        t=Path(td);policy=repo/"dev-hub/config/ux-planning.v1.json"
+        def run(case,n,user):
+            intent=t/(case+"-intent.json");contract=t/(case+"-contract.json");pre=t/(case+"-pre.json");out=t/(case+"-out.json")
+            intent.write_text(json.dumps({"text":"web app dashboard" if user else "database maintenance task"})+"\n",encoding="utf-8")
+            contract.write_text(json.dumps({"contract_id":case,"functional_intent":"web app dashboard" if user else "database maintenance task",
+              "audiences":["operator"] if user else [],"styles":[]})+"\n",encoding="utf-8")
+            packages=[{"id":f"p{i}","domain":"frontend" if user else "backend","kind":"primary","capabilities":["web"] if user else ["database-migrate"]} for i in range(n)]
+            pre.write_text(json.dumps({"packages":packages,"primary_domains":["frontend"] if user else ["backend"]})+"\n",encoding="utf-8")
+            p=subprocess.run([sys.executable,str(repo/"dev-hub/bin/ux-planning-engine.py"),"--intent",str(intent),"--contract",str(contract),"--preplan",str(pre),"--policy",str(policy),"--output",str(out)],
+              stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=30)
+            return p,load(out) if out.is_file() else {}
+        np,n=run("non-user",1,False);kp,k=run("simple",1,True);rp,r=run("reconsider",3,True);xp,x=run("replan",6,True)
+        return {"agent_id":"ergonomist","adapter":"ux-planning-engine","actual":{
+          "non_user_code":np.returncode,"non_user_status":n.get("challenge_status"),"non_user_facing":n.get("user_facing"),
+          "simple_code":kp.returncode,"simple_status":k.get("challenge_status"),"simple_handoff":((k.get("ux_contract") or {}).get("curator_handoff_required")),
+          "reconsider_code":rp.returncode,"reconsider_status":r.get("challenge_status"),"reconsider_brain":r.get("central_brain_response_required"),
+          "replan_code":xp.returncode,"replan_status":x.get("challenge_status"),"replan_next":x.get("recommended_next_action"),
+          "direct_mutation":x.get("direct_mutation"),"architecture_council":x.get("architecture_council_final_authority"),
+          "recommendation_count":len((k.get("ux_contract") or {}).get("recommendations") or []),
+          "digest_present":str(x.get("report_digest") or "").startswith("sha256:"),"automatic_external_spend_eur":x.get("automatic_external_spend_eur")
+        }}
+
 ADAPTERS={"guardian":guardian,"sentinel":sentinel,"bastion":bastion,"autonomous-recovery-agent":recovery,
           "security-reviewer":security_reviewer,"recovery-engineer":recovery_engineer,
           "platform-cloud-engineer":platform_cloud_engineer,"data-architect":data_architect,
-          "release-engineer":release_engineer,"agent-foundry-architect":agent_foundry_architect,"branch-foundry-architect":branch_foundry_architect,"capability-foundry-architect":capability_foundry_architect,"logician":logician_agent,"technology-watch-agent":technology_watch_agent}
+          "release-engineer":release_engineer,"agent-foundry-architect":agent_foundry_architect,"branch-foundry-architect":branch_foundry_architect,"capability-foundry-architect":capability_foundry_architect,"logician":logician_agent,"technology-watch-agent":technology_watch_agent,"acceptance-engineer":acceptance_engineer,"contract-integrator":contract_integrator,"integration-architect":integration_architect,"ergonomist":ergonomist_agent}
 
 def execute(agent_id:str,repo_root:Path)->dict[str,Any]:
     fn=ADAPTERS.get(agent_id)

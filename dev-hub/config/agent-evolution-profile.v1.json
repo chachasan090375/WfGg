@@ -1,0 +1,39 @@
+{
+  "schema": "chacha.dev/agent-evolution-profile-policy/v1",
+  "version": "1.0.0",
+  "purpose": "Maintain a lightweight governance profile for every agent without fabricating performance scores.",
+  "profile_is_performance_score": false,
+  "agent_inventory_must_be_complete": true,
+  "production_maturity_target_pct": 40,
+  "next_action_rules": [
+    "INSTRUMENT_EXECUTABLE_ADAPTER",
+    "RUN_EXECUTABLE_BENCHMARK",
+    "ACCUMULATE_PRODUCTION_EVIDENCE",
+    "MEASURE_REMAINING_DIMENSIONS",
+    "CONTINUE_MONITORING"
+  ],
+  "project_local": {
+    "preserve_project_scope": true,
+    "platform_global_promotion_forbidden": true
+  },
+  "governance": {
+    "candidate_owner": "agent-foundry",
+    "active_self_mutation": false,
+    "self_promotion": false,
+    "permission_expansion": false,
+    "technology_watch_revalidation_required": true,
+    "logician_falsification_required": true,
+    "guardian_required": true,
+    "sentinel_required": true,
+    "architecture_council_final_authority": true,
+    "latest_version_priority": false
+  },
+  "bus_integration": {
+    "profile_policy_digest_monitored": true,
+    "profile_policy_change_requires_bus_reassessment": true,
+    "agent_inventory_change_requires_bus_reassessment": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}

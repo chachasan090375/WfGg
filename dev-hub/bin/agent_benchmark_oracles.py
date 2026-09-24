@@ -199,10 +199,40 @@ def contract_evidence(oracle:dict[str,Any],spec:dict[str,Any])->list[dict[str,An
       _case("independent-oracle-handoff-contract","handoff_quality",oracle.get("oracle_complete") is True and structural,{"oracle_complete":oracle.get("oracle_complete"),"structural":structural})
     ]
 
+def acceptance_engineer(a:dict[str,Any])->list[dict[str,Any]]:
+    good_rows=a.get("good_rows") or []
+    return [
+      _case("all-pass-accepted","accuracy",a.get("good_code")==0 and a.get("good_accepted") is True,a.get("good_accepted")),
+      _case("failed-required-rejected","calibration",a.get("bad_code")==0 and a.get("bad_accepted") is False,a.get("bad_accepted")),
+      _case("failure-routed-owner","calibration","security-1" in ((a.get("bad_routes") or {}).get("security-reviewer") or []),a.get("bad_routes")),
+      _case("local-pass-not-final","authority_discipline",a.get("good_final_delivery") is False and a.get("good_final_gate")=="seven-agent-final-compromise",{"final":a.get("good_final_delivery"),"gate":a.get("good_final_gate")}),
+      _case("failed-not-delivered","authority_discipline",a.get("bad_delivery") is False and a.get("bad_final_delivery") is False,{"delivery":a.get("bad_delivery"),"final":a.get("bad_final_delivery")}),
+      _case("criteria-evidence-structured","evidence_quality",len(good_rows)==2 and all(isinstance(x.get("evidence"),list) and x.get("evidence") for x in good_rows),good_rows),
+      _case("acceptance-schema","handoff_quality",a.get("schema")=="chacha.dev/acceptance-result/v1",a.get("schema"))
+    ]
+def contract_integrator(a:dict[str,Any])->list[dict[str,Any]]:
+    return _architect_contract(a)
+def integration_architect(a:dict[str,Any])->list[dict[str,Any]]:
+    return _architect_contract(a)
+def ergonomist_agent(a:dict[str,Any])->list[dict[str,Any]]:
+    return [
+      _case("non-user-kept","calibration",a.get("non_user_code")==0 and a.get("non_user_status")=="KEEP" and a.get("non_user_facing") is False,{"status":a.get("non_user_status"),"user":a.get("non_user_facing")}),
+      _case("simple-user-kept","accuracy",a.get("simple_code")==0 and a.get("simple_status")=="KEEP",a.get("simple_status")),
+      _case("three-surfaces-reconsider","calibration",a.get("reconsider_code")==0 and a.get("reconsider_status")=="RECONSIDER" and a.get("reconsider_brain") is True,{"status":a.get("reconsider_status"),"brain":a.get("reconsider_brain")}),
+      _case("six-surfaces-replan","calibration",a.get("replan_code")==0 and a.get("replan_status")=="REPLAN_REQUIRED",a.get("replan_status")),
+      _case("replan-action","accuracy",a.get("replan_next")=="REOPEN_USER_JOURNEY",a.get("replan_next")),
+      _case("curator-handoff","handoff_quality",a.get("simple_handoff") is True,a.get("simple_handoff")),
+      _case("ux-recommendations","evidence_quality",int(a.get("recommendation_count") or 0)>=8,a.get("recommendation_count")),
+      _case("digest-evidence","evidence_quality",a.get("digest_present") is True,a.get("digest_present")),
+      _case("no-direct-mutation","authority_discipline",a.get("direct_mutation") is False,a.get("direct_mutation")),
+      _case("council-final","authority_discipline",a.get("architecture_council") is True,a.get("architecture_council")),
+      _case("zero-spend","authority_discipline",float(a.get("automatic_external_spend_eur") or 0)==0,a.get("automatic_external_spend_eur"))
+    ]
+
 ORACLES={"guardian":guardian,"sentinel":sentinel,"bastion":bastion,"autonomous-recovery-agent":recovery,
          "security-reviewer":security_reviewer,"recovery-engineer":recovery_engineer,
          "platform-cloud-engineer":platform_cloud_engineer,"data-architect":data_architect,
-         "release-engineer":release_engineer,"agent-foundry-architect":agent_foundry_architect,"branch-foundry-architect":branch_foundry_architect,"capability-foundry-architect":capability_foundry_architect,"logician":logician_agent,"technology-watch-agent":technology_watch_agent}
+         "release-engineer":release_engineer,"agent-foundry-architect":agent_foundry_architect,"branch-foundry-architect":branch_foundry_architect,"capability-foundry-architect":capability_foundry_architect,"logician":logician_agent,"technology-watch-agent":technology_watch_agent,"acceptance-engineer":acceptance_engineer,"contract-integrator":contract_integrator,"integration-architect":integration_architect,"ergonomist":ergonomist_agent}
 
 def verify(agent_id:str,raw:dict[str,Any])->dict[str,Any]:
     fn=ORACLES.get(agent_id)

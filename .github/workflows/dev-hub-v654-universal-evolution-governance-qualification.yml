@@ -1,0 +1,65 @@
+name: ChaCha DEV V6.54 universal evolution governance qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v654-universal-evolution-governance-lightweight-agent-profile
+    paths:
+      - 'dev-hub/bin/agent_evolution_profile.py'
+      - 'dev-hub/bin/agent_evolution_daily_cycle.py'
+      - 'dev-hub/bin/agent_observation_bus_health.py'
+      - 'dev-hub/bin/agent_benchmark_adapters.py'
+      - 'dev-hub/bin/agent_benchmark_oracles.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/agent-evolution-profile.v1.json'
+      - 'dev-hub/config/agent-benchmark-adapters.v1.json'
+      - 'dev-hub/tests/test_v654_universal_evolution_governance.py'
+      - '.github/workflows/dev-hub-v654-universal-evolution-governance-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/agent_evolution_profile.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_observation_bus_health.py dev-hub/bin/agent_benchmark_adapters.py dev-hub/bin/agent_benchmark_oracles.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v654_universal_evolution_governance.py
+          python3 -m json.tool dev-hub/config/agent-evolution-profile.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/agent-benchmark-adapters.v1.json >/dev/null
+          grep -Fq '"version":"6.54.0"' dev-hub/bin/autonomous-project-orchestrator.py
+      - name: V6.54 qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v654_universal_evolution_governance.py | tee /tmp/v654.out
+          grep -Fq 'CHACHA_DEV_V654_UNIVERSAL_PROFILE_35=PASS' /tmp/v654.out
+          grep -Fq 'CHACHA_DEV_V654_PROFILE_IS_PERFORMANCE_SCORE=NO' /tmp/v654.out
+          grep -Fq 'CHACHA_DEV_V654_PROJECT_RADAR_SCOPE=PROJECT_LOCAL' /tmp/v654.out
+          grep -Fq 'CHACHA_DEV_V654_CURATOR_INTENDANT_PROFILE_ONLY=PASS' /tmp/v654.out
+          grep -Fq 'CHACHA_DEV_V654_ACCEPTANCE_ENGINEER_ADAPTER=PASS' /tmp/v654.out
+          grep -Fq 'CHACHA_DEV_V654_CONTRACT_INTEGRATOR_ADAPTER=PASS' /tmp/v654.out
+          grep -Fq 'CHACHA_DEV_V654_INTEGRATION_ARCHITECT_ADAPTER=PASS' /tmp/v654.out
+          grep -Fq 'CHACHA_DEV_V654_ERGONOMIST_ADAPTER=PASS' /tmp/v654.out
+          grep -Fq 'CHACHA_DEV_V654_BUS_PROFILE_POLICY_REASSESSMENT=PASS' /tmp/v654.out
+          grep -Fq 'CHACHA_DEV_V654_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v654.out
+      - name: Receipt
+        run: |
+          echo CHACHA_DEV_V654_QUALIFICATION=PASS
+          echo UNIVERSAL_AGENT_PROFILE_COUNT=35
+          echo PROFILE_IS_PERFORMANCE_SCORE=NO
+          echo PROJECT_RADAR_SCOPE=PROJECT_LOCAL
+          echo FOURTH_WAVE_EXECUTABLE_ADAPTERS=4
+          echo PRODUCTION_MATURITY_TARGET_PCT=40
+          echo BUS_PROFILE_POLICY_REASSESSMENT=YES
+          echo SELF_MUTATION=NO
+          echo SELF_PROMOTION=NO
+          echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0

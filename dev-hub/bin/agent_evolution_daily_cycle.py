@@ -8,6 +8,7 @@ import agent_fleet_observatory as afo
 import agent_benchmark_harness as abh
 import agent_benchmark_campaign_runner as abcr
 import technology_watch_runtime as tw
+import agent_evolution_profile as aep
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding="utf-8"))
     if not isinstance(x,dict):raise ValueError("JSON_ROOT_NOT_OBJECT:"+str(p))
@@ -63,12 +64,17 @@ def main()->int:
         save(ae/"benchmark-run-latest.json",benchmark_run)
         # Rebuild Fleet Observatory immediately so newly promoted benchmark evidence can fill UNKNOWN dimensions.
         report=afo.build_report(root,runtime,fp,ep,routing,seven,[project]);save(ae/"fleet-observatory-latest.json",report)
+    profile_policy=load(cfg/"agent-evolution-profile.v1.json")
+    adapter_cfg=load(cfg/"agent-benchmark-adapters.v1.json")
+    profile_index=aep.build_index(report,routing,seven,[project],adapter_cfg,ep,profile_policy)
+    aep.write_profiles(ae/"profiles",profile_index)
     receipt={"schema":"chacha.dev/agent-evolution-daily-cycle/v1","generated_at":iso(stamp),"agent_count":report.get("agent_count"),
       "optimization_count":len(report.get("optimization_queue") or []),"measurement_count":len(report.get("measurement_queue") or []),
       "event_request_count":len(requests),"scheduled_action_count":len(scheduled),"deep_audit_due":deep,"ecosystem_benchmark_due":bench,
       "benchmark_campaign_created":benchmark_campaign is not None,
       "benchmark_contract_count":len((benchmark_campaign or {}).get("contracts") or []),
       "benchmark_run_promoted_count":int((locals().get("benchmark_run") or {}).get("promoted_count") or 0),
+      "universal_profile_count":profile_index.get("profile_count"),"universal_profiles_generated":True,
       "technology_watch":tw.snapshot_status(root),"direct_agent_mutation":False,"self_promotion":False,
       "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
     save(ae/"daily-cycle-latest.json",receipt)
