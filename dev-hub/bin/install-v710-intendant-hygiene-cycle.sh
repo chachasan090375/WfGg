@@ -98,7 +98,12 @@ rev=sys.argv[1];q=urllib.parse.urlencode({"head_sha":rev,"per_page":50})
 req=urllib.request.Request("https://api.github.com/repos/chachasan090375/WfGg/actions/runs?"+q,
  headers={"User-Agent":"ChaCha-DEV-V710-Installer/1.0","Accept":"application/vnd.github+json"})
 with urllib.request.urlopen(req,timeout=20) as r:x=json.loads(r.read().decode())
-need={"ChaCha DEV Sentinel technical assurance","ChaCha DEV V7.1 Intendant hygiene cycle qualification"}
+need={
+ "ChaCha DEV Sentinel technical assurance",
+ "ChaCha DEV V7.1 Intendant hygiene cycle qualification",
+ "ChaCha DEV V7 platform qualification",
+ "ChaCha DEV V7.1 Guardian hygiene contract deploy"
+}
 rows=x.get("workflow_runs") or []
 for name in need:
  assert any(w.get("name")==name and w.get("head_sha")==rev and w.get("status")=="completed" and w.get("conclusion")=="success" for w in rows),(name,[(w.get("name"),w.get("status"),w.get("conclusion")) for w in rows])
