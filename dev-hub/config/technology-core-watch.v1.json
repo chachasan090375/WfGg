@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/technology-core-watch/v1",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "purpose": "Continuously monitor the technology health and debt of ChaCha DEV itself.",
   "components": [
     {
@@ -171,6 +171,11 @@
     {
       "id": "platform-component-controlled-apply-planner",
       "class": "verification",
+      "criticality": "critical"
+    },
+    {
+      "id": "platform-component-source-integration-executor",
+      "class": "execution",
       "criticality": "critical"
     }
   ],
