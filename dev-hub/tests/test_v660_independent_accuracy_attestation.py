@@ -73,8 +73,12 @@ with tempfile.TemporaryDirectory(prefix="v660-accuracy-") as td:
     # Independent attestor must reject a GitHub run that does not bind to the receipt revision.
     bad_dir=rt/"bad-github";bad_dir.mkdir()
     bad=load(ghdir/"1001.json");bad["head_sha"]="f"*40;save(bad_dir/"1001.json",bad)
-    bad_case=att.sentinel_case(sentinel_runs[0],bad_dir,False,rt/"bad-sources")
-    assert bad_case and bad_case["passed"] is False,bad_case
+    bad_run=rt/"golden-path-runs"/"run-1"
+    assert (bad_run/"external-assurance/sentinel-technical-receipt.json").is_file()
+    assert (bad_dir/"1001.json").is_file()
+    bad_case=att.sentinel_case(bad_run,bad_dir,False,rt/"bad-sources")
+    assert bad_case is not None,{"receipt":load(bad_run/"external-assurance/sentinel-technical-receipt.json"),"github_files":[p.name for p in bad_dir.iterdir()]}
+    assert bad_case["passed"] is False,bad_case
 
     outroot=rt/"agent-evolution/independent-accuracy-attestations/v660-test"
     attestations=att.build(rt,outroot,ghdir,False)
