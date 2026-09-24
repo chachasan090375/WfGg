@@ -161,11 +161,11 @@
       "required_guardian": "external-worker",
       "required_delivery_status": "DELIVERED",
       "production_truth_dimensions": [
-        "accuracy",
         "evidence_quality",
         "handoff_quality",
         "authority_discipline"
-      ]
+      ],
+      "accuracy_inference": false
     },
     "sentinel": {
       "glob": "golden-path-runs/**/external-assurance/sentinel-technical-receipt.json",
@@ -174,11 +174,11 @@
       "required_verification_source": "D1_WORKFLOW_ATTESTATION",
       "required_delivery_status": "DELIVERED",
       "production_truth_dimensions": [
-        "accuracy",
         "evidence_quality",
         "handoff_quality",
         "authority_discipline"
-      ]
+      ],
+      "accuracy_inference": false
     },
     "acceptance-engineer": {
       "glob": "golden-path-runs/**/external-assurance/acceptance.json",
