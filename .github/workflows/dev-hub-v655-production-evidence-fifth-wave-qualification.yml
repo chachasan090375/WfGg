@@ -7,6 +7,7 @@ on:
     paths:
       - 'dev-hub/bin/agent_verified_evidence_backfill.py'
       - 'dev-hub/bin/install-v655-production-evidence-fifth-wave.sh'
+      - 'dev-hub/bin/install-v655-production-evidence-fifth-wave.sh'
       - 'dev-hub/bin/agent_fleet_observatory.py'
       - 'dev-hub/bin/agent_evolution_daily_cycle.py'
       - 'dev-hub/bin/agent_benchmark_adapters.py'
@@ -33,6 +34,7 @@ jobs:
       - name: Static validation
         run: |
           set -euo pipefail
+          bash -n dev-hub/bin/install-v655-production-evidence-fifth-wave.sh
           python3 -m py_compile dev-hub/bin/agent_verified_evidence_backfill.py dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/agent_benchmark_adapters.py dev-hub/bin/agent_benchmark_oracles.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v655_production_evidence_fifth_wave.py
           python3 -m json.tool dev-hub/config/agent-observation-bus.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-benchmark-adapters.v1.json >/dev/null
