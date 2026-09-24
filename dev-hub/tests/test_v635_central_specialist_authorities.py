@@ -27,7 +27,12 @@ assert common["governance"]["reviews_publish_to_assurance_exchange"] is True
 
 assert curator["role"]=="curator" and curator["scope"]=="VISUAL_UX"
 assert bastion["role"]=="bastion" and bastion["scope"]=="SECURITY_DATA"
-assert intendant["role"]=="intendant" and intendant["scope"]=="COST_RESOURCES"
+assert intendant["role"]=="intendant" and intendant["scope"]=="COST_RESOURCES_PLATFORM_HYGIENE"
+assert intendant["review_rules"]["platform_hygiene_planning"] is True
+assert intendant["review_rules"]["release_retirement_planning"] is True
+assert intendant["review_rules"]["physical_deletion_execution_owner"]=="central-orchestrator"
+assert intendant["review_rules"]["intendant_direct_mutation"] is False
+assert intendant["review_rules"]["source_code_retirement_is_review_only"] is True
 assert curator["direct_mutation"] is False
 assert bastion["direct_mutation"] is False
 assert intendant["direct_mutation"] is False
