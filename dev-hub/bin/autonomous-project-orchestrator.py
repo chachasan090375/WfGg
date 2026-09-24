@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import concurrent.futures
 import json
+import shutil
 import subprocess
 import sys
 import uuid
@@ -35,6 +36,8 @@ _STAGE_ROLE={
     "branch-foundry-planner.py":"branch-foundry",
     "capability-foundry.py":"capability-foundry",
     "capability-foundry-closure.py":"capability-foundry",
+    "capability-build-request-compiler.py":"capability-foundry",
+    "capability-build-loop.py":"capability-foundry",
     "central-memory-recall.py":"central-memory-recall",
     "logic-search-engine.py":"logician",
     "ux-planning-engine.py":"ergonomist",
@@ -531,6 +534,77 @@ def main():
             ])
             architecture_council_v=load(architecture_council)
 
+    # V6.41: after the FINAL Architecture Council decision, BUILD_REQUIRED gaps
+    # may enter the bounded capability build loop. Only candidates explicitly
+    # declaring an approved safe build profile can be generated automatically.
+    # Builds are project-local: copied tooling, sandbox runtime, and temporary
+    # provider/capability registries. Durable adoption remains post-project-success.
+    capability_build_batch=out/"capability-build-request-batch.json"
+    capability_build_results=[]
+    capability_build_auto_built_count=0
+    capability_build_specialist_required_count=capability_build_required_count
+    active_provider_adapters=cfg/"provider-adapters.v1.json"
+
+    if capability_build_required_count:
+        run(bin_dir/"capability-build-request-compiler.py",[
+            "--closure",closure_plan,
+            "--foundry-plan",foundry_plan,
+            "--architecture-council",architecture_council,
+            "--output",capability_build_batch
+        ])
+        build_batch_v=load(capability_build_batch)
+        capability_build_specialist_required_count=int(build_batch_v.get("unresolved_count") or 0)
+        requests=[x for x in build_batch_v.get("requests") or [] if isinstance(x,dict)]
+        if requests:
+            build_repo=out/"capability-build-repo"
+            if build_repo.exists():
+                shutil.rmtree(build_repo)
+            shutil.copytree(root/"dev-hub",build_repo/"dev-hub")
+            current_provider_registry=active_provider_adapters
+            current_capability_registry=active_capabilities
+            build_root=out/"capability-builds"
+            runtime_root=out/"capability-build-runtime"
+            build_root.mkdir(parents=True,exist_ok=True)
+            runtime_root.mkdir(parents=True,exist_ok=True)
+
+            for index,request_v in enumerate(requests,1):
+                capability=str(request_v.get("capability") or f"capability-{index}")
+                safe_name="".join(ch if ch.isalnum() or ch in "-_" else "-" for ch in capability)[:72] or f"capability-{index}"
+                request_path=build_root/(f"{index:02d}-{safe_name}-request.json")
+                save(request_path,request_v)
+                workspace=build_root/(f"{index:02d}-{safe_name}")
+                result_path=workspace/"build-result.json"
+                overlay_path=workspace/"capability-overlay.json"
+                run(bin_dir/"capability-build-loop.py",[
+                    "--policy",cfg/"capability-build-loop.v1.json",
+                    "--request",request_path,
+                    "--repo-root",build_repo,
+                    "--base-registry",current_provider_registry,
+                    "--workspace",workspace,
+                    "build-pilot",
+                    "--runtime-root",runtime_root/safe_name,
+                    "--output",result_path,
+                    "--overlay",overlay_path,
+                    "--apply"
+                ])
+                result_v=load(result_path)
+                if result_v.get("status")!="PASS" or result_v.get("same_project_resume_allowed") is not True:
+                    raise RuntimeError("CAPABILITY_BUILD_LOOP_NOT_RESUMABLE:"+capability)
+                capability_build_results.append(str(result_path))
+                current_provider_registry=Path(str((result_v.get("artifacts") or {}).get("registry") or ""))
+                if not current_provider_registry.is_file():
+                    raise RuntimeError("CAPABILITY_BUILD_PROVIDER_REGISTRY_MISSING:"+capability)
+                merged_after_build=out/(f"runtime-capabilities-v641-{index:02d}.json")
+                merge_caps(current_capability_registry,overlay_path,merged_after_build)
+                current_capability_registry=merged_after_build
+
+            active_provider_adapters=current_provider_registry
+            active_capabilities=current_capability_registry
+            capability_build_auto_built_count=len(capability_build_results)
+
+        # Only unresolved specialist-required gaps remain blockers.
+        capability_build_required_count=capability_build_specialist_required_count
+
     # The Council is not advisory-only: its selected/revalidated architecture becomes
     # the effective topology consumed by planning and runtime scheduling.
     effective_branch_topology=out/"branch-topology-effective.json"
@@ -564,7 +638,11 @@ def main():
     final_v["architecture_council"]=str(architecture_council)
     final_v["architecture_decision_allowed"]=bool(architecture_council_v.get("dispatch_allowed"))
     final_v["active_capability_registry"]=str(active_capabilities)
+    final_v["active_provider_adapter_registry"]=str(active_provider_adapters)
     final_v["capability_foundry_closure"]=str(closure_plan)
+    final_v["capability_build_request_batch"]=str(capability_build_batch) if capability_build_batch.exists() else None
+    final_v["capability_build_auto_built_count"]=capability_build_auto_built_count
+    final_v["capability_build_specialist_required_count"]=capability_build_specialist_required_count
     final_v["capability_build_required_count"]=capability_build_required_count
     final_v["dispatch_allowed"]=bool(final_v.get("dispatch_allowed")) and bool(architecture_council_v.get("dispatch_allowed"))
     if capability_build_required_count:
@@ -601,7 +679,7 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.40.0",
+      "version":"6.41.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
@@ -656,6 +734,13 @@ def main():
       "capability_foundry":str(foundry_plan),
       "capability_foundry_closure":str(closure_plan),
       "active_capability_registry":str(active_capabilities),
+      "active_provider_adapter_registry":str(active_provider_adapters),
+      "capability_build_request_batch":str(capability_build_batch) if capability_build_batch.exists() else None,
+      "capability_build_results":capability_build_results,
+      "capability_build_auto_built_count":capability_build_auto_built_count,
+      "capability_build_specialist_required_count":capability_build_specialist_required_count,
+      "capability_build_same_project_resume":bool(capability_build_auto_built_count) and capability_build_required_count==0,
+      "capability_build_durable_adoption_before_project_success":False,
       "capability_foundry_auto_closed_count":sum(1 for x in closure_v.get("plans") or [] if x.get("state")=="PROJECT_LOCAL_READY"),
       "capability_foundry_reused_registered_count":sum(1 for x in closure_v.get("plans") or [] if x.get("state")=="REUSE_REGISTERED"),
       "capability_foundry_build_required_count":capability_build_required_count,
@@ -716,6 +801,11 @@ def main():
     print("CAPABILITY_FOUNDRY_BUILD_REQUIRED="+str(state["capability_foundry_build_required_count"]))
     print("CAPABILITY_FOUNDRY_SAME_PROJECT_RESUME="+("YES" if state["capability_foundry_same_project_resume_allowed"] else "NO"))
     print("ACTIVE_CAPABILITY_REGISTRY="+str(state["active_capability_registry"]))
+    print("ACTIVE_PROVIDER_ADAPTER_REGISTRY="+str(state["active_provider_adapter_registry"]))
+    print("CAPABILITY_BUILD_AUTO_BUILT="+str(state["capability_build_auto_built_count"]))
+    print("CAPABILITY_BUILD_SPECIALIST_REQUIRED="+str(state["capability_build_specialist_required_count"]))
+    print("CAPABILITY_BUILD_SAME_PROJECT_RESUME="+("YES" if state["capability_build_same_project_resume"] else "NO"))
+    print("CAPABILITY_BUILD_DURABLE_ADOPTION_BEFORE_PROJECT_SUCCESS=NO")
     print("LOGIC_CHALLENGE_STATUS="+str(state["logic_challenge_status"]))
     print("UX_CHALLENGE_STATUS="+str(state["ux_challenge_status"]))
     print("CENTRAL_COMPROMISE_FOUND="+("YES" if state["central_compromise_found"] else "NO"))
