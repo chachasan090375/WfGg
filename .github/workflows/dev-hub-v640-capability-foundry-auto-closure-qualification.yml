@@ -1,0 +1,83 @@
+name: ChaCha DEV V6.40 capability foundry auto-closure qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v640-capability-foundry-auto-closure
+    paths:
+      - 'dev-hub/bin/capability-foundry-closure.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/capability-foundry-closure.v1.json'
+      - 'dev-hub/tests/test_v640_capability_foundry_auto_closure.py'
+      - '.github/workflows/dev-hub-v640-capability-foundry-auto-closure-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile \
+            dev-hub/bin/capability-foundry-closure.py \
+            dev-hub/bin/autonomous-project-orchestrator.py
+          python3 -m json.tool dev-hub/config/capability-foundry-closure.v1.json >/dev/null
+
+      - name: V6.40 capability foundry auto-closure
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v640_capability_foundry_auto_closure.py | tee /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_EXISTING_ENABLED_PROVIDER_AUTO_CLOSURE=PASS' /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_NONZERO_SPEND_FAIL_CLOSED=PASS' /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_CREDENTIAL_BOUNDARY_FAIL_CLOSED=PASS' /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_ADAPTER_NOT_ENABLED_FAIL_CLOSED=PASS' /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_UNKNOWN_PROVIDER_INVENTION=NO' /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_ORCHESTRATOR_USES_CLOSURE_OVERLAY=PASS' /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_BUILD_REQUIRED_BLOCKS_DISPATCH=PASS' /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_ACTIVE_CAPABILITY_REGISTRY_PROPAGATED=PASS' /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_VERIFIED_PROJECT_SUCCESS_BEFORE_ADOPT=PASS' /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_PRODUCTION_CAPABILITY_HUMAN_ADOPTION_BOUNDARY=PASS' /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v640.out
+
+      - name: V6.39 regression
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v639_controlled_production_handoff.py >/tmp/v639-regression.out
+          grep -Fq 'CHACHA_DEV_V639_CONTROLLED_PRODUCTION_HANDOFF=PASS' /tmp/v639-regression.out
+
+      - name: V6.29 Foundry memory regression
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v629_memory_guided_foundry_planning.py >/tmp/v629-regression.out
+          grep -Fq 'CHACHA_DEV_V629_CAPABILITY_FOUNDRY_MEMORY_CANDIDATES=PASS' /tmp/v629-regression.out
+          grep -Fq 'CHACHA_DEV_V629_TECHNOLOGY_WATCH_REMAINS_REQUIRED=PASS' /tmp/v629-regression.out
+          grep -Fq 'CHACHA_DEV_V629_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=PASS' /tmp/v629-regression.out
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo 'CHACHA_DEV_V640_QUALIFICATION=PASS'
+            echo 'EXISTING_ENABLED_PROVIDER_AUTO_CLOSURE=PASS'
+            echo 'NO_ADAPTER_INVENTION=YES'
+            echo 'BUILD_REQUIRED_FAIL_CLOSED=YES'
+            echo 'ACTIVE_CAPABILITY_REGISTRY_PROPAGATED=YES'
+            echo 'PROJECT_LOCAL_PILOT_BEFORE_ADOPT=YES'
+            echo 'VERIFIED_PROJECT_SUCCESS_BEFORE_DURABLE_ADOPT=YES'
+            echo 'PRODUCTION_CAPABILITY_HUMAN_ADOPTION_BOUNDARY=YES'
+            echo 'TECHNOLOGY_WATCH_REQUIRED=YES'
+            echo 'ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES'
+            echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
+          } | tee /tmp/v640-qualification-receipt.txt
