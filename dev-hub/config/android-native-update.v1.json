@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/android-native-update-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "app_id": "com.wfgg.chachadev.operator",
   "manifest_path": "/api/v1/native-update",
   "package_path_prefix": "/native-updates/",
@@ -19,6 +19,15 @@
     "central_orchestrator_publish_handoff_required": true,
     "guardian_required": true,
     "sentinel_exact_sha_required": true,
-    "automatic_external_spend_eur": 0
-  }
+    "automatic_external_spend_eur": 0,
+    "atomic_publish_required": true,
+    "rollback_required": true,
+    "apksigner_verification_required": true,
+    "native_update_manifest_is_private": true
+  },
+  "retention": 2,
+  "required_workflows": [
+    "ChaCha DEV V7.6 native update qualification",
+    "ChaCha DEV Sentinel technical assurance"
+  ]
 }
