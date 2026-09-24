@@ -1,0 +1,86 @@
+name: ChaCha DEV V6.63 runtime surface instrumentation and Acceptance readiness qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v663-runtime-surface-instrumentation-radar-attribution-fix
+    paths:
+      - 'dev-hub/bin/install-v663-runtime-surface-instrumentation-readiness.sh'
+      - 'dev-hub/bin/contract-registry.py'
+      - 'dev-hub/bin/integration-architecture-review.py'
+      - 'dev-hub/bin/acceptance-candidate-promotion-readiness-v663.py'
+      - 'dev-hub/bin/agent_fleet_observatory.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/agent-fleet-observatory.v1.json'
+      - 'dev-hub/config/assurance-agent-instrumentation.v1.json'
+      - 'dev-hub/tests/test_v663_runtime_surface_instrumentation_readiness.py'
+      - '.github/workflows/dev-hub-v663-runtime-surface-instrumentation-readiness-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          if [ -f dev-hub/bin/install-v663-runtime-surface-instrumentation-readiness.sh ]; then
+            bash -n dev-hub/bin/install-v663-runtime-surface-instrumentation-readiness.sh
+          fi
+          python3 -m py_compile             dev-hub/bin/contract-registry.py             dev-hub/bin/integration-architecture-review.py             dev-hub/bin/acceptance-candidate-promotion-readiness-v663.py             dev-hub/bin/agent_fleet_observatory.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/tests/test_v663_runtime_surface_instrumentation_readiness.py
+          python3 -m json.tool dev-hub/config/agent-fleet-observatory.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/assurance-agent-instrumentation.v1.json >/dev/null
+          grep -Fq '"version":"6.63.0"' dev-hub/bin/autonomous-project-orchestrator.py
+      - name: V6.63 semantic qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v663_runtime_surface_instrumentation_readiness.py | tee /tmp/v663.out
+          grep -Fq 'CHACHA_DEV_V663_RADAR_PROJECT_ATTRIBUTION_GUARD=PASS' /tmp/v663.out
+          grep -Fq 'CHACHA_DEV_V663_RADAR_SRE_RELEASE_CREDIT=NO' /tmp/v663.out
+          grep -Fq 'CHACHA_DEV_V663_CONTRACT_INTEGRATOR_RUNTIME_STAGE=PASS' /tmp/v663.out
+          grep -Fq 'CHACHA_DEV_V663_INTEGRATION_ARCHITECT_RUNTIME_STAGE=PASS' /tmp/v663.out
+          grep -Fq 'CHACHA_DEV_V663_MISSING_SURFACE_INSTRUMENTATION=PASS' /tmp/v663.out
+          grep -Fq 'CHACHA_DEV_V663_HISTORICAL_SURFACE_BACKFILL=NO' /tmp/v663.out
+          grep -Fq 'CHACHA_DEV_V663_ACCEPTANCE_READINESS=PASS' /tmp/v663.out
+          grep -Fq 'CHACHA_DEV_V663_ACCEPTANCE_ARCHITECTURE_COUNCIL_APPROVAL=NO' /tmp/v663.out
+          grep -Fq 'CHACHA_DEV_V663_ACCEPTANCE_PRODUCTION_ACTIVATION=NO' /tmp/v663.out
+          grep -Fq 'CHACHA_DEV_V663_ACCEPTANCE_PROMOTION=NO' /tmp/v663.out
+          grep -Fq 'CHACHA_DEV_V663_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v663.out
+      - name: V6.62 regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v662_remaining_real_world_acceptance_pilot.py >/tmp/v662.out
+          grep -Fq 'CHACHA_DEV_V662_REAL_WORLD_STRUCTURAL_ATTESTATION=PASS' /tmp/v662.out
+          grep -Fq 'CHACHA_DEV_V662_ACCEPTANCE_INDEPENDENT_PILOT=PASS' /tmp/v662.out
+          grep -Fq 'CHACHA_DEV_V662_ACCEPTANCE_PRODUCTION_ACTIVATION=NO' /tmp/v662.out
+          grep -Fq 'CHACHA_DEV_V662_ACCEPTANCE_PROMOTION=NO' /tmp/v662.out
+      - name: V6.60 accuracy regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v660_independent_accuracy_attestation.py >/tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_GUARDIAN_INDEPENDENT_ACCURACY=PASS' /tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_SENTINEL_GITHUB_RUN_JOB_ARTIFACT_ACCURACY=PASS' /tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_ACCEPTANCE_RECOMPUTED_ACCURACY=PASS' /tmp/v660.out
+      - name: Qualification receipt
+        run: |
+          echo CHACHA_DEV_V663_QUALIFICATION=PASS
+          echo RADAR_PROJECT_ATTRIBUTION_GUARD=PASS
+          echo RADAR_SRE_RELEASE_CREDIT=NO
+          echo CONTRACT_INTEGRATOR_RUNTIME_STAGE=PASS
+          echo INTEGRATION_ARCHITECT_RUNTIME_STAGE=PASS
+          echo HISTORICAL_SURFACE_BACKFILL=NO
+          echo ACCEPTANCE_READINESS=PASS
+          echo ACCEPTANCE_PRODUCTION_ACTIVATION=NO
+          echo ACCEPTANCE_PROMOTION=NO
+          echo SELF_MUTATION=NO
+          echo SELF_PROMOTION=NO
+          echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
