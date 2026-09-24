@@ -145,7 +145,8 @@ need={
  "ChaCha DEV Sentinel technical assurance",
  "ChaCha DEV V7 platform qualification",
  "ChaCha DEV V7.2 Human Interface Gateway qualification",
- "ChaCha DEV V7 Guardian contract sync"
+ "ChaCha DEV V7 Guardian contract sync",
+ "ChaCha DEV V7 Guardian coverage sync"
 }
 rows=x.get("workflow_runs") or []
 for name in need:
@@ -172,6 +173,25 @@ stage guardian-and-platform-health
 PYTHONPATH="$RELEASE/dev-hub/bin" python3 "$RELEASE/dev-hub/bin/guardian-coverage-heartbeat.py"   --repo-root "$RELEASE"   --manifest "$RELEASE/dev-hub/config/guardian-coverage-manifest.v1.json"   --policy "$RELEASE/dev-hub/config/guardian-runtime-policy.v1.json"   --client "$RELEASE/dev-hub/bin/guardian-client.py"   --output "$RUNTIME/guardian/coverage-latest.json" >"$WORK/guardian.out"
 grep -Fq 'CHACHA_DEV_GUARDIAN_COVERAGE_HEARTBEAT=PASS' "$WORK/guardian.out"
 grep -Fq 'ALL_HOOKS_ACTIVE=YES' "$WORK/guardian.out"
+python3 - "$WORK/guardian.out" <<'PY'
+import json,sys
+rows=[x.strip() for x in open(sys.argv[1],encoding="utf-8") if x.strip()]
+receipt=None
+for line in rows:
+    if line.startswith("{"):
+        try:
+            x=json.loads(line)
+        except Exception:
+            continue
+        if x.get("schema")=="chacha.dev/guardian-coverage-verdict/v1":
+            receipt=x;break
+assert receipt is not None,rows
+assert receipt.get("missing")==[],receipt
+assert receipt.get("inactive")==[],receipt
+assert receipt.get("unknown")==[],receipt
+assert receipt.get("coverage_ratio")==1,receipt
+print("CHACHA_DEV_V720_GUARDIAN_GATEWAY_COVERAGE=PASS")
+PY
 PYTHONPATH="$RELEASE/dev-hub/bin" python3 "$RELEASE/dev-hub/bin/technology-watch-service.py" --repo-root "$RELEASE" status >"$WORK/watch.out"
 grep -Fq 'CHACHA_TECHNOLOGY_WATCH_STATUS=FRESH' "$WORK/watch.out"
 systemctl is-active --quiet chacha-dev-agent-fleet-observatory.timer
