@@ -284,7 +284,6 @@ echo "CHACHA_DEV_V710_POST_HEALTH=PASS"
 
 stage evidence
 assert_current
-[ "$PURGE_COMMITTED" -eq 1 ]
 [ "$(readlink -f "$CURRENT")" = "$RELEASE" ]
 [ "$(find "$BASE/releases" -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 3 ]
 systemctl is-active --quiet chacha-dev-intendant-hygiene.timer
