@@ -80,7 +80,11 @@ def guardian_case(run:Path)->dict[str,Any]|None:
       int(receipt.get("passed_required_criteria_count") or 0)==passed and
       str(receipt.get("verdict") or "")==expected_verdict and
       list(receipt.get("reason_codes") or [])==reasons and
-      hashes_ok
+      hashes_ok and
+      str(receipt.get("guardian") or "")=="external-worker" and
+      receipt.get("functional_scope_only") is True and
+      receipt.get("direct_application_mutation") is False and
+      receipt.get("central_orchestrator_owns_remediation") is True
     )
     return {
       "case_id":"guardian:"+str(receipt.get("receipt_id") or run.name),
@@ -89,6 +93,9 @@ def guardian_case(run:Path)->dict[str,Any]|None:
       "contract_digest_recomputed":digest,"contract_digest_matches":str(receipt.get("contract_digest") or "")==digest,
       "required_criteria_count":len(required),"passed_required_criteria_count":passed,
       "evidence_hashes_verified":hashes_ok,
+      "external_worker":str(receipt.get("guardian") or "")=="external-worker",
+      "functional_scope_only":receipt.get("functional_scope_only") is True,
+      "no_direct_mutation":receipt.get("direct_application_mutation") is False,
       "source_refs":[str(contract_path),str(acceptance_path),str(receipt_path)]
     }
 
@@ -138,9 +145,13 @@ def fetch_github_run(repository:str,run_id:str)->dict[str,Any]:
 
 def sentinel_case(run:Path,github_dir:Path|None,fetch_github:bool,source_dir:Path)->dict[str,Any]|None:
     receipt_path=run/"external-assurance/sentinel-technical-receipt.json"
-    if not receipt_path.is_file():return None
-    receipt=load(receipt_path)
+    audit_path=run/"external-assurance/sentinel-audit.json"
+    checkpoint_path=run/"release-trust/release-checkpoint.signed.json"
+    if not all(p.is_file() for p in (receipt_path,audit_path,checkpoint_path)):return None
+    receipt=load(receipt_path);audit=load(audit_path);checkpoint=load(checkpoint_path)
     if receipt.get("schema")!="chacha.dev/sentinel-technical-receipt/v1":return None
+    if audit.get("schema")!="chacha.dev/sentinel-technical-audit/v1":return None
+    if checkpoint.get("schema")!="chacha.dev/signed-checkpoint/v1":return None
     run_id=str(receipt.get("workflow_run_id") or "");repo=str(receipt.get("repository") or "")
     if not run_id or not repo:return None
     gh_path=(github_dir/(run_id+".json")) if github_dir else None
@@ -149,25 +160,32 @@ def sentinel_case(run:Path,github_dir:Path|None,fetch_github:bool,source_dir:Pat
         gh=fetch_github_run(repo,run_id);gh_path=source_dir/("github-run-"+run_id+".json");save(gh_path,gh)
     else:return None
     repository_name=str(((gh.get("repository") or {}).get("full_name")) or repo)
-    matched=(
-      str(gh.get("id") or "")==run_id and
-      str(gh.get("name") or "")==str(receipt.get("workflow_name") or "") and
-      str(gh.get("head_sha") or "")==str(receipt.get("revision") or "") and
-      str(gh.get("status") or "")=="completed" and
-      str(gh.get("conclusion") or "")=="success" and
-      repository_name==repo and
-      str(receipt.get("verdict") or "")=="PASS" and
-      str(receipt.get("technical_verification_source") or "")=="D1_WORKFLOW_ATTESTATION"
-    )
+    checks={
+      "workflow_id_matches":str(gh.get("id") or "")==run_id,
+      "workflow_name_matches":str(gh.get("name") or "")==str(receipt.get("workflow_name") or ""),
+      "workflow_revision_matches":str(gh.get("head_sha") or "")==str(receipt.get("revision") or ""),
+      "workflow_completed_success":str(gh.get("status") or "")=="completed" and str(gh.get("conclusion") or "")=="success",
+      "github_repository_matches":repository_name==repo,
+      "receipt_pass":str(receipt.get("verdict") or "")=="PASS",
+      "d1_workflow_attestation":str(receipt.get("technical_verification_source") or "")=="D1_WORKFLOW_ATTESTATION",
+      "external_worker":str(receipt.get("sentinel") or "")=="external-worker",
+      "technical_scope_only":receipt.get("technical_scope_only") is True,
+      "no_direct_mutation":receipt.get("direct_code_mutation") is False,
+      "audit_revision_matches":str(audit.get("revision") or "")==str(receipt.get("revision") or ""),
+      "audit_verdict_matches":str(audit.get("verdict") or "")==str(receipt.get("verdict") or ""),
+      "audit_digest_matches_receipt":str(audit.get("audit_digest") or "")==str(receipt.get("audit_digest") or ""),
+      "checkpoint_digest_matches_audit":str(checkpoint.get("checkpoint_digest") or "")==str(audit.get("checkpoint_digest") or "")==str(audit.get("audit_digest") or ""),
+      "checkpoint_signature_present":str(checkpoint.get("algorithm") or "")=="Ed25519" and bool(str(checkpoint.get("signature") or "")),
+      "no_blocking_findings":not bool(audit.get("blocking_findings") or [])
+    }
+    matched=all(checks.values())
     return {
       "case_id":"sentinel:"+str(receipt.get("receipt_id") or run.name),
       "project_id":receipt.get("project_id"),"revision":receipt.get("revision"),
-      "passed":bool(matched),"workflow_run_id":run_id,
-      "workflow_name_matches":str(gh.get("name") or "")==str(receipt.get("workflow_name") or ""),
-      "head_sha_matches":str(gh.get("head_sha") or "")==str(receipt.get("revision") or ""),
-      "github_completed_success":str(gh.get("status") or "")=="completed" and str(gh.get("conclusion") or "")=="success",
-      "github_repository_matches":repository_name==repo,
-      "source_refs":[str(receipt_path),str(gh_path) if gh_path else "github-api:"+run_id]
+      "passed":bool(matched),"workflow_run_id":run_id,"checks":checks,
+      "audit_digest":audit.get("audit_digest"),"checkpoint_digest":checkpoint.get("checkpoint_digest"),
+      "source_refs":[str(receipt_path),str(audit_path),str(checkpoint_path),
+                     str(gh_path) if gh_path else "github-api:"+run_id]
     }
 
 def attestation(agent_id:str,cases:list[dict[str,Any]])->dict[str,Any]:
