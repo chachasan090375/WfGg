@@ -23,15 +23,31 @@ runner.tw.snapshot_status=lambda root:{"state":"FRESH","fresh":True,"snapshot_di
 with tempfile.TemporaryDirectory(prefix="v656-weighted-") as td:
  rt=Path(td)
  # Four independently verified production dimensions per target.
+ # Project Control artifacts establish accuracy/evidence_quality; Observation Bus establishes coverage/handoff.
  for i,aid in enumerate(targets,1):
   caps=routing["roles"][aid]["capabilities"]
+  proj="v656-"+aid
+  tasks=[]
   for j,cap in enumerate(caps[:4],1):
+   tid=f"{aid}-{j}";tasks.append({"id":tid,"owner_role":aid,"capabilities":[cap]})
+  save(rt/"plans"/proj/"IMPLEMENT.task-graph.json",{"schema":"chacha.dev/task-graph/v1","project":proj,"tasks":tasks})
+  for j,cap in enumerate(caps[:4],1):
+   tid=f"{aid}-{j}";digest="sha256:"+("%064x"%(i*10+j));vdigest="sha256:"+("%064x"%(100+i*10+j))
+   d=rt/"transactions"/proj/f"ctx-{j}";d.mkdir(parents=True,exist_ok=True)
+   save(d/"verified-task-result.json",{"schema":"chacha.dev/task-result/v1","project":proj,"task_id":tid,"status":"OK",
+    "producer":"run-controller","observed_at":"2026-09-20T00:00:00Z",
+    "evidence":[{"kind":"file","source":f"/evidence/{aid}/{j}","digest":digest}],
+    "verification":{"status":"VERIFIED","method":"machine","verifier":"verification-broker","observed_at":"2026-09-20T00:01:00Z"},
+    "outputs":[{"type":"artifact","id":tid,"status":"OK"}]})
+   save(d/"verification-report.json",{"schema":"chacha.dev/verification-report/v1","project":proj,"task_id":tid,
+    "verifier":"verification-broker","method":"machine","status":"VERIFIED","observed_at":"2026-09-20T00:01:00Z",
+    "source_result_digest":vdigest,"checks":[{"id":"independent-verifier","status":"PASS"},{"id":"evidence-present","status":"PASS"}]})
    event={"schema":"chacha.dev/agent-observation-event/v1","event_id":f"v656-prod-{i}-{j}",
     "event_type":"HISTORICAL_TASK_RESULT_VERIFIED","source_id":"project-control",
-    "source_surface":"project-control:v656-test","project_id":"v656","task_id":f"{aid}-{j}",
-    "subject_role":aid,"outcome":"OK","verification":"VERIFIED","revision":"sha256:"+(("%064x"%(i*10+j))),
-    "capabilities":[cap],"evidence_refs":[f"/evidence/{aid}/{j}#sha256:"+("%064x"%(100+i*10+j))],
-    "observed_at":"2026-09-20T00:00:00Z","details":{"historical_verified_backfill":True,"retroactive_reassessment":False}}
+    "source_surface":"project-control:v656-test","project_id":proj,"task_id":tid,
+    "subject_role":aid,"outcome":"OK","verification":"VERIFIED","revision":vdigest,
+    "capabilities":[cap],"evidence_refs":[f"/evidence/{aid}/{j}#{digest}"],
+    "observed_at":"2026-09-20T00:01:00Z","details":{"historical_verified_backfill":True,"retroactive_reassessment":False}}
    pub=aob.publish(event,bus_policy,rt);assert pub["inserted"] is True and pub["trigger"] is None,pub
 
  metrics=afo.build_metrics(inv,rt,fleet_policy)
