@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/branch-foundry/v1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "mandatory_preflight": true,
   "invocation_point": "parallel-with-agent-foundry-after-core-preplan",
   "returns_to": "chacha-core-orchestrator",
@@ -234,6 +234,21 @@
     "incremental_deltas_only": true,
     "covered_by_runtime_orchestrator_hooks": true,
     "central_memory": "chacha-dev",
+    "automatic_external_spend_eur": 0
+  },
+  "platform_component_reassessment": {
+    "mode": "PLATFORM_COMPONENT_REASSESSMENT",
+    "stage": "SHADOW",
+    "incumbent_is_control_group": true,
+    "technology_watch_revalidation_required": true,
+    "logician_falsification_required": true,
+    "materialization_authorized_in_shadow": false,
+    "active_component_mutation": false,
+    "promotion_authorized_in_shadow": false,
+    "permission_expansion": false,
+    "guardian_required": true,
+    "sentinel_required": true,
+    "architecture_council_final_authority": true,
     "automatic_external_spend_eur": 0
   }
 }

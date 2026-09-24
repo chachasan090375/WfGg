@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,hashlib,json
+import argparse,hashlib,importlib.util,json
 from pathlib import Path
 from typing import Any
+import technology_watch_runtime as tw
 
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding="utf-8"))
@@ -13,6 +14,10 @@ def save(p:Path,x:dict[str,Any])->None:
     p.write_text(json.dumps(x,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
 def digest(x:Any)->str:
     return hashlib.sha256(json.dumps(x,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()).hexdigest()
+def load_module(name:str,path:Path):
+    spec=importlib.util.spec_from_file_location(name,path)
+    if spec is None or spec.loader is None:raise ValueError("FOUNDRY_MODULE_LOAD_FAILED:"+str(path))
+    mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod);return mod
 def resolve_component(governance:dict[str,Any],component_id:str)->dict[str,Any]|None:
     rows=[x for x in governance.get("components") or [] if isinstance(x,dict)]
     exact=[x for x in rows if str(x.get("component_id") or "")==component_id]
@@ -66,6 +71,41 @@ def build_dispatch(index:dict[str,Any],governance:dict[str,Any])->dict[str,Any]:
       "materialization_authorized":False,"promotion_authorized":False,
       "direct_component_mutation":False,"self_promotion":False,
       "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+def execute_shadow_dispatches(dispatch_index:dict[str,Any],governance:dict[str,Any],repo_root:Path,watch_provider=None)->dict[str,Any]:
+    watch_provider=watch_provider or (lambda consumer,cid:tw.consult(
+        repo_root,consumer=consumer,domain="platform-component-evolution",capabilities=[cid]))
+    branch_mod=load_module("platform_branch_foundry",repo_root/"dev-hub/bin/branch-foundry-planner.py")
+    capability_mod=load_module("platform_capability_foundry",repo_root/"dev-hub/bin/capability-foundry.py")
+    results=[];blocked=[]
+    for contract in dispatch_index.get("dispatches") or []:
+        cid=str(contract.get("component_id") or "")
+        row=resolve_component(governance,cid)
+        if row is None:
+            blocked.append({"dispatch_id":contract.get("dispatch_id"),"component_id":cid,"blocker":"COMPONENT_GOVERNANCE_NOT_RESOLVED"});continue
+        owner=str(contract.get("target_foundry") or "")
+        try:
+            watch=watch_provider(owner,cid)
+            if owner=="branch-foundry":
+                result=branch_mod.platform_component_reassessment(contract,row,watch)
+            elif owner=="capability-foundry":
+                result=capability_mod.platform_component_reassessment(contract,row,watch)
+            else:
+                raise ValueError("UNSUPPORTED_FOUNDRY_OWNER:"+owner)
+        except Exception as exc:
+            blocked.append({"dispatch_id":contract.get("dispatch_id"),"component_id":cid,
+                "target_foundry":owner,"blocker":"SHADOW_REASSESSMENT_FAILED","reason":str(exc)});continue
+        result["dispatch_id"]=contract.get("dispatch_id")
+        results.append(result)
+    all_shadow=all(str(x.get("state") or "")=="SHADOW_ASSESSED" for x in results)
+    return {"schema":"chacha.dev/platform-foundry-shadow-execution-index/v1",
+      "input_dispatch_count":len(dispatch_index.get("dispatches") or []),
+      "shadow_result_count":len(results),"blocked_count":len(blocked),
+      "results":results,"blocked":blocked,
+      "shadow_execution_complete":len(results)==len(dispatch_index.get("dispatches") or []) and not blocked and all_shadow,
+      "materialization_authorized":False,"active_component_mutation":False,
+      "promotion_authorized":False,"self_promotion":False,
+      "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+
 def main()->int:
     ap=argparse.ArgumentParser()
     ap.add_argument("--reassessment-index",type=Path,required=True)

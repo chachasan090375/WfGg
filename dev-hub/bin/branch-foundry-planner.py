@@ -35,6 +35,42 @@ def profile_for(chosen:dict[str,Any])->str:
     if mem<=512:return "STANDARD"
     return "BURST"
 
+def platform_component_reassessment(contract:dict[str,Any],governance:dict[str,Any],watch:dict[str,Any])->dict[str,Any]:
+    if contract.get("target_contract")!="chacha.dev/branch-foundry-platform-component-reassessment/v1":
+        raise ValueError("BRANCH_FOUNDRY_PLATFORM_CONTRACT_INVALID")
+    if str(contract.get("target_foundry") or "")!="branch-foundry":
+        raise ValueError("BRANCH_FOUNDRY_PLATFORM_OWNER_INVALID")
+    if str(governance.get("evolution_owner") or "")!="branch-foundry":
+        raise ValueError("BRANCH_FOUNDRY_GOVERNANCE_OWNER_MISMATCH")
+    cid=str(contract.get("component_id") or "")
+    freshness=str(watch.get("snapshot_freshness") or "")
+    watch_ok=freshness=="FRESH" or bool(watch.get("targeted_refresh_performed") is True)
+    candidates=[x for x in watch.get("branch_blueprints") or [] if isinstance(x,dict)]
+    zero=[x for x in candidates if bool(x.get("zero_external_spend") is True) or float(x.get("external_spend_eur") or 0)==0]
+    state="SHADOW_ASSESSED" if watch_ok else "BLOCKED_TECHNOLOGY_WATCH"
+    return {
+      "schema":"chacha.dev/branch-foundry-platform-component-shadow/v1",
+      "mode":"PLATFORM_COMPONENT_REASSESSMENT","stage":"SHADOW","state":state,
+      "component_id":cid,"governance_component_id":governance.get("component_id"),
+      "governance_class":governance.get("governance_class"),"candidate_owner":"branch-foundry",
+      "trigger_reasons":list(contract.get("trigger_reasons") or []),
+      "required_controls":list(governance.get("required_controls") or []),
+      "incumbent_is_control_group":True,
+      "technology_watch":{
+        "consulted":True,"snapshot_freshness":freshness,
+        "targeted_refresh_performed":bool(watch.get("targeted_refresh_performed") is True),
+        "source_snapshot_digest":watch.get("source_snapshot_digest"),
+        "candidate_count":len(candidates),"zero_spend_candidate_count":len(zero),
+        "automatic_external_spend_eur":0},
+      "shadow_candidate_signals":[str(x.get("id") or x.get("name") or "") for x in zero[:10] if str(x.get("id") or x.get("name") or "")],
+      "next_stage":"SHADOW_EVIDENCE_COLLECTION" if watch_ok else "TECHNOLOGY_WATCH_REVALIDATION",
+      "materialization_authorized":False,"active_component_mutation":False,
+      "promotion_authorized":False,"permission_expansion":False,
+      "guardian_required":True,"sentinel_required":True,
+      "logician_falsification_required":True,
+      "architecture_council_final_authority":True,
+      "automatic_external_spend_eur":0}
+
 def build(preplan:dict[str,Any],cfg:dict[str,Any],project_id:str,
           agent_topology:dict[str,Any]|None=None,
           memory_brief:dict[str,Any]|None=None)->dict[str,Any]:

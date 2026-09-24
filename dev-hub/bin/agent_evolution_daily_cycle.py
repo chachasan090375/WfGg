@@ -121,6 +121,8 @@ def main()->int:
     save(ae/"component-governance-latest.json",component_index)
     platform_dispatch=pcec.build_dispatch(platform_idx,component_index)
     save(pe/"foundry-dispatch-latest.json",platform_dispatch)
+    platform_shadow=pcec.execute_shadow_dispatches(platform_dispatch,component_index,root)
+    save(pe/"foundry-shadow-latest.json",platform_shadow)
     receipt={"schema":"chacha.dev/agent-evolution-daily-cycle/v1","generated_at":iso(stamp),"agent_count":report.get("agent_count"),
       "optimization_count":len(report.get("optimization_queue") or []),"measurement_count":len(report.get("measurement_queue") or []),
       "event_request_count":len(requests),"scheduled_action_count":len(scheduled),
@@ -130,6 +132,9 @@ def main()->int:
       "platform_foundry_dispatch_count":platform_dispatch.get("dispatch_count"),
       "platform_foundry_dispatch_blocked_count":platform_dispatch.get("blocked_count"),
       "platform_foundry_dispatch_complete":platform_dispatch.get("dispatch_complete"),
+      "platform_foundry_shadow_result_count":platform_shadow.get("shadow_result_count"),
+      "platform_foundry_shadow_blocked_count":platform_shadow.get("blocked_count"),
+      "platform_foundry_shadow_execution_complete":platform_shadow.get("shadow_execution_complete"),
       "deep_audit_due":deep,"ecosystem_benchmark_due":bench,
       "benchmark_campaign_created":benchmark_campaign is not None,
       "benchmark_contract_count":len((benchmark_campaign or {}).get("contracts") or []),
@@ -152,5 +157,6 @@ def main()->int:
     print("PLATFORM_EVENT_REQUESTS="+str(len(platform_requests)));print("PLATFORM_ROUTED_ACTIONS="+str(len(platform_actions)))
     print("PLATFORM_REASSESSMENT_ROUTING="+("PASS" if platform_idx["routing_complete"] else "BLOCKED"))
     print("PLATFORM_FOUNDRY_DISPATCH="+("PASS" if platform_dispatch["dispatch_complete"] else "BLOCKED"))
+    print("PLATFORM_FOUNDRY_SHADOW="+("PASS" if platform_shadow["shadow_execution_complete"] else ("IDLE" if platform_shadow["input_dispatch_count"]==0 else "BLOCKED")))
     print("CHACHA_DEV_V648_AUTOMATIC_EXTERNAL_SPEND_EUR=0");return 0
 if __name__=="__main__":raise SystemExit(main())
