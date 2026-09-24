@@ -6,6 +6,7 @@ on:
       - 'dev-hub-v7*'
     paths:
       - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/bin/install-v720-human-interface-gateway.sh'
       - '.github/workflows/dev-hub-v7-guardian-contract-sync.yml'
   workflow_dispatch:
 
