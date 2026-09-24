@@ -1,0 +1,60 @@
+name: ChaCha DEV V7.7 Object Factory qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v770-object-factory
+    paths:
+      - 'dev-hub/bin/object-factory.py'
+      - 'dev-hub/bin/project-planner.py'
+      - 'dev-hub/config/object-factory.v1.json'
+      - 'dev-hub/config/object-registry.v1.json'
+      - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/config/technology-core-watch.v1.json'
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/schemas/project-intent-v1.schema.json'
+      - 'dev-hub/tests/test_v770_object_factory.py'
+      - '.github/workflows/dev-hub-v770-object-factory.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/object-factory.py             dev-hub/bin/project-planner.py             dev-hub/tests/test_v770_object_factory.py
+          python3 -m json.tool dev-hub/config/object-factory.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/object-registry.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/capability-registry.v1.json >/dev/null
+          python3 -m json.tool dev-hub/schemas/project-intent-v1.schema.json >/dev/null
+      - name: Object Factory integration
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v770_object_factory.py | tee /tmp/v770.out
+          grep -Fq 'CHACHA_DEV_V770_OBJECT_FACTORY=PASS' /tmp/v770.out
+          grep -Fq 'OBJECT_FACTORY_BUILD=PASS' /tmp/v770.out
+          grep -Fq 'OBJECT_FACTORY_REUSE=PASS' /tmp/v770.out
+          grep -Fq 'OBJECT_FACTORY_PLANNER_INTEGRATION=PASS' /tmp/v770.out
+          grep -Fq 'OBJECT_MODEL_MISSING_BLOCKS_CODE_GENERATION=YES' /tmp/v770.out
+          grep -Fq 'OBJECT_FACTORY_COMPONENT_OWNER=component-factory' /tmp/v770.out
+          grep -Fq 'OBJECT_FACTORY_ARCHITECTURE_OWNER=chacha-dev-architect' /tmp/v770.out
+          grep -Fq 'OBJECT_FACTORY_CAPABILITY_GAP_OWNER=capability-foundry' /tmp/v770.out
+          grep -Fq 'OBJECT_FACTORY_PRODUCTION_CHANGE_AUTHORITY=NO' /tmp/v770.out
+      - name: Receipt
+        run: |
+          echo CHACHA_DEV_V770_OBJECT_FACTORY_QUALIFICATION=PASS
+          echo OBJECT_FACTORY_STANDARD_APP_CREATION_MODULE=YES
+          echo OBJECT_FACTORY_REUSE_BEFORE_BUILD=YES
+          echo OBJECT_FACTORY_PRODUCTION_CHANGE_AUTHORITY=NO
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
