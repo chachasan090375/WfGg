@@ -83,6 +83,29 @@ flock -n 9 || { echo "CHACHA_DEV_V710_INSTALL=BLOCKED reason=platform_deploy_loc
 printf '%s' "$REV" | grep -Eq '^[0-9a-f]{40}$' || { echo "CHACHA_DEV_V710_INSTALL=BLOCKED reason=pinned_revision_required"; exit 2; }
 [ -L "$CURRENT" ] || { echo "CHACHA_DEV_V710_INSTALL=BLOCKED reason=current_release_symlink_missing"; exit 2; }
 PREVIOUS="$(readlink -f "$CURRENT")"
+CURRENT_REV="$(cat "$PREVIOUS/.revision" 2>/dev/null || true)"
+if [ "$CURRENT_REV" = "$REV" ]; then
+  stage already-active-reconcile
+  RELEASE="$PREVIOUS"
+  if [ -f "$SERVICE" ]; then cp -a "$SERVICE" "$SERVICE_BACKUP"; SERVICE_EXISTED=1; fi
+  if [ -f "$TIMER" ]; then cp -a "$TIMER" "$TIMER_BACKUP"; TIMER_EXISTED=1; fi
+  UNITS_TOUCHED=1
+  { echo "$UNIT_MARKER"; cat "$RELEASE/dev-hub/systemd/chacha-dev-intendant-hygiene.service"; } >"$SERVICE"
+  { echo "$UNIT_MARKER"; cat "$RELEASE/dev-hub/systemd/chacha-dev-intendant-hygiene.timer"; } >"$TIMER"
+  chmod 0644 "$SERVICE" "$TIMER"
+  systemctl daemon-reload
+  systemctl enable chacha-dev-intendant-hygiene.timer >/dev/null
+  systemctl restart chacha-dev-intendant-hygiene.timer
+  systemctl is-active --quiet chacha-dev-intendant-hygiene.timer
+  systemctl is-enabled --quiet chacha-dev-intendant-hygiene.timer
+  NEXT_ELAPSE="$(systemctl show chacha-dev-intendant-hygiene.timer -p NextElapseUSecRealtime --value)"
+  [ -n "$NEXT_ELAPSE" ] && [ "$NEXT_ELAPSE" != "infinity" ] || { echo "CHACHA_DEV_V710_TIMER_REARM=BLOCKED next=$NEXT_ELAPSE"; exit 45; }
+  echo "CHACHA_DEV_V710_ALREADY_ACTIVE_RECONCILED=PASS"
+  echo "CHACHA_DEV_V710_TIMER_NEXT=$NEXT_ELAPSE"
+  trap - EXIT
+  cleanup
+  exit 0
+fi
 
 stage v700-acquired-baseline
 python3 - "$PREVIOUS" <<'PY'
