@@ -99,10 +99,14 @@ with tempfile.TemporaryDirectory(prefix="v710-hygiene-") as td:
     active=write_release(platform,"20260924T180000Z-"+active_rev,active_rev,"7.1.0")
     duplicate_active=write_release(platform,"20260924T175500Z-duplicate-"+active_rev,active_rev,"7.1.0")
     r700=write_release(platform,"20260924T170000Z-"+v700,v700,"7.0.0")
-    r663=write_release(platform,"20260924T160000Z-"+v663,v663,"6.63.0")
+    # Simulate an old acquired rollback physically restored later than V7.0.
+    # Selection must follow acquisition evidence time, not directory timestamp.
+    r663=write_release(platform,"20260924T175900Z-restored-"+v663,v663,"6.63.0")
     r660=write_release(platform,"20260924T150000Z-"+v660,v660,"6.60.0")
     (platform/"current").symlink_to(active)
-    evidence=td/"evidence";evidence.mkdir();save(evidence/"v700.json",{"revision":v700});save(evidence/"v663.json",{"revision":v663})
+    evidence=td/"evidence";evidence.mkdir()
+    save(evidence/"v700.json",{"revision":v700,"observed_at":"20260924T153443Z"})
+    save(evidence/"v663.json",{"revision":v663,"observed_at":"20260924T144805Z"})
     cp=json.loads(json.dumps(consolidation));cp["physical_release_retention"]["verification_evidence_root"]=str(evidence)
     cp["physical_release_retention"]["fallback_verified_rollback_revisions"]=[v700,v663]
     cp_path=td/"consolidation.json";save(cp_path,cp)
@@ -129,6 +133,7 @@ with tempfile.TemporaryDirectory(prefix="v710-hygiene-") as td:
     action=next(x for x in weekly["actions"] if x["action"]=="RELEASE_RETIREMENT_DRY_RUN")
     assert action["retire_count"]==2,action
     assert action["selected_rollback_revisions"]==[v700,v663],action
+    assert action.get("selected_rollback_evidence_epochs")==sorted(action.get("selected_rollback_evidence_epochs") or [],reverse=True),action
     assert all(x.exists() for x in (active,duplicate_active,r700,r663,r660)),"dry-run mutated releases"
     assert active_rev not in action["selected_rollback_revisions"],action
 
