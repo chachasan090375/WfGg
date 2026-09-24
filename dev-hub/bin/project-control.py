@@ -267,10 +267,46 @@ def status_operation(project: str, policy: dict[str, Any], repo_root: Path) -> d
         return response(project, "status", "BLOCKED", "Control-plane state schema is invalid.",
                         {"schema": projection.get("schema")}, ["CONTROL_PLANE_STATE_SCHEMA_INVALID"])
     stage = str(((projection.get("state") or {}).get("lifecycle") or {}).get("stage") or "UNKNOWN")
+    control_profile=str(((projection.get("state") or {}).get("identity") or {}).get("control_profile") or "project")
+    tx_blockers = pending_transactions(p["transactions"])
+    if control_profile=="platform":
+        details={
+          "control_profile":"platform","stage":stage,"lifecycle_managed":False,
+          "version":projection.get("version"),"last_event_sequence":projection.get("last_event_sequence"),
+          "last_event_digest":projection.get("last_event_digest"),"next_stage":None,
+          "state":str(p["state"]),"ledger":str(p["ledger"]),"pending_transactions":len(tx_blockers),
+          "protected_human_approval_boundary":True
+        }
+        if tx_blockers:
+            return response(project,"status","BLOCKED","A platform control transaction requires recovery.",
+                            details,tx_blockers,["inspect and recover pending control transaction"])
+        if not p["ledger"].exists():
+            return response(project,"status","BLOCKED","Platform Evidence Ledger is missing.",details,
+                            ["EVIDENCE_LEDGER_MISSING"],["rerun bootstrap-control-plane"])
+        ledger_value=load(p["ledger"])
+        if ledger_value.get("schema")!=LEDGER_SCHEMA or str(ledger_value.get("project") or "")!=project:
+            return response(project,"status","BLOCKED","Platform Evidence Ledger identity is invalid.",details,
+                            ["EVIDENCE_LEDGER_IDENTITY_INVALID"])
+        evidence=((projection.get("state") or {}).get("evidence") or {})
+        if evidence.get("control_plane_ledger_initialized") is not True:
+            return response(project,"status","BLOCKED","Platform control-plane bootstrap marker is missing.",details,
+                            ["CONTROL_PLANE_BOOTSTRAP_MARKER_MISSING"],["rerun bootstrap-control-plane"])
+        rc_v,values_v,out_v,err_v=state_verify_raw(project,policy,repo_root)
+        if rc_v!=0:
+            details.update({"verify_stdout":out_v.strip(),"verify_stderr":err_v.strip()})
+            return response(project,"status","BLOCKED","Platform control-plane integrity check failed.",details,
+                            ["CONTROL_PLANE_INTEGRITY_FAILED"])
+        approval_contract=((policy.get("operations") or {}).get("record-approval") or {})
+        if approval_contract.get("human_actor_required") is not True:
+            return response(project,"status","BLOCKED","Protected human approval policy is not active.",details,
+                            ["HUMAN_APPROVAL_BOUNDARY_NOT_PROTECTED"])
+        details["integrity"]=values_v
+        return response(project,"status","READY",
+                        "Platform control plane is ready for protected governance operations.",
+                        details,next_actions=["await governed evidence or explicit human approval request"])
     lifecycle_path = resolve_repo(repo_root, (policy.get("repository_paths") or {})["lifecycle"])
     lifecycle = load(lifecycle_path)
     target = next_stage(lifecycle, stage)
-    tx_blockers = pending_transactions(p["transactions"])
     details = {
         "stage": stage,
         "version": projection.get("version"),
@@ -320,6 +356,12 @@ def plan_transition(project: str, target: str | None, policy: dict[str, Any], re
     if not p["state"].exists():
         return response(project, "plan-transition", "BLOCKED", "Control-plane state missing.", blockers=["CONTROL_PLANE_STATE_MISSING"])
     projection = load(p["state"])
+    control_profile=str(((projection.get("state") or {}).get("identity") or {}).get("control_profile") or "project")
+    if control_profile=="platform":
+        return response(project,"plan-transition","BLOCKED","Platform control profile does not use application lifecycle transitions.",
+                        {"control_profile":"platform","lifecycle_managed":False},
+                        ["PLATFORM_CONTROL_PROFILE_LIFECYCLE_OPERATION_FORBIDDEN"])
+
     stage = str(((projection.get("state") or {}).get("lifecycle") or {}).get("stage") or "UNKNOWN")
     lifecycle_path = resolve_repo(repo_root, (policy.get("repository_paths") or {})["lifecycle"])
     lifecycle = load(lifecycle_path)
@@ -350,6 +392,12 @@ def schedule_operation(project: str, graph: Path | None, policy: dict[str, Any],
     if not p["state"].exists():
         return response(project, "schedule", "BLOCKED", "Control-plane state missing.", blockers=["CONTROL_PLANE_STATE_MISSING"])
     projection = load(p["state"])
+    control_profile=str(((projection.get("state") or {}).get("identity") or {}).get("control_profile") or "project")
+    if control_profile=="platform":
+        return response(project,"schedule","BLOCKED","Platform control profile does not schedule application lifecycle transitions.",
+                        {"control_profile":"platform","lifecycle_managed":False},
+                        ["PLATFORM_CONTROL_PROFILE_LIFECYCLE_OPERATION_FORBIDDEN"])
+
     stage = str(((projection.get("state") or {}).get("lifecycle") or {}).get("stage") or "UNKNOWN")
     lifecycle = load(resolve_repo(repo_root, (policy.get("repository_paths") or {})["lifecycle"]))
     target = next_stage(lifecycle, stage)
@@ -603,6 +651,13 @@ def advance_operation(project: str, target: str | None, actor: str, policy: dict
         if not p["ledger"].exists():
             return response(project, "advance", "BLOCKED", "Evidence ledger missing.", blockers=["EVIDENCE_LEDGER_MISSING"])
         projection = load(p["state"])
+        control_profile=str(((projection.get("state") or {}).get("identity") or {}).get("control_profile") or "project")
+        if control_profile=="platform":
+            return response(project,"advance","BLOCKED",
+                            "Platform control profile cannot advance through application lifecycle stages.",
+                            {"control_profile":"platform","lifecycle_managed":False},
+                            ["PLATFORM_CONTROL_PROFILE_LIFECYCLE_OPERATION_FORBIDDEN"])
+
         ledger = load(p["ledger"])
         if ledger.get("schema") != LEDGER_SCHEMA:
             return response(project, "advance", "BLOCKED", "Evidence ledger schema invalid.", blockers=["EVIDENCE_LEDGER_SCHEMA_INVALID"])
