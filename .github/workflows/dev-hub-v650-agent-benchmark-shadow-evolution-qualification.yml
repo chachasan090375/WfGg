@@ -4,6 +4,9 @@ on:
     branches: [dev-hub-v650-agent-benchmark-shadow-evolution-campaigns]
     paths:
       - 'dev-hub/bin/agent_benchmark_harness.py'
+      - 'dev-hub/bin/install-v650-agent-benchmark-shadow-evolution.sh'
+      - 'dev-hub/systemd/chacha-dev-agent-observation-bus-health.service'
+      - 'dev-hub/systemd/chacha-dev-agent-observation-bus-health.timer'
       - 'dev-hub/bin/agent_evolution_daily_cycle.py'
       - 'dev-hub/bin/install-v650-agent-benchmark-bus-self-evolution.sh'
       - 'dev-hub/systemd/chacha-dev-agent-observation-bus-health.service'
@@ -35,6 +38,8 @@ jobs:
           python3 -m json.tool dev-hub/config/agent-observation-bus.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/technology-core-watch.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/technology-watch-logician.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v650-agent-benchmark-shadow-evolution.sh
+          grep -Fq 'OnCalendar=daily' dev-hub/systemd/chacha-dev-agent-observation-bus-health.timer
           bash -n dev-hub/bin/install-v650-agent-benchmark-bus-self-evolution.sh
           grep -Fq 'OnCalendar=daily' dev-hub/systemd/chacha-dev-agent-observation-bus-health.timer
           grep -Fq '"version":"6.50.0"' dev-hub/bin/autonomous-project-orchestrator.py
@@ -67,4 +72,6 @@ jobs:
           echo OBSERVATION_BUS_SELF_MUTATION=NO
           echo OBSERVATION_BUS_CANDIDATE_OWNER=CAPABILITY_FOUNDRY
           echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+          echo REAL_VPS_PILOT_INSTALLER=VALIDATED
+          echo OBSERVATION_BUS_DAILY_HEALTH_TIMER=VALIDATED
           echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
