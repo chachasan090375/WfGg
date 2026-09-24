@@ -116,14 +116,15 @@ else
   mkdir -p "$WORK/src"; tar -xzf "$WORK/repo.tar.gz" -C "$WORK/src" --strip-components=1
   SRC="$WORK/src"
 fi
-for p in   dev-hub/bin/install-v720-human-interface-gateway.sh   dev-hub/bin/build-v7-runtime-release.py   dev-hub/bin/human-interface-gateway.py   dev-hub/bin/autonomous-project-orchestrator.py   dev-hub/bin/project-control.py   dev-hub/bin/emergency-stop-controller.py   dev-hub/bin/intendant-hygiene-cycle.py   dev-hub/bin/intendant-platform-consolidator.py   dev-hub/bin/central-platform-hygiene-executor.py   dev-hub/bin/guardian-coverage-heartbeat.py   dev-hub/bin/technology-watch-service.py   dev-hub/config/human-interface-gateway.v1.json   dev-hub/config/guardian-coverage-manifest.v1.json   dev-hub/config/intendant-hygiene-cycle.v1.json   dev-hub/config/platform-consolidation.v1.json   dev-hub/tests/test_v720_human_interface_gateway.py   dev-hub/tests/test_v710_intendant_hygiene_cycle.py   dev-hub/tests/test_v700_consolidated_platform_baseline.py; do
+for p in   dev-hub/bin/install-v720-human-interface-gateway.sh   dev-hub/bin/build-v7-runtime-release.py   dev-hub/bin/human-interface-gateway.py   dev-hub/bin/central-interface-controller.py   dev-hub/bin/autonomous-project-orchestrator.py   dev-hub/bin/project-control.py   dev-hub/bin/emergency-stop-controller.py   dev-hub/bin/intendant-hygiene-cycle.py   dev-hub/bin/intendant-platform-consolidator.py   dev-hub/bin/central-platform-hygiene-executor.py   dev-hub/bin/guardian-coverage-heartbeat.py   dev-hub/bin/technology-watch-service.py   dev-hub/config/human-interface-gateway.v1.json   dev-hub/config/guardian-coverage-manifest.v1.json   dev-hub/config/intendant-hygiene-cycle.v1.json   dev-hub/config/platform-consolidation.v1.json   dev-hub/tests/test_v720_human_interface_gateway.py   dev-hub/tests/test_v710_intendant_hygiene_cycle.py   dev-hub/tests/test_v700_consolidated_platform_baseline.py; do
   [ -f "$SRC/$p" ] || { echo "CHACHA_DEV_V720_INSTALL=BLOCKED reason=missing:$p"; exit 2; }
 done
 
 stage local-qualification
 (cd "$SRC"; PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v720_human_interface_gateway.py) >"$WORK/v720.out" 2>"$WORK/v720.err"
 grep -Fq 'CHACHA_DEV_V720_HUMAN_INTERFACE_GATEWAY=PASS' "$WORK/v720.out"
-grep -Fq 'CHACHA_DEV_V720_GO_CONTINUES_PRIOR_BRAIN_RECEIPT=PASS' "$WORK/v720.out"
+grep -Fq 'CHACHA_DEV_V720_GO_FRESH_CENTRAL_REORCHESTRATION=PASS' "$WORK/v720.out"
+grep -Fq 'CHACHA_DEV_V720_GO_TRANSACTIONAL_PROJECT_CONTROL_ADVANCE=PASS' "$WORK/v720.out"
 grep -Fq 'CHACHA_DEV_V720_BRAIN_UNAVAILABLE_FAIL_CLOSED=PASS' "$WORK/v720.out"
 (cd "$SRC"; PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v710_intendant_hygiene_cycle.py) >"$WORK/v710.out" 2>"$WORK/v710.err"
 grep -Fq 'CHACHA_DEV_V710_DYNAMIC_TWO_ROLLBACK_RETENTION=PASS' "$WORK/v710.out"
@@ -161,6 +162,7 @@ printf '%s\n' "$REV" >"$RELEASE/.revision"
 grep -Fq 'CHACHA_DEV_V7_COMPILED_RUNTIME_RELEASE=PASS' "$WORK/compile.out"
 grep -Fq '"version":"7.2.0"' "$RELEASE/dev-hub/bin/autonomous-project-orchestrator.py"
 [ -f "$RELEASE/dev-hub/bin/human-interface-gateway.py" ]
+[ -f "$RELEASE/dev-hub/bin/central-interface-controller.py" ]
 [ -f "$RELEASE/dev-hub/config/human-interface-gateway.v1.json" ]
 echo "CHACHA_DEV_V720_COMPILED_RELEASE=PASS"
 
@@ -207,7 +209,8 @@ import json,sys
 x=json.load(open(sys.argv[1]))
 assert x["command"]=="STATUS" and x["status"]=="OK",x
 assert x["authority"]=="central-orchestrator",x
-assert x["status_source"]=="canonical-platform-runtime",x
+assert x["status_source"]=="central-interface-controller",x
+assert x["brain_receipt"]["schema"]=="chacha.dev/central-interface-receipt/v1",x
 assert x["platform_revision"]==sys.argv[2],x
 assert x["platform_version"]=="7.2.0",x
 assert x["interface_direct_technical_decision"] is False,x
@@ -240,12 +243,15 @@ PYTHONPATH="$RELEASE/dev-hub/bin" python3 "$RELEASE/dev-hub/bin/human-interface-
 python3 - "$GO_OUT" "$REQ_INSTRUCTION" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1]))
-assert x["command"]=="CONTINUE" and x["status"]=="CONTINUE_ALLOWED",x
-assert x["authority"]=="central-orchestrator-prior-receipt",x
+assert x["command"]=="CONTINUE",x
+assert x["status"] in {"CONTINUED_PLAN_READY","BLOCKED","CONTINUED"},x
+assert x["authority"]=="central-orchestrator",x
 assert x["continuation_of_request_id"]==sys.argv[2],x
-assert x["new_technical_decision_created"] is False,x
+assert x["fresh_central_brain_call"] is True,x
+assert x["continuation_mode"] in {"FRESH_CENTRAL_REORCHESTRATION","TRANSACTIONAL_ADVANCE","CONTROL_PLANE_STATUS"},x
+assert x["brain_receipt"]["schema"]=="chacha.dev/central-interface-receipt/v1",x
 assert x["interface_direct_technical_decision"] is False,x
-print("CHACHA_DEV_V720_REAL_GO_CONTINUATION=PASS")
+print("CHACHA_DEV_V720_REAL_GO_CENTRAL_CONTINUATION=PASS")
 PY
 
 stage audit-chain
@@ -308,6 +314,8 @@ out={
    "evidence_refs":instruction["evidence_refs"]},
  "go_pilot":{"status":go["status"],"authority":go["authority"],
    "continuation_of_request_id":go.get("continuation_of_request_id"),
+   "continuation_mode":go.get("continuation_mode"),
+   "fresh_central_brain_call":go.get("fresh_central_brain_call"),
    "new_technical_decision_created":go.get("new_technical_decision_created")},
  "stop_production_pilot":"NOT_EXECUTED_SAFETY",
  "stop_sandbox_tested":True,
@@ -331,7 +339,7 @@ echo "CHACHA_DEV_V720_INSTALL=PASS"
 echo "CHACHA_DEV_V720_HUMAN_INTERFACE_GATEWAY=PASS"
 echo "CHACHA_DEV_V720_REAL_STATUS=PASS"
 echo "CHACHA_DEV_V720_REAL_CENTRAL_ORCHESTRATION=PASS"
-echo "CHACHA_DEV_V720_REAL_GO_CONTINUATION=PASS"
+echo "CHACHA_DEV_V720_REAL_GO_CENTRAL_CONTINUATION=PASS"
 echo "CHACHA_DEV_V720_STOP_PRODUCTION_PILOT=NOT_EXECUTED_SAFETY"
 echo "CHACHA_DEV_V720_INTERFACE_TECHNICAL_DECISION_AUTHORITY=NO"
 echo "CHACHA_DEV_V720_INTERFACE_DIRECT_MUTATION=NO"
