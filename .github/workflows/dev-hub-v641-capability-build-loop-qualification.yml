@@ -13,6 +13,11 @@ on:
       - 'dev-hub/bin/capability-foundry-closure.py'
       - 'dev-hub/bin/autonomous-project-orchestrator.py'
       - 'dev-hub/tests/test_v640_capability_foundry_auto_closure.py'
+      - 'dev-hub/tests/test_v635_central_specialist_authorities.py'
+      - 'dev-hub/tests/test_v634_logic_ux_compromise_release.py'
+      - 'dev-hub/tests/test_v633_five_agent_embedded_probes.py'
+      - 'dev-hub/tests/test_v632_project_embedded_assurance.py'
+      - 'dev-hub/tests/test_v631_assurance_exchange.py'
       - '.github/workflows/dev-hub-v641-capability-build-loop-qualification.yml'
   workflow_dispatch:
 
