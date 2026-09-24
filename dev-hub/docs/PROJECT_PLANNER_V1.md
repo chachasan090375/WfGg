@@ -66,6 +66,28 @@ The project asks for capabilities, never permanent products. Example:
 
 The selected provider and its registry status are recorded in the plan. Technology Radar may later recommend alternatives, but replacement still requires evidence and the configured approval boundary.
 
+
+## Object Factory
+
+Applications that manipulate business data may declare `domain_objects` in the Project Intent.
+
+ChaCha DEV responsibility chain:
+
+`Project Intent -> Project Planner / Dev Architect -> Object Factory -> Component Factory -> Capability Foundry (only on technical gap) -> verification`
+
+Responsibilities:
+
+- **Project Planner / Dev Architect:** identifies the business objects required by the application and blocks code generation when a data-storing application has no explicit object model.
+- **Object Factory:** searches for reusable qualified object contracts, otherwise produces a new explicit object contract covering fields, sensitive attributes, relationships, persistence semantics, API exposure, UI exposure, events, validation and tests.
+- **Component Factory:** materializes a new object contract into the application's implementation when reuse is not possible.
+- **Capability Foundry:** is invoked only if the requested object needs a technical capability that ChaCha DEV does not already possess.
+- **Guardian / Sentinel / normal project gates:** verify the result before consequential use.
+
+Object Factory does **not** choose production providers, deploy databases, mutate production storage, promote itself, or bypass architecture approval. Its output is an application-domain contract and downstream handoff.
+
+Reuse-before-build is mandatory. Qualified reusable domain objects belong in `config/object-registry.v1.json`.
+
+
 ## Architecture decisions
 
 The planner deliberately creates `NEEDS_INPUT`, `NEEDS_EVIDENCE`, and `NEEDS_APPROVAL` decisions rather than inventing missing requirements.
