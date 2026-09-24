@@ -134,14 +134,19 @@ def build_pilot_readiness(shadow_ledger:dict[str,Any],evidence_index:dict[str,An
         missing=[k for k in required if ev.get(k) is not True]
         candidate_ref=str(ev.get("candidate_artifact_ref") or "")
         incumbent_ref=str(ev.get("incumbent_artifact_ref") or "")
+        candidate_revision=str(ev.get("candidate_revision") or "")
+        incumbent_revision=str(ev.get("incumbent_revision") or "")
         if not refs:missing.append("evidence_refs")
         if not signals:missing.append("shadow_candidate_signals")
         if not candidate_ref:missing.append("candidate_artifact_ref")
         if not incumbent_ref:missing.append("incumbent_artifact_ref")
+        if not candidate_revision:missing.append("candidate_revision")
+        if not incumbent_revision:missing.append("incumbent_revision")
         state="NOT_REQUIRED" if not pilot_required else ("PILOT_READY" if not missing else "HOLD_SHADOW")
         row={"dispatch_id":did,"component_id":cid,"candidate_owner":entry.get("candidate_owner"),
           "state":state,"pilot_required":pilot_required,"shadow_candidate_signal_count":len(signals),
           "evidence_refs":refs,"candidate_artifact_ref":candidate_ref,"incumbent_artifact_ref":incumbent_ref,
+          "candidate_revision":candidate_revision,"incumbent_revision":incumbent_revision,
           "missing_evidence":sorted(set(missing)),
           "pilot_execution_authorized":False,"production_change_authorized":False,
           "active_component_mutation":False,"promotion_authorized":False,
@@ -191,6 +196,8 @@ def build_pilot_contracts(readiness:dict[str,Any],harness_registry:dict[str,Any]
           "harness_argv":list(h.get("argv") or []),"resource_budget":h.get("resource_budget") or {},
           "incumbent_artifact_ref":row.get("incumbent_artifact_ref"),
           "candidate_artifact_ref":row.get("candidate_artifact_ref"),
+          "incumbent_revision":row.get("incumbent_revision"),"candidate_revision":row.get("candidate_revision"),
+          "sentinel_exact_sha_receipt_required":True,
           "same_benchmark_contract":True,"isolated_ephemeral_capsules":True,
           "emergency_stop_required":True,"guardian_pre_post_required":True,
           "sentinel_required":True,"technology_watch_revalidation_required":True,
