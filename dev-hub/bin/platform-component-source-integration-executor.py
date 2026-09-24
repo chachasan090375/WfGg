@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,hashlib,json,subprocess,sys,time,urllib.parse,urllib.request,uuid
+import argparse,hashlib,json,os,subprocess,sys,time,urllib.parse,urllib.request,uuid
 from pathlib import Path
 from typing import Any
 
@@ -41,10 +41,16 @@ def github_runs(repository:str,revision:str)->dict[str,Any]:
     if not isinstance(x,dict):raise RuntimeError("GITHUB_RUNS_INVALID")
     return x
 
+def _under(path:Path,root:Path)->bool:
+    try:
+        path.resolve(strict=False).relative_to(root.resolve(strict=False));return True
+    except Exception:return False
+
 def validate_inputs(planner:dict[str,Any],handoff:dict[str,Any],registry:dict[str,Any])->dict[str,Any]:
     plan=planner.get("apply_plan") if isinstance(planner.get("apply_plan"),dict) else {}
     cid=str(plan.get("component_id") or "")
     owner=str(plan.get("candidate_owner") or "")
+    principles=registry.get("principles") if isinstance(registry.get("principles"),dict) else {}
     adapters=registry.get("adapters") if isinstance(registry.get("adapters"),dict) else {}
     adapter=adapters.get(cid) if cid else None
     checks={
@@ -72,6 +78,10 @@ def validate_inputs(planner:dict[str,Any],handoff:dict[str,Any],registry:dict[st
       "handoff_candidate_artifact_matches":handoff.get("candidate_artifact_ref")==plan.get("candidate_artifact_ref") and bool(plan.get("candidate_artifact_ref")),
       "handoff_incumbent_artifact_matches":handoff.get("incumbent_artifact_ref")==plan.get("incumbent_artifact_ref") and bool(plan.get("incumbent_artifact_ref")),
       "handoff_adapter_matches":handoff.get("adapter_id")==plan.get("adapter_id") and bool(plan.get("adapter_id")),
+      "handoff_approval_id_matches":handoff.get("approval_id")==planner.get("approval_id") and bool(planner.get("approval_id")),
+      "handoff_approval_actor_matches":handoff.get("approval_actor")==planner.get("approval_actor") and bool(planner.get("approval_actor")),
+      "handoff_review_digest_matches":handoff.get("technical_review_digest")==planner.get("technical_review_digest") and bool(planner.get("technical_review_digest")),
+      "handoff_human_approval_verified":handoff.get("human_approval_verified") is True,
       "handoff_plan_digest_matches":handoff.get("controlled_apply_plan_digest")==digest(plan),
       "handoff_rollback_required":handoff.get("rollback_required") is True,
       "handoff_guardian_pre_post_required":handoff.get("guardian_pre_post_required") is True,
@@ -84,10 +94,15 @@ def validate_inputs(planner:dict[str,Any],handoff:dict[str,Any],registry:dict[st
       "handoff_zero_external_spend":float(handoff.get("automatic_external_spend_eur") or 0)==0,
       "registry_schema":registry.get("schema")=="chacha.dev/platform-component-apply-adapter-registry/v1",
       "registry_default_deny":registry.get("default_admission")=="DENY",
+      "registry_fixed_operation_protocol":principles.get("fixed_operation_protocol") is True,
+      "registry_shell_interpolation_forbidden":principles.get("shell_interpolation_forbidden") is True,
+      "registry_single_use_handoff_required":principles.get("single_use_central_handoff_required") is True,
+      "registry_trusted_executable_root_present":bool(str(principles.get("trusted_executable_root") or "")),
       "adapter_registered":isinstance(adapter,dict),
     }
     if isinstance(adapter,dict):
         exe=str(adapter.get("executable") or "")
+        trusted_root=Path(str(principles.get("trusted_executable_root") or "/nonexistent"))
         checks.update({
           "adapter_id_matches":adapter.get("adapter_id")==plan.get("adapter_id"),
           "adapter_owner_matches":adapter.get("candidate_owner")==owner,
@@ -97,6 +112,7 @@ def validate_inputs(planner:dict[str,Any],handoff:dict[str,Any],registry:dict[st
           "adapter_rollback_id_matches":adapter.get("rollback_adapter_id")==plan.get("rollback_adapter_id") and bool(plan.get("rollback_adapter_id")),
           "adapter_exact_revision":adapter.get("exact_revision_enforced") is True,
           "adapter_executable_absolute":bool(exe) and Path(exe).is_absolute(),
+          "adapter_executable_under_trusted_root":bool(exe) and _under(Path(exe),trusted_root),
           "adapter_runtime_mutation_forbidden":adapter.get("direct_runtime_mutation") is False,
           "adapter_production_activation_forbidden":adapter.get("production_activation") is False,
           "adapter_production_deployment_forbidden":adapter.get("production_deployment") is False,
@@ -145,6 +161,22 @@ def guardian_event(repo_root:Path,phase:str,plan:dict[str,Any],handoff:dict[str,
         raise RuntimeError("GUARDIAN_SOURCE_INTEGRATION_BLOCK:"+str(v.get("reason_codes") or v.get("reason") or p.returncode))
     return v
 
+def consume_handoff(runtime_root:Path,handoff:dict[str,Any])->Path:
+    hid=str(handoff.get("handoff_id") or "")
+    if not hid:raise RuntimeError("CENTRAL_APPLY_HANDOFF_ID_MISSING")
+    token=hashlib.sha256(hid.encode()).hexdigest()
+    d=runtime_root/"consumed-handoffs";d.mkdir(parents=True,exist_ok=True)
+    p=d/(token+".json")
+    body=json.dumps({"schema":"chacha.dev/platform-component-central-apply-handoff-consumption/v1",
+      "handoff_id":hid,"consumed_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),
+      "single_use":True},separators=(",",":"))+"\n"
+    try:
+        fd=os.open(p,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+    except FileExistsError as exc:
+        raise RuntimeError("CENTRAL_APPLY_HANDOFF_REPLAY_BLOCKED") from exc
+    with os.fdopen(fd,"w",encoding="utf-8") as h:h.write(body)
+    return p
+
 def run_adapter(executable:str,operation:str,payload:dict[str,Any])->dict[str,Any]:
     p=subprocess.run([executable,operation],input=json.dumps(payload,separators=(",",":")),
                      stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,
@@ -192,7 +224,8 @@ def validate_rollback_receipt(receipt:dict[str,Any],plan:dict[str,Any])->None:
     if bad:raise RuntimeError("SOURCE_INTEGRATION_ROLLBACK_INVALID:"+",".join(bad))
 
 def execute(planner:dict[str,Any],handoff:dict[str,Any],registry:dict[str,Any],repo_root:Path,
-            runs:dict[str,Any],adapter_provider=None,guardian_provider=None)->dict[str,Any]:
+            runs:dict[str,Any],adapter_provider=None,guardian_provider=None,
+            handoff_consumer=None,runtime_root:Path|None=None)->dict[str,Any]:
     validated=validate_inputs(planner,handoff,registry)
     if not validated["ok"]:
         return {"schema":SCHEMA,"status":"BLOCKED_INPUT","blockers":validated["blockers"],
@@ -201,6 +234,9 @@ def execute(planner:dict[str,Any],handoff:dict[str,Any],registry:dict[str,Any],r
                 "merge_to_production_branch_allowed":False,"automatic_external_spend_eur":0}
     if stop_active():raise RuntimeError("CHACHA_DEV_EMERGENCY_STOP_ACTIVE")
     plan=validated["plan"];adapter=validated["adapter"]
+    handoff_consumer=handoff_consumer or consume_handoff
+    runtime_root=runtime_root or Path("/opt/chacha-dev/runtime/platform-component-source-integration")
+    consumption_receipt=handoff_consumer(runtime_root,handoff)
     adapter_provider=adapter_provider or run_adapter
     guardian_provider=guardian_provider or guardian_event
     guardian_pre=guardian_provider(repo_root,"PRE_ACTION",plan,handoff,None)
@@ -239,6 +275,8 @@ def execute(planner:dict[str,Any],handoff:dict[str,Any],registry:dict[str,Any],r
           "missing_post_apply_gates":missing_gates,"rollback_attempted":True,"rollback_proven":True,
           "apply_receipt_digest":digest(receipt),"rollback_receipt_digest":digest(rollback_receipt),
           "guardian_pre_receipt_digest":digest(guardian_pre),"guardian_post_receipt_digest":digest(guardian_post),
+      "handoff_consumption_receipt":str(consumption_receipt),
+          "handoff_consumption_receipt":str(consumption_receipt),
           "production_activation_allowed":False,"production_deployment_allowed":False,
           "merge_to_production_branch_allowed":False,"direct_runtime_mutation":False,
           "automatic_external_spend_eur":0}
@@ -262,6 +300,7 @@ def execute(planner:dict[str,Any],handoff:dict[str,Any],registry:dict[str,Any],r
           "rollback_attempted":True,"rollback_proven":True,
           "apply_receipt_digest":digest(receipt),"rollback_receipt_digest":digest(rollback_receipt),
           "guardian_pre_receipt_digest":digest(guardian_pre),
+          "handoff_consumption_receipt":str(consumption_receipt),
           "production_activation_allowed":False,"production_deployment_allowed":False,
           "merge_to_production_branch_allowed":False,"direct_runtime_mutation":False,
           "automatic_external_spend_eur":0}
@@ -286,13 +325,14 @@ def main()->int:
     ap.add_argument("--adapter-registry",type=Path,required=True)
     ap.add_argument("--repository",default="chachasan090375/WfGg")
     ap.add_argument("--github-runs-json",type=Path)
+    ap.add_argument("--runtime-root",type=Path,default=Path("/opt/chacha-dev/runtime/platform-component-source-integration"))
     ap.add_argument("--output",type=Path,required=True)
     a=ap.parse_args()
     planner=load(a.planner_result);handoff=load(a.central_handoff);registry=load(a.adapter_registry)
     plan=planner.get("apply_plan") or {}
     revision=str(plan.get("candidate_revision") or "")
     runs=load(a.github_runs_json) if a.github_runs_json else github_runs(a.repository,revision)
-    result=execute(planner,handoff,registry,a.repo_root.resolve(),runs)
+    result=execute(planner,handoff,registry,a.repo_root.resolve(),runs,runtime_root=a.runtime_root.resolve())
     save(a.output,result)
     print("CHACHA_DEV_PLATFORM_COMPONENT_SOURCE_INTEGRATION="+result["status"])
     print("PRODUCTION_ACTIVATION_ALLOWED=NO")
