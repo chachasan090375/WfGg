@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 # V7.1 acquisition invariant: the no-retirement-needed path remains rollback-safe.
+# Rollback invariant: both physical rollback slots must be distinct from the active revision.
 
 REV="${CHACHA_DEV_V710_REV:-}"
 SOURCE_ROOT="${CHACHA_DEV_V710_SOURCE_ROOT:-}"
