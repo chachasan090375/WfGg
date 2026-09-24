@@ -7,7 +7,7 @@ from typing import Any
 DEFAULT_EXCLUDES=(
   "dev-hub/tests/**",
   "dev-hub/docs/**",
-  "dev-hub/bin/install-v6*.sh",
+  "dev-hub/bin/install-v*.sh",
   "dev-hub/install-v*.sh",
   "**/__pycache__/**",
   "**/*.pyc"
