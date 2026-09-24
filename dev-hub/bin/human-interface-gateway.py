@@ -17,6 +17,7 @@ from typing import Any
 INTENT_SCHEMA="chacha.dev/human-interface-intent/v1"
 RESPONSE_SCHEMA="chacha.dev/human-interface-response/v1"
 BOOTSTRAP_SCHEMA="chacha.dev/autonomous-project-bootstrap/v1"
+CENTRAL_RECEIPT_SCHEMA="chacha.dev/central-interface-receipt/v1"
 
 def now_iso()->str:
     return time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())
@@ -205,6 +206,58 @@ def handle_continue(intent,session)->dict[str,Any]:
     r["new_technical_decision_created"]=False
     return r
 
+def handle_central_command(intent,session,repo_root,runtime_root,central_controller,orchestrator,project_control,runs_root)->dict[str,Any]:
+    request_id=intent["request_id"];run_dir=runs_root/safe_id(request_id);run_dir.mkdir(parents=True,exist_ok=True)
+    intent_path=run_dir/"interface-intent.json";atomic_write(intent_path,intent)
+    receipt_path=run_dir/"brain-receipt.json"
+    cmd=[sys.executable,str(central_controller),
+         "--repo-root",str(repo_root),"--runtime-root",str(runtime_root),
+         "--orchestrator",str(orchestrator),"--project-control",str(project_control),
+         "--output",str(receipt_path)]
+    command=intent["command"];project=str(intent.get("project_id") or "chacha-dev-platform")
+    if command=="STATUS":
+        cmd+=["status","--project",project]
+    elif command=="INSTRUCTION":
+        cmd+=["instruction","--intent",str(intent_path),"--output-dir",str(run_dir/"brain")]
+    elif command=="CONTINUE":
+        prior_path=Path(str(session.get("last_response_path") or ""))
+        expected=str(session.get("last_response_digest") or "")
+        if not prior_path.is_file() or not expected:
+            return response_base(intent,"BRAIN_RECEIPT_INVALID","central-orchestrator","AWAIT_NEW_INSTRUCTION",[])
+        cmd+=["continue","--project",project,"--prior-response",str(prior_path),
+              "--expected-response-digest",expected,"--output-dir",str(run_dir/"brain")]
+    else:
+        return response_base(intent,"BRAIN_RECEIPT_INVALID","central-orchestrator","AWAIT_NEW_INSTRUCTION",[])
+    try:
+        p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=3700)
+    except Exception as exc:
+        r=response_base(intent,"BRAIN_UNAVAILABLE","central-orchestrator","RETRY_WHEN_BRAIN_AVAILABLE",[])
+        r["brain_error"]=str(exc);return r
+    if not receipt_path.is_file():
+        r=response_base(intent,"BRAIN_UNAVAILABLE","central-orchestrator","RETRY_WHEN_BRAIN_AVAILABLE",[])
+        r["brain_stdout"]=p.stdout[-1200:];r["brain_stderr"]=p.stderr[-1200:];return r
+    receipt=load(receipt_path)
+    if receipt.get("schema")!=CENTRAL_RECEIPT_SCHEMA:
+        r=response_base(intent,"BRAIN_RECEIPT_INVALID","central-orchestrator","RETRY_AFTER_RECEIPT_REPAIR",[str(receipt_path)])
+        r["brain_receipt"]=receipt;return r
+    refs=list(receipt.get("evidence_refs") or [])
+    r=response_base(intent,str(receipt.get("status") or "BRAIN_RECEIPT_INVALID"),
+                    "central-orchestrator",str(receipt.get("next_action") or "AWAIT_USER_DIRECTIVE"),refs)
+    r["project_id"]=receipt.get("project_id") or project
+    r["brain_receipt"]=receipt
+    r["brain_decision_obtained"]=receipt.get("brain_decision_obtained") is True and r["status"] not in {"BRAIN_UNAVAILABLE","BRAIN_RECEIPT_INVALID"}
+    r["brain_receipt_path"]=str(receipt_path)
+    r["brain_receipt_digest"]=file_digest(receipt_path)
+    if command=="STATUS":
+        r["status_source"]="central-interface-controller"
+    if command=="CONTINUE":
+        r["continuation_of_request_id"]=receipt.get("continuation_of_request_id")
+        mode=str((receipt.get("decision") or {}).get("continuation_mode") or "")
+        r["continuation_mode"]=mode
+        r["new_technical_decision_created"]=mode in {"FRESH_CENTRAL_REORCHESTRATION","TRANSACTIONAL_ADVANCE"}
+        r["fresh_central_brain_call"]=True
+    return r
+
 def handle_stop(intent,emergency_controller,emergency_state)->dict[str,Any]:
     cmd=[sys.executable,str(emergency_controller),"--state",str(emergency_state),"activate",
          "--reason","human-interface-request:"+intent["request_id"],"--actor","human-via-interface-gateway"]
@@ -286,6 +339,7 @@ def main()->int:
     ap.add_argument("--output",type=Path)
     ap.add_argument("--orchestrator",type=Path)
     ap.add_argument("--project-control",type=Path)
+    ap.add_argument("--central-controller",type=Path)
     ap.add_argument("--emergency-controller",type=Path)
     ap.add_argument("--emergency-state",type=Path)
     args=ap.parse_args()
@@ -318,16 +372,14 @@ def main()->int:
     else:
         orchestrator=args.orchestrator or repo_root/"dev-hub/bin/autonomous-project-orchestrator.py"
         project_control=args.project_control or repo_root/"dev-hub/bin/project-control.py"
+        central_controller=args.central_controller or repo_root/"dev-hub/bin/central-interface-controller.py"
         emergency_controller=args.emergency_controller or repo_root/"dev-hub/bin/emergency-stop-controller.py"
         emergency_state=args.emergency_state or runtime_root/"control/emergency-stop.json"
-        if command=="STATUS":
-            response=handle_status(intent,repo_root,runtime_root,project_control)
-        elif command=="CONTINUE":
-            response=handle_continue(intent,session)
-        elif command=="STOP":
+        if command=="STOP":
             response=handle_stop(intent,emergency_controller,emergency_state)
         else:
-            response=handle_instruction(intent,repo_root,runtime_root,orchestrator,runs_root)
+            response=handle_central_command(intent,session,repo_root,runtime_root,central_controller,
+                                            orchestrator,project_control,runs_root)
 
     response["platform_revision"]=runtime_revision(repo_root)
     response["platform_version"]=runtime_version(repo_root)
