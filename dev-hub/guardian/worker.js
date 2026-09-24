@@ -7,6 +7,15 @@ const SENSITIVE = new Set([
 function json(data,status=200){
   return new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store"}});
 }
+function runtimeErrorClass(err){
+  const name=String((err&&err.name)||"Error");
+  const message=String((err&&err.message)||"");
+  const lower=message.toLowerCase();
+  if(message.includes("D1_ERROR")&&lower.includes("daily row write limit"))return "D1_WRITE_QUOTA_EXHAUSTED";
+  if(message.includes("D1_ERROR"))return "D1_ERROR";
+  if(name==="OperationError"||message.includes("Ed25519"))return "CRYPTO_ERROR";
+  return "RUNTIME_ERROR";
+}
 function stable(v){
   if(v===null||typeof v!=="object") return JSON.stringify(v);
   if(Array.isArray(v)) return "["+v.map(stable).join(",")+"]";
@@ -52,7 +61,7 @@ async function requireCentral(req,env,body=""){
       error:"guardian_auth_runtime_exception",
       stage,
       exception_name:String((err&&err.name)||"Error"),
-      exception_message:String((err&&err.message)||"").slice(0,240),
+      error_class:runtimeErrorClass(err),
       fail_closed:true
     },503)};
   }
@@ -1175,7 +1184,7 @@ export default {
     const u=new URL(req.url);
     try{
     if(req.method==="GET"&&u.pathname==="/healthz")return json({
-      status:"ok",service:"chacha-dev-guardian",guardian_runtime_build:"v730-diagnostic-2",external_governance_plane:true,
+      status:"ok",service:"chacha-dev-guardian",guardian_runtime_build:"v730-runtime-1",external_governance_plane:true,
       runtime_contract_mutation_api:false,dynamic_instance_contract_registration:true,
       dynamic_component_contract_registration:true,dynamic_contract_policy_escalation_allowed:false,
       dynamic_component_policy_escalation_allowed:false,tunnel_required:false,action_lease_protocol:true,
@@ -1225,9 +1234,9 @@ export default {
         error:"guardian_worker_runtime_exception",
         route:u.pathname,
         exception_name:String((err&&err.name)||"Error"),
-        exception_message:String((err&&err.message)||"").slice(0,300),
+        error_class:runtimeErrorClass(err),
         fail_closed:true,
-        guardian_runtime_build:"v730-diagnostic-2"
+        guardian_runtime_build:"v730-runtime-1"
       },503);
     }
   },
