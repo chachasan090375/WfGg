@@ -218,7 +218,7 @@ PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/agent_verified_e
 python3 - "$WORK/backfill-second.json" "$WORK/backfill-accounted.txt" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1],encoding="utf-8"))
-expected=int(open("/tmp/chacha-v655-backfill-accounted.txt",encoding="utf-8").read().strip())
+expected=int(open(sys.argv[2],encoding="utf-8").read().strip())
 inserted=int((x.get("counts") or {}).get("inserted") or 0)
 already=int((x.get("counts") or {}).get("already_present") or 0)
 assert inserted==0,x
