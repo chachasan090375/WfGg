@@ -128,7 +128,7 @@ with tempfile.TemporaryDirectory(prefix="v664-qualification-") as td:
     assert ra["production_permission"] is False
 
 src=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
-assert '"version":"6.64.0"' in src or '"version":"7.0.0"' in src,src[-12000:]
+assert any(v in src for v in ('"version":"6.64.0"','"version":"7.0.0"','"version":"7.1.0"')),src[-12000:]
 
 print("CHACHA_DEV_V664_PROJECT_BOUND_STAGE_EVIDENCE=PASS")
 print("CHACHA_DEV_V664_CONTRACT_INTEGRATOR_OBSERVATION=PASS")
