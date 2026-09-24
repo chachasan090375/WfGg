@@ -182,7 +182,31 @@ def compare_metrics(inc:dict[str,Any],cand:dict[str,Any])->dict[str,Any]:
       "candidate_technically_admissible_for_council_review":admissible,
       "final_architecture_decision_made":False,"promotion_authorized":False}
 
-def execute(contract:dict[str,Any],sentinel_receipt:dict[str,Any],repo_root:Path,run_root:Path,executor=None,guardian_provider=None)->dict[str,Any]:
+def invoke_council_review(repo_root:Path,run_root:Path,contract:dict[str,Any],
+                          sentinel_receipt:dict[str,Any],pilot_result:dict[str,Any])->dict[str,Any]:
+    contract_path=run_root/"pilot-contract.json"
+    sentinel_path=run_root/"sentinel-receipt.json"
+    pilot_path=run_root/"result.json"
+    output=run_root/"council-review.json"
+    save(contract_path,contract);save(sentinel_path,sentinel_receipt);save(pilot_path,pilot_result)
+    script=repo_root/"dev-hub/bin/architecture-council-platform-component-review.py"
+    cmd=[sys.executable,str(script),"--repo-root",str(repo_root),
+      "--pilot-result",str(pilot_path),"--pilot-contract",str(contract_path),
+      "--sentinel-receipt",str(sentinel_path),"--output",str(output)]
+    p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=90)
+    if output.is_file():
+        review=load(output)
+        review["runner_observed_returncode"]=p.returncode
+        return review
+    return {"schema":"chacha.dev/architecture-council-platform-component-review/v1",
+      "technical_review_passed":False,"decision":"COUNCIL_REVIEW_BLOCKED_HOLD_INCUMBENT",
+      "next_action":"REMEDIATE_AND_REVIEW","runner_observed_returncode":p.returncode,
+      "runner_error":(p.stderr or p.stdout)[-1000:],
+      "production_activation_allowed":False,"promotion_allowed":False,
+      "automatic_external_spend_eur":0}
+
+def execute(contract:dict[str,Any],sentinel_receipt:dict[str,Any],repo_root:Path,run_root:Path,
+            executor=None,guardian_provider=None,council_provider=None)->dict[str,Any]:
     validate_contract(contract);validate_sentinel_receipt(contract,sentinel_receipt)
     if stop_active(DEFAULT_STOP):raise RuntimeError("CHACHA_DEV_EMERGENCY_STOP_ACTIVE")
     run_id="pcp-"+time.strftime("%Y%m%dT%H%M%SZ",time.gmtime())+"-"+uuid.uuid4().hex[:8]
@@ -208,6 +232,22 @@ def execute(contract:dict[str,Any],sentinel_receipt:dict[str,Any],repo_root:Path
     result["guardian_post_pass"]=True
     result["guardian_post_receipt_digest"]=digest(guardian_post)
     save(rr/"result.json",result)
+    council_provider=council_provider or invoke_council_review
+    council=council_provider(repo_root,rr,contract,sentinel_receipt,result)
+    result["council_review"]=council
+    result["council_handoff_complete"]=council.get("schema")=="chacha.dev/architecture-council-platform-component-review/v1"
+    result["council_review_technical_pass"]=council.get("technical_review_passed") is True
+    result["human_explicit_promotion_approval_present"]=False
+    result["explicit_human_promotion_approval_required"]=True
+    if status!="PASS":
+        result["pipeline_status"]="PILOT_BLOCKED_HOLD_INCUMBENT"
+    elif result["council_review_technical_pass"]:
+        result["pipeline_status"]="PASS_HOLD_INCUMBENT"
+    else:
+        result["pipeline_status"]="COUNCIL_BLOCKED_HOLD_INCUMBENT"
+    result["production_change_authorized"]=False
+    result["promotion_authorized"]=False
+    save(rr/"result.json",result)
     return result
 
 def main()->int:
@@ -221,10 +261,12 @@ def main()->int:
     result=execute(load(a.contract),load(a.sentinel_receipt),a.repo_root.resolve(),a.runtime_root.resolve())
     save(a.output,result)
     print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_RUNNER="+result["status"])
-    print("COUNCIL_HANDOFF_REQUIRED=YES")
+    print("COUNCIL_HANDOFF_COMPLETE="+("YES" if result.get("council_handoff_complete") else "NO"))
+    print("COUNCIL_REVIEW="+("PASS" if result.get("council_review_technical_pass") else "BLOCK"))
+    print("HUMAN_PROMOTION_APPROVAL_REQUIRED=YES")
     print("PRODUCTION_CHANGE_AUTHORIZED=NO")
     print("PROMOTION_AUTHORIZED=NO")
     print("CHACHA_DEV_PLATFORM_COMPONENT_PILOT_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
-    return 0 if result["status"]=="PASS" else 20
+    return 0 if result.get("pipeline_status")=="PASS_HOLD_INCUMBENT" else 20
 
 if __name__=="__main__":raise SystemExit(main())
