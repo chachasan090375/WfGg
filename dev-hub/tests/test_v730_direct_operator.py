@@ -17,6 +17,23 @@ assert mod.normalize("Go!")=="CONTINUE"
 assert mod.normalize("STOP.")=="STOP"
 assert mod.normalize("Ajoute un widget")=="INSTRUCTION"
 
+# Guardian D1 zero-cost write budget must stay coherent across timer and freshness policy.
+guardian_policy=mod.load(ROOT/"dev-hub/config/guardian-runtime-policy.v1.json")
+coverage_manifest=mod.load(ROOT/"dev-hub/config/guardian-coverage-manifest.v1.json")
+coverage_timer=(ROOT/"dev-hub/systemd/chacha-dev-guardian-coverage-heartbeat.timer").read_text(encoding="utf-8")
+assert guardian_policy["coverage_heartbeat_max_age_seconds"]==900,guardian_policy
+assert coverage_manifest["heartbeat_max_age_seconds"]==900,coverage_manifest
+assert guardian_policy["d1_write_budget"]["coverage_heartbeat_interval_seconds"]==300,guardian_policy
+assert guardian_policy["d1_write_budget"]["automatic_paid_upgrade"] is False,guardian_policy
+assert coverage_manifest["d1_write_budget"]["automatic_paid_upgrade"] is False,coverage_manifest
+assert "OnUnitActiveSec=300s" in coverage_timer,coverage_timer
+assert "OnUnitActiveSec=60s" not in coverage_timer,coverage_timer
+coverage_sync=(ROOT/".github/workflows/dev-hub-v7-guardian-coverage-sync.yml").read_text(encoding="utf-8")
+contract_sync=(ROOT/".github/workflows/dev-hub-v7-guardian-contract-sync.yml").read_text(encoding="utf-8")
+assert "WHERE expected_components.source_digest<>excluded.source_digest" in coverage_sync,coverage_sync
+assert "FULL_TABLE_REWRITE=NO" in coverage_sync,coverage_sync
+assert "WHERE role_contracts.source_digest<>excluded.source_digest" in contract_sync,contract_sync
+
 satellite=mod.load(ROOT/"dev-hub/config/functional-translator-satellite.v1.json")
 assert satellite["scope"]=="PLATFORM_EDGE_SATELLITE",satellite
 assert satellite["fleet_membership"]=="EXCLUDED_EDGE_SATELLITE",satellite
@@ -104,4 +121,8 @@ print("CHACHA_DEV_V730_CHATGPT_IN_DIRECT_PATH=NO")
 print("CHACHA_DEV_V730_DIRECT_OPERATOR_MUTATION_AUTHORITY=NO")
 print("CHACHA_DEV_V730_GO_CENTRAL_CONTINUATION=PASS")
 print("CHACHA_DEV_V730_STOP_OUT_OF_BAND=PASS")
+print("CHACHA_DEV_V730_GUARDIAN_D1_BUDGET=PASS")
+print("CHACHA_DEV_V730_GUARDIAN_HEARTBEAT_SECONDS=300")
+print("CHACHA_DEV_V730_GUARDIAN_HEARTBEAT_MAX_AGE_SECONDS=900")
+print("CHACHA_DEV_V730_GUARDIAN_D1_SYNC_MODE=DIGEST_AWARE_DELTA")
 print("CHACHA_DEV_V730_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
