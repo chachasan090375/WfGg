@@ -51,6 +51,13 @@ timer=(SYSTEMD/"chacha-dev-intendant-hygiene.timer").read_text()
 assert "--hygiene-executor /opt/chacha-dev/platform/current/dev-hub/bin/central-platform-hygiene-executor.py" in service
 assert "OnUnitActiveSec=1h" in timer and "Persistent=true" in timer
 assert len(list(SYSTEMD.glob("chacha-dev-intendant-hygiene.timer")))==1
+installer=(BIN/"install-v710-intendant-hygiene-cycle.sh").read_text(encoding="utf-8")
+assert 'flock -n 9' in installer
+assert 'platform-deploy.lock' in installer
+assert 'UNIT_MARKER="# ChaCha-DEV-V710-Revision: $REV"' in installer
+assert 'grep -Fqx "$UNIT_MARKER" "$TIMER"' in installer
+assert 'grep -Fqx "$UNIT_MARKER" "$SERVICE"' in installer
+assert 'UNITS_TOUCHED=1' in installer
 
 src=(BIN/"autonomous-project-orchestrator.py").read_text()
 assert '"version":"7.1.0"' in src,src[-5000:]
@@ -187,6 +194,8 @@ print(json.dumps({'schema':'chacha.dev/guardian-verdict/v3','event_id':event['ev
     assert sum(1 for p in (platform/"releases").iterdir() if p.is_dir())==3
 
 print("CHACHA_DEV_V710_SINGLE_HYGIENE_TIMER=PASS")
+print("CHACHA_DEV_V710_DEPLOY_SERIALIZATION=PASS")
+print("CHACHA_DEV_V710_OWNED_UNIT_ROLLBACK=PASS")
 print("CHACHA_DEV_V710_DAILY_LIGHT_CYCLE=PASS")
 print("CHACHA_DEV_V710_WEEKLY_DRY_RUN=PASS")
 print("CHACHA_DEV_V710_MONTHLY_REVIEW_ONLY=PASS")
