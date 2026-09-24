@@ -89,7 +89,11 @@
     "production_evidence_must_come_from_real_target": true,
     "control_plane_bootstrap_uses_canonical_engines": true,
     "control_plane_bootstrap_is_idempotent": true,
-    "control_plane_bootstrap_recovery_is_forward_only": true
+    "control_plane_bootstrap_recovery_is_forward_only": true,
+    "platform_component_apply_handoff_uses_canonical_project_control": true,
+    "platform_component_apply_handoff_revalidates_human_approval": true,
+    "platform_component_apply_handoff_is_single_use": true,
+    "platform_component_apply_handoff_never_mutates_production": true
   },
   "interfaces": {
     "cli": {
@@ -378,6 +382,26 @@
       "implicit_delete_or_rewrite_forbidden": true,
       "final_integrity_recheck_required": true,
       "automatic_external_spend_eur": 0
+    },
+    "issue-platform-component-apply-handoff": {
+      "class": "state-write",
+      "mutating": true,
+      "profile_required": "platform",
+      "project_required": "chacha-dev-platform",
+      "canonical_project_control_only": true,
+      "actor_fixed": "central-orchestrator",
+      "human_approval_revalidation_required": true,
+      "promotion_gate_required": true,
+      "controlled_apply_plan_required": true,
+      "candidate_owner_adapter_required": true,
+      "single_use": true,
+      "source_candidate_integration_only": true,
+      "direct_runtime_mutation": false,
+      "production_activation": false,
+      "production_deployment": false,
+      "merge_to_production_branch": false,
+      "automatic_apply": false,
+      "automatic_external_spend_eur": 0
     }
   },
   "transaction_policy": {
@@ -398,7 +422,8 @@
       "SIGNING_KEY_ACTIVATED",
       "SIGNING_KEY_ROTATED",
       "SIGNING_KEY_REVOKED",
-      "PROJECT_RETIRED"
+      "PROJECT_RETIRED",
+      "PLATFORM_COMPONENT_APPLY_HANDOFF_ISSUED"
     ],
     "protected_state_sections": [
       "lifecycle",
