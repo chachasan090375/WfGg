@@ -111,7 +111,7 @@ with tempfile.TemporaryDirectory(prefix="v662-qualification-") as td:
       "evidence_maturity":{"candidate_evidence_mature":True}}}]}
     save(rt/"agent-evolution/fleet-observatory-latest.json",fleet)
 
-    out=rt/"attest"
+    out=rt/"agent-evolution/real-world-attestations/test"
     s=run([sys.executable,str(BIN/"real-world-evidence-attestor-v662.py"),"--runtime-root",str(rt),"--output-root",str(out)])
     assert "CHACHA_DEV_V662_REAL_WORLD_STRUCTURAL_ATTESTATION=PASS" in s,s
     for aid in ("agent-foundry-architect","branch-foundry-architect","capability-foundry-architect","logician","ergonomist","technology-watch-agent"):
