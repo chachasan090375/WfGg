@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import json,sys,tempfile
+import hashlib,json,sys,tempfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];BIN=ROOT/"dev-hub/bin";CFG=ROOT/"dev-hub/config";sys.path.insert(0,str(BIN))
 import agent_benchmark_adapter_runner as runner
@@ -41,7 +41,10 @@ with tempfile.TemporaryDirectory(prefix="v659-operational-") as td:
           "central_orchestrator_owns_remediation":True,
           "assurance_exchange_delivery":{"status":"DELIVERED","transport":"SERVICE_BINDING","http_status":200},
           "technical_verification_source":"D1_WORKFLOW_ATTESTATION","checked_at":"2026-09-23T14:51:18Z"}
-        evref=f"/tmp/evidence-{i}.json#sha256:"+"c"*64
+        evidence_file=base/f"verified-evidence-{i}.json"
+        evidence_file.write_text(json.dumps({"run":i,"status":"PASS"},sort_keys=True)+"\n",encoding="utf-8")
+        evidence_digest=hashlib.sha256(evidence_file.read_bytes()).hexdigest()
+        evref=str(evidence_file)+"#sha256:"+evidence_digest
         acceptance={
           "schema":"chacha.dev/acceptance-result/v1","accepted":True,
           "criteria":[{"criterion_id":"main-flow","dimension":"functional","required":True,"owner":"product","state":"PASS","evidence":evref}],
@@ -67,15 +70,16 @@ with tempfile.TemporaryDirectory(prefix="v659-operational-") as td:
     metrics=afo.build_metrics(inv,rt,fleet_policy)
     for aid in ("guardian","sentinel"):
         sc=aec.score(aid,metrics[aid],evo);pl=aec.plan(aid,sc,evo)
-        assert metrics[aid]["signals"]["operational_accuracy_evidence"]==2,(aid,metrics[aid]["signals"])
+        assert metrics[aid]["signals"]["operational_accuracy_evidence"]==0,(aid,metrics[aid]["signals"])
         assert metrics[aid]["signals"]["operational_structural_evidence"]==2,(aid,metrics[aid]["signals"])
-        assert sc["production_measurement_coverage_pct"]==40.0,(aid,sc)
-        assert sc["benchmark_measurement_coverage_pct"]==40.0,(aid,sc)
+        assert sc["production_measurement_coverage_pct"]==30.0,(aid,sc)
+        assert sc["benchmark_measurement_coverage_pct"]==50.0,(aid,sc)
         assert sc["measurement_coverage_pct"]==80.0,(aid,sc)
-        assert sc["production_weighted_maturity_pct"]==40.0,(aid,sc)
-        assert set(sc["production_measured_dimensions"])=={"accuracy","authority_discipline","evidence_quality","handoff_quality"},(aid,sc)
+        assert sc["production_weighted_maturity_pct"]==36.0,(aid,sc)
+        assert set(sc["production_measured_dimensions"])=={"authority_discipline","evidence_quality","handoff_quality"},(aid,sc)
+        assert sc["dimension_evidence"]["accuracy"].get("evidence_scope")=="BENCHMARK_ONLY",(aid,sc)
         assert sc["evidence_maturity_label"]=="MIXED_EVIDENCE",(aid,sc)
-        assert pl["evidence_maturity"]["candidate_evidence_mature"] is True,(aid,pl)
+        assert pl["evidence_maturity"]["candidate_evidence_mature"] is False,(aid,pl)
         assert pl["candidate"]["owner"] is None,(aid,pl)
 
     aid="acceptance-engineer";sc=aec.score(aid,metrics[aid],evo);pl=aec.plan(aid,sc,evo)
@@ -91,8 +95,10 @@ with tempfile.TemporaryDirectory(prefix="v659-operational-") as td:
     assert pl["evidence_maturity"]["candidate_evidence_mature"] is False,pl
     assert pl["candidate"]["owner"] is None,pl
 
-print("CHACHA_DEV_V659_GUARDIAN_EXTERNAL_PRODUCTION_EVIDENCE=PASS")
-print("CHACHA_DEV_V659_SENTINEL_ATTESTED_PRODUCTION_EVIDENCE=PASS")
+print("CHACHA_DEV_V659_GUARDIAN_EXTERNAL_STRUCTURAL_PRODUCTION_EVIDENCE=PASS")
+print("CHACHA_DEV_V659_GUARDIAN_ACCURACY_INFERENCE=NO")
+print("CHACHA_DEV_V659_SENTINEL_ATTESTED_STRUCTURAL_PRODUCTION_EVIDENCE=PASS")
+print("CHACHA_DEV_V659_SENTINEL_ACCURACY_INFERENCE=NO")
 print("CHACHA_DEV_V659_ACCEPTANCE_STRUCTURAL_PRODUCTION_EVIDENCE=PASS")
 print("CHACHA_DEV_V659_ACCEPTANCE_ACCURACY_INFERENCE=NO")
 print("CHACHA_DEV_V659_PRODUCTION_PRECEDENCE=PASS")
