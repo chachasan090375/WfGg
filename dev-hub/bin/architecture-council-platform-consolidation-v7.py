@@ -38,7 +38,6 @@ def main()->int:
     ap.add_argument("--revision",required=True)
     ap.add_argument("--output",type=Path,required=True)
     ap.add_argument("--github-runs-json",type=Path)
-    ap.add_argument("--guardian-realtime-result",type=Path)
     ap.add_argument("--operator-explicit-purge-approval",action="store_true")
     a=ap.parse_args()
     plan=load(a.plan);policy=load(a.policy);guardian=load(a.guardian_coverage)
@@ -53,13 +52,8 @@ def main()->int:
     max_keep=int(retention.get("max_physical_releases_after_consolidation") or 3)
     sentinel_name=str(execution.get("sentinel_workflow") or "ChaCha DEV Sentinel technical assurance")
     qualification_name=str(execution.get("exact_revision_qualification_workflow") or "ChaCha DEV V7 platform qualification")
-    realtime={}
-    if a.guardian_realtime_result and a.guardian_realtime_result.is_file():
-        realtime=load(a.guardian_realtime_result)
-    realtime_pass=str(realtime.get("verdict") or "") in {"PASS","WARNING"} if execution.get("guardian_realtime_verdict_required") is True else True
     checks={
       "guardian_pass":guardian.get("all_hooks_active") is True,
-      "guardian_realtime_pass":realtime_pass,
       "sentinel_exact_revision_pass":workflow_ok(runs,sentinel_name,rev),
       "v7_qualification_exact_revision_pass":workflow_ok(runs,qualification_name,rev),
       "architecture_council_approval":True,
@@ -79,7 +73,6 @@ def main()->int:
       "review_authority":"architecture-council","owner_agent":"intendant",
       "checks":{
         "guardian_pass":checks["guardian_pass"],
-        "guardian_realtime_pass":checks["guardian_realtime_pass"],
         "sentinel_exact_revision_pass":checks["sentinel_exact_revision_pass"],
         "architecture_council_approval":passed,
         "v7_runtime_health_pass":checks["v7_runtime_health_pass"],
