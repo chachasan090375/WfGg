@@ -55,12 +55,12 @@ gate={
   "automatic_external_spend_eur":0
 }
 
-# Default DENY registry must not accidentally produce an executable plan.
-empty={
-  "schema":"chacha.dev/platform-component-apply-adapter-registry/v1",
-  "default_admission":"DENY","adapters":{}
-}
-awaiting=planner.evaluate(gate,empty)
+# Default DENY canonical registry must not accidentally produce an executable plan.
+registry_base=json.loads((ROOT/"dev-hub/config/platform-component-apply-adapter-registry.v1.json").read_text(encoding="utf-8"))
+assert registry_base["schema"]=="chacha.dev/platform-component-apply-adapter-registry/v1",registry_base
+assert registry_base["default_admission"]=="DENY",registry_base
+assert registry_base["adapters"]=={},registry_base
+awaiting=planner.evaluate(gate,registry_base)
 assert awaiting["status"]=="AWAITING_APPLY_ADAPTER",awaiting
 assert awaiting["controlled_apply_plan_ready"] is False,awaiting
 assert awaiting["apply_execution_authorized_by_planner"] is False,awaiting
@@ -84,7 +84,15 @@ valid_adapter={
   "qualification_workflow_name":"ChaCha DEV controlled apply adapter qualification",
   "automatic_external_spend_eur":0
 }
-registry={"adapters":{"central-orchestrator":valid_adapter}}
+# A permissive/tampered registry is blocked before adapter selection.
+bad_registry=json.loads(json.dumps(registry_base))
+bad_registry["default_admission"]="ALLOW"
+badreg=planner.evaluate(gate,bad_registry)
+assert badreg["status"]=="BLOCKED",badreg
+assert "APPLY_ADAPTER_REGISTRY_POLICY_INVALID" in badreg["blockers"],badreg
+
+registry=json.loads(json.dumps(registry_base))
+registry["adapters"]["central-orchestrator"]=valid_adapter
 ready=planner.evaluate(gate,registry)
 assert ready["status"]=="READY_FOR_CENTRAL_ORCHESTRATOR_APPLY",ready
 assert ready["controlled_apply_plan_ready"] is True,ready
@@ -144,6 +152,7 @@ assert {"PRODUCTION_DEPLOY","PROMOTE_COMPONENT","MODIFY_GUARDIAN_CONTRACTS","EXP
 print("CHACHA_DEV_PLATFORM_COMPONENT_CONTROLLED_APPLY_PLANNER=PASS")
 print("CHACHA_DEV_PLATFORM_COMPONENT_APPLY_ADAPTER_DEFAULT=DENY")
 print("CHACHA_DEV_PLATFORM_COMPONENT_APPLY_NO_ADAPTER=AWAIT")
+print("CHACHA_DEV_PLATFORM_COMPONENT_APPLY_INVALID_REGISTRY=BLOCKED")
 print("CHACHA_DEV_PLATFORM_COMPONENT_APPLY_VALID_ADAPTER=PLAN_READY")
 print("CHACHA_DEV_PLATFORM_COMPONENT_APPLY_EXECUTION_AUTHORIZED_BY_PLANNER=NO")
 print("CHACHA_DEV_PLATFORM_COMPONENT_APPLY_RUNTIME_MUTATION=NO")
