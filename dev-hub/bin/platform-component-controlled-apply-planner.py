@@ -21,6 +21,8 @@ def now_iso()->str:
 
 def validate_gate(gate:dict[str,Any])->tuple[bool,list[str]]:
     c=gate.get("controlled_apply_contract") if isinstance(gate.get("controlled_apply_contract"),dict) else {}
+    post=set(str(x) for x in (c.get("post_apply_exact_sha_gates_required") or []) if str(x))
+    qualification=str(c.get("qualification_workflow_name") or "")
     checks={
       "gate_schema":gate.get("schema")=="chacha.dev/platform-component-promotion-gate/v1",
       "gate_status":gate.get("status")=="PROMOTION_AUTHORIZED_FOR_CONTROLLED_APPLY",
@@ -43,8 +45,13 @@ def validate_gate(gate:dict[str,Any])->tuple[bool,list[str]]:
       "incumbent_revision_present":bool(str(c.get("incumbent_revision") or "")),
       "candidate_artifact_present":bool(str(c.get("candidate_artifact_ref") or "")),
       "incumbent_artifact_present":bool(str(c.get("incumbent_artifact_ref") or "")),
-      "qualification_workflow_present":bool(str(c.get("qualification_workflow_name") or "")),
-      "post_apply_gates_present":len([x for x in c.get("post_apply_exact_sha_gates_required") or [] if str(x)])>=2,
+      "qualification_workflow_present":bool(qualification),
+      "post_apply_qualification_gate_present":bool(qualification) and qualification in post,
+      "post_apply_sentinel_gate_present":"ChaCha DEV Sentinel technical assurance" in post,
+      "approval_id_present":bool(str(c.get("approval_id") or "")),
+      "approval_actor_present":bool(str(c.get("approval_actor") or "")),
+      "approval_evidence_present":bool(str(c.get("approval_evidence") or "")),
+      "technical_review_digest_present":bool(str(c.get("technical_review_digest") or "")),
       "guardian_post_apply_required":c.get("guardian_post_apply_assurance_required") is True,
       "zero_automatic_external_spend":float(c.get("automatic_external_spend_eur") or 0)==0,
     }
@@ -52,6 +59,31 @@ def validate_gate(gate:dict[str,Any])->tuple[bool,list[str]]:
 
 def evaluate(gate:dict[str,Any],registry:dict[str,Any])->dict[str,Any]:
     gate_ok,gate_blockers=validate_gate(gate)
+    principles=registry.get("principles") if isinstance(registry.get("principles"),dict) else {}
+    required_registry_principles=[
+      "source_release_candidate_only",
+      "exact_candidate_and_incumbent_revision_required",
+      "exact_candidate_and_incumbent_artifact_required",
+      "candidate_owner_adapter_required",
+      "reversible_apply_required",
+      "rollback_adapter_required",
+      "direct_runtime_mutation_forbidden",
+      "production_activation_forbidden",
+      "production_deployment_forbidden",
+      "merge_to_production_branch_forbidden",
+      "post_apply_exact_sha_qualification_required",
+      "guardian_post_apply_assurance_required",
+      "sentinel_post_apply_exact_sha_required",
+      "central_orchestrator_apply_authority",
+      "automatic_apply_forbidden"
+    ]
+    registry_checks={
+      "registry_schema":registry.get("schema")=="chacha.dev/platform-component-apply-adapter-registry/v1",
+      "default_admission_deny":registry.get("default_admission")=="DENY",
+      "required_principles":all(principles.get(k) is True for k in required_registry_principles),
+      "registry_zero_automatic_external_spend":float(principles.get("automatic_external_spend_eur") or 0)==0,
+    }
+    registry_ok=all(registry_checks.values())
     c=gate.get("controlled_apply_contract") if isinstance(gate.get("controlled_apply_contract"),dict) else {}
     cid=str(c.get("component_id") or gate.get("component_id") or "")
     owner=str(c.get("candidate_owner") or "")
@@ -74,6 +106,11 @@ def evaluate(gate:dict[str,Any],registry:dict[str,Any])->dict[str,Any]:
         return {**base,"status":"BLOCKED","blockers":["PROMOTION_GATE_INVALID",*gate_blockers],
                 "apply_adapter_found":False,"controlled_apply_plan_ready":False,
                 "apply_execution_authorized_by_planner":False,"apply_plan":None}
+    if not registry_ok:
+        return {**base,"status":"BLOCKED",
+                "blockers":["APPLY_ADAPTER_REGISTRY_POLICY_INVALID",*sorted(k for k,v in registry_checks.items() if not v)],
+                "apply_adapter_found":False,"controlled_apply_plan_ready":False,
+                "apply_execution_authorized_by_planner":False,"apply_plan":None}
 
     adapters=registry.get("adapters") if isinstance(registry.get("adapters"),dict) else {}
     adapter=adapters.get(cid)
@@ -83,6 +120,7 @@ def evaluate(gate:dict[str,Any],registry:dict[str,Any])->dict[str,Any]:
                 "apply_execution_authorized_by_planner":False,"apply_plan":None}
 
     adapter_checks={
+      "adapter_id_present":bool(str(adapter.get("adapter_id") or "")),
       "adapter_status_qualified":str(adapter.get("status") or "")=="QUALIFIED",
       "adapter_owner_matches":str(adapter.get("candidate_owner") or "")==owner and bool(owner),
       "adapter_mode_matches":adapter.get("apply_mode")=="SOURCE_RELEASE_CANDIDATE_INTEGRATION",
