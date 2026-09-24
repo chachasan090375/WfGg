@@ -229,6 +229,24 @@ with tempfile.TemporaryDirectory(prefix="v641-compiler-") as td:
     assert req["architecture_council"]["decision"]=="APPROVED",req
     assert batch["unresolved"][0]["reason"]=="BUILD_SPECIALIST_REQUIRED",batch
 
+
+# Central orchestrator integration invariants.
+orch=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
+assert '"capability-build-request-compiler.py"' in orch
+assert '"capability-build-loop.py"' in orch
+assert 'if capability_build_required_count:' in orch
+assert 'shutil.copytree(root/"dev-hub",build_repo/"dev-hub")' in orch
+assert '"--architecture-council",architecture_council' in orch
+assert '"--repo-root",build_repo' in orch
+assert '"build-pilot"' in orch and '"--apply"' in orch
+assert 'active_provider_adapters=current_provider_registry' in orch
+assert 'active_capabilities=current_capability_registry' in orch
+assert 'capability_build_required_count=capability_build_specialist_required_count' in orch
+assert '"capability_build_durable_adoption_before_project_success":False' in orch
+assert '"version":"6.41.0"' in orch
+assert orch.index('architecture_council_v=load(architecture_council)') < orch.index('capability_build_batch=out/"capability-build-request-batch.json"')
+assert orch.index('capability_build_batch=out/"capability-build-request-batch.json"') < orch.index('effective_branch_topology=out/"branch-topology-effective.json"')
+
 print("CHACHA_DEV_V641_BUILD_REQUIRED_TO_SAFE_ADAPTER=PASS")
 print("CHACHA_DEV_V641_OFFICIAL_PROVISIONING_CHAIN=PASS")
 print("CHACHA_DEV_V641_OFFICIAL_PROMOTION_CHAIN=PASS")
@@ -237,5 +255,8 @@ print("CHACHA_DEV_V641_SAME_PROJECT_RESUME_READY=PASS")
 print("CHACHA_DEV_V641_DURABLE_ADOPTION_BEFORE_PROJECT_SUCCESS=NO")
 print("CHACHA_DEV_V641_UNSAFE_BUILD_CLASSES_FAIL_CLOSED=PASS")
 print("CHACHA_DEV_V641_GOVERNED_BUILD_REQUEST_COMPILER=PASS")
+print("CHACHA_DEV_V641_ORCHESTRATOR_POST_COUNCIL_BUILD=PASS")
+print("CHACHA_DEV_V641_PROJECT_LOCAL_BUILD_REPO=PASS")
+print("CHACHA_DEV_V641_ACTIVE_PROVIDER_REGISTRY_PROPAGATED=PASS")
 print("CHACHA_DEV_V641_UNDECLARED_BUILD_PROFILE_FAIL_CLOSED=PASS")
 print("CHACHA_DEV_V641_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
