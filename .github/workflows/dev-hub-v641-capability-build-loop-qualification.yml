@@ -6,6 +6,7 @@ on:
       - dev-hub-v641-capability-build-loop
     paths:
       - 'dev-hub/bin/capability-build-loop.py'
+      - 'dev-hub/bin/install-v641-capability-build-loop.sh'
       - 'dev-hub/bin/capability-build-request-compiler.py'
       - 'dev-hub/config/capability-build-loop.v1.json'
       - 'dev-hub/tests/test_v641_capability_build_loop.py'
@@ -45,6 +46,7 @@ jobs:
             dev-hub/bin/capability-foundry-closure.py \
             dev-hub/bin/autonomous-project-orchestrator.py
           python3 -m json.tool dev-hub/config/capability-build-loop.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v641-capability-build-loop.sh
 
       - name: V6.41 end-to-end build loop
         run: |
@@ -87,5 +89,6 @@ jobs:
             echo 'UNSAFE_CAPABILITY_CLASSES_FAIL_CLOSED=YES'
             echo 'TECHNOLOGY_WATCH_REQUIRED=YES'
             echo 'ARCHITECTURE_COUNCIL_APPROVAL_REQUIRED=YES'
+            echo 'REAL_VPS_PILOT_INSTALLER=VALIDATED'
             echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
           } | tee /tmp/v641-qualification-receipt.txt
