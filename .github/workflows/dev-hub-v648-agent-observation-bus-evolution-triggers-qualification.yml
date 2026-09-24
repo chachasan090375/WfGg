@@ -6,6 +6,7 @@ on:
       - dev-hub-v648-agent-observation-bus-evolution-triggers
     paths:
       - 'dev-hub/bin/agent_observation_bus.py'
+      - 'dev-hub/bin/install-v648-agent-observation-bus.sh'
       - 'dev-hub/bin/agent_fleet_observatory.py'
       - 'dev-hub/bin/run-controller.py'
       - 'dev-hub/bin/project-control.py'
@@ -36,6 +37,7 @@ jobs:
           python3 -m py_compile dev-hub/bin/agent_observation_bus.py dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/run-controller.py dev-hub/bin/project-control.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v648_agent_observation_bus.py
           python3 -m json.tool dev-hub/config/agent-observation-bus.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-fleet-observatory.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v648-agent-observation-bus.sh
           grep -Fq '"version":"6.48.0"' dev-hub/bin/autonomous-project-orchestrator.py
 
       - name: V6.48 observation bus
@@ -79,5 +81,6 @@ jobs:
             echo 'ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES'
             echo 'GUARDIAN_AUTHORITY=PRESERVED'
             echo 'SENTINEL_AUTHORITY=PRESERVED'
+            echo 'REAL_VPS_PILOT_INSTALLER=VALIDATED'
             echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
           } | tee /tmp/v648-receipt.txt
