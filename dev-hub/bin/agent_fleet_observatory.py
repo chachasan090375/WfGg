@@ -126,6 +126,7 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
 
     # V6.48 common observation bus: adds exact capability coverage and independent handoff evidence.
     try:
+        trusted_observed=set(((policy.get("observation_bus") or {}).get("trusted_observed_sources") or []))
         for event in aob.read_events(runtime_root):
             if not isinstance(event,dict):continue
             aid=normalize_role(str(event.get("subject_role") or ""),ids,policy)
@@ -133,7 +134,9 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
             a=agg[aid]
             independent=str(event.get("source_id") or "")!=str(event.get("subject_role") or "")
             verification=str(event.get("verification") or "")
-            if independent and verification in {"OBSERVED","VERIFIED"}:
+            source=str(event.get("source_id") or "")
+            source_trusted=(verification=="VERIFIED" or (verification=="OBSERVED" and source in trusted_observed))
+            if independent and source_trusted:
                 for cap in event.get("capabilities") or []:
                     if str(cap):a["observed_capabilities"].add(str(cap))
                 if event.get("capabilities"):a["refs"]["coverage"].append("agent-observation:"+str(event.get("event_id") or ""))

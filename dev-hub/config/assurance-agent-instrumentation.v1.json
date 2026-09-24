@@ -1,0 +1,142 @@
+{
+  "schema": "chacha.dev/assurance-agent-instrumentation-policy/v1",
+  "version": "1.0.0",
+  "purpose": "Increase evidence coverage for high-risk and assurance agents without converting activity into unverified quality claims.",
+  "priority_targets": [
+    {
+      "agent_id": "bastion",
+      "risk": "critical",
+      "boundaries": [
+        "seven-agent-final-compromise"
+      ],
+      "verified_dimensions": [
+        "handoff_quality"
+      ]
+    },
+    {
+      "agent_id": "guardian",
+      "risk": "high",
+      "boundaries": [
+        "seven-agent-final-compromise"
+      ],
+      "verified_dimensions": [
+        "handoff_quality"
+      ]
+    },
+    {
+      "agent_id": "sentinel",
+      "risk": "high",
+      "boundaries": [
+        "seven-agent-final-compromise"
+      ],
+      "verified_dimensions": [
+        "handoff_quality"
+      ]
+    },
+    {
+      "agent_id": "autonomous-recovery-agent",
+      "risk": "high",
+      "boundaries": [
+        "recovery-orchestrator"
+      ],
+      "observed_dimensions": [
+        "coverage"
+      ],
+      "quality_claim_from_activity": false
+    },
+    {
+      "agent_id": "logician",
+      "risk": "medium",
+      "boundaries": [
+        "central-orchestrator",
+        "seven-agent-final-compromise"
+      ],
+      "observed_dimensions": [
+        "robustness"
+      ],
+      "verified_dimensions": [
+        "handoff_quality"
+      ]
+    },
+    {
+      "agent_id": "ergonomist",
+      "risk": "medium",
+      "boundaries": [
+        "central-orchestrator",
+        "seven-agent-final-compromise"
+      ],
+      "observed_dimensions": [
+        "robustness"
+      ],
+      "verified_dimensions": [
+        "handoff_quality"
+      ]
+    },
+    {
+      "agent_id": "curator",
+      "risk": "medium",
+      "boundaries": [
+        "seven-agent-final-compromise"
+      ],
+      "verified_dimensions": [
+        "handoff_quality"
+      ]
+    },
+    {
+      "agent_id": "intendant",
+      "risk": "medium",
+      "boundaries": [
+        "seven-agent-final-compromise"
+      ],
+      "verified_dimensions": [
+        "handoff_quality"
+      ]
+    },
+    {
+      "agent_id": "agent-foundry-architect",
+      "risk": "medium",
+      "boundaries": [
+        "central-orchestrator"
+      ],
+      "observed_dimensions": [
+        "robustness"
+      ]
+    },
+    {
+      "agent_id": "branch-foundry-architect",
+      "risk": "medium",
+      "boundaries": [
+        "central-orchestrator"
+      ],
+      "observed_dimensions": [
+        "robustness"
+      ]
+    },
+    {
+      "agent_id": "capability-foundry-architect",
+      "risk": "medium",
+      "boundaries": [
+        "central-orchestrator"
+      ],
+      "observed_dimensions": [
+        "robustness"
+      ]
+    }
+  ],
+  "invariants": {
+    "observed_activity_is_not_accuracy": true,
+    "recovery_decision_is_not_recovery_success": true,
+    "self_report_is_not_verified_evidence": true,
+    "exact_revision_lineage_required": true,
+    "independent_verified_boundary_required_for_quality": true,
+    "unknown_remains_unknown": true,
+    "no_direct_self_mutation": true,
+    "no_self_promotion": true,
+    "agent_foundry_candidate_owner": true,
+    "technology_watch_revalidation_required": true,
+    "guardian_preserved": true,
+    "sentinel_preserved": true,
+    "architecture_council_final_authority": true,
+    "automatic_external_spend_eur": 0
+  }
+}

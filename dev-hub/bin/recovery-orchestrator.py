@@ -2,6 +2,10 @@
 from __future__ import annotations
 import argparse,json
 from pathlib import Path
+try:
+    import agent_observation_bus as aob
+except Exception:
+    aob=None
 
 def load(p):
     x=json.loads(Path(p).read_text(encoding="utf-8"));return x
@@ -25,6 +29,21 @@ def main():
     result={"schema":"chacha.dev/recovery-decision/v1","action":action,"autonomous":autonomous,
             "rerun_acceptance":action!="ASK_HUMAN","feed_learning":True}
     Path(a.output).write_text(json.dumps(result,indent=2)+"\n")
+    if aob is not None and Path("/opt/chacha-dev/runtime").exists():
+        try:
+            project_id=str(incident.get("project_id") or "platform-global")
+            aob.publish({
+              "schema":"chacha.dev/agent-observation-event/v1",
+              "event_id":"aobs-recovery-"+str(incident.get("incident_id") or Path(a.output).stem)+"-"+aob.runtime_revision()[:12],
+              "event_type":"RECOVERY_DECISION_OBSERVED","source_id":"recovery-orchestrator","source_surface":"recovery-orchestrator",
+              "project_id":project_id,"revision":aob.runtime_revision(),"subject_role":"autonomous-recovery-agent",
+              "outcome":action,"verification":"OBSERVED",
+              "capabilities":["recovery-orchestration","rollback-validation","health-checks"],
+              "evidence_refs":[str(Path(a.output).resolve())],
+              "details":{"autonomous":autonomous,"decision_only":True,"quality_claim":False}
+            })
+        except Exception:
+            pass
     print("CHACHA_RECOVERY_ORCHESTRATOR=PASS")
     print("RECOVERY_ACTION="+action)
 if __name__=="__main__":main()
