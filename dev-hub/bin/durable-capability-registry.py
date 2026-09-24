@@ -371,7 +371,9 @@ def run_memory(*,repo_root:Path,event:dict[str,Any],work:Path,experience_db:Path
 
 def merge_registries(base_caps:dict[str,Any],base_provider:dict[str,Any],durable:dict[str,Any],
                      require_executables:bool,trust_snapshot:dict[str,Any]|None=None,
-                     trust_policy:dict[str,Any]|None=None)->tuple[dict[str,Any],dict[str,Any],dict[str,Any]]:
+                     trust_policy:dict[str,Any]|None=None,
+                     trust_freshness:dict[str,Any]|None=None,
+                     trust_freshness_policy:dict[str,Any]|None=None)->tuple[dict[str,Any],dict[str,Any],dict[str,Any]]:
     caps=copy.deepcopy(base_caps);providers=copy.deepcopy(base_provider)
     valid=[];quarantined=[]
     trust_index={}
@@ -381,6 +383,14 @@ def merge_registries(base_caps:dict[str,Any],base_provider:dict[str,Any],durable
             trust_index[(str(item.get("component_id") or ""),str(item.get("version") or ""))]=item
     reuse_policy=(trust_policy or {}).get("reuse") if isinstance(trust_policy,dict) else {}
     blocked_trust_states=set((reuse_policy or {}).get("blocked_states") or ["DEGRADED","QUARANTINED","RECOVERY_CANDIDATE"])
+    freshness_reuse=(trust_freshness_policy or {}).get("reuse") if isinstance(trust_freshness_policy,dict) else {}
+    freshness_required=bool((freshness_reuse or {}).get("require_revalidation_before_durable_merge"))
+    freshness_valid=isinstance(trust_freshness,dict) and trust_freshness.get("schema")=="chacha.dev/capability-trust-freshness-proof/v1" and trust_freshness.get("status")=="PASS"
+    freshness_bindings=set()
+    if freshness_valid:
+        for item in trust_freshness.get("bindings") or []:
+            if not isinstance(item,dict):continue
+            freshness_bindings.add((str(item.get("capability") or ""),str(item.get("adoption_id") or "")))
     for aid,row in sorted((durable.get("adoptions") or {}).items()):
         if not isinstance(row,dict) or row.get("status")!="ADOPTED":continue
         cap=str(row.get("capability") or "");provider=str(row.get("provider") or "");adapter=str(row.get("adapter") or "")
@@ -409,6 +419,11 @@ def merge_registries(base_caps:dict[str,Any],base_provider:dict[str,Any],durable
         trust_state=str((trust_item or {}).get("state") or "UNKNOWN")
         if trust_state in blocked_trust_states:
             reasons.append("CAPABILITY_TRUST_BLOCKED:"+trust_state)
+        if freshness_required:
+            if not freshness_valid:
+                reasons.append("CAPABILITY_TRUST_REVALIDATION_REQUIRED")
+            elif (cap,aid) not in freshness_bindings:
+                reasons.append("CAPABILITY_TRUST_REVALIDATION_BINDING_MISSING")
         if reasons:
             quarantined.append({"adoption_id":aid,"capability":cap,"trust_state":trust_state,
                                 "reason_codes":reasons});continue
@@ -416,12 +431,18 @@ def merge_registries(base_caps:dict[str,Any],base_provider:dict[str,Any],durable
         caps["capabilities"][cap]["trust_state"]=trust_state
         caps["capabilities"][cap]["trust_is_advisory"]=True
         caps["capabilities"][cap]["technology_revalidation_required"]=True
+        caps["capabilities"][cap]["trust_freshness_status"]="FRESH" if freshness_required else "NOT_ENFORCED"
+        caps["capabilities"][cap]["trust_freshness_does_not_grant_permissions"]=True
         if origin=="DURABLE_BUILT":
             providers.setdefault("providers",{})[provider]=copy.deepcopy(pe)
             providers.setdefault("adapters",{})[adapter]=copy.deepcopy(ae)
-        valid.append({"adoption_id":aid,"capability":cap,"trust_state":trust_state})
+        valid.append({"adoption_id":aid,"capability":cap,"trust_state":trust_state,
+                      "trust_freshness_status":"FRESH" if freshness_required else "NOT_ENFORCED"})
     return caps,providers,{"valid_adoptions":valid,"quarantined":quarantined,
                            "trust_filter_applied":bool(trust_index),
+                           "trust_freshness_filter_applied":freshness_required,
+                           "trust_freshness_proof_valid":freshness_valid if freshness_required else None,
+                           "negative_trust_precedence":True,
                            "trusted_does_not_escalate_permissions":True}
 
 def adopt(args)->dict[str,Any]:
@@ -576,6 +597,8 @@ def main()->int:
     m.add_argument("--require-executables",action="store_true")
     m.add_argument("--trust-snapshot",type=Path)
     m.add_argument("--trust-policy",type=Path)
+    m.add_argument("--trust-freshness",type=Path)
+    m.add_argument("--trust-freshness-policy",type=Path)
 
     a=sub.add_parser("adopt")
     a.add_argument("--policy",type=Path,required=True);a.add_argument("--candidate",type=Path,required=True)
@@ -602,14 +625,21 @@ def main()->int:
         durable=read_registry(args.registry)
         trust_snapshot=load(args.trust_snapshot) if args.trust_snapshot and args.trust_snapshot.is_file() else None
         trust_policy=load(args.trust_policy) if args.trust_policy and args.trust_policy.is_file() else None
+        trust_freshness=load(args.trust_freshness) if args.trust_freshness and args.trust_freshness.is_file() else None
+        trust_freshness_policy=load(args.trust_freshness_policy) if args.trust_freshness_policy and args.trust_freshness_policy.is_file() else None
         caps,providers,report=merge_registries(base_caps,base_provider,durable,args.require_executables,
-                                              trust_snapshot=trust_snapshot,trust_policy=trust_policy)
+                                              trust_snapshot=trust_snapshot,trust_policy=trust_policy,
+                                              trust_freshness=trust_freshness,
+                                              trust_freshness_policy=trust_freshness_policy)
         save(args.output_capabilities,caps);save(args.output_providers,providers)
         print("CHACHA_DEV_V642_DURABLE_REGISTRY_MERGE=PASS")
         print("CHACHA_DEV_V642_DURABLE_REUSE_COUNT="+str(len(report["valid_adoptions"])))
         print("CHACHA_DEV_V642_DURABLE_QUARANTINED_COUNT="+str(len(report["quarantined"])))
         print("CHACHA_DEV_V643_CAPABILITY_TRUST_FILTER="+("PASS" if report["trust_filter_applied"] else "NOT_AVAILABLE"))
         print("CHACHA_DEV_V643_TRUSTED_PERMISSION_ESCALATION=NO")
+        print("CHACHA_DEV_V644_TRUST_FRESHNESS_FILTER="+("PASS" if report["trust_freshness_filter_applied"] and report["trust_freshness_proof_valid"] else "NOT_ENFORCED"))
+        print("CHACHA_DEV_V644_NEGATIVE_TRUST_PRECEDENCE=YES")
+        print("CHACHA_DEV_V644_TRUST_PERMISSION_ESCALATION=NO")
         print(json.dumps(report,ensure_ascii=False))
         return 0
     if args.cmd=="adopt":

@@ -354,6 +354,16 @@ def main():
     durable_caps=out/"runtime-capabilities-durable.json"
     durable_providers=out/"runtime-provider-adapters-durable.json"
     capability_trust_snapshot=Path("/opt/chacha-dev/runtime/knowledge/component-confidence.json")
+    capability_trust_freshness=out/"capability-trust-freshness.json"
+    run(bin_dir/"capability-trust-freshness.py",[
+       "--repo-root",root,
+       "--registry",durable_registry,
+       "--policy",cfg/"capability-trust-freshness.v1.json",
+       "--output",capability_trust_freshness
+    ])
+    capability_trust_freshness_v=load(capability_trust_freshness)
+    if capability_trust_freshness_v.get("status")!="PASS":
+        raise RuntimeError("CAPABILITY_TRUST_FRESHNESS_REVALIDATION_FAILED")
     durable_merge_args=[
        "merge",
        "--base-capability-registry",cfg/"capability-registry.v1.json",
@@ -361,7 +371,9 @@ def main():
        "--registry",durable_registry,
        "--output-capabilities",durable_caps,
        "--output-providers",durable_providers,
-       "--trust-policy",cfg/"capability-trust-graduation.v1.json"
+       "--trust-policy",cfg/"capability-trust-graduation.v1.json",
+       "--trust-freshness-policy",cfg/"capability-trust-freshness.v1.json",
+       "--trust-freshness",capability_trust_freshness
     ]
     if capability_trust_snapshot.is_file():
         durable_merge_args+=["--trust-snapshot",capability_trust_snapshot]
@@ -754,7 +766,7 @@ def main():
 
     state={
       "schema":"chacha.dev/autonomous-project-bootstrap/v1",
-      "version":"6.43.0",
+      "version":"6.44.0",
       "project_id":pid,
       "functional_contract":str(contract),
       "project":str(project),
@@ -824,6 +836,10 @@ def main():
       "capability_trust_filter_applied":capability_trust_snapshot.is_file(),
       "capability_trust_project_distinct":True,
       "capability_trust_does_not_escalate_permissions":True,
+      "capability_trust_freshness_proof":str(capability_trust_freshness),
+      "capability_trust_fresh_revalidation":capability_trust_freshness_v.get("status")=="PASS",
+      "capability_trust_targeted_refresh":bool((capability_trust_freshness_v.get("technology_watch") or {}).get("targeted_refresh_performed")),
+      "capability_trust_freshness_does_not_escalate_permissions":True,
       "capability_foundry_auto_closed_count":sum(1 for x in closure_v.get("plans") or [] if x.get("state")=="PROJECT_LOCAL_READY"),
       "capability_foundry_reused_registered_count":sum(1 for x in closure_v.get("plans") or [] if x.get("state")=="REUSE_REGISTERED"),
       "capability_foundry_build_required_count":capability_build_required_count,
@@ -894,6 +910,9 @@ def main():
     print("CAPABILITY_TRUST_FILTER_APPLIED="+("YES" if state["capability_trust_filter_applied"] else "NO_SNAPSHOT"))
     print("CAPABILITY_TRUST_PROJECT_DISTINCT=YES")
     print("CAPABILITY_TRUST_PERMISSION_ESCALATION=NO")
+    print("CAPABILITY_TRUST_FRESH_REVALIDATION="+("PASS" if state["capability_trust_fresh_revalidation"] else "FAIL"))
+    print("CAPABILITY_TRUST_TARGETED_REFRESH="+("YES" if state["capability_trust_targeted_refresh"] else "NO"))
+    print("CAPABILITY_TRUST_FRESHNESS_PERMISSION_ESCALATION=NO")
     print("LOGIC_CHALLENGE_STATUS="+str(state["logic_challenge_status"]))
     print("UX_CHALLENGE_STATUS="+str(state["ux_challenge_status"]))
     print("CENTRAL_COMPROMISE_FOUND="+("YES" if state["central_compromise_found"] else "NO"))

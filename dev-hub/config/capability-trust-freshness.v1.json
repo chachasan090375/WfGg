@@ -1,0 +1,31 @@
+{
+  "schema": "chacha.dev/capability-trust-freshness-policy/v1",
+  "version": "1.0.0",
+  "purpose": "Require a current Technology Watch revalidation proof before durable capability fast reuse without changing historical trust or granting privileges.",
+  "source": {
+    "runtime": "technology-watch-runtime",
+    "config": "dev-hub/config/technology-watch-runtime.v1.json",
+    "maximum_snapshot_age_minutes": "INHERIT",
+    "targeted_refresh_if_missing_or_stale": true
+  },
+  "reuse": {
+    "require_revalidation_before_durable_merge": true,
+    "exact_capability_and_adoption_binding_required": true,
+    "accepted_proof_status": "PASS",
+    "missing_or_invalid_proof_behavior": "BLOCK_FAST_REUSE",
+    "historical_trust_state_is_not_mutated_by_freshness": true,
+    "negative_trust_precedence": true
+  },
+  "authority": {
+    "technology_watch_required": true,
+    "guardian_authority_preserved": true,
+    "sentinel_authority_preserved": true,
+    "architecture_council_final_authority": true,
+    "freshness_never_grants_production_permission": true,
+    "freshness_never_grants_network_permission": true,
+    "freshness_never_grants_secret_permission": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}

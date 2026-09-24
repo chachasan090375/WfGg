@@ -1,0 +1,100 @@
+name: ChaCha DEV V6.44 trust freshness continuous revalidation qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v644-trust-freshness-continuous-revalidation
+    paths:
+      - 'dev-hub/bin/capability-trust-freshness.py'
+      - 'dev-hub/bin/durable-capability-registry.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/capability-trust-freshness.v1.json'
+      - 'dev-hub/config/capability-trust-graduation.v1.json'
+      - 'dev-hub/config/technology-watch-runtime.v1.json'
+      - 'dev-hub/tests/test_v644_trust_freshness_continuous_revalidation.py'
+      - 'dev-hub/tests/test_v643_multi_project_trust_graduation.py'
+      - 'dev-hub/tests/test_v642_durable_capability_adoption.py'
+      - 'dev-hub/tests/test_v625_component_confidence.py'
+      - 'dev-hub/tests/test_v64_technology_watch_runtime.py'
+      - '.github/workflows/dev-hub-v644-trust-freshness-continuous-revalidation-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/capability-trust-freshness.py dev-hub/bin/durable-capability-registry.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v644_trust_freshness_continuous_revalidation.py
+          python3 -m json.tool dev-hub/config/capability-trust-freshness.v1.json >/dev/null
+          grep -Fq '"version":"6.44.0"' dev-hub/bin/autonomous-project-orchestrator.py
+
+      - name: V6.44 trust freshness
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v644_trust_freshness_continuous_revalidation.py | tee /tmp/v644.out
+          grep -Fq 'CHACHA_DEV_V644_TECHNOLOGY_WATCH_FRESH_REVALIDATION=PASS' /tmp/v644.out
+          grep -Fq 'CHACHA_DEV_V644_TARGETED_REFRESH_ON_STALE=PASS' /tmp/v644.out
+          grep -Fq 'CHACHA_DEV_V644_EXACT_ADOPTION_BINDING=PASS' /tmp/v644.out
+          grep -Fq 'CHACHA_DEV_V644_STALE_OR_MISSING_FAST_REUSE_BLOCKED=PASS' /tmp/v644.out
+          grep -Fq 'CHACHA_DEV_V644_NEGATIVE_TRUST_PRECEDENCE=PASS' /tmp/v644.out
+          grep -Fq 'CHACHA_DEV_V644_TRUST_HISTORY_PRESERVED=PASS' /tmp/v644.out
+          grep -Fq 'CHACHA_DEV_V644_TRUST_PERMISSION_ESCALATION=NO' /tmp/v644.out
+          grep -Fq 'CHACHA_DEV_V644_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v644.out
+
+      - name: V6.43 regression
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v643_multi_project_trust_graduation.py | tee /tmp/v643.out
+          grep -Fq 'CHACHA_DEV_V643_THREE_DISTINCT_PROJECTS_TRUSTED=PASS' /tmp/v643.out
+          grep -Fq 'CHACHA_DEV_V643_CRITICAL_INCIDENT_QUARANTINE=PASS' /tmp/v643.out
+          grep -Fq 'CHACHA_DEV_V643_RECOVERY_RETURNS_PROVISIONAL_NOT_TRUSTED=PASS' /tmp/v643.out
+          grep -Fq 'CHACHA_DEV_V643_TRUST_PERMISSION_ESCALATION=NO' /tmp/v643.out
+
+      - name: V6.42 regression
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v642_durable_capability_adoption.py | tee /tmp/v642.out
+          grep -Fq 'CHACHA_DEV_V642_CROSS_PROJECT_REUSE_WITHOUT_REBUILD=PASS' /tmp/v642.out
+          grep -Fq 'CHACHA_DEV_V642_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v642.out
+
+      - name: Technology Watch regression
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v64_technology_watch_runtime.py | tee /tmp/v64-tw.out
+          grep -Fq 'CHACHA_DEV_V64_TECHNOLOGY_WATCH_SERVICE=PASS' /tmp/v64-tw.out
+          grep -Fq 'CHACHA_DEV_V64_TECHNOLOGY_WATCH_ZERO_SPEND=PASS' /tmp/v64-tw.out
+
+      - name: Component confidence regression
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v625_component_confidence.py | tee /tmp/v625.out
+          grep -Fq 'CHACHA_DEV_V625_THREE_SUCCESS_TRUSTED=PASS' /tmp/v625.out
+          grep -Fq 'CHACHA_DEV_V625_CRITICAL_ANOMALY_QUARANTINE=PASS' /tmp/v625.out
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo 'CHACHA_DEV_V644_QUALIFICATION=PASS'
+            echo 'TECHNOLOGY_WATCH_FRESH_REVALIDATION=YES'
+            echo 'TARGETED_REFRESH_ON_MISSING_OR_STALE=YES'
+            echo 'EXACT_CAPABILITY_ADOPTION_BINDING=YES'
+            echo 'MISSING_FRESHNESS_BLOCKS_FAST_REUSE=YES'
+            echo 'NEGATIVE_TRUST_PRECEDENCE=YES'
+            echo 'HISTORICAL_TRUST_MUTATION=NO'
+            echo 'TRUST_PERMISSION_ESCALATION=NO'
+            echo 'GUARDIAN_AUTHORITY=PRESERVED'
+            echo 'SENTINEL_AUTHORITY=PRESERVED'
+            echo 'ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES'
+            echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
+          } | tee /tmp/v644-qualification-receipt.txt
