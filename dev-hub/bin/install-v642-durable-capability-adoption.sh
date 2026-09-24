@@ -31,13 +31,14 @@ CAPABILITY="v642-real-durable-read-$SLUG_STAMP"
 PROVIDER="v642-real-provider-$SLUG_STAMP"
 ADAPTER="v642-real-adapter-$SLUG_STAMP"
 PROJECT2="v642-reuse-project-$SLUG_STAMP"
+PROOF_DIR="$ADOPTION_EVIDENCE_ROOT/$PROJECT"
 
 stage(){ STAGE="$1"; echo "CHACHA_DEV_V642_STAGE=$STAGE"; }
 
 rollback_synthetic(){
   if [ "$ADOPTED" -eq 1 ] && [ "$ROLLED_BACK" -eq 0 ] && [ -n "$ADOPTION_ID" ]; then
     set +e
-    python3 "$RELEASE/dev-hub/bin/durable-capability-registry.py" rollback       --registry "$DURABLE_REGISTRY"       --adoption-id "$ADOPTION_ID"       --actor central-orchestrator       --receipt "$ADOPTION_EVIDENCE_ROOT/$ADOPTION_ID/pilot-auto-rollback.json"       --apply >/tmp/v642-auto-rollback.out 2>/tmp/v642-auto-rollback.err
+    python3 "$RELEASE/dev-hub/bin/durable-capability-registry.py" rollback       --registry "$DURABLE_REGISTRY"       --adoption-id "$ADOPTION_ID"       --actor central-orchestrator       --receipt "$PROOF_DIR/pilot-auto-rollback.json"       --apply >/tmp/v642-auto-rollback.out 2>/tmp/v642-auto-rollback.err
     rc=$?
     set -e
     if [ "$rc" -eq 0 ]; then
@@ -74,7 +75,7 @@ trap on_exit EXIT
 
 [ "$(id -u)" -eq 0 ] || { echo "CHACHA_DEV_V642_INSTALL=BLOCKED reason=root_required"; exit 2; }
 printf '%s' "$REV" | grep -Eq '^[0-9a-f]{40}$' || { echo "CHACHA_DEV_V642_INSTALL=BLOCKED reason=pinned_revision_required"; exit 2; }
-for cmd in python3 cp ln readlink grep sha256sum find curl tar sqlite3; do
+for cmd in python3 cp ln readlink grep sha256sum find curl tar; do
   command -v "$cmd" >/dev/null || { echo "CHACHA_DEV_V642_INSTALL=BLOCKED reason=missing_command:$cmd"; exit 2; }
 done
 
@@ -137,6 +138,7 @@ done
 echo "CHACHA_DEV_V642_SEMANTIC_QUALIFICATION=PASS"
 
 stage build-real-safe-candidate
+mkdir -p "$PROOF_DIR"
 cat >"$WORK/build-request.json" <<JSON
 {
   "schema":"chacha.dev/capability-build-request/v1",
@@ -177,6 +179,7 @@ assert dig(source)==x["generated_source_digest"],x
 assert dig(exe)==x["sandbox_executable_digest"],x
 print("CHACHA_DEV_V642_REAL_V641_BUILD_CANDIDATE=PASS")
 PY
+cp "$WORK/build-result.json" "$PROOF_DIR/build-result.json"
 
 stage real-project-use
 BUILD_EXE="$(python3 - "$WORK/build-result.json" <<'PY'
@@ -198,6 +201,7 @@ assert x["producer"]==sys.argv[2],x
 assert (x.get("verification") or {}).get("status")=="UNVERIFIED",x
 print("CHACHA_DEV_V642_REAL_PROJECT_RUNTIME_USE=PASS")
 PY
+cp "$WORK/project-use-result.json" "$PROOF_DIR/project-use-result.json"
 
 stage project-control-verified-success
 STATE_ROOT="/opt/chacha-dev/runtime/state"
@@ -226,7 +230,7 @@ v={"schema":"chacha.dev/evidence-ledger/v1","project":project,
 pathlib.Path(path).write_text(json.dumps(v,indent=2)+"\n",encoding="utf-8")
 PY
 
-cat >"$WORK/project-success-claims.json" <<JSON
+cat >"$PROOF_DIR/project-success-claims.json" <<JSON
 {
   "project_id":"$PROJECT",
   "capability":"$CAPABILITY",
@@ -241,15 +245,15 @@ cat >"$WORK/project-success-claims.json" <<JSON
   "architecture_council":{"decision":"APPROVED","decision_id":"v642-real-pilot-adopt-$SLUG_STAMP"},
   "automatic_external_spend_eur":0,
   "evidence_refs":[
-    "$WORK/build-result.json",
-    "$WORK/project-use-result.json"
+    "$PROOF_DIR/build-result.json",
+    "$PROOF_DIR/project-use-result.json"
   ]
 }
 JSON
 
-CLAIMS_DIGEST="$(sha256sum "$WORK/project-success-claims.json" | awk '{print "sha256:"$1}')"
-BUILD_DIGEST="$(sha256sum "$WORK/build-result.json" | awk '{print "sha256:"$1}')"
-USE_DIGEST="$(sha256sum "$WORK/project-use-result.json" | awk '{print "sha256:"$1}')"
+CLAIMS_DIGEST="$(sha256sum "$PROOF_DIR/project-success-claims.json" | awk '{print "sha256:"$1}')"
+BUILD_DIGEST="$(sha256sum "$PROOF_DIR/build-result.json" | awk '{print "sha256:"$1}')"
+USE_DIGEST="$(sha256sum "$PROOF_DIR/project-use-result.json" | awk '{print "sha256:"$1}')"
 
 cat >"$WORK/project-success-task-graph.json" <<JSON
 {
@@ -275,9 +279,9 @@ cat >"$WORK/project-success-task-result.json" <<JSON
   "observed_at":"$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "outputs":[],
   "evidence":[
-    {"source":"$WORK/project-success-claims.json","digest":"$CLAIMS_DIGEST"},
-    {"source":"$WORK/build-result.json","digest":"$BUILD_DIGEST"},
-    {"source":"$WORK/project-use-result.json","digest":"$USE_DIGEST"}
+    {"source":"$PROOF_DIR/project-success-claims.json","digest":"$CLAIMS_DIGEST"},
+    {"source":"$PROOF_DIR/build-result.json","digest":"$BUILD_DIGEST"},
+    {"source":"$PROOF_DIR/project-use-result.json","digest":"$USE_DIGEST"}
   ],
   "verification":{"status":"UNVERIFIED","method":"none"}
 }
@@ -299,9 +303,10 @@ assert r.get("status")=="COMMITTED" and r.get("verification_status")=="VERIFIED"
 print(p)
 PY
 )"
+cp "$WORK/project-control-response.json" "$PROOF_DIR/project-control-response.json"
 echo "CHACHA_DEV_V642_REAL_PROJECT_CONTROL_COMMITTED_PROOF=PASS"
 
-cat >"$WORK/candidate.json" <<JSON
+cat >"$PROOF_DIR/candidate.json" <<JSON
 {
   "schema":"chacha.dev/capability-adoption-candidate/v1",
   "source_kind":"BUILT_ADAPTER",
@@ -309,7 +314,7 @@ cat >"$WORK/candidate.json" <<JSON
   "capability":"$CAPABILITY",
   "provider":"$PROVIDER",
   "adapter":"$ADAPTER",
-  "build_result":"$WORK/build-result.json",
+  "build_result":"$PROOF_DIR/build-result.json",
   "production_capable":false,
   "network_access":false,
   "credentials_required":false,
@@ -317,7 +322,7 @@ cat >"$WORK/candidate.json" <<JSON
   "adoption_state":"PENDING_PROJECT_SUCCESS"
 }
 JSON
-python3 - "$WORK/project-success-claims.json" "$PC_RECEIPT" "$CLAIMS_DIGEST" "$WORK/project-success.json" <<'PY'
+python3 - "$PROOF_DIR/project-success-claims.json" "$PC_RECEIPT" "$CLAIMS_DIGEST" "$PROOF_DIR/project-success.json" <<'PY'
 import json,pathlib,sys
 claims_path,receipt,digest,out=sys.argv[1:]
 claims=json.load(open(claims_path,encoding="utf-8"))
@@ -332,8 +337,8 @@ PY
 
 stage real-durable-adoption
 mkdir -p "$SOURCE_ARCHIVE_ROOT" "$ADOPTION_EVIDENCE_ROOT"
-ADOPT_RECEIPT="$ADOPTION_EVIDENCE_ROOT/$PROJECT-adoption-receipt.json"
-python3 "$RELEASE/dev-hub/bin/durable-capability-registry.py" adopt   --policy "$RELEASE/dev-hub/config/durable-capability-adoption.v1.json"   --candidate "$WORK/candidate.json"   --success "$WORK/project-success.json"   --base-capability-registry "$RELEASE/dev-hub/config/capability-registry.v1.json"   --base-provider-registry "$RELEASE/dev-hub/config/provider-adapters.v1.json"   --registry "$DURABLE_REGISTRY"   --repo-root "$RELEASE"   --adapter-root "$ADAPTER_ROOT"   --source-archive-root "$SOURCE_ARCHIVE_ROOT"   --evidence-root "$ADOPTION_EVIDENCE_ROOT"   --experience-db "$EXPERIENCE_DB"   --central-memory-db "$CENTRAL_MEMORY_DB"   --central-memory-snapshot "$CENTRAL_MEMORY_SNAPSHOT"   --memory-refresh --nas   --actor central-orchestrator   --receipt "$ADOPT_RECEIPT" --apply   >"$WORK/adopt.out" 2>"$WORK/adopt.err"
+ADOPT_RECEIPT="$PROOF_DIR/adoption-receipt.json"
+python3 "$RELEASE/dev-hub/bin/durable-capability-registry.py" adopt   --policy "$RELEASE/dev-hub/config/durable-capability-adoption.v1.json"   --candidate "$PROOF_DIR/candidate.json"   --success "$PROOF_DIR/project-success.json"   --base-capability-registry "$RELEASE/dev-hub/config/capability-registry.v1.json"   --base-provider-registry "$RELEASE/dev-hub/config/provider-adapters.v1.json"   --registry "$DURABLE_REGISTRY"   --repo-root "$RELEASE"   --adapter-root "$ADAPTER_ROOT"   --source-archive-root "$SOURCE_ARCHIVE_ROOT"   --evidence-root "$ADOPTION_EVIDENCE_ROOT"   --experience-db "$EXPERIENCE_DB"   --central-memory-db "$CENTRAL_MEMORY_DB"   --central-memory-snapshot "$CENTRAL_MEMORY_SNAPSHOT"   --memory-refresh --nas   --actor central-orchestrator   --receipt "$ADOPT_RECEIPT" --apply   >"$WORK/adopt.out" 2>"$WORK/adopt.err"
 
 ADOPTION_ID="$(python3 - "$ADOPT_RECEIPT" "$CAPABILITY" "$PROVIDER" "$ADAPTER" <<'PY'
 import json,pathlib,sys
@@ -458,22 +463,32 @@ print("CHACHA_DEV_V642_REAL_SINGLE_PROJECT_GLOBAL_TRUST=NO")
 PY
 
 stage adoption-idempotence
-EXPERIENCE_COUNT_BEFORE="$(sqlite3 "$EXPERIENCE_DB" "SELECT COUNT(*) FROM experience WHERE project_id='$PROJECT' AND learner='capability-durable-adoption';")"
-REPLAY_RECEIPT="$ADOPTION_EVIDENCE_ROOT/$PROJECT-adoption-replay.json"
-python3 "$RELEASE/dev-hub/bin/durable-capability-registry.py" adopt   --policy "$RELEASE/dev-hub/config/durable-capability-adoption.v1.json"   --candidate "$WORK/candidate.json"   --success "$WORK/project-success.json"   --base-capability-registry "$RELEASE/dev-hub/config/capability-registry.v1.json"   --base-provider-registry "$RELEASE/dev-hub/config/provider-adapters.v1.json"   --registry "$DURABLE_REGISTRY" --repo-root "$RELEASE"   --adapter-root "$ADAPTER_ROOT" --source-archive-root "$SOURCE_ARCHIVE_ROOT"   --evidence-root "$ADOPTION_EVIDENCE_ROOT" --experience-db "$EXPERIENCE_DB"   --actor central-orchestrator --receipt "$REPLAY_RECEIPT" --apply   >"$WORK/replay.out" 2>"$WORK/replay.err"
+EXPERIENCE_COUNT_BEFORE="$(python3 - "$EXPERIENCE_DB" "$PROJECT" <<'PY'
+import sqlite3,sys
+db=sqlite3.connect(sys.argv[1])
+print(db.execute("SELECT COUNT(*) FROM experience WHERE project_id=? AND learner='capability-durable-adoption'",(sys.argv[2],)).fetchone()[0])
+PY
+)"
+REPLAY_RECEIPT="$PROOF_DIR/adoption-replay.json"
+python3 "$RELEASE/dev-hub/bin/durable-capability-registry.py" adopt   --policy "$RELEASE/dev-hub/config/durable-capability-adoption.v1.json"   --candidate "$PROOF_DIR/candidate.json"   --success "$PROOF_DIR/project-success.json"   --base-capability-registry "$RELEASE/dev-hub/config/capability-registry.v1.json"   --base-provider-registry "$RELEASE/dev-hub/config/provider-adapters.v1.json"   --registry "$DURABLE_REGISTRY" --repo-root "$RELEASE"   --adapter-root "$ADAPTER_ROOT" --source-archive-root "$SOURCE_ARCHIVE_ROOT"   --evidence-root "$ADOPTION_EVIDENCE_ROOT" --experience-db "$EXPERIENCE_DB"   --actor central-orchestrator --receipt "$REPLAY_RECEIPT" --apply   >"$WORK/replay.out" 2>"$WORK/replay.err"
 python3 - "$REPLAY_RECEIPT" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1],encoding="utf-8"))
 assert x["status"]=="IDEMPOTENT" and x["applied"] is False,x
 print("CHACHA_DEV_V642_REAL_ADOPTION_IDEMPOTENCE=PASS")
 PY
-EXPERIENCE_COUNT_AFTER="$(sqlite3 "$EXPERIENCE_DB" "SELECT COUNT(*) FROM experience WHERE project_id='$PROJECT' AND learner='capability-durable-adoption';")"
+EXPERIENCE_COUNT_AFTER="$(python3 - "$EXPERIENCE_DB" "$PROJECT" <<'PY'
+import sqlite3,sys
+db=sqlite3.connect(sys.argv[1])
+print(db.execute("SELECT COUNT(*) FROM experience WHERE project_id=? AND learner='capability-durable-adoption'",(sys.argv[2],)).fetchone()[0])
+PY
+)"
 [ "$EXPERIENCE_COUNT_BEFORE" = "$EXPERIENCE_COUNT_AFTER" ] || {
   echo "CHACHA_DEV_V642_INSTALL=BLOCKED reason=idempotent_replay_duplicated_memory"; exit 31;
 }
 
 stage synthetic-adoption-rollback
-ROLLBACK_RECEIPT="$ADOPTION_EVIDENCE_ROOT/$PROJECT-rollback.json"
+ROLLBACK_RECEIPT="$PROOF_DIR/rollback.json"
 python3 "$RELEASE/dev-hub/bin/durable-capability-registry.py" rollback   --registry "$DURABLE_REGISTRY"   --adoption-id "$ADOPTION_ID"   --actor central-orchestrator   --receipt "$ROLLBACK_RECEIPT" --apply >"$WORK/rollback.out" 2>"$WORK/rollback.err"
 ROLLED_BACK=1
 
