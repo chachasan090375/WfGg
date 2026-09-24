@@ -362,7 +362,7 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
             if not x or x.get("schema")!=required_schema:continue
             aid=str(x.get("subject_agent") or "")
             if aid not in agg or (eligible and aid not in eligible):continue
-            if str(x.get("verifier") or "") not in allowed_verifiers or str(x.get("verifier") or "")==aid:continue
+            if str(x.get("verifier") or "")!=required_verifier or str(x.get("verifier") or "")==aid:continue
             if str(x.get("verification") or "")!=required_verification:continue
             if str(x.get("verification_scope") or "")!=required_scope:continue
             if x.get("production_truth_eligible") is not True:continue
