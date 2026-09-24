@@ -6,6 +6,7 @@ on:
       - dev-hub-v642-durable-capability-adoption
     paths:
       - 'dev-hub/bin/durable-capability-registry.py'
+      - 'dev-hub/bin/install-v642-durable-capability-adoption.sh'
       - 'dev-hub/bin/autonomous-project-orchestrator.py'
       - 'dev-hub/config/durable-capability-adoption.v1.json'
       - 'dev-hub/tests/test_v642_durable_capability_adoption.py'
@@ -35,6 +36,7 @@ jobs:
           set -euo pipefail
           python3 -m py_compile             dev-hub/bin/durable-capability-registry.py             dev-hub/bin/autonomous-project-orchestrator.py
           python3 -m json.tool dev-hub/config/durable-capability-adoption.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v642-durable-capability-adoption.sh
 
       - name: V6.42 durable adoption end to end
         run: |
@@ -88,5 +90,6 @@ jobs:
             echo 'ROLLBACK_FORENSICS_RETAINED=YES'
             echo 'PROTECTED_ADOPTION_HUMAN_BOUNDARY=YES'
             echo 'DURABLE_REGISTRY_MERGED_BEFORE_GAPS=YES'
+            echo 'REAL_VPS_PILOT_INSTALLER=VALIDATED'
             echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
           } | tee /tmp/v642-qualification-receipt.txt
