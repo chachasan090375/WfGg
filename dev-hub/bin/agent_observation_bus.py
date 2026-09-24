@@ -28,6 +28,13 @@ def default_policy()->dict[str,Any]:
 def default_runtime_root()->Path:
     return Path("/opt/chacha-dev/runtime")
 
+def runtime_revision()->str:
+    p=Path("/opt/chacha-dev/platform/current/.revision")
+    if p.is_file():
+        value=p.read_text(encoding="utf-8").strip()
+        if value:return value
+    return "NON_RUNTIME"
+
 def db_path(runtime_root:Path,policy:dict[str,Any])->Path:
     raw=str(((policy.get("storage") or {}).get("database") or "agent-observation/observations.db"))
     p=Path(raw)
@@ -94,8 +101,13 @@ def validate_event(event:dict[str,Any],policy:dict[str,Any])->None:
         raise ValueError("AGENT_OBSERVATION_EVIDENCE_REFS_INVALID")
 
 def trigger_type(event:dict[str,Any],policy:dict[str,Any])->str|None:
-    if str(event.get("verification") or "")!="VERIFIED":return None
     et=str(event.get("event_type") or "")
+    self_cfg=(policy.get("triggers") or {}).get("self_reassessment_request") or {}
+    if (self_cfg.get("allowed") is True and et==str(self_cfg.get("event_type") or "AGENT_REASSESSMENT_REQUEST")
+        and str(event.get("verification") or "")=="SELF_ASSERTED"
+        and str(event.get("source_id") or "")==str(event.get("subject_role") or "")):
+        return et
+    if str(event.get("verification") or "")!="VERIFIED":return None
     direct=set((policy.get("triggers") or {}).get("event_types") or [])
     if et in direct:return et
     outcome=str(event.get("outcome") or "").upper()
@@ -109,6 +121,7 @@ def write_trigger(event:dict[str,Any],policy:dict[str,Any],runtime_root:Path)->d
     trig=trigger_type(event,policy)
     if not trig:return None
     root=queue_root(runtime_root,policy);root.mkdir(parents=True,exist_ok=True)
+    self_request=(trig=="AGENT_REASSESSMENT_REQUEST" and str(event.get("source_id") or "")==str(event.get("subject_role") or ""))
     request={
       "schema":"chacha.dev/agent-reassessment-request/v1",
       "request_id":"reassess-"+str(event["event_id"]),
@@ -119,7 +132,9 @@ def write_trigger(event:dict[str,Any],policy:dict[str,Any],runtime_root:Path)->d
       "source_event_digest":event["event_digest"],
       "observed_at":event["observed_at"],
       "severity":event.get("severity"),
-      "action":"REASSESS",
+      "action":"REQUEST_REASSESSMENT" if self_request else "REASSESS",
+      "self_request":self_request,
+      "metric_authority":False,
       "direct_agent_mutation":False,
       "direct_candidate_materialization":False,
       "candidate_owner":"agent-foundry",
@@ -194,6 +209,10 @@ def main()->int:
     p=sub.add_parser("publish");p.add_argument("--event",type=Path,required=True)
     sub.add_parser("verify")
     l=sub.add_parser("list");l.add_argument("--subject-role")
+    rq=sub.add_parser("request-reassessment")
+    rq.add_argument("--agent-id",required=True);rq.add_argument("--project-id",required=True)
+    rq.add_argument("--revision",required=True);rq.add_argument("--reason",default="agent-request")
+    rq.add_argument("--evidence-ref",required=True)
     a=ap.parse_args();policy=load(a.policy) if a.policy else default_policy()
     if a.cmd=="publish":
         out=publish(load(a.event),policy,a.runtime_root);print(json.dumps(out,ensure_ascii=False))
@@ -202,6 +221,14 @@ def main()->int:
     if a.cmd=="verify":
         out=verify_chain(a.runtime_root,policy);print(json.dumps(out,ensure_ascii=False))
         print("CHACHA_DEV_V648_OBSERVATION_CHAIN="+out["status"]);return 0 if out["status"]=="PASS" else 2
+    if a.cmd=="request-reassessment":
+        event={"schema":SCHEMA,"event_id":"aobs-self-request-"+uuid.uuid4().hex,
+          "event_type":"AGENT_REASSESSMENT_REQUEST","source_id":a.agent_id,"source_surface":"agent-self",
+          "project_id":a.project_id,"revision":a.revision,"subject_role":a.agent_id,
+          "outcome":"REQUEST","verification":"SELF_ASSERTED","capabilities":[],
+          "evidence_refs":[a.evidence_ref],"details":{"reason":a.reason}}
+        out=publish(event,policy,a.runtime_root);print(json.dumps(out,ensure_ascii=False))
+        print("CHACHA_DEV_V648_AGENT_SELF_REASSESSMENT_REQUEST=PASS");return 0
     rows=read_events(a.runtime_root,policy,a.subject_role);print(json.dumps(rows,ensure_ascii=False));return 0
 
 if __name__=="__main__":raise SystemExit(main())

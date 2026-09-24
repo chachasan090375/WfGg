@@ -26,7 +26,7 @@ with tempfile.TemporaryDirectory(prefix="v648-observation-bus-") as td:
     # Self-assertion can never promote itself to VERIFIED.
     self_evt={
       "event_id":"self-1","event_type":"TASK_RESULT_VERIFIED","source_id":"test-engineer","source_surface":"agent-self",
-      "project_id":"p1","subject_role":"test-engineer","outcome":"OK","verification":"VERIFIED",
+      "project_id":"p1","revision":"sha-test","subject_role":"test-engineer","outcome":"OK","verification":"VERIFIED",
       "capabilities":["unit-test-js"],"evidence_refs":["self:evidence"]
     }
     s=bus.publish(self_evt,policy,rt)
@@ -42,7 +42,7 @@ with tempfile.TemporaryDirectory(prefix="v648-observation-bus-") as td:
     # Independent Project Control verification is accepted.
     verified={
       "event_id":"verified-1","event_type":"TASK_RESULT_VERIFIED","source_id":"project-control","source_surface":"project-control:verification-broker",
-      "project_id":"p1","subject_role":"test-engineer","outcome":"OK","verification":"VERIFIED",
+      "project_id":"p1","revision":"sha-test","subject_role":"test-engineer","outcome":"OK","verification":"VERIFIED",
       "capabilities":["unit-test-js","e2e-test-web"],"evidence_refs":["verified:/tmp/result","report:/tmp/report"]
     }
     v=bus.publish(verified,policy,rt)
@@ -65,14 +65,24 @@ with tempfile.TemporaryDirectory(prefix="v648-observation-bus-") as td:
     # Technology Watch material delta can request reassessment.
     tw={
       "event_id":"tw-delta-1","event_type":"TECHNOLOGY_WATCH_MATERIAL_DELTA","source_id":"technology-watch-agent",
-      "source_surface":"technology-watch","project_id":"platform-global","subject_role":"backend-api-architect",
+      "source_surface":"technology-watch","project_id":"platform-global","revision":"sha-test","subject_role":"backend-api-architect",
       "outcome":"CHANGE","verification":"VERIFIED","capabilities":["library-docs"],"evidence_refs":["technology-watch:delta"]
     }
     t=bus.publish(tw,policy,rt)
     assert t["trigger"]["trigger_type"]=="TECHNOLOGY_WATCH_MATERIAL_DELTA",t
 
+    self_request={"event_id":"self-request-1","event_type":"AGENT_REASSESSMENT_REQUEST",
+      "source_id":"bastion","source_surface":"agent-self","project_id":"p1","revision":"sha-test",
+      "subject_role":"bastion","outcome":"REQUEST","verification":"SELF_ASSERTED",
+      "capabilities":["fake-capability"],"evidence_refs":["agent-request:1"],"details":{"reason":"new architecture idea"}}
+    sr=bus.publish(self_request,policy,rt)
+    assert sr["trigger"]["trigger_type"]=="AGENT_REASSESSMENT_REQUEST",sr
+    srq=load(Path(sr["trigger"]["path"]))
+    assert srq["self_request"] is True and srq["metric_authority"] is False,srq
+    assert srq["action"]=="REQUEST_REASSESSMENT",srq
+
     chain=bus.verify_chain(rt,policy)
-    assert chain["status"]=="PASS" and chain["event_count"]==5,chain
+    assert chain["status"]=="PASS" and chain["event_count"]==6,chain
     assert (rt/"agent-observation/observations.db").is_file()
     assert not Path("/opt/chacha-dev/runtime/agent-observation/observations.db").exists() or str(rt)!="/opt/chacha-dev/runtime"
 
@@ -86,6 +96,8 @@ with tempfile.TemporaryDirectory(prefix="v648-observation-bus-") as td:
     assert tm["dimensions"]["handoff_quality"]["value"]==50.0,tm
     # Self-asserted event does not count as handoff verification.
     assert tm["signals"]["handoff_total"]==2,tm
+    bm=metrics["bastion"]
+    assert "fake-capability" not in bm["signals"]["observed_capabilities"],bm
 
     # No fabricated scores for still-unmeasured dimensions.
     sc=aec.score("test-engineer",tm,evo)
@@ -100,6 +112,10 @@ print("CHACHA_DEV_V648_HASH_CHAIN=PASS")
 print("CHACHA_DEV_V648_ISOLATED_RUNTIME_STORAGE=PASS")
 print("CHACHA_DEV_V648_VERIFIED_FAILURE_REASSESSMENT_TRIGGER=PASS")
 print("CHACHA_DEV_V648_TECHNOLOGY_WATCH_DELTA_TRIGGER=PASS")
+print("CHACHA_DEV_V648_AGENT_SELF_REASSESSMENT_REQUEST=PASS")
+print("CHACHA_DEV_V648_SELF_REQUEST_METRIC_AUTHORITY=NO")
+print("CHACHA_DEV_V648_SELF_ASSERTED_COVERAGE_INFLATION=NO")
+print("CHACHA_DEV_V648_EXACT_REVISION_LINEAGE=PASS")
 print("CHACHA_DEV_V648_DIRECT_AGENT_MUTATION=NO")
 print("CHACHA_DEV_V648_DIRECT_CANDIDATE_MATERIALIZATION=NO")
 print("CHACHA_DEV_V648_COVERAGE_FROM_OBSERVATION_BUS=PASS")

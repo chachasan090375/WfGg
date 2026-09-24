@@ -996,6 +996,7 @@ def verify_result_operation(project: str, result_path: Path, graph: Path, method
               "source_id":"project-control",
               "source_surface":"project-control:verification-broker",
               "project_id":project,
+              "revision":aob.runtime_revision(),
               "task_id":task_id,
               "subject_role":owner_role,
               "outcome":str(verified_value.get("status") or "UNKNOWN").upper(),

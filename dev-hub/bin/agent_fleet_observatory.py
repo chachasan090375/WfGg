@@ -131,10 +131,13 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
             aid=normalize_role(str(event.get("subject_role") or ""),ids,policy)
             if not aid:continue
             a=agg[aid]
-            for cap in event.get("capabilities") or []:
-                if str(cap):a["observed_capabilities"].add(str(cap))
-            a["refs"]["coverage"].append("agent-observation:"+str(event.get("event_id") or ""))
-            if str(event.get("event_type") or "")=="TASK_RESULT_VERIFIED" and str(event.get("verification") or "")=="VERIFIED":
+            independent=str(event.get("source_id") or "")!=str(event.get("subject_role") or "")
+            verification=str(event.get("verification") or "")
+            if independent and verification in {"OBSERVED","VERIFIED"}:
+                for cap in event.get("capabilities") or []:
+                    if str(cap):a["observed_capabilities"].add(str(cap))
+                if event.get("capabilities"):a["refs"]["coverage"].append("agent-observation:"+str(event.get("event_id") or ""))
+            if independent and str(event.get("event_type") or "")=="TASK_RESULT_VERIFIED" and verification=="VERIFIED":
                 a["handoff_total"]+=1
                 if str(event.get("outcome") or "").upper()=="OK":a["handoff_ok"]+=1
                 a["refs"]["handoff_quality"].append("agent-observation:"+str(event.get("event_id") or ""))

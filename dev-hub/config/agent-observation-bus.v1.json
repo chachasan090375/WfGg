@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-observation-bus-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "purpose": "Collect evidence-backed agent observations at common ChaCha DEV boundaries and trigger reassessment without self-mutation.",
   "storage": {
     "database": "agent-observation/observations.db",
@@ -37,12 +37,12 @@
       "source_surface",
       "project_id",
       "subject_role",
-      "outcome"
+      "outcome",
+      "revision"
     ],
     "optional": [
       "run_id",
       "task_id",
-      "revision",
       "capabilities",
       "severity",
       "details"
@@ -78,7 +78,15 @@
     "direct_agent_mutation": false,
     "direct_candidate_materialization": false,
     "candidate_owner": "agent-foundry",
-    "architecture_council_final_authority": true
+    "architecture_council_final_authority": true,
+    "self_reassessment_request": {
+      "allowed": true,
+      "event_type": "AGENT_REASSESSMENT_REQUEST",
+      "requires_self_source": true,
+      "verification": "SELF_ASSERTED",
+      "metric_authority": false,
+      "direct_agent_mutation": false
+    }
   },
   "boundaries": {
     "run_controller": {

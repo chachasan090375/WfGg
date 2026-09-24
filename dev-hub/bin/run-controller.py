@@ -381,6 +381,7 @@ def record_task_learning(task_rec:dict[str,Any],envelope:dict[str,Any])->dict[st
           "source_id":"run-controller",
           "source_surface":"run-controller",
           "project_id":str(envelope.get("project") or "platform-global"),
+          "revision":aob.runtime_revision(),
           "run_id":str(envelope.get("run_id") or ""),
           "task_id":str(task.get("id") or ""),
           "subject_role":subject,
