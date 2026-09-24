@@ -320,6 +320,30 @@
       ]
     },
     {
+      "contract_id": "role:platform-component-promotion-gate",
+      "kind": "role",
+      "allowed_actions": [
+        "VERIFY_PROMOTION_APPROVAL",
+        "REPORT_PROMOTION_GATE"
+      ],
+      "forbidden_actions": [
+        "PRODUCTION_DEPLOY",
+        "PROMOTE_COMPONENT",
+        "MODIFY_GUARDIAN_CONTRACTS",
+        "EXPAND_PERMISSIONS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "required_evidence": [
+        "architecture-council-review",
+        "project-control-ready",
+        "human-approval-ledger",
+        "human-approval-projection"
+      ]
+    },
+    {
       "contract_id": "role:reusable-memory",
       "kind": "role",
       "allowed_actions": [
