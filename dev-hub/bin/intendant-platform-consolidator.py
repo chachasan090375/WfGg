@@ -59,6 +59,19 @@ def latest_for_revision(rows:list[dict[str,Any]],revision:str)->dict[str,Any]|No
     hits=[x for x in rows if x["revision"]==revision]
     return sorted(hits,key=lambda x:x["name"])[-1] if hits else None
 
+def verified_revisions(evidence_root:Path)->set[str]:
+    out=set()
+    if not evidence_root.is_dir():return out
+    for p in evidence_root.rglob("*.json"):
+        try:
+            x=load(p)
+        except Exception:
+            continue
+        rev=str(x.get("revision") or "")
+        if len(rev)==40 and all(ch in "0123456789abcdef" for ch in rev.lower()):
+            out.add(rev.lower())
+    return out
+
 def approval_ok(path:Path|None,active_revision:str)->tuple[bool,list[str]]:
     if path is None or not path.is_file():return False,["APPROVAL_RECEIPT_MISSING"]
     x=load(path);errors=[]
@@ -73,7 +86,7 @@ def approval_ok(path:Path|None,active_revision:str)->tuple[bool,list[str]]:
     if x.get("destructive_apply_authorized") is not True:errors.append("DESTRUCTIVE_APPLY_NOT_AUTHORIZED")
     return not errors,errors
 
-def build_plan(platform_root:Path,policy:dict[str,Any])->dict[str,Any]:
+def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=None)->dict[str,Any]:
     releases_root=platform_root/"releases";current=platform_root/"current"
     active=current.resolve() if current.is_symlink() else None
     rows=[]
@@ -90,13 +103,27 @@ def build_plan(platform_root:Path,policy:dict[str,Any])->dict[str,Any]:
     if active:
         protected_paths.add(active_path);reasons[active_path]="ACTIVE_RELEASE"
     retention=policy.get("physical_release_retention") or {}
-    missing_rollbacks=[]
-    for rev in retention.get("keep_verified_rollback_revisions") or []:
+    slots=int(retention.get("rollback_slots") or 2)
+    strategy=str(retention.get("rollback_selection_strategy") or "MOST_RECENT_VERIFIED_PRIOR_RELEASES")
+    evidence_root=evidence_root or Path(str(retention.get("verification_evidence_root") or "/opt/chacha-dev/evidence"))
+    verified=verified_revisions(evidence_root)
+    selected=[]
+    if strategy=="MOST_RECENT_VERIFIED_PRIOR_RELEASES":
+        seen=set()
+        for row in sorted(rows,key=lambda x:x["name"],reverse=True):
+            rev=str(row.get("revision") or "").lower()
+            if row["path"]==active_path or not rev or rev in seen or rev not in verified:continue
+            selected.append(row);seen.add(rev)
+            if len(selected)>=slots:break
+    for rev in retention.get("fallback_verified_rollback_revisions") or []:
+        if len(selected)>=slots:break
         hit=latest_for_revision(rows,str(rev))
-        if hit:
-            protected_paths.add(hit["path"])
-            reasons.setdefault(hit["path"],"VERIFIED_ROLLBACK")
-        else:missing_rollbacks.append(str(rev))
+        if hit and hit["path"]!=active_path and all(x["path"]!=hit["path"] for x in selected):
+            selected.append(hit)
+    for hit in selected[:slots]:
+        protected_paths.add(hit["path"])
+        reasons.setdefault(hit["path"],"VERIFIED_ROLLBACK")
+    missing_rollbacks=max(0,slots-len(selected))
     for row in rows:
         if row["path"] in protected_paths:
             row["action"]="KEEP";row["reason"]=reasons[row["path"]]
@@ -112,7 +139,10 @@ def build_plan(platform_root:Path,policy:dict[str,Any])->dict[str,Any]:
       "bytes_before":sum(x["size_bytes"] for x in rows),
       "bytes_retirable":sum(x["size_bytes"] for x in retire),
       "estimated_bytes_after":sum(x["size_bytes"] for x in keep),
-      "missing_verified_rollback_revisions":missing_rollbacks,
+      "rollback_slots":slots,
+      "selected_rollback_revisions":[str(x.get("revision") or "") for x in selected[:slots]],
+      "verified_revision_count":len(verified),
+      "missing_verified_rollback_count":missing_rollbacks,
       "rows":rows,
       "git_history_preserved":True,"remote_branch_deletion":False,
       "canonical_observation_bus_rewrite":False,"benchmark_evidence_mutation":False,
@@ -122,8 +152,9 @@ def build_plan(platform_root:Path,policy:dict[str,Any])->dict[str,Any]:
 
 def apply_plan(plan:dict[str,Any],policy:dict[str,Any],approval:Path|None,archive:Path,explicit:bool)->dict[str,Any]:
     if not explicit:raise SystemExit("EXPLICIT_APPLY_FLAG_REQUIRED")
-    if str(plan.get("active_version") or "")!="7.0.0":raise SystemExit("V7_ACTIVE_RUNTIME_REQUIRED")
-    if plan.get("missing_verified_rollback_revisions"):raise SystemExit("VERIFIED_ROLLBACK_RELEASE_MISSING")
+    active_version=str(plan.get("active_version") or "")
+    if not active_version.startswith("7."):raise SystemExit("V7_ACTIVE_RUNTIME_REQUIRED")
+    if int(plan.get("missing_verified_rollback_count") or 0)>0:raise SystemExit("VERIFIED_ROLLBACK_RELEASE_MISSING")
     ok,errors=approval_ok(approval,str(plan.get("active_revision") or ""))
     if not ok:raise SystemExit("APPROVAL_BLOCK:"+",".join(errors))
     rows=plan.get("rows") or []
@@ -166,7 +197,10 @@ def main()->int:
     ap.add_argument("--apply",action="store_true")
     ap.add_argument("--explicit-destructive-apply",action="store_true")
     a=ap.parse_args()
-    policy=load(a.policy.resolve());plan=build_plan(a.platform_root.resolve(),policy)
+    policy=load(a.policy.resolve())
+    retention=policy.get("physical_release_retention") or {}
+    evidence_root=Path(str(retention.get("verification_evidence_root") or "/opt/chacha-dev/evidence"))
+    plan=build_plan(a.platform_root.resolve(),policy,evidence_root)
     if a.apply:
         archive=a.archive_manifest or (a.output.parent/"platform-retirement-archive.json")
         plan=apply_plan(plan,policy,a.approval,archive.resolve(),a.explicit_destructive_apply)
