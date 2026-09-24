@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/platform-component-apply-adapter-registry/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scope": "PLATFORM_GLOBAL",
   "default_admission": "DENY",
   "principles": {
@@ -19,7 +19,11 @@
     "sentinel_post_apply_exact_sha_required": true,
     "central_orchestrator_apply_authority": true,
     "automatic_apply_forbidden": true,
-    "automatic_external_spend_eur": 0
+    "automatic_external_spend_eur": 0,
+    "trusted_executable_root": "/opt/chacha-dev/adapters/platform-component",
+    "fixed_operation_protocol": true,
+    "shell_interpolation_forbidden": true,
+    "single_use_central_handoff_required": true
   },
   "adapters": {}
 }
