@@ -1,0 +1,67 @@
+{
+  "schema": "chacha.dev/durable-capability-adoption-policy/v1",
+  "version": "1.0.0",
+  "purpose": "Promote verified project-local capabilities into a release-independent durable runtime registry and make them reusable by later projects without reconstruction.",
+  "runtime_registry_default": "/opt/chacha-dev/runtime/registries/durable-capability-adoptions.v1.json",
+  "source_archive_default": "/opt/chacha-dev/runtime/capability-adoption/sources",
+  "evidence_root_default": "/opt/chacha-dev/runtime/capability-adoption/evidence",
+  "requirements": {
+    "project_success_required": true,
+    "verification_status_required": "VERIFIED",
+    "build_result_status_required": "PASS",
+    "built_adapter_status_required": "ENABLED",
+    "same_project_resume_required": true,
+    "durable_adoption_pending_required": true,
+    "source_digest_required": true,
+    "sandbox_executable_digest_required": true,
+    "rollback_evidence_required": true,
+    "technology_watch_revalidated_required": true,
+    "architecture_council_approved_required": true,
+    "zero_automatic_external_spend_required": true,
+    "no_raw_user_content": true,
+    "no_secret_values": true,
+    "nonproduction_auto_adoption_only": true,
+    "production_capability_requires_human_approval": true,
+    "credential_boundary_requires_human_approval": true,
+    "network_capability_requires_human_approval": true,
+    "durable_adapter_reprobe_required": true,
+    "experience_event_required": true,
+    "central_memory_refresh_required": true
+  },
+  "protected_adapter_permissions": [
+    "production-deploy",
+    "production-data-write",
+    "secret-change",
+    "destructive-operation",
+    "technology-replacement"
+  ],
+  "durable_capability_provider_status": "ADOPT",
+  "durable_adapter_status": "ENABLED",
+  "source_archive_mode": "0644",
+  "transaction": {
+    "single_registry_file": true,
+    "atomic_replace": true,
+    "fsync_file": true,
+    "fsync_directory": true,
+    "idempotent_by_adoption_id": true,
+    "conflict_behavior": "BLOCK",
+    "rollback_keeps_adapter_binary_for_forensics": true
+  },
+  "reuse": {
+    "merge_before_capability_gap_detection": true,
+    "merge_before_foundry_closure": true,
+    "expose_active_provider_registry": true,
+    "expose_active_capability_registry": true,
+    "technology_watch_still_mandatory_via_architecture_council": true,
+    "rebuild_if_durable_entry_exists": false
+  },
+  "memory": {
+    "producer": "experience-ledger",
+    "learner": "capability-durable-adoption",
+    "outcome": "success",
+    "acceptance_score": 1,
+    "central_memory_remains_advisory": true,
+    "single_project_success_not_global_trust": true
+  },
+  "automatic_external_spend_eur": 0
+}
