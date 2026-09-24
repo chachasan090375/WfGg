@@ -1,0 +1,53 @@
+{
+  "schema": "chacha.dev/platform-component-branch-foundry-source-integrator/v1",
+  "version": "1.0.0",
+  "adapter_id": "branch-foundry-source-integrator-v1",
+  "candidate_owner": "branch-foundry",
+  "mode": "SOURCE_RELEASE_CANDIDATE_INTEGRATION",
+  "repository": {
+    "default_path": "/opt/chacha-dev/source-integration/WfGg.git",
+    "qualification_override_env": "CHACHA_PLATFORM_SOURCE_INTEGRATION_REPO",
+    "bare_repository_required": true,
+    "working_tree_mutation_forbidden": true,
+    "network_access_forbidden": true,
+    "push_forbidden": true,
+    "fetch_forbidden": true,
+    "merge_forbidden": true,
+    "checkout_forbidden": true,
+    "production_branch_mutation_forbidden": true
+  },
+  "refs": {
+    "prefix": "refs/chacha-dev/release-candidates",
+    "component_id_pattern": "^[a-z0-9](?:[a-z0-9-]{0,126}[a-z0-9])?$",
+    "candidate_revision_pattern": "^[0-9a-f]{40}$",
+    "incumbent_revision_pattern": "^[0-9a-f]{40}$",
+    "candidate_must_descend_from_incumbent": true,
+    "existing_different_ref_fails_closed": true,
+    "exact_ref_delete_only_on_rollback": true
+  },
+  "operations": {
+    "allowed": [
+      "apply",
+      "rollback"
+    ],
+    "fixed_argv": true,
+    "shell_interpolation": false,
+    "json_stdin_stdout": true
+  },
+  "receipts": {
+    "apply_schema": "chacha.dev/platform-component-source-integration-receipt/v1",
+    "rollback_schema": "chacha.dev/platform-component-source-integration-rollback/v1",
+    "rollback_token_algorithm": "sha256-canonical-binding"
+  },
+  "safety": {
+    "reversible": true,
+    "exact_revision_enforced": true,
+    "direct_runtime_mutation": false,
+    "production_activation": false,
+    "production_deployment": false,
+    "merge_to_production_branch": false,
+    "automatic_apply": false,
+    "secrets_required": false,
+    "automatic_external_spend_eur": 0
+  }
+}
