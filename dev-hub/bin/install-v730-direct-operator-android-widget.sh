@@ -230,7 +230,20 @@ systemctl enable chacha-dev-direct-operator.service >/dev/null
 systemctl restart chacha-dev-direct-operator.service
 SERVICE_INSTALLED=1
 systemctl is-active --quiet chacha-dev-direct-operator.service
-curl -fsS http://127.0.0.1:8792/healthz >"$WORK/health.json"
+ready=0
+for _ in $(seq 1 40); do
+  if curl -fsS --max-time 2 http://127.0.0.1:8792/healthz >"$WORK/health.json" 2>/dev/null; then
+    ready=1
+    break
+  fi
+  sleep .25
+done
+[ "$ready" -eq 1 ] || {
+  systemctl status chacha-dev-direct-operator.service --no-pager -l >"$WORK/direct-operator-status.out" 2>&1 || true
+  journalctl -u chacha-dev-direct-operator.service -n 120 --no-pager >"$WORK/direct-operator-journal.out" 2>&1 || true
+  echo "CHACHA_DEV_V730_DIRECT_OPERATOR_READINESS=TIMEOUT"
+  exit 75
+}
 python3 - "$WORK/health.json" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1]));assert x.get("status")=="PASS",x
