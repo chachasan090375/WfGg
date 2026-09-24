@@ -1,0 +1,87 @@
+name: ChaCha DEV V6.64 real instrumented project and Acceptance Council gate qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v664-real-instrumented-project-acceptance-review-gate
+    paths:
+      - 'dev-hub/bin/install-v664-real-instrumented-project-acceptance-review.sh'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/bin/contract-registry.py'
+      - 'dev-hub/bin/integration-architecture-review.py'
+      - 'dev-hub/bin/architecture-council-agent-candidate-review-v664.py'
+      - 'dev-hub/config/architecture-decision-council.v1.json'
+      - 'dev-hub/tests/test_v664_real_instrumented_project_acceptance_council.py'
+      - '.github/workflows/dev-hub-v664-real-instrumented-project-acceptance-review.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          if [ -f dev-hub/bin/install-v664-real-instrumented-project-acceptance-review.sh ]; then
+            bash -n dev-hub/bin/install-v664-real-instrumented-project-acceptance-review.sh
+          fi
+          python3 -m py_compile             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/contract-registry.py             dev-hub/bin/integration-architecture-review.py             dev-hub/bin/architecture-council-agent-candidate-review-v664.py             dev-hub/tests/test_v664_real_instrumented_project_acceptance_council.py
+          python3 -m json.tool dev-hub/config/architecture-decision-council.v1.json >/dev/null
+          grep -Fq '"version":"6.64.0"' dev-hub/bin/autonomous-project-orchestrator.py
+      - name: V6.64 semantic qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v664_real_instrumented_project_acceptance_council.py | tee /tmp/v664.out
+          grep -Fq 'CHACHA_DEV_V664_PROJECT_BOUND_STAGE_EVIDENCE=PASS' /tmp/v664.out
+          grep -Fq 'CHACHA_DEV_V664_CONTRACT_INTEGRATOR_OBSERVATION=PASS' /tmp/v664.out
+          grep -Fq 'CHACHA_DEV_V664_INTEGRATION_ARCHITECT_OBSERVATION=PASS' /tmp/v664.out
+          grep -Fq 'CHACHA_DEV_V664_ACTIVITY_ACCURACY_INFERENCE=NO' /tmp/v664.out
+          grep -Fq 'CHACHA_DEV_V664_ACCEPTANCE_ARCHITECTURE_COUNCIL_REVIEW=PASS' /tmp/v664.out
+          grep -Fq 'CHACHA_DEV_V664_ACCEPTANCE_TECHNICAL_ADMISSIBILITY=PASS' /tmp/v664.out
+          grep -Fq 'CHACHA_DEV_V664_HUMAN_PROMOTION_APPROVAL_PRESENT=NO' /tmp/v664.out
+          grep -Fq 'CHACHA_DEV_V664_ACCEPTANCE_PRODUCTION_ACTIVATION=NO' /tmp/v664.out
+          grep -Fq 'CHACHA_DEV_V664_ACCEPTANCE_PROMOTION=NO' /tmp/v664.out
+          grep -Fq 'CHACHA_DEV_V664_RADAR_PROJECT_ONLY=PASS' /tmp/v664.out
+          grep -Fq 'CHACHA_DEV_V664_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v664.out
+      - name: V6.63 regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v663_runtime_surface_instrumentation_readiness.py >/tmp/v663.out
+          grep -Fq 'CHACHA_DEV_V663_RADAR_PROJECT_ATTRIBUTION_GUARD=PASS' /tmp/v663.out
+          grep -Fq 'CHACHA_DEV_V663_RADAR_SRE_RELEASE_CREDIT=NO' /tmp/v663.out
+          grep -Fq 'CHACHA_DEV_V663_CONTRACT_INTEGRATOR_RUNTIME_STAGE=PASS' /tmp/v663.out
+          grep -Fq 'CHACHA_DEV_V663_INTEGRATION_ARCHITECT_RUNTIME_STAGE=PASS' /tmp/v663.out
+          grep -Fq 'CHACHA_DEV_V663_ACCEPTANCE_PRODUCTION_ACTIVATION=NO' /tmp/v663.out
+          grep -Fq 'CHACHA_DEV_V663_ACCEPTANCE_PROMOTION=NO' /tmp/v663.out
+      - name: V6.60 accuracy regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v660_independent_accuracy_attestation.py >/tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_GUARDIAN_INDEPENDENT_ACCURACY=PASS' /tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_SENTINEL_GITHUB_RUN_JOB_ARTIFACT_ACCURACY=PASS' /tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_ACCEPTANCE_RECOMPUTED_ACCURACY=PASS' /tmp/v660.out
+      - name: Qualification receipt
+        run: |
+          echo CHACHA_DEV_V664_QUALIFICATION=PASS
+          echo REAL_INSTRUMENTED_PROJECT_CONTRACT=PASS
+          echo CONTRACT_INTEGRATOR_OBSERVATION=PASS
+          echo INTEGRATION_ARCHITECT_OBSERVATION=PASS
+          echo ACTIVITY_ACCURACY_INFERENCE=NO
+          echo ACCEPTANCE_COUNCIL_REVIEW=PASS
+          echo ACCEPTANCE_TECHNICAL_ADMISSIBILITY=PASS
+          echo HUMAN_PROMOTION_APPROVAL_PRESENT=NO
+          echo ACCEPTANCE_PRODUCTION_ACTIVATION=NO
+          echo ACCEPTANCE_PROMOTION=NO
+          echo RADAR_PROJECT_ONLY=YES
+          echo SELF_MUTATION=NO
+          echo SELF_PROMOTION=NO
+          echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
