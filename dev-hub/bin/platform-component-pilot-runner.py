@@ -173,7 +173,7 @@ def execute(contract:dict[str,Any],sentinel_receipt:dict[str,Any],repo_root:Path
     run_id="pcp-"+time.strftime("%Y%m%dT%H%M%SZ",time.gmtime())+"-"+uuid.uuid4().hex[:8]
     rr=run_root/run_id;rr.mkdir(parents=True,exist_ok=True)
     guardian_provider=guardian_provider or guardian_event
-    guardian_provider(repo_root,rr,"PRE_ACTION",contract)
+    guardian_pre=guardian_provider(repo_root,rr,"PRE_ACTION",contract)
     inc=run_variant(contract,run_id,"INCUMBENT",str(contract["incumbent_artifact_ref"]),rr,executor)
     if stop_active(DEFAULT_STOP):raise RuntimeError("CHACHA_DEV_EMERGENCY_STOP_ACTIVE")
     cand=run_variant(contract,run_id,"CANDIDATE",str(contract["candidate_artifact_ref"]),rr,executor)
@@ -184,11 +184,14 @@ def execute(contract:dict[str,Any],sentinel_receipt:dict[str,Any],repo_root:Path
       "component_id":contract.get("component_id"),"incumbent_revision":contract.get("incumbent_revision"),
       "candidate_revision":contract.get("candidate_revision"),"same_benchmark_contract":True,
       "isolated_ephemeral_capsules":True,"sentinel_exact_sha_receipt_digest":digest(sentinel_receipt),
+      "guardian_pre_pass":True,"guardian_pre_receipt_digest":digest(guardian_pre),
       "results":{"INCUMBENT":inc,"CANDIDATE":cand},"comparison":comparison,
       "council_handoff_required":True,"production_change_authorized":False,"promotion_authorized":False,
       "permission_expansion":False,"automatic_external_spend_eur":0}
+    guardian_post=guardian_provider(repo_root,rr,"POST_ACTION",contract,status)
+    result["guardian_post_pass"]=True
+    result["guardian_post_receipt_digest"]=digest(guardian_post)
     save(rr/"result.json",result)
-    guardian_provider(repo_root,rr,"POST_ACTION",contract,status)
     return result
 
 def main()->int:
