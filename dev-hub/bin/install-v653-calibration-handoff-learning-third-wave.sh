@@ -11,9 +11,17 @@ WORK="$(mktemp -d /tmp/chacha-v653.XXXXXX)"
 PREVIOUS=""
 ACTIVATED=0
 STAGE="bootstrap"
+COMPONENT_CONFIDENCE_TIMER="chacha-dev-component-confidence.timer"
+COMPONENT_CONFIDENCE_SERVICE="chacha-dev-component-confidence.service"
+COMPONENT_CONFIDENCE_TIMER_WAS_ACTIVE=0
 
 stage(){ STAGE="$1"; echo "CHACHA_DEV_V653_STAGE=$STAGE"; }
-cleanup(){ rm -rf "$WORK" 2>/dev/null || true; }
+restore_component_confidence_timer(){
+  if [ "$COMPONENT_CONFIDENCE_TIMER_WAS_ACTIVE" -eq 1 ]; then
+    systemctl start "$COMPONENT_CONFIDENCE_TIMER" >/dev/null 2>&1 || true
+  fi
+}
+cleanup(){ restore_component_confidence_timer; rm -rf "$WORK" 2>/dev/null || true; }
 rollback(){
   rc=$?
   if [ "$rc" -ne 0 ]; then
@@ -83,6 +91,23 @@ for marker in  CHACHA_DEV_V653_BENCHMARK_CONTRACT_COVERAGE=PASS  CHACHA_DEV_V653
 done
 echo "CHACHA_DEV_V653_SEMANTIC_QUALIFICATION=PASS"
 
+stage freeze-component-confidence-refresh
+if systemctl is-active --quiet "$COMPONENT_CONFIDENCE_TIMER"; then
+  COMPONENT_CONFIDENCE_TIMER_WAS_ACTIVE=1
+  systemctl stop "$COMPONENT_CONFIDENCE_TIMER"
+fi
+for _ in $(seq 1 30); do
+  if ! systemctl is-active --quiet "$COMPONENT_CONFIDENCE_SERVICE"; then
+    break
+  fi
+  sleep 1
+done
+if systemctl is-active --quiet "$COMPONENT_CONFIDENCE_SERVICE"; then
+  echo "CHACHA_DEV_V653_INSTALL=BLOCKED reason=component_confidence_refresh_did_not_quiesce"
+  exit 46
+fi
+echo "CHACHA_DEV_V653_COMPONENT_CONFIDENCE_REFRESH_FROZEN=PASS"
+
 stage canonical-baseline
 canon_hash(){ local p="$1"; if [ -f "$p" ]; then sha256sum "$p" | awk '{print $1}'; else printf 'ABSENT'; fi; }
 TRUST="/opt/chacha-dev/runtime/knowledge/component-confidence.json"
@@ -134,7 +159,17 @@ PY
 [ "$BUS_BEFORE" = "$(canon_hash "$BUS")" ] || { echo "CANONICAL_BUS_MUTATED_BY_BENCHMARK"; exit 45; }
 
 stage fleet-rebuild
-systemctl start chacha-dev-agent-fleet-observatory.service
+PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/agent_fleet_observatory.py" \
+  --repo-root "$CURRENT" \
+  --runtime-root /opt/chacha-dev/runtime \
+  --policy "$CURRENT/dev-hub/config/agent-fleet-observatory.v1.json" \
+  --evolution-policy "$CURRENT/dev-hub/config/agent-evolution.v1.json" \
+  --routing "$CURRENT/dev-hub/config/agent-routing.v1.json" \
+  --seven "$CURRENT/dev-hub/config/seven-agent-final-compromise.v1.json" \
+  --project-registry "$CURRENT/dev-hub/projects/wfgg-radar/project-agent-registry.v1.json" \
+  --output /opt/chacha-dev/runtime/agent-evolution/fleet-observatory-latest.json \
+  >"$WORK/fleet.out" 2>"$WORK/fleet.err"
+grep -Fq 'CHACHA_DEV_V647_AGENT_FLEET_OBSERVATORY=PASS' "$WORK/fleet.out"
 test -s /opt/chacha-dev/runtime/agent-evolution/fleet-observatory-latest.json
 python3 - /opt/chacha-dev/runtime/agent-evolution/fleet-observatory-latest.json <<'PY'
 import json,sys
@@ -175,6 +210,13 @@ stage canonical-isolation
 [ "$TW_BEFORE" = "$(canon_hash "$TW")" ] || { echo "CANONICAL_TW_MUTATED"; exit 43; }
 [ "$BUS_BEFORE" = "$(canon_hash "$BUS")" ] || { echo "CANONICAL_BUS_MUTATED"; exit 44; }
 echo "CHACHA_DEV_V653_REAL_CANONICAL_TRUST_DURABLE_TW_BUS_MUTATION=NO"
+restore_component_confidence_timer
+if [ "$COMPONENT_CONFIDENCE_TIMER_WAS_ACTIVE" -eq 1 ]; then
+  systemctl is-active --quiet "$COMPONENT_CONFIDENCE_TIMER"
+  echo "CHACHA_DEV_V653_COMPONENT_CONFIDENCE_TIMER_RESTORED=PASS"
+else
+  echo "CHACHA_DEV_V653_COMPONENT_CONFIDENCE_TIMER_RESTORED=NOT_PREVIOUSLY_ACTIVE"
+fi
 
 stage guardian-coverage
 PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/guardian-coverage-heartbeat.py"  --repo-root "$CURRENT" --manifest "$CURRENT/dev-hub/config/guardian-coverage-manifest.v1.json"  --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json"  --client "$CURRENT/dev-hub/bin/guardian-client.py"  --output /opt/chacha-dev/runtime/guardian/coverage-latest.json >"$WORK/guardian.out" 2>"$WORK/guardian.err"
