@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "3.6.0",
+  "version": "3.7.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 900,
   "action_lease_default_seconds": 300,
@@ -598,6 +598,17 @@
         "file": "dev-hub/bin/android_release_signer.py",
         "marker": "ANDROID_SIGNER_EXACT_SHA_GATES_MISSING"
       }
+    },
+    {
+      "component_id": "object-factory",
+      "role": "object-factory",
+      "kind": "factory",
+      "enforcement_point": "project-planner.object-factory-handoff",
+      "criticality": "HIGH",
+      "proof": {
+        "file": "dev-hub/bin/object-factory.py",
+        "marker": "SCHEMA=\"chacha.dev/object-factory-plan/v1\""
+      }
     }
   ],
   "safety_exemptions": [
@@ -609,8 +620,8 @@
   "automatic_external_spend_eur": 0,
   "d1_write_budget": {
     "coverage_heartbeat_interval_seconds": 300,
-    "expected_max_component_heartbeat_writes_per_day": 15552,
-    "calculation": "54 components * 12 heartbeats/hour * 24 hours",
+    "expected_max_component_heartbeat_writes_per_day": 15840,
+    "calculation": "55 components * 12 heartbeats/hour * 24 hours",
     "ci_sync_mode": "DIGEST_AWARE_DELTA",
     "automatic_paid_upgrade": false,
     "automatic_external_spend_eur": 0
