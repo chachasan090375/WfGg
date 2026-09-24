@@ -84,6 +84,16 @@ class State:
         self.progress=ProgressStore(load(progress_policy))
         live_shell_path=repo/str(policy.get("android_live_shell_config") or "dev-hub/config/android-live-shell.v1.json")
         self.live_shell_config=load(live_shell_path)
+    def effective_ui_root(self):
+        live=self.live_ui_root
+        if (live/"index.html").is_file():return live
+        return self.ui_root
+    def effective_live_shell_config(self):
+        try:
+            x=load(self.live_app_config)
+            if x.get("schema")=="chacha.dev/android-live-shell-config/v1":return x
+        except Exception:pass
+        return self.live_shell_config
 
     def session(self)->dict[str,Any]:
         return load(self.session_path,{"schema":"chacha.dev/direct-operator-session/v1",
@@ -195,7 +205,7 @@ class Handler(BaseHTTPRequestHandler):
         if path=="/api/v1/progress":
             return self.json(200,self.st.progress.snapshot())
         if path=="/api/v1/app-config":
-            return self.json(200,self.st.live_shell_config)
+            return self.json(200,self.st.effective_live_shell_config())
         if path.startswith("/api/v1/jobs/"):
             jid=path.rsplit("/",1)[-1];p=self.st.job_path(jid)
             return self.json(200,load(p)) if p.is_file() else self.json(404,{"status":"NOT_FOUND"})
