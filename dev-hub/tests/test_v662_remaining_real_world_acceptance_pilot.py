@@ -113,7 +113,7 @@ with tempfile.TemporaryDirectory(prefix="v662-qualification-") as td:
 
     out=rt/"attest"
     s=run([sys.executable,str(BIN/"real-world-evidence-attestor-v662.py"),"--runtime-root",str(rt),"--output-root",str(out)])
-    assert "CHACHA_DEV_V661_REAL_WORLD_STRUCTURAL_ATTESTATION=PASS" in s,s
+    assert "CHACHA_DEV_V662_REAL_WORLD_STRUCTURAL_ATTESTATION=PASS" in s,s
     for aid in ("agent-foundry-architect","branch-foundry-architect","capability-foundry-architect","logician","ergonomist","technology-watch-agent"):
         x=json.loads((out/("attestation-"+aid+".json")).read_text())
         assert x["case_count"]==1 and x["passed_case_count"]==1,x
