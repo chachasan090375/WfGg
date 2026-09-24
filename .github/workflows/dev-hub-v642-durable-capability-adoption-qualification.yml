@@ -1,0 +1,88 @@
+name: ChaCha DEV V6.42 durable capability adoption qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v642-durable-capability-adoption
+    paths:
+      - 'dev-hub/bin/durable-capability-registry.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/durable-capability-adoption.v1.json'
+      - 'dev-hub/tests/test_v642_durable_capability_adoption.py'
+      - 'dev-hub/bin/capability-build-loop.py'
+      - 'dev-hub/bin/capability-foundry-closure.py'
+      - 'dev-hub/tests/test_v641_capability_build_loop.py'
+      - 'dev-hub/tests/test_v640_capability_foundry_auto_closure.py'
+      - '.github/workflows/dev-hub-v642-durable-capability-adoption-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/durable-capability-registry.py             dev-hub/bin/autonomous-project-orchestrator.py
+          python3 -m json.tool dev-hub/config/durable-capability-adoption.v1.json >/dev/null
+
+      - name: V6.42 durable adoption end to end
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v642_durable_capability_adoption.py | tee /tmp/v642.out
+          grep -Fq 'CHACHA_DEV_V642_VERIFIED_SUCCESS_BEFORE_ADOPTION=PASS' /tmp/v642.out
+          grep -Fq 'CHACHA_DEV_V642_RELEASE_INDEPENDENT_DURABLE_REGISTRY=PASS' /tmp/v642.out
+          grep -Fq 'CHACHA_DEV_V642_DURABLE_ADAPTER_REPROBE=PASS' /tmp/v642.out
+          grep -Fq 'CHACHA_DEV_V642_CROSS_PROJECT_REUSE_WITHOUT_REBUILD=PASS' /tmp/v642.out
+          grep -Fq 'CHACHA_DEV_V642_EXPERIENCE_MEMORY_EVENT=PASS' /tmp/v642.out
+          grep -Fq 'CHACHA_DEV_V642_SINGLE_PROJECT_NOT_GLOBAL_TRUST=PASS' /tmp/v642.out
+          grep -Fq 'CHACHA_DEV_V642_IDEMPOTENT_ADOPTION=PASS' /tmp/v642.out
+          grep -Fq 'CHACHA_DEV_V642_ROLLBACK_RETAINS_FORENSICS=PASS' /tmp/v642.out
+          grep -Fq 'CHACHA_DEV_V642_PROTECTED_ADOPTION_HUMAN_BOUNDARY=PASS' /tmp/v642.out
+          grep -Fq 'CHACHA_DEV_V642_DURABLE_REGISTRY_MERGED_BEFORE_GAPS=PASS' /tmp/v642.out
+          grep -Fq 'CHACHA_DEV_V642_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v642.out
+
+      - name: V6.41 regression
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v641_capability_build_loop.py | tee /tmp/v641.out
+          grep -Fq 'CHACHA_DEV_V641_BUILD_REQUIRED_TO_SAFE_ADAPTER=PASS' /tmp/v641.out
+          grep -Fq 'CHACHA_DEV_V641_OFFICIAL_PROVISIONING_CHAIN=PASS' /tmp/v641.out
+          grep -Fq 'CHACHA_DEV_V641_SAME_PROJECT_RESUME_READY=PASS' /tmp/v641.out
+          grep -Fq 'CHACHA_DEV_V641_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v641.out
+
+      - name: V6.40 regression
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v640_capability_foundry_auto_closure.py | tee /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_EXISTING_ENABLED_PROVIDER_AUTO_CLOSURE=PASS' /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_BUILD_REQUIRED_BLOCKS_DISPATCH=PASS' /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_ACTIVE_CAPABILITY_REGISTRY_PROPAGATED=PASS' /tmp/v640.out
+          grep -Fq 'CHACHA_DEV_V640_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v640.out
+
+      - name: Qualification receipt
+        run: |
+          {
+            echo 'CHACHA_DEV_V642_QUALIFICATION=PASS'
+            echo 'VERIFIED_PROJECT_SUCCESS_BEFORE_ADOPTION=YES'
+            echo 'RELEASE_INDEPENDENT_DURABLE_REGISTRY=YES'
+            echo 'DURABLE_ADAPTER_REPROBE=YES'
+            echo 'CROSS_PROJECT_REUSE_WITHOUT_REBUILD=YES'
+            echo 'EXPERIENCE_MEMORY_EVENT=YES'
+            echo 'SINGLE_PROJECT_NOT_GLOBAL_TRUST=YES'
+            echo 'IDEMPOTENT_ADOPTION=YES'
+            echo 'ROLLBACK_FORENSICS_RETAINED=YES'
+            echo 'PROTECTED_ADOPTION_HUMAN_BOUNDARY=YES'
+            echo 'DURABLE_REGISTRY_MERGED_BEFORE_GAPS=YES'
+            echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
+          } | tee /tmp/v642-qualification-receipt.txt
