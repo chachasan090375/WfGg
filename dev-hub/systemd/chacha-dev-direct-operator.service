@@ -1,0 +1,27 @@
+[Unit]
+Description=ChaCha DEV private Direct Operator surface
+After=network-online.target tailscaled.service
+Wants=network-online.target tailscaled.service
+ConditionPathExists=/opt/chacha-dev/platform/current/dev-hub/bin/direct-operator-service.py
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/chacha-dev/platform/current
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/direct-operator-service.py --repo-root /opt/chacha-dev/platform/current --runtime-root /opt/chacha-dev/runtime --policy /opt/chacha-dev/platform/current/dev-hub/config/direct-operator.v1.json
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/chacha-dev/runtime/secrets
+ReadWritePaths=/opt/chacha-dev/runtime/direct-operator /opt/chacha-dev/runtime/human-interface /opt/chacha-dev/runtime/control
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=192M
+TasksMax=48
+
+[Install]
+WantedBy=multi-user.target
