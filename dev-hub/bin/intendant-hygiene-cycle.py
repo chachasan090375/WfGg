@@ -62,10 +62,16 @@ def temp_candidates(cfg:dict[str,Any],now:datetime)->list[dict[str,Any]]:
 def guardian_coverage_ok(path:Path)->bool:
     try:return load(path).get("all_hooks_active") is True
     except Exception:return False
-def guardian_realtime(client:Path,policy:Path,event_path:Path,event:dict[str,Any])->bool:
+def guardian_realtime(client:Path,policy:Path,event_path:Path,event:dict[str,Any])->tuple[bool,Path]:
     save(event_path,event)
     p=run([sys.executable,str(client),"--policy",str(policy),"check","--event",str(event_path)],45)
-    return p.returncode==0
+    receipt=event_path.with_name(event_path.stem+"-receipt.json")
+    try:
+        payload=json.loads(p.stdout.strip().splitlines()[-1]) if p.stdout.strip() else {"verdict":"UNAVAILABLE"}
+    except Exception:
+        payload={"verdict":"UNAVAILABLE","raw":p.stdout[-1000:]}
+    save(receipt,payload)
+    return p.returncode==0 and str(payload.get("verdict") or "") in {"PASS","WARNING"},receipt
 def current_revision(platform:Path)->str:
     cur=(platform/"current").resolve();p=cur/".revision"
     return p.read_text().strip() if p.is_file() else ""
@@ -160,7 +166,7 @@ def main()->int:
         if name=="LIGHT_DAILY":
             deletable=[x for x in candidates if not x["open_fd"]]
             if deletable and not a.dry_run:
-                ok=guardian_realtime(a.guardian_client,a.guardian_policy,work/"guardian-light.json",{
+                ok,_receipt=guardian_realtime(a.guardian_client,a.guardian_policy,work/"guardian-light.json",{
                   "schema":"chacha.dev/governed-action/v1","action_id":"intendant-light-"+stamp,
                   "project_id":"chacha-dev-platform","actor_role":"central-orchestrator","requesting_role":"intendant",
                   "permission":"destructive-operation","action":"SAFE_TEMP_RETIREMENT",
@@ -186,22 +192,22 @@ def main()->int:
             safe=((cycle_cfg.get("WEEKLY_DRY_RUN") or {}).get("safe_release_retirement") or {})
             exec_cfg=(consolidation.get("execution") or {})
             if int(px.get("retire_count") or 0)>0 and safe.get("auto_apply_when_fully_governed") is True and exec_cfg.get("standing_operator_approval_allowed_for_safe_release_retirement") is True and not a.dry_run:
-                gpass=guardian_realtime(a.guardian_client,a.guardian_policy,work/"guardian-release.json",{
-                  "schema":"chacha.dev/governed-action/v1","action_id":"intendant-release-"+stamp,
-                  "project_id":"chacha-dev-platform","actor_role":"central-orchestrator","requesting_role":"intendant",
-                  "permission":"destructive-operation","action":"SAFE_SUPERSEDED_PHYSICAL_RELEASE_RETIREMENT",
-                  "plan":str(plan),"automatic_external_spend_eur":0})
-                if not gpass:
-                    row["status"]="BLOCKED";row["reason"]="GUARDIAN_REALTIME_BLOCK";results.append(row);continue
                 approval=work/"consolidation-approval.json"
                 q=run([sys.executable,str(a.council),"--plan",str(plan),"--policy",str(a.consolidation_policy),
                   "--guardian-coverage",str(a.guardian_coverage),"--revision",current_revision(a.platform_root),
                   "--operator-explicit-purge-approval","--output",str(approval)],60)
                 if q.returncode!=0:
                     row["status"]="BLOCKED";row["reason"]="ARCHITECTURE_COUNCIL_BLOCK";row["stderr"]=q.stderr[-1000:];results.append(row);continue
+                gpass,guardian_receipt=guardian_realtime(a.guardian_client,a.guardian_policy,work/"guardian-release.json",{
+                  "schema":"chacha.dev/governed-action/v1","action_id":"intendant-release-"+stamp,
+                  "project_id":"chacha-dev-platform","actor_role":"central-orchestrator","requesting_role":"intendant",
+                  "permission":"destructive-operation","action":"SAFE_SUPERSEDED_PHYSICAL_RELEASE_RETIREMENT",
+                  "plan":str(plan),"plan_digest":load(approval).get("plan_digest"),"automatic_external_spend_eur":0})
+                if not gpass:
+                    row["status"]="BLOCKED";row["reason"]="GUARDIAN_REALTIME_BLOCK";results.append(row);continue
                 out=work/"retirement-result.json";archive=report_dir/("retirement-archive-"+stamp+".json")
                 e=run([sys.executable,str(a.retirement_executor),"--platform-root",str(a.platform_root),
-                  "--plan",str(plan),"--approval",str(approval),"--archive-manifest",str(archive),
+                  "--plan",str(plan),"--approval",str(approval),"--guardian-receipt",str(guardian_receipt),"--archive-manifest",str(archive),
                   "--output",str(out),"--explicit-destructive-apply"],120)
                 if e.returncode!=0:
                     row["status"]="BLOCKED";row["reason"]="CENTRAL_RETIREMENT_EXECUTOR_FAILED";row["stderr"]=e.stderr[-1000:];results.append(row);continue
