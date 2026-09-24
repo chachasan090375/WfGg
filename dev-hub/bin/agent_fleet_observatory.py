@@ -90,6 +90,7 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
       "specialist_review_total":0,"specialist_review_quality_ok":0,
       "project_adapter_evidence_total":0,"project_adapter_evidence_quality_ok":0,
       "operational_accuracy_total":0,"operational_accuracy_ok":0,
+      "independent_accuracy_total":0,"independent_accuracy_ok":0,
       "operational_evidence_total":0,"operational_evidence_ok":0,
       "handoff_total":0,"handoff_ok":0,
       "observed_capabilities":set(),"refs":defaultdict(list)
@@ -345,6 +346,41 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
                 if gate_ok:a["authority_points"]+=100.0
                 a["refs"]["authority_discipline"].append(str(path))
 
+    # V6.60 independently recomputed real-runtime accuracy attestations.
+    accuracy_cfg=policy.get("independent_accuracy_attestation") or {}
+    accuracy_attestations={}
+    if accuracy_cfg.get("enabled") is True:
+        eligible=set(str(x) for x in (accuracy_cfg.get("eligible_agents") or []))
+        required_schema=str(accuracy_cfg.get("required_schema") or "chacha.dev/independent-accuracy-attestation/v1")
+        required_verifier=str(accuracy_cfg.get("required_verifier") or "v660-independent-accuracy-attestor")
+        required_verification=str(accuracy_cfg.get("required_verification") or "INDEPENDENTLY_ATTESTED")
+        required_scope=str(accuracy_cfg.get("required_scope") or "REAL_RUNTIME")
+        att_glob=str(accuracy_cfg.get("glob") or "agent-evolution/independent-accuracy-attestations/**/accuracy-*.json")
+        for path in runtime_root.glob(att_glob):
+            x=safe_load(path)
+            if not x or x.get("schema")!=required_schema:continue
+            aid=str(x.get("subject_agent") or "")
+            if aid not in agg or (eligible and aid not in eligible):continue
+            if str(x.get("verifier") or "")!=required_verifier or str(x.get("verifier") or "")==aid:continue
+            if str(x.get("verification") or "")!=required_verification:continue
+            if str(x.get("verification_scope") or "")!=required_scope:continue
+            if x.get("production_truth_eligible") is not True:continue
+            if x.get("direct_mutation") is not False or x.get("canonical_observation_bus_mutation") is not False:continue
+            if float(x.get("automatic_external_spend_eur") or 0)!=0:continue
+            total=int(x.get("case_count") or 0);passed=int(x.get("passed_case_count") or 0)
+            value=x.get("accuracy_value")
+            if total<=0 or passed<0 or passed>total or not isinstance(value,(int,float)):continue
+            expected=round(100.0*passed/total,1)
+            if round(float(value),1)!=expected:continue
+            stamp=str(x.get("generated_at") or "")
+            current=accuracy_attestations.get(aid)
+            if current is None or stamp>=str(current[1].get("generated_at") or ""):
+                accuracy_attestations[aid]=(path,x)
+        for aid,(path,x) in accuracy_attestations.items():
+            a=agg[aid];total=int(x.get("case_count") or 0);passed=int(x.get("passed_case_count") or 0)
+            a["independent_accuracy_total"]+=total;a["independent_accuracy_ok"]+=passed
+            a["refs"]["accuracy"].append(str(path))
+
     # V6.51 promoted benchmark evidence: benchmark-only measurements may fill UNKNOWN dimensions,
     # but never overwrite production/runtime measurements.
     benchmark_evidence={}
@@ -385,7 +421,7 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
     for aid,a in agg.items():
         robustness=pct(a["exec_success"],a["exec_success"]+a["exec_failure"])
         efficiency=pct(a["exec_events"],a["attempts"]) if a["exec_events"] else None
-        accuracy=pct(a["verified_ok"]+a["operational_accuracy_ok"],a["verified_total"]+a["operational_accuracy_total"])
+        accuracy=pct(a["verified_ok"]+a["operational_accuracy_ok"]+a["independent_accuracy_ok"],a["verified_total"]+a["operational_accuracy_total"]+a["independent_accuracy_total"])
         evidence_total=a["verified_total"]+a["specialist_review_total"]+a["project_adapter_evidence_total"]+a["operational_evidence_total"]
         evidence_ok=a["verified_with_evidence"]+a["specialist_review_quality_ok"]+a["project_adapter_evidence_quality_ok"]+a["operational_evidence_ok"]
         evidence_quality=pct(evidence_ok,evidence_total)
@@ -396,7 +432,7 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
         coverage=pct(len(observed_declared),len(declared_caps)) if declared_caps and a["observed_capabilities"] else None
         handoff=pct(a["handoff_ok"],a["handoff_total"])
         dims={
-          "accuracy":measured(accuracy,a["verified_total"]+a["operational_accuracy_total"],a["refs"]["accuracy"]),
+          "accuracy":measured(accuracy,a["verified_total"]+a["operational_accuracy_total"]+a["independent_accuracy_total"],a["refs"]["accuracy"]),
           "coverage":measured(coverage,len(observed_declared),a["refs"]["coverage"]),
           "calibration":{"status":"UNMEASURED","value":None,"evidence_count":0,"source_refs":[]},
           "evidence_quality":measured(evidence_quality,evidence_total,a["refs"]["evidence_quality"]),
@@ -438,6 +474,8 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
             "authority_checks":a["authority_checks"],"specialist_reviews":a["specialist_review_total"],
             "project_adapter_evidence":a["project_adapter_evidence_total"],
             "operational_accuracy_evidence":a["operational_accuracy_total"],
+            "independent_accuracy_attestation_cases":a["independent_accuracy_total"],
+            "independent_accuracy_attestation_present":aid in accuracy_attestations,
             "operational_structural_evidence":a["operational_evidence_total"],
             "observed_capabilities":sorted(a["observed_capabilities"]),
             "declared_capabilities":sorted(declared.get(aid) or set()),
