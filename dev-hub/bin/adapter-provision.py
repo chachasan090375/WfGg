@@ -123,8 +123,9 @@ def probe(executable: Path, item: dict[str, Any], timeout: int) -> dict[str, Any
     cfg = item.get("probe") if isinstance(item.get("probe"), dict) else {}
     payload = cfg.get("input") if isinstance(cfg.get("input"), dict) else {}
     try:
+        argv=[str(executable),*[str(x) for x in (cfg.get("argv") or [])]]
         proc = subprocess.run(
-            [str(executable)],
+            argv,
             input=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -142,21 +143,26 @@ def probe(executable: Path, item: dict[str, Any], timeout: int) -> dict[str, Any
         expected_status = cfg.get("expected_status")
         expected_producer = cfg.get("expected_producer")
         expected_verification = cfg.get("expected_verification_status")
+        expected_exit_code = int(cfg.get("expected_exit_code",0))
+        expected_reason = cfg.get("expected_reason")
         verification = result.get("verification") if isinstance(result, dict) and isinstance(result.get("verification"), dict) else {}
         ok = bool(
-            proc.returncode == 0
+            proc.returncode == expected_exit_code
             and isinstance(result, dict)
             and result.get("schema") == expected_schema
             and result.get("status") == expected_status
-            and result.get("producer") == expected_producer
-            and verification.get("status") == expected_verification
+            and (expected_producer is None or result.get("producer") == expected_producer)
+            and (expected_verification is None or verification.get("status") == expected_verification)
+            and (expected_reason is None or result.get("reason") == expected_reason)
         )
         return {
             "status": "PASS" if ok else "FAIL",
             "exit_code": proc.returncode,
             "result_schema": result.get("schema") if isinstance(result, dict) else None,
             "result_status": result.get("status") if isinstance(result, dict) else None,
+            "result_reason": result.get("reason") if isinstance(result, dict) else None,
             "producer": result.get("producer") if isinstance(result, dict) else None,
+            "expected_exit_code": expected_exit_code,
             "verification_status": verification.get("status") if isinstance(verification, dict) else None,
             "stdout_digest": digest_bytes(stdout),
             "stderr_digest": digest_bytes(stderr),
