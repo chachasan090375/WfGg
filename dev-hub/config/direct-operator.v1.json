@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/direct-operator-policy/v1",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "component": "direct-operator-service",
   "bind": "127.0.0.1",
   "port": 8792,
@@ -40,8 +40,12 @@
     "guardian_and_platform_governance_preserved": true,
     "automatic_external_spend_eur": 0,
     "persistent_progress_reporting": true,
-    "remote_android_live_shell_config": true
+    "remote_android_live_shell_config": true,
+    "live_ui_runtime_channel": true,
+    "live_ui_fallback_to_bundled_source": true
   },
   "progress_policy": "dev-hub/config/progress-reporting.v1.json",
-  "android_live_shell_config": "dev-hub/config/android-live-shell.v1.json"
+  "android_live_shell_config": "dev-hub/config/android-live-shell.v1.json",
+  "live_ui_root": "/opt/chacha-dev/runtime/live-ui/current/ui",
+  "live_app_config": "/opt/chacha-dev/runtime/live-ui/current/app-config.json"
 }
