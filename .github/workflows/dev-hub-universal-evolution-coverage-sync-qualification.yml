@@ -41,6 +41,7 @@ on:
       - 'dev-hub/tests/test_evolution_source_catalog_drift.py'
       - 'dev-hub/tests/test_platform_reassessment_routing.py'
       - 'dev-hub/tests/test_platform_foundry_dispatch.py'
+      - 'dev-hub/docs/CHACHA_DEV_CHECKPOINT_2026-09-24_POST_V730_PLATFORM_EVOLUTION_CONTROL.md'
       - '.github/workflows/dev-hub-universal-evolution-coverage-sync-qualification.yml'
   workflow_dispatch:
 
