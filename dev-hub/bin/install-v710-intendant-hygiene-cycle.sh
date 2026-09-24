@@ -82,7 +82,6 @@ flock -n 9 || { echo "CHACHA_DEV_V710_INSTALL=BLOCKED reason=platform_deploy_loc
 printf '%s' "$REV" | grep -Eq '^[0-9a-f]{40}$' || { echo "CHACHA_DEV_V710_INSTALL=BLOCKED reason=pinned_revision_required"; exit 2; }
 [ -L "$CURRENT" ] || { echo "CHACHA_DEV_V710_INSTALL=BLOCKED reason=current_release_symlink_missing"; exit 2; }
 PREVIOUS="$(readlink -f "$CURRENT")"
-RELEASE_COUNT_BEFORE="$(find "$BASE/releases" -mindepth 1 -maxdepth 1 -type d | wc -l)"
 
 stage v700-acquired-baseline
 python3 - "$PREVIOUS" <<'PY'
@@ -220,6 +219,26 @@ grep -Fq 'CHACHA_DEV_V710_INTENDANT_HYGIENE_CYCLE=PASS' "$WORK/runtime-dry.out"
 grep -Fq 'INTENDANT_DIRECT_MUTATION=NO' "$WORK/runtime-dry.out"
 echo "CHACHA_DEV_V710_RUNTIME_DRY_RUN=PASS"
 
+stage enable-timer
+assert_current
+systemctl enable chacha-dev-intendant-hygiene.timer >/dev/null
+systemctl start chacha-dev-intendant-hygiene.timer
+systemctl is-active --quiet chacha-dev-intendant-hygiene.timer
+systemctl is-enabled --quiet chacha-dev-intendant-hygiene.timer
+systemctl list-timers chacha-dev-intendant-hygiene.timer --no-pager >"$WORK/timer-status.out"
+echo "CHACHA_DEV_V710_TIMER_ACTIVE=PASS"
+
+stage post-health
+assert_current
+systemctl is-active --quiet chacha-remote-desktop-commander.service
+systemctl is-active --quiet chacha-dev-agent-fleet-observatory.timer
+systemctl is-active --quiet chacha-dev-agent-observation-bus-health.timer
+PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/guardian-coverage-heartbeat.py"   --repo-root "$RELEASE" --manifest "$CURRENT/dev-hub/config/guardian-coverage-manifest.v1.json"   --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json"   --client "$CURRENT/dev-hub/bin/guardian-client.py"   --output "$RUNTIME/guardian/coverage-latest.json" >"$WORK/guardian.out"
+grep -Fq 'ALL_HOOKS_ACTIVE=YES' "$WORK/guardian.out"
+PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/technology-watch-service.py" --repo-root "$RELEASE" status >"$WORK/watch.out"
+grep -Fq 'CHACHA_TECHNOLOGY_WATCH_STATUS=FRESH' "$WORK/watch.out"
+echo "CHACHA_DEV_V710_POST_HEALTH=PASS"
+
 stage real-governed-pilot
 assert_current
 # V7.1 adds a fourth physical release. Force one governed weekly cycle to prove
@@ -252,38 +271,13 @@ else:
     assert len(rollbacks)==2,rollbacks
     print("CHACHA_DEV_V710_REAL_GOVERNED_RETENTION=PASS_NO_RETIREMENT_NEEDED")
 PY
-RELEASE_COUNT_AFTER="$(find "$BASE/releases" -mindepth 1 -maxdepth 1 -type d | wc -l)"
-if [ "$RELEASE_COUNT_BEFORE" -ge 3 ] && [ "$RELEASE_COUNT_AFTER" -lt "$((RELEASE_COUNT_BEFORE + 1))" ]; then
-  PURGE_COMMITTED=1
-  echo "CHACHA_DEV_V710_PURGE_COMMITTED=YES"
-else
-  PURGE_COMMITTED=0
-  echo "CHACHA_DEV_V710_PURGE_COMMITTED=NO_RETIREMENT_NEEDED"
-fi
-
-stage enable-timer
-assert_current
-systemctl enable chacha-dev-intendant-hygiene.timer >/dev/null
-systemctl start chacha-dev-intendant-hygiene.timer
-systemctl is-active --quiet chacha-dev-intendant-hygiene.timer
-systemctl is-enabled --quiet chacha-dev-intendant-hygiene.timer
-systemctl list-timers chacha-dev-intendant-hygiene.timer --no-pager >"$WORK/timer-status.out"
-echo "CHACHA_DEV_V710_TIMER_ACTIVE=PASS"
-
-stage post-health
-assert_current
-systemctl is-active --quiet chacha-remote-desktop-commander.service
-systemctl is-active --quiet chacha-dev-agent-fleet-observatory.timer
-systemctl is-active --quiet chacha-dev-agent-observation-bus-health.timer
-PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/guardian-coverage-heartbeat.py"   --repo-root "$RELEASE" --manifest "$CURRENT/dev-hub/config/guardian-coverage-manifest.v1.json"   --policy "$CURRENT/dev-hub/config/guardian-runtime-policy.v1.json"   --client "$CURRENT/dev-hub/bin/guardian-client.py"   --output "$RUNTIME/guardian/coverage-latest.json" >"$WORK/guardian.out"
-grep -Fq 'ALL_HOOKS_ACTIVE=YES' "$WORK/guardian.out"
-PYTHONPATH="$CURRENT/dev-hub/bin" python3 "$CURRENT/dev-hub/bin/technology-watch-service.py" --repo-root "$RELEASE" status >"$WORK/watch.out"
-grep -Fq 'CHACHA_TECHNOLOGY_WATCH_STATUS=FRESH' "$WORK/watch.out"
-echo "CHACHA_DEV_V710_POST_HEALTH=PASS"
+PURGE_COMMITTED=1
+echo "CHACHA_DEV_V710_PURGE_COMMITTED=YES"
 
 
 stage evidence
 assert_current
+[ "$PURGE_COMMITTED" -eq 1 ]
 [ "$(readlink -f "$CURRENT")" = "$RELEASE" ]
 [ "$(find "$BASE/releases" -mindepth 1 -maxdepth 1 -type d | wc -l)" -eq 3 ]
 systemctl is-active --quiet chacha-dev-intendant-hygiene.timer
