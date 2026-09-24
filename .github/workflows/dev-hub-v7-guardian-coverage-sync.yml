@@ -1,0 +1,95 @@
+name: ChaCha DEV V7 Guardian coverage sync
+
+on:
+  push:
+    branches:
+      - 'dev-hub-v7*'
+    paths:
+      - 'dev-hub/config/guardian-coverage-manifest.v1.json'
+      - 'dev-hub/bin/install-v720-human-interface-gateway.sh'
+      - '.github/workflows/dev-hub-v7-guardian-coverage-sync.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Guardian coverage manifest
+        run: |
+          set -euo pipefail
+          python3 -m json.tool dev-hub/config/guardian-coverage-manifest.v1.json >/dev/null
+          python3 - <<'PY'
+          import json
+          x=json.load(open('dev-hub/config/guardian-coverage-manifest.v1.json'))
+          rows=x.get('expected_components') or []
+          by={c['component_id']:c for c in rows}
+          g=by['human-interface-gateway']
+          assert g['kind']=='interface',g
+          assert g['criticality']=='CRITICAL',g
+          assert g['proof']['file']=='dev-hub/bin/human-interface-gateway.py',g
+          print('CHACHA_DEV_V7_GUARDIAN_GATEWAY_COVERAGE_STATIC=PASS')
+          print('EXPECTED_COMPONENTS='+str(len(rows)))
+          PY
+
+      - name: Sync and verify Guardian expected components
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,json,os,urllib.parse,urllib.request,urllib.error
+          token=os.environ.get('CLOUDFLARE_API_TOKEN','').strip()
+          if not token: raise SystemExit('MISSING_SECRET=CLOUDFLARE_API_TOKEN')
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url,method='GET',body=None):
+              data=None if body is None else json.dumps(body).encode()
+              req=urllib.request.Request(url,headers=headers,method=method,data=data)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode('utf-8','replace')
+                  try:p=json.loads(raw)
+                  except Exception:p={'raw':raw[:800]}
+                  return e.code,p
+          aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          if not aid:
+              status,payload=call('https://api.cloudflare.com/client/v4/accounts?per_page=50')
+              rows=(payload.get('result') or []) if status==200 else []
+              if len(rows)!=1: raise SystemExit('CLOUDFLARE_ACCOUNT_RESOLUTION_FAILED')
+              aid=rows[0]['id']
+          status,payload=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-guardian'))
+          if status!=200: raise SystemExit('GUARDIAN_D1_LOOKUP_FAILED:'+str(status))
+          db=next((x for x in (payload.get('result') or []) if x.get('name')=='chacha-dev-guardian'),None)
+          if not db: raise SystemExit('GUARDIAN_D1_MISSING')
+          query=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{db['uuid']}/query"
+          coverage=json.load(open('dev-hub/config/guardian-coverage-manifest.v1.json',encoding='utf-8'))
+          q=lambda s:"'"+str(s).replace("'","''")+"'"
+          j=lambda v:json.dumps(v,separators=(',',':'),sort_keys=True)
+          sql=['DELETE FROM expected_components;']
+          for c in coverage.get('expected_components') or []:
+              dig=hashlib.sha256(j(c).encode()).hexdigest()
+              sql.append("INSERT INTO expected_components(component_id,role,kind,enforcement_point,criticality,source_digest,updated_at) VALUES("
+                         +q(c['component_id'])+','+q(c['role'])+','+q(c['kind'])+','+q(c['enforcement_point'])+','
+                         +q(c['criticality'])+','+q(dig)+",datetime('now'));")
+          status,payload=call(query,'POST',{'sql':'\n'.join(sql)})
+          if status!=200 or not payload.get('success'):
+              raise SystemExit('GUARDIAN_COVERAGE_SYNC_FAILED:'+str(status)+':'+json.dumps(payload)[:600])
+          expected=len(coverage.get('expected_components') or [])
+          status,payload=call(query,'POST',{'sql':'SELECT component_id,criticality FROM expected_components ORDER BY component_id'})
+          actual=[]
+          for block in payload.get('result') or []: actual.extend(block.get('results') or [])
+          ids={str(x.get('component_id')) for x in actual}
+          if status!=200 or not payload.get('success') or len(actual)!=expected or 'human-interface-gateway' not in ids:
+              raise SystemExit('GUARDIAN_COVERAGE_READBACK_FAILED:'+json.dumps(actual)[:1000])
+          print('CHACHA_DEV_V7_GUARDIAN_COVERAGE_SYNC=PASS')
+          print('CHACHA_DEV_V7_GUARDIAN_GATEWAY_EXPECTED=YES')
+          print('EXPECTED_COMPONENTS='+str(expected))
+          print('AUTOMATIC_EXTERNAL_SPEND_EUR=0')
+          PY
