@@ -1,0 +1,71 @@
+name: ChaCha DEV V6.62 Ergonomist evidence and Acceptance independent pilot qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v662-ergonomist-real-evidence-acceptance-independent-pilot
+    paths:
+      - 'dev-hub/bin/install-v662-ergonomist-real-evidence-acceptance-independent-pilot.sh'
+      - 'dev-hub/bin/ergonomist-real-world-attestor-v662.py'
+      - 'dev-hub/bin/acceptance-candidate-independent-pilot-v662.py'
+      - 'dev-hub/bin/agent_fleet_observatory.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/agent-fleet-observatory.v1.json'
+      - 'dev-hub/tests/test_v662_ergonomist_acceptance_independent_pilot.py'
+      - '.github/workflows/dev-hub-v662-ergonomist-real-evidence-acceptance-independent-pilot-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          if [ -f dev-hub/bin/install-v662-ergonomist-real-evidence-acceptance-independent-pilot.sh ]; then
+            bash -n dev-hub/bin/install-v662-ergonomist-real-evidence-acceptance-independent-pilot.sh
+          fi
+          python3 -m py_compile             dev-hub/bin/ergonomist-real-world-attestor-v662.py             dev-hub/bin/acceptance-candidate-independent-pilot-v662.py             dev-hub/bin/agent_fleet_observatory.py             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/tests/test_v662_ergonomist_acceptance_independent_pilot.py
+          python3 -m json.tool dev-hub/config/agent-fleet-observatory.v1.json >/dev/null
+          grep -Fq '"version":"6.62.0"' dev-hub/bin/autonomous-project-orchestrator.py
+      - name: V6.62 semantic qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v662_ergonomist_acceptance_independent_pilot.py | tee /tmp/v662.out
+          grep -Fq 'CHACHA_DEV_V662_ERGONOMIST_REAL_WORLD_ATTESTATION=PASS' /tmp/v662.out
+          grep -Fq 'CHACHA_DEV_V662_ERGONOMIST_ACCURACY_INFERENCE=NO' /tmp/v662.out
+          grep -Fq 'CHACHA_DEV_V662_ACCEPTANCE_INDEPENDENT_PILOT=PASS' /tmp/v662.out
+          grep -Fq 'CHACHA_DEV_V662_ACCEPTANCE_REAL_NO_REGRESSION=PASS' /tmp/v662.out
+          grep -Fq 'CHACHA_DEV_V662_ACCEPTANCE_ADVERSARIAL_GAIN=PASS' /tmp/v662.out
+          grep -Fq 'CHACHA_DEV_V662_LOGICIAN_FALSIFICATION=PASS' /tmp/v662.out
+          grep -Fq 'CHACHA_DEV_V662_ACCEPTANCE_PRODUCTION_ACTIVATION=NO' /tmp/v662.out
+          grep -Fq 'CHACHA_DEV_V662_ACCEPTANCE_PROMOTION=NO' /tmp/v662.out
+          grep -Fq 'CHACHA_DEV_V662_RADAR_PROJECT_ONLY=PASS' /tmp/v662.out
+          grep -Fq 'CHACHA_DEV_V662_SELF_MUTATION=NO' /tmp/v662.out
+          grep -Fq 'CHACHA_DEV_V662_SELF_PROMOTION=NO' /tmp/v662.out
+          grep -Fq 'CHACHA_DEV_V662_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES' /tmp/v662.out
+          grep -Fq 'CHACHA_DEV_V662_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v662.out
+      - name: V6.61 regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v661_real_world_evidence_isolated_candidate.py >/tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_REAL_WORLD_STRUCTURAL_ATTESTATION=PASS' /tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_ACCEPTANCE_ISOLATED_PILOT=PASS' /tmp/v661.out
+      - name: Qualification receipt
+        run: |
+          echo CHACHA_DEV_V662_QUALIFICATION=PASS
+          echo ERGONOMIST_REAL_WORLD_STRUCTURAL=PASS
+          echo ACCEPTANCE_INDEPENDENT_PILOT=PASS
+          echo ACCEPTANCE_PRODUCTION_ACTIVATION=NO
+          echo ACCEPTANCE_PROMOTION=NO
+          echo RADAR_PROJECT_ONLY=PASS
+          echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
