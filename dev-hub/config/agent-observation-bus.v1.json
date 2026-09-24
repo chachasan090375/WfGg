@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "purpose": "Collect evidence-backed agent observations at common ChaCha DEV boundaries and trigger reassessment without self-mutation.",
   "storage": {
-    "database": "/opt/chacha-dev/runtime/agent-observation/observations.db",
-    "reassessment_queue": "/opt/chacha-dev/runtime/agent-evolution/reassessment-queue",
+    "database": "agent-observation/observations.db",
+    "reassessment_queue": "agent-evolution/reassessment-queue",
     "append_only": true,
     "hash_chain": true,
-    "event_id_deduplication": true
+    "event_id_deduplication": true,
+    "runtime_root_relative": true,
+    "isolated_test_runtime_must_not_touch_canonical": true
   },
   "verification": {
     "levels": [

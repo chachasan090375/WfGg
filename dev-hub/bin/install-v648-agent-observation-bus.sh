@@ -151,7 +151,11 @@ print("CHACHA_DEV_V648_REAL_DIRECT_CANDIDATE_MATERIALIZATION=NO")
 PY
 PYTHONPATH="$RELEASE/dev-hub/bin" python3 "$RELEASE/dev-hub/bin/agent_observation_bus.py"   --runtime-root "$RUNTIME" --policy "$RELEASE/dev-hub/config/agent-observation-bus.v1.json" verify   >"$WORK/chain.out"
 grep -Fq 'CHACHA_DEV_V648_OBSERVATION_CHAIN=PASS' "$WORK/chain.out"
+test -s "$RUNTIME/agent-observation/observations.db"
+test ! -e /opt/chacha-dev/runtime/agent-observation/observations.db
+test -s "$RUNTIME/agent-evolution/reassessment-queue/reassess-v648-real-verified-failure.json"
 echo "CHACHA_DEV_V648_REAL_HASH_CHAIN=PASS"
+echo "CHACHA_DEV_V648_REAL_ISOLATED_RUNTIME_STORAGE=PASS"
 
 stage canonical-state-baseline
 canon_hash(){ local p="$1"; if [ -f "$p" ]; then sha256sum "$p" | awk '{print $1}'; else printf 'ABSENT'; fi; }
@@ -222,6 +226,7 @@ cat >"/opt/chacha-dev/evidence/v648-agent-observation-bus-$STAMP.json" <<JSON
   "direct_candidate_materialization":false,
   "candidate_owner":"agent-foundry",
   "hash_chain":"PASS",
+  "isolated_runtime_storage":"PASS",
   "fleet_observatory_compatibility":"PASS",
   "daily_timer_preserved":"PASS",
   "canonical_trust_durable_technology_watch_mutation":false,
@@ -237,6 +242,7 @@ echo "CHACHA_DEV_V648_REAL_VERIFIED_FAILURE_TRIGGER=PASS"
 echo "CHACHA_DEV_V648_REAL_DIRECT_AGENT_MUTATION=NO"
 echo "CHACHA_DEV_V648_REAL_DIRECT_CANDIDATE_MATERIALIZATION=NO"
 echo "CHACHA_DEV_V648_REAL_HASH_CHAIN=PASS"
+echo "CHACHA_DEV_V648_REAL_ISOLATED_RUNTIME_STORAGE=PASS"
 echo "CHACHA_DEV_V648_REAL_FLEET_OBSERVATORY_COMPATIBILITY=PASS"
 echo "CHACHA_DEV_V648_REAL_CANONICAL_TRUST_DURABLE_TW_MUTATION=NO"
 echo "CHACHA_DEV_V648_GUARDIAN_AUTHORITY=PRESERVED"

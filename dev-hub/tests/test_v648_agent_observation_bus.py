@@ -20,6 +20,8 @@ project=load(ROOT/"dev-hub/projects/wfgg-radar/project-agent-registry.v1.json")
 
 with tempfile.TemporaryDirectory(prefix="v648-observation-bus-") as td:
     rt=Path(td)
+    assert bus.db_path(rt,policy)==rt/"agent-observation/observations.db",(bus.db_path(rt,policy),rt)
+    assert bus.queue_root(rt,policy)==rt/"agent-evolution/reassessment-queue",(bus.queue_root(rt,policy),rt)
 
     # Self-assertion can never promote itself to VERIFIED.
     self_evt={
@@ -71,6 +73,8 @@ with tempfile.TemporaryDirectory(prefix="v648-observation-bus-") as td:
 
     chain=bus.verify_chain(rt,policy)
     assert chain["status"]=="PASS" and chain["event_count"]==5,chain
+    assert (rt/"agent-observation/observations.db").is_file()
+    assert not Path("/opt/chacha-dev/runtime/agent-observation/observations.db").exists() or str(rt)!="/opt/chacha-dev/runtime"
 
     # Bus evidence improves coverage/handoff only where evidence exists.
     inv=aec.build_inventory(routing,seven,[project])
@@ -93,6 +97,7 @@ print("CHACHA_DEV_V648_UNKNOWN_VERIFIER_DOWNGRADED=PASS")
 print("CHACHA_DEV_V648_PROJECT_CONTROL_VERIFIED_BOUNDARY=PASS")
 print("CHACHA_DEV_V648_EVENT_ID_DEDUPLICATION=PASS")
 print("CHACHA_DEV_V648_HASH_CHAIN=PASS")
+print("CHACHA_DEV_V648_ISOLATED_RUNTIME_STORAGE=PASS")
 print("CHACHA_DEV_V648_VERIFIED_FAILURE_REASSESSMENT_TRIGGER=PASS")
 print("CHACHA_DEV_V648_TECHNOLOGY_WATCH_DELTA_TRIGGER=PASS")
 print("CHACHA_DEV_V648_DIRECT_AGENT_MUTATION=NO")
