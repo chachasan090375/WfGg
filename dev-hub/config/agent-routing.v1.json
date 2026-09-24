@@ -16,7 +16,9 @@
     "backend_design_requires_backend_api_architect": true,
     "data_design_requires_data_architect": true,
     "project_scoped_agents_must_not_enter_platform_routing": true,
-    "technology_watch_is_platform_global": true
+    "technology_watch_is_platform_global": true,
+    "functional_translator_has_no_execution_authority": true,
+    "functional_translator_has_no_architecture_authority": true
   },
   "roles": {
     "product-domain-architect": {
@@ -267,6 +269,19 @@
         "branch-lifecycle"
       ],
       "default_risk": "medium"
+    },
+    "functional-translator-satellite": {
+      "capabilities": [
+        "functional-intent-normalization",
+        "requirements-analysis",
+        "acceptance-criteria",
+        "functional-contract-preparation"
+      ],
+      "default_risk": "low",
+      "direct_execution": false,
+      "repository_write": false,
+      "production_change": false,
+      "returns_to": "chacha-dev-architect"
     }
   },
   "routing_rules": [
