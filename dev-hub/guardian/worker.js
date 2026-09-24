@@ -1173,8 +1173,9 @@ async function publicFinalAgentReview(req,env,id){
 export default {
   async fetch(req,env){
     const u=new URL(req.url);
+    try{
     if(req.method==="GET"&&u.pathname==="/healthz")return json({
-      status:"ok",service:"chacha-dev-guardian",external_governance_plane:true,
+      status:"ok",service:"chacha-dev-guardian",guardian_runtime_build:"v730-diagnostic-2",external_governance_plane:true,
       runtime_contract_mutation_api:false,dynamic_instance_contract_registration:true,
       dynamic_component_contract_registration:true,dynamic_contract_policy_escalation_allowed:false,
       dynamic_component_policy_escalation_allowed:false,tunnel_required:false,action_lease_protocol:true,
@@ -1219,6 +1220,16 @@ export default {
     if(req.method==="GET"&&u.pathname==="/v1/alerts")return alerts(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/alerts/ack")return ackAlerts(req,env);
     return json({error:"not_found"},404);
+    }catch(err){
+      return json({
+        error:"guardian_worker_runtime_exception",
+        route:u.pathname,
+        exception_name:String((err&&err.name)||"Error"),
+        exception_message:String((err&&err.message)||"").slice(0,300),
+        fail_closed:true,
+        guardian_runtime_build:"v730-diagnostic-2"
+      },503);
+    }
   },
   async scheduled(controller,env,ctx){ctx.waitUntil(sweep(env));}
 };
