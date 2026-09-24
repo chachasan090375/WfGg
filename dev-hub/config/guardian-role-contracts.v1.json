@@ -371,6 +371,37 @@
       ]
     },
     {
+      "contract_id": "role:platform-component-source-integration-executor",
+      "kind": "role",
+      "allowed_actions": [
+        "INVOKE_COMPONENT",
+        "INTEGRATE_RELEASE_CANDIDATE_SOURCE",
+        "ROLLBACK_RELEASE_CANDIDATE_SOURCE",
+        "REPORT_TASK_RESULT"
+      ],
+      "forbidden_actions": [
+        "PRODUCTION_DEPLOY",
+        "PROMOTE_COMPONENT",
+        "MERGE_PRODUCTION_BRANCH",
+        "MODIFY_GUARDIAN_CONTRACTS",
+        "EXPAND_PERMISSIONS",
+        "MUTATE_RUNTIME"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write"
+      ],
+      "required_evidence": [
+        "central_orchestrator_handoff",
+        "human_approval_verified",
+        "exact_revisions",
+        "exact_artifacts",
+        "rollback_required",
+        "post_apply_exact_sha_gates"
+      ]
+    },
+    {
       "contract_id": "role:reusable-memory",
       "kind": "role",
       "allowed_actions": [
