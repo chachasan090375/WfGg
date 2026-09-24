@@ -1,0 +1,62 @@
+{
+  "schema": "chacha.dev/capability-build-loop/v1",
+  "version": "1.0.0",
+  "purpose": "Autonomously build, certify, pilot and sandbox-enable a narrowly safe local adapter for a missing capability, while failing closed for wider capability classes.",
+  "principles": {
+    "technology_watch_required": true,
+    "architecture_council_approval_required": true,
+    "safe_template_only": true,
+    "no_shell_generation": true,
+    "no_network_generation": true,
+    "no_secret_generation": true,
+    "no_production_capability_generation": true,
+    "zero_automatic_external_spend_required": true,
+    "official_adapter_contract_harness_required": true,
+    "official_adapter_provisioning_required": true,
+    "official_adapter_promotion_required": true,
+    "three_repeatable_runs_before_enabled": true,
+    "machine_readable_rollback_required": true,
+    "project_success_required_before_durable_adoption": true,
+    "durable_provider_registry_mutation_not_part_of_build_pilot": true,
+    "production_builds_require_specialist_and_human_boundaries": true
+  },
+  "profiles": {
+    "structured-read-v1": {
+      "execution": "vps",
+      "supports": [
+        "read"
+      ],
+      "network_access": false,
+      "credentials_required": false,
+      "production_capable": false,
+      "source_kind": "deterministic-python-template",
+      "adapter_version": "0.1.0",
+      "sandbox_only_until_project_success": true
+    }
+  },
+  "forbidden_python_imports": [
+    "subprocess",
+    "socket",
+    "urllib",
+    "http",
+    "requests",
+    "aiohttp",
+    "ftplib",
+    "smtplib",
+    "paramiko",
+    "fabric",
+    "pexpect"
+  ],
+  "forbidden_python_calls": [
+    "eval",
+    "exec",
+    "compile",
+    "__import__",
+    "os.system",
+    "os.popen"
+  ],
+  "promotion_target_after_build": "ENABLED",
+  "capability_provider_status_for_same_project_resume": "PILOT",
+  "durable_adoption_status": "ADOPT",
+  "automatic_external_spend_eur": 0
+}
