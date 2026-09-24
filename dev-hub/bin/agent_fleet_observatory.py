@@ -91,6 +91,7 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
       "project_adapter_evidence_total":0,"project_adapter_evidence_quality_ok":0,
       "operational_accuracy_total":0,"operational_accuracy_ok":0,
       "independent_accuracy_total":0,"independent_accuracy_ok":0,
+      "real_world_structural_total":0,"real_world_structural_ok":0,
       "operational_evidence_total":0,"operational_evidence_ok":0,
       "handoff_total":0,"handoff_ok":0,
       "observed_capabilities":set(),"refs":defaultdict(list)
@@ -381,6 +382,48 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
             a["independent_accuracy_total"]+=total;a["independent_accuracy_ok"]+=passed
             a["refs"]["accuracy"].append(str(path))
 
+    # V6.61 independently recomputed real-world structural attestations.
+    rw_cfg=policy.get("real_world_structural_attestation") or {}
+    real_world_attestations={}
+    if rw_cfg.get("enabled") is True:
+        eligible=set(str(x) for x in (rw_cfg.get("eligible_agents") or []))
+        required_dims=[str(x) for x in (rw_cfg.get("production_truth_dimensions") or [])]
+        required_schema=str(rw_cfg.get("required_schema") or "chacha.dev/real-world-agent-attestation/v1")
+        required_verifier=str(rw_cfg.get("required_verifier") or "v661-real-world-evidence-attestor")
+        required_verification=str(rw_cfg.get("required_verification") or "INDEPENDENTLY_RECOMPUTED")
+        required_scope=str(rw_cfg.get("required_scope") or "REAL_RUNTIME")
+        att_glob=str(rw_cfg.get("glob") or "agent-evolution/real-world-attestations/**/attestation-*.json")
+        for path in runtime_root.glob(att_glob):
+            x=safe_load(path)
+            if not x or x.get("schema")!=required_schema:continue
+            aid=str(x.get("subject_agent") or "")
+            if aid not in agg or (eligible and aid not in eligible):continue
+            if str(x.get("verifier") or "")!=required_verifier or str(x.get("verifier") or "")==aid:continue
+            if str(x.get("verification") or "")!=required_verification or str(x.get("verification_scope") or "")!=required_scope:continue
+            if x.get("production_truth_eligible") is not True or x.get("accuracy_inference") is not False:continue
+            if x.get("decision_authority") is not False or x.get("direct_mutation") is not False:continue
+            if x.get("active_self_mutation") is not False or x.get("self_promotion") is not False or x.get("permission_expansion") is not False:continue
+            if x.get("canonical_observation_bus_mutation") is not False or x.get("benchmark_evidence_mutation") is not False:continue
+            if x.get("architecture_council_final_authority") is not True or float(x.get("automatic_external_spend_eur") or 0)!=0:continue
+            total=int(x.get("case_count") or 0);passed=int(x.get("passed_case_count") or 0)
+            dims=x.get("dimension_values") or {}
+            if total<=0 or passed<0 or passed>total:continue
+            expected=round(100.0*passed/total,1)
+            if any(not isinstance(dims.get(d),(int,float)) or round(float(dims[d]),1)!=expected for d in required_dims):continue
+            stamp=str(x.get("generated_at") or "")
+            current=real_world_attestations.get(aid)
+            if current is None or stamp>=str(current[1].get("generated_at") or ""):
+                real_world_attestations[aid]=(path,x)
+        for aid,(path,x) in real_world_attestations.items():
+            a=agg[aid];total=int(x.get("case_count") or 0);passed=int(x.get("passed_case_count") or 0)
+            a["real_world_structural_total"]+=total;a["real_world_structural_ok"]+=passed
+            a["operational_evidence_total"]+=total;a["operational_evidence_ok"]+=passed
+            a["refs"]["evidence_quality"].append(str(path))
+            a["handoff_total"]+=total;a["handoff_ok"]+=passed
+            a["refs"]["handoff_quality"].append(str(path))
+            a["authority_checks"]+=total;a["authority_points"]+=100.0*passed
+            a["refs"]["authority_discipline"].append(str(path))
+
     # V6.51 promoted benchmark evidence: benchmark-only measurements may fill UNKNOWN dimensions,
     # but never overwrite production/runtime measurements.
     benchmark_evidence={}
@@ -476,6 +519,8 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
             "operational_accuracy_evidence":a["operational_accuracy_total"],
             "independent_accuracy_attestation_cases":a["independent_accuracy_total"],
             "independent_accuracy_attestation_present":aid in accuracy_attestations,
+            "real_world_structural_attestation_cases":a["real_world_structural_total"],
+            "real_world_structural_attestation_present":aid in real_world_attestations,
             "operational_structural_evidence":a["operational_evidence_total"],
             "observed_capabilities":sorted(a["observed_capabilities"]),
             "declared_capabilities":sorted(declared.get(aid) or set()),
