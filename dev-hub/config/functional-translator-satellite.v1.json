@@ -1,0 +1,43 @@
+{
+  "schema": "chacha.dev/edge-satellite-agent/v1",
+  "version": "1.0.0",
+  "agent_id": "functional-translator-satellite",
+  "scope": "PLATFORM_EDGE_SATELLITE",
+  "attached_to": "chacha-dev-central-brain",
+  "entry_surfaces": [
+    "direct-operator-web",
+    "android-widget"
+  ],
+  "responsibilities": [
+    "preserve raw functional request",
+    "normalize functional intent",
+    "compile advisory functional contract",
+    "prepare central-brain intent envelope"
+  ],
+  "prohibited": [
+    "technical architecture decision",
+    "repository mutation",
+    "production mutation",
+    "provider selection",
+    "execution dispatch",
+    "self promotion",
+    "permission expansion"
+  ],
+  "permissions": {
+    "read_operator_input": true,
+    "write_runtime_translation_artifacts": true,
+    "invoke_specification_compiler": true,
+    "invoke_functional_intent_orchestrator": true,
+    "invoke_central_interface_controller": false,
+    "repository_write": false,
+    "production_change": false,
+    "destructive_operation": false
+  },
+  "handoff": {
+    "destination": "central-interface-controller",
+    "central_orchestrator_recompiles_independently": true,
+    "translation_is_advisory": true
+  },
+  "fleet_membership": "EXCLUDED_EDGE_SATELLITE",
+  "automatic_external_spend_eur": 0
+}
