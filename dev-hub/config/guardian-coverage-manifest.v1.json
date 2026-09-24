@@ -510,6 +510,17 @@
         "file": "dev-hub/bin/platform-component-promotion-gate.py",
         "marker": "SCHEMA=\"chacha.dev/platform-component-promotion-gate/v1\""
       }
+    },
+    {
+      "component_id": "platform-component-controlled-apply-planner",
+      "role": "platform-component-controlled-apply-planner",
+      "kind": "controller",
+      "enforcement_point": "platform-component-controlled-apply-planner.plan-only",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/platform-component-controlled-apply-planner.py",
+        "marker": "READY_FOR_CENTRAL_ORCHESTRATOR_APPLY"
+      }
     }
   ],
   "safety_exemptions": [
@@ -521,8 +532,8 @@
   "automatic_external_spend_eur": 0,
   "d1_write_budget": {
     "coverage_heartbeat_interval_seconds": 300,
-    "expected_max_component_heartbeat_writes_per_day": 13248,
-    "calculation": "46 components * 12 heartbeats/hour * 24 hours",
+    "expected_max_component_heartbeat_writes_per_day": 13536,
+    "calculation": "47 components * 12 heartbeats/hour * 24 hours",
     "ci_sync_mode": "DIGEST_AWARE_DELTA",
     "automatic_paid_upgrade": false,
     "automatic_external_spend_eur": 0
