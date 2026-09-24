@@ -7,6 +7,11 @@ on:
     paths:
       - 'dev-hub/config/guardian-role-contracts.v1.json'
       - 'dev-hub/bin/install-v720-human-interface-gateway.sh'
+      - 'dev-hub/bin/human-interface-gateway.py'
+      - 'dev-hub/bin/central-interface-controller.py'
+      - 'dev-hub/config/human-interface-gateway.v1.json'
+      - '.github/workflows/dev-hub-v720-human-interface-gateway-qualification.yml'
+      - '.github/workflows/dev-hub-v7-platform-qualification.yml'
       - '.github/workflows/dev-hub-v7-guardian-contract-sync.yml'
   workflow_dispatch:
 
