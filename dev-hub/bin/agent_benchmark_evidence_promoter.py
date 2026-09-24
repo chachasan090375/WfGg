@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,json
+import argparse,json\nfrom datetime import datetime,timezone
 from pathlib import Path
 from typing import Any
 
@@ -15,7 +15,8 @@ def validate(x:dict[str,Any],revision:str,cfg:dict[str,Any])->list[str]:
     if x.get("schema")!="chacha.dev/agent-benchmark-raw-evidence/v1":errs.append("SCHEMA")
     if x.get("truth_scope")!="BENCHMARK_ONLY" or x.get("production_truth_eligible") is not False:errs.append("TRUTH_SCOPE")
     if x.get("verification")!="BENCHMARK_VERIFIED":errs.append("VERIFICATION")
-    if str(x.get("verifier") or "") in {"",str(x.get("agent_id") or "")}:errs.append("INDEPENDENT_ORACLE")
+    expected_oracle=str(ev.get("independent_oracle_id") or "")
+    if str(x.get("verifier") or "") in {"",str(x.get("agent_id") or "")} or (expected_oracle and str(x.get("verifier"))!=expected_oracle):errs.append("INDEPENDENT_ORACLE")
     if not x.get("oracle_complete"):errs.append("ORACLE_INCOMPLETE")
     if str(x.get("revision") or "")!=revision:errs.append("REVISION_MISMATCH")
     if not x.get("evidence_refs"):errs.append("EVIDENCE_REFS")
@@ -32,6 +33,7 @@ def promote(raw:dict[str,Any],revision:str,cfg:dict[str,Any],output:Path)->dict[
     if errs:return {"status":"BLOCKED","reason_codes":errs,"promoted":False}
     out={k:v for k,v in raw.items()}
     out["schema"]="chacha.dev/agent-benchmark-verified-evidence/v1";out["promotion_status"]="PROMOTED"
+    out["promoted_at"]=datetime.now(timezone.utc).isoformat().replace("+00:00","Z")
     out["promoted_for_scorecard"]=True;out["production_truth_eligible"]=False
     out["overwrite_production_measurement"]=False;out["candidate_materialization"]=False
     save(output,out);return {"status":"PASS","promoted":True,"path":str(output),"evidence":out}

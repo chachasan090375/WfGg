@@ -169,7 +169,11 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
             if x.get("verification")!="BENCHMARK_VERIFIED" or not x.get("oracle_complete"):continue
             if str(x.get("verifier") or "") in {"",aid}:continue
             if x.get("overwrite_production_measurement") is not False:continue
-            benchmark_evidence[aid]=(path,x)
+            current=benchmark_evidence.get(aid)
+            current_stamp=str((current or (None,{}))[1].get("promoted_at") or (current or (None,{}))[1].get("observed_at") or "")
+            candidate_stamp=str(x.get("promoted_at") or x.get("observed_at") or "")
+            if current is None or candidate_stamp>=current_stamp:
+                benchmark_evidence[aid]=(path,x)
 
     # Exact component-confidence entries only; no fuzzy attribution.
     conf_path=runtime_root/"knowledge/component-confidence.json"

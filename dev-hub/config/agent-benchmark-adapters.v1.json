@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-benchmark-adapters/v1",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "purpose": "Execute real agent code against isolated deterministic fixtures and verify outputs through a separate benchmark oracle.",
   "supported_agents": {
     "guardian": {
@@ -10,8 +10,11 @@
         "accuracy",
         "robustness",
         "authority_discipline",
-        "evidence_quality"
-      ]
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency"
+      ],
+      "max_duration_ms": 5000
     },
     "sentinel": {
       "adapter": "sentinel-technical-audit",
@@ -20,8 +23,11 @@
         "accuracy",
         "robustness",
         "authority_discipline",
-        "evidence_quality"
-      ]
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency"
+      ],
+      "max_duration_ms": 10000
     },
     "bastion": {
       "adapter": "bastion-incident-response",
@@ -30,8 +36,11 @@
         "accuracy",
         "robustness",
         "authority_discipline",
-        "evidence_quality"
-      ]
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency"
+      ],
+      "max_duration_ms": 5000
     },
     "autonomous-recovery-agent": {
       "adapter": "recovery-orchestrator",
@@ -40,8 +49,76 @@
         "accuracy",
         "robustness",
         "authority_discipline",
-        "evidence_quality"
-      ]
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency"
+      ],
+      "max_duration_ms": 10000
+    },
+    "security-reviewer": {
+      "adapter": "architecture-specialist-security-contract",
+      "risk": "high",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency"
+      ],
+      "max_duration_ms": 5000
+    },
+    "recovery-engineer": {
+      "adapter": "recovery-drill",
+      "risk": "high",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency"
+      ],
+      "max_duration_ms": 120000
+    },
+    "platform-cloud-engineer": {
+      "adapter": "platform-selftest-readonly",
+      "risk": "high",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency"
+      ],
+      "max_duration_ms": 5000
+    },
+    "data-architect": {
+      "adapter": "architecture-specialist-data-contract",
+      "risk": "high",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency"
+      ],
+      "max_duration_ms": 5000
+    },
+    "release-engineer": {
+      "adapter": "external-assurance-release-gate",
+      "risk": "high",
+      "dimensions": [
+        "accuracy",
+        "robustness",
+        "authority_discipline",
+        "evidence_quality",
+        "drift_resistance",
+        "efficiency"
+      ],
+      "max_duration_ms": 5000
     }
   },
   "evidence": {
@@ -50,7 +127,7 @@
     "truth_scope": "BENCHMARK_ONLY",
     "production_truth_eligible": false,
     "verification": "BENCHMARK_VERIFIED",
-    "independent_oracle_id": "v651-independent-benchmark-oracle",
+    "independent_oracle_id": "v652-independent-benchmark-oracle",
     "exact_revision_required": true,
     "technology_watch_fresh_required": true,
     "guardian_preserved": true,
@@ -75,5 +152,15 @@
   },
   "economics": {
     "automatic_external_spend_eur": 0
+  },
+  "deep_calibration": {
+    "repeat_count": 2,
+    "dimensions": [
+      "drift_resistance",
+      "efficiency"
+    ],
+    "repeated_oracle_verdicts_required": true,
+    "repeated_dimension_scores_required": true,
+    "duration_budget_is_guardrail": true
   }
 }

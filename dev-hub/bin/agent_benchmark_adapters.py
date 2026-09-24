@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import importlib.util,json,subprocess,sys,tempfile
+import contextlib,copy,importlib.util,io,json,subprocess,sys,tempfile
 from pathlib import Path
 from typing import Any
 
@@ -131,7 +131,156 @@ def recovery(repo:Path)->dict[str,Any]:
       "structured_outputs":all(x.get("schema")=="chacha.dev/recovery-decision/v1" and x.get("action") for x in results.values())
     }}
 
-ADAPTERS={"guardian":guardian,"sentinel":sentinel,"bastion":bastion,"autonomous-recovery-agent":recovery}
+
+def _architect_role_contract(repo:Path,agent_id:str,focus_key:str)->dict[str,Any]:
+    mod=loadmod("v652_architect_"+agent_id.replace("-","_"),repo/"dev-hub/adapters/architecture-specialist-adapter.py")
+    with tempfile.TemporaryDirectory(prefix="v652-"+agent_id+"-") as td:
+        base=Path(td);old_plans=mod.PLANS_ROOT;old_results=mod.RESULT_ROOT
+        try:
+            mod.PLANS_ROOT=base/"plans";mod.RESULT_ROOT=base/"results"
+            project="v652-"+agent_id;rid="REQ-"+agent_id
+            root=mod.PLANS_ROOT/mod.safe_name(project)/"technical-design";root.mkdir(parents=True,exist_ok=True)
+            requirement=root/"requirement.json";manifest=root/"manifest.json";plan=root/"plan.json"
+            requirement.write_text(json.dumps({"schema":"chacha.dev/requirement/v1","project":project,"id":rid,"summary":"benchmark"})+"\n",encoding="utf-8")
+            manifest_value={"schema":"chacha.dev/project-manifest/v1","identity":{"project":project},"ownership":{},
+              "components":[{"id":"component-a"}],"dependencies":[],"security":{},"data":{},"observability":{},"recovery":{},"technology_policy":{}}
+            manifest_value[focus_key]={"benchmark_focus":True}
+            manifest.write_text(json.dumps(manifest_value)+"\n",encoding="utf-8")
+            plan_value={"schema":"chacha.dev/technical-design-plan/v1","project":project,"requirement_id":rid,
+              "specialist_assignments":[{"role":agent_id,"scope":["component-a"]}],
+              "architecture_decisions":[{"id":"ADR-BENCH","owner_role":agent_id,"decision":"benchmark"}],
+              "affected_components":["component-a"],"cross_reviews":[],"implementation_gate":{}}
+            plan.write_text(json.dumps(plan_value)+"\n",encoding="utf-8")
+            ctx={"requirement_path":str(requirement.resolve()),"manifest_path":str(manifest.resolve()),
+                 "technical_design_plan_path":str(plan.resolve()),"requirement_id":rid}
+            req={"schema":mod.INPUT_SCHEMA,"project":project,"run_id":"v652-run",
+              "task":{"id":"design:"+agent_id,"owner_role":agent_id,"permission":"plan"},
+              "bindings":[{"provider":mod.PROVIDER_ID,"adapter":mod.ADAPTER_ID,"health_state":"HEALTHY"}],
+              "metadata":{"specialist_role":agent_id,"technical_design_context":ctx,"design_outputs":[]}}
+            action,data,err=mod.validate_request(req)
+            model_context,run_dir=mod.build_model_context(req,agent_id,ctx)
+            prompt=mod.prompt_for(model_context)
+            artifact={"schema":mod.SPECIALIST_SCHEMA,"project":project,"requirement_id":rid,
+              "task_id":"design:"+agent_id,"role":agent_id,"artifact_kind":"design-fragment","status":"PROPOSED",
+              "summary":"benchmark","decisions":[],"recommendations":[],"risks":[],"unresolved_questions":[],
+              "acceptance_obligations":[],"implementation_constraints":[],"source_references":["benchmark:fixture"]}
+            artifact_valid=True
+            try:mod.validate_specialist_artifact(artifact,model_context)
+            except Exception:artifact_valid=False
+            identity_blocked=False
+            wrong=dict(artifact);wrong["role"]="other-role"
+            try:mod.validate_specialist_artifact(wrong,model_context)
+            except ValueError as exc:identity_blocked="IDENTITY_MISMATCH:role" in str(exc)
+            bad=copy.deepcopy(req);bad["task"]["permission"]="workspace-write"
+            _a,_d,permission_error=mod.validate_request(bad)
+            escape=copy.deepcopy(req);escape["metadata"]["technical_design_context"]["manifest_path"]="/etc/passwd"
+            path_escape_blocked=False
+            try:mod.build_model_context(escape,agent_id,escape["metadata"]["technical_design_context"])
+            except ValueError as exc:path_escape_blocked="OUTSIDE_RUNTIME_PLAN_ROOT" in str(exc)
+            agent_md=mod.custom_agent_markdown()
+            return {"agent_id":agent_id,"adapter":"architecture-specialist-contract","actual":{
+              "action":action,"validation_error":err,"role":model_context.get("role"),
+              "assignment_role":((model_context.get("technical_design") or {}).get("assignment") or {}).get("role"),
+              "focus_present":bool((model_context.get("manifest") or {}).get(focus_key)),
+              "artifact_valid":artifact_valid,"identity_mismatch_blocked":identity_blocked,
+              "permission_blocked":str(permission_error or "").startswith("ARCHITECT_DESIGN_PERMISSION_REQUIRED"),
+              "path_escape_blocked":path_escape_blocked,"zero_tools":"tools: []" in agent_md and "Do not call tools" in agent_md,
+              "prompt_bounded":len(prompt.encode("utf-8"))<=int(mod.MAX_PROMPT_BYTES),
+              "run_dir_isolated":str(run_dir).startswith(str(base.resolve()))
+            }}
+        finally:
+            mod.PLANS_ROOT=old_plans;mod.RESULT_ROOT=old_results
+
+def security_reviewer(repo:Path)->dict[str,Any]:
+    return _architect_role_contract(repo,"security-reviewer","security")
+
+def data_architect(repo:Path)->dict[str,Any]:
+    return _architect_role_contract(repo,"data-architect","data")
+
+def recovery_engineer(repo:Path)->dict[str,Any]:
+    with tempfile.TemporaryDirectory(prefix="v652-recovery-engineer-") as td:
+        base=Path(td);report_path=base/"report.json";work=base/"sandbox"
+        proc=subprocess.run([sys.executable,str(repo/"dev-hub/bin/recovery-drill.py"),
+          "--repo-root",str(repo),"--policy","dev-hub/config/recovery-drill.v1.json",
+          "--work-root",str(work),"--output",str(report_path),"run","--scenario","all"],
+          stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=120)
+        report=load(report_path) if report_path.is_file() else {}
+        scenarios=report.get("scenarios") or [];by={str(x.get("id")):x for x in scenarios if isinstance(x,dict)}
+        return {"agent_id":"recovery-engineer","adapter":"recovery-drill","actual":{
+          "returncode":proc.returncode,"report_status":report.get("status"),"scenario_count":len(scenarios),
+          "passed_count":sum(1 for x in scenarios if x.get("status")=="PASS"),
+          "all_structured":all(isinstance(x,dict) and x.get("id") and isinstance(x.get("checks"),list) for x in scenarios),
+          "tamper_pass":(by.get("tampered-journal") or {}).get("status")=="PASS",
+          "divergent_pass":(by.get("divergent-ledger") or {}).get("status")=="PASS",
+          "prepared_pass":(by.get("prepared-before-authority") or {}).get("status")=="PASS",
+          "sandbox_isolated":str(Path(str(report.get("work_root") or "")).resolve()).startswith(str(base.resolve())),
+          "fatal_error":report.get("fatal_error"),"stderr_empty":not bool(proc.stderr.strip())
+        }}
+
+def _platform_selftest_invoke(mod,req:dict[str,Any])->tuple[int,dict[str,Any]]:
+    old_stdin=sys.stdin;buf=io.StringIO();sys.stdin=io.StringIO(json.dumps(req))
+    try:
+        with contextlib.redirect_stdout(buf):code=int(mod.main())
+    finally:sys.stdin=old_stdin
+    lines=[x for x in buf.getvalue().splitlines() if x.strip()]
+    return code,json.loads(lines[-1]) if lines else {}
+
+def platform_cloud_engineer(repo:Path)->dict[str,Any]:
+    mod=loadmod("v652_platform_selftest",repo/"dev-hub/adapters/platform-selftest-adapter.py")
+    with tempfile.TemporaryDirectory(prefix="v652-platform-") as td:
+        rev=Path(td)/".revision";rev.write_text("v652-platform-revision\n",encoding="utf-8")
+        old_revision=mod.REVISION;mod.REVISION=rev
+        try:
+            req={"schema":mod.INPUT_SCHEMA,"project":"benchmark","task":{"id":"platform-selftest","permission":"read",
+                 "outputs":[{"type":"report","id":"revision-proof"}]},
+                 "bindings":[{"provider":mod.PROVIDER_ID,"adapter":mod.ADAPTER_ID}],
+                 "metadata":{"platform_selftest":{"action":"revision-proof"}}}
+            ok_code,ok=_platform_selftest_invoke(mod,req)
+            bad_perm=copy.deepcopy(req);bad_perm["task"]["permission"]="workspace-write"
+            perm_code,perm=_platform_selftest_invoke(mod,bad_perm)
+            bad_bind=copy.deepcopy(req);bad_bind["bindings"]=[]
+            bind_code,bind=_platform_selftest_invoke(mod,bad_bind)
+            bad_action=copy.deepcopy(req);bad_action["metadata"]["platform_selftest"]["action"]="production-mutate"
+            act_code,act=_platform_selftest_invoke(mod,bad_action)
+        finally:mod.REVISION=old_revision
+    ev=(ok.get("evidence") or [{}])[0] if ok.get("evidence") else {}
+    details=ev.get("details") or {}
+    return {"agent_id":"platform-cloud-engineer","adapter":"platform-selftest-readonly","actual":{
+      "valid_code":ok_code,"valid_status":ok.get("status"),"valid_summary":ok.get("summary"),
+      "permission_code":perm_code,"permission_status":perm.get("status"),"permission_summary":perm.get("summary"),
+      "binding_code":bind_code,"binding_status":bind.get("status"),"binding_summary":bind.get("summary"),
+      "action_code":act_code,"action_status":act.get("status"),"action_summary":act.get("summary"),
+      "evidence_digest":ev.get("digest"),"read_only":details.get("read_only"),
+      "application_mutation":details.get("application_mutation"),"external_spend_eur":details.get("external_spend_eur"),
+      "verification_status":((ok.get("verification") or {}).get("status"))
+    }}
+
+def release_engineer(repo:Path)->dict[str,Any]:
+    mod=loadmod("v652_external_release_gate",repo/"dev-hub/bin/external-assurance-release-gate.py")
+    project="benchmark";revision="rev-v652"
+    functional={"schema":"chacha.dev/guardian-functional-acceptance-receipt/v1","project_id":project,
+      "revision":revision,"verdict":"PASS","receipt_id":"guardian-pass"}
+    technical={"schema":"chacha.dev/sentinel-technical-receipt/v1","project_id":project,
+      "revision":revision,"verdict":"PASS","receipt_id":"sentinel-pass"}
+    good=mod.combine(functional,technical,project,revision)
+    mismatch=mod.combine(functional,{**technical,"revision":"wrong"},project,revision)
+    blocked=mod.combine({**functional,"verdict":"BLOCK"},technical,project,revision)
+    return {"agent_id":"release-engineer","adapter":"external-assurance-release-gate","actual":{
+      "good_allowed":good.get("production_allowed"),"good_reasons":good.get("reason_codes"),
+      "mismatch_blocked":mismatch.get("production_allowed") is False,
+      "mismatch_reason":"SENTINEL_REVISION_MISMATCH" in (mismatch.get("reason_codes") or []),
+      "guardian_blocked":blocked.get("production_allowed") is False,
+      "guardian_reason":"GUARDIAN_FUNCTIONAL_NOT_PASS" in (blocked.get("reason_codes") or []),
+      "remediation_owner":good.get("remediation_owner"),
+      "guardian_direct_mutation":good.get("guardian_direct_mutation"),
+      "sentinel_direct_mutation":good.get("sentinel_direct_mutation"),
+      "automatic_external_spend_eur":good.get("automatic_external_spend_eur")
+    }}
+
+ADAPTERS={"guardian":guardian,"sentinel":sentinel,"bastion":bastion,"autonomous-recovery-agent":recovery,
+          "security-reviewer":security_reviewer,"recovery-engineer":recovery_engineer,
+          "platform-cloud-engineer":platform_cloud_engineer,"data-architect":data_architect,
+          "release-engineer":release_engineer}
 
 def execute(agent_id:str,repo_root:Path)->dict[str,Any]:
     fn=ADAPTERS.get(agent_id)

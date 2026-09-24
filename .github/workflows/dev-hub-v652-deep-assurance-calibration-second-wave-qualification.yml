@@ -1,0 +1,76 @@
+name: ChaCha DEV V6.52 deep assurance calibration second adapter wave qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v652-deep-assurance-calibration-second-adapter-wave
+    paths:
+      - 'dev-hub/bin/agent_benchmark_adapters.py'
+      - 'dev-hub/bin/agent_benchmark_oracles.py'
+      - 'dev-hub/bin/agent_benchmark_adapter_runner.py'
+      - 'dev-hub/bin/agent_benchmark_evidence_promoter.py'
+      - 'dev-hub/bin/agent_fleet_observatory.py'
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/agent-benchmark-adapters.v1.json'
+      - 'dev-hub/tests/test_v652_deep_assurance_second_wave.py'
+      - 'dev-hub/tests/test_v651_executable_agent_benchmark_adapters.py'
+      - '.github/workflows/dev-hub-v652-deep-assurance-calibration-second-wave-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/agent_benchmark_adapters.py dev-hub/bin/agent_benchmark_oracles.py dev-hub/bin/agent_benchmark_adapter_runner.py dev-hub/bin/agent_benchmark_evidence_promoter.py dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v652_deep_assurance_second_wave.py
+          python3 -m json.tool dev-hub/config/agent-benchmark-adapters.v1.json >/dev/null
+          grep -Fq '"version":"6.52.0"' dev-hub/bin/autonomous-project-orchestrator.py
+      - name: V6.52 deep calibration and second wave
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v652_deep_assurance_second_wave.py | tee /tmp/v652.out
+          grep -Fq 'CHACHA_DEV_V652_PRIORITY_AGENT_DEEP_CALIBRATION=PASS' /tmp/v652.out
+          grep -Fq 'CHACHA_DEV_V652_SECURITY_REVIEWER_EXECUTABLE_ADAPTER=PASS' /tmp/v652.out
+          grep -Fq 'CHACHA_DEV_V652_RECOVERY_ENGINEER_EXECUTABLE_ADAPTER=PASS' /tmp/v652.out
+          grep -Fq 'CHACHA_DEV_V652_PLATFORM_CLOUD_EXECUTABLE_ADAPTER=PASS' /tmp/v652.out
+          grep -Fq 'CHACHA_DEV_V652_DATA_ARCHITECT_EXECUTABLE_ADAPTER=PASS' /tmp/v652.out
+          grep -Fq 'CHACHA_DEV_V652_RELEASE_ENGINEER_EXECUTABLE_ADAPTER=PASS' /tmp/v652.out
+          grep -Fq 'CHACHA_DEV_V652_DRIFT_RESISTANCE_MEASURED=PASS' /tmp/v652.out
+          grep -Fq 'CHACHA_DEV_V652_EFFICIENCY_MEASURED=PASS' /tmp/v652.out
+          grep -Fq 'CHACHA_DEV_V652_MEASUREMENT_COVERAGE_60=PASS' /tmp/v652.out
+          grep -Fq 'CHACHA_DEV_V652_EXPLICIT_ORACLE_IDENTITY_GATE=PASS' /tmp/v652.out
+          grep -Fq 'CHACHA_DEV_V652_LATEST_PROMOTED_BENCHMARK_SELECTION=PASS' /tmp/v652.out
+          grep -Fq 'CHACHA_DEV_V652_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v652.out
+      - name: V6.51 regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v651_executable_agent_benchmark_adapters.py | tee /tmp/v651.out
+          grep -Fq 'CHACHA_DEV_V651_GUARDIAN_EXECUTABLE_ADAPTER=PASS' /tmp/v651.out
+          grep -Fq 'CHACHA_DEV_V651_PRODUCTION_MEASUREMENT_PRECEDENCE=PASS' /tmp/v651.out
+          grep -Fq 'CHACHA_DEV_V651_CANONICAL_OBSERVATION_BUS_WRITE=NO' /tmp/v651.out
+      - name: Qualification receipt
+        run: |
+          {
+            echo 'CHACHA_DEV_V652_QUALIFICATION=PASS'
+            echo 'FIRST_WAVE_DEEP_CALIBRATION=YES'
+            echo 'SECOND_WAVE_EXECUTABLE_ADAPTERS=5'
+            echo 'DRIFT_RESISTANCE=MEASURED'
+            echo 'EFFICIENCY=MEASURED'
+            echo 'EXPLICIT_ORACLE_IDENTITY=REQUIRED'
+            echo 'FRESHEST_PROMOTED_EVIDENCE_SELECTION=YES'
+            echo 'BENCHMARK_PRODUCTION_TRUTH=NO'
+            echo 'CANONICAL_OBSERVATION_BUS_WRITE=NO'
+            echo 'DIRECT_AGENT_MUTATION=NO'
+            echo 'ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES'
+            echo 'AUTOMATIC_EXTERNAL_SPEND_EUR=0'
+          } | tee /tmp/v652-receipt.txt
