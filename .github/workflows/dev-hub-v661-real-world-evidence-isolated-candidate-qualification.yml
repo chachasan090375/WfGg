@@ -1,0 +1,70 @@
+name: ChaCha DEV V6.61 real-world evidence and isolated candidate qualification
+
+on:
+  push:
+    branches:
+      - dev-hub-v661-real-world-evidence-isolated-candidate-qualification
+    paths:
+      - 'dev-hub/bin/real-world-evidence-attestor-v661.py'
+      - 'dev-hub/bin/acceptance-candidate-shadow-qualifier-v661.py'
+      - 'dev-hub/bin/agent_fleet_observatory.py'
+      - 'dev-hub/candidates/acceptance-engineer/v661/**'
+      - 'dev-hub/config/agent-fleet-observatory.v1.json'
+      - 'dev-hub/tests/test_v661_real_world_evidence_isolated_candidate.py'
+      - '.github/workflows/dev-hub-v661-real-world-evidence-isolated-candidate-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/real-world-evidence-attestor-v661.py             dev-hub/bin/acceptance-candidate-shadow-qualifier-v661.py             dev-hub/bin/agent_fleet_observatory.py             dev-hub/candidates/acceptance-engineer/v661/acceptance-engine-candidate.py             dev-hub/tests/test_v661_real_world_evidence_isolated_candidate.py
+          python3 -m json.tool dev-hub/config/agent-fleet-observatory.v1.json >/dev/null
+          python3 -m json.tool dev-hub/candidates/acceptance-engineer/v661/candidate-manifest.json >/dev/null
+          grep -Fq '"version":"6.61.0"' dev-hub/bin/autonomous-project-orchestrator.py
+      - name: V6.61 real-world structural evidence and isolated shadow candidate
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v661_real_world_evidence_isolated_candidate.py | tee /tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_REAL_WORLD_STRUCTURAL_ATTESTATION=PASS' /tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_FOUNDRY_LOGICIAN_WATCH_CASES=5' /tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_ACCURACY_INFERENCE=NO' /tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_ACCEPTANCE_REAL_SHADOW=PASS' /tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_ACCEPTANCE_ADVERSARIAL_GAIN=PASS' /tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_ACCEPTANCE_ISOLATED_PILOT=PASS' /tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_ACCEPTANCE_PRODUCTION_ACTIVATION=NO' /tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_ACCEPTANCE_PROMOTION=NO' /tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_SELF_MUTATION=NO' /tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_SELF_PROMOTION=NO' /tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES' /tmp/v661.out
+          grep -Fq 'CHACHA_DEV_V661_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v661.out
+      - name: V6.60 regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v660_independent_accuracy_attestation.py >/tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_GUARDIAN_INDEPENDENT_ACCURACY=PASS' /tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_SENTINEL_GITHUB_RUN_JOB_ARTIFACT_ACCURACY=PASS' /tmp/v660.out
+          grep -Fq 'CHACHA_DEV_V660_ACCEPTANCE_RECOMPUTED_ACCURACY=PASS' /tmp/v660.out
+      - name: Qualification receipt
+        run: |
+          echo CHACHA_DEV_V661_QUALIFICATION=PASS
+          echo REAL_WORLD_STRUCTURAL_ATTESTATION=PASS
+          echo ACCEPTANCE_ISOLATED_PILOT=PASS
+          echo ACCEPTANCE_PRODUCTION_ACTIVATION=NO
+          echo ACCEPTANCE_PROMOTION=NO
+          echo ACCURACY_INFERENCE=NO
+          echo SELF_MUTATION=NO
+          echo SELF_PROMOTION=NO
+          echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
