@@ -6,6 +6,7 @@ on:
       - dev-hub-v651-executable-agent-benchmark-adapters
     paths:
       - 'dev-hub/bin/agent_benchmark_adapters.py'
+      - 'dev-hub/bin/install-v651-executable-agent-benchmark-adapters.sh'
       - 'dev-hub/bin/agent_benchmark_oracles.py'
       - 'dev-hub/bin/agent_benchmark_adapter_runner.py'
       - 'dev-hub/bin/agent_benchmark_evidence_promoter.py'
@@ -37,6 +38,7 @@ jobs:
           python3 -m py_compile dev-hub/bin/agent_benchmark_adapters.py dev-hub/bin/agent_benchmark_oracles.py dev-hub/bin/agent_benchmark_adapter_runner.py dev-hub/bin/agent_benchmark_evidence_promoter.py dev-hub/bin/agent_benchmark_campaign_runner.py dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/tests/test_v651_executable_agent_benchmark_adapters.py
           python3 -m json.tool dev-hub/config/agent-benchmark-adapters.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/agent-fleet-observatory.v1.json >/dev/null
+          bash -n dev-hub/bin/install-v651-executable-agent-benchmark-adapters.sh
           grep -Fq '"version":"6.51.0"' dev-hub/bin/autonomous-project-orchestrator.py
       - name: V6.51 executable adapters
         run: |
@@ -69,4 +71,5 @@ jobs:
           echo CANONICAL_OBSERVATION_BUS_WRITE=NO
           echo DIRECT_AGENT_MUTATION=NO
           echo ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES
+          echo REAL_VPS_PILOT_INSTALLER=VALIDATED
           echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
