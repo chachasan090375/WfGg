@@ -13,6 +13,7 @@ on:
       - 'dev-hub/config/guardian-coverage-manifest.v1.json'
       - 'dev-hub/config/technology-core-watch.v1.json'
       - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/config/universal-evolution-governance.v1.json'
       - 'dev-hub/schemas/project-intent-v1.schema.json'
       - 'dev-hub/tests/test_v770_object_factory.py'
       - '.github/workflows/dev-hub-v770-object-factory.yml'
@@ -37,6 +38,7 @@ jobs:
           python3 -m json.tool dev-hub/config/object-factory.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/object-registry.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/capability-registry.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/universal-evolution-governance.v1.json >/dev/null
           python3 -m json.tool dev-hub/schemas/project-intent-v1.schema.json >/dev/null
       - name: Object Factory integration
         run: |
