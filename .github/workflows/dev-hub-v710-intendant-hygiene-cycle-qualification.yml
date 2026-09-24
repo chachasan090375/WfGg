@@ -18,6 +18,7 @@ on:
       - 'dev-hub/tests/test_v710_intendant_hygiene_cycle.py'
       - 'dev-hub/tests/test_v700_consolidated_platform_baseline.py'
       - 'dev-hub/tests/test_v623_contextual_memory_recall.py'
+      - 'dev-hub/tests/test_v635_central_specialist_authorities.py'
       - 'dev-hub/tests/test_v660_independent_accuracy_attestation.py'
       - 'dev-hub/tests/test_v661_real_world_evidence_isolated_candidate.py'
       - 'dev-hub/tests/test_v663_runtime_surface_instrumentation_readiness.py'
@@ -75,7 +76,7 @@ jobs:
       - name: Critical inherited invariants
         run: |
           set -euo pipefail
-          for t in             dev-hub/tests/test_v623_contextual_memory_recall.py             dev-hub/tests/test_v660_independent_accuracy_attestation.py             dev-hub/tests/test_v661_real_world_evidence_isolated_candidate.py             dev-hub/tests/test_v663_runtime_surface_instrumentation_readiness.py             dev-hub/tests/test_v664_real_instrumented_project_acceptance_council.py; do
+          for t in             dev-hub/tests/test_v623_contextual_memory_recall.py             dev-hub/tests/test_v635_central_specialist_authorities.py             dev-hub/tests/test_v660_independent_accuracy_attestation.py             dev-hub/tests/test_v661_real_world_evidence_isolated_candidate.py             dev-hub/tests/test_v663_runtime_surface_instrumentation_readiness.py             dev-hub/tests/test_v664_real_instrumented_project_acceptance_council.py; do
             PYTHONPATH=dev-hub/bin python3 "$t"
           done
       - name: Qualification receipt
