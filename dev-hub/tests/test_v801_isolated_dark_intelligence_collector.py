@@ -120,6 +120,24 @@ selected=analysis_adapter.select_analysis_text(long_text,"Tor Project",["onion s
 assert len(selected)<=analysis_adapter.MAX_ANALYSIS_CHARS
 assert "Tor Project onion service relevant marker" in selected
 assert len(selected)<len(long_text)
+assert analysis_adapter.MODELS[0]=="gemini-3.6-flash-medium"
+same=analysis_adapter._parse_json_sequence('{"probe":"PASS"}\n{"probe":"PASS"}\n')
+assert same=={"probe":"PASS"}
+try:
+    analysis_adapter._parse_json_sequence('{"probe":"PASS"}\n{"probe":"DIFFERENT"}\n')
+except ValueError as e:
+    assert "DUPLICATE_OUTPUT_CONFLICT" in str(e)
+else:
+    raise AssertionError("conflicting repeated JSON accepted")
+deferred={
+  "schema":"chacha.dev/dark-intelligence-analysis/v1","status":"DEFERRED_PROVIDER_UNAVAILABLE",
+  "source_summary":"deferred","claims":[],"entities":[],"technical_indicators":[],
+  "sensitivity":{"credentials_present":False,"personal_data_present":False,"malware_payload_present":False},
+  "limitations":["provider unavailable"]
+}
+analysis_adapter.validate(deferred)
+assert dark_policy["collection"]["semantic_analysis_provider_unavailable_behavior"]=="DEFERRED_PROVIDER_UNAVAILABLE"
+assert dark_policy["collection"]["semantic_analysis_must_never_promote_without_result"] is True
 
 # Deterministic E2E proof without invoking the model in CI:
 # sanitized capture -> synthetic unverified analysis -> Dark Intelligence -> Technology Watch + Logician.
@@ -175,5 +193,7 @@ print("CHACHA_DEV_V801_UNTRUSTED_CONTENT_AS_DATA_ONLY=PASS")
 print("CHACHA_DEV_V801_DARK_AGENT_TECHNOLOGY_WATCH_HANDOFF=PASS")
 print("CHACHA_DEV_V801_TOOL_FREE_SEMANTIC_ANALYSIS=PASS")
 print("CHACHA_DEV_V801_BOUNDED_RELEVANT_ANALYSIS_CONTEXT=PASS")
+print("CHACHA_DEV_V801_SEMANTIC_MODEL_FAILOVER=PASS")
+print("CHACHA_DEV_V801_PROVIDER_UNAVAILABLE_DEFER_FAILSAFE=PASS")
 print("CHACHA_DEV_V801_END_TO_END_TECHNOLOGY_WATCH_LOGICIAN=PASS")
 print("CHACHA_DEV_V801_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
