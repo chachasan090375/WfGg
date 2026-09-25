@@ -35,7 +35,15 @@
     "end_to_end_pipeline": "dev-hub/bin/dark-intelligence-pipeline.py",
     "semantic_analysis_tool_access": false,
     "semantic_analysis_sandbox_required": true,
-    "semantic_analysis_source_instruction_authority": false
+    "semantic_analysis_source_instruction_authority": false,
+    "semantic_analysis_models": [
+      "gemini-3.6-flash-medium",
+      "gemini-3.8-flash-medium",
+      "gemini-3.7-flash-medium"
+    ],
+    "semantic_analysis_provider_unavailable_behavior": "DEFERRED_PROVIDER_UNAVAILABLE",
+    "semantic_analysis_retry_after_seconds": 900,
+    "semantic_analysis_must_never_promote_without_result": true
   },
   "verification_pipeline": {
     "normalize_to_technology_dossier": true,
