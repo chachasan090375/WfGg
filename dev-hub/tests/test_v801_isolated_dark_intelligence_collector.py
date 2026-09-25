@@ -68,7 +68,7 @@ assert 'shutil.rmtree(Path("/etc/netns")/nm["namespace"],ignore_errors=True)' in
 sargs=runner.sandbox_args(policy,"/run/netns/chacha-dark-v801")
 joined="\n".join(sargs)
 for required in [
- "NetworkNamespacePath=/run/netns/chacha-dark-v801","DynamicUser=yes","PrivateTmp=yes",
+ "NetworkNamespacePath=/run/netns/chacha-dark-v801","BindReadOnlyPaths=/etc/netns/chacha-dark-v801/resolv.conf:/etc/resolv.conf","DynamicUser=yes","PrivateTmp=yes",
  "ProtectSystem=strict","ProtectHome=yes","PrivateDevices=yes","NoNewPrivileges=yes",
  "RestrictNamespaces=yes","CapabilityBoundingSet=","InaccessiblePaths=/opt/chacha-dev/secrets"
 ]:
@@ -442,6 +442,7 @@ with tempfile.TemporaryDirectory(prefix="v801-auto-corroboration-pass-") as td:
 print("CHACHA_DEV_V801_DEDICATED_NETWORK_NAMESPACE=PASS")
 print("CHACHA_DEV_V801_HOST_AND_PRIVATE_NETWORK_BLOCK=PASS")
 print("CHACHA_DEV_V801_NAMESPACE_SPECIFIC_DNS=PASS")
+print("CHACHA_DEV_V801_SYSTEMD_NAMESPACE_DNS_BIND=PASS")
 print("CHACHA_DEV_V801_TOR_SYSTEM_INSTALL=NO")
 print("CHACHA_DEV_V801_GET_ONLY_NO_CREDENTIALS=PASS")
 print("CHACHA_DEV_V801_UNTRUSTED_CONTENT_AS_DATA_ONLY=PASS")
