@@ -1,0 +1,41 @@
+name: ChaCha DEV V8.0.13 Professional Localization Agent
+
+on:
+  push:
+    branches:
+      - dev-hub-v813-professional-localization-agent
+    paths:
+      - 'dev-hub/bin/professional-localization-agent.py'
+      - 'dev-hub/config/professional-localization-policy.v1.json'
+      - 'dev-hub/config/capability-semantics.v1.json'
+      - 'dev-hub/tests/test_v813_professional_localization_agent.py'
+      - '.github/workflows/dev-hub-v813-professional-localization-agent.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/professional-localization-agent.py             dev-hub/tests/test_v813_professional_localization_agent.py
+          python3 -m json.tool dev-hub/config/professional-localization-policy.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/capability-semantics.v1.json >/dev/null
+      - name: V8.0.13 qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v813_professional_localization_agent.py | tee /tmp/v813.out
+          grep -Fq 'CHACHA_DEV_V813_MEMORY_REUSE=PASS' /tmp/v813.out
+          grep -Fq 'CHACHA_DEV_V813_PLACEHOLDER_PRESERVATION=PASS' /tmp/v813.out
+          grep -Fq 'CHACHA_DEV_V813_UI_LENGTH_GATE=PASS' /tmp/v813.out
+          grep -Fq 'CHACHA_DEV_V813_INDEPENDENT_MEMORY_REVIEW=PASS' /tmp/v813.out
+          grep -Fq 'CHACHA_DEV_V813_ALL_27_DOMAIN_FEATURES_REUSABLE=PASS' /tmp/v813.out
+          grep -Fq 'CHACHA_DEV_V813_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v813.out
