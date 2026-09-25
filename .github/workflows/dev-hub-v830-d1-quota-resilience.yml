@@ -1,0 +1,51 @@
+name: ChaCha DEV V8.0.30 D1 Quota Resilience
+
+on:
+  push:
+    branches:
+      - dev-hub-v830-d1-quota-resilience
+    paths:
+      - 'dev-hub/bin/d1_quota_circuit.py'
+      - 'dev-hub/bin/guardian-client.py'
+      - 'dev-hub/bin/sentinel-client.py'
+      - 'dev-hub/bin/assurance-exchange-client.py'
+      - 'dev-hub/guardian/worker.js'
+      - 'dev-hub/config/guardian-runtime-policy.v1.json'
+      - 'dev-hub/systemd/chacha-dev-guardian-alert-pull.timer'
+      - 'dev-hub/systemd/chacha-dev-guardian-remediation.timer'
+      - 'dev-hub/systemd/chacha-dev-assurance-exchange-feedback.timer'
+      - 'dev-hub/systemd/chacha-dev-sentinel-remediation.timer'
+      - 'dev-hub/tests/test_v830_d1_quota_resilience.py'
+      - '.github/workflows/dev-hub-v830-d1-quota-resilience.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/d1_quota_circuit.py             dev-hub/bin/guardian-client.py             dev-hub/bin/sentinel-client.py             dev-hub/bin/assurance-exchange-client.py             dev-hub/tests/test_v830_d1_quota_resilience.py
+          node --check dev-hub/guardian/worker.js
+      - name: V8.0.30 qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v830_d1_quota_resilience.py | tee /tmp/v830.out
+          grep -Fq 'CHACHA_DEV_V830_D1_READ_QUOTA_CLASSIFICATION=PASS' /tmp/v830.out
+          grep -Fq 'CHACHA_DEV_V830_SHARED_ACCOUNT_CIRCUIT_BREAKER=PASS' /tmp/v830.out
+          grep -Fq 'CHACHA_DEV_V830_FAIL_CLOSED=PASS' /tmp/v830.out
+          grep -Fq 'CHACHA_DEV_V830_NO_NETWORK_WHILE_CIRCUIT_OPEN=PASS' /tmp/v830.out
+          grep -Fq 'CHACHA_DEV_V830_POLL_BUDGET=PASS' /tmp/v830.out
+          grep -Fq 'CHACHA_DEV_V830_AUTOMATIC_PAID_UPGRADE=NO' /tmp/v830.out
+          grep -Fq 'CHACHA_DEV_V830_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v830.out
