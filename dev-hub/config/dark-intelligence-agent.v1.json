@@ -43,7 +43,12 @@
     ],
     "semantic_analysis_provider_unavailable_behavior": "DEFERRED_PROVIDER_UNAVAILABLE",
     "semantic_analysis_retry_after_seconds": 900,
-    "semantic_analysis_must_never_promote_without_result": true
+    "semantic_analysis_must_never_promote_without_result": true,
+    "analysis_retry_queue": "dev-hub/bin/dark-intelligence-analysis-queue.py",
+    "analysis_retry_timer": "dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.timer",
+    "analysis_retry_interval_seconds": 900,
+    "analysis_retry_max_attempts": 12,
+    "analysis_retry_infinite_loop_forbidden": true
   },
   "verification_pipeline": {
     "normalize_to_technology_dossier": true,
