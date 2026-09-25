@@ -1,0 +1,42 @@
+name: ChaCha DEV V8.0.2 Direct Operator End-to-End Conversation
+
+on:
+  push:
+    branches:
+      - dev-hub-v802-direct-operator-end-to-end-conversation
+    paths:
+      - 'dev-hub/bin/direct-operator-service.py'
+      - 'dev-hub/bin/human-interface-gateway.py'
+      - 'dev-hub/bin/conversation-interface-agent.py'
+      - 'dev-hub/direct-operator-ui/index.html'
+      - 'dev-hub/config/direct-operator.v1.json'
+      - 'dev-hub/tests/test_v802_direct_operator_end_to_end_conversation.py'
+      - '.github/workflows/dev-hub-v802-direct-operator-end-to-end-conversation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/direct-operator-service.py             dev-hub/bin/human-interface-gateway.py             dev-hub/bin/conversation-interface-agent.py             dev-hub/tests/test_v802_direct_operator_end_to_end_conversation.py
+          python3 -m json.tool dev-hub/config/direct-operator.v1.json >/dev/null
+      - name: V8.0.2 qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v802_direct_operator_end_to_end_conversation.py | tee /tmp/v802.out
+          grep -Fq 'CHACHA_DEV_V802_SESSION_PROJECT_STABILITY=PASS' /tmp/v802.out
+          grep -Fq 'CHACHA_DEV_V802_PLAN_READY_AUTO_CONTINUE=PASS' /tmp/v802.out
+          grep -Fq 'CHACHA_DEV_V802_ACCEPTED_PROMPT_CLEARED=PASS' /tmp/v802.out
+          grep -Fq 'CHACHA_DEV_V802_CONVERSATIONAL_FINAL_RESULT=PASS' /tmp/v802.out
+          grep -Fq 'CHACHA_DEV_V802_TECHNICAL_DETAILS_SECONDARY=PASS' /tmp/v802.out
+          grep -Fq 'CHACHA_DEV_V802_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v802.out
