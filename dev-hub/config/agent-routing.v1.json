@@ -161,7 +161,12 @@
       "capabilities": [
         "translation",
         "terminology-management",
-        "translation-quality-review"
+        "translation-quality-review",
+        "register-adaptation",
+        "locale-localization",
+        "ui-length-aware-translation",
+        "structured-content-preservation",
+        "project-translation-memory"
       ],
       "default_risk": "low"
     },
@@ -267,6 +272,25 @@
         "branch-lifecycle"
       ],
       "default_risk": "medium"
+    },
+    "conversation-interface-agent": {
+      "capabilities": [
+        "human-conversation-rendering",
+        "central-receipt-explanation",
+        "user-confirmation-dialogue",
+        "conversation-context-continuity"
+      ],
+      "default_risk": "low"
+    },
+    "dark-intelligence-agent": {
+      "capabilities": [
+        "deep-web-source-intake",
+        "dark-web-source-intake",
+        "threat-intelligence-triage",
+        "source-provenance-normalization",
+        "technology-watch-validation-handoff"
+      ],
+      "default_risk": "high"
     }
   },
   "routing_rules": [
@@ -647,6 +671,40 @@
       "review_roles": [
         "test-engineer",
         "security-reviewer"
+      ]
+    },
+    {
+      "match": [
+        "dark web",
+        "darkweb",
+        "deep web",
+        "deepweb",
+        "onion",
+        "tor intelligence",
+        "threat intelligence",
+        "fuite",
+        "leak monitoring"
+      ],
+      "primary_role": "dark-intelligence-agent",
+      "review_roles": [
+        "technology-watch-agent",
+        "security-reviewer",
+        "bastion"
+      ]
+    },
+    {
+      "match": [
+        "réponds-moi",
+        "reponds-moi",
+        "conversation",
+        "dialogue",
+        "réponse utilisateur",
+        "human response",
+        "central brain response"
+      ],
+      "primary_role": "conversation-interface-agent",
+      "review_roles": [
+        "translation-specialist"
       ]
     }
   ],
