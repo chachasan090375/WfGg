@@ -1,0 +1,41 @@
+name: ChaCha DEV V8.0.22 Local Adapter Health Integrity
+
+on:
+  push:
+    branches:
+      - dev-hub-v822-local-adapter-health-integrity
+    paths:
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/provider-health-probes.v1.json'
+      - 'dev-hub/bin/collector-knowledge-provider-probe.py'
+      - 'dev-hub/tests/test_v822_local_adapter_health_integrity.py'
+      - '.github/workflows/dev-hub-v822-local-adapter-health-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/collector-knowledge-provider-probe.py             dev-hub/tests/test_v822_local_adapter_health_integrity.py
+          python3 -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/provider-health-probes.v1.json >/dev/null
+      - name: V8.0.22 qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v822_local_adapter_health_integrity.py | tee /tmp/v822.out
+          grep -Fq 'CHACHA_DEV_V822_HTTP_SMOKE_ENABLED=PASS' /tmp/v822.out
+          grep -Fq 'CHACHA_DEV_V822_COLLECTOR_HEALTHY_PROBE=PASS' /tmp/v822.out
+          grep -Fq 'CHACHA_DEV_V822_COLLECTOR_UNAVAILABLE_FAIL_CLOSED=PASS' /tmp/v822.out
+          grep -Fq 'CHACHA_DEV_V822_PROBE_INDEPENDENT_FROM_ADAPTER=PASS' /tmp/v822.out
+          grep -Fq 'CHACHA_DEV_V822_LASTWAR_CONNECTION_NONE=PASS' /tmp/v822.out
+          grep -Fq 'CHACHA_DEV_V822_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v822.out
