@@ -206,15 +206,7 @@
               ]
             }
           },
-          "bindings": [
-            {
-              "capability": "collector-knowledge-inspect",
-              "provider": "collector-knowledge-runtime",
-              "adapter": "collector-knowledge-adapter",
-              "fallback_used": false,
-              "health_state": "HEALTHY"
-            }
-          ],
+          "bindings": [],
           "policy_context": {
             "resource_class": "light",
             "requires_storage_preflight": false,
@@ -232,7 +224,8 @@
         "expected_schema": "chacha.dev/task-result/v1",
         "expected_status": "BLOCKED",
         "expected_producer": "collector-knowledge-adapter",
-        "expected_verification_status": "UNVERIFIED"
+        "expected_verification_status": "UNVERIFIED",
+        "expected_exit_code": 2
       }
     },
     "cloudflare-pages-production-adapter": {
