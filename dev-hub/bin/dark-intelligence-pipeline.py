@@ -303,6 +303,18 @@ def main()->int:
         save(a.output_dir/"pipeline-result.json",result)
     else:
         result=process(repo,a.capture,analysis,a.subject,a.output_dir,a.corroboration_evidence,not a.no_auto_corroboration)
+        runtime=analysis.get("runtime") if isinstance(analysis.get("runtime"),dict) else {}
+        if runtime.get("backend")=="deterministic-extractive-fallback" and runtime.get("semantic_refinement_required") is True:
+            queued=enqueue_deferred(repo,a.capture.resolve(),a.subject,a.watch_term,a.queue_root.resolve())
+            result["semantic_refinement"]={
+              "status":"PENDING" if queued.get("status")!="COMPLETE" else "COMPLETE",
+              "required":True,
+              "provisional_analysis_backend":"deterministic-extractive-fallback",
+              "after_seconds":int(runtime.get("retry_after_seconds") or 900),
+              "persistent_queue":True,"queue_job":queued,
+              "provisional_claims_never_gain_fact_authority":True
+            }
+            save(a.output_dir/"pipeline-result.json",result)
         if result.get("status")=="CORROBORATION_DEFERRED":
             queued=enqueue_deferred(repo,a.capture.resolve(),a.subject,a.watch_term,a.queue_root.resolve())
             result["retry"]={"required":True,
