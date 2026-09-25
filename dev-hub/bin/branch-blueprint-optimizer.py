@@ -71,6 +71,7 @@ def build_candidates(package:dict[str,Any],preplan:dict[str,Any],branch_policy:d
         "3d-pipeline","graphics-pipeline","animation-pipeline","performance-test-web",
         "security-scan-js","browser-automation","browser-diagnostics","cloud-deploy-edge"
     } for x in caps)
+    runtime_review_required=(kind=="review" and (bool(package.get("requires_runtime_review")) or heavy))
     agent_decision=agent_decision or {}
     agent_mode=str(agent_decision.get("decision") or "TOOL_ONLY")
     created_agent=agent_mode.startswith("CREATE_")
@@ -120,7 +121,7 @@ def build_candidates(package:dict[str,Any],preplan:dict[str,Any],branch_policy:d
       "memory_guided_reuse":memory_reuse_available,
       "memory_reuse_candidates":memory_reuse[:5],
       "hard_constraints":{**common_hard,
-        "functional_coverage":(not implementation or kind=="review"),
+        "functional_coverage":(not implementation or (kind=="review" and not runtime_review_required)),
         "required_quality":not heavy,
         "memory_confidence":not memory_negative_fast_reuse_block
       }
@@ -158,7 +159,7 @@ def build_candidates(package:dict[str,Any],preplan:dict[str,Any],branch_policy:d
     if package.get("requires_dedicated_orchestrator"):
         candidates[2]["hard_constraints"]["functional_coverage"]=False
     # Review packages should not pay for a runtime unless explicitly required.
-    if kind=="review" and not package.get("requires_runtime_review"):
+    if kind=="review" and not runtime_review_required:
         candidates[2]["hard_constraints"]["functional_coverage"]=False
         candidates[3]["hard_constraints"]["functional_coverage"]=False
 
