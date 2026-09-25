@@ -37,7 +37,12 @@ def compose(receipt:dict[str,Any],intent:dict[str,Any]|None=None)->dict[str,Any]
         if platform:
             bits=[]
             version=str(platform.get("platform_version") or "").strip()
-            if version: bits.append("version active "+version)
+            if version: bits.append("noyau "+version)
+            extension=platform.get("platform_extension") if isinstance(platform.get("platform_extension"),dict) else {}
+            ext_version=str(extension.get("version") or "").strip()
+            ext_name=str(extension.get("name") or "").strip()
+            if ext_version:
+                bits.append(("extension "+ext_name+" " if ext_name else "extension ")+ext_version)
             if "emergency_stop_active" in platform:
                 bits.append("arrêt d’urgence "+("actif" if platform.get("emergency_stop_active") else "désactivé"))
             if "guardian_all_hooks_active" in platform:
