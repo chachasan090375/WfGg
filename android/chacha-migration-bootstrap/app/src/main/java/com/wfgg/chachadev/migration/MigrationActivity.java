@@ -39,7 +39,7 @@ public final class MigrationActivity extends Activity {
     private static final String TARGET_APK_URL =
             "https://chachavps.tail3ab05a.ts.net:8445/chacha-jai-pete-v0.6.0-4fb319fcea6d.apk";
     private static final String TARGET_APK_SHA256 =
-            "bec1f07b66e9bf96b3bdd56524625607dd50310449beff80b28b51cdcbcc2824";
+            "741c3e2be48d55e09a33f805fbd39d99d579cc4efcdf4d215387e93a2228e0bb";
     private static final String TARGET_CERT_SHA256 =
             "3a39f13de1191aec28526d5d8e7c9b490723d514b8dd87e5cb30aaa86a6bff88";
 
