@@ -66,7 +66,7 @@ for required in [
 
 # Tor is toolcache-only: never apt install and never starts a host Tor service.
 prov=(ROOT/"dev-hub/bin/dark-intelligence-tor-toolcache.py").read_text(encoding="utf-8")
-assert '"download"' in prov and '"dpkg-deb","-x"' in prov
+assert '"download"' in prov and '"/usr/bin/dpkg-deb","-x"' in prov
 assert "apt-get install" not in prov and "dpkg -i" not in prov
 assert policy["tor"]["system_service_install_forbidden"] is True
 
