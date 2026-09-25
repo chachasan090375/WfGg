@@ -1,0 +1,38 @@
+name: ChaCha DEV V8.0.5 Direct Operator Network Resilience
+
+on:
+  push:
+    branches:
+      - dev-hub-v805-direct-operator-network-resilience
+    paths:
+      - 'dev-hub/bin/direct-operator-service.py'
+      - 'dev-hub/direct-operator-ui/index.html'
+      - 'dev-hub/tests/test_v805_direct_operator_network_resilience.py'
+      - '.github/workflows/dev-hub-v805-direct-operator-network-resilience.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/direct-operator-service.py             dev-hub/tests/test_v805_direct_operator_network_resilience.py
+      - name: V8.0.5 qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v805_direct_operator_network_resilience.py | tee /tmp/v805.out
+          grep -Fq 'CHACHA_DEV_V805_IDEMPOTENT_RETRY=PASS' /tmp/v805.out
+          grep -Fq 'CHACHA_DEV_V805_LEGACY_UI_COMPATIBILITY=PASS' /tmp/v805.out
+          grep -Fq 'CHACHA_DEV_V805_NETWORK_RETRY=PASS' /tmp/v805.out
+          grep -Fq 'CHACHA_DEV_V805_POLLING_BACKPRESSURE=PASS' /tmp/v805.out
+          grep -Fq 'CHACHA_DEV_V805_REMOTE_UI_SELF_RELOAD=PASS' /tmp/v805.out
+          grep -Fq 'CHACHA_DEV_V805_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v805.out
