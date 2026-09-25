@@ -88,7 +88,7 @@ def guardian_subcomponent(root:Path,subject_role:str,task_kind:str,phase:str,act
       "task_kind":task_kind,
       "permission":"plan",
       "project_id":"platform-bootstrap",
-      "run_id":None,
+      "run_id":os.environ.get("CHACHA_GUARDIAN_RUN_ID") or None,
       "adapters":[],
       "evidence":{"emergency_stop_active":False,"output_exists":bool(output and output.exists())},
       "context":{"resource_class":"light","human_approval_required":False,
