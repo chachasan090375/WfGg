@@ -189,6 +189,64 @@
         "learning_quality"
       ],
       "quality_claim_from_activity": false
+    },
+    {
+      "agent_id": "conversation-channel-router",
+      "risk": "medium",
+      "boundaries": [
+        "direct-operator",
+        "build-channel"
+      ],
+      "observed_dimensions": [
+        "routing",
+        "no_auto_escalation",
+        "authority_boundary"
+      ],
+      "quality_claim_from_activity": false
+    },
+    {
+      "agent_id": "conversation-advisory-bus",
+      "risk": "medium",
+      "boundaries": [
+        "central-memory",
+        "human-behavior-center"
+      ],
+      "observed_dimensions": [
+        "read_only",
+        "privacy",
+        "authority_boundary"
+      ],
+      "quality_claim_from_activity": false
+    },
+    {
+      "agent_id": "conversation-reasoner",
+      "risk": "medium",
+      "boundaries": [
+        "dialogue",
+        "provider-economics"
+      ],
+      "observed_dimensions": [
+        "zero_cost_gate",
+        "no_tools",
+        "factual_grounding",
+        "authority_boundary"
+      ],
+      "quality_claim_from_activity": false
+    },
+    {
+      "agent_id": "research-broker",
+      "risk": "medium",
+      "boundaries": [
+        "technology-watch-cache",
+        "future-web-research"
+      ],
+      "observed_dimensions": [
+        "cached_only",
+        "network_boundary",
+        "source_provenance",
+        "cost_boundary"
+      ],
+      "quality_claim_from_activity": false
     }
   ],
   "invariants": {

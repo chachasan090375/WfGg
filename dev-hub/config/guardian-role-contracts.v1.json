@@ -1181,6 +1181,127 @@
         "fictional_persona_contract",
         "automatic_external_spend_eur_zero"
       ]
+    },
+    {
+      "contract_id": "role:conversation-channel-router",
+      "kind": "role",
+      "allowed_actions": [
+        "ROUTE_CONVERSATION_REQUEST",
+        "PREPARE_BUILD_HANDOFF"
+      ],
+      "forbidden_actions": [
+        "EXECUTE_PROJECT_MUTATION",
+        "DISPATCH_TASK",
+        "RUN_SCHEDULER",
+        "RUN_CONTROLLER_EXECUTE",
+        "RUN_FOUNDRY",
+        "PRODUCTION_DEPLOY",
+        "EXPAND_PERMISSIONS",
+        "MODIFY_GUARDIAN_CONTRACTS",
+        "AUTOMATIC_PAID_UPGRADE",
+        "AUTO_SWITCH_TO_BUILD"
+      ],
+      "allowed_permissions": [
+        "read",
+        "route"
+      ],
+      "required_evidence": [
+        "manual_channel_authority",
+        "no_auto_build_escalation",
+        "automatic_external_spend_eur_zero"
+      ]
+    },
+    {
+      "contract_id": "role:conversation-advisory-bus",
+      "kind": "role",
+      "allowed_actions": [
+        "READ_CENTRAL_MEMORY_SNAPSHOT",
+        "READ_HUMAN_BEHAVIOR_EVIDENCE",
+        "MERGE_READ_ONLY_ADVICE"
+      ],
+      "forbidden_actions": [
+        "EXECUTE_PROJECT_MUTATION",
+        "DISPATCH_TASK",
+        "RUN_SCHEDULER",
+        "RUN_CONTROLLER_EXECUTE",
+        "RUN_FOUNDRY",
+        "PRODUCTION_DEPLOY",
+        "EXPAND_PERMISSIONS",
+        "MODIFY_GUARDIAN_CONTRACTS",
+        "AUTOMATIC_PAID_UPGRADE",
+        "AUTO_SWITCH_TO_BUILD"
+      ],
+      "allowed_permissions": [
+        "read",
+        "knowledge-read"
+      ],
+      "required_evidence": [
+        "read_only",
+        "no_scheduler",
+        "no_run_controller",
+        "automatic_external_spend_eur_zero"
+      ]
+    },
+    {
+      "contract_id": "role:conversation-reasoner",
+      "kind": "role",
+      "allowed_actions": [
+        "GENERATE_CONVERSATIONAL_RESPONSE",
+        "SUMMARIZE_ADVISORY_CONTEXT",
+        "EMBODY_FICTIONAL_PERSONA"
+      ],
+      "forbidden_actions": [
+        "EXECUTE_PROJECT_MUTATION",
+        "DISPATCH_TASK",
+        "RUN_SCHEDULER",
+        "RUN_CONTROLLER_EXECUTE",
+        "RUN_FOUNDRY",
+        "PRODUCTION_DEPLOY",
+        "EXPAND_PERMISSIONS",
+        "MODIFY_GUARDIAN_CONTRACTS",
+        "AUTOMATIC_PAID_UPGRADE",
+        "AUTO_SWITCH_TO_BUILD"
+      ],
+      "allowed_permissions": [
+        "read",
+        "reason"
+      ],
+      "required_evidence": [
+        "provider_zero_cost_gate",
+        "no_tools",
+        "no_execution_authority",
+        "automatic_external_spend_eur_zero"
+      ]
+    },
+    {
+      "contract_id": "role:research-broker",
+      "kind": "role",
+      "allowed_actions": [
+        "READ_CACHED_TECHNOLOGY_SNAPSHOT",
+        "RANK_LOCAL_RESEARCH_RESULTS"
+      ],
+      "forbidden_actions": [
+        "EXECUTE_PROJECT_MUTATION",
+        "DISPATCH_TASK",
+        "RUN_SCHEDULER",
+        "RUN_CONTROLLER_EXECUTE",
+        "RUN_FOUNDRY",
+        "PRODUCTION_DEPLOY",
+        "EXPAND_PERMISSIONS",
+        "MODIFY_GUARDIAN_CONTRACTS",
+        "AUTOMATIC_PAID_UPGRADE",
+        "AUTO_SWITCH_TO_BUILD",
+        "NETWORK_RESEARCH",
+        "REFRESH_TECHNOLOGY_WATCH"
+      ],
+      "allowed_permissions": [
+        "read"
+      ],
+      "required_evidence": [
+        "cached_snapshot_only",
+        "network_call_performed_false",
+        "automatic_external_spend_eur_zero"
+      ]
     }
   ]
 }

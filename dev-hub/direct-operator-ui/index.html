@@ -20,6 +20,10 @@ main{width:min(920px,100%);margin:auto;padding:18px 16px 60px}
 h1{font-size:22px;line-height:1.05;margin:0}.subtitle{font-size:12px;color:var(--muted);margin-top:5px}
 .live{display:flex;align-items:center;gap:7px;padding:8px 11px;border:1px solid #3a3b43;border-radius:999px;background:#191920cc;font-size:12px;color:#d7d2e4}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 5px #6de0b619}
+.channelSwitch{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:0 0 14px;padding:5px;border:1px solid #383541;border-radius:18px;background:#17161dcc}
+.channelBtn{border:0;border-radius:14px;background:transparent;color:#9993a7;padding:11px 14px;box-shadow:none}
+.channelBtn.active{background:linear-gradient(135deg,#30284a,#473365);color:#fff;box-shadow:0 7px 18px #0003}
+.channelHint{font-size:11px;color:#8f899b;text-align:center;margin:-6px 0 14px}
 .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:14px}
 .card{background:linear-gradient(180deg,#24232ccc,#1a1921e8);border:1px solid var(--line);border-radius:24px;padding:17px;
  box-shadow:0 16px 50px #0005;backdrop-filter:blur(16px)}
@@ -69,9 +73,15 @@ details.tech pre{font-size:11px;color:#aaa5b7}
 </head>
 <body><main>
 <div class="top">
-  <div class="logo"><div class="avatar">💨</div><div><h1>ChaCha j’ai pété</h1><div class="subtitle">Ton accès direct à ChaCha DEV</div></div></div>
+  <div class="logo"><div class="avatar">💨</div><div><h1>ChaCha j’ai pété</h1><div class="subtitle">Conversation + création, un même cerveau</div></div></div>
   <div class="live"><span class="dot"></span><span id="conn">Direct privé</span></div>
 </div>
+
+<div class="channelSwitch" role="tablist" aria-label="Canal ChaCha">
+  <button class="channelBtn active" id="channelConversation" type="button">💬 ChaCha</button>
+  <button class="channelBtn" id="channelBuild" type="button">🛠️ Créer</button>
+</div>
+<div class="channelHint" id="channelHint">Discussion, recherche et conseil — aucune mutation</div>
 
 <div class="grid">
   <section class="card hero">
@@ -139,6 +149,9 @@ details.tech pre{font-size:11px;color:#aaa5b7}
 const q=document.querySelector('#q'),send=document.querySelector('#send'),stage=document.querySelector('#stage');
 const timeline=document.querySelector('#timeline'),typing=document.querySelector('#typing'),tech=document.querySelector('#tech'),techResult=document.querySelector('#techResult'),conversationMeta=document.querySelector('#conversationMeta');
 const hpName=document.querySelector('#hpName'),hpAddress=document.querySelector('#hpAddress'),hpGender=document.querySelector('#hpGender'),hpAge=document.querySelector('#hpAge'),hpCulture=document.querySelector('#hpCulture'),hpRegion=document.querySelector('#hpRegion'),hpRegister=document.querySelector('#hpRegister'),hpHumor=document.querySelector('#hpHumor'),hpPersona=document.querySelector('#hpPersona'),hpSave=document.querySelector('#hpSave'),hpStatus=document.querySelector('#hpStatus');
+const channelConversation=document.querySelector('#channelConversation'),channelBuild=document.querySelector('#channelBuild'),channelHint=document.querySelector('#channelHint');
+let selectedChannel=localStorage.getItem('chacha-channel')||'CONVERSATION';
+let pendingBuildText='';
 let lastSeenRequestId='',lastSeenDigest='',lastTimelineToken='',conversationSyncBusy=false,progressBusy=false;
 let runtimeRevision='',activeJobId='',pendingUiReload=false;
 const globalPct=document.querySelector('#globalPct'),globalFill=document.querySelector('#globalFill'),globalLabel=document.querySelector('#globalLabel');
@@ -216,11 +229,15 @@ function renderConversation(z,digest=''){
  wrap.innerHTML=(asked?turnHtml('user',asked,z?.submitted_at||''):'')+turnHtml('assistant',answer,when);
  timeline.appendChild(wrap);
  const status=String(z?.status||cv.kind||'PRÊT').toUpperCase();
- const labels={SUCCESS:'TERMINÉ',PASS:'TERMINÉ',OK:'OK',BLOCKED:'BLOQUÉ',FAILED:'ÉCHEC',PARTIAL:'PARTIEL',AWAITING_APPROVAL:'VALIDATION',AWAITING_EXTERNAL_CONDITION:'EN ATTENTE'};
+ if(status==='BUILD_HANDOFF_REQUIRED'&&asked)pendingBuildText=asked;
+ const labels={SUCCESS:'TERMINÉ',PASS:'TERMINÉ',OK:'OK',BLOCKED:'BLOQUÉ',FAILED:'ÉCHEC',PARTIAL:'PARTIEL',AWAITING_APPROVAL:'VALIDATION',AWAITING_EXTERNAL_CONDITION:'EN ATTENTE',BUILD_HANDOFF_REQUIRED:'PASSER À CRÉER'};
  stage.textContent=labels[status]||status;
- conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span>'+(when?' • réponse '+esc(displayTime(when)):'');
+ conversationMeta.innerHTML=status==='BUILD_HANDOFF_REQUIRED'
+   ?'Demande prête : touche 🛠️ Créer pour la reprendre sans la retaper. Rien ne sera lancé avant ton envoi.'
+   :'<span class="syncLive">● Temps réel</span>'+(when?' • réponse '+esc(displayTime(when)):'');
  techResult.textContent=JSON.stringify({
    status:z?.status,next_action:z?.next_action,request_id:rid,responded_at:when,
+   channel:z?.channel||null,subroute:z?.subroute||null,
    project:z?.session_project_id||z?.project_id,execution_project:z?.execution_project_id,
    continuation_steps:z?.continuation_steps||[],human_context_applied:cv?.human_context_applied||false,
    dialogue_mode:cv?.dialogue_orchestrator?.mode||'DETERMINISTIC_BASE_RESPONSE',
@@ -257,20 +274,39 @@ async function hydrateConversation(){
   if(s.last_response)renderConversation(s.last_response);
  }catch(_){}
 }
-async function submit(text,fromEditor=false){
+function setChannel(channel){
+ selectedChannel=channel==='BUILD'?'BUILD':'CONVERSATION';
+ localStorage.setItem('chacha-channel',selectedChannel);
+ channelConversation.classList.toggle('active',selectedChannel==='CONVERSATION');
+ channelBuild.classList.toggle('active',selectedChannel==='BUILD');
+ channelHint.textContent=selectedChannel==='CONVERSATION'
+   ?'Discussion, recherche et conseil — aucune mutation'
+   :'Création et exécution — pipeline ChaCha DEV gouverné';
+ q.placeholder=selectedChannel==='CONVERSATION'
+   ?'Parle avec ChaCha…'
+   :'Dis-moi ce que tu veux créer ou modifier…';
+}
+channelConversation.onclick=()=>setChannel('CONVERSATION');
+channelBuild.onclick=()=>{
+ setChannel('BUILD');
+ if(pendingBuildText){q.value=pendingBuildText;pendingBuildText='';q.focus();conversationMeta.textContent='Demande prête dans 🛠️ Créer — envoie-la quand tu veux.';}
+};
+setChannel(selectedChannel);
+
+async function submit(text,fromEditor=false,channelOverride=null){
  const original=String(text||'').trim();if(!original)return;
  const clientRequestId=requestId();
  let accepted=false;send.disabled=true;stage.textContent='ENVOI';tech.hidden=true;typing.hidden=false;await refreshProgress();
  try{
   const x=await fetchJson('/api/v1/intent',{
     method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({text:original,client_request_id:clientRequestId})
+    body:JSON.stringify({text:original,client_request_id:clientRequestId,channel:channelOverride||selectedChannel})
   },4);
   accepted=true;activeJobId=x.job_id;if(fromEditor)q.value='';
   const pending=document.createElement('div');pending.id='pending-'+clientRequestId;
   pending.innerHTML=turnHtml('user',original,new Date().toISOString(),'pending');
   timeline.appendChild(pending);timeline.scrollTop=timeline.scrollHeight;
-  conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span> • demande acceptée • '+esc(clientRequestId.slice(0,8));
+  conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span> • '+esc((x.channel||selectedChannel)==='BUILD'?'Créer':'ChaCha')+' • demande acceptée • '+esc(clientRequestId.slice(0,8));
   for(;;){
    await sleep(1200);await refreshProgress();
    try{
@@ -297,7 +333,7 @@ async function submit(text,fromEditor=false){
   if(pendingUiReload){location.reload()}
  }
 }
-send.onclick=()=>submit(q.value,true);document.querySelector('#go').onclick=()=>submit('Go');document.querySelector('#status').onclick=()=>submit('Allo');document.querySelector('#stop').onclick=()=>submit('Stop');
+send.onclick=()=>submit(q.value,true);document.querySelector('#go').onclick=()=>submit('Go');document.querySelector('#status').onclick=()=>submit('Allo');document.querySelector('#stop').onclick=()=>submit('Stop',false,'BUILD');
 document.querySelector('#mic').onclick=()=>{q.focus();conversationMeta.textContent='Sur Android, utilise le bouton micro du widget pour dicter.';};
 q.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')submit(q.value,true)});
 window.chachaSetPrompt=(text)=>{q.value=String(text||'');q.focus();};

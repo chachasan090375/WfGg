@@ -1,0 +1,36 @@
+{
+  "schema": "chacha.dev/conversation-reasoner-policy/v1",
+  "version": "8.1.3",
+  "component": "conversation-reasoner",
+  "provider": {
+    "id": "agy-gemini-conversation",
+    "backend": "/usr/local/bin/agy-dev",
+    "zero_cost_attestation_required": true,
+    "zero_cost_attestation": "/opt/chacha-dev/runtime/provider-economics/agy-conversation-zero-cost.json",
+    "allowed_zero_cost_classes": ["free","owned","included","local","quota"],
+    "models": ["gemini-3.8-flash-low","gemini-3.7-flash-low","gemini-3.6-flash-low"],
+    "timeout_seconds": 75,
+    "sandbox": true,
+    "tool_access": "NONE"
+  },
+  "context": {
+    "recent_turn_limit": 20,
+    "max_prompt_chars": 36000,
+    "include_human_context": true,
+    "include_speaker_persona": true,
+    "include_advisory_brief": true
+  },
+  "authority": {
+    "decision_authority": false,
+    "execution_authority": false,
+    "mutation_authority": false,
+    "scheduler_authority": false,
+    "run_controller_authority": false,
+    "foundry_authority": false
+  },
+  "fallback": {
+    "provider_unattested": "DETERMINISTIC_READ_ONLY_FALLBACK",
+    "conversation_remains_available": true
+  },
+  "automatic_external_spend_eur": 0
+}

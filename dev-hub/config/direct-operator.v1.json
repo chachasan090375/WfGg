@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/direct-operator-policy/v1",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "component": "direct-operator-service",
   "bind": "127.0.0.1",
   "port": 8792,
@@ -36,7 +36,9 @@
     "chatgpt_not_in_direct_path": true,
     "direct_operator_has_no_technical_decision_authority": true,
     "direct_operator_has_no_direct_mutation": true,
-    "central_orchestrator_required": true,
+    "central_orchestrator_required": "BUILD_CHANNEL_ONLY",
+    "conversation_channel_has_no_direct_mutation": true,
+    "manual_channel_switch_is_authoritative": true,
     "guardian_and_platform_governance_preserved": true,
     "automatic_external_spend_eur": 0,
     "persistent_progress_reporting": true,
@@ -107,5 +109,24 @@
     "decision_authority": false,
     "execution_authority": false,
     "automatic_external_spend_eur": 0
+  },
+  "dual_channel": {
+    "policy": "dev-hub/config/dual-channel.v1.json",
+    "router": "dev-hub/bin/conversation-channel-router.py",
+    "advisory_bus": "dev-hub/bin/conversation-advisory-bus.py",
+    "research_broker": "dev-hub/bin/research-broker.py",
+    "reasoner": "dev-hub/bin/conversation-reasoner.py",
+    "reasoner_policy": "dev-hub/config/conversation-reasoner.v1.json",
+    "zero_cost_attestation": "/opt/chacha-dev/runtime/provider-economics/agy-conversation-zero-cost.json",
+    "central_memory_snapshot": "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json",
+    "technology_watch_snapshot": "/opt/chacha-dev/runtime/technology-watch/optimizer-input.json",
+    "default_api_channel": "BUILD",
+    "ui_default_channel": "CONVERSATION",
+    "manual_switch_authoritative": true,
+    "conversation_mutation_authority": false,
+    "automatic_external_spend_eur": 0,
+    "central_orchestrator_required": "BUILD_CHANNEL_ONLY",
+    "emergency_stop_scope": "GLOBAL_ALL_CHANNELS",
+    "conversation_stop_routed_to_control_plane": true
   }
 }

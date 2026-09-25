@@ -19,7 +19,7 @@ TURN_SCHEMA="chacha.dev/conversation-turn/v1"
 PROFILE_ALLOWED_FIELDS={
   "preferred_name","preferred_form_of_address","gender_identity","age_band","languages",
   "cultural_contexts","regional_contexts","conversation_register","directness","verbosity",
-  "humor_level","voice_preferences","assistant_persona_id"
+  "humor_level","voice_preferences","assistant_persona_id","preferred_channel"
 }
 
 def now_iso()->str:return time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())
@@ -120,6 +120,17 @@ class State:
         self.dialogue_attestation=Path(str(dialogue_cfg.get("zero_cost_attestation") or "/opt/chacha-dev/runtime/provider-economics/agy-conversation-zero-cost.json"))
         hbc_cfg=policy.get("human_behavior_center") if isinstance(policy.get("human_behavior_center"),dict) else {}
         self.persona_dir=Path(str(hbc_cfg.get("persona_dir") or "/opt/chacha-dev/runtime/knowledge/human-behavior/personas"))
+        dual=policy.get("dual_channel") if isinstance(policy.get("dual_channel"),dict) else {}
+        self.dual_channel_policy=repo/str(dual.get("policy") or "dev-hub/config/dual-channel.v1.json")
+        self.channel_router=repo/str(dual.get("router") or "dev-hub/bin/conversation-channel-router.py")
+        self.advisory_bus=repo/str(dual.get("advisory_bus") or "dev-hub/bin/conversation-advisory-bus.py")
+        self.research_broker=repo/str(dual.get("research_broker") or "dev-hub/bin/research-broker.py")
+        self.conversation_reasoner=repo/str(dual.get("reasoner") or "dev-hub/bin/conversation-reasoner.py")
+        self.conversation_reasoner_policy=repo/str(dual.get("reasoner_policy") or "dev-hub/config/conversation-reasoner.v1.json")
+        self.conversation_reasoner_attestation=Path(str(dual.get("zero_cost_attestation") or "/opt/chacha-dev/runtime/provider-economics/agy-conversation-zero-cost.json"))
+        self.central_memory_snapshot=Path(str(dual.get("central_memory_snapshot") or "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json"))
+        self.technology_watch_snapshot=Path(str(dual.get("technology_watch_snapshot") or "/opt/chacha-dev/runtime/technology-watch/optimizer-input.json"))
+        self.human_behavior_db=Path(str(hbc_cfg.get("evidence_db") or "/opt/chacha-dev/runtime/knowledge/human-behavior/evidence.db"))
         self.emergency=repo/str(policy.get("emergency_controller") or "dev-hub/bin/emergency-stop-controller.py")
         progress_policy=repo/str(policy.get("progress_policy") or "dev-hub/config/progress-reporting.v1.json")
         self.progress=ProgressStore(load(progress_policy))
@@ -160,8 +171,11 @@ class State:
           "active_project":self.policy.get("default_project") or "chacha-dev-platform"})
     def session_view(self)->dict[str,Any]:
         s=self.session()
-        out={"status":"OK","active_project":s.get("active_project"),"last_command":s.get("last_command"),
-             "last_request_id":s.get("last_request_id")}
+        out={"status":"OK","active_project":s.get("active_project"),"active_channel":s.get("active_channel"),
+             "last_command":s.get("last_command"),"last_request_id":s.get("last_request_id"),
+             "last_conversation_request_id":s.get("last_conversation_request_id"),
+             "has_build_continuation":bool(s.get("last_response_path") and s.get("last_response_digest")),
+             "has_conversation_history":bool(s.get("last_conversation_response_path") and s.get("last_conversation_response_digest"))}
         last_path=str(s.get("last_response_path") or "")
         if last_path:
             try:
@@ -218,12 +232,17 @@ class State:
         turn={
           "schema":TURN_SCHEMA,"turn_id":"turn-"+uuid.uuid4().hex,
           "request_id":response.get("request_id"),"project_id":response.get("session_project_id") or response.get("project_id"),
+          "channel":response.get("channel") or ("BUILD" if response.get("route")=="CHACHA_DEV" else None),
+          "subroute":response.get("subroute"),
           "submitted_at":response.get("submitted_at"),"responded_at":response.get("responded_at") or cv.get("responded_at"),
           "user":{"role":"user","text":str(response.get("submitted_user_message") or "")},
           "assistant":{"role":"assistant","text":str(cv.get("message") or response.get("message") or ""),
                        "kind":cv.get("kind") or "INFO",
-                       "persona_id":((cv.get("dialogue_orchestrator") or {}).get("speaker_persona_id")
-                         if isinstance(cv.get("dialogue_orchestrator"),dict) else None)},
+                       "persona_id":(
+                         (cv.get("dialogue_orchestrator") or {}).get("speaker_persona_id")
+                         if isinstance(cv.get("dialogue_orchestrator"),dict)
+                         else ((cv.get("conversation_reasoner") or {}).get("speaker_persona_id")
+                           if isinstance(cv.get("conversation_reasoner"),dict) else None))},
           "status":response.get("status"),"next_action":response.get("next_action"),
           "response_digest":None,"automatic_external_spend_eur":0
         }
@@ -297,33 +316,157 @@ class State:
                     "decision":{"stderr":p.stderr[-1200:]}}
         return load(out)
 
-    def idempotency_key(self,operator:str,project:str,client_request_id:str)->str:
-        raw=(operator+"\n"+project+"\n"+client_request_id).encode("utf-8")
+    def idempotency_key(self,operator:str,project:str,client_request_id:str,channel:str="BUILD")->str:
+        raw=(operator+"\n"+project+"\n"+str(channel).upper()+"\n"+client_request_id).encode("utf-8")
         return hashlib.sha256(raw).hexdigest()
 
-    def accept_intent(self,text:str,project:str,operator:str,client_request_id:str)->tuple[str,bool]:
+    def accept_intent(self,text:str,project:str,operator:str,client_request_id:str,channel:str="BUILD")->tuple[str,bool]:
+        channel=str(channel or "BUILD").upper()
+        if channel not in {"CONVERSATION","BUILD"}:raise ValueError("CHANNEL_INVALID")
         client_request_id=str(client_request_id or "").strip()
         if not re.fullmatch(r"[A-Za-z0-9._:-]{8,128}",client_request_id):
             raise ValueError("CLIENT_REQUEST_ID_INVALID")
-        key=self.idempotency_key(operator,project,client_request_id)
+        key=self.idempotency_key(operator,project,client_request_id,channel)
         p=self.idempotency/(key+".json")
         text_digest="sha256:"+hashlib.sha256(text.encode("utf-8")).hexdigest()
         with self.lock:
             if p.is_file():
                 x=load(p)
-                if x.get("text_digest")!=text_digest or x.get("operator")!=operator or x.get("project_id")!=project:
+                if (x.get("text_digest")!=text_digest or x.get("operator")!=operator or
+                    x.get("project_id")!=project or str(x.get("channel") or "BUILD").upper()!=channel):
                     raise RuntimeError("IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST")
                 jid=str(x.get("job_id") or "")
                 if jid and self.job_path(jid).is_file():return jid,False
             jid="doj-"+uuid.uuid4().hex
-            self.set_job(jid,state="QUEUED",operator=operator,project_id=project,
+            self.set_job(jid,state="QUEUED",operator=operator,project_id=project,channel=channel,
                          client_request_id=client_request_id,text_digest=text_digest)
             atomic(p,{"schema":"chacha.dev/direct-operator-idempotency/v1","client_request_id":client_request_id,
-                      "job_id":jid,"operator":operator,"project_id":project,"text_digest":text_digest,
-                      "created_at":now_iso()})
+                      "job_id":jid,"operator":operator,"project_id":project,"channel":channel,
+                      "text_digest":text_digest,"created_at":now_iso()})
             return jid,True
 
-    def process(self,jid:str,text:str,project:str,operator:str)->None:
+    def process_conversation(self,jid:str,text:str,project:str,operator:str)->None:
+        project=stable_project(project,str(self.policy.get("default_project") or "chacha-dev-platform"))
+        request_id="dor-"+uuid.uuid4().hex
+        work=self.root/"requests"/request_id;work.mkdir(parents=True,exist_ok=True)
+        self.set_job(jid,state="CONVERSATION_ROUTING",request_id=request_id,command="CONVERSATION",
+                     project_id=project,channel="CONVERSATION")
+        self.progress.begin(request_id,"ChaCha te répond ✨",project)
+        self.progress.update("direct-operator-service",100,"COMPLETE","Message reçu",12,"Message reçu")
+        try:
+            route_path=work/"channel-route.json"
+            rp=run([sys.executable,str(self.channel_router),"--channel","CONVERSATION","--text",text,
+                    "--project",project,"--output",str(route_path)],60)
+            if rp.returncode!=0 or not route_path.is_file():
+                raise RuntimeError("CONVERSATION_CHANNEL_ROUTER_FAILED:"+rp.stderr[-800:])
+            route=load(route_path)
+            subroute=str(route.get("subroute") or "CHAT")
+            self.set_job(jid,state="CONVERSATION_REASONING",subroute=subroute,channel="CONVERSATION")
+            self.progress.update("conversation-channel-router",100,"COMPLETE","Canal léger sélectionné",24,"ChaCha comprend le type d’échange")
+
+            profile_path=self.profile_path(operator)
+            human_context_path=work/"human-context.json"
+            human_cmd=[sys.executable,str(self.human_context),"--text",text,"--output",str(human_context_path)]
+            if profile_path.is_file():human_cmd[2:2]=["--profile",str(profile_path)]
+            hp=run(human_cmd,60)
+            if hp.returncode!=0 or not human_context_path.is_file():
+                atomic(human_context_path,{"schema":"chacha.dev/human-context-brief/v1","profile":{},
+                  "interaction_signals":{},"rules":{"technical_decision_authority":False},
+                  "fallback":True,"automatic_external_spend_eur":0})
+
+            timeline_path=work/"conversation-history.json"
+            atomic(timeline_path,self.conversation_view(operator,20))
+            persona_path=self.selected_persona_path(operator)
+
+            if subroute=="BUILD_HANDOFF_REQUIRED":
+                brief=route.get("creation_brief") if isinstance(route.get("creation_brief"),dict) else {}
+                conversation={
+                  "schema":"chacha.dev/conversation-response/v1","agent_id":"dual-channel-router","kind":"WARNING",
+                  "message":"Cette demande relève du canal 🛠️ Créer. J’ai préparé le passage, mais je ne lance aucune création tant que tu ne bascules pas explicitement sur Créer.",
+                  "requires_user_response":True,"status":"BUILD_HANDOFF_REQUIRED","next_action":"SWITCH_TO_BUILD",
+                  "channel":"CONVERSATION","subroute":"BUILD_HANDOFF_REQUIRED",
+                  "creation_brief":brief,"central_authority_preserved":True,"decision_modified":False,
+                  "conversation_reasoner":{"mode":"BUILD_HANDOFF_ONLY","provider_invoked":False,
+                    "execution_authority":False,"mutation_authority":False,"scheduler_called":False,
+                    "run_controller_called":False,"foundry_called":False},
+                  "automatic_external_spend_eur":0
+                }
+            else:
+                research_path=work/"research.json"
+                if subroute=="RESEARCH":
+                    rr=run([sys.executable,str(self.research_broker),"--query",text,
+                            "--snapshot",str(self.technology_watch_snapshot),"--output",str(research_path)],60)
+                    if rr.returncode!=0 or not research_path.is_file():
+                        atomic(research_path,{"schema":"chacha.dev/read-only-research-brief/v1","status":"UNAVAILABLE",
+                          "query":text,"results":[],"read_only":True,"fresh_refresh_triggered":False,
+                          "general_web_provider":"UNBOUND","automatic_external_spend_eur":0})
+                advisory_path=work/"advisory.json"
+                advisory_cmd=[sys.executable,str(self.advisory_bus),"--query",text,
+                  "--memory",str(self.central_memory_snapshot),"--human-db",str(self.human_behavior_db),
+                  "--output",str(advisory_path)]
+                if research_path.is_file():advisory_cmd.extend(["--research",str(research_path)])
+                ap=run(advisory_cmd,60)
+                if ap.returncode!=0 or not advisory_path.is_file():
+                    atomic(advisory_path,{"schema":"chacha.dev/conversation-advisory-brief/v1","status":"UNAVAILABLE",
+                      "query":text,"read_only":True,"memory":{"status":"UNAVAILABLE","items":[]},
+                      "human_behavior_center":{"status":"UNAVAILABLE"},"research":{"status":"UNAVAILABLE"},
+                      "authorities":{"decision_authority":False,"execution_authority":False,
+                        "mutation_authority":False,"scheduler_called":False,"run_controller_called":False,
+                        "foundry_called":False},"automatic_external_spend_eur":0})
+
+                reasoner_path=work/"conversation-response.json"
+                cmd=[sys.executable,str(self.conversation_reasoner),"--text",text,
+                  "--route",str(route_path),"--timeline",str(timeline_path),
+                  "--human-context",str(human_context_path),"--advisory",str(advisory_path),
+                  "--policy",str(self.conversation_reasoner_policy),"--output",str(reasoner_path)]
+                if persona_path is not None:cmd.extend(["--persona-card",str(persona_path)])
+                if self.conversation_reasoner_attestation.is_file():
+                    cmd.extend(["--attestation",str(self.conversation_reasoner_attestation)])
+                cp=run(cmd,150)
+                if cp.returncode!=0 or not reasoner_path.is_file():
+                    raise RuntimeError("CONVERSATION_REASONER_FAILED:"+cp.stderr[-1000:])
+                conversation=load(reasoner_path)
+
+            for ephemeral in (human_context_path,timeline_path):
+                try:ephemeral.unlink(missing_ok=True)
+                except Exception:pass
+
+            response={
+              "schema":HUMAN_RESPONSE_SCHEMA,"request_id":request_id,"responded_at":now_iso(),
+              "route":"CHACHA_CONVERSATION","command":"CONVERSATION","channel":"CONVERSATION",
+              "subroute":subroute,"project_id":project,"execution_project_id":None,
+              "status":conversation.get("status") or "PASS","authority":"conversation-channel",
+              "brain_decision_obtained":False,"next_action":conversation.get("next_action") or "AWAIT_USER_MESSAGE",
+              "evidence_refs":[],"interface_direct_technical_decision":False,"interface_direct_mutation":False,
+              "heavy_build_pipeline_called":False,"scheduler_called":False,"run_controller_called":False,
+              "foundry_called":False,"conversation":conversation,"message":conversation.get("message"),
+              "submitted_user_message":text,"submitted_at":now_iso(),"session_project_id":project,
+              "automatic_external_spend_eur":0
+            }
+            if isinstance(conversation.get("creation_brief"),dict):
+                response["creation_brief"]=conversation["creation_brief"]
+            response_path=self.responses/(safe_id(request_id)+".json");atomic(response_path,response)
+            turn=self.append_turn(operator,response);response["conversation_turn_id"]=turn["turn_id"];atomic(response_path,response)
+            with self.lock:
+                sess=self.session();sess.update({
+                  "schema":"chacha.dev/direct-operator-session/v1","updated_at":now_iso(),
+                  "active_project":project,"active_channel":"CONVERSATION",
+                  "last_conversation_request_id":request_id,
+                  "last_conversation_response_path":str(response_path),
+                  "last_conversation_response_digest":fd(response_path),
+                  "last_operator":operator
+                });self.save_session(sess)
+            self.set_job(jid,state="COMPLETE",channel="CONVERSATION",subroute=subroute,
+                         response=response,response_path=str(response_path))
+            self.progress.complete("ChaCha a répondu ✨")
+        except Exception as exc:
+            self.progress.fail("ChaCha Conversation a rencontré un problème")
+            self.set_job(jid,state="FAILED",channel="CONVERSATION",error=str(exc)[:2000])
+
+    def process(self,jid:str,text:str,project:str,operator:str,channel:str="BUILD")->None:
+        channel=str(channel or "BUILD").upper()
+        if channel=="CONVERSATION" and normalize(text)!="STOP":
+            return self.process_conversation(jid,text,project,operator)
         project=stable_project(project,str(self.policy.get("default_project") or "chacha-dev-platform"))
         request_id="dor-"+uuid.uuid4().hex
         command=normalize(text)
@@ -480,8 +623,9 @@ class State:
             atomic(response_path,response)
             with self.lock:
                 s=self.session();s.update({"schema":"chacha.dev/direct-operator-session/v1","updated_at":now_iso(),
-                  "active_project":project,"last_request_id":request_id,
+                  "active_project":project,"active_channel":"BUILD","last_request_id":request_id,
                   "last_response_path":str(response_path),"last_response_digest":fd(response_path),
+                  "last_build_response_path":str(response_path),"last_build_response_digest":fd(response_path),
                   "last_command":command,"last_operator":operator});self.save_session(s)
             self.set_job(jid,state="COMPLETE",response=response,response_path=str(response_path))
             final_status=str(response.get("status") or "UNKNOWN").upper()
@@ -579,6 +723,8 @@ class Handler(BaseHTTPRequestHandler):
         except Exception:return self.json(400,{"status":"INVALID_JSON"})
         text=str(body.get("text") or "").strip()
         if not text:return self.json(400,{"status":"TEXT_REQUIRED"})
+        channel=str(body.get("channel") or ((self.st.policy.get("dual_channel") or {}).get("default_api_channel")) or "BUILD").upper()
+        if channel not in {"CONVERSATION","BUILD"}:return self.json(400,{"status":"CHANNEL_INVALID"})
         client_request_id=str(body.get("client_request_id") or "").strip()
         legacy_client_request_id=not bool(client_request_id)
         if legacy_client_request_id:client_request_id="legacy-"+uuid.uuid4().hex
@@ -586,14 +732,14 @@ class Handler(BaseHTTPRequestHandler):
         default_project=str(self.st.policy.get("default_project") or "chacha-dev-platform")
         project=stable_project(body.get("project") or s.get("active_project"),default_project)
         try:
-            jid,created=self.st.accept_intent(text,project,identity,client_request_id)
+            jid,created=self.st.accept_intent(text,project,identity,client_request_id,channel)
         except ValueError as e:return self.json(400,{"status":str(e)})
         except RuntimeError as e:return self.json(409,{"status":str(e)})
         if created:
-            threading.Thread(target=self.st.process,args=(jid,text,project,identity),daemon=True).start()
+            threading.Thread(target=self.st.process,args=(jid,text,project,identity,channel),daemon=True).start()
         state=load(self.st.job_path(jid)).get("state") or "QUEUED"
         self.json(202,{"status":"ACCEPTED","job_id":jid,"state":state,"project_id":project,
-                       "client_request_id":client_request_id,"deduplicated":not created,
+                       "channel":channel,"client_request_id":client_request_id,"deduplicated":not created,
                        "legacy_non_idempotent_client":legacy_client_request_id})
 
 def main()->int:

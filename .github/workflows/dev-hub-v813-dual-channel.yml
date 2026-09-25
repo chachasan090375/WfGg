@@ -1,0 +1,78 @@
+name: ChaCha DEV V8.1.3 Dual Channel
+
+on:
+  push:
+    branches:
+      - dev-hub-v813-dual-channel
+    paths:
+      - 'dev-hub/bin/direct-operator-service.py'
+      - 'dev-hub/bin/conversation-channel-router.py'
+      - 'dev-hub/bin/conversation-advisory-bus.py'
+      - 'dev-hub/bin/research-broker.py'
+      - 'dev-hub/bin/conversation-reasoner.py'
+      - 'dev-hub/config/direct-operator.v1.json'
+      - 'dev-hub/config/dual-channel.v1.json'
+      - 'dev-hub/config/conversation-reasoner.v1.json'
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/config/assurance-agent-instrumentation.v1.json'
+      - 'dev-hub/direct-operator-ui/index.html'
+      - 'dev-hub/tests/test_v813_dual_channel.py'
+      - 'dev-hub/tests/test_v813_dual_channel_advisory.py'
+      - 'dev-hub/docs/DUAL_CHANNEL_V813.md'
+      - '.github/workflows/dev-hub-v813-dual-channel.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/direct-operator-service.py             dev-hub/bin/conversation-channel-router.py             dev-hub/bin/conversation-advisory-bus.py             dev-hub/bin/research-broker.py             dev-hub/bin/conversation-reasoner.py             dev-hub/tests/test_v810_human_conversation_foundation.py             dev-hub/tests/test_v811_dialogue_orchestrator.py             dev-hub/tests/test_v812_human_behavior_persona_center.py             dev-hub/tests/test_v813_dual_channel.py             dev-hub/tests/test_v813_dual_channel_advisory.py
+          python3 -m json.tool dev-hub/config/direct-operator.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/dual-channel.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/conversation-reasoner.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/assurance-agent-instrumentation.v1.json >/dev/null
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('dev-hub/direct-operator-ui/index.html').read_text()
+          js=s.split('<script>',1)[1].split('</script>',1)[0]
+          Path('/tmp/v813-ui.js').write_text(js)
+          PY
+          node --check /tmp/v813-ui.js
+
+      - name: Conversation stack regression
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v810_human_conversation_foundation.py
+          python3 dev-hub/tests/test_v811_dialogue_orchestrator.py
+          python3 dev-hub/tests/test_v812_human_behavior_persona_center.py
+
+      - name: V8.1.3 qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v813_dual_channel.py | tee /tmp/v813.out
+          python3 dev-hub/tests/test_v813_dual_channel_advisory.py | tee /tmp/v813-advisory.out
+          grep -Fq 'CHACHA_DEV_V813_MANUAL_CHANNEL_AUTHORITY=PASS' /tmp/v813.out
+          grep -Fq 'CHACHA_DEV_V813_CONVERSATION_NO_BUILD_PIPELINE=PASS' /tmp/v813.out
+          grep -Fq 'CHACHA_DEV_V813_BUILD_HANDOFF_EXPLICIT=PASS' /tmp/v813.out
+          grep -Fq 'CHACHA_DEV_V813_RESEARCH_READ_ONLY_SNAPSHOT=PASS' /tmp/v813.out
+          grep -Fq 'CHACHA_DEV_V813_ADVISORY_BUS_READ_ONLY=PASS' /tmp/v813.out
+          grep -Fq 'CHACHA_DEV_V813_CONVERSATION_REASONER_ZERO_COST_GATE=PASS' /tmp/v813.out
+          grep -Fq 'CHACHA_DEV_V813_CHANNEL_IDEMPOTENCY_ISOLATION=PASS' /tmp/v813.out
+          grep -Fq 'CHACHA_DEV_V813_USER_DEMOGRAPHICS_NOT_SPEAKER_STYLE=PASS' /tmp/v813.out
+          grep -Fq 'CHACHA_DEV_V813_GUARDIAN_ROLE_CONTRACTS=PASS' /tmp/v813.out
+          grep -Fq 'CHACHA_DEV_V813_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v813.out

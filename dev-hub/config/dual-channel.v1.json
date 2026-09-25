@@ -1,0 +1,108 @@
+{
+  "schema": "chacha.dev/dual-channel-policy/v1",
+  "version": "8.1.3",
+  "default_channel": "CONVERSATION",
+  "channels": {
+    "CONVERSATION": {
+      "display_name": "ChaCha",
+      "icon": "💬",
+      "functional_translator_required": false,
+      "central_build_orchestrator_required": false,
+      "scheduler_allowed": false,
+      "run_controller_allowed": false,
+      "production_mutation_allowed": false,
+      "advisory_bus_allowed": true,
+      "research_broker_allowed": true,
+      "dialogue_orchestrator_allowed": true,
+      "label": "ChaCha",
+      "purpose": "Natural conversation, read-only advice and information research.",
+      "heavy_build_pipeline": false,
+      "mutation_authority": false,
+      "execution_authority": false,
+      "production_authority": false,
+      "allowed_routes": [
+        "CHAT",
+        "ADVISORY",
+        "RESEARCH",
+        "BUILD_HANDOFF_REQUIRED"
+      ]
+    },
+    "BUILD": {
+      "display_name": "Créer",
+      "icon": "🛠️",
+      "functional_translator_required": true,
+      "central_build_orchestrator_required": true,
+      "scheduler_allowed": true,
+      "run_controller_allowed": true,
+      "production_mutation_allowed": "ONLY_THROUGH_EXISTING_GOVERNED_PATH",
+      "advisory_bus_allowed": true,
+      "research_broker_allowed": true,
+      "dialogue_orchestrator_allowed": true,
+      "label": "Créer",
+      "purpose": "Existing ChaCha DEV creation and execution pipeline.",
+      "heavy_build_pipeline": true,
+      "mutation_authority": "UNCHANGED_EXISTING_GOVERNANCE",
+      "execution_authority": "UNCHANGED_EXISTING_GOVERNANCE",
+      "production_authority": "UNCHANGED_EXISTING_GOVERNANCE"
+    }
+  },
+  "routing": {
+    "manual_switch_is_authoritative": true,
+    "conversation_never_auto_escalates_to_build": true,
+    "mutation_request_in_conversation": "AWAIT_EXPLICIT_CHANNEL_SWITCH",
+    "build_never_downgrades_guardian_or_sentinel": true,
+    "emergency_stop_is_global": true,
+    "manual_switch_authoritative": true,
+    "conversation_never_auto_switches_to_build": true,
+    "build_handoff_requires_explicit_user_switch": true,
+    "conversation_channel_may_create_creation_brief": true,
+    "shared_timeline": true,
+    "shared_human_profile": true,
+    "shared_persona": true,
+    "shared_central_memory_read_only": true
+  },
+  "shared": {
+    "conversation_timeline": true,
+    "human_profile": true,
+    "assistant_persona": true,
+    "central_memory": "ADVISORY_ONLY_IN_CONVERSATION",
+    "human_behavior_center": "ADVISORY_ONLY_IN_CONVERSATION",
+    "technology_watch": "CACHED_READ_ONLY_IN_CONVERSATION"
+  },
+  "automatic_external_spend_eur": 0,
+  "conversation": {
+    "default_subroute": "CHAT",
+    "research_subroute": "RESEARCH",
+    "advisory_subroute": "ADVISORY",
+    "build_handoff_subroute": "BUILD_HANDOFF_REQUIRED",
+    "build_intent_detection_is_advisory_only": true,
+    "mutation_guard_is_absolute": true
+  },
+  "advisory_bus": {
+    "read_only": true,
+    "agents": [
+      "central-memory-recall",
+      "technology-watch",
+      "human-behavior-center"
+    ],
+    "agent_results_are_advisory": true,
+    "may_not_dispatch_run_controller": true,
+    "may_not_call_scheduler": true,
+    "may_not_call_run_controller": true,
+    "may_not_trigger_foundries": true
+  },
+  "research_broker": {
+    "read_only": true,
+    "technology_watch_available": true,
+    "general_web_provider": "UNBOUND",
+    "source_citations_required_when_external_provider_is_bound": true,
+    "may_not_purchase_access": true
+  },
+  "conversation_reasoner": {
+    "provider": "agy-gemini-conversation",
+    "zero_cost_attestation_required": true,
+    "tool_access": "NONE",
+    "execution_authority": false,
+    "mutation_authority": false
+  }
+}
