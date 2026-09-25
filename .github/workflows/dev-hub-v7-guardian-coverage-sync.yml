@@ -106,9 +106,13 @@ jobs:
           sql=[]
           for c in components:
               dig=hashlib.sha256(j(c).encode()).hexdigest()
+              source_criticality=str(c['criticality'])
+              d1_criticality='CRITICAL' if source_criticality=='HIGH' else source_criticality
+              if d1_criticality not in {'BLOCK','CRITICAL'}:
+                  raise SystemExit('GUARDIAN_COVERAGE_UNSUPPORTED_CRITICALITY:'+source_criticality+':'+str(c['component_id']))
               sql.append("INSERT INTO expected_components(component_id,role,kind,enforcement_point,criticality,source_digest,updated_at) VALUES("
                          +q(c['component_id'])+','+q(c['role'])+','+q(c['kind'])+','+q(c['enforcement_point'])+','
-                         +q(c['criticality'])+','+q(dig)+",datetime('now')) "
+                         +q(d1_criticality)+','+q(dig)+",datetime('now')) "
                          "ON CONFLICT(component_id) DO UPDATE SET role=excluded.role,kind=excluded.kind,"
                          "enforcement_point=excluded.enforcement_point,criticality=excluded.criticality,"
                          "source_digest=excluded.source_digest,updated_at=datetime('now') "
@@ -133,6 +137,7 @@ jobs:
           print('CHACHA_DEV_V7_GUARDIAN_DIRECT_OPERATOR_EXPECTED=YES')
           print('EXPECTED_COMPONENTS='+str(expected))
           print('D1_SYNC_MODE=DIGEST_AWARE_DELTA')
+          print('D1_CRITICALITY_COMPATIBILITY=HIGH_TO_CRITICAL')
           print('FULL_TABLE_REWRITE=NO')
           print('AUTOMATIC_EXTERNAL_SPEND_EUR=0')
           PY
