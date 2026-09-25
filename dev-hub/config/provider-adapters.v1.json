@@ -165,6 +165,11 @@
       "adapter": "cloudflare-pages-production-adapter",
       "kind": "provider-api",
       "execution": "vps"
+    },
+    "collector-knowledge-bootstrap": {
+      "adapter": "collector-knowledge-adapter",
+      "kind": "local-runtime-bootstrap",
+      "execution": "vps"
     }
   },
   "adapters": {
