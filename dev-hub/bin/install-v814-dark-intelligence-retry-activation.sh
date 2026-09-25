@@ -96,9 +96,14 @@ done
 
 stage verify-runtime
 for timer in "${TIMERS[@]}"; do
-  NEXT="$(systemctl show "$timer" -p NextElapseUSecRealtime --value)"
-  [ -n "$NEXT" ] && [ "$NEXT" != "infinity" ] || { echo "CHACHA_DEV_V814_INSTALL=BLOCKED reason=timer_not_scheduled:$timer"; exit 3; }
-  echo "CHACHA_DEV_V814_TIMER_NEXT=$timer:$NEXT"
+  NEXT_REALTIME="$(systemctl show "$timer" -p NextElapseUSecRealtime --value)"
+  NEXT_MONOTONIC="$(systemctl show "$timer" -p NextElapseUSecMonotonic --value)"
+  if { [ -z "$NEXT_REALTIME" ] || [ "$NEXT_REALTIME" = "infinity" ]; } && { [ -z "$NEXT_MONOTONIC" ] || [ "$NEXT_MONOTONIC" = "0" ]; }; then
+    echo "CHACHA_DEV_V814_INSTALL=BLOCKED reason=timer_not_scheduled:$timer"
+    exit 3
+  fi
+  echo "CHACHA_DEV_V814_TIMER_NEXT_REALTIME=$timer:$NEXT_REALTIME"
+  echo "CHACHA_DEV_V814_TIMER_NEXT_MONOTONIC=$timer:$NEXT_MONOTONIC"
 done
 python3 "$SRC/dev-hub/bin/dark-intelligence-analysis-queue.py" status >/dev/null
 python3 "$SRC/dev-hub/bin/dark-intelligence-corroboration-queue.py" status >/dev/null
