@@ -46,6 +46,12 @@ button.stop{color:#ffb8b8;background:#351f25;border-color:#5a3038}button:disable
 .reply{margin-top:14px;min-height:86px}.stateRow{display:flex;justify-content:space-between;gap:8px;align-items:center}
 .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:99px;background:#312c42;color:#cabdff;font-size:11px;font-weight:800}
 pre{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:14px;line-height:1.5;color:#e8e2f4;margin:12px 0 0}
+.turn{margin-top:14px;padding:12px 13px;border:1px solid #35323e;border-radius:16px;background:#17161d}
+.turn.user{background:#1d1a27;border-color:#443a62}.turn.assistant{background:#171b20;border-color:#33423d}
+.turn .eyebrow{margin-bottom:7px}.turn pre{margin:0}
+details.tech{margin-top:12px;border-top:1px solid #302e39;padding-top:10px;color:var(--muted)}
+details.tech summary{cursor:pointer;font-size:12px;font-weight:800;color:#a9a2b8}
+details.tech pre{font-size:11px;color:#aaa5b7}
 .spark{position:absolute;pointer-events:none;opacity:.45}
 @media(max-width:720px){.grid{grid-template-columns:1fr}.top{align-items:flex-start}.live{margin-top:4px}.metric strong{font-size:34px}.actions{grid-template-columns:1fr 1fr 1fr 1fr}button{padding:12px 9px}}
 </style>
@@ -88,12 +94,21 @@ pre{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:14px;line-
 </section>
 
 <section class="card reply">
-  <div class="stateRow"><div class="eyebrow">Réponse de ChaCha</div><span class="badge" id="stage">PRÊT</span></div>
-  <pre id="result">Je suis là. Lance une demande quand tu veux.</pre>
+  <div class="stateRow"><div class="eyebrow">Conversation</div><span class="badge" id="stage">PRÊT</span></div>
+  <div class="turn user" id="userTurn" hidden>
+    <div class="eyebrow">👤 Ta demande</div>
+    <pre id="submitted"></pre>
+  </div>
+  <div class="turn assistant">
+    <div class="eyebrow">💨 ChaCha répond</div>
+    <pre id="result">Je suis là. Lance une demande quand tu veux.</pre>
+  </div>
+  <details class="tech" id="tech" hidden><summary>Détails techniques</summary><pre id="techResult"></pre></details>
 </section>
 </main>
 <script>
 const q=document.querySelector('#q'),send=document.querySelector('#send'),stage=document.querySelector('#stage'),result=document.querySelector('#result');
+const userTurn=document.querySelector('#userTurn'),submitted=document.querySelector('#submitted'),tech=document.querySelector('#tech'),techResult=document.querySelector('#techResult');
 const globalPct=document.querySelector('#globalPct'),globalFill=document.querySelector('#globalFill'),globalLabel=document.querySelector('#globalLabel');
 const workPct=document.querySelector('#workPct'),workFill=document.querySelector('#workFill'),workState=document.querySelector('#workState'),headline=document.querySelector('#headline'),modules=document.querySelector('#modules');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -108,20 +123,34 @@ function renderProgress(p){
 async function refreshProgress(){
  try{const r=await fetch('/api/v1/progress',{cache:'no-store'});if(r.ok)renderProgress(await r.json())}catch(_){}
 }
-async function submit(text){
- if(!text.trim())return;send.disabled=true;stage.textContent='ENVOI';result.textContent='ChaCha prend la demande…';await refreshProgress();
+async function submit(text,fromEditor=false){
+ const original=String(text||'').trim();if(!original)return;
+ let accepted=false;send.disabled=true;stage.textContent='ENVOI';result.textContent='ChaCha prend la demande…';tech.hidden=true;await refreshProgress();
  try{
-  const r=await fetch('/api/v1/intent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+  const r=await fetch('/api/v1/intent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:original})});
   const x=await r.json();if(!r.ok)throw new Error(x.reason||x.status||'Erreur');
+  accepted=true;submitted.textContent=original;userTurn.hidden=false;if(fromEditor)q.value='';
   for(;;){await sleep(700);await refreshProgress();const jr=await fetch('/api/v1/jobs/'+x.job_id,{cache:'no-store'});const j=await jr.json();stage.textContent=j.state||'…';
-   if(j.state==='COMPLETE'){const z=j.response||{},cv=z.conversation||{};stage.textContent=cv.kind||z.status||'OK';result.textContent=(cv.message||z.message||z.status||'OK')+(z.project_id?'\n\nProjet : '+z.project_id:'');break}
+   if(j.state==='COMPLETE'){
+    const z=j.response||{},cv=z.conversation||{};
+    stage.textContent=z.status||cv.kind||'COMPLETE';
+    result.textContent=cv.message||z.message||'Traitement terminé.';
+    techResult.textContent=JSON.stringify({
+      status:z.status,next_action:z.next_action,project:z.session_project_id||z.project_id,
+      execution_project:z.execution_project_id,continuation_steps:z.continuation_steps||[]
+    },null,2);
+    tech.hidden=false;break
+   }
    if(j.state==='FAILED')throw new Error(j.error||'Échec')
   }
- }catch(e){stage.textContent='ERREUR';result.textContent=String(e)}finally{send.disabled=false;await refreshProgress()}
+ }catch(e){
+  stage.textContent='ERREUR';result.textContent=String(e);
+  if(fromEditor&&!accepted&&!q.value.trim())q.value=original
+ }finally{send.disabled=false;await refreshProgress()}
 }
-send.onclick=()=>submit(q.value);document.querySelector('#go').onclick=()=>submit('Go');document.querySelector('#status').onclick=()=>submit('Allo');document.querySelector('#stop').onclick=()=>submit('Stop');
+send.onclick=()=>submit(q.value,true);document.querySelector('#go').onclick=()=>submit('Go');document.querySelector('#status').onclick=()=>submit('Allo');document.querySelector('#stop').onclick=()=>submit('Stop');
 document.querySelector('#mic').onclick=()=>{q.focus();result.textContent='Sur le widget Android, le micro utilise la dictée native. Ici, utilise le micro du clavier.'};
-q.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')submit(q.value)});
+q.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')submit(q.value,true)});
 window.chachaSetPrompt=(text)=>{q.value=String(text||'');q.focus();};
 window.chachaSubmit=(text)=>submit(String(text||''));
 window.chachaRefresh=()=>refreshProgress();
