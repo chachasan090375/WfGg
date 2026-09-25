@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parents[2]
 
 central=json.loads((ROOT/"dev-hub/config/central-learning-ingress.v1.json").read_text(encoding="utf-8"))
 collector=json.loads((ROOT/"collector-knowledge/config.example.json").read_text(encoding="utf-8"))
-assert int((central.get("listen") or {}).get("port") or central.get("port") or 0)==8791,central
+assert int((central.get("core") or {}).get("port") or 0)==8791,central
 assert collector["listenHost"]=="127.0.0.1",collector
 assert collector["listenPort"]==8793,collector
 assert collector["listenPort"]!=8791
