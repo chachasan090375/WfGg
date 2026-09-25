@@ -49,6 +49,14 @@ assert dossier["raw_source_authority"]=="ADVISORY_ONLY"
 assert dossier["verification_handoff"]["technology_watch_evaluation_required"] is True
 assert dossier["technology_dossier"]["evidence"][0]["verified"] is False
 
+# The runtime handoff itself must execute Technology Watch, not merely annotate a future requirement.
+with tempfile.TemporaryDirectory(prefix="v800-dark-watch-") as td:
+    evaluation=dark.verify_with_technology_watch(ROOT,dossier,Path(td))
+    assert evaluation["status"]=="PASS"
+    assert (Path(td)/"technology-truth-score.json").is_file()
+    assert (Path(td)/"logician-falsification.json").is_file()
+    assert evaluation["architecture_council_final_authority"] is True
+
 # Prove that the same Technology Watch truth engine receives the normalized source.
 import sys
 sys.path.insert(0,str(ROOT/"dev-hub/bin"))
@@ -103,6 +111,7 @@ assert loc_policy["quality"]["variables_and_markup_must_be_preserved"] is True
 assert loc_policy["collaboration"]["conversation_interface_agent_for_dialogue_register"] is True
 
 print("CHACHA_DEV_V800_DARK_SOURCE_VERIFICATION_CHAIN=PASS")
+print("CHACHA_DEV_V800_DARK_TO_TECHNOLOGY_WATCH_RUNTIME_HANDOFF=PASS")
 print("CHACHA_DEV_V800_DARK_RAW_SOURCE_FACT_PROMOTION=NO")
 print("CHACHA_DEV_V800_TOR_ISOLATION_REQUIRED=PASS")
 print("CHACHA_DEV_V800_CONVERSATION_BRAIN_TO_HUMAN_PATH=PASS")
