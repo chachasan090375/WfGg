@@ -195,6 +195,8 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
       "status":status,
       "next_stage":"PROVIDER_HEALTH_REQUIRED" if status=="READY" else "DOMAIN_FACTORY_REPAIR_REQUIRED",
       "architecture_council_dispatch_allowed":council.get("dispatch_allowed") is True,
+      "planning_dir":str(planning),
+      "agent_topology":str(planning/"agent-topology.json"),
       "contract_reconciliation":str(output_dir/"contract-reconciliation.json"),
       "domain_execution_graph":str(output_dir/"domain-execution-graph.json"),
       "provider_health_requirements":str(output_dir/"provider-health-requirements.json"),
