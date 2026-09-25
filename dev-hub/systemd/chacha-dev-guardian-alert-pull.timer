@@ -3,7 +3,7 @@ Description=ChaCha DEV external Guardian alert schedule
 
 [Timer]
 OnBootSec=20s
-OnUnitActiveSec=60s
+OnUnitActiveSec=180s
 AccuracySec=5s
 RandomizedDelaySec=3s
 Persistent=true
