@@ -300,7 +300,24 @@ class Handler(BaseHTTPRequestHandler):
         identity=self.auth()
         if not identity:return
         if path=="/api/v1/session":
-            s=self.st.session();return self.json(200,{"status":"OK","active_project":s.get("active_project"),"last_command":s.get("last_command")})
+            s=self.st.session()
+            out={"status":"OK","active_project":s.get("active_project"),"last_command":s.get("last_command"),
+                 "last_request_id":s.get("last_request_id")}
+            last_path=str(s.get("last_response_path") or "")
+            if last_path:
+                try:
+                    p=Path(last_path).resolve()
+                    responses_root=self.st.responses.resolve()
+                    if str(p).startswith(str(responses_root)+os.sep) and p.is_file():
+                        last=load(p)
+                        expected=str(s.get("last_response_digest") or "")
+                        actual=fd(p)
+                        if not expected or expected==actual:
+                            out["last_response"]=last
+                            out["last_response_digest"]=actual
+                except Exception:
+                    pass
+            return self.json(200,out)
         if path=="/api/v1/progress":
             return self.json(200,self.st.progress.snapshot())
         if path=="/api/v1/app-config":
