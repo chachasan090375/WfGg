@@ -52,6 +52,8 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
     components=load(planning/"component-role-contracts.json")
     agents=load(planning/"agent-role-contracts.json")
     semantics=load(repo_root/"dev-hub/config/capability-semantics.v1.json")
+    toolchain_semantics_path=repo_root/"dev-hub/config/domain-toolchain-semantics.v1.json"
+    toolchain_semantics=load(toolchain_semantics_path) if toolchain_semantics_path.is_file() else {"encapsulated_provider_tools":{}}
     capability_registry=load(repo_root/"dev-hub/config/capability-registry.v1.json")
 
     errors=[]
@@ -73,8 +75,29 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
     by_package={str(x.get("package_id") or ""):x for x in components.get("contracts") or [] if isinstance(x,dict)}
     manifests=[]
     tasks=[]
+    internal_work_items=[]
     required_providers={}
     registry_caps=capability_registry.get("capabilities") or {}
+    encapsulated_defs=toolchain_semantics.get("encapsulated_provider_tools") or {}
+    status_score={"ADOPT":60,"PILOT":50,"WATCH":40,"ASSESS":30,"DISCOVER":20,"DEPRECATE":10,"RETIRE":0}
+
+    def encapsulated_candidate(providers):
+        candidates=[]
+        for provider in providers:
+            pid=str(provider.get("id") or "")
+            spec=encapsulated_defs.get(pid) if isinstance(encapsulated_defs,dict) else None
+            if not isinstance(spec,dict):continue
+            evidence=[];complete=True
+            for raw in spec.get("evidence") or []:
+                p=Path(str(raw));p=p if p.is_absolute() else repo_root/p
+                ok=p.is_file();evidence.append({"path":str(raw),"exists":ok});complete=complete and ok
+            if complete:
+                candidates.append((status_score.get(str(provider.get("status") or "DISCOVER"),-100),pid,spec,evidence))
+        if not candidates:return None
+        candidates.sort(key=lambda x:(x[0],x[1]),reverse=True)
+        _,pid,spec,evidence=candidates[0]
+        return {"provider":pid,"owner_component":spec.get("owner_component"),
+                "direct_adapter_required":False,"evidence":evidence}
 
     package_dir=output_dir/"packages"
     for pkg in plan.get("packages") or []:
@@ -103,6 +126,12 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
         if missing:p_errors.extend("CAPABILITY_OUTSIDE_BRANCH_CONTRACT:"+x for x in missing)
 
         rcaps,features=runtime_caps(caps,semantics)
+        for feature in features:
+            if str(feature.get("classification") or "") not in {"REUSABLE","EXISTS_AND_REGISTERED"}:
+                p_errors.append("DOMAIN_FEATURE_NOT_REUSABLE:"+str(feature.get("id") or ""))
+
+        scheduler_caps=[]
+        internal_caps=[]
         for cap in rcaps:
             caprow=registry_caps.get(cap)
             if not isinstance(caprow,dict):
@@ -112,10 +141,17 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
             for provider in caprow.get("providers") or []:
                 if not isinstance(provider,dict) or provider.get("status")=="RETIRE":continue
                 provider_id=str(provider.get("id") or "")
-                if provider_id:
-                    providers.append({"id":provider_id,"status":provider.get("status")})
-                    required_providers.setdefault(provider_id,set()).add(cap)
-            if not providers:p_errors.append("RUNTIME_CAPABILITY_HAS_NO_PROVIDER:"+cap)
+                if provider_id:providers.append({"id":provider_id,"status":provider.get("status")})
+            if not providers:
+                p_errors.append("RUNTIME_CAPABILITY_HAS_NO_PROVIDER:"+cap)
+                continue
+            encapsulated=encapsulated_candidate(providers)
+            if encapsulated:
+                internal_caps.append({"capability":cap,**encapsulated})
+                continue
+            scheduler_caps.append(cap)
+            for provider in providers:
+                required_providers.setdefault(str(provider["id"]),set()).add(cap)
 
         state="READY" if not p_errors else "BLOCKED"
         manifest={
@@ -128,6 +164,8 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
           "component_contract_digest":contract.get("contract_digest"),
           "allowed_permissions":contract.get("allowed_permissions") or [],
           "runtime_capabilities":rcaps,
+          "scheduler_capabilities":scheduler_caps,
+          "internal_capabilities":internal_caps,
           "domain_features":features,
           "errors":p_errors,
           "production_permissions_allowed":False,
@@ -139,24 +177,51 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
 
         if state=="READY":
             permission="workspace-write" if "workspace-write" in set(contract.get("allowed_permissions") or []) else "plan"
-            tasks.append({
-              "id":"package:"+pid,
-              "kind":"domain-package",
-              "description":"Execute approved domain package "+pid+" under its dynamic branch contract",
-              "owner_role":str(pkg.get("agent_id") or domain+"-agent"),
-              "capabilities":rcaps,
-              "permission":permission,
-              "depends_on":[],
-              "outputs":[{"type":"domain-package-result","id":pid}],
-              "verification":{"mode":"independent-agent","self_certification_allowed":False,
-                              "required_evidence":["source","timestamp","digest","guardian-verdict"]},
-              "blocking":True,
-              "parallel_group":"domain-"+domain,
-              "metadata":{
-                "component_id":branch_id,"domain":domain,"package_id":pid,
-                "domain_features":[x["id"] for x in features]
-              }
-            })
+            for cap in scheduler_caps:
+                tasks.append({
+                  "id":"capability:"+safe(pid)+":"+safe(cap),
+                  "kind":"domain-capability",
+                  "description":"Execute approved capability "+cap+" for "+pid+" under its dynamic branch contract",
+                  "owner_role":str(pkg.get("agent_id") or domain+"-agent"),
+                  "capabilities":[cap],
+                  "permission":permission,
+                  "depends_on":[],
+                  "outputs":[{"type":"domain-capability-result","id":pid+":"+cap}],
+                  "verification":{"mode":"independent-agent","self_certification_allowed":False,
+                                  "required_evidence":["source","timestamp","digest","guardian-verdict"]},
+                  "blocking":True,
+                  "parallel_group":"domain-"+domain,
+                  "metadata":{
+                    "component_id":branch_id,"domain":domain,"package_id":pid,
+                    "capability_id":cap,
+                    "domain_features":[x["id"] for x in features],
+                    "execution_mode":"DIRECT_PROVIDER"
+                  }
+                })
+            for item in internal_caps:
+                internal_work_items.append({
+                  "schema":"chacha.dev/internal-domain-capability/v1",
+                  "project_id":project_id,"package_id":pid,"domain":domain,
+                  "component_id":branch_id,"agent_id":pkg.get("agent_id"),
+                  "capability":item["capability"],"provider":item["provider"],
+                  "owner_component":item.get("owner_component"),
+                  "evidence":item.get("evidence") or [],
+                  "execution_mode":"ENCAPSULATED_COMPONENT",
+                  "direct_adapter_required":False,
+                  "production_permissions_allowed":False,
+                  "automatic_external_spend_eur":0
+                })
+            if features:
+                internal_work_items.append({
+                  "schema":"chacha.dev/internal-domain-features/v1",
+                  "project_id":project_id,"package_id":pid,"domain":domain,
+                  "component_id":branch_id,"agent_id":pkg.get("agent_id"),
+                  "features":[x["id"] for x in features],
+                  "execution_mode":"REUSABLE_DOMAIN_FEATURES",
+                  "direct_adapter_required":False,
+                  "production_permissions_allowed":False,
+                  "automatic_external_spend_eur":0
+                })
 
     blocked=[{"package_id":m["package_id"],"errors":m["errors"]} for m in manifests if m["state"]!="READY"]
     graph={
@@ -165,11 +230,16 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
       "transition":"DOMAIN_FACTORIES->DOMAIN_EXECUTION",
       "tasks":tasks,
       "guardian_binding":None,
+      "internal_work_items":internal_work_items,
       "summary":{
         "task_count":len(tasks),
         "blocking_tasks":len(tasks),
+        "atomic_capability_tasks":len(tasks),
+        "internal_work_item_count":len(internal_work_items),
         "domain_feature_count":sum(len(m["domain_features"]) for m in manifests),
-        "runtime_capability_count":sum(len(m["runtime_capabilities"]) for m in manifests)
+        "runtime_capability_count":sum(len(m["runtime_capabilities"]) for m in manifests),
+        "scheduler_capability_count":sum(len(m["scheduler_capabilities"]) for m in manifests),
+        "internal_capability_count":sum(len(m["internal_capabilities"]) for m in manifests)
       }
     }
     save(output_dir/"domain-execution-graph.json",graph)
@@ -204,6 +274,8 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
       "ready_package_count":sum(m["state"]=="READY" for m in manifests),
       "blocked_package_count":len(blocked),
       "runtime_task_count":len(tasks),
+      "atomic_runtime_task_count":len(tasks),
+      "internal_work_item_count":len(internal_work_items),
       "errors":errors,
       "blocked_packages":blocked,
       "direct_mutation":False,
