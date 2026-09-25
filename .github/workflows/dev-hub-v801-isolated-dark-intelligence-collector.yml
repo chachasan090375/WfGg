@@ -20,8 +20,11 @@ on:
       - 'dev-hub/config/mcp-provider-catalog.v1.json'
       - 'dev-hub/config/dark-intelligence-corroboration.v1.json'
       - 'dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.timer'
+      - 'dev-hub/systemd/chacha-dev-dark-intelligence-corroboration-retry.timer'
+      - 'dev-hub/systemd/chacha-dev-dark-intelligence-corroboration-retry.service'
       - 'dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.service'
       - 'dev-hub/bin/dark-intelligence-analysis-queue.py'
+      - 'dev-hub/bin/dark-intelligence-corroboration-queue.py'
       - 'dev-hub/config/dark-intelligence-collector.v1.json'
       - 'dev-hub/config/dark-intelligence-agent.v1.json'
       - 'dev-hub/config/domain-orchestration.v1.json'
@@ -47,7 +50,7 @@ jobs:
       - name: Compile
         run: |
           set -euo pipefail
-          python3 -m py_compile             dev-hub/bin/dark-intelligence-collector.py             dev-hub/bin/dark-intelligence-isolation.py             dev-hub/bin/dark-intelligence-tor-toolcache.py             dev-hub/bin/dark-intelligence-collector-runner.py             dev-hub/bin/dark-intelligence-analysis-adapter.py             dev-hub/bin/dark-intelligence-pipeline.py             dev-hub/bin/dark-intelligence-corroboration.py             dev-hub/bin/technology-watch-public-corroboration.py             dev-hub/bin/technology-watch-firecrawl-fallback.py             dev-hub/bin/dark-intelligence-corroboration-analysis.py             dev-hub/bin/dark-intelligence-analysis-queue.py             dev-hub/tests/test_v801_isolated_dark_intelligence_collector.py
+          python3 -m py_compile             dev-hub/bin/dark-intelligence-collector.py             dev-hub/bin/dark-intelligence-isolation.py             dev-hub/bin/dark-intelligence-tor-toolcache.py             dev-hub/bin/dark-intelligence-collector-runner.py             dev-hub/bin/dark-intelligence-analysis-adapter.py             dev-hub/bin/dark-intelligence-pipeline.py             dev-hub/bin/dark-intelligence-corroboration.py             dev-hub/bin/technology-watch-public-corroboration.py             dev-hub/bin/technology-watch-firecrawl-fallback.py             dev-hub/bin/dark-intelligence-corroboration-analysis.py             dev-hub/bin/dark-intelligence-analysis-queue.py             dev-hub/bin/dark-intelligence-corroboration-queue.py             dev-hub/tests/test_v801_isolated_dark_intelligence_collector.py
           python3 -m json.tool dev-hub/config/dark-intelligence-collector.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/dark-intelligence-agent.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/dark-intelligence-corroboration.v1.json >/dev/null
@@ -81,6 +84,7 @@ jobs:
           grep -Fq 'CHACHA_DEV_V801_PROVISIONAL_FACT_AUTHORITY=NO' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_SEMANTIC_REFINEMENT_QUEUE=PASS' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_PERSISTENT_RETRY_QUEUE=PASS' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_CORROBORATION_RETRY_NO_RECOLLECTION=PASS' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_DEFERRED_AUTO_ENQUEUE=PASS' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_DEFERRED_AUTO_ENQUEUE_CLI=PASS' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_RETRY_LOOP_BOUNDED=PASS' /tmp/v801.out
