@@ -33,6 +33,7 @@ installer=(BIN/"install-v816-dark-intelligence-retry-activation.sh").read_text(e
 for marker in [
     'for attempt in $(seq 1 45)',
     'sleep 2',
+    'systemctl restart "$timer"',
     'NextElapseUSecRealtime',
     'NextElapseUSecMonotonic',
     '[ "$NEXT" != "0" ]',
