@@ -53,6 +53,11 @@ assert 'chain output' in rules and 'oifname "cdi801h" counter drop' in rules
 assert '100.64.0.0/10' in rules and '169.254.0.0/16' in rules and '203.0.113.10/32' in rules
 assert 'oifname "eth0" counter accept' in rules
 assert 'ip saddr 10.203.80.0/30 oifname "eth0" masquerade' in rules
+assert policy["network_namespace"]["dns"]["inherit_host_resolver"] is False
+assert policy["network_namespace"]["dns"]["resolvers"]==["1.1.1.1","9.9.9.9"]
+iso_src=(ROOT/"dev-hub/bin/dark-intelligence-isolation.py").read_text(encoding="utf-8")
+assert 'Path("/etc/netns")/nm["namespace"]' in iso_src
+assert 'shutil.rmtree(Path("/etc/netns")/nm["namespace"],ignore_errors=True)' in iso_src
 
 # systemd sandbox joins only the dedicated namespace and hides secrets.
 sargs=runner.sandbox_args(policy,"/run/netns/chacha-dark-v801")
@@ -91,6 +96,7 @@ assert "isolated-network-collection" in routing["roles"]["dark-intelligence-agen
 
 print("CHACHA_DEV_V801_DEDICATED_NETWORK_NAMESPACE=PASS")
 print("CHACHA_DEV_V801_HOST_AND_PRIVATE_NETWORK_BLOCK=PASS")
+print("CHACHA_DEV_V801_NAMESPACE_SPECIFIC_DNS=PASS")
 print("CHACHA_DEV_V801_TOR_SYSTEM_INSTALL=NO")
 print("CHACHA_DEV_V801_GET_ONLY_NO_CREDENTIALS=PASS")
 print("CHACHA_DEV_V801_UNTRUSTED_CONTENT_AS_DATA_ONLY=PASS")
