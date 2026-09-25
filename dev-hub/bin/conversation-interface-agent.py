@@ -25,12 +25,17 @@ def compose(receipt:dict[str,Any],intent:dict[str,Any]|None=None)->dict[str,Any]
     status=str(receipt.get("status") or "UNKNOWN");next_action=str(receipt.get("next_action") or "AWAIT_USER_DIRECTIVE")
     decision=receipt.get("decision") if isinstance(receipt.get("decision"),dict) else {}
     message=first_text(decision,["human_message","message","summary","result","reason","detail"])
-    needs=bool(decision.get("requires_user_response") is True or decision.get("requires_confirmation") is True or "AWAIT" in next_action or "CONFIRM" in next_action)
+    passive_waits={"AWAIT_USER_DIRECTIVE","AWAIT_NEW_INSTRUCTION"}
+    needs=bool(
+      decision.get("requires_user_response") is True
+      or decision.get("requires_confirmation") is True
+      or (("AWAIT" in next_action or "CONFIRM" in next_action or "APPROVAL" in next_action) and next_action not in passive_waits)
+    )
     if status in {"BRAIN_UNAVAILABLE","BRAIN_RECEIPT_INVALID","FAILED"}: kind="ERROR"
     elif status in {"STOP_ACTIVE","BLOCKED","PARTIAL","AWAITING_APPROVAL"}: kind="WARNING"
     elif bool(decision.get("requires_confirmation")): kind="CONFIRMATION"
-    elif needs: kind="QUESTION"
     elif status in {"PASS","COMPLETE","COMPLETED","SUCCESS","OK"}: kind="RESULT"
+    elif needs: kind="QUESTION"
     else: kind="INFO"
     if not message:
         platform=decision.get("platform_status") if isinstance(decision.get("platform_status"),dict) else None
