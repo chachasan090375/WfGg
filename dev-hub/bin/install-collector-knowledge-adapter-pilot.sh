@@ -72,18 +72,25 @@ else:x={}
 if x.get('schema')!='chacha.dev/provider-health-snapshot/v1':
     x={'schema':'chacha.dev/provider-health-snapshot/v1','observed_at':observed,'providers':{}}
 x['observed_at']=observed
-x.setdefault('providers',{})['collector-knowledge-runtime']={
+x.setdefault('providers',{})['collector-knowledge-bootstrap']={
     'state':'HEALTHY',
     'source':'collector-knowledge-adapter-standard-provisioning',
     'checked_at':observed,
-    'revision':revision,
-    'executable_digest':r['executable_digest']
+    'latency_ms':None,
+    'reason':'ADAPTER_PROVISIONING_VERIFIED',
+    'details':{
+        'revision':revision,
+        'executable_digest':r['executable_digest'],
+        'receipt':receipt_path,
+        'runtime_health_asserted':False
+    }
 }
 p.parent.mkdir(parents=True,exist_ok=True)
 p.write_text(json.dumps(x,indent=2)+'\n',encoding='utf-8')
 PY
 
-echo "COLLECTOR_KNOWLEDGE_PROVIDER_HEALTH=HEALTHY"
+echo "COLLECTOR_KNOWLEDGE_BOOTSTRAP_HEALTH=HEALTHY"
+echo "COLLECTOR_KNOWLEDGE_RUNTIME_HEALTH_ASSERTED=NO"
 echo "COLLECTOR_KNOWLEDGE_RADAR_PRODUCTION_MUTATION=NO"
 echo "COLLECTOR_KNOWLEDGE_LASTWAR_MUTATION=NO"
 echo "COLLECTOR_KNOWLEDGE_ADAPTER_BOOTSTRAP=PASS"
