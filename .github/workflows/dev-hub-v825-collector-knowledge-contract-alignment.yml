@@ -1,0 +1,33 @@
+name: ChaCha DEV V8.0.25 Collector Knowledge Contract Alignment
+
+on:
+  push:
+    branches:
+      - dev-hub-v825-collector-knowledge-contract-alignment
+    paths:
+      - 'dev-hub/tests/test_collector_knowledge_adapter_contract.py'
+      - '.github/workflows/dev-hub-v825-collector-knowledge-contract-alignment.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Collector contract and trust regression
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/adapters/collector-knowledge-adapter.py             dev-hub/tests/test_collector_knowledge_adapter_contract.py             dev-hub/tests/test_v823_collector_knowledge_bootstrap_trust.py             dev-hub/tests/test_v824_collector_knowledge_adapter_version.py
+          python3 dev-hub/tests/test_collector_knowledge_adapter_contract.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v823_collector_knowledge_bootstrap_trust.py | tee /tmp/v823.out
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v824_collector_knowledge_adapter_version.py | tee /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V823_TWO_PHASE_PILOT=PASS' /tmp/v823.out
+          grep -Fq 'CHACHA_DEV_V824_IMMUTABLE_VERSION_PATH=PASS' /tmp/v824.out
+          echo 'CHACHA_DEV_V825_COLLECTOR_CONTRACT_ALIGNMENT=PASS'
+          echo 'CHACHA_DEV_V825_AUTOMATIC_EXTERNAL_SPEND_EUR=0'
