@@ -136,12 +136,15 @@ public final class NativeUpdateManager {
             params.setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_REQUIRED);
         }
         int sessionId = installer.createSession(params);
-        try (PackageInstaller.Session session = installer.openSession(sessionId);
-             InputStream in = new FileInputStream(apk);
-             OutputStream out = session.openWrite("base.apk", 0, apk.length())) {
-            byte[] buf = new byte[64 * 1024];
-            for (int n; (n = in.read(buf)) >= 0;) if (n > 0) out.write(buf, 0, n);
-            session.fsync(out);
+        try (PackageInstaller.Session session = installer.openSession(sessionId)) {
+            try (InputStream in = new FileInputStream(apk);
+                 OutputStream out = session.openWrite("base.apk", 0, apk.length())) {
+                byte[] buf = new byte[64 * 1024];
+                for (int n; (n = in.read(buf)) >= 0;) if (n > 0) out.write(buf, 0, n);
+                session.fsync(out);
+            }
+
+            // All session streams must be closed before commit().
             Intent status = new Intent(activity, NativeUpdateReceiver.class);
             status.setAction("com.wfgg.chachadev.operator.NATIVE_UPDATE_STATUS");
             PendingIntent pending = PendingIntent.getBroadcast(activity, sessionId, status,
