@@ -1,0 +1,37 @@
+name: ChaCha DEV V8.0.12 Memory Snapshot Pinning
+
+on:
+  push:
+    branches:
+      - dev-hub-v812-memory-snapshot-pinning
+    paths:
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/bin/architecture-decision-council.py'
+      - 'dev-hub/tests/test_v812_memory_snapshot_pinning.py'
+      - '.github/workflows/dev-hub-v812-memory-snapshot-pinning.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/architecture-decision-council.py             dev-hub/tests/test_v812_memory_snapshot_pinning.py
+      - name: V8.0.12 qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v812_memory_snapshot_pinning.py | tee /tmp/v812.out
+          grep -Fq 'CHACHA_DEV_V812_IMMUTABLE_MEMORY_SNAPSHOT=PASS' /tmp/v812.out
+          grep -Fq 'CHACHA_DEV_V812_LIVE_MEMORY_CAN_ADVANCE=PASS' /tmp/v812.out
+          grep -Fq 'CHACHA_DEV_V812_COUNCIL_USES_PINNED_GENERATION=PASS' /tmp/v812.out
+          grep -Fq 'CHACHA_DEV_V812_COMPARATIVE_COUNCIL_PINNED=PASS' /tmp/v812.out
+          grep -Fq 'CHACHA_DEV_V812_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v812.out
