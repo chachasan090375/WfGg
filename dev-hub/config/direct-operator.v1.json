@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/direct-operator-policy/v1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "component": "direct-operator-service",
   "bind": "127.0.0.1",
   "port": 8792,
@@ -43,7 +43,9 @@
     "remote_android_live_shell_config": true,
     "live_ui_runtime_channel": true,
     "live_ui_fallback_to_bundled_source": true,
-    "native_update_private_origin_only": true
+    "native_update_private_origin_only": true,
+    "conversation_interface_required": true,
+    "conversation_interface_has_no_decision_authority": true
   },
   "progress_policy": "dev-hub/config/progress-reporting.v1.json",
   "android_live_shell_config": "dev-hub/config/android-live-shell.v1.json",
@@ -51,5 +53,13 @@
   "live_app_config": "/opt/chacha-dev/runtime/live-ui/current/app-config.json",
   "android_native_update_policy": "dev-hub/config/android-native-update.v1.json",
   "native_update_manifest": "/opt/chacha-dev/runtime/native-update/current/manifest.json",
-  "native_update_packages_root": "/opt/chacha-dev/runtime/native-update/current/packages"
+  "native_update_packages_root": "/opt/chacha-dev/runtime/native-update/current/packages",
+  "conversation": {
+    "id": "conversation-interface-agent",
+    "script": "dev-hub/bin/conversation-interface-agent.py",
+    "contract": "dev-hub/config/conversation-interface-agent.v1.json",
+    "decision_authority": false,
+    "execution_authority": false,
+    "central_authority_preserved": true
+  }
 }
