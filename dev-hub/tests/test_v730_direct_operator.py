@@ -57,12 +57,23 @@ args=sys.argv[1:]
 out=Path(args[args.index('--output')+1])
 command=next((x for x in ('status','instruction','continue') if x in args),'status')
 project='direct-test-project'
-status='OK' if command=='status' else ('CONTINUED_PLAN_READY' if command=='continue' else 'PLAN_READY')
-decision={'continuation_mode':'FRESH_CENTRAL_REORCHESTRATION'} if command=='continue' else {'source':'fake-central'}
+count_file=Path(__file__).with_suffix('.count')
+count=int(count_file.read_text()) if count_file.exists() else 0
+if command=='status':
+    status='OK';next_action='AWAIT_USER_DIRECTIVE';decision={'source':'fake-central-status'}
+elif command=='instruction':
+    status='PLAN_READY';next_action='DOMAIN_FACTORIES';decision={'source':'fake-central'}
+else:
+    count+=1;count_file.write_text(str(count))
+    if count<2:
+        status='CONTINUED_PLAN_READY';next_action='DOMAIN_FACTORIES'
+    else:
+        status='SUCCESS';next_action='AWAIT_USER_DIRECTIVE'
+    decision={'continuation_mode':'FRESH_CENTRAL_REORCHESTRATION'}
 x={'schema':'chacha.dev/central-interface-receipt/v1','receipt_id':'fake-'+uuid.uuid4().hex,
    'observed_at':'2026-09-24T00:00:00Z','command':command.upper(),'project_id':project,
    'status':status,'authority':'central-orchestrator','brain_decision_obtained':True,
-   'next_action':'DOMAIN_FACTORIES','evidence_refs':['fake-evidence'],'decision':decision,
+   'next_action':next_action,'evidence_refs':['fake-evidence'],'decision':decision,
    'automatic_external_spend_eur':0}
 if command=='continue':x['continuation_of_request_id']='previous'
 out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(x)+'\\n')
@@ -84,6 +95,7 @@ print(json.dumps({'schema':'chacha.dev/emergency-stop-state/v1','active':True}))
       "translator":{"id":"functional-translator-satellite","script":"dev-hub/bin/functional-translator-agent.py",
         "execution_authority":False,"architecture_authority":False,"raw_text_preserved":True},
       "central_controller":str(fake_controller),"emergency_controller":str(fake_stop),
+      "auto_continue":{"enabled":True,"max_steps":8},
       "invariants":{"chatgpt_not_in_direct_path":True,"direct_operator_has_no_technical_decision_authority":True,
         "direct_operator_has_no_direct_mutation":True,"central_orchestrator_required":True,
         "guardian_and_platform_governance_preserved":True,"automatic_external_spend_eur":0}
@@ -96,7 +108,11 @@ print(json.dumps({'schema':'chacha.dev/emergency-stop-state/v1','active':True}))
     jid="job-instruction"
     st.process(jid,"Ajoute un widget Android d accès direct","chacha-dev-platform","operator@example.test")
     j=mod.load(st.job_path(jid));assert j["state"]=="COMPLETE",j
-    r=j["response"];assert r["status"]=="PLAN_READY" and r["brain_decision_obtained"] is True,r
+    r=j["response"];assert r["status"]=="SUCCESS" and r["brain_decision_obtained"] is True,r
+    assert r["project_id"]=="chacha-dev-platform",r
+    assert r["execution_project_id"]=="direct-test-project",r
+    assert len(r.get("continuation_steps") or [])>=2,r
+    assert st.session()["active_project"]=="chacha-dev-platform",st.session()
     assert r["interface_direct_technical_decision"] is False and r["interface_direct_mutation"] is False,r
     req=next((runtime/"direct-operator/requests").iterdir())
     translation=mod.load(req/"translation/translation.json")
@@ -107,7 +123,9 @@ print(json.dumps({'schema':'chacha.dev/emergency-stop-state/v1','active':True}))
 
     jid2="job-go";st.process(jid2,"Go","direct-test-project","operator@example.test")
     j2=mod.load(st.job_path(jid2));assert j2["state"]=="COMPLETE",j2
-    assert j2["response"]["status"]=="CONTINUED_PLAN_READY",j2
+    assert j2["response"]["status"]=="SUCCESS",j2
+    assert j2["response"]["project_id"]=="direct-test-project",j2
+    assert st.session()["active_project"]=="direct-test-project",st.session()
     assert j2["response"]["brain_receipt"]["decision"]["continuation_mode"]=="FRESH_CENTRAL_REORCHESTRATION",j2
 
     jid3="job-status";st.process(jid3,"Allo","direct-test-project","operator@example.test")
@@ -115,6 +133,10 @@ print(json.dumps({'schema':'chacha.dev/emergency-stop-state/v1','active':True}))
 
     jid4="job-stop";st.process(jid4,"Stop","direct-test-project","operator@example.test")
     j4=mod.load(st.job_path(jid4));assert j4["state"]=="COMPLETE" and j4["response"]["status"]=="STOP_ACTIVE",j4
+
+    # A transient execution id must never contaminate the persistent session project.
+    st.save_session({"schema":"chacha.dev/direct-operator-session/v1","active_project":"human-interface-request-dor-old"})
+    assert mod.stable_project(st.session().get("active_project"),"chacha-dev-platform")=="chacha-dev-platform"
 
 print("CHACHA_DEV_V730_DIRECT_OPERATOR=PASS")
 print("CHACHA_DEV_V730_TAILSCALE_IDENTITY_FAIL_CLOSED=PASS")
