@@ -1,0 +1,61 @@
+name: ChaCha DEV V8.1.0 Human Conversation Foundation
+
+on:
+  push:
+    branches:
+      - dev-hub-v810-human-conversation-foundation
+    paths:
+      - 'dev-hub/bin/direct-operator-service.py'
+      - 'dev-hub/bin/conversation-interface-agent.py'
+      - 'dev-hub/bin/human-context-engine.py'
+      - 'dev-hub/config/direct-operator.v1.json'
+      - 'dev-hub/config/human-conversation.v1.json'
+      - 'dev-hub/direct-operator-ui/index.html'
+      - 'dev-hub/tests/test_v810_human_conversation_foundation.py'
+      - 'dev-hub/docs/HUMAN_CONVERSATION_ARCHITECTURE_V810.md'
+      - '.github/workflows/dev-hub-v810-human-conversation-foundation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          python3 -m py_compile \
+            dev-hub/bin/direct-operator-service.py \
+            dev-hub/bin/conversation-interface-agent.py \
+            dev-hub/bin/human-context-engine.py \
+            dev-hub/tests/test_v810_human_conversation_foundation.py
+          python3 -m json.tool dev-hub/config/human-conversation.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/direct-operator.v1.json >/dev/null
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('dev-hub/direct-operator-ui/index.html').read_text()
+          js=s.split('<script>',1)[1].split('</script>',1)[0]
+          Path('/tmp/v810-ui.js').write_text(js)
+          PY
+          node --check /tmp/v810-ui.js
+      - name: Human conversation foundation
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v810_human_conversation_foundation.py | tee /tmp/v810.out
+          grep -Fq 'CHACHA_DEV_V810_MULTI_TURN_TIMELINE=PASS' /tmp/v810.out
+          grep -Fq 'CHACHA_DEV_V810_PROFILE_PER_OPERATOR_ISOLATION=PASS' /tmp/v810.out
+          grep -Fq 'CHACHA_DEV_V810_EXPLICIT_HUMAN_PROFILE=PASS' /tmp/v810.out
+          grep -Fq 'CHACHA_DEV_V810_EXPLICIT_INTERACTION_SIGNALS=PASS' /tmp/v810.out
+          grep -Fq 'CHACHA_DEV_V810_NO_DEMOGRAPHIC_INFERENCE=PASS' /tmp/v810.out
+          grep -Fq 'CHACHA_DEV_V810_CENTRAL_AUTHORITY_PRESERVED=PASS' /tmp/v810.out
+          grep -Fq 'CHACHA_DEV_V810_CONVERSATIONAL_UI=PASS' /tmp/v810.out
+          grep -Fq 'CHACHA_DEV_V810_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v810.out

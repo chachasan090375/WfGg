@@ -1,0 +1,76 @@
+{
+  "schema": "chacha.dev/human-conversation-policy/v1",
+  "version": "8.1.0",
+  "component": "human-conversation-layer",
+  "purpose": "Provide a persistent, culturally aware and emotionally attentive conversation layer without changing ChaCha DEV technical decisions.",
+  "profile": {
+    "explicit_opt_in_only": true,
+    "fields": [
+      "preferred_name",
+      "preferred_form_of_address",
+      "gender_identity",
+      "age_band",
+      "languages",
+      "cultural_contexts",
+      "regional_contexts",
+      "conversation_register",
+      "directness",
+      "verbosity",
+      "humor_level",
+      "voice_preferences"
+    ],
+    "never_infer_from_name": true,
+    "never_infer_from_voice": true,
+    "never_infer_from_accent": true,
+    "never_infer_from_location": true,
+    "never_infer_protected_traits": true,
+    "user_can_edit_or_clear": true
+  },
+  "emotion_and_interaction": {
+    "diagnosis_forbidden": true,
+    "persistent_psychological_label_forbidden": true,
+    "explicit_user_signals_only": true,
+    "supported_signals": [
+      "explicit_urgency",
+      "explicit_frustration",
+      "explicit_enthusiasm",
+      "explicit_uncertainty",
+      "explicit_need_for_reassurance"
+    ],
+    "signals_are_ephemeral": true,
+    "signals_must_not_change_technical_authority": true
+  },
+  "conversation": {
+    "persistent_thread": true,
+    "max_visible_turns": 100,
+    "technical_details_secondary": true,
+    "streaming_ready": true,
+    "voice_ready": true
+  },
+  "voice": {
+    "phase": "FOUNDATION_ONLY",
+    "speech_to_text_provider": "ANDROID_NATIVE_CURRENTLY",
+    "text_to_speech_provider": "UNBOUND",
+    "turn_taking": "UNBOUND",
+    "barge_in": "UNBOUND",
+    "wake_word": "UNBOUND",
+    "biometric_inference_forbidden": true
+  },
+  "authority": {
+    "decision_authority": false,
+    "architecture_authority": false,
+    "execution_authority": false,
+    "mutation_authority": false,
+    "central_orchestrator_decision_must_be_preserved": true
+  },
+  "automatic_external_spend_eur": 0,
+  "privacy": {
+    "profile_storage": "PRIVATE_RUNTIME_PER_OPERATOR",
+    "profile_file_mode": "0600",
+    "timeline_file_mode": "0600",
+    "private_directory_mode": "0700",
+    "human_context_brief": "EPHEMERAL_DELETE_AFTER_RESPONSE",
+    "demographic_fields_in_timeline": false,
+    "raw_profile_in_conversation_response": false
+  }
+}

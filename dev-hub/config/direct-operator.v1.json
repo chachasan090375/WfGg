@@ -75,5 +75,14 @@
     ],
     "stop_on_human_approval": true,
     "stop_on_await_user_action": true
+  },
+  "human_conversation": {
+    "policy": "dev-hub/config/human-conversation.v1.json",
+    "context_engine": "dev-hub/bin/human-context-engine.py",
+    "profile_storage": "PRIVATE_RUNTIME_PER_OPERATOR",
+    "timeline_storage": "PRIVATE_RUNTIME_PER_OPERATOR",
+    "profile_inference": "FORBIDDEN",
+    "technical_decision_authority": false,
+    "automatic_external_spend_eur": 0
   }
 }

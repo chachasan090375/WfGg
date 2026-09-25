@@ -20,7 +20,7 @@ def first_text(d:dict[str,Any],keys:list[str])->str:
         v=d.get(k)
         if isinstance(v,str) and v.strip(): return v.strip()
     return ""
-def compose(receipt:dict[str,Any],intent:dict[str,Any]|None=None)->dict[str,Any]:
+def compose(receipt:dict[str,Any],intent:dict[str,Any]|None=None,human_context:dict[str,Any]|None=None)->dict[str,Any]:
     if receipt.get("schema")!=RECEIPT_SCHEMA: raise SystemExit("CONVERSATION_CENTRAL_RECEIPT_INVALID")
     status=str(receipt.get("status") or "UNKNOWN");next_action=str(receipt.get("next_action") or "AWAIT_USER_DIRECTIVE")
     decision=receipt.get("decision") if isinstance(receipt.get("decision"),dict) else {}
@@ -91,6 +91,25 @@ def compose(receipt:dict[str,Any],intent:dict[str,Any]|None=None)->dict[str,Any]
                 )
             if status in {"BLOCKED","FAILED","PARTIAL","AWAITING_APPROVAL","AWAITING_EXTERNAL_CONDITION","PLAN_READY","CONTINUED"} and human_next:
                 message+=("\n\nÉtape suivante : "+human_next+".")
+    human=human_context if isinstance(human_context,dict) else {}
+    profile=human.get("profile") if isinstance(human.get("profile"),dict) else {}
+    signals=human.get("interaction_signals") if isinstance(human.get("interaction_signals"),dict) else {}
+    style_directives={
+      "preferred_name":profile.get("preferred_name"),
+      "preferred_form_of_address":profile.get("preferred_form_of_address"),
+      "conversation_register":profile.get("conversation_register"),
+      "directness":profile.get("directness"),
+      "verbosity":profile.get("verbosity"),
+      "humor_level":profile.get("humor_level"),
+      "languages":profile.get("languages") or [],
+      "cultural_contexts":profile.get("cultural_contexts") or [],
+      "regional_contexts":profile.get("regional_contexts") or [],
+      "interaction_signals":signals,
+      "no_stereotype_inference":True,
+      "technical_decision_authority":False
+    }
+    style_directives={k:v for k,v in style_directives.items() if v not in (None,"",[],{}) or k in {"no_stereotype_inference","technical_decision_authority"}}
+
     action_text={
       "AWAIT_USER_DIRECTIVE":"Dis-moi ce que tu veux faire ensuite.",
       "AWAIT_NEW_INSTRUCTION":"Donne-moi une nouvelle instruction.",
@@ -106,10 +125,14 @@ def compose(receipt:dict[str,Any],intent:dict[str,Any]|None=None)->dict[str,Any]
       "status":status,"next_action":next_action,"project_id":receipt.get("project_id"),
       "central_authority_preserved":True,"decision_modified":False,
       "source_request_id":(intent or {}).get("request_id"),
+      "human_context_applied":bool(profile or signals),
+      "style_directives":style_directives,
       "automatic_external_spend_eur":0
     }
 def main()->int:
-    ap=argparse.ArgumentParser();ap.add_argument("--receipt",type=Path,required=True);ap.add_argument("--intent",type=Path);ap.add_argument("--output",type=Path,required=True)
-    a=ap.parse_args();out=compose(load(a.receipt),load(a.intent) if a.intent and a.intent.is_file() else None);save(a.output,out);print(json.dumps(out,ensure_ascii=False))
+    ap=argparse.ArgumentParser();ap.add_argument("--receipt",type=Path,required=True);ap.add_argument("--intent",type=Path);ap.add_argument("--human-context",type=Path);ap.add_argument("--output",type=Path,required=True)
+    a=ap.parse_args()
+    human=load(a.human_context) if a.human_context and a.human_context.is_file() else None
+    out=compose(load(a.receipt),load(a.intent) if a.intent and a.intent.is_file() else None,human);save(a.output,out);print(json.dumps(out,ensure_ascii=False))
     print("CHACHA_DEV_V800_CONVERSATION_INTERFACE=PASS");print("CHACHA_DEV_V800_CONVERSATION_DECISION_AUTHORITY=NO");return 0
 if __name__=="__main__": raise SystemExit(main())

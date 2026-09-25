@@ -7,12 +7,20 @@ from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler,ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import parse_qs,urlparse
 from progress_state_controller import ProgressStore
 
 HUMAN_RESPONSE_SCHEMA="chacha.dev/human-interface-response/v1"
 CENTRAL_RECEIPT_SCHEMA="chacha.dev/central-interface-receipt/v1"
 POLICY_SCHEMA="chacha.dev/direct-operator-policy/v1"
+PROFILE_SCHEMA="chacha.dev/human-conversation-profile/v1"
+TIMELINE_SCHEMA="chacha.dev/conversation-timeline/v1"
+TURN_SCHEMA="chacha.dev/conversation-turn/v1"
+PROFILE_ALLOWED_FIELDS={
+  "preferred_name","preferred_form_of_address","gender_identity","age_band","languages",
+  "cultural_contexts","regional_contexts","conversation_register","directness","verbosity",
+  "humor_level","voice_preferences"
+}
 
 def now_iso()->str:return time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())
 def load(p:Path,default=None):
@@ -91,6 +99,11 @@ class State:
         self.root.mkdir(parents=True,exist_ok=True)
         self.jobs=self.root/"jobs";self.jobs.mkdir(parents=True,exist_ok=True)
         self.responses=self.root/"responses";self.responses.mkdir(parents=True,exist_ok=True)
+        self.conversations=self.root/"conversations";self.conversations.mkdir(parents=True,exist_ok=True)
+        self.human_profiles=self.root/"human-profiles";self.human_profiles.mkdir(parents=True,exist_ok=True)
+        for private_dir in (self.conversations,self.human_profiles):
+            try:os.chmod(private_dir,0o700)
+            except Exception:pass
         self.idempotency=self.root/"idempotency";self.idempotency.mkdir(parents=True,exist_ok=True)
         self.session_path=self.root/"session.json";self.lock=threading.RLock()
         ui=Path(str(policy.get("ui_root") or "dev-hub/direct-operator-ui"))
@@ -100,6 +113,7 @@ class State:
         self.controller=repo/str(policy.get("central_controller") or "dev-hub/bin/central-interface-controller.py")
         self.translator=repo/str(((policy.get("translator") or {}).get("script")) or "dev-hub/bin/functional-translator-agent.py")
         self.conversation=repo/str(((policy.get("conversation") or {}).get("script")) or "dev-hub/bin/conversation-interface-agent.py")
+        self.human_context=repo/str(((policy.get("human_conversation") or {}).get("context_engine")) or "dev-hub/bin/human-context-engine.py")
         self.emergency=repo/str(policy.get("emergency_controller") or "dev-hub/bin/emergency-stop-controller.py")
         progress_policy=repo/str(policy.get("progress_policy") or "dev-hub/config/progress-reporting.v1.json")
         self.progress=ProgressStore(load(progress_policy))
@@ -158,6 +172,76 @@ class State:
                 pass
         return out
     def save_session(self,x:dict[str,Any])->None:atomic(self.session_path,x)
+
+    def operator_key(self,operator:str)->str:
+        return hashlib.sha256(str(operator).strip().casefold().encode("utf-8")).hexdigest()[:32]
+
+    def profile_path(self,operator:str)->Path:
+        return self.human_profiles/(self.operator_key(operator)+".json")
+
+    def profile_view(self,operator:str)->dict[str,Any]:
+        x=load(self.profile_path(operator),{"schema":PROFILE_SCHEMA,"explicit_opt_in":True})
+        return {k:v for k,v in x.items() if k=="schema" or k=="explicit_opt_in" or k in PROFILE_ALLOWED_FIELDS}
+
+    def save_profile(self,operator:str,raw:dict[str,Any])->dict[str,Any]:
+        out={"schema":PROFILE_SCHEMA,"explicit_opt_in":True,"updated_at":now_iso()}
+        for k in PROFILE_ALLOWED_FIELDS:
+            if k not in raw:continue
+            v=raw[k]
+            if isinstance(v,str):
+                v=v.strip()[:300]
+                if v:out[k]=v
+            elif isinstance(v,list):
+                vals=[str(x).strip()[:120] for x in v if str(x).strip()]
+                if vals:out[k]=vals[:20]
+            elif isinstance(v,dict) and k=="voice_preferences":
+                safe={}
+                for kk,vv in v.items():
+                    if str(kk) in {"enabled","language","voice_style","speech_rate","pitch","auto_speak"}:safe[str(kk)]=vv
+                if safe:out[k]=safe
+        path=self.profile_path(operator);atomic(path,out)
+        try:os.chmod(path,0o600)
+        except Exception:pass
+        return out
+
+    def timeline_path(self,operator:str)->Path:
+        return self.conversations/(self.operator_key(operator)+".jsonl")
+
+    def append_turn(self,operator:str,response:dict[str,Any])->dict[str,Any]:
+        cv=response.get("conversation") if isinstance(response.get("conversation"),dict) else {}
+        turn={
+          "schema":TURN_SCHEMA,"turn_id":"turn-"+uuid.uuid4().hex,
+          "request_id":response.get("request_id"),"project_id":response.get("session_project_id") or response.get("project_id"),
+          "submitted_at":response.get("submitted_at"),"responded_at":response.get("responded_at") or cv.get("responded_at"),
+          "user":{"role":"user","text":str(response.get("submitted_user_message") or "")},
+          "assistant":{"role":"assistant","text":str(cv.get("message") or response.get("message") or ""),
+                       "kind":cv.get("kind") or "INFO"},
+          "status":response.get("status"),"next_action":response.get("next_action"),
+          "response_digest":None,"automatic_external_spend_eur":0
+        }
+        path=self.timeline_path(operator);path.parent.mkdir(parents=True,exist_ok=True)
+        with self.lock:
+            if not path.exists():path.touch(mode=0o600)
+            try:os.chmod(path,0o600)
+            except Exception:pass
+            with path.open("a",encoding="utf-8") as fh:fh.write(json.dumps(turn,ensure_ascii=False)+"\n")
+        return turn
+
+    def conversation_view(self,operator:str,limit:int=100)->dict[str,Any]:
+        limit=max(1,min(200,int(limit)))
+        path=self.timeline_path(operator);items=[]
+        if path.is_file():
+            try:
+                lines=path.read_text(encoding="utf-8").splitlines()[-limit:]
+                for line in lines:
+                    try:
+                        x=json.loads(line)
+                        if isinstance(x,dict) and x.get("schema")==TURN_SCHEMA:items.append(x)
+                    except Exception:pass
+            except Exception:pass
+        return {"schema":TIMELINE_SCHEMA,"items":items,"count":len(items),"limit":limit,
+                "profile_available":self.profile_path(operator).is_file(),"automatic_external_spend_eur":0}
+
     def job_path(self,jid:str)->Path:return self.jobs/(safe_id(jid)+".json")
     def set_job(self,jid:str,**fields)->dict[str,Any]:
         with self.lock:
@@ -296,9 +380,19 @@ class State:
             central_for_conversation=work/"central-receipt-for-conversation.json"
             atomic(central_for_conversation,receipt)
             conversation_path=work/"conversation-response.json"
+            human_context_path=work/"human-context.json"
+            profile_path=self.profile_path(operator)
+            human_cmd=[sys.executable,str(self.human_context),"--text",text,"--output",str(human_context_path)]
+            if profile_path.is_file():human_cmd[2:2]=["--profile",str(profile_path)]
+            hp=run(human_cmd,60)
+            if hp.returncode!=0 or not human_context_path.is_file():
+                atomic(human_context_path,{"schema":"chacha.dev/human-context-brief/v1","profile":{},
+                  "interaction_signals":{},"rules":{"technical_decision_authority":False},
+                  "fallback":True,"automatic_external_spend_eur":0})
             self.progress.update("conversation-interface-agent",55,"RUNNING","ChaCha prépare sa réponse",94,"ChaCha te répond")
             cp=run([sys.executable,str(self.conversation),"--receipt",str(central_for_conversation),
-                    "--intent",str(work/"intent.json"),"--output",str(conversation_path)],120)
+                    "--intent",str(work/"intent.json"),"--human-context",str(human_context_path),
+                    "--output",str(conversation_path)],120)
             if cp.returncode==0 and conversation_path.is_file():
                 conversation=load(conversation_path)
             else:
@@ -307,14 +401,20 @@ class State:
                   "requires_user_response":False,"status":receipt.get("status"),
                   "next_action":receipt.get("next_action"),"central_authority_preserved":True,
                   "decision_modified":False,"fallback":True,"automatic_external_spend_eur":0}
+            try:human_context_path.unlink(missing_ok=True)
+            except Exception:pass
             self.progress.update("conversation-interface-agent",100,"COMPLETE","Réponse prête",98,"Réponse prête ✨")
             response=wrap(intent,receipt)
             response["conversation"]=conversation
             response["message"]=conversation.get("message")
             response["submitted_user_message"]=text
+            response["submitted_at"]=intent.get("received_at")
             response["session_project_id"]=project
             response["continuation_steps"]=continuation_steps
             response_path=self.responses/(safe_id(request_id)+".json");atomic(response_path,response)
+            turn=self.append_turn(operator,response)
+            response["conversation_turn_id"]=turn["turn_id"]
+            atomic(response_path,response)
             with self.lock:
                 s=self.session();s.update({"schema":"chacha.dev/direct-operator-session/v1","updated_at":now_iso(),
                   "active_project":project,"last_request_id":request_id,
@@ -346,12 +446,19 @@ class Handler(BaseHTTPRequestHandler):
         if not identity:self.json(HTTPStatus.FORBIDDEN,{"status":"FORBIDDEN","reason":"TAILSCALE_IDENTITY_REQUIRED"});return None
         return identity
     def do_GET(self):
-        path=urlparse(self.path).path
+        parsed=urlparse(self.path);path=parsed.path
         if path=="/healthz":return self.json(200,{"status":"PASS","component":"direct-operator","bind":"loopback"})
         identity=self.auth()
         if not identity:return
         if path=="/api/v1/session":
             return self.json(200,self.st.session_view())
+        if path=="/api/v1/conversation":
+            qs=parse_qs(parsed.query);raw=(qs.get("limit") or ["100"])[0]
+            try:limit=int(raw)
+            except Exception:limit=100
+            return self.json(200,self.st.conversation_view(identity,limit))
+        if path=="/api/v1/human-profile":
+            return self.json(200,self.st.profile_view(identity))
         if path=="/api/v1/progress":
             return self.json(200,self.st.progress.snapshot())
         if path=="/api/v1/app-config":
@@ -389,6 +496,15 @@ class Handler(BaseHTTPRequestHandler):
         identity=self.auth()
         if not identity:return
         path=urlparse(self.path).path
+        if path=="/api/v1/human-profile":
+            maxb=min(int(self.st.policy.get("max_request_bytes") or 65536),32768)
+            try:n=int(self.headers.get("Content-Length") or 0)
+            except Exception:n=0
+            if n<=0 or n>maxb:return self.json(413,{"status":"INVALID_SIZE"})
+            try:body=json.loads(self.rfile.read(n).decode("utf-8"))
+            except Exception:return self.json(400,{"status":"INVALID_JSON"})
+            if not isinstance(body,dict):return self.json(400,{"status":"PROFILE_OBJECT_REQUIRED"})
+            return self.json(200,self.st.save_profile(identity,body))
         if path!="/api/v1/intent":return self.json(404,{"status":"NOT_FOUND"})
         maxb=int(self.st.policy.get("max_request_bytes") or 65536)
         try:n=int(self.headers.get("Content-Length") or 0)

@@ -38,7 +38,10 @@ h1{font-size:22px;line-height:1.05;margin:0}.subtitle{font-size:12px;color:var(-
 textarea{width:100%;min-height:120px;resize:vertical;border:1px solid #45414f;border-radius:20px;background:#14131a;color:white;padding:17px 56px 17px 16px;
  font-size:17px;outline:none;line-height:1.4;box-shadow:inset 0 1px 0 #ffffff08}
 textarea:focus{border-color:#8e73ff;box-shadow:0 0 0 4px #7c5cff20}
-textarea::placeholder{color:#77717f}.mic{position:absolute;right:10px;bottom:10px;width:40px;height:40px;border-radius:14px}
+textarea::placeholder{color:#77717f}
+input,select{width:100%;border:1px solid #45414f;border-radius:13px;background:#14131a;color:#f6f2fb;padding:11px 12px;font-size:14px;outline:none}
+input:focus,select:focus{border-color:#8e73ff;box-shadow:0 0 0 3px #7c5cff18}
+input::placeholder{color:#77717f}.mic{position:absolute;right:10px;bottom:10px;width:40px;height:40px;border-radius:14px}
 .actions{display:grid;grid-template-columns:1fr repeat(3,auto);gap:8px;margin-top:10px}
 button{border:1px solid #403d49;border-radius:15px;padding:12px 14px;background:#2b2933;color:#f8f5ff;font-weight:800;font-size:14px;cursor:pointer}
 button:hover{filter:brightness(1.12)}button.primary{border:0;background:linear-gradient(135deg,var(--violet),#9b70ff);box-shadow:0 8px 22px #7c5cff30}
@@ -46,9 +49,15 @@ button.stop{color:#ffb8b8;background:#351f25;border-color:#5a3038}button:disable
 .reply{margin-top:14px;min-height:86px}.stateRow{display:flex;justify-content:space-between;gap:8px;align-items:center}
 .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:99px;background:#312c42;color:#cabdff;font-size:11px;font-weight:800}
 pre{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:14px;line-height:1.5;color:#e8e2f4;margin:12px 0 0}
-.turn{margin-top:14px;padding:12px 13px;border:1px solid #35323e;border-radius:16px;background:#17161d}
-.turn.user{background:#1d1a27;border-color:#443a62}.turn.assistant{background:#171b20;border-color:#33423d}
-.turn .eyebrow{margin-bottom:7px}.turn pre{margin:0}
+.timeline{display:flex;flex-direction:column;gap:10px;margin-top:12px;max-height:58vh;overflow:auto;padding:2px 2px 6px;scroll-behavior:smooth}
+.turn{padding:11px 13px;border:1px solid #35323e;border-radius:18px;background:#17161d;max-width:86%;box-shadow:0 5px 16px #0002}
+.turn.user{align-self:flex-end;background:#2a2040;border-color:#54416f;border-bottom-right-radius:7px}
+.turn.assistant{align-self:flex-start;background:#171b20;border-color:#33423d;border-bottom-left-radius:7px}
+.turn.pending{opacity:.72}
+.turnHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.turnWho{font-size:11px;font-weight:800;letter-spacing:.05em;color:#c9c0d8}.turnTime{font-size:10px;color:#7f7989}
+.turn pre{margin:0;white-space:pre-wrap;word-break:break-word;font:inherit;font-size:15px;line-height:1.45;color:#f1edf8}
+.typing{align-self:flex-start;color:#aaa5b7;font-size:12px;padding:8px 12px}
 .conversationMeta{font-size:11px;color:#8f899b;margin-top:8px;min-height:16px}
 .syncLive{color:var(--mint)}
 details.tech{margin-top:12px;border-top:1px solid #302e39;padding-top:10px;color:var(--muted)}
@@ -98,21 +107,38 @@ details.tech pre{font-size:11px;color:#aaa5b7}
 <section class="card reply">
   <div class="stateRow"><div class="eyebrow">Conversation</div><span class="badge" id="stage">PRÊT</span></div>
   <div class="conversationMeta" id="conversationMeta">Synchronisation active</div>
-  <div class="turn user" id="userTurn" hidden>
-    <div class="eyebrow">👤 Ta demande</div>
-    <pre id="submitted"></pre>
+  <div class="timeline" id="timeline" aria-live="polite">
+    <div class="turn assistant" data-bootstrap="true" aria-label="💨 ChaCha répond">
+      <div class="turnHead"><span class="turnWho">💨 ChaCha</span></div>
+      <pre>Je suis là. Dis-moi ce que tu veux faire.</pre>
+    </div>
   </div>
-  <div class="turn assistant">
-    <div class="eyebrow">💨 ChaCha répond</div>
-    <pre id="result">Je suis là. Lance une demande quand tu veux.</pre>
-  </div>
+  <div class="typing" id="typing" hidden>💨 ChaCha réfléchit…</div>
   <details class="tech" id="tech" hidden><summary>Détails techniques</summary><pre id="techResult"></pre></details>
 </section>
+
+<details class="card" id="humanProfilePanel" style="margin-top:14px">
+  <summary style="cursor:pointer;font-weight:800">Personnaliser la conversation</summary>
+  <div class="tiny" style="margin:10px 0 12px">Tout est facultatif et déclaré par toi. ChaCha ne déduit pas ton âge, ton genre, ta culture ou ta région.</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+    <input id="hpName" placeholder="Prénom préféré">
+    <select id="hpAddress"><option value="">Tutoiement / vouvoiement</option><option value="tu">Tutoiement</option><option value="vous">Vouvoiement</option></select>
+    <input id="hpGender" placeholder="Genre (facultatif)">
+    <input id="hpAge" placeholder="Tranche d’âge (facultatif)">
+    <input id="hpCulture" placeholder="Culture(s), séparées par des virgules">
+    <input id="hpRegion" placeholder="Région(s), ex. Provence">
+    <input id="hpRegister" placeholder="Registre, ex. familier-direct">
+    <input id="hpHumor" placeholder="Humour, ex. léger">
+  </div>
+  <button id="hpSave" style="margin-top:10px">Enregistrer mes préférences</button>
+  <span class="tiny" id="hpStatus" style="margin-left:8px"></span>
+</details>
 </main>
 <script>
-const q=document.querySelector('#q'),send=document.querySelector('#send'),stage=document.querySelector('#stage'),result=document.querySelector('#result');
-const userTurn=document.querySelector('#userTurn'),submitted=document.querySelector('#submitted'),tech=document.querySelector('#tech'),techResult=document.querySelector('#techResult'),conversationMeta=document.querySelector('#conversationMeta');
-let lastSeenRequestId='',lastSeenDigest='',conversationSyncBusy=false,progressBusy=false;
+const q=document.querySelector('#q'),send=document.querySelector('#send'),stage=document.querySelector('#stage');
+const timeline=document.querySelector('#timeline'),typing=document.querySelector('#typing'),tech=document.querySelector('#tech'),techResult=document.querySelector('#techResult'),conversationMeta=document.querySelector('#conversationMeta');
+const hpName=document.querySelector('#hpName'),hpAddress=document.querySelector('#hpAddress'),hpGender=document.querySelector('#hpGender'),hpAge=document.querySelector('#hpAge'),hpCulture=document.querySelector('#hpCulture'),hpRegion=document.querySelector('#hpRegion'),hpRegister=document.querySelector('#hpRegister'),hpHumor=document.querySelector('#hpHumor'),hpSave=document.querySelector('#hpSave'),hpStatus=document.querySelector('#hpStatus');
+let lastSeenRequestId='',lastSeenDigest='',lastTimelineToken='',conversationSyncBusy=false,progressBusy=false;
 let runtimeRevision='',activeJobId='',pendingUiReload=false;
 const globalPct=document.querySelector('#globalPct'),globalFill=document.querySelector('#globalFill'),globalLabel=document.querySelector('#globalLabel');
 const workPct=document.querySelector('#workPct'),workFill=document.querySelector('#workFill'),workState=document.querySelector('#workState'),headline=document.querySelector('#headline'),modules=document.querySelector('#modules');
@@ -154,60 +180,99 @@ async function refreshProgress(){
 function displayTime(iso){
  try{return new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date(iso))}catch(_){return ''}
 }
+function turnTime(iso){
+ const x=displayTime(iso);return x?'<span class="turnTime">'+esc(x)+'</span>':''
+}
+function turnHtml(role,text,when='',extra=''){
+ const who=role==='user'?'👤 Toi':'💨 ChaCha';
+ const label=role==='user'?'👤 Ta demande':'💨 ChaCha répond';
+ return '<div class="turn '+role+' '+extra+'" aria-label="'+label+'"><div class="turnHead"><span class="turnWho">'+who+'</span>'+turnTime(when)+'</div><pre>'+esc(text)+'</pre></div>';
+}
+function renderTimeline(payload){
+ const items=Array.isArray(payload?.items)?payload.items:[];
+ if(!items.length)return false;
+ timeline.innerHTML=items.map(t=>
+   turnHtml('user',t?.user?.text||'',t?.submitted_at||'')+
+   turnHtml('assistant',t?.assistant?.text||'',t?.responded_at||'')
+ ).join('');
+ const last=items[items.length-1]||{};
+ stage.textContent=String(last.status||'PRÊT').toUpperCase();
+ lastSeenRequestId=String(last.request_id||'');
+ lastTimelineToken=String(items.length)+':'+String(last.turn_id||'');
+ conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span> • '+items.length+' échange'+(items.length>1?'s':'');
+ timeline.scrollTop=timeline.scrollHeight;
+ return true;
+}
 function renderConversation(z,digest=''){
  const cv=z?.conversation||{};
  const asked=String(z?.submitted_user_message||'').trim();
- if(asked){submitted.textContent=asked;userTurn.hidden=false}else{submitted.textContent='';userTurn.hidden=true}
- const status=String(z?.status||cv.kind||'PRÊT').toUpperCase();
- const labels={SUCCESS:'TERMINÉ',PASS:'TERMINÉ',OK:'OK',BLOCKED:'BLOQUÉ',FAILED:'ÉCHEC',PARTIAL:'PARTIEL',AWAITING_APPROVAL:'VALIDATION'};
- stage.textContent=labels[status]||status;
- result.textContent=cv.message||z?.message||'Traitement terminé.';
+ const answer=String(cv.message||z?.message||'Traitement terminé.');
  const rid=String(z?.request_id||cv?.source_request_id||'');
- const when=displayTime(z?.responded_at||cv?.responded_at);
- conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span>'+(when?' • réponse '+esc(when):'')+(rid?' • '+esc(rid.slice(0,12))+'…':'');
+ const when=z?.responded_at||cv?.responded_at||'';
+ const existing=rid?timeline.querySelector('[data-request="'+CSS.escape(rid)+'"]'):null;
+ if(existing)existing.remove();
+ const wrap=document.createElement('div');wrap.dataset.request=rid||('local-'+Date.now());
+ wrap.innerHTML=(asked?turnHtml('user',asked,z?.submitted_at||''):'')+turnHtml('assistant',answer,when);
+ timeline.appendChild(wrap);
+ const status=String(z?.status||cv.kind||'PRÊT').toUpperCase();
+ const labels={SUCCESS:'TERMINÉ',PASS:'TERMINÉ',OK:'OK',BLOCKED:'BLOQUÉ',FAILED:'ÉCHEC',PARTIAL:'PARTIEL',AWAITING_APPROVAL:'VALIDATION',AWAITING_EXTERNAL_CONDITION:'EN ATTENTE'};
+ stage.textContent=labels[status]||status;
+ conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span>'+(when?' • réponse '+esc(displayTime(when)):'');
  techResult.textContent=JSON.stringify({
-   status:z?.status,next_action:z?.next_action,request_id:rid,responded_at:z?.responded_at||cv?.responded_at,
+   status:z?.status,next_action:z?.next_action,request_id:rid,responded_at:when,
    project:z?.session_project_id||z?.project_id,execution_project:z?.execution_project_id,
-   continuation_steps:z?.continuation_steps||[]
+   continuation_steps:z?.continuation_steps||[],human_context_applied:cv?.human_context_applied||false
  },null,2);
  tech.hidden=false;
+ typing.hidden=true;
  if(rid)lastSeenRequestId=rid;
  if(digest)lastSeenDigest=digest;
+ timeline.scrollTop=timeline.scrollHeight;
 }
 async function syncConversation(force=false){
  if(conversationSyncBusy)return;
  conversationSyncBusy=true;
  try{
-  const s=await fetchJson('/api/v1/session',{},2);
-  const rid=String(s.last_request_id||'');
-  const dig=String(s.last_response_digest||'');
-  if(s.last_response&&(force||rid!==lastSeenRequestId||dig!==lastSeenDigest)){
-    renderConversation(s.last_response,dig);
-  }else if(rid&&rid===lastSeenRequestId){
-    conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span> • synchronisé';
-  }
+  const c=await fetchJson('/api/v1/conversation?limit=100',{},2);
+  const items=Array.isArray(c.items)?c.items:[];
+  const last=items[items.length-1]||{};
+  const token=String(items.length)+':'+String(last.turn_id||'');
+  if(items.length&&(force||token!==lastTimelineToken))renderTimeline(c);
+  else if(items.length)conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span> • synchronisé';
  }catch(_){
   conversationMeta.textContent='Connexion interrompue — reconnexion automatique…';
  }finally{conversationSyncBusy=false}
 }
-async function hydrateConversation(){return syncConversation(true)}
+async function hydrateConversation(){
+ try{
+  const c=await fetchJson('/api/v1/conversation?limit=100',{},2);
+  if(renderTimeline(c))return;
+ }catch(_){}
+ try{
+  const s=await fetchJson('/api/v1/session',{},2);
+  if(s.last_response)renderConversation(s.last_response);
+ }catch(_){}
+}
 async function submit(text,fromEditor=false){
  const original=String(text||'').trim();if(!original)return;
  const clientRequestId=requestId();
- let accepted=false;send.disabled=true;stage.textContent='ENVOI';result.textContent='ChaCha prend la demande…';tech.hidden=true;await refreshProgress();
+ let accepted=false;send.disabled=true;stage.textContent='ENVOI';tech.hidden=true;typing.hidden=false;await refreshProgress();
  try{
   const x=await fetchJson('/api/v1/intent',{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({text:original,client_request_id:clientRequestId})
   },4);
-  accepted=true;activeJobId=x.job_id;submitted.textContent=original;userTurn.hidden=false;if(fromEditor)q.value='';
+  accepted=true;activeJobId=x.job_id;if(fromEditor)q.value='';
+  const pending=document.createElement('div');pending.id='pending-'+clientRequestId;
+  pending.innerHTML=turnHtml('user',original,new Date().toISOString(),'pending');
+  timeline.appendChild(pending);timeline.scrollTop=timeline.scrollHeight;
   conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span> • demande acceptée • '+esc(clientRequestId.slice(0,8));
   for(;;){
    await sleep(1200);await refreshProgress();
    try{
     const j=await fetchJson('/api/v1/jobs/'+x.job_id,{},3);
     stage.textContent=j.state||'…';
-    if(j.state==='COMPLETE'){renderConversation(j.response||{});break}
+    if(j.state==='COMPLETE'){document.querySelector('#pending-'+CSS.escape(clientRequestId))?.remove();renderConversation(j.response||{});break}
     if(j.state==='FAILED')throw new Error(j.error||'Échec')
    }catch(e){
     conversationMeta.textContent='Connexion interrompue — la demande est conservée, reconnexion…';
@@ -217,10 +282,10 @@ async function submit(text,fromEditor=false){
  }catch(e){
   if(accepted){
    stage.textContent='RECONNEXION';
-   result.textContent='La demande a été acceptée. Je récupère son résultat dès que la connexion revient.';
+   typing.hidden=false;conversationMeta.textContent='La demande est acceptée — je récupère sa réponse dès que la connexion revient.';
   }else{
    stage.textContent='CONNEXION';
-   result.textContent='Je n’ai pas pu confirmer l’envoi. La demande reste dans la zone de saisie et sera à renvoyer si la reconnexion automatique n’aboutit pas.';
+   conversationMeta.textContent='Je n’ai pas pu confirmer l’envoi. La demande reste dans la zone de saisie.';
    if(fromEditor&&!q.value.trim())q.value=original;
   }
  }finally{
@@ -229,7 +294,7 @@ async function submit(text,fromEditor=false){
  }
 }
 send.onclick=()=>submit(q.value,true);document.querySelector('#go').onclick=()=>submit('Go');document.querySelector('#status').onclick=()=>submit('Allo');document.querySelector('#stop').onclick=()=>submit('Stop');
-document.querySelector('#mic').onclick=()=>{q.focus();result.textContent='Sur le widget Android, le micro utilise la dictée native. Ici, utilise le micro du clavier.'};
+document.querySelector('#mic').onclick=()=>{q.focus();conversationMeta.textContent='Sur Android, utilise le bouton micro du widget pour dicter.';};
 q.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')submit(q.value,true)});
 window.chachaSetPrompt=(text)=>{q.value=String(text||'');q.focus();};
 window.chachaSubmit=(text)=>submit(String(text||''));
@@ -245,8 +310,42 @@ async function checkUiRevision(){
   }
  }catch(_){}
 }
+async function loadHumanProfile(){
+ try{
+  const p=await fetchJson('/api/v1/human-profile',{},2);
+  hpName.value=p.preferred_name||'';
+  hpAddress.value=p.preferred_form_of_address||'';
+  hpGender.value=p.gender_identity||'';
+  hpAge.value=p.age_band||'';
+  hpCulture.value=(p.cultural_contexts||[]).join(', ');
+  hpRegion.value=(p.regional_contexts||[]).join(', ');
+  hpRegister.value=p.conversation_register||'';
+  hpHumor.value=p.humor_level||'';
+ }catch(_){}
+}
+hpSave.onclick=async()=>{
+ hpSave.disabled=true;hpStatus.textContent='Enregistrement…';
+ const split=v=>String(v||'').split(',').map(x=>x.trim()).filter(Boolean);
+ try{
+  await fetchJson('/api/v1/human-profile',{
+   method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({
+    preferred_name:hpName.value.trim(),
+    preferred_form_of_address:hpAddress.value,
+    gender_identity:hpGender.value.trim(),
+    age_band:hpAge.value.trim(),
+    cultural_contexts:split(hpCulture.value),
+    regional_contexts:split(hpRegion.value),
+    conversation_register:hpRegister.value.trim(),
+    humor_level:hpHumor.value.trim()
+   })
+  },2);
+  hpStatus.textContent='Préférences enregistrées';
+ }catch(_){hpStatus.textContent='Enregistrement impossible'}
+ finally{hpSave.disabled=false}
+};
 window.chachaRefresh=()=>{syncConversation(true);refreshProgress();checkUiRevision();};
-hydrateConversation();refreshProgress();checkUiRevision();
+hydrateConversation();loadHumanProfile();refreshProgress();checkUiRevision();
 setInterval(refreshProgress,2000);
 setInterval(()=>syncConversation(false),2000);
 setInterval(checkUiRevision,10000);
