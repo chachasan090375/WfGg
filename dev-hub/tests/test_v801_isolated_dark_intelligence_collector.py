@@ -217,6 +217,17 @@ with tempfile.TemporaryDirectory(prefix="v801-pipeline-") as td:
     assert v1["verdict"]=="INCONCLUSIVE"
     assert v1["claim_reports"][0]["independent_support_groups"]==1
 
+    mirrored_same_content=[
+      {**one_support[0],"content_sha256":"same-content-digest"},
+      {"id":"mirror-copy","claim_id":"claim-1","type":"official_technical",
+       "origin":"https://mirror.example/report","source_owner":"mirror.example",
+       "independence_group":"mirror.example","stance":"SUPPORT","verified":True,
+       "confidence_score":95,"content_sha256":"same-content-digest"}
+    ]
+    vm=corroboration.evaluate(dossier,mirrored_same_content,corroboration_policy)
+    assert vm["verdict"]=="INCONCLUSIVE"
+    assert vm["claim_reports"][0]["independent_support_groups"]==1
+
     two_support=one_support+[
       {"id":"ind-1-duplicate","claim_id":"claim-1","type":"independent_technical",
        "origin":"https://source-a.example/copy","source_owner":"Owner A","independence_group":"group-a","stance":"SUPPORT",
@@ -338,6 +349,8 @@ assert public_cor.public_url("https://example.com/report") is True
 assert public_cor.public_url("http://127.0.0.1/private") is False
 assert public_cor.public_url("http://examplehiddenservice.onion/post") is False
 assert public_cor.owner_for("https://sub.example.com/a")=="example.com"
+assert public_cor.owner_for("https://sub.example.com/a","Author One")=="example.com"
+assert public_cor.owner_for("https://sub.example.com/b","Different Author")=="example.com"
 sample="""Title: Example advisory
 URL: https://example.com/advisory
 Published: 2026-09-25
@@ -460,6 +473,8 @@ print("CHACHA_DEV_V801_INDEPENDENT_CORROBORATION_GATE=PASS")
 print("CHACHA_DEV_V801_SINGLE_SOURCE_VALIDATION=BLOCKED")
 print("CHACHA_DEV_V801_DUPLICATE_SOURCE_INFLATION=NO")
 print("CHACHA_DEV_V801_SAME_OWNER_INFLATION=NO")
+print("CHACHA_DEV_V801_AUTHOR_LABEL_INFLATION=NO")
+print("CHACHA_DEV_V801_MIRROR_CONTENT_INFLATION=NO")
 print("CHACHA_DEV_V801_PRIMARY_LINK_CORROBORATION=BLOCKED")
 print("CHACHA_DEV_V801_CONTRADICTION_GATE=PASS")
 print("CHACHA_DEV_V801_TECHNOLOGY_RADAR_CORROBORATION_ROUTE=PASS")
