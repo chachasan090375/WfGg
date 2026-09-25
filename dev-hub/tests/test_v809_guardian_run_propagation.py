@@ -10,6 +10,8 @@ def loadmod(name,path):
     m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
 
 orch=loadmod("v809_orch",ROOT/"dev-hub/bin/autonomous-project-orchestrator.py")
+council_mod=loadmod("v809_council",ROOT/"dev-hub/bin/architecture-decision-council.py")
+assert hasattr(council_mod,"os")
 
 with tempfile.TemporaryDirectory(prefix="v809-runid-") as td:
     td=Path(td)
@@ -37,4 +39,5 @@ print("CHACHA_DEV_V809_PARENT_RUN_ID_PROPAGATED=PASS")
 print("CHACHA_DEV_V809_CHILD_STAGE_ENVIRONMENT=PASS")
 print("CHACHA_DEV_V809_COUNCIL_SUBCOMPONENT_RUN_ID=PASS")
 print("CHACHA_DEV_V809_NO_RUNLESS_COUNCIL_GUARDIAN_EVENT=PASS")
+print("CHACHA_DEV_V809_COUNCIL_OS_RUNTIME_IMPORT=PASS")
 print("CHACHA_DEV_V809_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
