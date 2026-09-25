@@ -198,6 +198,47 @@ def handle_continue(a)->dict[str,Any]:
     if prior.get("brain_decision_obtained") is not True:
         return make_receipt("CONTINUE",a.project,"BRAIN_RECEIPT_INVALID","AWAIT_NEW_INSTRUCTION",list(prior.get("evidence_refs") or []),{"reason":"NO_PRIOR_BRAIN_DECISION"})
     project=str(prior.get("project_id") or a.project or "chacha-dev-platform")
+    brain=prior.get("brain_receipt") or {}
+    brain_decision=(brain.get("decision") or {}) if isinstance(brain,dict) else {}
+    prior_next=str(brain.get("next_action") or prior.get("next_action") or brain_decision.get("next_stage") or "")
+
+    # V8.0.18: DOMAIN_FACTORIES is an executable platform handoff, not a reason
+    # to replay the whole central bootstrap. Materialize the already-approved
+    # dynamic branch packages under their Guardian contracts and expose the
+    # next real gate (provider health) with evidence.
+    if project=="chacha-dev-platform" and prior_next=="DOMAIN_FACTORIES":
+        bootstrap=Path(str(brain_decision.get("bootstrap_result") or brain.get("bootstrap_result") or ""))
+        if not bootstrap.is_file():
+            return make_receipt("CONTINUE",project,"BRAIN_RECEIPT_INVALID","AWAIT_NEW_INSTRUCTION",
+                                list(prior.get("evidence_refs") or []),{"reason":"DOMAIN_FACTORY_BOOTSTRAP_MISSING"})
+        planning=bootstrap.parent
+        runner=a.repo_root/"dev-hub/bin/domain-factory-runner.py"
+        factory_dir=a.output_dir/"domain-factories"
+        result_path=factory_dir/"domain-factory-result.json"
+        proc=subprocess.run([sys.executable,str(runner),"--repo-root",str(a.repo_root),
+                             "--planning-dir",str(planning),"--output-dir",str(factory_dir)],
+                            stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=90)
+        if not result_path.is_file():
+            return make_receipt("CONTINUE",project,"BLOCKED","DOMAIN_FACTORY_REPAIR_REQUIRED",
+                                list(prior.get("evidence_refs") or []),
+                                {"reason":"DOMAIN_FACTORY_RESULT_MISSING","stdout":proc.stdout[-1600:],"stderr":proc.stderr[-1600:]})
+        result=load(result_path)
+        refs=[str(result_path)+"#"+file_digest(result_path)]
+        for key in ("contract_reconciliation","domain_execution_graph","provider_health_requirements"):
+            p=Path(str(result.get(key) or ""))
+            if p.is_file():refs.append(str(p)+"#"+file_digest(p))
+        if result.get("status")!="READY":
+            receipt=make_receipt("CONTINUE",project,"BLOCKED",str(result.get("next_stage") or "DOMAIN_FACTORY_REPAIR_REQUIRED"),refs,
+                                 {"domain_factories":result,"continuation_mode":"DOMAIN_FACTORY_HANDOFF"})
+        else:
+            # Provider health is a mandatory fail-closed scheduler prerequisite.
+            # Until a fresh health snapshot is produced, execution must not start.
+            receipt=make_receipt("CONTINUE",project,"BLOCKED","PROVIDER_HEALTH_REQUIRED",refs,
+                                 {"domain_factories":result,"continuation_mode":"DOMAIN_FACTORY_HANDOFF",
+                                  "domain_factories_completed":True})
+        receipt["continuation_of_request_id"]=prior.get("request_id")
+        return receipt
+
     # First ask canonical Project Control. If it has a real initialized lifecycle and
     # says READY, CONTINUE performs the transactional advance under central authority.
     if project!="chacha-dev-platform":
@@ -226,8 +267,6 @@ def handle_continue(a)->dict[str,Any]:
                 return receipt
     # No initialized lifecycle: make a fresh central-brain call from the exact original
     # central intent. This is a real continuation/revalidation, never an interface copy.
-    brain=prior.get("brain_receipt") or {}
-    brain_decision=(brain.get("decision") or {}) if isinstance(brain,dict) else {}
     central_intent=Path(str(brain_decision.get("central_intent") or brain.get("central_intent") or ""))
     if not central_intent.is_file():
         bootstrap=Path(str(brain_decision.get("bootstrap_result") or brain.get("bootstrap_result") or ""))
