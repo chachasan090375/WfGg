@@ -72,7 +72,16 @@
     "corroboration_search_role": "technology-watch-agent",
     "corroboration_search_capability": "web-research",
     "primary_dark_source_never_counts_as_independent_corroboration": true,
-    "corroboration_failure_never_validates": true
+    "corroboration_failure_never_validates": true,
+    "public_corroboration_policy": "dev-hub/config/dark-intelligence-public-corroboration.v1.json",
+    "public_corroboration_adapter": "dev-hub/bin/technology-watch-public-corroboration.py",
+    "public_corroboration_classifier": "dev-hub/bin/dark-intelligence-corroboration-analysis.py",
+    "public_corroboration_provider": "exa-mcp",
+    "public_corroboration_provider_status": "PILOT",
+    "public_corroboration_automatic": true,
+    "public_corroboration_provider_or_classifier_failure": "DEFERRED_PROVIDER_UNAVAILABLE",
+    "public_corroboration_failure_auto_enqueue": true,
+    "exa_search_result_has_fact_authority": false
   },
   "output": {
     "normalized_schema": "chacha.dev/dark-intelligence-dossier/v1",
