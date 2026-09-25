@@ -55,6 +55,14 @@ def normalize_command(text:str)->str:
     t=re.sub(r"[\s!?.,;:]+$","",t)
     return {"allo":"STATUS","go":"CONTINUE","stop":"STOP"}.get(t,"INSTRUCTION")
 
+def transient_project(value:Any)->bool:
+    v=str(value or "")
+    return v.startswith("human-interface-request-") or v.startswith("dor-")
+
+def stable_project(value:Any,default_project:str="chacha-dev-platform")->str:
+    v=str(value or "").strip()
+    return default_project if not v or transient_project(v) else v
+
 def runtime_revision(repo_root:Path)->str:
     p=repo_root/".revision"
     try:return p.read_text(encoding="utf-8").strip()
@@ -358,7 +366,8 @@ def main()->int:
     session=load(session_path,{"schema":"chacha.dev/human-interface-session/v1","active_project":policy.get("default_project")})
     command=args.command or normalize_command(args.text)
     request_id=args.request_id or ("hir-"+uuid.uuid4().hex)
-    project=args.project or session.get("active_project") or policy.get("default_project")
+    default_project=str(policy.get("default_project") or "chacha-dev-platform")
+    project=stable_project(args.project or session.get("active_project"),default_project)
     intent={
       "schema":INTENT_SCHEMA,"request_id":request_id,"received_at":now_iso(),
       "source":"chatgpt-human-interface-adapter","route":args.route,"command":command,
@@ -390,7 +399,7 @@ def main()->int:
     journal=append_journal(journal_path,intent,response)
     session.update({
       "schema":"chacha.dev/human-interface-session/v1","updated_at":now_iso(),
-      "active_project":response.get("project_id") or project,
+      "active_project":project,
       "last_request_id":request_id,"last_command":command,
       "last_response_path":str(out),"last_response_digest":file_digest(out),
       "last_journal_event_digest":journal["event_digest"]
