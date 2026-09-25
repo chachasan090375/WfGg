@@ -219,7 +219,7 @@ def validate(x:dict[str,Any])->None:
 
 
 def _safe_excerpt(value:str)->tuple[str,dict[str,bool]]:
-    email_pat=r"(?i)\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\b"
+    email_pat=r"(?i)\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b"
     long_pat=r"(?<![A-Za-z0-9])[A-Za-z0-9_+/=-]{40,}(?![A-Za-z0-9])"
     personal=bool(re.search(email_pat,value))
     opaque=bool(re.search(long_pat,value))
@@ -245,7 +245,7 @@ def extractive_fallback(capture:dict[str,Any],subject:str,watch_terms:list[str],
     phrases=_watch_phrases(subject,watch_terms)
     bounded=select_analysis_text(raw,subject,watch_terms,MAX_ANALYSIS_CHARS) if raw else ""
     redacted,sensitivity=_safe_excerpt(bounded)
-    chunks=[re.sub(r"\\s+"," ",x).strip() for x in re.split(r"(?<=[.!?])\\s+|\\n+",redacted)]
+    chunks=[re.sub(r"\s+"," ",x).strip() for x in re.split(r"(?<=[.!?])\s+|\n+",redacted)]
     matched=[];seen=set()
     for chunk in chunks:
         if len(chunk)<12 or len(chunk)>1100:continue
