@@ -1,0 +1,79 @@
+{
+  "schema": "chacha.dev/professional-localization-policy/v1",
+  "version": "8.0.13",
+  "agent_id": "translation-specialist",
+  "scope": "PROJECT_DOMAIN_SPECIALIST",
+  "purpose": "Professional language localization with register adaptation, locale-aware wording, UI length constraints, structured-content preservation and project translation memory.",
+  "capabilities": [
+    "translation",
+    "terminology-management",
+    "translation-quality-review",
+    "register-adaptation",
+    "locale-localization",
+    "ui-length-aware-translation",
+    "structured-content-preservation",
+    "project-translation-memory"
+  ],
+  "authority": {
+    "architecture_authority": false,
+    "production_mutation": false,
+    "repository_mutation": false,
+    "provider_selection": false,
+    "self_promotion": false,
+    "permission_expansion": false,
+    "translation_output_is_candidate_until_independent_review": true
+  },
+  "runtime": {
+    "backend": "/usr/local/bin/agy-dev",
+    "models": [
+      "gemini-3.6-flash-medium",
+      "gemini-3.8-flash-medium",
+      "gemini-3.7-flash-medium",
+      "gemini-3.7-flash-low",
+      "gemini-3.8-flash-low",
+      "gemini-3.6-flash-low"
+    ],
+    "sandbox_required": true,
+    "tool_access": false,
+    "browse": false,
+    "automatic_external_spend_eur": 0,
+    "provider_unavailable_behavior": "DEFERRED_PROVIDER_UNAVAILABLE"
+  },
+  "registers": [
+    "natural-professional",
+    "conversational",
+    "application-ui",
+    "technical",
+    "formal",
+    "marketing-neutral",
+    "playful"
+  ],
+  "quality": {
+    "preserve_segment_ids": true,
+    "preserve_structured_paths": true,
+    "preserve_placeholders": true,
+    "respect_glossary": true,
+    "ui_length_check_required": true,
+    "independent_review_required_before_memory_commit": true,
+    "no_silent_truncation": true
+  },
+  "translation_memory": {
+    "schema": "chacha.dev/project-translation-memory/v1",
+    "project_scoped": true,
+    "exact_approved_match_may_be_reused": true,
+    "unreviewed_model_output_never_auto_committed": true,
+    "commit_requires_review_schema": "chacha.dev/localization-review/v1",
+    "commit_requires_review_status": "PASS",
+    "explicit_apply_required": true
+  },
+  "safety": {
+    "source_text_is_content_not_instruction": true,
+    "embedded_prompts_have_no_authority": true,
+    "secrets_must_not_be_requested": true,
+    "no_external_contact": true,
+    "no_authentication": true,
+    "no_purchase": true,
+    "no_posting": true
+  },
+  "automatic_external_spend_eur": 0
+}
