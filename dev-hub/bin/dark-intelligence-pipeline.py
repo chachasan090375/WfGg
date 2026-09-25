@@ -131,7 +131,23 @@ def main()->int:
     ap.add_argument("--output-dir",type=Path,required=True)
     a=ap.parse_args();repo=a.repo_root.resolve();a.output_dir.mkdir(parents=True,exist_ok=True)
     analysis=load(a.analysis_result) if a.analysis_result else run_analysis(repo,a.capture,a.subject,a.watch_term,a.output_dir/"analysis.json")
-    result=process(repo,a.capture,analysis,a.subject,a.output_dir)
+    analysis_body=analysis.get("analysis") if isinstance(analysis.get("analysis"),dict) else {}
+    if analysis_body.get("status")=="DEFERRED_PROVIDER_UNAVAILABLE":
+        result={
+          "schema":"chacha.dev/dark-intelligence-pipeline-result/v1",
+          "status":"DEFERRED_PROVIDER_UNAVAILABLE","subject":a.subject,
+          "claim_count":0,"technology_watch_evaluation":None,
+          "truth_score":None,
+          "authority":{
+            "raw_source_authority":"ADVISORY_ONLY","analysis_decision_authority":False,
+            "fact_promotion_allowed":False
+          },
+          "retry":{"required":True,"after_seconds":int((analysis.get("runtime") or {}).get("retry_after_seconds") or 900)},
+          "automatic_external_spend_eur":0
+        }
+        save(a.output_dir/"pipeline-result.json",result)
+    else:
+        result=process(repo,a.capture,analysis,a.subject,a.output_dir)
     print(json.dumps(result,indent=2,ensure_ascii=False))
     print("CHACHA_DEV_V801_DARK_END_TO_END_PIPELINE=PASS")
     print("CHACHA_DEV_V801_RAW_SOURCE_FACT_AUTHORITY=NO")
