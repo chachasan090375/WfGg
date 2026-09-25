@@ -69,6 +69,10 @@ for required in [
 ]:
     assert required in joined,required
 
+tor_only="\n".join(runner.sandbox_args(policy,"/run/netns/chacha-dark-v801","tor-loopback-only"))
+assert "IPAddressDeny=any" in tor_only
+assert "IPAddressAllow=localhost" in tor_only
+
 # Tor is toolcache-only: never apt install and never starts a host Tor service.
 prov=(ROOT/"dev-hub/bin/dark-intelligence-tor-toolcache.py").read_text(encoding="utf-8")
 assert '"download"' in prov and '"/usr/bin/dpkg-deb","-x"' in prov
