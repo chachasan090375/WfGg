@@ -323,6 +323,31 @@ assert "OnUnitActiveSec=15min" in timer
 assert dark_policy["collection"]["analysis_retry_max_attempts"]==12
 assert dark_policy["collection"]["analysis_retry_infinite_loop_forbidden"] is True
 
+
+# Public-web corroboration adapter is read-only and treats retrieval as candidate evidence only.
+public_cor=loadmod("v801_public_cor",ROOT/"dev-hub/bin/technology-watch-public-corroboration.py")
+public_policy=load(ROOT/"dev-hub/config/dark-intelligence-public-corroboration.v1.json")
+assert public_policy["provider"]["id"]=="exa-mcp"
+assert public_policy["provider"]["authentication"]=="NONE"
+assert public_policy["provider"]["automatic_paid_upgrade_forbidden"] is True
+assert public_policy["safety"]["search_results_have_no_fact_authority"] is True
+assert public_policy["safety"]["retrieval_success_does_not_equal_claim_verification"] is True
+assert set(public_policy["safety"]["read_only_tools"])=={"web_search_exa","web_fetch_exa"}
+assert public_cor.public_url("https://example.com/report") is True
+assert public_cor.public_url("http://127.0.0.1/private") is False
+assert public_cor.public_url("http://examplehiddenservice.onion/post") is False
+assert public_cor.owner_for("https://sub.example.com/a")=="example.com"
+sample="""Title: Example advisory
+URL: https://example.com/advisory
+Published: 2026-09-25
+Author: Example Org
+Highlights:
+Independent technical note
+"""
+rows=public_cor.parse_search(sample)
+assert len(rows)==1 and rows[0]["url"]=="https://example.com/advisory"
+assert rows[0]["author"]=="Example Org"
+
 print("CHACHA_DEV_V801_DEDICATED_NETWORK_NAMESPACE=PASS")
 print("CHACHA_DEV_V801_HOST_AND_PRIVATE_NETWORK_BLOCK=PASS")
 print("CHACHA_DEV_V801_NAMESPACE_SPECIFIC_DNS=PASS")
@@ -346,4 +371,6 @@ print("CHACHA_DEV_V801_SAME_OWNER_INFLATION=NO")
 print("CHACHA_DEV_V801_PRIMARY_LINK_CORROBORATION=BLOCKED")
 print("CHACHA_DEV_V801_CONTRADICTION_GATE=PASS")
 print("CHACHA_DEV_V801_TECHNOLOGY_RADAR_CORROBORATION_ROUTE=PASS")
+print("CHACHA_DEV_V801_EXA_PUBLIC_CORROBORATION_CONTRACT=PASS")
+print("CHACHA_DEV_V801_EXA_FACT_AUTHORITY=NO")
 print("CHACHA_DEV_V801_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
