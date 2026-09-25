@@ -228,7 +228,7 @@ def main():
         branch_op=bm.get(pid) or {};agent_op=am.get(pid) or {}
         gaps=[cm[c] for c in caps if c in cm]
         constraints={
-          "branch_ready":bool(branch_op) and not bool(branch.get("blocked")),
+          "branch_ready":bool(branch_op) and branch.get("blocked") is not True and not any(str(x.get("package_id") or "")==pid for x in (branch.get("blocked") or []) if isinstance(x,dict)),
           "agent_ready":bool(agent_op),
           "capability_gaps_resolved":all(bool(x) for x in gaps) if gaps else True,
           "zero_spend_rule_respected":float((branch_op.get("chosen_cost") or {}).get("external_spend_eur") or 0)==0,
