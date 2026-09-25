@@ -18,6 +18,8 @@ on:
       - 'dev-hub/config/dark-intelligence-agent.v1.json'
       - 'dev-hub/config/domain-orchestration.v1.json'
       - 'dev-hub/config/agent-routing.v1.json'
+      - 'dev-hub/tests/test_v660_independent_accuracy_attestation.py'
+      - 'dev-hub/tests/test_v663_runtime_surface_instrumentation_readiness.py'
       - 'dev-hub/tests/test_v801_isolated_dark_intelligence_collector.py'
       - '.github/workflows/dev-hub-v7-platform-qualification.yml'
       - '.github/workflows/dev-hub-v801-isolated-dark-intelligence-collector.yml'
