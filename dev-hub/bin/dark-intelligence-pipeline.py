@@ -101,23 +101,60 @@ def enqueue_deferred(repo:Path,capture:Path,subject:str,watch_terms:list[str],qu
 
 def run_auto_corroboration(repo:Path,request_path:Path,output_dir:Path)->tuple[Path|None,dict[str,Any]]:
     research_dir=output_dir/"public-corroboration";research_dir.mkdir(parents=True,exist_ok=True)
-    candidates_path=research_dir/"candidates.json"
+    attempts=[]
+
+    # Primary discovery: Exa MCP. Search-provider results never become evidence
+    # directly; they only identify candidate public URLs.
+    candidates_path=research_dir/"candidates-exa.json"
     search_script=repo/"dev-hub/bin/technology-watch-public-corroboration.py"
     search_policy=repo/"dev-hub/config/dark-intelligence-public-corroboration.v1.json"
     p=subprocess.run([sys.executable,str(search_script),"--policy",str(search_policy),
       "--request",str(request_path),"--output",str(candidates_path)],
       stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=150)
-    if p.returncode!=0 or not candidates_path.is_file():
-        return None,{"status":"DEFERRED_PROVIDER_UNAVAILABLE","stage":"PUBLIC_SEARCH",
-                     "detail":(p.stderr or p.stdout)[-800:],"retry_required":True,"retry_after_seconds":900}
-    candidates=load(candidates_path)
-    if candidates.get("status")=="PROVIDER_UNAVAILABLE":
-        return None,{"status":"DEFERRED_PROVIDER_UNAVAILABLE","stage":"PUBLIC_SEARCH",
-                     "detail":candidates.get("detail"),"retry_required":True,"retry_after_seconds":900,
-                     "candidates_path":str(candidates_path)}
+    if p.returncode==0 and candidates_path.is_file():
+        candidates=load(candidates_path)
+    else:
+        candidates={"status":"PROVIDER_UNAVAILABLE","provider":"exa-mcp",
+                    "detail":(p.stderr or p.stdout)[-800:]}
+    attempts.append({"provider":"exa-mcp","status":candidates.get("status"),
+                     "detail":candidates.get("detail")})
+
+    # Zero-spend fallback: Firecrawl keyless is discovery-only. Every URL it
+    # returns is re-fetched by ChaCha's own isolated HTTPS collector before it
+    # may be classified as candidate evidence.
+    if candidates.get("status") in {"PROVIDER_UNAVAILABLE","NO_RESULTS"}:
+        fallback_path=research_dir/"candidates-firecrawl.json"
+        fallback_script=repo/"dev-hub/bin/technology-watch-firecrawl-fallback.py"
+        fallback_policy=repo/"dev-hub/config/dark-intelligence-firecrawl-fallback.v1.json"
+        fp=subprocess.run([sys.executable,str(fallback_script),"--repo-root",str(repo),
+          "--policy",str(fallback_policy),"--request",str(request_path),"--output",str(fallback_path)],
+          stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=300)
+        if fp.returncode==0 and fallback_path.is_file():
+            fallback=load(fallback_path)
+        else:
+            fallback={"status":"PROVIDER_UNAVAILABLE","provider":"firecrawl-keyless",
+                      "detail":(fp.stderr or fp.stdout)[-800:]}
+        attempts.append({"provider":"firecrawl-keyless","status":fallback.get("status"),
+                         "detail":fallback.get("detail")})
+        if fallback.get("status")=="PASS":
+            candidates=fallback;candidates_path=fallback_path
+        elif candidates.get("status")!="PASS":
+            if candidates.get("status")=="NO_RESULTS" and fallback.get("status")=="NO_RESULTS":
+                return None,{"status":"NO_RESULTS","stage":"PUBLIC_SEARCH","retry_required":False,
+                  "candidate_count":0,"provider_attempts":attempts,
+                  "candidates_path":str(fallback_path)}
+            return None,{"status":"DEFERRED_PROVIDER_UNAVAILABLE","stage":"PUBLIC_SEARCH",
+              "retry_required":True,"retry_after_seconds":900,"provider_attempts":attempts,
+              "candidates_path":str(fallback_path) if fallback_path.is_file() else str(candidates_path)}
+
     if candidates.get("status")=="NO_RESULTS":
         return None,{"status":"NO_RESULTS","stage":"PUBLIC_SEARCH","retry_required":False,
-                     "candidate_count":0,"candidates_path":str(candidates_path)}
+                     "candidate_count":0,"provider_attempts":attempts,
+                     "candidates_path":str(candidates_path)}
+    if candidates.get("status")!="PASS":
+        return None,{"status":"DEFERRED_PROVIDER_UNAVAILABLE","stage":"PUBLIC_SEARCH",
+                     "retry_required":True,"retry_after_seconds":900,
+                     "provider_attempts":attempts,"candidates_path":str(candidates_path)}
 
     evidence_path=research_dir/"evidence.json"
     classifier=repo/"dev-hub/bin/dark-intelligence-corroboration-analysis.py"
@@ -127,17 +164,20 @@ def run_auto_corroboration(repo:Path,request_path:Path,output_dir:Path)->tuple[P
     if p.returncode!=0 or not evidence_path.is_file():
         return None,{"status":"DEFERRED_PROVIDER_UNAVAILABLE","stage":"SEMANTIC_CLASSIFICATION",
                      "detail":(p.stderr or p.stdout)[-800:],"retry_required":True,"retry_after_seconds":900,
-                     "candidates_path":str(candidates_path)}
+                     "provider_attempts":attempts,"candidates_path":str(candidates_path)}
     evidence=load(evidence_path)
+    verified_count=sum(1 for x in evidence.get("evidence") or [] if isinstance(x,dict) and x.get("verified") is True)
     if evidence.get("status")=="DEFERRED_PROVIDER_UNAVAILABLE":
         return evidence_path,{"status":"DEFERRED_PROVIDER_UNAVAILABLE","stage":"SEMANTIC_CLASSIFICATION",
                      "retry_required":True,"retry_after_seconds":int(evidence.get("retry_after_seconds") or 900),
+                     "provider_attempts":attempts,"candidate_provider":candidates.get("provider"),
                      "candidate_count":int(candidates.get("candidate_count") or 0),
-                     "verified_evidence_count":sum(1 for x in evidence.get("evidence") or [] if isinstance(x,dict) and x.get("verified") is True),
+                     "verified_evidence_count":verified_count,
                      "candidates_path":str(candidates_path),"evidence_path":str(evidence_path)}
     return evidence_path,{"status":"PASS","stage":"COMPLETE","retry_required":False,
+                 "provider_attempts":attempts,"candidate_provider":candidates.get("provider"),
                  "candidate_count":int(candidates.get("candidate_count") or 0),
-                 "verified_evidence_count":sum(1 for x in evidence.get("evidence") or [] if isinstance(x,dict) and x.get("verified") is True),
+                 "verified_evidence_count":verified_count,
                  "candidates_path":str(candidates_path),"evidence_path":str(evidence_path)}
 
 def process(repo:Path,capture_path:Path,analysis_result:dict[str,Any],subject:str,output_dir:Path,
