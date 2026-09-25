@@ -1,0 +1,48 @@
+name: ChaCha DEV V8.0.15 Retry Timer Monotonic Verification
+
+on:
+  push:
+    branches:
+      - dev-hub-v815-retry-timer-monotonic-verification
+    paths:
+      - 'dev-hub/bin/install-v815-dark-intelligence-retry-activation.sh'
+      - 'dev-hub/tests/test_v815_retry_timer_monotonic_verification.py'
+      - 'dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.service'
+      - 'dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.timer'
+      - 'dev-hub/systemd/chacha-dev-dark-intelligence-corroboration-retry.service'
+      - 'dev-hub/systemd/chacha-dev-dark-intelligence-corroboration-retry.timer'
+      - '.github/workflows/dev-hub-v815-retry-timer-monotonic-verification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax and units
+        run: |
+          set -euo pipefail
+          bash -n dev-hub/bin/install-v815-dark-intelligence-retry-activation.sh
+          systemd-analyze verify             dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.service             dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.timer             dev-hub/systemd/chacha-dev-dark-intelligence-corroboration-retry.service             dev-hub/systemd/chacha-dev-dark-intelligence-corroboration-retry.timer
+      - name: V8.0.15 qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v815_retry_timer_monotonic_verification.py | tee /tmp/v815.out
+          grep -Fq 'CHACHA_DEV_V815_MONOTONIC_TIMER_FALLBACK=PASS' /tmp/v815.out
+          grep -Fq 'CHACHA_DEV_V815_REALTIME_TIMER_COMPATIBILITY=PASS' /tmp/v815.out
+          grep -Fq 'CHACHA_DEV_V815_TRANSACTIONAL_ROLLBACK_PRESERVED=PASS' /tmp/v815.out
+          grep -Fq 'CHACHA_DEV_V815_RETRY_QUEUES_PRESERVED=PASS' /tmp/v815.out
+          grep -Fq 'CHACHA_DEV_V815_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v815.out
+      - name: Preserve V8.0.1 guarantees
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v801_isolated_dark_intelligence_collector.py | tee /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_RETRY_LOOP_BOUNDED=PASS' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_CORROBORATION_RETRY_NO_RECOLLECTION=PASS' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v801.out
