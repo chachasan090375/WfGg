@@ -37,9 +37,9 @@ public final class MigrationActivity extends Activity {
     private static final long TARGET_VERSION_CODE = 6L;
     private static final String TARGET_VERSION_NAME = "0.6.0";
     private static final String TARGET_APK_URL =
-            "https://chachavps.tail3ab05a.ts.net:8445/chacha-jai-pete-v0.6.0-200cbe417be3.apk";
+            "https://chachavps.tail3ab05a.ts.net:8445/chacha-jai-pete-v0.6.0-4fb319fcea6d.apk";
     private static final String TARGET_APK_SHA256 =
-            "b5088f7965c56b8298e88812ba73f7630dffdf71937bf3bd2e574531c967428e";
+            "bec1f07b66e9bf96b3bdd56524625607dd50310449beff80b28b51cdcbcc2824";
     private static final String TARGET_CERT_SHA256 =
             "3a39f13de1191aec28526d5d8e7c9b490723d514b8dd87e5cb30aaa86a6bff88";
 
