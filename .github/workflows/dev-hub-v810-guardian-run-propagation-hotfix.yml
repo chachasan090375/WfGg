@@ -1,0 +1,36 @@
+name: ChaCha DEV V8.0.10 Guardian Run Propagation Hotfix
+
+on:
+  push:
+    branches:
+      - dev-hub-v810-guardian-run-propagation-hotfix
+    paths:
+      - 'dev-hub/bin/architecture-decision-council.py'
+      - 'dev-hub/tests/test_v810_guardian_run_propagation_hotfix.py'
+      - '.github/workflows/dev-hub-v810-guardian-run-propagation-hotfix.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/architecture-decision-council.py             dev-hub/tests/test_v810_guardian_run_propagation_hotfix.py
+      - name: V8.0.10 qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v810_guardian_run_propagation_hotfix.py | tee /tmp/v810.out
+          grep -Fq 'CHACHA_DEV_V810_COUNCIL_MODULE_IMPORT=PASS' /tmp/v810.out
+          grep -Fq 'CHACHA_DEV_V810_OS_RUNTIME_AVAILABLE=PASS' /tmp/v810.out
+          grep -Fq 'CHACHA_DEV_V810_NESTED_RUN_ID_EXPRESSION=PASS' /tmp/v810.out
+          grep -Fq 'CHACHA_DEV_V810_NO_RUNLESS_COUNCIL_EVENT=PASS' /tmp/v810.out
+          grep -Fq 'CHACHA_DEV_V810_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v810.out
