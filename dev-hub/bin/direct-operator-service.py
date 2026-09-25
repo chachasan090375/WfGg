@@ -81,6 +81,7 @@ class State:
         self.live_app_config=Path(str(policy.get("live_app_config") or "/opt/chacha-dev/runtime/live-ui/current/app-config.json"))
         self.controller=repo/str(policy.get("central_controller") or "dev-hub/bin/central-interface-controller.py")
         self.translator=repo/str(((policy.get("translator") or {}).get("script")) or "dev-hub/bin/functional-translator-agent.py")
+        self.conversation=repo/str(((policy.get("conversation") or {}).get("script")) or "dev-hub/bin/conversation-interface-agent.py")
         self.emergency=repo/str(policy.get("emergency_controller") or "dev-hub/bin/emergency-stop-controller.py")
         progress_policy=repo/str(policy.get("progress_policy") or "dev-hub/config/progress-reporting.v1.json")
         self.progress=ProgressStore(load(progress_policy))
@@ -138,6 +139,7 @@ class State:
           "source":"direct-operator","route":"CHACHA_DEV","command":command,"user_text":text,
           "project_id":project,"target_scope":"PLATFORM" if project=="chacha-dev-platform" else "PROJECT",
           "interface_decision_authority":False,"operator_identity":operator}
+        atomic(work/"intent.json",intent)
         self.set_job(jid,state="TRANSLATING" if command=="INSTRUCTION" else "CENTRAL_ORCHESTRATION",
                      request_id=request_id,command=command,project_id=project)
         self.progress.begin(request_id,"ChaCha s’occupe de ta demande ✨",project)
@@ -185,7 +187,24 @@ class State:
                 self.progress.update("central-orchestrator",90,"RUNNING","Décision centrale reçue",88,"ChaCha finalise")
             if receipt.get("schema")!=CENTRAL_RECEIPT_SCHEMA:
                 raise RuntimeError("CENTRAL_RECEIPT_SCHEMA_INVALID")
+            central_for_conversation=work/"central-receipt-for-conversation.json"
+            atomic(central_for_conversation,receipt)
+            conversation_path=work/"conversation-response.json"
+            self.progress.update("conversation-interface-agent",55,"RUNNING","ChaCha prépare sa réponse",94,"ChaCha te répond")
+            cp=run([sys.executable,str(self.conversation),"--receipt",str(central_for_conversation),
+                    "--intent",str(work/"intent.json"),"--output",str(conversation_path)],120)
+            if cp.returncode==0 and conversation_path.is_file():
+                conversation=load(conversation_path)
+            else:
+                conversation={"schema":"chacha.dev/conversation-response/v1","agent_id":"conversation-interface-agent",
+                  "kind":"INFO","message":str(receipt.get("status") or "Réponse reçue"),
+                  "requires_user_response":False,"status":receipt.get("status"),
+                  "next_action":receipt.get("next_action"),"central_authority_preserved":True,
+                  "decision_modified":False,"fallback":True,"automatic_external_spend_eur":0}
+            self.progress.update("conversation-interface-agent",100,"COMPLETE","Réponse prête",98,"Réponse prête ✨")
             response=wrap(intent,receipt)
+            response["conversation"]=conversation
+            response["message"]=conversation.get("message")
             response_path=self.responses/(safe_id(request_id)+".json");atomic(response_path,response)
             with self.lock:
                 s=self.session();s.update({"schema":"chacha.dev/direct-operator-session/v1","updated_at":now_iso(),
