@@ -26,9 +26,18 @@
       "decision": "ADOPT",
       "runtime_status": "CATALOG_ONLY",
       "integration_mode": "managed-connector",
-      "target_capabilities": ["source-control", "code-review", "ci", "artifact-store"],
+      "target_capabilities": [
+        "source-control",
+        "code-review",
+        "ci",
+        "artifact-store"
+      ],
       "risk_class": "HIGH",
-      "write_scope": ["repository-branch", "pull-request", "repository-file"],
+      "write_scope": [
+        "repository-branch",
+        "pull-request",
+        "repository-file"
+      ],
       "secret_policy": "EXTERNAL_OAUTH",
       "provider_binding": "github",
       "health_probe": "connector-health",
@@ -42,13 +51,29 @@
       "decision": "ADOPT",
       "runtime_status": "CATALOG_ONLY",
       "integration_mode": "remote-mcp",
-      "target_capabilities": ["cloudflare-control", "cloud-deploy-edge", "cloud-deploy-static", "database-migrate", "cloud-observability", "object-storage"],
+      "target_capabilities": [
+        "cloudflare-control",
+        "cloud-deploy-edge",
+        "cloud-deploy-static",
+        "database-migrate",
+        "cloud-observability",
+        "object-storage"
+      ],
       "risk_class": "CRITICAL",
-      "write_scope": ["preview-deploy", "worker-config", "d1-migration", "r2-object"],
+      "write_scope": [
+        "preview-deploy",
+        "worker-config",
+        "d1-migration",
+        "r2-object"
+      ],
       "secret_policy": "EXTERNAL_OAUTH",
       "provider_binding": "cloudflare",
       "health_probe": "mcp-server-discover-tools-list-and-account-read",
-      "fallback": ["wrangler", "cloudflare-pages", "github-actions"],
+      "fallback": [
+        "wrangler",
+        "cloudflare-pages",
+        "github-actions"
+      ],
       "notes": "Primary Cloudflare control candidate. Production deployment, DNS, destructive D1/R2 actions and secret changes must remain separately gated."
     },
     "playwright-mcp": {
@@ -58,13 +83,21 @@
       "decision": "ASSESS",
       "runtime_status": "ENABLED",
       "integration_mode": "local-mcp",
-      "target_capabilities": ["browser-automation", "e2e-test-web", "ui-recette"],
+      "target_capabilities": [
+        "browser-automation",
+        "e2e-test-web",
+        "ui-recette"
+      ],
       "risk_class": "MEDIUM",
-      "write_scope": ["test-artifacts"],
+      "write_scope": [
+        "test-artifacts"
+      ],
       "secret_policy": "REFERENCE_ONLY",
       "provider_binding": "playwright-mcp",
       "health_probe": "mcp-server-discover-tools-list-and-browser-launch",
-      "fallback": ["playwright"],
+      "fallback": [
+        "playwright"
+      ],
       "notes": "ENABLED through the explicit provider-specific compatibility adapter after repeatability, fresh health, rollback and sandbox promotion gates passed. DEV HUB baseline remains MCP 2026-07-28 while the qualified upstream compatibility handshake is 2025-11-25. ENABLED remains read-only, preview/test scoped, external-runner based, production incapable, Verification Broker remains required, and interactive/write tools remain denied."
     },
     "chrome-devtools-mcp": {
@@ -74,13 +107,23 @@
       "decision": "ASSESS",
       "runtime_status": "ENABLED",
       "integration_mode": "local-mcp",
-      "target_capabilities": ["browser-diagnostics", "console-inspection", "network-inspection", "performance-inspection"],
+      "target_capabilities": [
+        "browser-diagnostics",
+        "console-inspection",
+        "network-inspection",
+        "performance-inspection"
+      ],
       "risk_class": "MEDIUM",
-      "write_scope": ["browser-session"],
+      "write_scope": [
+        "browser-session"
+      ],
       "secret_policy": "REFERENCE_ONLY",
       "provider_binding": "chrome-devtools-mcp",
       "health_probe": "chrome-devtools-provider-protocol-tools-list-and-isolated-browser-launch",
-      "fallback": ["playwright-mcp", "playwright"],
+      "fallback": [
+        "playwright-mcp",
+        "playwright"
+      ],
       "notes": "ENABLED through the explicit provider-specific compatibility adapter after repeatability, fresh health, rollback and sandbox promotion gates passed. DEV HUB baseline remains MCP 2026-07-28 while upstream compatibility is 2025-11-25. ENABLED remains read-only, test/preview scoped, external-runner based and production incapable. Navigation remains adapter-controlled with exact-origin enforcement and redirect revalidation; JavaScript evaluation and browser interaction remain denied; Verification Broker remains required."
     },
     "filesystem-mcp": {
@@ -90,11 +133,28 @@
       "decision": "ASSESS",
       "runtime_status": "CATALOG_ONLY",
       "integration_mode": "local-mcp",
-      "target_capabilities": ["workspace-files", "adapter-files", "evidence-files"],
+      "target_capabilities": [
+        "workspace-files",
+        "adapter-files",
+        "evidence-files"
+      ],
       "risk_class": "CRITICAL",
-      "write_scope": ["approved-workspace-only"],
-      "allowed_roots": ["/opt/chacha-dev/workspaces", "/opt/chacha-dev/adapters", "/opt/chacha-dev/evidence"],
-      "forbidden_roots": ["/", "/etc", "/root", "/home", "/var/lib", "/opt/chacha-dev/secrets"],
+      "write_scope": [
+        "approved-workspace-only"
+      ],
+      "allowed_roots": [
+        "/opt/chacha-dev/workspaces",
+        "/opt/chacha-dev/adapters",
+        "/opt/chacha-dev/evidence"
+      ],
+      "forbidden_roots": [
+        "/",
+        "/etc",
+        "/root",
+        "/home",
+        "/var/lib",
+        "/opt/chacha-dev/secrets"
+      ],
       "secret_policy": "NONE",
       "provider_binding": null,
       "health_probe": "mcp-server-discover-tools-list-and-approved-root-read",
@@ -108,13 +168,18 @@
       "decision": "ADOPT",
       "runtime_status": "DESIGNED",
       "integration_mode": "remote-mcp",
-      "target_capabilities": ["library-docs", "framework-docs"],
+      "target_capabilities": [
+        "library-docs",
+        "framework-docs"
+      ],
       "risk_class": "LOW",
       "write_scope": [],
       "secret_policy": "REFERENCE_ONLY",
       "provider_binding": "context7-mcp",
       "health_probe": "mcp-server-discover-and-tools-list",
-      "fallback": ["mdn-mcp"],
+      "fallback": [
+        "mdn-mcp"
+      ],
       "notes": "Already represented in DEV HUB V5. Keep read-only and use provider-specific official docs when they are stronger."
     },
     "sentry-mcp": {
@@ -124,30 +189,42 @@
       "decision": "ASSESS",
       "runtime_status": "CATALOG_ONLY",
       "integration_mode": "remote-mcp",
-      "target_capabilities": ["incident-observability", "stacktrace-analysis", "release-health"],
+      "target_capabilities": [
+        "incident-observability",
+        "stacktrace-analysis",
+        "release-health"
+      ],
       "risk_class": "HIGH",
       "write_scope": [],
       "secret_policy": "EXTERNAL_OAUTH",
       "provider_binding": null,
       "health_probe": "mcp-server-discover-tools-list-and-project-read",
-      "fallback": ["cloudflare-mcp"],
+      "fallback": [
+        "cloudflare-mcp"
+      ],
       "notes": "Read-only incident analysis first. Issue mutation or release management requires a later contract."
     },
     "exa-mcp": {
       "display_name": "Exa MCP",
       "category": "knowledge",
       "priority": 3,
-      "decision": "WATCH",
-      "runtime_status": "CATALOG_ONLY",
+      "decision": "PILOT",
+      "runtime_status": "PILOT",
       "integration_mode": "remote-mcp",
-      "target_capabilities": ["web-research", "code-example-search"],
+      "target_capabilities": [
+        "web-research",
+        "code-example-search"
+      ],
       "risk_class": "LOW",
       "write_scope": [],
-      "secret_policy": "REFERENCE_ONLY",
-      "provider_binding": null,
-      "health_probe": "mcp-server-discover-tools-list-and-search",
-      "fallback": ["technology-radar", "github"],
-      "notes": "Useful for recent technical examples and obscure bug research; not required for the first MCP wave."
+      "secret_policy": "NONE",
+      "provider_binding": "technology-watch-public-corroboration",
+      "health_probe": "mcp-initialize-tools-list-web-search-and-fetch-readonly",
+      "fallback": [
+        "technology-radar",
+        "github"
+      ],
+      "notes": "V8.0.1 candidate PILOT only: hosted MCP search/fetch over public web, no API key, no writes. Search results have no fact authority; Dark Intelligence Corroboration Gate + Technology Watch + Logician remain mandatory. Production activation requires governed promotion."
     },
     "firecrawl-mcp": {
       "display_name": "Firecrawl MCP",
@@ -156,13 +233,19 @@
       "decision": "WATCH",
       "runtime_status": "CATALOG_ONLY",
       "integration_mode": "remote-mcp",
-      "target_capabilities": ["web-extraction", "documentation-ingestion", "structured-crawl"],
+      "target_capabilities": [
+        "web-extraction",
+        "documentation-ingestion",
+        "structured-crawl"
+      ],
       "risk_class": "MEDIUM",
       "write_scope": [],
       "secret_policy": "REFERENCE_ONLY",
       "provider_binding": null,
       "health_probe": "mcp-server-discover-tools-list-and-scrape",
-      "fallback": ["exa-mcp"],
+      "fallback": [
+        "exa-mcp"
+      ],
       "notes": "Introduce only when a project needs systematic documentation or website ingestion."
     },
     "figma-mcp": {
@@ -172,7 +255,11 @@
       "decision": "WATCH",
       "runtime_status": "CATALOG_ONLY",
       "integration_mode": "remote-mcp",
-      "target_capabilities": ["design-inspection", "design-token-read", "design-to-code"],
+      "target_capabilities": [
+        "design-inspection",
+        "design-token-read",
+        "design-to-code"
+      ],
       "risk_class": "MEDIUM",
       "write_scope": [],
       "secret_policy": "EXTERNAL_OAUTH",
@@ -188,7 +275,10 @@
       "decision": "DEFER",
       "runtime_status": "CATALOG_ONLY",
       "integration_mode": "remote-mcp",
-      "target_capabilities": ["vercel-deploy", "vercel-build-logs"],
+      "target_capabilities": [
+        "vercel-deploy",
+        "vercel-build-logs"
+      ],
       "risk_class": "HIGH",
       "write_scope": [],
       "secret_policy": "EXTERNAL_OAUTH",
@@ -204,7 +294,11 @@
       "decision": "DEFER",
       "runtime_status": "CATALOG_ONLY",
       "integration_mode": "remote-mcp",
-      "target_capabilities": ["postgres-schema", "sql-migration", "rls-policy"],
+      "target_capabilities": [
+        "postgres-schema",
+        "sql-migration",
+        "rls-policy"
+      ],
       "risk_class": "CRITICAL",
       "write_scope": [],
       "secret_policy": "EXTERNAL_OAUTH",
