@@ -1,0 +1,65 @@
+{
+  "schema": "chacha.dev/adapter-promotion-receipt/v1",
+  "adapter": "http-smoke-adapter",
+  "current_status": "PILOT",
+  "target_status": "ENABLED",
+  "transition": "PILOT->ENABLED",
+  "execution_kinds": [
+    "vps"
+  ],
+  "requires_local_executable": true,
+  "eligible": true,
+  "applied": true,
+  "production_capable": false,
+  "approval_required": false,
+  "approval_id": null,
+  "executable_before": "/opt/chacha-dev/adapters/http-smoke/current/http-smoke-adapter",
+  "executable_after": "/opt/chacha-dev/adapters/http-smoke/current/http-smoke-adapter",
+  "required_evidence": [
+    "repeatable-pass",
+    "provider-health-pass",
+    "rollback-defined"
+  ],
+  "observed_evidence": {
+    "repeatable-pass": {
+      "status": "PASS",
+      "source": "adapter-enablement:repeatability",
+      "observed_at": "2026-09-25T18:00:18.013285+00:00",
+      "fresh": true
+    },
+    "provider-health-pass": {
+      "status": "PASS",
+      "source": "http-smoke-independent-probe",
+      "observed_at": "2026-09-25T18:00:18.013885+00:00",
+      "fresh": true
+    },
+    "rollback-defined": {
+      "status": "PASS",
+      "source": "adapter-rollbacks:dev-hub/config/adapter-rollbacks.v1.json",
+      "observed_at": "2026-09-25T18:00:18.014281+00:00",
+      "fresh": true
+    }
+  },
+  "blockers": [],
+  "actor": "chacha-dev-platform",
+  "registry_digest_before": "sha256:3c51b5c41eada12144c990f322506200a34275c8f16ea613b17437f817baec1b",
+  "registry_digest_after": "sha256:b2737271b5082d72aace8e1a6ba731fdc8817f2e8cd5f204fae170cd4042e18d",
+  "previous_entry": {
+    "status": "PILOT",
+    "executable": "/opt/chacha-dev/adapters/http-smoke/current/http-smoke-adapter",
+    "supports": [
+      "read"
+    ]
+  },
+  "new_entry": {
+    "status": "ENABLED",
+    "executable": "/opt/chacha-dev/adapters/http-smoke/current/http-smoke-adapter",
+    "supports": [
+      "read"
+    ]
+  },
+  "evidence_digest": "sha256:2bbc6b5b230c005fca8bf97a93b7a8b39e4cfe64e4537e354e96ffa9dcf61ce5",
+  "observed_at": "2026-09-25T18:02:45.352752+00:00",
+  "committed_at": "2026-09-25T18:02:45.357061+00:00",
+  "automatic_external_spend_eur": 0
+}
