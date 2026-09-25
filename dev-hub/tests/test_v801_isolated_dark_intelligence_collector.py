@@ -159,6 +159,28 @@ assert "[EMAIL_REDACTED]" in json.dumps(fallback_analysis)
 assert fallback_runtime["backend"]=="deterministic-extractive-fallback"
 assert fallback_runtime["semantic_refinement_required"] is True
 assert fallback_runtime["analysis_decision_authority"] is False
+
+noisy_capture={
+  "schema":"chacha.dev/dark-intelligence-capture/v1",
+  "sanitized_text":"Tor Project | Join the Tor Community\nDownload Tor Browser\nJoin the Tor Community\n"
+    "Our community is made up of human rights defenders around the world.\n"
+    "The Tor community is made up of all kinds of contributors.\n"
+    "Do you teach your community about using Tor?\n"
+    "Onion services help users defeat surveillance and censorship in restrictive network environments.\n"
+    "Onion Services",
+  "security":{"network_isolated":True,"source_content_authority":"NONE"}
+}
+noise_analysis,noise_runtime=analysis_adapter.extractive_fallback(
+  noisy_capture,"Tor Project",["onion services"],[{"model":"semantic-provider","status":"FAILED","failure_class":"QUOTA"}]
+)
+noise_text="\n".join(x["text"] for x in noise_analysis["claims"])
+assert "Download Tor Browser" not in noise_text
+assert "Join the Tor Community" not in noise_text
+assert "Do you teach your community" not in noise_text
+assert "Onion Services" not in [x["text"].removeprefix("Unverified source statement: ") for x in noise_analysis["claims"]]
+assert "human rights defenders" in noise_text
+assert "defeat surveillance and censorship" in noise_text
+assert len(noise_analysis["claims"])<=6
 pipeline_src=(ROOT/"dev-hub/bin/dark-intelligence-pipeline.py").read_text(encoding="utf-8")
 assert '"semantic_refinement"' in pipeline_src
 assert 'provisional_claims_never_gain_fact_authority' in pipeline_src
@@ -641,6 +663,8 @@ print("CHACHA_DEV_V801_SEMANTIC_MODEL_FAILOVER=PASS")
 print("CHACHA_DEV_V801_PROVIDER_UNAVAILABLE_DEFER_FAILSAFE=PASS")
 print("CHACHA_DEV_V801_EXTRACTIVE_FALLBACK_PIPELINE_AUTHORITY=PASS")
 print("CHACHA_DEV_V801_EXTRACTIVE_QUOTA_FALLBACK=PASS")
+print("CHACHA_DEV_V801_EXTRACTIVE_NOISE_FILTER=PASS")
+print("CHACHA_DEV_V801_EXTRACTIVE_MAX_CLAIMS_6=PASS")
 print("CHACHA_DEV_V801_PROVISIONAL_FACT_AUTHORITY=NO")
 print("CHACHA_DEV_V801_SEMANTIC_REFINEMENT_QUEUE=PASS")
 print("CHACHA_DEV_V801_PERSISTENT_RETRY_QUEUE=PASS")
