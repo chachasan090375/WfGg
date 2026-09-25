@@ -1,0 +1,43 @@
+name: ChaCha DEV V8.0.8 Guardian Run Isolation
+
+on:
+  push:
+    branches:
+      - dev-hub-v808-guardian-run-isolation
+    paths:
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/bin/guardian_remediation_runtime.py'
+      - 'dev-hub/guardian/worker.js'
+      - 'dev-hub/tests/test_v808_guardian_run_isolation.py'
+      - '.github/workflows/dev-hub-v808-guardian-run-isolation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/guardian_remediation_runtime.py             dev-hub/tests/test_v808_guardian_run_isolation.py
+          node --check dev-hub/guardian/worker.js
+      - name: V8.0.8 qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v808_guardian_run_isolation.py | tee /tmp/v808.out
+          grep -Fq 'CHACHA_DEV_V808_UNIQUE_GUARDIAN_RUN_ID=PASS' /tmp/v808.out
+          grep -Fq 'CHACHA_DEV_V808_STALE_LEASE_CROSS_RUN_BLOCKED=PASS' /tmp/v808.out
+          grep -Fq 'CHACHA_DEV_V808_SAME_RUN_REMEDIATION_PRESERVED=PASS' /tmp/v808.out
+          grep -Fq 'CHACHA_DEV_V808_LEGACY_NON_RUN_CALL_COMPATIBLE=PASS' /tmp/v808.out
+          grep -Fq 'CHACHA_DEV_V808_WORKER_RUN_SCOPED_HOLDS=PASS' /tmp/v808.out
+          grep -Fq 'CHACHA_DEV_V808_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v808.out
