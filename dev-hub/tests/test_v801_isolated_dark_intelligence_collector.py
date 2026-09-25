@@ -209,7 +209,8 @@ with tempfile.TemporaryDirectory(prefix="v801-pipeline-") as td:
 
     one_support=[{
       "id":"ind-1","claim_id":"claim-1","type":"independent_technical",
-      "origin":"source-a","independence_group":"group-a","stance":"SUPPORT",
+      "origin":"https://source-a.example/report","source_owner":"Owner A",
+      "independence_group":"group-a","stance":"SUPPORT",
       "verified":True,"confidence_score":90
     }]
     v1=corroboration.evaluate(dossier,one_support,corroboration_policy)
@@ -218,13 +219,19 @@ with tempfile.TemporaryDirectory(prefix="v801-pipeline-") as td:
 
     two_support=one_support+[
       {"id":"ind-1-duplicate","claim_id":"claim-1","type":"independent_technical",
-       "origin":"source-a-copy","independence_group":"group-a","stance":"SUPPORT",
+       "origin":"https://source-a.example/copy","source_owner":"Owner A","independence_group":"group-a","stance":"SUPPORT",
        "verified":True,"confidence_score":70},
+      {"id":"same-owner-different-group","claim_id":"claim-1","type":"independent_technical",
+       "origin":"https://source-c.example/report","source_owner":"Owner A","independence_group":"group-c","stance":"SUPPORT",
+       "verified":True,"confidence_score":98},
+      {"id":"derived-primary-link","claim_id":"claim-1","type":"official_technical",
+       "origin":"https://linked-from-primary.example/report","source_owner":"Owner C","independence_group":"group-d","stance":"SUPPORT",
+       "verified":True,"confidence_score":99,"derived_from_primary_source":True},
       {"id":"ind-2","claim_id":"claim-1","type":"official_technical",
-       "origin":"source-b","independence_group":"group-b","stance":"SUPPORT",
+       "origin":"https://source-b.example/report","source_owner":"Owner B","independence_group":"group-b","stance":"SUPPORT",
        "verified":True,"confidence_score":95},
       {"id":"primary-repeat","claim_id":"claim-1","type":"official_technical",
-       "origin":"primary-copy","independence_group":primary_group,"stance":"SUPPORT",
+       "origin":"primary-copy","source_owner":"Primary","independence_group":primary_group,"stance":"SUPPORT",
        "verified":True,"confidence_score":100}
     ]
     v2=corroboration.evaluate(dossier,two_support,corroboration_policy)
@@ -296,6 +303,8 @@ print("CHACHA_DEV_V801_END_TO_END_TECHNOLOGY_WATCH_LOGICIAN=PASS")
 print("CHACHA_DEV_V801_INDEPENDENT_CORROBORATION_GATE=PASS")
 print("CHACHA_DEV_V801_SINGLE_SOURCE_VALIDATION=BLOCKED")
 print("CHACHA_DEV_V801_DUPLICATE_SOURCE_INFLATION=NO")
+print("CHACHA_DEV_V801_SAME_OWNER_INFLATION=NO")
+print("CHACHA_DEV_V801_PRIMARY_LINK_CORROBORATION=BLOCKED")
 print("CHACHA_DEV_V801_CONTRADICTION_GATE=PASS")
 print("CHACHA_DEV_V801_TECHNOLOGY_RADAR_CORROBORATION_ROUTE=PASS")
 print("CHACHA_DEV_V801_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
