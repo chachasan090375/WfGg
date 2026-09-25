@@ -293,7 +293,10 @@
         "untrusted-content-sanitization",
         "semantic-source-analysis",
         "prompt-injection-resistant-analysis",
-        "claim-corroboration-handoff"
+        "claim-corroboration-handoff",
+        "independent-claim-corroboration",
+        "corroboration-gating",
+        "independent-source-research"
       ],
       "default_risk": "high"
     }
@@ -694,7 +697,8 @@
       "review_roles": [
         "technology-watch-agent",
         "security-reviewer",
-        "bastion"
+        "bastion",
+        "uncertainty-resolution-agent"
       ]
     },
     {
