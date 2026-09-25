@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/capability-semantics/v1",
-  "version": "8.0.11",
+  "version": "8.0.13",
   "principles": {
     "default_missing_kind": "runtime_provider",
     "domain_feature_is_not_provider_authority": true,
@@ -14,37 +14,52 @@
     "register-adaptation": {
       "kind": "domain_feature",
       "owner_domain": "translation",
-      "implementation_state": "BUILD_REQUIRED",
+      "implementation_state": "REUSABLE",
       "provider_registration_required": false,
-      "evidence": []
+      "evidence": [
+        "dev-hub/bin/professional-localization-agent.py",
+        "dev-hub/config/professional-localization-policy.v1.json"
+      ]
     },
     "locale-localization": {
       "kind": "domain_feature",
       "owner_domain": "translation",
-      "implementation_state": "BUILD_REQUIRED",
+      "implementation_state": "REUSABLE",
       "provider_registration_required": false,
-      "evidence": []
+      "evidence": [
+        "dev-hub/bin/professional-localization-agent.py",
+        "dev-hub/config/professional-localization-policy.v1.json"
+      ]
     },
     "ui-length-aware-translation": {
       "kind": "domain_feature",
       "owner_domain": "translation",
-      "implementation_state": "BUILD_REQUIRED",
+      "implementation_state": "REUSABLE",
       "provider_registration_required": false,
-      "evidence": []
+      "evidence": [
+        "dev-hub/bin/professional-localization-agent.py",
+        "dev-hub/config/professional-localization-policy.v1.json"
+      ]
     },
     "structured-content-preservation": {
       "kind": "domain_feature",
       "owner_domain": "translation",
-      "implementation_state": "BUILD_REQUIRED",
+      "implementation_state": "REUSABLE",
       "provider_registration_required": false,
-      "evidence": []
+      "evidence": [
+        "dev-hub/bin/professional-localization-agent.py",
+        "dev-hub/config/professional-localization-policy.v1.json"
+      ]
     },
     "project-translation-memory": {
       "kind": "domain_feature",
       "owner_domain": "translation",
-      "implementation_state": "BUILD_REQUIRED",
+      "implementation_state": "REUSABLE",
       "provider_registration_required": false,
-      "evidence": []
+      "evidence": [
+        "dev-hub/bin/professional-localization-agent.py",
+        "dev-hub/config/professional-localization-policy.v1.json"
+      ]
     },
     "deep-web-source-intake": {
       "kind": "domain_feature",
