@@ -8,6 +8,7 @@ on:
       - 'dev-hub/**'
       - 'android/chacha-direct-operator-widget/**'
       - '.github/workflows/dev-hub-v780-runtime-convergence.yml'
+      - '.github/workflows/dev-hub-v7-guardian-coverage-sync.yml'
   workflow_dispatch:
 
 permissions:
