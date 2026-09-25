@@ -5,6 +5,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
+DEFAULT_ANALYSIS_QUEUE=Path("/opt/chacha-dev/runtime/dark-intelligence/analysis-queue")
+
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding="utf-8"))
     if not isinstance(x,dict): raise ValueError("JSON_ROOT_NOT_OBJECT:"+str(p))
@@ -87,6 +89,15 @@ def run_analysis(repo:Path,capture:Path,subject:str,watch_terms:list[str],output
     if p.returncode!=0 or not output.is_file():
         raise RuntimeError("DARK_PIPELINE_ANALYSIS_FAILED:"+(p.stderr or p.stdout)[-1600:])
     return load(output)
+
+def enqueue_deferred(repo:Path,capture:Path,subject:str,watch_terms:list[str],queue_root:Path)->dict[str,Any]:
+    queue=mod(repo/"dev-hub/bin/dark-intelligence-analysis-queue.py","v801_dark_analysis_queue")
+    job=queue.enqueue(queue_root,capture,subject,watch_terms)
+    return {
+      "job_id":job.get("job_id"),"status":job.get("status"),
+      "attempt_count":job.get("attempt_count"),"next_attempt_epoch":job.get("next_attempt_epoch"),
+      "queue_root":str(queue_root),"automatic_external_spend_eur":0
+    }
 
 def process(repo:Path,capture_path:Path,analysis_result:dict[str,Any],subject:str,output_dir:Path,
             corroboration_evidence:Path|None=None)->dict[str,Any]:
@@ -180,6 +191,7 @@ def main()->int:
     analysis=load(a.analysis_result) if a.analysis_result else run_analysis(repo,a.capture,a.subject,a.watch_term,a.output_dir/"analysis.json")
     analysis_body=analysis.get("analysis") if isinstance(analysis.get("analysis"),dict) else {}
     if analysis_body.get("status")=="DEFERRED_PROVIDER_UNAVAILABLE":
+        queued=enqueue_deferred(repo,a.capture.resolve(),a.subject,a.watch_term,a.queue_root.resolve())
         result={
           "schema":"chacha.dev/dark-intelligence-pipeline-result/v1",
           "status":"DEFERRED_PROVIDER_UNAVAILABLE","subject":a.subject,
@@ -189,7 +201,12 @@ def main()->int:
             "raw_source_authority":"ADVISORY_ONLY","analysis_decision_authority":False,
             "fact_promotion_allowed":False
           },
-          "retry":{"required":True,"after_seconds":int((analysis.get("runtime") or {}).get("retry_after_seconds") or 900)},
+          "retry":{
+            "required":True,
+            "after_seconds":int((analysis.get("runtime") or {}).get("retry_after_seconds") or 900),
+            "persistent_queue":True,
+            "queue_job":queued
+          },
           "automatic_external_spend_eur":0
         }
         save(a.output_dir/"pipeline-result.json",result)
