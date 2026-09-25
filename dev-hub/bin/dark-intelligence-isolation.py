@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,json,subprocess
+import argparse,json,subprocess,shutil
 from pathlib import Path
 from typing import Any
 
@@ -74,6 +74,7 @@ def cleanup(policy:dict[str,Any])->None:
     run(["/usr/sbin/nft","delete","table","ip",nm["nat_table"]],check=False)
     run(["/usr/sbin/ip","netns","del",nm["namespace"]],check=False)
     run(["/usr/sbin/ip","link","del",nm["host_veth"]],check=False)
+    shutil.rmtree(Path("/etc/netns")/nm["namespace"],ignore_errors=True)
 
 def plan(policy:dict[str,Any])->dict[str,Any]:
     n=policy["network_namespace"];nm=names(policy);iface=default_iface();host_ips=global_ipv4s()
@@ -85,6 +86,9 @@ def plan(policy:dict[str,Any])->dict[str,Any]:
       "blocked_cidrs":list(n.get("block_private_and_metadata_cidrs") or []),
       "blocked_host_global_ipv4s":host_ips,"host_input_blocked":True,"host_output_to_namespace_blocked":True,
       "nat_scope":n["subnet"],"ipv6_disabled":bool(n.get("disable_ipv6")),
+      "dns_mode":str((n.get("dns") or {}).get("mode") or "NONE"),
+      "dns_resolvers":list((n.get("dns") or {}).get("resolvers") or []),
+      "host_resolver_inherited":bool((n.get("dns") or {}).get("inherit_host_resolver")),
       "automatic_external_spend_eur":0
     }
 
@@ -93,6 +97,12 @@ def setup(policy:dict[str,Any])->dict[str,Any]:
     forwarding=Path("/proc/sys/net/ipv4/ip_forward").read_text().strip()
     if forwarding!="1": raise RuntimeError("HOST_IP_FORWARDING_REQUIRED_BUT_NOT_ENABLED")
     cleanup(policy)
+    dns=n.get("dns") or {}
+    resolvers=[str(x) for x in dns.get("resolvers") or []]
+    if not resolvers or dns.get("inherit_host_resolver") is not False:
+        raise RuntimeError("NAMESPACE_EXTERNAL_DNS_POLICY_INVALID")
+    netns_etc=Path("/etc/netns")/nm["namespace"];netns_etc.mkdir(parents=True,exist_ok=True)
+    (netns_etc/"resolv.conf").write_text("".join("nameserver "+x+"\n" for x in resolvers)+"options timeout:2 attempts:2\n",encoding="utf-8")
     run(["/usr/sbin/ip","netns","add",nm["namespace"]])
     try:
         run(["/usr/sbin/ip","link","add",nm["host_veth"],"type","veth","peer","name",nm["namespace_veth"]])
