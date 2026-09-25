@@ -70,6 +70,7 @@ def configure_guardian(root:Path,out:Path):
       "client":root/"dev-hub/bin/guardian-client.py",
       "policy":root/"dev-hub/config/guardian-runtime-policy.v1.json",
       "event_dir":out/"guardian",
+      "run_id":"bootstrap-"+uuid.uuid4().hex,
     })
 
 def _output_arg(args):
@@ -126,7 +127,8 @@ def guardian_stage(script:Path,args,phase:str,action_id:str):
             action="REPORT_DECISION"
     event_context=grr.inject_context(
       {"resource_class":"light","human_approval_required":False,"storage_preflight_required":False,"deadline_seconds":180},
-      actor="central-orchestrator",subject_role=role,project_id="platform-bootstrap"
+      actor="central-orchestrator",subject_role=role,project_id="platform-bootstrap",
+      run_id=str(_GUARDIAN_CONTEXT.get("run_id") or "")
     )
     event={
       "schema":"chacha.dev/governance-action/v1",
@@ -139,7 +141,7 @@ def guardian_stage(script:Path,args,phase:str,action_id:str):
       "task_kind":script.stem,
       "permission":"plan",
       "project_id":"platform-bootstrap",
-      "run_id":None,
+      "run_id":str(_GUARDIAN_CONTEXT.get("run_id") or ""),
       "adapters":[],
       "evidence":evidence,
       "context":event_context
