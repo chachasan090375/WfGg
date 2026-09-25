@@ -25,6 +25,7 @@ INPUT_SCHEMA="chacha.dev/dispatch-envelope/v1"
 OUTPUT_SCHEMA="chacha.dev/task-result/v1"
 ADAPTER_ID="collector-knowledge-adapter"
 PROVIDER_ID="collector-knowledge-runtime"
+BOOTSTRAP_PROVIDER_ID="collector-knowledge-bootstrap"
 RAW_BASE="https://raw.githubusercontent.com/chachasan090375/WfGg"
 REV_RE=re.compile(r"^[0-9a-f]{40}$")
 INSTALLER_PATH="radar-vps/install-collector-knowledge-v1.sh"
@@ -108,17 +109,18 @@ def validate_request(request):
     if request.get("schema")!=INPUT_SCHEMA:return None,"INPUT_SCHEMA_INVALID"
     task=request.get("task")
     if not isinstance(task,dict) or not task.get("id"):return None,"TASK_ID_MISSING"
-    bindings=request.get("bindings")
-    if not isinstance(bindings,list) or not any(
-        isinstance(x,dict) and x.get("provider")==PROVIDER_ID and x.get("adapter")==ADAPTER_ID for x in bindings
-    ):
-        return None,"COLLECTOR_KNOWLEDGE_BINDING_MISSING"
     meta=request.get("metadata")
     knowledge=meta.get("collector_knowledge") if isinstance(meta,dict) else None
     if not isinstance(knowledge,dict):return None,"COLLECTOR_KNOWLEDGE_METADATA_MISSING"
     action=str(knowledge.get("action") or "")
     expected={"status":"read","query":"read","pilot-install":"workspace-write","pilot-probe":"read"}.get(action)
     if expected is None:return None,"COLLECTOR_KNOWLEDGE_ACTION_NOT_ALLOWED"
+    required_provider=BOOTSTRAP_PROVIDER_ID if action in {"pilot-install","pilot-probe"} else PROVIDER_ID
+    bindings=request.get("bindings")
+    if not isinstance(bindings,list) or not any(
+        isinstance(x,dict) and x.get("provider")==required_provider and x.get("adapter")==ADAPTER_ID for x in bindings
+    ):
+        return None,"COLLECTOR_KNOWLEDGE_BINDING_MISSING:"+required_provider
     if str(task.get("permission") or "")!=expected:
         return None,f"COLLECTOR_KNOWLEDGE_PERMISSION_REQUIRED:{expected}"
     return knowledge,None
