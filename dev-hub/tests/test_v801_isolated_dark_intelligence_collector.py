@@ -361,6 +361,72 @@ Independent technical note
 rows=public_cor.parse_search(sample)
 assert len(rows)==1 and rows[0]["url"]=="https://example.com/advisory"
 assert rows[0]["author"]=="Example Org"
+# Author/byline labels never define source independence; publisher domain does.
+assert public_cor.owner_for("https://sub.example.com/a","Alice")=="example.com"
+assert public_cor.owner_for("https://www.example.com/b","Bob")=="example.com"
+
+# Firecrawl keyless is fallback discovery only. Candidate text becomes
+# retrieval-verified only after ChaCha's isolated HTTPS collector refetches it.
+fire_policy=load(ROOT/"dev-hub/config/dark-intelligence-firecrawl-fallback.v1.json")
+fire=loadmod("v801_firecrawl",ROOT/"dev-hub/bin/technology-watch-firecrawl-fallback.py")
+assert fire_policy["provider"]["id"]=="firecrawl-keyless"
+assert fire_policy["provider"]["authentication"]=="NONE"
+assert fire_policy["provider"]["role"]=="DISCOVERY_ONLY"
+assert fire_policy["provider"]["automatic_paid_upgrade_forbidden"] is True
+assert fire_policy["retrieval"]["isolated_collector_required"] is True
+assert fire_policy["retrieval"]["provider_snippet_never_counts_as_retrieved_evidence"] is True
+assert fire_policy["safety"]["search_results_have_no_fact_authority"] is True
+assert fire.public_https("https://independent.example/report") is True
+assert fire.public_https("http://independent.example/report") is False
+assert fire.public_https("https://127.0.0.1/report") is False
+assert fire.publisher_domain("https://a.example.com/report")=="example.com"
+
+fire_request={
+  "schema":"chacha.dev/dark-intelligence-corroboration-request/v1",
+  "source_id":"dark-primary","source_class":"tor_onion",
+  "source_ref":"http://primaryhiddenservice.onion/report",
+  "claims":[{"claim_id":"claim-1","claim_text":"Example technical allegation."}],
+  "automatic_external_spend_eur":0
+}
+fake_public_capture={
+  "schema":"chacha.dev/dark-intelligence-capture/v1","source_class":"deep_web_https",
+  "source_url":"https://one.example/report","final_url":"https://one.example/report",
+  "http_status":200,"content_type":"text/html","response_bytes":123,
+  "body_sha256":"d"*64,"sanitized_text":"Independently refetched technical content.",
+  "textual_content":True,
+  "security":{"network_isolated":True,"source_content_authority":"NONE","payload_executed":False},
+  "runtime_attestation":{"network_isolation":"ACTIVE","ephemeral_network_namespace":True}
+}
+old_fire_search=fire.search_firecrawl;old_fire_fetch=fire.isolated_refetch
+try:
+    fire.search_firecrawl=lambda query,policy: ([
+      {"url":"https://one.example/report","title":"One","description":"provider snippet one"},
+      {"url":"https://sub.one.example/copy","title":"Duplicate owner","description":"provider snippet duplicate"},
+      {"url":"https://two.example/advisory","title":"Two","description":"provider snippet two"}
+    ],{"request_id":"ci","credits_used":2,"authentication":"NONE","automatic_external_spend_eur":0})
+    def _fake_refetch(repo,url,policy):
+        x=dict(fake_public_capture);x["source_url"]=url;x["final_url"]=url
+        return x
+    fire.isolated_refetch=_fake_refetch
+    fire_doc=fire.collect(fire_request,fire_policy,ROOT)
+finally:
+    fire.search_firecrawl=old_fire_search;fire.isolated_refetch=old_fire_fetch
+assert fire_doc["status"]=="PASS"
+assert fire_doc["provider"]=="firecrawl-keyless"
+assert fire_doc["provider_role"]=="DISCOVERY_ONLY"
+assert fire_doc["search_results_have_no_fact_authority"] is True
+assert fire_doc["provider_snippet_counts_as_retrieved_evidence"] is False
+assert fire_doc["isolated_refetch_required"] is True
+fcands=fire_doc["claims"][0]["candidates"]
+assert len(fcands)==2  # one.example duplicates collapse to one publisher.
+assert {x["source_owner"] for x in fcands}=={"one.example","two.example"}
+assert all(x["retrieval_verified"] is True for x in fcands)
+assert all(x["retrieval_method"]=="CHACHA_ISOLATED_HTTPS_COLLECTOR" for x in fcands)
+assert all(x["fact_authority"]=="NONE" for x in fcands)
+
+pipeline_src=(ROOT/"dev-hub/bin/dark-intelligence-pipeline.py").read_text(encoding="utf-8")
+assert "technology-watch-firecrawl-fallback.py" in pipeline_src
+assert "candidates-firecrawl.json" in pipeline_src
 
 
 # Public corroboration stance classifier is tool-free and fail-closed.
@@ -480,6 +546,9 @@ print("CHACHA_DEV_V801_CONTRADICTION_GATE=PASS")
 print("CHACHA_DEV_V801_TECHNOLOGY_RADAR_CORROBORATION_ROUTE=PASS")
 print("CHACHA_DEV_V801_EXA_PUBLIC_CORROBORATION_CONTRACT=PASS")
 print("CHACHA_DEV_V801_EXA_FACT_AUTHORITY=NO")
+print("CHACHA_DEV_V801_FIRECRAWL_KEYLESS_FALLBACK_CONTRACT=PASS")
+print("CHACHA_DEV_V801_FIRECRAWL_SNIPPET_FACT_AUTHORITY=NO")
+print("CHACHA_DEV_V801_PUBLISHER_DOMAIN_INDEPENDENCE=PASS")
 print("CHACHA_DEV_V801_PUBLIC_CORROBORATION_CLASSIFIER_TOOLS=NONE")
 print("CHACHA_DEV_V801_PUBLIC_CORROBORATION_FAIL_CLOSED=PASS")
 print("CHACHA_DEV_V801_AUTOMATIC_PUBLIC_CORROBORATION_PIPELINE=PASS")
