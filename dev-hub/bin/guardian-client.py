@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse,base64,hashlib,json,subprocess,tempfile,time,urllib.error,urllib.parse,urllib.request
 from pathlib import Path
 from typing import Any
+import d1_quota_circuit as d1qc
 
 DEFAULT_POLICY=Path("/opt/chacha-dev/platform/current/dev-hub/config/guardian-runtime-policy.v1.json")
 MAX_RESPONSE=2*1024*1024
@@ -51,16 +52,20 @@ def signed_request(method:str,url:str,private_key:Path,body:bytes=b"")->urllib.r
     return urllib.request.Request(url,data=(body if method.upper()!="GET" else None),headers=headers,method=method.upper())
 
 def http_json(req:urllib.request.Request,timeout:int=20)->tuple[int,dict[str,Any]]:
+    blocked=d1qc.unavailable_payload("guardian-client")
+    if blocked:return 503,blocked
     try:
         with urllib.request.urlopen(req,timeout=timeout) as r:
             raw=r.read(MAX_RESPONSE+1)
             if len(raw)>MAX_RESPONSE: raise RuntimeError("GUARDIAN_RESPONSE_TOO_LARGE")
-            return r.status,json.loads(raw)
+            status,x=r.status,json.loads(raw)
     except urllib.error.HTTPError as e:
         raw=e.read(MAX_RESPONSE+1)
         try:x=json.loads(raw)
         except Exception:x={"error":"guardian_http_error","status":e.code,"raw":raw.decode("utf-8","replace")[:1000]}
-        return e.code,x
+        status=e.code
+    d1qc.observe_response(x,"guardian-client")
+    return status,x
 
 def policy_values(policy_path:Path):
     p=load(policy_path)
