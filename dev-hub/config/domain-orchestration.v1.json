@@ -530,7 +530,8 @@
         "dark-web-source-intake",
         "threat-intelligence-triage",
         "source-provenance-normalization",
-        "technology-watch-validation-handoff"
+        "technology-watch-validation-handoff",
+        "isolated-network-collection"
       ],
       "keywords": [
         "dark web",
@@ -544,6 +545,9 @@
         "veille menace"
       ],
       "toolchain": [
+        "transient-tor-toolcache",
+        "linux-network-namespace",
+        "dark-intelligence-collector-runner",
         "isolated-intelligence-capsule",
         "dark-intelligence-agent",
         "technology-watch-service",
