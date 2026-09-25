@@ -111,6 +111,30 @@ def make_receipt(command:str,project:str,status:str,next_action:str,evidence_ref
       "automatic_external_spend_eur":0
     }
 
+def classify_orchestrator_failure(stdout:str,stderr:str)->tuple[str,str,dict[str,Any]]:
+    text=(str(stdout or "")+"\n"+str(stderr or ""))
+    upper=text.upper()
+    if "GUARDIAN_STAGE_UNAVAILABLE" in upper or "GUARDIAN_UNAVAILABLE_FAIL_CLOSED" in upper:
+        return (
+          "AWAITING_EXTERNAL_CONDITION",
+          "RETRY_WHEN_GUARDIAN_AVAILABLE",
+          {
+            "human_message":"Le cerveau central a bien reçu la demande, mais le contrôle de sécurité Guardian est temporairement indisponible. J’ai arrêté l’exécution sans contourner ce contrôle.",
+            "reason":"GUARDIAN_UNAVAILABLE_FAIL_CLOSED",
+            "external_dependency":"GUARDIAN",
+            "external_condition":"GUARDIAN_RUNTIME_AVAILABLE",
+            "retryable":True,
+            "authority_bypass":False,
+            "stdout":str(stdout or "")[-1200:],
+            "stderr":str(stderr or "")[-1200:]
+          }
+        )
+    return (
+      "BRAIN_UNAVAILABLE",
+      "RETRY_WHEN_BRAIN_AVAILABLE",
+      {"stdout":str(stdout or "")[-1200:],"stderr":str(stderr or "")[-1200:]}
+    )
+
 def orchestrate(repo_root:Path,orchestrator:Path,human_intent:dict[str,Any],out_dir:Path,continuation_of:str|None=None)->dict[str,Any]:
     request_id=str(human_intent.get("request_id") or uuid.uuid4().hex)
     central={
@@ -139,10 +163,10 @@ def orchestrate(repo_root:Path,orchestrator:Path,human_intent:dict[str,Any],out_
                      stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=300)
     bootstrap=planning/"bootstrap-result.json"
     if p.returncode!=0 or not bootstrap.is_file():
+        status,next_action,decision=classify_orchestrator_failure(p.stdout,p.stderr)
         return make_receipt("CONTINUE" if continuation_of else "INSTRUCTION",
                             str(human_intent.get("project_id") or "chacha-dev-platform"),
-                            "BRAIN_UNAVAILABLE","RETRY_WHEN_BRAIN_AVAILABLE",[],
-                            {"stdout":p.stdout[-1200:],"stderr":p.stderr[-1200:]})
+                            status,next_action,[],decision)
     b=load(bootstrap)
     if b.get("schema")!=BOOTSTRAP_SCHEMA or not b.get("project_id"):
         return make_receipt("CONTINUE" if continuation_of else "INSTRUCTION",

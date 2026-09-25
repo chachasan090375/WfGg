@@ -32,7 +32,7 @@ def compose(receipt:dict[str,Any],intent:dict[str,Any]|None=None)->dict[str,Any]
       or (("AWAIT" in next_action or "CONFIRM" in next_action or "APPROVAL" in next_action) and next_action not in passive_waits)
     )
     if status in {"BRAIN_UNAVAILABLE","BRAIN_RECEIPT_INVALID","FAILED"}: kind="ERROR"
-    elif status in {"STOP_ACTIVE","BLOCKED","PARTIAL","AWAITING_APPROVAL"}: kind="WARNING"
+    elif status in {"STOP_ACTIVE","BLOCKED","PARTIAL","AWAITING_APPROVAL","AWAITING_EXTERNAL_CONDITION"}: kind="WARNING"
     elif bool(decision.get("requires_confirmation")): kind="CONFIRMATION"
     elif status in {"PASS","COMPLETE","COMPLETED","SUCCESS","OK"}: kind="RESULT"
     elif needs: kind="QUESTION"
@@ -62,8 +62,13 @@ def compose(receipt:dict[str,Any],intent:dict[str,Any]|None=None)->dict[str,Any]
             if bits: message+=" "+", ".join(bits)+"."
         else:
             human_next=humanize(next_action)
+            dependency=str(decision.get("external_dependency") or "").strip().upper()
             defaults={
               "BRAIN_UNAVAILABLE":"Je n’arrive pas à joindre correctement le cerveau central pour le moment.",
+              "AWAITING_EXTERNAL_CONDITION":(
+                "Le cerveau central a bien reçu la demande, mais un contrôle obligatoire est temporairement indisponible. "
+                "J’ai arrêté l’exécution sans contourner ce contrôle."
+              ),
               "BRAIN_RECEIPT_INVALID":"La réponse du cerveau central n’est pas exploitable telle quelle.",
               "STOP_ACTIVE":"L’arrêt d’urgence est actif.",
               "PASS":"✅ C’est terminé et validé.",
@@ -79,12 +84,18 @@ def compose(receipt:dict[str,Any],intent:dict[str,Any]|None=None)->dict[str,Any]
               "CONTINUED":"L’exécution a avancé et doit encore continuer."
             }
             message=defaults.get(status,"Le cerveau central a répondu : "+humanize(status)+".")
-            if status in {"BLOCKED","FAILED","PARTIAL","AWAITING_APPROVAL","PLAN_READY","CONTINUED"} and human_next:
+            if status=="AWAITING_EXTERNAL_CONDITION" and dependency=="GUARDIAN":
+                message=(
+                  "Le cerveau central a bien reçu la demande, mais le contrôle de sécurité Guardian est temporairement indisponible. "
+                  "J’ai arrêté l’exécution sans contourner ce contrôle."
+                )
+            if status in {"BLOCKED","FAILED","PARTIAL","AWAITING_APPROVAL","AWAITING_EXTERNAL_CONDITION","PLAN_READY","CONTINUED"} and human_next:
                 message+=("\n\nÉtape suivante : "+human_next+".")
     action_text={
       "AWAIT_USER_DIRECTIVE":"Dis-moi ce que tu veux faire ensuite.",
       "AWAIT_NEW_INSTRUCTION":"Donne-moi une nouvelle instruction.",
       "RETRY_WHEN_BRAIN_AVAILABLE":"Tu peux me demander de réessayer.",
+      "RETRY_WHEN_GUARDIAN_AVAILABLE":"L’exécution pourra reprendre dès que Guardian sera de nouveau disponible.",
       "AWAIT_EXPLICIT_RESET_AND_HEALTH_CHECK":"Il faut une confirmation explicite avant de réactiver le système."
     }.get(next_action)
     if action_text and action_text.casefold() not in message.casefold(): message=message.rstrip()+("\n\n"+action_text)

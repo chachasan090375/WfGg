@@ -1,0 +1,38 @@
+name: ChaCha DEV V8.0.29 External Dependency Conversation
+
+on:
+  push:
+    branches:
+      - dev-hub-v829-external-dependency-conversation
+    paths:
+      - 'dev-hub/bin/central-interface-controller.py'
+      - 'dev-hub/bin/conversation-interface-agent.py'
+      - 'dev-hub/tests/test_v829_external_dependency_conversation.py'
+      - '.github/workflows/dev-hub-v829-external-dependency-conversation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/central-interface-controller.py             dev-hub/bin/conversation-interface-agent.py             dev-hub/tests/test_v829_external_dependency_conversation.py
+      - name: V8.0.29 qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v829_external_dependency_conversation.py | tee /tmp/v829.out
+          grep -Fq 'CHACHA_DEV_V829_GUARDIAN_UNAVAILABLE_CLASSIFICATION=PASS' /tmp/v829.out
+          grep -Fq 'CHACHA_DEV_V829_EXTERNAL_CONDITION_TERMINAL=PASS' /tmp/v829.out
+          grep -Fq 'CHACHA_DEV_V829_CONVERSATION_EXPLAINS_GUARDIAN=PASS' /tmp/v829.out
+          grep -Fq 'CHACHA_DEV_V829_NO_GUARDIAN_BYPASS=PASS' /tmp/v829.out
+          grep -Fq 'CHACHA_DEV_V829_GENERIC_BRAIN_UNAVAILABLE_PRESERVED=PASS' /tmp/v829.out
+          grep -Fq 'CHACHA_DEV_V829_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v829.out
