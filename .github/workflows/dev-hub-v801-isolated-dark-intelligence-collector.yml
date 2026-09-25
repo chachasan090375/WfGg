@@ -13,6 +13,7 @@ on:
       - 'dev-hub/bin/dark-intelligence-pipeline.py'
       - 'dev-hub/bin/dark-intelligence-corroboration.py'
       - 'dev-hub/bin/technology-watch-public-corroboration.py'
+      - 'dev-hub/bin/dark-intelligence-corroboration-analysis.py'
       - 'dev-hub/config/dark-intelligence-public-corroboration.v1.json'
       - 'dev-hub/config/mcp-provider-catalog.v1.json'
       - 'dev-hub/config/dark-intelligence-corroboration.v1.json'
@@ -85,4 +86,7 @@ jobs:
           grep -Fq 'CHACHA_DEV_V801_TECHNOLOGY_RADAR_CORROBORATION_ROUTE=PASS' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_EXA_PUBLIC_CORROBORATION_CONTRACT=PASS' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_EXA_FACT_AUTHORITY=NO' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_PUBLIC_CORROBORATION_CLASSIFIER_TOOLS=NONE' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_PUBLIC_CORROBORATION_FAIL_CLOSED=PASS' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_AUTOMATIC_PUBLIC_CORROBORATION_PIPELINE=PASS' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v801.out
