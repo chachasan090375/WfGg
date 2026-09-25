@@ -189,6 +189,144 @@ def handle_instruction(a)->dict[str,Any]:
     if hi.get("schema")!=HUMAN_INTENT_SCHEMA:raise SystemExit("HUMAN_INTENT_SCHEMA_INVALID")
     return orchestrate(a.repo_root,a.orchestrator,hi,a.output_dir)
 
+
+def domain_scheduler_run_controller(a,project:str,prior:dict[str,Any],df:dict[str,Any],readiness:dict[str,Any])->dict[str,Any]:
+    graph=Path(str(df.get("domain_execution_graph") or ""))
+    health=Path(str(readiness.get("provider_health_snapshot") or ""))
+    ledger=a.runtime_root/"evidence"/project/"ledger.json"
+    refs=list(prior.get("evidence_refs") or [])
+    if not graph.is_file():
+        return make_receipt("CONTINUE",project,"BRAIN_RECEIPT_INVALID","AWAIT_NEW_INSTRUCTION",refs,{"reason":"DOMAIN_EXECUTION_GRAPH_MISSING"})
+    if not health.is_file():
+        return make_receipt("CONTINUE",project,"BLOCKED","PROVIDER_HEALTH_PROBE_REQUIRED",refs,
+                            {"reason":"PROVIDER_HEALTH_SNAPSHOT_MISSING","domain_factories":df,
+                             "domain_toolchain_readiness":readiness,
+                             "continuation_mode":"DOMAIN_EXECUTION_HANDOFF"})
+    if not ledger.is_file():
+        return make_receipt("CONTINUE",project,"BLOCKED","EVIDENCE_LEDGER_REQUIRED",refs,
+                            {"reason":"EVIDENCE_LEDGER_MISSING","ledger":str(ledger),
+                             "continuation_mode":"DOMAIN_EXECUTION_HANDOFF"})
+
+    handoff=a.output_dir/"domain-execution-handoff"
+    handoff.mkdir(parents=True,exist_ok=True)
+    plan_path=handoff/"execution-plan.json"
+    scheduler=a.repo_root/"dev-hub/bin/execution-scheduler.py"
+    sched=subprocess.run([
+        sys.executable,str(scheduler),
+        "--graph",str(graph),
+        "--registry",str(a.repo_root/"dev-hub/config/capability-registry.v1.json"),
+        "--health",str(health),
+        "--policy",str(a.repo_root/"dev-hub/config/execution-scheduler.v1.json"),
+        "--require-guardian-binding",
+        "--output",str(plan_path)
+    ],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=120)
+    if not plan_path.is_file():
+        return make_receipt("CONTINUE",project,"BLOCKED","SCHEDULER_FAILED",refs,
+                            {"reason":"EXECUTION_PLAN_MISSING","stdout":sched.stdout[-1600:],
+                             "stderr":sched.stderr[-1600:],"continuation_mode":"DOMAIN_EXECUTION_HANDOFF"})
+    plan=load(plan_path)
+    refs.append(str(plan_path)+"#"+file_digest(plan_path))
+    blocked=int(((plan.get("summary") or {}).get("blocked_count") or 0))
+    if blocked:
+        return make_receipt("CONTINUE",project,"BLOCKED","SCHEDULER_BLOCKED",refs,
+                            {"execution_plan":plan,"domain_factories":df,
+                             "domain_toolchain_readiness":readiness,
+                             "continuation_mode":"DOMAIN_EXECUTION_HANDOFF",
+                             "run_controller_started":False})
+
+    run_root=handoff/"runs"
+    before=set(run_root.glob("run-*/run-record.json")) if run_root.exists() else set()
+    controller=a.repo_root/"dev-hub/bin/run-controller.py"
+    run=subprocess.run([
+        sys.executable,str(controller),
+        "--plan",str(plan_path),
+        "--graph",str(graph),
+        "--ledger",str(ledger),
+        "--policy",str(a.repo_root/"dev-hub/config/run-controller.v1.json"),
+        "--adapters",str(a.repo_root/"dev-hub/config/provider-adapters.v1.json"),
+        "--output-dir",str(run_root),
+        "--execute"
+    ],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=3700)
+    after=set(run_root.glob("run-*/run-record.json")) if run_root.exists() else set()
+    created=sorted(after-before,key=lambda x:x.stat().st_mtime)
+    if not created:
+        created=sorted(after,key=lambda x:x.stat().st_mtime)
+    if not created:
+        return make_receipt("CONTINUE",project,"BLOCKED","RUN_CONTROLLER_FAILED",refs,
+                            {"reason":"RUN_RECORD_MISSING","returncode":run.returncode,
+                             "stdout":run.stdout[-1600:],"stderr":run.stderr[-1600:],
+                             "continuation_mode":"DOMAIN_EXECUTION_HANDOFF"})
+    run_record=created[-1]
+    record=load(run_record)
+    refs.append(str(run_record)+"#"+file_digest(run_record))
+    summary=record.get("summary") or {}
+    failed=int(summary.get("failed") or 0)
+    run_blocked=int(summary.get("blocked") or 0)
+    scheduled=int(((plan.get("summary") or {}).get("scheduled_count") or 0))
+    succeeded=int(summary.get("succeeded") or 0)
+    if failed:
+        status="BLOCKED";next_action="RUN_CONTROLLER_TASK_FAILED"
+    elif run_blocked:
+        status="BLOCKED";next_action="RUN_CONTROLLER_BLOCKED"
+    elif succeeded==scheduled:
+        status="CONTINUED";next_action="DOMAIN_EXECUTION_COMPLETE"
+    else:
+        status="CONTINUED";next_action="RUN_CONTROLLER_COMPLETE"
+    receipt=make_receipt("CONTINUE",project,status,next_action,refs,{
+        "domain_factories":df,
+        "domain_toolchain_readiness":readiness,
+        "execution_plan":str(plan_path),
+        "run_record":str(run_record),
+        "run_summary":summary,
+        "continuation_mode":"DOMAIN_EXECUTION_HANDOFF",
+        "scheduler_started":True,
+        "run_controller_started":True,
+        "run_controller_execute_requested":True,
+        "production_approval_bypass":False
+    })
+    receipt["continuation_of_request_id"]=prior.get("request_id")
+    return receipt
+
+
+def continue_domain_readiness(a,project:str,prior:dict[str,Any],df:dict[str,Any])->dict[str,Any]:
+    planning=Path(str(df.get("planning_dir") or ""))
+    graph=Path(str(df.get("domain_execution_graph") or ""))
+    factory_dir=graph.parent if graph.is_file() else Path("")
+    if not planning.is_dir() or not graph.is_file() or not factory_dir.is_dir():
+        return make_receipt("CONTINUE",project,"BRAIN_RECEIPT_INVALID","AWAIT_NEW_INSTRUCTION",
+                            list(prior.get("evidence_refs") or []),{"reason":"DOMAIN_FACTORY_CONTEXT_MISSING"})
+    runner=a.repo_root/"dev-hub/bin/domain-toolchain-readiness.py"
+    readiness_dir=a.output_dir/"domain-toolchain-readiness"
+    readiness_path=readiness_dir/"domain-toolchain-readiness.json"
+    readiness_dir.mkdir(parents=True,exist_ok=True)
+    health=a.runtime_root/"health"/project/"providers.json"
+    argv=[sys.executable,str(runner),"--repo-root",str(a.repo_root),
+          "--planning-dir",str(planning),"--factory-dir",str(factory_dir),
+          "--output",str(readiness_path)]
+    if health.is_file():
+        argv += ["--health",str(health)]
+    proc=subprocess.run(argv,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=90)
+    if not readiness_path.is_file():
+        return make_receipt("CONTINUE",project,"BLOCKED","DOMAIN_TOOLCHAIN_READINESS_FAILED",
+                            list(prior.get("evidence_refs") or []),
+                            {"reason":"DOMAIN_TOOLCHAIN_RESULT_MISSING",
+                             "stdout":proc.stdout[-1600:],"stderr":proc.stderr[-1600:]})
+    readiness=load(readiness_path)
+    refs=list(prior.get("evidence_refs") or [])
+    refs.append(str(readiness_path)+"#"+file_digest(readiness_path))
+    if readiness.get("status")=="READY":
+        chained_prior=dict(prior);chained_prior["evidence_refs"]=refs
+        return domain_scheduler_run_controller(a,project,chained_prior,df,readiness)
+    receipt=make_receipt("CONTINUE",project,"BLOCKED",
+                         str(readiness.get("next_stage") or "DOMAIN_TOOLCHAIN_READINESS_FAILED"),
+                         refs,{"domain_toolchain_readiness":readiness,
+                               "domain_factories":df,
+                               "continuation_mode":"DOMAIN_TOOLCHAIN_READINESS",
+                               "provider_execution_started":False,
+                               "adapter_invocation_started":False})
+    receipt["continuation_of_request_id"]=prior.get("request_id")
+    return receipt
+
 def handle_continue(a)->dict[str,Any]:
     prior=load(a.prior_response)
     if prior.get("schema")!=HUMAN_RESPONSE_SCHEMA:
@@ -231,51 +369,33 @@ def handle_continue(a)->dict[str,Any]:
             receipt=make_receipt("CONTINUE",project,"BLOCKED",str(result.get("next_stage") or "DOMAIN_FACTORY_REPAIR_REQUIRED"),refs,
                                  {"domain_factories":result,"continuation_mode":"DOMAIN_FACTORY_HANDOFF"})
         else:
-            # Provider health is a mandatory fail-closed scheduler prerequisite.
-            # Until a fresh health snapshot is produced, execution must not start.
-            receipt=make_receipt("CONTINUE",project,"BLOCKED","PROVIDER_HEALTH_REQUIRED",refs,
-                                 {"domain_factories":result,"continuation_mode":"DOMAIN_FACTORY_HANDOFF",
-                                  "domain_factories_completed":True})
+            # V8.0.28: once Domain Factory has emitted the canonical Task Graph,
+            # continue in the same central action until the first real fail-closed
+            # provider gate, or through Scheduler -> Run Controller when all gates pass.
+            chained_prior=dict(prior);chained_prior["evidence_refs"]=refs
+            receipt=continue_domain_readiness(a,project,chained_prior,result)
+            receipt.setdefault("decision",{})["domain_factories_completed"]=True
         receipt["continuation_of_request_id"]=prior.get("request_id")
         return receipt
 
-    # V8.0.19: provider-health continuation first separates internal agent tools
-    # from external/runtime providers. No adapter is invoked at this stage.
-    if project=="chacha-dev-platform" and prior_next=="PROVIDER_HEALTH_REQUIRED":
+    # V8.0.28: every fail-closed domain readiness gate is resumable without
+    # replaying central bootstrap. Re-evaluate the same Task Graph against the
+    # latest provider/adapter/health evidence; if READY, chain automatically
+    # into Scheduler and Run Controller.
+    if project=="chacha-dev-platform" and prior_next in {
+        "PROVIDER_HEALTH_REQUIRED","PROVIDER_BINDING_REQUIRED","ADAPTER_ENABLEMENT_REQUIRED",
+        "PROVIDER_PROBE_DEFINITION_REQUIRED","PROVIDER_HEALTH_PROBE_REQUIRED",
+        "ENCAPSULATED_PROVIDER_EVIDENCE_REQUIRED","TASK_GRAPH_DECOMPOSITION_REQUIRED"
+    }:
         df=brain_decision.get("domain_factories") if isinstance(brain_decision.get("domain_factories"),dict) else {}
-        planning=Path(str(df.get("planning_dir") or ""))
-        graph=Path(str(df.get("domain_execution_graph") or ""))
-        factory_dir=graph.parent if graph.is_file() else Path("")
-        if not planning.is_dir() or not graph.is_file() or not factory_dir.is_dir():
-            return make_receipt("CONTINUE",project,"BRAIN_RECEIPT_INVALID","AWAIT_NEW_INSTRUCTION",
-                                list(prior.get("evidence_refs") or []),
-                                {"reason":"DOMAIN_FACTORY_CONTEXT_MISSING"})
-        runner=a.repo_root/"dev-hub/bin/domain-toolchain-readiness.py"
-        readiness_dir=a.output_dir/"domain-toolchain-readiness"
-        readiness_path=readiness_dir/"domain-toolchain-readiness.json"
-        readiness_dir.mkdir(parents=True,exist_ok=True)
-        proc=subprocess.run([sys.executable,str(runner),"--repo-root",str(a.repo_root),
-                             "--planning-dir",str(planning),"--factory-dir",str(factory_dir),
-                             "--output",str(readiness_path)],
-                            stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=90)
-        if not readiness_path.is_file():
-            return make_receipt("CONTINUE",project,"BLOCKED","DOMAIN_TOOLCHAIN_READINESS_FAILED",
-                                list(prior.get("evidence_refs") or []),
-                                {"reason":"DOMAIN_TOOLCHAIN_RESULT_MISSING",
-                                 "stdout":proc.stdout[-1600:],"stderr":proc.stderr[-1600:]})
-        readiness=load(readiness_path)
-        refs=list(prior.get("evidence_refs") or [])
-        refs.append(str(readiness_path)+"#"+file_digest(readiness_path))
-        ready=readiness.get("status")=="READY"
-        receipt=make_receipt("CONTINUE",project,"CONTINUED" if ready else "BLOCKED",
-                             str(readiness.get("next_stage") or "DOMAIN_TOOLCHAIN_READINESS_FAILED"),
-                             refs,{"domain_toolchain_readiness":readiness,
-                                   "domain_factories":df,
-                                   "continuation_mode":"DOMAIN_TOOLCHAIN_READINESS",
-                                   "provider_execution_started":False,
-                                   "adapter_invocation_started":False})
-        receipt["continuation_of_request_id"]=prior.get("request_id")
-        return receipt
+        return continue_domain_readiness(a,project,prior,df)
+
+    if project=="chacha-dev-platform" and prior_next=="SCHEDULER_READY":
+        df=brain_decision.get("domain_factories") if isinstance(brain_decision.get("domain_factories"),dict) else {}
+        readiness=brain_decision.get("domain_toolchain_readiness") if isinstance(brain_decision.get("domain_toolchain_readiness"),dict) else {}
+        if readiness.get("status")!="READY":
+            return continue_domain_readiness(a,project,prior,df)
+        return domain_scheduler_run_controller(a,project,prior,df,readiness)
 
     # First ask canonical Project Control. If it has a real initialized lifecycle and
     # says READY, CONTINUE performs the transactional advance under central authority.
@@ -358,3 +478,5 @@ def main()->int:
 
 if __name__=="__main__":
     raise SystemExit(main())
+
+[executed on device: ubuntu-s-1vcpu-512mb-10gb-ams3 (815f25b8-52f6-4510-87c3-5844915609a1)]

@@ -1,0 +1,42 @@
+name: ChaCha DEV V8.0.28 Domain Execution Continuation
+
+on:
+  push:
+    branches:
+      - dev-hub-v828-domain-execution-continuation
+    paths:
+      - 'dev-hub/bin/central-interface-controller.py'
+      - 'dev-hub/bin/domain-toolchain-readiness.py'
+      - 'dev-hub/tests/test_v828_domain_execution_continuation.py'
+      - '.github/workflows/dev-hub-v828-domain-execution-continuation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax and compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/central-interface-controller.py             dev-hub/bin/domain-toolchain-readiness.py             dev-hub/tests/test_v828_domain_execution_continuation.py
+      - name: V8.0.28 qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v828_domain_execution_continuation.py | tee /tmp/v828.out
+          grep -Fq 'CHACHA_DEV_V828_HEALTH_EVIDENCE_TO_SCHEDULER_READY=PASS' /tmp/v828.out
+          grep -Fq 'CHACHA_DEV_V828_FAIL_CLOSED_WITHOUT_HEALTH=PASS' /tmp/v828.out
+          grep -Fq 'CHACHA_DEV_V828_DOMAIN_GATES_RESUMABLE=PASS' /tmp/v828.out
+          grep -Fq 'CHACHA_DEV_V828_SCHEDULER_HANDOFF=PASS' /tmp/v828.out
+          grep -Fq 'CHACHA_DEV_V828_RUN_CONTROLLER_EXECUTE_HANDOFF=PASS' /tmp/v828.out
+          grep -Fq 'CHACHA_DEV_V828_GUARDIAN_AND_APPROVAL_GATES_PRESERVED=PASS' /tmp/v828.out
+          grep -Fq 'CHACHA_DEV_V828_NO_BOOTSTRAP_REPLAY=PASS' /tmp/v828.out
+          grep -Fq 'CHACHA_DEV_V828_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v828.out
+
+[executed on device: ubuntu-s-1vcpu-512mb-10gb-ams3 (815f25b8-52f6-4510-87c3-5844915609a1)]

@@ -7,6 +7,7 @@ from typing import Any
 SCHEMA="chacha.dev/domain-toolchain-readiness/v1"
 STATUS_SCORE={"ADOPT":60,"PILOT":50,"WATCH":40,"ASSESS":30,"DISCOVER":20,"DEPRECATE":10,"RETIRE":0}
 GATE_SCORE={
+  "READY":-1,
   "INTERNAL_COMPONENT":0,
   "PROVIDER_HEALTH_PROBE_REQUIRED":1,
   "PROVIDER_PROBE_DEFINITION_REQUIRED":2,
@@ -32,7 +33,8 @@ def evidence_state(repo_root:Path,spec:dict[str,Any])->tuple[list[dict[str,Any]]
     return evidence,complete
 
 def provider_candidate(repo_root:Path,provider:dict[str,Any],bindings:dict[str,Any],adapter_defs:dict[str,Any],
-                       probe_defs:dict[str,Any],encapsulated_defs:dict[str,Any])->dict[str,Any]:
+                       probe_defs:dict[str,Any],encapsulated_defs:dict[str,Any],
+                       health_defs:dict[str,Any])->dict[str,Any]:
     pid=str(provider.get("id") or "")
     status=str(provider.get("status") or "DISCOVER")
     encap=encapsulated_defs.get(pid) if isinstance(encapsulated_defs,dict) else None
@@ -76,15 +78,33 @@ def provider_candidate(repo_root:Path,provider:dict[str,Any],bindings:dict[str,A
             row["gate"]="PROVIDER_PROBE_DEFINITION_REQUIRED"
             row["reason"]="provider-probe-not-defined"
         else:
-            row["gate"]="PROVIDER_HEALTH_PROBE_REQUIRED"
-            row["reason"]="provider-ready-for-health-probe"
+            health=health_defs.get(pid) if isinstance(health_defs,dict) else None
+            state=str((health or {}).get("state") or "UNKNOWN")
+            row["health_state"]=state
+            row["health_source"]=(health or {}).get("source")
+            row["health_checked_at"]=(health or {}).get("checked_at")
+            if state in {"HEALTHY","DEGRADED"}:
+                row["gate"]="READY"
+                row["reason"]="provider-health-evidence-available"
+            else:
+                row["gate"]="PROVIDER_HEALTH_PROBE_REQUIRED"
+                row["reason"]="provider-health-missing-or-unacceptable"
     elif preenabled and executable:
         if pid not in probe_defs:
             row["gate"]="PROVIDER_PROBE_DEFINITION_REQUIRED"
             row["reason"]="preenabled-provider-probe-not-defined"
         else:
-            row["gate"]="PROVIDER_HEALTH_PROBE_REQUIRED"
-            row["reason"]="preenabled-adapter-awaiting-health-promotion"
+            health=health_defs.get(pid) if isinstance(health_defs,dict) else None
+            state=str((health or {}).get("state") or "UNKNOWN")
+            row["health_state"]=state
+            row["health_source"]=(health or {}).get("source")
+            row["health_checked_at"]=(health or {}).get("checked_at")
+            if state in {"HEALTHY","DEGRADED"}:
+                row["gate"]="READY"
+                row["reason"]="preenabled-provider-health-evidence-available"
+            else:
+                row["gate"]="PROVIDER_HEALTH_PROBE_REQUIRED"
+                row["reason"]="preenabled-adapter-awaiting-health-evidence"
     else:
         row["gate"]="ADAPTER_ENABLEMENT_REQUIRED"
         row["reason"]="adapter-not-enabled"
@@ -97,7 +117,7 @@ def choose_candidate(candidates:list[dict[str,Any]])->dict[str,Any]|None:
                                            int(x.get("rank") or -100),
                                            str(x.get("provider") or "")),reverse=True)[0]
 
-def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path)->dict[str,Any]:
+def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path,health_path:Path|None=None)->dict[str,Any]:
     graph=load(factory_dir/"domain-execution-graph.json")
     topology=load(planning_dir/"agent-topology.json")
     adapters=load(repo_root/"dev-hub/config/provider-adapters.v1.json")
@@ -105,6 +125,12 @@ def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path)->dic
     registry=load(repo_root/"dev-hub/config/capability-registry.v1.json")
     semantics_path=repo_root/"dev-hub/config/domain-toolchain-semantics.v1.json"
     semantics=load(semantics_path) if semantics_path.is_file() else {"encapsulated_provider_tools":{}}
+    health={}
+    if health_path is not None:
+        health=load(health_path)
+        if health.get("schema")!="chacha.dev/provider-health-snapshot/v1":
+            raise SystemExit("PROVIDER_HEALTH_SCHEMA_INVALID")
+    health_defs=health.get("providers") or {}
 
     if graph.get("schema")!="chacha.dev/task-graph/v1":raise SystemExit("DOMAIN_EXECUTION_GRAPH_SCHEMA_INVALID")
     if topology.get("schema")!="chacha.dev/agent-topology/v1":raise SystemExit("AGENT_TOPOLOGY_SCHEMA_INVALID")
@@ -170,7 +196,7 @@ def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path)->dic
             task_rows.append(row)
             continue
 
-        candidates=[provider_candidate(repo_root,p,bindings,adapter_defs,probe_defs,encapsulated_defs) for p in providers]
+        candidates=[provider_candidate(repo_root,p,bindings,adapter_defs,probe_defs,encapsulated_defs,health_defs) for p in providers]
         row["provider_candidates"]=candidates
         chosen=choose_candidate(candidates)
         row["selected_provider"]=chosen.get("provider") if chosen else None
@@ -237,6 +263,7 @@ def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path)->dic
       "adapter_enablement_required":sorted(all_enable),
       "probe_definition_required":sorted(all_probe_def),
       "health_probe_required":sorted(all_probe),
+      "provider_health_snapshot":str(health_path) if health_path is not None else None,
       "provider_execution_started":False,
       "adapter_invocation_started":False,
       "production_permissions_allowed":False,
@@ -251,8 +278,9 @@ def main()->int:
     ap.add_argument("--planning-dir",type=Path,required=True)
     ap.add_argument("--factory-dir",type=Path,required=True)
     ap.add_argument("--output",type=Path,required=True)
+    ap.add_argument("--health",type=Path)
     a=ap.parse_args()
-    result=evaluate(a.repo_root.resolve(),a.planning_dir.resolve(),a.factory_dir.resolve(),a.output.resolve())
+    result=evaluate(a.repo_root.resolve(),a.planning_dir.resolve(),a.factory_dir.resolve(),a.output.resolve(),a.health.resolve() if a.health else None)
     print("CHACHA_DEV_V821_DOMAIN_TOOLCHAIN_READINESS="+("PASS" if result["status"]=="READY" else "BLOCKED"))
     print("NEXT_STAGE="+result["next_stage"])
     print("ATOMIC_TASKS="+str(result["summary"]["atomic_task_count"]))
@@ -266,3 +294,5 @@ def main()->int:
 
 if __name__=="__main__":
     raise SystemExit(main())
+
+[executed on device: ubuntu-s-1vcpu-512mb-10gb-ams3 (815f25b8-52f6-4510-87c3-5844915609a1)]
