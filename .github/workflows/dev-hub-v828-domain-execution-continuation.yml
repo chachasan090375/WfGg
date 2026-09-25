@@ -38,5 +38,3 @@ jobs:
           grep -Fq 'CHACHA_DEV_V828_GUARDIAN_AND_APPROVAL_GATES_PRESERVED=PASS' /tmp/v828.out
           grep -Fq 'CHACHA_DEV_V828_NO_BOOTSTRAP_REPLAY=PASS' /tmp/v828.out
           grep -Fq 'CHACHA_DEV_V828_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v828.out
-
-[executed on device: ubuntu-s-1vcpu-512mb-10gb-ams3 (815f25b8-52f6-4510-87c3-5844915609a1)]

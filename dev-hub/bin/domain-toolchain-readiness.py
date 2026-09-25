@@ -294,5 +294,3 @@ def main()->int:
 
 if __name__=="__main__":
     raise SystemExit(main())
-
-[executed on device: ubuntu-s-1vcpu-512mb-10gb-ams3 (815f25b8-52f6-4510-87c3-5844915609a1)]
