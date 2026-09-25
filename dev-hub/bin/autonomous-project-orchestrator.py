@@ -274,18 +274,77 @@ def apply_architecture_council(branch_topology,council,out):
     save(out,b)
 
 
-def capability_gaps(preplan,contract,capability_registry,project_id,out):
-    pre=load(preplan);contract_v=load(contract);capreg=load(capability_registry)
+def capability_gaps(preplan,contract,capability_registry,semantics_path,project_id,out):
+    pre=load(preplan);contract_v=load(contract);capreg=load(capability_registry);semantics=load(semantics_path)
+    if semantics.get("schema")!="chacha.dev/capability-semantics/v1":
+        raise RuntimeError("CAPABILITY_SEMANTICS_SCHEMA_INVALID")
     known=set((capreg.get("capabilities") or {}).keys())
-    gaps=[]
+    feature_defs=semantics.get("domain_features") or {}
+    provider_gaps=[];feature_requirements=[]
+    seen_features=set()
+
+    def classify(cap,domain=None,source="domain-plan",hint=None):
+        cid=str(cap or "").strip()
+        if not cid or cid in known:return
+        feature=feature_defs.get(cid) if isinstance(feature_defs,dict) else None
+        explicit_runtime=isinstance(hint,dict) and bool(
+          hint.get("build_profile") or hint.get("provider_id") or hint.get("adapter_id")
+        )
+        if isinstance(feature,dict) and not explicit_runtime:
+            if cid in seen_features:return
+            evidence=[]
+            evidence_ok=True
+            for raw in feature.get("evidence") or []:
+                p=Path(str(raw))
+                p=p if p.is_absolute() else semantics_path.resolve().parents[2]/p
+                exists=p.is_file()
+                evidence.append({"path":str(raw),"exists":exists})
+                evidence_ok=evidence_ok and exists
+            declared=str(feature.get("implementation_state") or "BUILD_REQUIRED")
+            effective=declared if declared!="REUSABLE" or evidence_ok else "BUILD_REQUIRED"
+            feature_requirements.append({
+              "id":cid,"domain":str(feature.get("owner_domain") or domain or ""),
+              "kind":"domain_feature","classification":effective,
+              "declared_implementation_state":declared,
+              "provider_registration_required":False,
+              "evidence":evidence,"evidence_complete":evidence_ok,
+              "source":source
+            })
+            seen_features.add(cid)
+            return
+        row={"id":cid}
+        if domain:row["domain"]=domain
+        if isinstance(hint,dict):row.update(hint)
+        row["kind"]="runtime_provider"
+        row["source"]=source
+        provider_gaps.append(row)
+
     for pkg in pre.get("packages") or []:
         for cap in pkg.get("capabilities") or []:
-            if cap not in known:gaps.append({"id":cap,"domain":pkg.get("domain")})
+            classify(cap,pkg.get("domain"),"domain-plan")
     for hint in contract_v.get("capability_hints") or []:
-        if isinstance(hint,str) and hint not in known:gaps.append({"id":hint})
-        elif isinstance(hint,dict) and str(hint.get("id") or "") not in known:gaps.append(hint)
-    uniq={str(x.get("id")):x for x in gaps if x.get("id")}
-    save(out,{"project_id":project_id,"missing_capabilities":list(uniq.values())})
+        if isinstance(hint,str):classify(hint,None,"functional-contract")
+        elif isinstance(hint,dict):classify(hint.get("id"),hint.get("domain"),"functional-contract",hint)
+
+    uniq={str(x.get("id")):x for x in provider_gaps if x.get("id")}
+    counts={}
+    for row in feature_requirements:
+        key=str(row.get("classification") or "UNKNOWN")
+        counts[key]=counts.get(key,0)+1
+    save(out,{
+      "schema":"chacha.dev/capability-gap-classification/v1",
+      "project_id":project_id,
+      "missing_capabilities":list(uniq.values()),
+      "domain_feature_requirements":feature_requirements,
+      "summary":{
+        "runtime_provider_gap_count":len(uniq),
+        "domain_feature_count":len(feature_requirements),
+        "domain_feature_status_counts":counts,
+        "default_missing_kind":str((semantics.get("principles") or {}).get("default_missing_kind") or "runtime_provider")
+      },
+      "domain_features_do_not_grant_provider_authority":True,
+      "automatic_external_spend_eur":0
+    })
 
 def emergency_stop_active(path=Path("/opt/chacha-dev/runtime/control/emergency-stop.json")):
     try:
@@ -428,7 +487,7 @@ def main():
 
     # Capability gaps may create project-local branches/capabilities.
     gapreq=out/"capability-gaps.json"
-    capability_gaps(pre,contract,durable_caps,pid,gapreq)
+    capability_gaps(pre,contract,durable_caps,cfg/"capability-semantics.v1.json",pid,gapreq)
     foundry_plan=out/"capability-foundry.json"
     dom_overlay=out/"domain-overlay.json";cap_overlay=out/"capability-overlay.json";routing_overlay=out/"routing-overlay.json"
     run(bin_dir/"capability-foundry.py",[
@@ -774,6 +833,10 @@ def main():
     final_v["active_capability_registry"]=str(active_capabilities)
     final_v["active_provider_adapter_registry"]=str(active_provider_adapters)
     final_v["capability_foundry_closure"]=str(closure_plan)
+    gap_classification_v=load(gapreq)
+    final_v["capability_gap_classification"]=str(gapreq)
+    final_v["domain_feature_requirements"]=gap_classification_v.get("domain_feature_requirements") or []
+    final_v["runtime_provider_gap_count"]=int((gap_classification_v.get("summary") or {}).get("runtime_provider_gap_count") or 0)
     final_v["capability_build_request_batch"]=str(capability_build_batch) if capability_build_batch.exists() else None
     final_v["capability_build_auto_built_count"]=capability_build_auto_built_count
     final_v["capability_build_specialist_required_count"]=capability_build_specialist_required_count
