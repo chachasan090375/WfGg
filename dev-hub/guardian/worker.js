@@ -11,8 +11,8 @@ function runtimeErrorClass(err){
   const name=String((err&&err.name)||"Error");
   const message=String((err&&err.message)||"");
   const lower=message.toLowerCase();
-  if(lower.includes("daily row read limit"))return "D1_READ_QUOTA_EXHAUSTED";
-  if(lower.includes("daily row write limit"))return "D1_WRITE_QUOTA_EXHAUSTED";
+  if(message.includes("D1_ERROR")&&lower.includes("daily row read limit"))return "D1_READ_QUOTA_EXHAUSTED";
+  if(message.includes("D1_ERROR")&&lower.includes("daily row write limit"))return "D1_WRITE_QUOTA_EXHAUSTED";
   if(message.includes("D1_ERROR"))return "D1_ERROR";
   if(name==="OperationError"||message.includes("Ed25519"))return "CRYPTO_ERROR";
   return "RUNTIME_ERROR";
@@ -697,7 +697,8 @@ async function verifySentinelReceipt(env,receiptId,projectId,revision){
   const base=String(env.SENTINEL_URL||"").replace(/\/$/,"");
   if(!base)return {ok:false,reason:"SENTINEL_EXTERNAL_URL_MISSING"};
   let r;
-  try{    const path="/v1/receipts/"+encodeURIComponent(receiptId);
+  try{
+    const path="/v1/receipts/"+encodeURIComponent(receiptId);
     r=env.SENTINEL_SERVICE
       ?await env.SENTINEL_SERVICE.fetch(new Request("https://sentinel.internal"+path,{
           method:"GET",headers:{"accept":"application/json","user-agent":"ChaCha-DEV-Guardian/1.1"}
