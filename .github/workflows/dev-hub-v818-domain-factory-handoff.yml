@@ -1,0 +1,38 @@
+name: ChaCha DEV V8.0.18 Domain Factory Handoff
+
+on:
+  push:
+    branches:
+      - dev-hub-v818-domain-factory-handoff
+    paths:
+      - 'dev-hub/bin/domain-factory-runner.py'
+      - 'dev-hub/bin/central-interface-controller.py'
+      - 'dev-hub/tests/test_v818_domain_factory_handoff.py'
+      - '.github/workflows/dev-hub-v818-domain-factory-handoff.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/domain-factory-runner.py             dev-hub/bin/central-interface-controller.py             dev-hub/tests/test_v818_domain_factory_handoff.py
+      - name: V8.0.18 qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v818_domain_factory_handoff.py | tee /tmp/v818.out
+          grep -Fq 'CHACHA_DEV_V818_DOMAIN_PACKAGES_MATERIALIZED=PASS' /tmp/v818.out
+          grep -Fq 'CHACHA_DEV_V818_DYNAMIC_CONTRACTS_RECONCILED=PASS' /tmp/v818.out
+          grep -Fq 'CHACHA_DEV_V818_DOMAIN_FEATURE_NOT_RUNTIME_PROVIDER=PASS' /tmp/v818.out
+          grep -Fq 'CHACHA_DEV_V818_PROVIDER_HEALTH_GATE_PRESERVED=PASS' /tmp/v818.out
+          grep -Fq 'CHACHA_DEV_V818_CONTINUE_NO_BOOTSTRAP_LOOP=PASS' /tmp/v818.out
+          grep -Fq 'CHACHA_DEV_V818_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v818.out
