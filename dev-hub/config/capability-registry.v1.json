@@ -131,6 +131,17 @@
           "fallback": [
             "github"
           ]
+        },
+        {
+          "id": "exa-mcp",
+          "status": "PILOT",
+          "health": "mcp-probe",
+          "cost_class": "free",
+          "scope": "public-web-readonly",
+          "fallback": [
+            "technology-radar",
+            "github"
+          ]
         }
       ]
     },
