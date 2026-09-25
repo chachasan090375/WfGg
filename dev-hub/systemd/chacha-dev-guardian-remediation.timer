@@ -3,7 +3,7 @@ Description=ChaCha DEV Guardian corrective remediation schedule
 
 [Timer]
 OnBootSec=15s
-OnUnitActiveSec=30s
+OnUnitActiveSec=120s
 AccuracySec=3s
 RandomizedDelaySec=2s
 Persistent=true
