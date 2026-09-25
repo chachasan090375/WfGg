@@ -64,7 +64,8 @@ assert http["executable"]=="/opt/chacha-dev/adapters/http-smoke/current/http-smo
 assert set(http["supports"])=={"read"}
 
 source=PROBE.read_text(encoding="utf-8")
-assert "collector-knowledge-adapter" not in source.replace("collector-knowledge-adapter-runtime","")
+assert "collector-knowledge-adapter.py" not in source
+assert "subprocess.run([str(a.executable)" not in source
 assert "ProxyHandler({})" in source
 assert "lastwar_connection" in source
 assert "mutations" in source
