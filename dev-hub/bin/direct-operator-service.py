@@ -44,7 +44,8 @@ def stable_project(value:Any,default_project:str="chacha-dev-platform")->str:
 def should_auto_continue(receipt:dict[str,Any])->bool:
     status=str(receipt.get("status") or "").upper()
     next_action=str(receipt.get("next_action") or "").upper()
-    if status not in {"PLAN_READY","CONTINUED","READY"}: return False
+    non_terminal=(status in {"PLAN_READY","CONTINUED","READY"} or status.startswith("CONTINUED_") or status.endswith("_PLAN_READY"))
+    if not non_terminal: return False
     if next_action.startswith("AWAIT_") or "APPROVAL" in next_action: return False
     return True
 def decode_identity(v:str)->str:
