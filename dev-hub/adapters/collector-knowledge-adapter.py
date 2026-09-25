@@ -40,7 +40,7 @@ KNOWLEDGE_APP=RADAR_ROOT/"collector-knowledge"
 KNOWLEDGE_DB=RADAR_ROOT/"data/collector-knowledge/knowledge.db"
 WORKER_UNIT="wfgg-collector-knowledge-worker.service"
 API_UNIT="wfgg-collector-knowledge-api.service"
-API_BASE="http://127.0.0.1:8791"
+API_BASE="http://127.0.0.1:8793"
 
 def now_iso():
     return datetime.now(timezone.utc).isoformat()
