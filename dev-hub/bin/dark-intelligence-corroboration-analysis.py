@@ -61,7 +61,7 @@ Security and epistemic rules:
 - IRRELEVANT means it does not materially address the claim or evidence is too vague.
 - evidence_type describes the nature of the retrieved page, not whether the claim is ultimately true.
 - Prefer unverified_blog when the publisher/technical authority is unclear.
-- Do not infer independence from search ranking. Do not declare any claim verified or true.
+- Do not decide truth; this classifier has no truth authority.\n- Do not infer independence from search ranking. Do not declare any claim verified or true.
 - Return only the required JSON.
 """
 def prompt(claim_id:str,claim_text:str,candidates:list[dict[str,Any]])->str:
