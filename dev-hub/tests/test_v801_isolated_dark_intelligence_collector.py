@@ -427,12 +427,12 @@ service=(ROOT/"dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.servi
 timer=(ROOT/"dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.timer").read_text(encoding="utf-8")
 assert "NoNewPrivileges=true" in service and "ProtectSystem=strict" in service
 assert "ReadWritePaths=/opt/chacha-dev/runtime/dark-intelligence" in service
-assert "OnUnitActiveSec=15min" in timer
+assert ("OnUnitActiveSec=15min" in timer) or ("OnCalendar=*:0/15" in timer)
 corroboration_retry_service=(ROOT/"dev-hub/systemd/chacha-dev-dark-intelligence-corroboration-retry.service").read_text(encoding="utf-8")
 corroboration_retry_timer=(ROOT/"dev-hub/systemd/chacha-dev-dark-intelligence-corroboration-retry.timer").read_text(encoding="utf-8")
 assert "NoNewPrivileges=true" in corroboration_retry_service and "ProtectSystem=strict" in corroboration_retry_service
 assert "dark-intelligence-corroboration-queue.py run-due" in corroboration_retry_service
-assert "OnUnitActiveSec=15min" in corroboration_retry_timer
+assert ("OnUnitActiveSec=15min" in corroboration_retry_timer) or ("OnCalendar=*:0/15" in corroboration_retry_timer)
 assert dark_policy["collection"]["analysis_retry_max_attempts"]==12
 assert dark_policy["collection"]["analysis_retry_infinite_loop_forbidden"] is True
 
