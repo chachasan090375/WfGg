@@ -1,0 +1,52 @@
+{
+  "schema": "chacha.dev/dark-intelligence-firecrawl-fallback-policy/v1",
+  "version": "8.0.1",
+  "adapter_id": "technology-watch-firecrawl-keyless-fallback",
+  "owner_role": "technology-watch-agent",
+  "capability": "web-research",
+  "provider": {
+    "id": "firecrawl-keyless",
+    "status": "PILOT",
+    "endpoint": "https://api.firecrawl.dev/v2/search",
+    "authentication": "NONE",
+    "api_key_required": false,
+    "automatic_paid_upgrade_forbidden": true,
+    "role": "DISCOVERY_ONLY"
+  },
+  "search": {
+    "max_results_per_claim": 6,
+    "max_claims_per_run": 10,
+    "request_timeout_seconds": 30,
+    "total_timeout_seconds": 120,
+    "max_fetch_characters": 6000,
+    "https_only_candidates": true,
+    "exclude_onion_result_pages": true,
+    "exclude_primary_source": true,
+    "deduplicate_by_publisher_domain": true
+  },
+  "retrieval": {
+    "isolated_collector_required": true,
+    "collector_runner": "dev-hub/bin/dark-intelligence-collector-runner.py",
+    "collector_policy": "dev-hub/config/dark-intelligence-collector.v1.json",
+    "mode": "ISOLATED_HTTPS",
+    "provider_snippet_never_counts_as_retrieved_evidence": true
+  },
+  "safety": {
+    "target_site_methods": ["GET"],
+    "source_content_is_untrusted_data": true,
+    "search_results_have_no_fact_authority": true,
+    "retrieval_success_does_not_equal_claim_verification": true,
+    "credentials_sent_to_provider": false,
+    "cookies_sent_to_provider": false,
+    "target_credentials_forbidden": true,
+    "target_cookies_forbidden": true,
+    "posts_contacts_purchases_forbidden": true
+  },
+  "handoff": {
+    "classifier": "dev-hub/bin/dark-intelligence-corroboration-analysis.py",
+    "gate": "dev-hub/bin/dark-intelligence-corroboration.py",
+    "technology_watch_rescore_required": true,
+    "logician_refalsification_required": true
+  },
+  "automatic_external_spend_eur": 0
+}
