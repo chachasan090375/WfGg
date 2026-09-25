@@ -131,6 +131,25 @@ assert len(selected)<=analysis_adapter.MAX_ANALYSIS_CHARS
 assert "Tor Project onion service relevant marker" in selected
 assert len(selected)<len(long_text)
 assert analysis_adapter.MODELS[0]=="gemini-3.6-flash-medium"
+fallback_capture={
+  "schema":"chacha.dev/dark-intelligence-capture/v1",
+  "sanitized_text":"Tor Project onion services are available for private access. Tor Project contact analyst@example.com for this sample.",
+  "security":{"network_isolated":True,"source_content_authority":"NONE"}
+}
+fallback_analysis,fallback_runtime=analysis_adapter.extractive_fallback(
+  fallback_capture,"Tor Project",["onion services"],[{"model":"semantic-provider","status":"FAILED","failure_class":"QUOTA"}]
+)
+assert fallback_analysis["status"]=="ANALYZED"
+assert fallback_analysis["claims"]
+assert all(x["confidence"]=="LOW" and x["requires_corroboration"] is True for x in fallback_analysis["claims"])
+assert "analyst@example.com" not in json.dumps(fallback_analysis)
+assert "[EMAIL_REDACTED]" in json.dumps(fallback_analysis)
+assert fallback_runtime["backend"]=="deterministic-extractive-fallback"
+assert fallback_runtime["semantic_refinement_required"] is True
+assert fallback_runtime["analysis_decision_authority"] is False
+pipeline_src=(ROOT/"dev-hub/bin/dark-intelligence-pipeline.py").read_text(encoding="utf-8")
+assert '"semantic_refinement"' in pipeline_src
+assert 'provisional_claims_never_gain_fact_authority' in pipeline_src
 same=analysis_adapter._parse_json_sequence('{"probe":"PASS"}\n{"probe":"PASS"}\n')
 assert same=={"probe":"PASS"}
 try:
@@ -530,6 +549,9 @@ print("CHACHA_DEV_V801_TOOL_FREE_SEMANTIC_ANALYSIS=PASS")
 print("CHACHA_DEV_V801_BOUNDED_RELEVANT_ANALYSIS_CONTEXT=PASS")
 print("CHACHA_DEV_V801_SEMANTIC_MODEL_FAILOVER=PASS")
 print("CHACHA_DEV_V801_PROVIDER_UNAVAILABLE_DEFER_FAILSAFE=PASS")
+print("CHACHA_DEV_V801_EXTRACTIVE_QUOTA_FALLBACK=PASS")
+print("CHACHA_DEV_V801_PROVISIONAL_FACT_AUTHORITY=NO")
+print("CHACHA_DEV_V801_SEMANTIC_REFINEMENT_QUEUE=PASS")
 print("CHACHA_DEV_V801_PERSISTENT_RETRY_QUEUE=PASS")
 print("CHACHA_DEV_V801_DEFERRED_AUTO_ENQUEUE=PASS")
 print("CHACHA_DEV_V801_DEFERRED_AUTO_ENQUEUE_CLI=PASS")
