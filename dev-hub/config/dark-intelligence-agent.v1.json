@@ -65,7 +65,14 @@
     "unverified_source_never_becomes_fact": true,
     "collector_provenance_required": true,
     "semantic_analysis_claims_remain_unverified": true,
-    "analysis_confidence_never_replaces_corroboration": true
+    "analysis_confidence_never_replaces_corroboration": true,
+    "corroboration_gate": "dev-hub/bin/dark-intelligence-corroboration.py",
+    "corroboration_policy": "dev-hub/config/dark-intelligence-corroboration.v1.json",
+    "minimum_independent_support_groups": 2,
+    "corroboration_search_role": "technology-watch-agent",
+    "corroboration_search_capability": "web-research",
+    "primary_dark_source_never_counts_as_independent_corroboration": true,
+    "corroboration_failure_never_validates": true
   },
   "output": {
     "normalized_schema": "chacha.dev/dark-intelligence-dossier/v1",
