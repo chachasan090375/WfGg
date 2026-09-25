@@ -91,6 +91,7 @@ class State:
         self.root.mkdir(parents=True,exist_ok=True)
         self.jobs=self.root/"jobs";self.jobs.mkdir(parents=True,exist_ok=True)
         self.responses=self.root/"responses";self.responses.mkdir(parents=True,exist_ok=True)
+        self.idempotency=self.root/"idempotency";self.idempotency.mkdir(parents=True,exist_ok=True)
         self.session_path=self.root/"session.json";self.lock=threading.RLock()
         ui=Path(str(policy.get("ui_root") or "dev-hub/direct-operator-ui"))
         self.ui_root=ui if ui.is_absolute() else repo/ui
@@ -113,11 +114,16 @@ class State:
         if (live/"index.html").is_file():return live
         return self.ui_root
     def effective_live_shell_config(self):
+        x=None
         try:
-            x=load(self.live_app_config)
-            if x.get("schema")=="chacha.dev/android-live-shell-config/v1":return x
+            candidate=load(self.live_app_config)
+            if candidate.get("schema")=="chacha.dev/android-live-shell-config/v1":x=candidate
         except Exception:pass
-        return self.live_shell_config
+        if x is None:x=dict(self.live_shell_config)
+        else:x=dict(x)
+        try:x["runtime_revision"]=(self.repo/".revision").read_text(encoding="utf-8").strip()
+        except Exception:x["runtime_revision"]="unknown"
+        return x
 
     def effective_native_update_manifest(self):
         try:
@@ -166,6 +172,32 @@ class State:
                     "project_id":"chacha-dev-platform","next_action":"RETRY_WHEN_BRAIN_AVAILABLE","evidence_refs":[],
                     "decision":{"stderr":p.stderr[-1200:]}}
         return load(out)
+
+    def idempotency_key(self,operator:str,project:str,client_request_id:str)->str:
+        raw=(operator+"\n"+project+"\n"+client_request_id).encode("utf-8")
+        return hashlib.sha256(raw).hexdigest()
+
+    def accept_intent(self,text:str,project:str,operator:str,client_request_id:str)->tuple[str,bool]:
+        client_request_id=str(client_request_id or "").strip()
+        if not re.fullmatch(r"[A-Za-z0-9._:-]{8,128}",client_request_id):
+            raise ValueError("CLIENT_REQUEST_ID_INVALID")
+        key=self.idempotency_key(operator,project,client_request_id)
+        p=self.idempotency/(key+".json")
+        text_digest="sha256:"+hashlib.sha256(text.encode("utf-8")).hexdigest()
+        with self.lock:
+            if p.is_file():
+                x=load(p)
+                if x.get("text_digest")!=text_digest or x.get("operator")!=operator or x.get("project_id")!=project:
+                    raise RuntimeError("IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST")
+                jid=str(x.get("job_id") or "")
+                if jid and self.job_path(jid).is_file():return jid,False
+            jid="doj-"+uuid.uuid4().hex
+            self.set_job(jid,state="QUEUED",operator=operator,project_id=project,
+                         client_request_id=client_request_id,text_digest=text_digest)
+            atomic(p,{"schema":"chacha.dev/direct-operator-idempotency/v1","client_request_id":client_request_id,
+                      "job_id":jid,"operator":operator,"project_id":project,"text_digest":text_digest,
+                      "created_at":now_iso()})
+            return jid,True
 
     def process(self,jid:str,text:str,project:str,operator:str)->None:
         project=stable_project(project,str(self.policy.get("default_project") or "chacha-dev-platform"))
@@ -366,13 +398,20 @@ class Handler(BaseHTTPRequestHandler):
         except Exception:return self.json(400,{"status":"INVALID_JSON"})
         text=str(body.get("text") or "").strip()
         if not text:return self.json(400,{"status":"TEXT_REQUIRED"})
+        client_request_id=str(body.get("client_request_id") or "").strip()
+        if not client_request_id:return self.json(400,{"status":"CLIENT_REQUEST_ID_REQUIRED"})
         s=self.st.session()
         default_project=str(self.st.policy.get("default_project") or "chacha-dev-platform")
         project=stable_project(body.get("project") or s.get("active_project"),default_project)
-        jid="doj-"+uuid.uuid4().hex
-        self.st.set_job(jid,state="QUEUED",operator=identity,project_id=project)
-        threading.Thread(target=self.st.process,args=(jid,text,project,identity),daemon=True).start()
-        self.json(202,{"status":"ACCEPTED","job_id":jid,"state":"QUEUED","project_id":project})
+        try:
+            jid,created=self.st.accept_intent(text,project,identity,client_request_id)
+        except ValueError as e:return self.json(400,{"status":str(e)})
+        except RuntimeError as e:return self.json(409,{"status":str(e)})
+        if created:
+            threading.Thread(target=self.st.process,args=(jid,text,project,identity),daemon=True).start()
+        state=load(self.st.job_path(jid)).get("state") or "QUEUED"
+        self.json(202,{"status":"ACCEPTED","job_id":jid,"state":state,"project_id":project,
+                       "client_request_id":client_request_id,"deduplicated":not created})
 
 def main()->int:
     ap=argparse.ArgumentParser()
