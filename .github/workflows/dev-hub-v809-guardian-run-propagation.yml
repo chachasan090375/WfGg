@@ -1,0 +1,37 @@
+name: ChaCha DEV V8.0.9 Guardian Run Propagation
+
+on:
+  push:
+    branches:
+      - dev-hub-v809-guardian-run-propagation
+    paths:
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/bin/architecture-decision-council.py'
+      - 'dev-hub/tests/test_v809_guardian_run_propagation.py'
+      - '.github/workflows/dev-hub-v809-guardian-run-propagation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/bin/architecture-decision-council.py             dev-hub/tests/test_v809_guardian_run_propagation.py
+      - name: V8.0.9 qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v809_guardian_run_propagation.py | tee /tmp/v809.out
+          grep -Fq 'CHACHA_DEV_V809_PARENT_RUN_ID_PROPAGATED=PASS' /tmp/v809.out
+          grep -Fq 'CHACHA_DEV_V809_CHILD_STAGE_ENVIRONMENT=PASS' /tmp/v809.out
+          grep -Fq 'CHACHA_DEV_V809_COUNCIL_SUBCOMPONENT_RUN_ID=PASS' /tmp/v809.out
+          grep -Fq 'CHACHA_DEV_V809_NO_RUNLESS_COUNCIL_GUARDIAN_EVENT=PASS' /tmp/v809.out
+          grep -Fq 'CHACHA_DEV_V809_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v809.out
