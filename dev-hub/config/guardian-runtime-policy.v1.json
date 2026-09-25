@@ -62,5 +62,18 @@
     "automatic_paid_upgrade": false,
     "automatic_external_spend_eur": 0,
     "coverage_persist_refresh_seconds": 450
+  },
+  "d1_account_quota_guard": {
+    "enabled": true,
+    "shared_state_file": "/opt/chacha-dev/runtime/control/d1-account-quota-circuit.json",
+    "quota_reset_basis": "UTC_MIDNIGHT",
+    "fail_closed_while_open": true,
+    "guardian_alert_poll_seconds": 180,
+    "guardian_remediation_poll_seconds": 120,
+    "sentinel_remediation_poll_seconds": 180,
+    "assurance_exchange_feedback_poll_seconds": 180,
+    "coverage_heartbeat_seconds": 300,
+    "automatic_paid_upgrade": false,
+    "automatic_external_spend_eur": 0
   }
 }
