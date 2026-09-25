@@ -697,8 +697,7 @@ async function verifySentinelReceipt(env,receiptId,projectId,revision){
   const base=String(env.SENTINEL_URL||"").replace(/\/$/,"");
   if(!base)return {ok:false,reason:"SENTINEL_EXTERNAL_URL_MISSING"};
   let r;
-  try{
-    const path="/v1/receipts/"+encodeURIComponent(receiptId);
+  try{    const path="/v1/receipts/"+encodeURIComponent(receiptId);
     r=env.SENTINEL_SERVICE
       ?await env.SENTINEL_SERVICE.fetch(new Request("https://sentinel.internal"+path,{
           method:"GET",headers:{"accept":"application/json","user-agent":"ChaCha-DEV-Guardian/1.1"}
@@ -998,3 +997,266 @@ async function coverage(req,env){
   for(const e of expected){
     const c=got.get(String(e.component_id));
     if(!c){
+      missing.push(String(e.component_id));
+      if(order(String(e.criticality))>order(severity))severity=String(e.criticality);
+      await createAlert(env,{alertId:"coverage-missing-"+String(e.component_id),eventId:"coverage:"+snapshotId,
+        severity:String(e.criticality),summary:"Guardian coverage missing: "+String(e.component_id),
+        reasons:["EXPECTED_COMPONENT_MISSING"],payload:{snapshot_id:snapshotId,component_id:e.component_id}});
+      continue;
+    }
+    const active=c.hook_active===true;
+    await env.DB.prepare(
+      `INSERT INTO coverage_heartbeats(component_id,snapshot_id,last_seen,hook_active,details_json)
+       VALUES(?1,?2,datetime('now'),?3,?4)
+       ON CONFLICT(component_id) DO UPDATE SET snapshot_id=excluded.snapshot_id,last_seen=datetime('now'),
+       hook_active=excluded.hook_active,details_json=excluded.details_json
+       WHERE coverage_heartbeats.hook_active<>excluded.hook_active
+          OR coverage_heartbeats.details_json<>excluded.details_json
+          OR coverage_heartbeats.last_seen < datetime('now','-450 seconds')`
+    ).bind(String(e.component_id),snapshotId,active?1:0,stable(c)).run();
+    if(!active){
+      inactive.push(String(e.component_id));
+      if(order(String(e.criticality))>order(severity))severity=String(e.criticality);
+      await createAlert(env,{alertId:"coverage-inactive-"+String(e.component_id),eventId:"coverage:"+snapshotId,
+        severity:String(e.criticality),summary:"Guardian hook inactive: "+String(e.component_id),
+        reasons:["GUARDIAN_HOOK_INACTIVE"],payload:c});
+    }
+  }
+  const activeIds=components.filter(x=>x&&x.component_id&&x.hook_active===true).map(x=>String(x.component_id));
+  resolvedRemediations=await resolveCoverageRemediations(env,activeIds,snapshotId);
+  for(const id of got.keys())if(!expected.some(e=>String(e.component_id)===id))unknown.push(id);
+  if(unknown.length&&order("WARNING")>order(severity))severity="WARNING";
+  const verdict=verdictFromSeverity(severity);
+  return json({schema:"chacha.dev/guardian-coverage-verdict/v1",snapshot_id:snapshotId,verdict,severity,
+    expected_count:expected.length,reported_count:components.length,missing,inactive,unknown,
+    coverage_ratio:expected.length?Number(((expected.length-missing.length-inactive.length)/expected.length).toFixed(4)):1,
+    resolved_remediations:resolvedRemediations,
+    checked_at:new Date().toISOString()},["PASS","WARNING"].includes(verdict)?200:409);
+}
+
+async function remediations(req,env){
+  const auth=await requireCentral(req,env);if(!auth.ok)return auth.response;
+  const u=new URL(req.url),status=String(u.searchParams.get("status")||"OPEN").toUpperCase();
+  const limit=Math.max(1,Math.min(100,Number(u.searchParams.get("limit")||50)));
+  const rows=await env.DB.prepare(
+    `SELECT directive_id,source_alert_id,source_event_id,target_actor,target_role,project_id,run_id,severity,required_action,
+            rule_codes_json,instructions_json,status,attempt_count,max_attempts,created_at,delivered_at,applied_at,resolution_evidence_json
+       FROM remediation_directives WHERE status=?1 ORDER BY created_at ASC LIMIT ?2`
+  ).bind(status,limit).all();
+  return json({schema:"chacha.dev/guardian-remediation-batch/v1",items:(rows.results||[]).map(r=>({
+    directive_id:r.directive_id,source_alert_id:r.source_alert_id,source_event_id:r.source_event_id,
+    target_actor:r.target_actor,target_role:r.target_role,project_id:r.project_id,run_id:r.run_id,
+    severity:r.severity,required_action:r.required_action,rule_codes:JSON.parse(r.rule_codes_json||"[]"),
+    instructions:JSON.parse(r.instructions_json||"[]"),status:r.status,attempt_count:r.attempt_count,max_attempts:r.max_attempts,
+    created_at:r.created_at,delivered_at:r.delivered_at,applied_at:r.applied_at,
+    resolution_evidence:r.resolution_evidence_json?JSON.parse(r.resolution_evidence_json):null
+  }))});
+}
+
+async function markRemediationsDelivered(req,env){
+  const body=await req.text();const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let payload;try{payload=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  const ids=Array.isArray(payload.directive_ids)?payload.directive_ids.map(String).slice(0,100):[];
+  if(!ids.length)return json({error:"directive_ids_required"},400);
+  let count=0;
+  for(const id of ids){
+    const r=await env.DB.prepare(
+      "UPDATE remediation_directives SET status='DELIVERED',delivered_at=datetime('now') WHERE directive_id=?1 AND status='OPEN'"
+    ).bind(id).run();
+    count+=r.meta.changes||0;
+  }
+  return json({schema:"chacha.dev/guardian-remediation-delivery/v1",status:"DELIVERED",count});
+}
+
+async function alerts(req,env){
+  const auth=await requireCentral(req,env);if(!auth.ok)return auth.response;
+  const u=new URL(req.url),status=String(u.searchParams.get("status")||"OPEN").toUpperCase();
+  const limit=Math.max(1,Math.min(100,Number(u.searchParams.get("limit")||25)));
+  const rows=await env.DB.prepare(
+    "SELECT alert_id,event_id,created_at,severity,status,summary,reason_codes_json,payload_json FROM guardian_alerts WHERE status=?1 ORDER BY created_at DESC LIMIT ?2"
+  ).bind(status,limit).all();
+  return json({schema:"chacha.dev/guardian-alert-batch/v1",items:(rows.results||[]).map(r=>({
+    alert_id:r.alert_id,event_id:r.event_id,created_at:r.created_at,severity:r.severity,status:r.status,
+    summary:r.summary,reason_codes:JSON.parse(r.reason_codes_json||"[]"),event:JSON.parse(r.payload_json||"{}")
+  }))});
+}
+async function ackAlerts(req,env){
+  const body=await req.text();const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let payload;try{payload=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  const ids=Array.isArray(payload.alert_ids)?payload.alert_ids.map(String).slice(0,100):[];
+  if(!ids.length)return json({error:"alert_ids_required"},400);
+  let count=0;
+  for(const id of ids){
+    const r=await env.DB.prepare("UPDATE guardian_alerts SET status='ACKED' WHERE alert_id=?1 AND status='OPEN'").bind(id).run();
+    count+=r.meta.changes||0;
+  }
+  return json({schema:"chacha.dev/guardian-alert-ack/v1",status:"ACKED",count});
+}
+
+async function sweep(env){
+  let expiredCount=0, staleCoverageCount=0;
+  const expired=(await env.DB.prepare(
+    "SELECT * FROM action_leases WHERE status='OPEN' AND deadline_at < datetime('now') LIMIT 100"
+  ).all()).results||[];
+  for(const row of expired){
+    expiredCount++;
+    const severity=SENSITIVE.has(String(row.permission||""))?"CRITICAL":"BLOCK";
+    await env.DB.prepare("UPDATE action_leases SET status='EXPIRED',last_verdict=?2 WHERE action_id=?1").bind(row.action_id,severity).run();
+    await createAlert(env,{alertId:"lease-expired-"+String(row.action_id),eventId:String(row.pre_event_id),severity,
+      summary:"Guardian action lease expired without POST: "+String(row.actor)+" / "+String(row.action),
+      reasons:["POST_ACTION_MISSING"],payload:row});
+  }
+  const stale=(await env.DB.prepare(
+    `SELECT e.component_id,e.criticality,h.last_seen,h.hook_active
+     FROM expected_components e LEFT JOIN coverage_heartbeats h ON h.component_id=e.component_id
+     WHERE h.component_id IS NULL OR h.hook_active=0 OR h.last_seen < datetime('now','-900 seconds') LIMIT 100`
+  ).all()).results||[];
+  for(const row of stale){
+    staleCoverageCount++;
+    await createAlert(env,{alertId:"coverage-stale-"+String(row.component_id),eventId:"coverage-sweep",
+      severity:String(row.criticality),summary:"Guardian coverage stale: "+String(row.component_id),
+      reasons:["COVERAGE_HEARTBEAT_STALE"],payload:row});
+  }
+  return {expired_action_leases:expiredCount,stale_coverage_components:staleCoverageCount};
+}
+
+async function watchdogSweep(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  const result=await sweep(env);
+  return json({
+    schema:"chacha.dev/guardian-watchdog-sweep/v1",
+    status:"PASS",
+    external_guardian:true,
+    scheduled_watchdog_remains_enabled:true,
+    ...result,
+    swept_at:new Date().toISOString()
+  });
+}
+
+
+async function publishFinalReviewRef(env,source,reviewId){
+  if(!env.ASSURANCE_EXCHANGE_SERVICE)return {status:"NOT_CONFIGURED"};
+  const body=JSON.stringify({schema:"chacha.dev/final-review-ref/v1",source,receipt_id:reviewId});
+  let r;try{
+    r=await env.ASSURANCE_EXCHANGE_SERVICE.fetch(new Request("https://assurance-exchange.internal/v1/final-reviews",{
+      method:"POST",headers:{"content-type":"application/json"},body
+    }));
+  }catch{return {status:"DEFERRED",reason:"EXCHANGE_UNAVAILABLE"};}
+  return {status:r.ok?"DELIVERED":"DEFERRED",http_status:r.status};
+}
+
+async function finalAgentReview(req,env){
+  const body=await req.text();const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(p.schema!=="chacha.dev/final-agent-review-request/v1")return json({error:"final_review_schema_invalid"},400);
+  const projectId=String(p.project_id||""),revision=String(p.revision||""),compromise=String(p.compromise_digest||"");
+  const sourceReceiptId=String(p.source_receipt_id||"");
+  if(!projectId||!/^[0-9a-f]{40}$/.test(revision)||!compromise||!sourceReceiptId)
+    return json({error:"final_review_identity_invalid"},400);
+  const row=await env.DB.prepare(
+    "SELECT project_id,revision,verdict FROM functional_acceptance_receipts WHERE receipt_id=?1"
+  ).bind(sourceReceiptId).first();
+  const hard=[];const soft=[];
+  if(!row)hard.push("SOURCE_RECEIPT_UNKNOWN");
+  else{
+    if(String(row.project_id||"")!==projectId)hard.push("SOURCE_RECEIPT_PROJECT_MISMATCH");
+    if(String(row.revision||"")!==revision)hard.push("SOURCE_RECEIPT_REVISION_MISMATCH");
+    if(String(row.verdict||"")!=="PASS")hard.push("SOURCE_RECEIPT_NOT_PASS");
+  }
+  if(p.implementation_verified!==true)hard.push("IMPLEMENTATION_NOT_VERIFIED");
+  const verdict=hard.length?"REVISE":"ACCEPT";
+  const evidence=sourceReceiptId?["guardian-source-receipt:"+sourceReceiptId]:[];
+  const reviewId="guardian-final-"+(await sha256Hex(projectId+"\n"+revision+"\n"+compromise+"\n"+sourceReceiptId+"\n"+verdict)).slice(0,32);
+  await env.DB.prepare(
+    `INSERT OR REPLACE INTO final_agent_reviews
+      (review_id,project_id,revision,compromise_digest,source_receipt_id,verdict,hard_objections_json,soft_objections_json,evidence_refs_json,implementation_verified,created_at)
+      VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,datetime('now'))`
+  ).bind(reviewId,projectId,revision,compromise,sourceReceiptId,verdict,JSON.stringify(hard),JSON.stringify(soft),
+         JSON.stringify(evidence),p.implementation_verified===true?1:0).run();
+  const publication=await publishFinalReviewRef(env,"GUARDIAN",reviewId);
+  return json({
+    schema:"chacha.dev/compromise-agent-review/v1",receipt_id:reviewId,agent:"guardian",
+    project_id:projectId,revision,compromise_digest:compromise,verdict,
+    hard_objections:hard,soft_objections:soft,evidence_refs:evidence,
+    implementation_verified:p.implementation_verified===true,source_authority:"EXTERNAL",
+    source_reverified:false,post_implementation_second_read:true,
+    assurance_exchange_delivery:publication,direct_mutation:false,reviewed_at:new Date().toISOString()
+  },verdict==="ACCEPT"?200:409);
+}
+async function publicFinalAgentReview(req,env,id){
+  const row=await env.DB.prepare("SELECT * FROM final_agent_reviews WHERE review_id=?1").bind(id).first();
+  if(!row)return json({error:"review_not_found"},404);
+  return json({
+    schema:"chacha.dev/compromise-agent-review/v1",receipt_id:row.review_id,agent:"guardian",
+    project_id:row.project_id,revision:row.revision,compromise_digest:row.compromise_digest,verdict:row.verdict,
+    hard_objections:JSON.parse(row.hard_objections_json||"[]"),soft_objections:JSON.parse(row.soft_objections_json||"[]"),
+    evidence_refs:JSON.parse(row.evidence_refs_json||"[]"),implementation_verified:Boolean(row.implementation_verified),
+    source_authority:"EXTERNAL",source_reverified:false,post_implementation_second_read:true,
+    direct_mutation:false,reviewed_at:row.created_at
+  });
+}
+
+export default {
+  async fetch(req,env){
+    const u=new URL(req.url);
+    try{
+    if(req.method==="GET"&&u.pathname==="/healthz")return json({
+      status:"ok",service:"chacha-dev-guardian",guardian_runtime_build:"v730-runtime-1",external_governance_plane:true,
+      runtime_contract_mutation_api:false,dynamic_instance_contract_registration:true,
+      dynamic_component_contract_registration:true,dynamic_contract_policy_escalation_allowed:false,
+      dynamic_component_policy_escalation_allowed:false,tunnel_required:false,action_lease_protocol:true,
+      task_contract_binding_protocol:true,task_contract_identity_lease:true,coverage_watch:true,
+      authenticated_watchdog_sweep:true,scheduled_watchdog:true,
+      corrective_enforcement:true,remediation_holds:true,remediation_retry_limit:3,
+      production_learning_anomaly_bridge:true,production_anomaly_direct_mutation:false,
+      central_memory_assimilation_evidence_required:true,component_confidence_evidence_required:true,contextual_memory_recall_evidence_required:true,
+      coverage_remediation_auto_resolution:true,coverage_remediation_batched:true,
+      remediation_dependency_auto_resolution:true,remediation_cascade_suppression:true,
+      functional_acceptance_gate:true,external_dual_release_gate:true,functional_contract_source_of_truth:true,
+      embedded_guardian_local_ingest:true,project_assurance_identity_registration:true,project_event_project_identity_required:true,project_event_raw_user_content:false,
+      original_functional_contract_pinned:true,dual_external_assurance_required_for_production:true,
+      sentinel_receipt_verified_externally:true,sentinel_external_url_configured:Boolean(env.SENTINEL_URL),
+      assurance_exchange_enabled:Boolean(env.ASSURANCE_EXCHANGE_URL||env.ASSURANCE_EXCHANGE_SERVICE),
+      assurance_exchange_service_binding:Boolean(env.ASSURANCE_EXCHANGE_SERVICE),
+      sentinel_service_binding:Boolean(env.SENTINEL_SERVICE),
+      functional_receipt_exchange_publish:true,
+      logic_ux_compromise_evidence_required:true,
+      compromise_release_gate_external_enforcement_ready:true,
+      seven_agent_final_review:true,post_implementation_second_read:true,
+      functional_direct_mutation:false
+    });
+    if(req.method==="POST"&&u.pathname==="/v1/check")return await check(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/project-assurance-identities/register")
+      return await registerProjectAssuranceIdentity(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/project-events")return await projectEvents(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/functional-acceptance")return await functionalAcceptance(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/final-review")return await finalAgentReview(req,env);
+    if(req.method==="GET"&&u.pathname.startsWith("/v1/final-reviews/"))
+      return await publicFinalAgentReview(req,env,decodeURIComponent(u.pathname.slice("/v1/final-reviews/".length)));
+    if(req.method==="GET"&&u.pathname.startsWith("/v1/functional-receipts/"))
+      return await publicFunctionalReceipt(req,env,decodeURIComponent(u.pathname.slice("/v1/functional-receipts/".length)));
+    if(req.method==="POST"&&u.pathname==="/v1/dual-release-gate")return await dualReleaseGate(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/learning-anomalies/report")return await reportLearningAnomaly(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/dynamic-contracts/register")return await registerDynamicContract(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/dynamic-components/register")return await registerDynamicComponentContract(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/coverage")return await coverage(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/watchdog/sweep")return await watchdogSweep(req,env);
+    if(req.method==="GET"&&u.pathname==="/v1/remediations")return await remediations(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/remediations/delivered")return await markRemediationsDelivered(req,env);
+    if(req.method==="GET"&&u.pathname==="/v1/alerts")return await alerts(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/alerts/ack")return await ackAlerts(req,env);
+    return json({error:"not_found"},404);
+    }catch(err){
+      return json({
+        error:"guardian_worker_runtime_exception",
+        route:u.pathname,
+        exception_name:String((err&&err.name)||"Error"),
+        error_class:runtimeErrorClass(err),
+        fail_closed:true,
+        guardian_runtime_build:"v730-runtime-1"
+      },503);
+    }
+  },
+  async scheduled(controller,env,ctx){ctx.waitUntil(sweep(env));}
+};
