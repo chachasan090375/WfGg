@@ -832,7 +832,10 @@ def main():
                and int((branch_v.get("summary") or {}).get("materialized") or 0)==0)
     assurance_recommendations=aer.recommendations(project_id=pid)
 
-    if capability_build_required_count:
+    branch_foundry_blocked_count=len(branch_v.get("blocked") or []) if isinstance(branch_v.get("blocked"),list) else int(bool(branch_v.get("blocked")))
+    if branch_foundry_blocked_count:
+        next_stage="BRANCH_REPLAN_REQUIRED"
+    elif capability_build_required_count:
         next_stage="CAPABILITY_BUILD_REQUIRED"
     elif fast_path:
         next_stage="KNOWLEDGE_FAST_PATH"
