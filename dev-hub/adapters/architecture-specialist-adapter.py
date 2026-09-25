@@ -236,7 +236,7 @@ def timeout_from(request: dict[str, Any]) -> int:
     return max(30, min(value, ABSOLUTE_MAX_TIMEOUT))
 
 
-def validate_binding(request: dict[str, Any]) -> str | None:
+def validate_binding(request: dict[str, Any], *, require_healthy: bool = True) -> str | None:
     bindings = request.get("bindings")
     if not isinstance(bindings, list):
         return "ARCHITECT_BINDING_MISSING"
@@ -248,7 +248,7 @@ def validate_binding(request: dict[str, Any]) -> str | None:
     ]
     if not matches:
         return "ARCHITECT_BINDING_MISSING"
-    if any(x.get("health_state") != "HEALTHY" for x in matches):
+    if require_healthy and any(x.get("health_state") != "HEALTHY" for x in matches):
         return "ARCHITECT_PROVIDER_NOT_HEALTHY"
     return None
 
@@ -258,13 +258,14 @@ def validate_request(request: dict[str, Any]) -> tuple[str | None, dict[str, Any
         return None, None, "INPUT_SCHEMA_INVALID"
     if not isinstance(request.get("task"), dict) or not (request.get("task") or {}).get("id"):
         return None, None, "TASK_ID_MISSING"
-    err = validate_binding(request)
-    if err:
-        return None, None, err
     task = request["task"]
     metadata = request.get("metadata") if isinstance(request.get("metadata"), dict) else {}
     runtime = metadata.get("architecture_specialist")
-    if isinstance(runtime, dict) and runtime.get("action") == "status":
+    action = str(runtime.get("action") or "") if isinstance(runtime, dict) else ""
+    err = validate_binding(request, require_healthy=action!="status")
+    if err:
+        return None, None, err
+    if isinstance(runtime, dict) and action == "status":
         if task.get("permission") != "read":
             return None, None, "ARCHITECT_STATUS_PERMISSION_REQUIRED:read"
         return "status", runtime, None
