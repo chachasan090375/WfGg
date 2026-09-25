@@ -133,6 +133,11 @@
       "scope": "platform",
       "probe": "runtime-command",
       "functional_check": "collector-knowledge-status"
+    },
+    "collector-knowledge-bootstrap": {
+      "scope": "platform",
+      "probe": "adapter-provisioning-receipt",
+      "functional_check": "collector-knowledge-adapter-provisioned"
     }
   }
 }
