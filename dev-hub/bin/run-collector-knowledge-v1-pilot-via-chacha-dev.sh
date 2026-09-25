@@ -63,8 +63,9 @@ assert x['status']=='OK',x
 print('PROJECT_CONTROL_INTEGRITY_BEFORE=PASS')
 PY
 
+BOOTSTRAP_GRAPH_RAW="$WORK/collector-knowledge-v1-bootstrap.unbound.task-graph.json"
 BOOTSTRAP_GRAPH="$PLAN_DIR/collector-knowledge-v1-bootstrap.task-graph.json"
-python3 - "$BOOTSTRAP_GRAPH" "$KNOWLEDGE_REV" <<'PY'
+python3 - "$BOOTSTRAP_GRAPH_RAW" "$KNOWLEDGE_REV" <<'PY'
 import json,sys
 from datetime import datetime,timezone
 path,rev=sys.argv[1:]
@@ -78,7 +79,7 @@ g={
       "id":"collector-knowledge:pilot-install-v1",
       "kind":"runtime-deploy",
       "description":"Install the permanent Collector Knowledge Engine worker and localhost read-only API without changing Radar production binaries.",
-      "owner_role":"collector-runtime",
+      "owner_role":"collector-runtime-agent",
       "capabilities":["collector-knowledge-control"],
       "permission":"workspace-write",
       "depends_on":[],
@@ -91,7 +92,7 @@ g={
       "id":"collector-knowledge:pilot-probe-v1",
       "kind":"runtime-diagnostic",
       "description":"Independently probe the installed Knowledge Engine and production-isolation invariants before declaring runtime health.",
-      "owner_role":"sre-observability",
+      "owner_role":"sre-observability-agent",
       "capabilities":["collector-knowledge-control"],
       "permission":"read",
       "depends_on":["collector-knowledge:pilot-install-v1"],
@@ -104,6 +105,30 @@ g={
   "summary":{"task_count":2,"artifact_tasks":1,"gate_tasks":1,"approval_tasks":0,"blocking_tasks":2}
 }
 open(path,"w",encoding="utf-8").write(json.dumps(g,indent=2)+"\n")
+PY
+
+EMPTY_AGENT_CONTRACTS="$WORK/empty-agent-contracts.json"
+EMPTY_COMPONENT_CONTRACTS="$WORK/empty-component-contracts.json"
+printf '%s\n' '{"contracts":[]}' > "$EMPTY_AGENT_CONTRACTS"
+printf '%s\n' '{"contracts":[]}' > "$EMPTY_COMPONENT_CONTRACTS"
+python3 dev-hub/bin/task-contract-binder.py \
+  --graph "$BOOTSTRAP_GRAPH_RAW" \
+  --agent-contracts "$EMPTY_AGENT_CONTRACTS" \
+  --component-contracts "$EMPTY_COMPONENT_CONTRACTS" \
+  --role-contracts dev-hub/config/guardian-role-contracts.v1.json \
+  --output "$BOOTSTRAP_GRAPH" > "$WORK/bootstrap-binding.txt"
+python3 - "$BOOTSTRAP_GRAPH" <<'PY'
+import json,sys
+x=json.load(open(sys.argv[1],encoding='utf-8'))
+b=x.get('guardian_binding') or {}
+assert x.get('dispatch_allowed') is True,x
+assert b.get('all_tasks_bound') is True,b
+assert b.get('blocked_task_count')==0,b
+for task in x.get('tasks') or []:
+    gb=task.get('guardian_binding') or {}
+    assert gb.get('policy_contract_ref')=='role:__agent__',(task.get('id'),gb)
+    assert gb.get('subject_role','').endswith('-agent'),(task.get('id'),gb)
+print('COLLECTOR_KNOWLEDGE_BOOTSTRAP_GUARDIAN_BINDING=PASS')
 PY
 
 BOOTSTRAP_SCHEDULE="$WORK/bootstrap-schedule.json"
@@ -201,8 +226,9 @@ print('COLLECTOR_KNOWLEDGE_RUNTIME_PROBE=PASS')
 print('COLLECTOR_KNOWLEDGE_RUNTIME_HEALTH=HEALTHY')
 PY
 
+QUERY_GRAPH_RAW="$WORK/collector-knowledge-v1-query.unbound.task-graph.json"
 QUERY_GRAPH="$PLAN_DIR/collector-knowledge-v1-query.task-graph.json"
-python3 - "$QUERY_GRAPH" <<'PY'
+python3 - "$QUERY_GRAPH_RAW" <<'PY'
 import json,sys
 from datetime import datetime,timezone
 path=sys.argv[1]
@@ -215,7 +241,7 @@ g={
     "id":"collector-knowledge:query-v1",
     "kind":"knowledge-query",
     "description":"Exercise the governed localhost query path after the verified runtime-health promotion.",
-    "owner_role":"collector-intelligence",
+    "owner_role":"collector-intelligence-agent",
     "capabilities":["collector-knowledge-inspect"],
     "permission":"read",
     "depends_on":[],
@@ -227,6 +253,24 @@ g={
   "summary":{"task_count":1,"artifact_tasks":1,"gate_tasks":0,"approval_tasks":0,"blocking_tasks":1}
 }
 open(path,"w",encoding="utf-8").write(json.dumps(g,indent=2)+"\n")
+PY
+python3 dev-hub/bin/task-contract-binder.py \
+  --graph "$QUERY_GRAPH_RAW" \
+  --agent-contracts "$EMPTY_AGENT_CONTRACTS" \
+  --component-contracts "$EMPTY_COMPONENT_CONTRACTS" \
+  --role-contracts dev-hub/config/guardian-role-contracts.v1.json \
+  --output "$QUERY_GRAPH" > "$WORK/query-binding.txt"
+python3 - "$QUERY_GRAPH" <<'PY'
+import json,sys
+x=json.load(open(sys.argv[1],encoding='utf-8'))
+b=x.get('guardian_binding') or {}
+assert x.get('dispatch_allowed') is True,x
+assert b.get('all_tasks_bound') is True,b
+assert b.get('blocked_task_count')==0,b
+for task in x.get('tasks') or []:
+    gb=task.get('guardian_binding') or {}
+    assert gb.get('policy_contract_ref')=='role:__agent__',(task.get('id'),gb)
+print('COLLECTOR_KNOWLEDGE_QUERY_GUARDIAN_BINDING=PASS')
 PY
 
 QUERY_SCHEDULE="$WORK/query-schedule.json"
