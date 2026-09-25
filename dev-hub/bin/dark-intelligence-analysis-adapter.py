@@ -237,6 +237,22 @@ def _watch_phrases(subject:str,watch_terms:list[str])->list[str]:
             if token not in out:out.append(token)
     return out[:80]
 
+def _substantive_statement(chunk:str)->bool:
+    text=re.sub(r"\s+"," ",str(chunk or "")).strip()
+    if len(text)<35 or len(text)>1100:return False
+    if text.endswith("?"):return False
+    words=re.findall(r"[A-Za-zÀ-ÖØ-öø-ÿ0-9][A-Za-zÀ-ÖØ-öø-ÿ0-9'._-]*",text)
+    if len(words)<6:return False
+    low=text.casefold()
+    non_claim_prefixes=(
+      "download ","join ","learn ","check ","bring ","tell ","help ","grow ","read ",
+      "sign up","subscribe ","search ","donate ","contact ","click ","visit "
+    )
+    if low.startswith(non_claim_prefixes):return False
+    if "|" in text and len(words)<12:return False
+    letters=sum(1 for ch in text if ch.isalpha())
+    return letters/max(1,len(text))>=0.45
+
 def extractive_fallback(capture:dict[str,Any],subject:str,watch_terms:list[str],attempts:list[dict[str,Any]])->tuple[dict[str,Any],dict[str,Any]]:
     sec=capture.get("security") if isinstance(capture.get("security"),dict) else {}
     if sec.get("network_isolated") is not True or sec.get("source_content_authority")!="NONE":
@@ -248,13 +264,13 @@ def extractive_fallback(capture:dict[str,Any],subject:str,watch_terms:list[str],
     chunks=[re.sub(r"\s+"," ",x).strip() for x in re.split(r"(?<=[.!?])\s+|\n+",redacted)]
     matched=[];seen=set()
     for chunk in chunks:
-        if len(chunk)<12 or len(chunk)>1100:continue
+        if not _substantive_statement(chunk):continue
         low=chunk.casefold()
         if phrases and not any(term in low for term in phrases):continue
         key=hashlib.sha256(chunk.encode("utf-8","replace")).hexdigest()
         if key in seen:continue
         seen.add(key);matched.append(chunk)
-        if len(matched)>=12:break
+        if len(matched)>=6:break
     claims=[{
       "id":f"extractive-{i+1}","claim_class":"general",
       "text":"Unverified source statement: "+text,
