@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/direct-operator-policy/v1",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "component": "direct-operator-service",
   "bind": "127.0.0.1",
   "port": 8792,
@@ -45,7 +45,10 @@
     "live_ui_fallback_to_bundled_source": true,
     "native_update_private_origin_only": true,
     "conversation_interface_required": true,
-    "conversation_interface_has_no_decision_authority": true
+    "conversation_interface_has_no_decision_authority": true,
+    "transient_execution_project_never_becomes_session_project": true,
+    "plan_ready_is_not_terminal": true,
+    "accepted_prompt_is_removed_from_editor": true
   },
   "progress_policy": "dev-hub/config/progress-reporting.v1.json",
   "android_live_shell_config": "dev-hub/config/android-live-shell.v1.json",
@@ -61,5 +64,16 @@
     "decision_authority": false,
     "execution_authority": false,
     "central_authority_preserved": true
+  },
+  "auto_continue": {
+    "enabled": true,
+    "max_steps": 24,
+    "non_terminal_statuses": [
+      "PLAN_READY",
+      "CONTINUED",
+      "READY"
+    ],
+    "stop_on_human_approval": true,
+    "stop_on_await_user_action": true
   }
 }
