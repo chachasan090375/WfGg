@@ -1,0 +1,39 @@
+name: ChaCha DEV V8.0.11 Capability Semantics Separation
+
+on:
+  push:
+    branches:
+      - dev-hub-v811-capability-semantics-separation
+    paths:
+      - 'dev-hub/bin/autonomous-project-orchestrator.py'
+      - 'dev-hub/config/capability-semantics.v1.json'
+      - 'dev-hub/tests/test_v811_capability_semantics_separation.py'
+      - '.github/workflows/dev-hub-v811-capability-semantics-separation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/autonomous-project-orchestrator.py             dev-hub/tests/test_v811_capability_semantics_separation.py
+          python3 -m json.tool dev-hub/config/capability-semantics.v1.json >/dev/null
+      - name: V8.0.11 qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v811_capability_semantics_separation.py | tee /tmp/v811.out
+          grep -Fq 'CHACHA_DEV_V811_DOMAIN_FEATURE_NOT_PROVIDER_GAP=PASS' /tmp/v811.out
+          grep -Fq 'CHACHA_DEV_V811_RUNTIME_PROVIDER_FAIL_CLOSED=PASS' /tmp/v811.out
+          grep -Fq 'CHACHA_DEV_V811_REUSABLE_FEATURE_EVIDENCE=PASS' /tmp/v811.out
+          grep -Fq 'CHACHA_DEV_V811_TRANSLATION_FEATURE_BUILD_REQUIRED=PASS' /tmp/v811.out
+          grep -Fq 'CHACHA_DEV_V811_EXPLICIT_RUNTIME_HINT_PRESERVED=PASS' /tmp/v811.out
+          grep -Fq 'CHACHA_DEV_V811_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v811.out
