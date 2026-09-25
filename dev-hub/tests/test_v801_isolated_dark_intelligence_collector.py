@@ -202,6 +202,20 @@ obs=pipeline.observation_from(fake_capture,fake_analysis,"v801-ci-subject")
 assert obs["network_route"]=="TOR_ISOLATED_CAPSULE"
 assert obs["claims"][0]["requires_corroboration"] is True
 assert obs["evidence_type"]=="unverified_blog"
+
+fallback2,fallback_runtime2=analysis_adapter.extractive_fallback(
+  fake_capture,"Example Product",["product"],[{"model":"semantic-provider","status":"FAILED","failure_class":"QUOTA"}]
+)
+fallback_result={
+  "schema":"chacha.dev/dark-intelligence-analysis-result/v1",
+  "analysis":fallback2,"runtime":fallback_runtime2
+}
+fallback_obs=pipeline.observation_from(fake_capture,fallback_result,"v801-ci-fallback-subject")
+assert fallback_runtime2["tool_access"]=="NONE"
+assert fallback_runtime2["backend"]=="deterministic-extractive-fallback"
+assert fallback_obs["claims"]
+assert all(x["analysis_confidence"]=="LOW" and x["requires_corroboration"] is True for x in fallback_obs["claims"])
+
 with tempfile.TemporaryDirectory(prefix="v801-pipeline-") as td:
     cp=Path(td)/"capture.json";cp.write_text(json.dumps(fake_capture),encoding="utf-8")
     outdir=Path(td)/"out"
@@ -549,6 +563,7 @@ print("CHACHA_DEV_V801_TOOL_FREE_SEMANTIC_ANALYSIS=PASS")
 print("CHACHA_DEV_V801_BOUNDED_RELEVANT_ANALYSIS_CONTEXT=PASS")
 print("CHACHA_DEV_V801_SEMANTIC_MODEL_FAILOVER=PASS")
 print("CHACHA_DEV_V801_PROVIDER_UNAVAILABLE_DEFER_FAILSAFE=PASS")
+print("CHACHA_DEV_V801_EXTRACTIVE_FALLBACK_PIPELINE_AUTHORITY=PASS")
 print("CHACHA_DEV_V801_EXTRACTIVE_QUOTA_FALLBACK=PASS")
 print("CHACHA_DEV_V801_PROVISIONAL_FACT_AUTHORITY=NO")
 print("CHACHA_DEV_V801_SEMANTIC_REFINEMENT_QUEUE=PASS")
