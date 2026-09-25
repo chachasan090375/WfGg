@@ -1,0 +1,55 @@
+{
+  "schema": "chacha.dev/dark-intelligence-corroboration-policy/v1",
+  "version": "8.0.1",
+  "purpose": "Require independent corroboration before any dark/deep-web allegation can be treated as corroborated intelligence.",
+  "verdicts": ["CORROBORATED","CONTRADICTED","INCONCLUSIVE"],
+  "minimum_independent_support_groups": 2,
+  "minimum_independent_contradiction_groups": 2,
+  "primary_dark_source_never_counts_as_independent_corroboration": true,
+  "same_origin_duplicates_count_once": true,
+  "same_independence_group_counts_once": true,
+  "corroboration_search": {
+    "owner_role": "technology-watch-agent",
+    "domain": "knowledge-research",
+    "capability": "web-research",
+    "provider": "technology-radar",
+    "fallback_provider": "github",
+    "official_sources_first": true,
+    "independent_sources_required": true,
+    "dark_source_links_are_candidates_not_independent_proof": true,
+    "search_failure_is_nonfatal_but_never_validates": true
+  },
+  "quality": {
+    "accepted_support_types": [
+      "official_technical",
+      "security_advisory",
+      "independent_technical",
+      "maintainer_issue",
+      "postmortem",
+      "benchmark_reproducible",
+      "project_pilot",
+      "executable_reproduction"
+    ],
+    "accepted_contradiction_types": [
+      "official_technical",
+      "security_advisory",
+      "independent_technical",
+      "maintainer_issue",
+      "postmortem",
+      "benchmark_reproducible",
+      "project_pilot",
+      "executable_reproduction"
+    ],
+    "unverified_blog_never_sufficient_alone": true,
+    "marketing_never_sufficient": true
+  },
+  "authority": {
+    "corroboration_gate_has_no_execution_authority": true,
+    "technology_watch_owns_evidence_score": true,
+    "logician_falsification_required": true,
+    "architecture_council_final_authority": true,
+    "guardian_required": true,
+    "sentinel_required": true
+  },
+  "automatic_external_spend_eur": 0
+}
