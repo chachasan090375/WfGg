@@ -239,6 +239,44 @@ def handle_continue(a)->dict[str,Any]:
         receipt["continuation_of_request_id"]=prior.get("request_id")
         return receipt
 
+    # V8.0.19: provider-health continuation first separates internal agent tools
+    # from external/runtime providers. No adapter is invoked at this stage.
+    if project=="chacha-dev-platform" and prior_next=="PROVIDER_HEALTH_REQUIRED":
+        df=brain_decision.get("domain_factories") if isinstance(brain_decision.get("domain_factories"),dict) else {}
+        planning=Path(str(df.get("planning_dir") or ""))
+        graph=Path(str(df.get("domain_execution_graph") or ""))
+        factory_dir=graph.parent if graph.is_file() else Path("")
+        if not planning.is_dir() or not graph.is_file() or not factory_dir.is_dir():
+            return make_receipt("CONTINUE",project,"BRAIN_RECEIPT_INVALID","AWAIT_NEW_INSTRUCTION",
+                                list(prior.get("evidence_refs") or []),
+                                {"reason":"DOMAIN_FACTORY_CONTEXT_MISSING"})
+        runner=a.repo_root/"dev-hub/bin/domain-toolchain-readiness.py"
+        readiness_dir=a.output_dir/"domain-toolchain-readiness"
+        readiness_path=readiness_dir/"domain-toolchain-readiness.json"
+        readiness_dir.mkdir(parents=True,exist_ok=True)
+        proc=subprocess.run([sys.executable,str(runner),"--repo-root",str(a.repo_root),
+                             "--planning-dir",str(planning),"--factory-dir",str(factory_dir),
+                             "--output",str(readiness_path)],
+                            stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=90)
+        if not readiness_path.is_file():
+            return make_receipt("CONTINUE",project,"BLOCKED","DOMAIN_TOOLCHAIN_READINESS_FAILED",
+                                list(prior.get("evidence_refs") or []),
+                                {"reason":"DOMAIN_TOOLCHAIN_RESULT_MISSING",
+                                 "stdout":proc.stdout[-1600:],"stderr":proc.stderr[-1600:]})
+        readiness=load(readiness_path)
+        refs=list(prior.get("evidence_refs") or [])
+        refs.append(str(readiness_path)+"#"+file_digest(readiness_path))
+        ready=readiness.get("status")=="READY"
+        receipt=make_receipt("CONTINUE",project,"CONTINUED" if ready else "BLOCKED",
+                             str(readiness.get("next_stage") or "DOMAIN_TOOLCHAIN_READINESS_FAILED"),
+                             refs,{"domain_toolchain_readiness":readiness,
+                                   "domain_factories":df,
+                                   "continuation_mode":"DOMAIN_TOOLCHAIN_READINESS",
+                                   "provider_execution_started":False,
+                                   "adapter_invocation_started":False})
+        receipt["continuation_of_request_id"]=prior.get("request_id")
+        return receipt
+
     # First ask canonical Project Control. If it has a real initialized lifecycle and
     # says READY, CONTINUE performs the transactional advance under central authority.
     if project!="chacha-dev-platform":
