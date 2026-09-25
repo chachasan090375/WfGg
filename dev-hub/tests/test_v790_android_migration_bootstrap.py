@@ -5,6 +5,7 @@ import json
 ROOT=Path(__file__).resolve().parents[2]
 policy=json.loads((ROOT/"dev-hub/config/android-migration-bootstrap.v1.json").read_text())
 src=(ROOT/"android/chacha-migration-bootstrap/app/src/main/java/com/wfgg/chachadev/migration/MigrationActivity.java").read_text()
+native_update=(ROOT/"android/chacha-direct-operator-widget/app/src/main/java/com/wfgg/chachadev/operator/NativeUpdateManager.java").read_text()
 manifest=(ROOT/"android/chacha-migration-bootstrap/app/src/main/AndroidManifest.xml").read_text()
 gradle=(ROOT/"android/chacha-migration-bootstrap/app/build.gradle.kts").read_text()
 
@@ -26,6 +27,10 @@ assert 'APK_VERSION_MISMATCH' in src
 assert 'APK_CERT_MISMATCH' in src
 assert 'TARGET_CERT_SHA256.equals(installedCert)' in src
 assert 'requestSelfUninstall()' in src
+assert 'session.fsync(out);\n                    }\n\n                    // PackageInstaller requires every stream opened by the session' in src
+assert src.index('// PackageInstaller requires every stream opened by the session') < src.index('session.commit(pending.getIntentSender());')
+assert 'session.fsync(out);\n            }\n\n            // All session streams must be closed before commit().' in native_update
+assert native_update.index('// All session streams must be closed before commit().') < native_update.index('session.commit(pending.getIntentSender());')
 assert 'android.permission.REQUEST_DELETE_PACKAGES' in manifest
 assert 'android.permission.REQUEST_INSTALL_PACKAGES' in manifest
 assert 'android.permission.INTERNET' in manifest
@@ -44,4 +49,6 @@ print("PRIVATE_RELEASE_DOWNLOAD=YES")
 print("APK_SHA_PACKAGE_VERSION_CERT_VERIFY=PASS")
 print("ANDROID_INSTALL_CONFIRMATION=REQUIRED")
 print("MIGRATOR_SELF_REMOVAL_OFFERED=YES")
+print("PACKAGE_INSTALLER_STREAMS_CLOSED_BEFORE_COMMIT=PASS")
+print("NATIVE_UPDATE_STREAMS_CLOSED_BEFORE_COMMIT=PASS")
 print("AUTOMATIC_EXTERNAL_SPEND_EUR=0")
