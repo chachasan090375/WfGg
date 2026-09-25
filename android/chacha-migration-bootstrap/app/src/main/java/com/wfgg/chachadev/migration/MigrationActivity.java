@@ -341,14 +341,18 @@ public final class MigrationActivity extends Activity {
                         new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
                 params.setAppPackageName(TARGET_PACKAGE);
                 int sessionId = installer.createSession(params);
-                try (PackageInstaller.Session session = installer.openSession(sessionId);
-                     InputStream in = new FileInputStream(apk);
-                     OutputStream out = session.openWrite("base.apk", 0, apk.length())) {
-                    byte[] buf = new byte[65536];
-                    int n;
-                    while ((n = in.read(buf)) >= 0) out.write(buf, 0, n);
-                    session.fsync(out);
+                try (PackageInstaller.Session session = installer.openSession(sessionId)) {
+                    try (InputStream in = new FileInputStream(apk);
+                         OutputStream out = session.openWrite("base.apk", 0, apk.length())) {
+                        byte[] buf = new byte[65536];
+                        int n;
+                        while ((n = in.read(buf)) >= 0) out.write(buf, 0, n);
+                        session.fsync(out);
+                    }
 
+                    // PackageInstaller requires every stream opened by the session
+                    // to be closed before commit(), otherwise Android throws
+                    // SecurityException: Files still open.
                     Intent callback = new Intent(this, MigrationActivity.class);
                     callback.setAction(ACTION_INSTALL_STATUS);
                     callback.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
