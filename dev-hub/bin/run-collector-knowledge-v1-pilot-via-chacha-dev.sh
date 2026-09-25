@@ -13,6 +13,7 @@ mkdir -p "$WORK_ROOT"
 WORK="$(mktemp -d "$WORK_ROOT/chacha-collector-knowledge-v1.XXXXXX")"
 ARCHIVE="$WORK/repo.tar.gz"
 PLAN_DIR="$RUNTIME/plans/$PROJECT"
+HEALTH="$RUNTIME/health/$PROJECT/providers.json"
 REPO=""
 
 cleanup(){ rm -rf "$WORK"; }
@@ -62,8 +63,8 @@ assert x['status']=='OK',x
 print('PROJECT_CONTROL_INTEGRITY_BEFORE=PASS')
 PY
 
-GRAPH="$PLAN_DIR/collector-knowledge-v1-pilot.task-graph.json"
-python3 - "$GRAPH" "$KNOWLEDGE_REV" <<'PY'
+BOOTSTRAP_GRAPH="$PLAN_DIR/collector-knowledge-v1-bootstrap.task-graph.json"
+python3 - "$BOOTSTRAP_GRAPH" "$KNOWLEDGE_REV" <<'PY'
 import json,sys
 from datetime import datetime,timezone
 path,rev=sys.argv[1:]
@@ -89,112 +90,190 @@ g={
     {
       "id":"collector-knowledge:pilot-probe-v1",
       "kind":"runtime-diagnostic",
-      "description":"Probe the permanent Collector Knowledge Engine worker, API, persistent database and production-isolation invariants.",
+      "description":"Independently probe the installed Knowledge Engine and production-isolation invariants before declaring runtime health.",
       "owner_role":"sre-observability",
-      "capabilities":["collector-knowledge-inspect"],
+      "capabilities":["collector-knowledge-control"],
       "permission":"read",
       "depends_on":["collector-knowledge:pilot-install-v1"],
       "outputs":[{"type":"gate","id":"collector-knowledge-v1-runtime-pilot"}],
       "verification":{"mode":"machine","self_certification_allowed":False,"required_evidence":["source","timestamp","digest"]},
       "blocking":True,
       "metadata":{"collector_knowledge":{"action":"pilot-probe","revision":rev}}
-    },
-    {
-      "id":"collector-knowledge:query-v1",
-      "kind":"knowledge-query",
-      "description":"Exercise the governed localhost query path after the runtime probe.",
-      "owner_role":"collector-intelligence",
-      "capabilities":["collector-knowledge-inspect"],
-      "permission":"read",
-      "depends_on":["collector-knowledge:pilot-probe-v1"],
-      "outputs":[{"type":"artifact","id":"collector-knowledge-query-result"}],
-      "verification":{"mode":"machine","self_certification_allowed":False,"required_evidence":["source","timestamp","digest"]},
-      "blocking":True,
-      "metadata":{"collector_knowledge":{"action":"query","q":"totalNum","limit":10}}
     }
   ],
-  "summary":{"task_count":3,"artifact_tasks":2,"gate_tasks":1,"approval_tasks":0,"blocking_tasks":3}
+  "summary":{"task_count":2,"artifact_tasks":1,"gate_tasks":1,"approval_tasks":0,"blocking_tasks":2}
 }
 open(path,"w",encoding="utf-8").write(json.dumps(g,indent=2)+"\n")
 PY
 
-SCHEDULE="$WORK/schedule.json"
-PREPARE="$WORK/prepare.json"
-DISPATCH="$WORK/dispatch.json"
+BOOTSTRAP_SCHEDULE="$WORK/bootstrap-schedule.json"
+BOOTSTRAP_PREPARE="$WORK/bootstrap-prepare.json"
+BOOTSTRAP_DISPATCH="$WORK/bootstrap-dispatch.json"
 
-"${PC[@]}" schedule --project "$PROJECT" --graph "$GRAPH" > "$SCHEDULE"
-PLAN="$(python3 - "$SCHEDULE" <<'PY'
+"${PC[@]}" schedule --project "$PROJECT" --graph "$BOOTSTRAP_GRAPH" > "$BOOTSTRAP_SCHEDULE"
+BOOTSTRAP_PLAN="$(python3 - "$BOOTSTRAP_SCHEDULE" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1],encoding='utf-8'))
 assert x['status']=='OK',x
 print((x.get('details') or {})['execution_plan'])
 PY
 )"
-echo "COLLECTOR_KNOWLEDGE_SCHEDULE=PASS"
-echo "COLLECTOR_KNOWLEDGE_PLAN=$PLAN"
+echo "COLLECTOR_KNOWLEDGE_BOOTSTRAP_SCHEDULE=PASS"
+echo "COLLECTOR_KNOWLEDGE_BOOTSTRAP_PLAN=$BOOTSTRAP_PLAN"
 
-"${PC[@]}" prepare-run --project "$PROJECT" --plan "$PLAN" --graph "$GRAPH" > "$PREPARE"
-python3 - "$PREPARE" <<'PY'
+"${PC[@]}" prepare-run --project "$PROJECT" --plan "$BOOTSTRAP_PLAN" --graph "$BOOTSTRAP_GRAPH" > "$BOOTSTRAP_PREPARE"
+python3 - "$BOOTSTRAP_PREPARE" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1],encoding='utf-8'))
 assert x['status']=='OK',x
-print('COLLECTOR_KNOWLEDGE_PREPARE=PASS')
+print('COLLECTOR_KNOWLEDGE_BOOTSTRAP_PREPARE=PASS')
 PY
 
 set +e
-"${PC[@]}" dispatch --project "$PROJECT" --plan "$PLAN" --graph "$GRAPH" --execute > "$DISPATCH"
-RC=$?
+"${PC[@]}" dispatch --project "$PROJECT" --plan "$BOOTSTRAP_PLAN" --graph "$BOOTSTRAP_GRAPH" --execute > "$BOOTSTRAP_DISPATCH"
+BOOTSTRAP_RC=$?
 set -e
-echo "COLLECTOR_KNOWLEDGE_DISPATCH_RC=$RC"
+echo "COLLECTOR_KNOWLEDGE_BOOTSTRAP_DISPATCH_RC=$BOOTSTRAP_RC"
 
-RUN_RECORD="$(python3 - "$DISPATCH" <<'PY'
+BOOTSTRAP_RUN_RECORD="$(python3 - "$BOOTSTRAP_DISPATCH" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1],encoding='utf-8'))
 print((x.get('details') or {}).get('RUN_RECORD') or '')
 PY
 )"
-[ -n "$RUN_RECORD" ] || die run_record_missing
-echo "COLLECTOR_KNOWLEDGE_RUN_RECORD=$RUN_RECORD"
+[ -n "$BOOTSTRAP_RUN_RECORD" ] || die bootstrap_run_record_missing
+echo "COLLECTOR_KNOWLEDGE_BOOTSTRAP_RUN_RECORD=$BOOTSTRAP_RUN_RECORD"
 
-python3 - "$RUN_RECORD" <<'PY'
+python3 - "$BOOTSTRAP_RUN_RECORD" "$HEALTH" "$KNOWLEDGE_REV" <<'PY'
 import json,sys
-x=json.load(open(sys.argv[1],encoding='utf-8'))
+from datetime import datetime,timezone
+from pathlib import Path
+run_record,health_path,revision=sys.argv[1:]
+x=json.load(open(run_record,encoding='utf-8'))
 tasks=[t for w in x.get('waves') or [] for t in w.get('tasks') or []]
 by={t.get('task_id'):t for t in tasks}
-required=(
-  'collector-knowledge:pilot-install-v1',
-  'collector-knowledge:pilot-probe-v1',
-  'collector-knowledge:query-v1',
-)
-for tid in required:
+for tid in ('collector-knowledge:pilot-install-v1','collector-knowledge:pilot-probe-v1'):
     t=by.get(tid) or {}
-    label=tid.replace('collector-knowledge:','').upper().replace('-','_')
-    print(label+'_STATUS='+str(t.get('status')))
-    blockers=t.get('blockers') or []
-    if blockers:
-        print(label+'_BLOCKERS='+','.join(map(str,blockers)))
-    rp=t.get('task_result')
-    if rp:
-        tr=json.load(open(rp,encoding='utf-8'))
-        print(label+'_RESULT_STATUS='+str(tr.get('status')))
-        print(label+'_RESULT_SUMMARY='+str(tr.get('summary')))
     if t.get('status')!='SUCCEEDED':
-        raise SystemExit('COLLECTOR_KNOWLEDGE_TASK_NOT_SUCCEEDED:'+tid)
+        raise SystemExit('COLLECTOR_KNOWLEDGE_BOOTSTRAP_TASK_NOT_SUCCEEDED:'+tid)
+    rp=t.get('task_result')
+    if not rp: raise SystemExit('COLLECTOR_KNOWLEDGE_TASK_RESULT_MISSING:'+tid)
+    tr=json.load(open(rp,encoding='utf-8'))
+    if tr.get('status')!='OK':
+        raise SystemExit('COLLECTOR_KNOWLEDGE_TASK_RESULT_NOT_OK:'+tid+':'+str(tr.get('summary')))
 
 probe=by['collector-knowledge:pilot-probe-v1']
 pr=json.load(open(probe['task_result'],encoding='utf-8'))
-assert pr.get('status')=='OK',pr
 assert pr.get('summary')=='COLLECTOR_KNOWLEDGE_PILOT_PROBE_OK',pr
-query=by['collector-knowledge:query-v1']
-qr=json.load(open(query['task_result'],encoding='utf-8'))
-assert qr.get('status')=='OK',qr
-assert qr.get('summary')=='COLLECTOR_KNOWLEDGE_QUERY_OK',qr
+evidence=pr.get('evidence') or []
+details=(evidence[0].get('details') if evidence and isinstance(evidence[0],dict) else {}) or {}
+assert details.get('production_runtime_unchanged') is True,details
+assert details.get('lastwar_game_connection')=='NONE',details
+assert details.get('lastwar_mutation') is False,details
+assert details.get('token_persisted') is False,details
+
+p=Path(health_path)
+try:h=json.loads(p.read_text(encoding='utf-8')) if p.exists() else {}
+except Exception:h={}
+if h.get('schema')!='chacha.dev/provider-health-snapshot/v1':
+    h={'schema':'chacha.dev/provider-health-snapshot/v1','observed_at':'','providers':{}}
+now=datetime.now(timezone.utc).isoformat()
+h['observed_at']=now
+h.setdefault('providers',{})['collector-knowledge-runtime']={
+  'state':'HEALTHY',
+  'source':'collector-knowledge-pilot-probe',
+  'checked_at':now,
+  'latency_ms':None,
+  'reason':'COLLECTOR_KNOWLEDGE_PILOT_PROBE_OK',
+  'details':{
+    'revision':revision,
+    'run_record':run_record,
+    'task_result':probe['task_result'],
+    'production_runtime_unchanged':True,
+    'lastwar_game_connection':'NONE',
+    'lastwar_mutation':False,
+    'token_persisted':False
+  }
+}
+p.parent.mkdir(parents=True,exist_ok=True)
+p.write_text(json.dumps(h,indent=2)+'\n',encoding='utf-8')
 print('COLLECTOR_KNOWLEDGE_RUNTIME_PROBE=PASS')
-print('COLLECTOR_KNOWLEDGE_QUERY_PATH=PASS')
-print('COLLECTOR_KNOWLEDGE_LASTWAR_GAME_CONNECTION=NONE')
-print('COLLECTOR_KNOWLEDGE_LASTWAR_MUTATION=NO')
-print('COLLECTOR_KNOWLEDGE_PRODUCTION_CONNECTOR_TOUCHED=NO')
+print('COLLECTOR_KNOWLEDGE_RUNTIME_HEALTH=HEALTHY')
 PY
+
+QUERY_GRAPH="$PLAN_DIR/collector-knowledge-v1-query.task-graph.json"
+python3 - "$QUERY_GRAPH" <<'PY'
+import json,sys
+from datetime import datetime,timezone
+path=sys.argv[1]
+g={
+  "schema":"chacha.dev/task-graph/v1",
+  "project":"wfgg-radar",
+  "transition":"OPERATE->OPERATE",
+  "generated_at":datetime.now(timezone.utc).isoformat(),
+  "tasks":[{
+    "id":"collector-knowledge:query-v1",
+    "kind":"knowledge-query",
+    "description":"Exercise the governed localhost query path after the verified runtime-health promotion.",
+    "owner_role":"collector-intelligence",
+    "capabilities":["collector-knowledge-inspect"],
+    "permission":"read",
+    "depends_on":[],
+    "outputs":[{"type":"artifact","id":"collector-knowledge-query-result"}],
+    "verification":{"mode":"machine","self_certification_allowed":False,"required_evidence":["source","timestamp","digest"]},
+    "blocking":True,
+    "metadata":{"collector_knowledge":{"action":"query","q":"totalNum","limit":10}}
+  }],
+  "summary":{"task_count":1,"artifact_tasks":1,"gate_tasks":0,"approval_tasks":0,"blocking_tasks":1}
+}
+open(path,"w",encoding="utf-8").write(json.dumps(g,indent=2)+"\n")
+PY
+
+QUERY_SCHEDULE="$WORK/query-schedule.json"
+QUERY_PREPARE="$WORK/query-prepare.json"
+QUERY_DISPATCH="$WORK/query-dispatch.json"
+"${PC[@]}" schedule --project "$PROJECT" --graph "$QUERY_GRAPH" > "$QUERY_SCHEDULE"
+QUERY_PLAN="$(python3 - "$QUERY_SCHEDULE" <<'PY'
+import json,sys
+x=json.load(open(sys.argv[1],encoding='utf-8'))
+assert x['status']=='OK',x
+print((x.get('details') or {})['execution_plan'])
+PY
+)"
+echo "COLLECTOR_KNOWLEDGE_QUERY_SCHEDULE=PASS"
+"${PC[@]}" prepare-run --project "$PROJECT" --plan "$QUERY_PLAN" --graph "$QUERY_GRAPH" > "$QUERY_PREPARE"
+python3 - "$QUERY_PREPARE" <<'PY'
+import json,sys
+x=json.load(open(sys.argv[1],encoding='utf-8'))
+assert x['status']=='OK',x
+print('COLLECTOR_KNOWLEDGE_QUERY_PREPARE=PASS')
+PY
+set +e
+"${PC[@]}" dispatch --project "$PROJECT" --plan "$QUERY_PLAN" --graph "$QUERY_GRAPH" --execute > "$QUERY_DISPATCH"
+QUERY_RC=$?
+set -e
+echo "COLLECTOR_KNOWLEDGE_QUERY_DISPATCH_RC=$QUERY_RC"
+QUERY_RUN_RECORD="$(python3 - "$QUERY_DISPATCH" <<'PY'
+import json,sys
+x=json.load(open(sys.argv[1],encoding='utf-8'))
+print((x.get('details') or {}).get('RUN_RECORD') or '')
+PY
+)"
+[ -n "$QUERY_RUN_RECORD" ] || die query_run_record_missing
+python3 - "$QUERY_RUN_RECORD" <<'PY'
+import json,sys
+x=json.load(open(sys.argv[1],encoding='utf-8'))
+tasks=[t for w in x.get('waves') or [] for t in w.get('tasks') or []]
+t=next((t for t in tasks if t.get('task_id')=='collector-knowledge:query-v1'),None) or {}
+assert t.get('status')=='SUCCEEDED',t
+tr=json.load(open(t['task_result'],encoding='utf-8'))
+assert tr.get('status')=='OK',tr
+assert tr.get('summary')=='COLLECTOR_KNOWLEDGE_QUERY_OK',tr
+print('COLLECTOR_KNOWLEDGE_QUERY_PATH=PASS')
+PY
+echo "COLLECTOR_KNOWLEDGE_LASTWAR_GAME_CONNECTION=NONE"
+echo "COLLECTOR_KNOWLEDGE_LASTWAR_MUTATION=NO"
+echo "COLLECTOR_KNOWLEDGE_PRODUCTION_CONNECTOR_TOUCHED=NO"
 
 "${PC[@]}" verify-state --project "$PROJECT" > "$WORK/verify-after.json"
 python3 - "$WORK/verify-after.json" <<'PY'
