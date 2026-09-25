@@ -217,6 +217,74 @@ def validate(x:dict[str,Any])->None:
     if not isinstance(inds,list) or any(not isinstance(i,dict) or i.get("kind") not in allowed for i in inds):
         raise ValueError("DARK_ANALYSIS_INDICATORS_INVALID")
 
+
+def _safe_excerpt(value:str)->tuple[str,dict[str,bool]]:
+    email_pat=r"(?i)\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\b"
+    long_pat=r"(?<![A-Za-z0-9])[A-Za-z0-9_+/=-]{40,}(?![A-Za-z0-9])"
+    personal=bool(re.search(email_pat,value))
+    opaque=bool(re.search(long_pat,value))
+    out=re.sub(email_pat,"[EMAIL_REDACTED]",value)
+    out=re.sub(long_pat,"[OPAQUE_VALUE_REDACTED]",out)
+    return out,{"credentials_present":opaque,"personal_data_present":personal,"malware_payload_present":False}
+
+def _watch_phrases(subject:str,watch_terms:list[str])->list[str]:
+    out=[]
+    for raw in [subject,*watch_terms]:
+        value=str(raw or "").strip().casefold()
+        if len(value)>=3 and value not in out:out.append(value)
+        for token in re.findall(r"[A-Za-z0-9_.-]{3,}",value):
+            token=token.casefold()
+            if token not in out:out.append(token)
+    return out[:80]
+
+def extractive_fallback(capture:dict[str,Any],subject:str,watch_terms:list[str],attempts:list[dict[str,Any]])->tuple[dict[str,Any],dict[str,Any]]:
+    sec=capture.get("security") if isinstance(capture.get("security"),dict) else {}
+    if sec.get("network_isolated") is not True or sec.get("source_content_authority")!="NONE":
+        raise ValueError("DARK_EXTRACTIVE_CAPTURE_SECURITY_ATTESTATION_INVALID")
+    raw=str(capture.get("sanitized_text") or "").strip()
+    phrases=_watch_phrases(subject,watch_terms)
+    bounded=select_analysis_text(raw,subject,watch_terms,MAX_ANALYSIS_CHARS) if raw else ""
+    redacted,sensitivity=_safe_excerpt(bounded)
+    chunks=[re.sub(r"\\s+"," ",x).strip() for x in re.split(r"(?<=[.!?])\\s+|\\n+",redacted)]
+    matched=[];seen=set()
+    for chunk in chunks:
+        if len(chunk)<12 or len(chunk)>1100:continue
+        low=chunk.casefold()
+        if phrases and not any(term in low for term in phrases):continue
+        key=hashlib.sha256(chunk.encode("utf-8","replace")).hexdigest()
+        if key in seen:continue
+        seen.add(key);matched.append(chunk)
+        if len(matched)>=12:break
+    claims=[{
+      "id":f"extractive-{i+1}","claim_class":"general",
+      "text":"Unverified source statement: "+text,
+      "confidence":"LOW","requires_corroboration":True,
+      "evidence_hint":"Deterministic watch-term match; semantic provider unavailable."
+    } for i,text in enumerate(matched)]
+    status="ANALYZED" if claims else "NO_ACTIONABLE_CLAIMS"
+    out={
+      "schema":SCHEMA,"status":status,
+      "source_summary":("Fallback extractif déterministe : "+str(len(claims))+
+        " passage(s) lié(s) au sujet ont été retenus; aucune validation de vérité n’a été effectuée."),
+      "claims":claims,"entities":[],"technical_indicators":[],
+      "sensitivity":sensitivity,
+      "limitations":[
+        "Semantic provider unavailable; deterministic extractive fallback used.",
+        "Every extracted statement remains unverified and requires independent corroboration.",
+        "Semantic refinement remains queued."
+      ]
+    }
+    validate(out)
+    meta={
+      "backend":"deterministic-extractive-fallback","model":None,"models_attempted":attempts,
+      "tool_access":"NONE","sandbox":True,"source_content_authority":"NONE",
+      "analysis_decision_authority":False,"provider_state":"DEGRADED_SAFE_FALLBACK",
+      "semantic_refinement_required":True,"retry_required":True,"retry_after_seconds":900,
+      "output_sha256":hashlib.sha256(json.dumps(out,sort_keys=True,ensure_ascii=False).encode()).hexdigest(),
+      "automatic_external_spend_eur":0
+    }
+    return out,meta
+
 def _failure_class(proc:subprocess.CompletedProcess[bytes],exc:Exception|None=None)->str:
     text=((proc.stdout if proc else b"")+b"\n"+(proc.stderr if proc else b"")).decode("utf-8","replace").casefold()
     if exc:
@@ -230,9 +298,10 @@ def _failure_class(proc:subprocess.CompletedProcess[bytes],exc:Exception|None=No
     return "BACKEND_ERROR"
 
 def analyze(capture_path:Path,subject:str,watch_terms:list[str],timeout:int=180)->tuple[dict[str,Any],dict[str,Any]]:
+    capture=load(capture_path)
     if not BACKEND.is_file() or not os.access(BACKEND,os.X_OK):
-        raise RuntimeError("DARK_ANALYSIS_BACKEND_MISSING")
-    capture=load(capture_path);p=prompt(capture,subject,watch_terms)
+        return extractive_fallback(capture,subject,watch_terms,[{"model":None,"status":"FAILED","failure_class":"BACKEND_MISSING"}])
+    p=prompt(capture,subject,watch_terms)
     attempts=[]
     models=MODELS or ["gemini-3.6-flash-medium"]
     per_model=max(30,min(70,max(30,timeout//max(1,len(models)))))
@@ -266,20 +335,7 @@ def analyze(capture_path:Path,subject:str,watch_terms:list[str],timeout:int=180)
                 return out,meta
             except subprocess.TimeoutExpired:
                 attempts.append({"model":model,"status":"FAILED","failure_class":"TIMEOUT"})
-    deferred={
-      "schema":SCHEMA,"status":"DEFERRED_PROVIDER_UNAVAILABLE",
-      "source_summary":"Analyse sémantique différée : aucun moteur inclus n’est actuellement disponible.",
-      "claims":[],"entities":[],"technical_indicators":[],
-      "sensitivity":{"credentials_present":False,"personal_data_present":False,"malware_payload_present":False},
-      "limitations":["Provider d’analyse temporairement indisponible; aucune affirmation n’a été validée ni promue."]
-    }
-    meta={"backend":"antigravity","model":None,"models_attempted":attempts,
-          "tool_access":"DENIED_BY_CUSTOM_AGENT","sandbox":True,
-          "source_content_authority":"NONE","analysis_decision_authority":False,
-          "provider_state":"DEFERRED_PROVIDER_UNAVAILABLE","retry_required":True,"retry_after_seconds":900,
-          "automatic_external_spend_eur":0}
-    return deferred,meta
-
+    return extractive_fallback(capture,subject,watch_terms,attempts)\n
 def main()->int:
     ap=argparse.ArgumentParser();ap.add_argument("--capture",type=Path,required=True);ap.add_argument("--subject",default="")
     ap.add_argument("--watch-term",action="append",default=[]);ap.add_argument("--output",type=Path,required=True);ap.add_argument("--timeout",type=int,default=180)
