@@ -1,0 +1,42 @@
+{
+  "schema": "chacha.dev/dark-intelligence-agent-policy/v1",
+  "version": "8.0.0",
+  "agent_id": "dark-intelligence-agent",
+  "scope": "PLATFORM_GLOBAL",
+  "mode": "PASSIVE_READ_ONLY_INTELLIGENCE",
+  "domains": ["knowledge-research", "cybersecurity"],
+  "source_classes": ["public_web", "deep_web", "tor_onion", "threat_intelligence_feed"],
+  "collection": {
+    "network_isolation_required": true,
+    "tor_or_proxy_capsule_required_for_tor_onion": true,
+    "central_vps_direct_tor_access_forbidden": true,
+    "read_only": true,
+    "authentication_with_platform_credentials_forbidden": true,
+    "purchases_forbidden": true,
+    "contact_or_posting_forbidden": true,
+    "payload_execution_forbidden": true,
+    "downloaded_binary_quarantine_required": true,
+    "automatic_external_spend_eur": 0
+  },
+  "verification_pipeline": {
+    "normalize_to_technology_dossier": true,
+    "technology_watch_evaluation_required": true,
+    "truth_scoring": "dev-hub/bin/technology_truth_scoring.py",
+    "source_reputation": "dev-hub/bin/technology_source_reputation.py",
+    "logician_falsification": "dev-hub/bin/technology_watch_logician.py",
+    "evidence_independence_graph_required": true,
+    "cross_source_corroboration_required_for_high_confidence": true,
+    "architecture_council_final_authority": true,
+    "guardian_required": true,
+    "sentinel_required": true,
+    "bastion_security_boundary_required": true,
+    "unverified_source_never_becomes_fact": true
+  },
+  "output": {
+    "normalized_schema": "chacha.dev/dark-intelligence-dossier/v1",
+    "technology_dossier_compatible": true,
+    "raw_source_is_advisory_only": true,
+    "provenance_required": true,
+    "confidence_required": true
+  }
+}
