@@ -49,6 +49,8 @@ pre{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:14px;line-
 .turn{margin-top:14px;padding:12px 13px;border:1px solid #35323e;border-radius:16px;background:#17161d}
 .turn.user{background:#1d1a27;border-color:#443a62}.turn.assistant{background:#171b20;border-color:#33423d}
 .turn .eyebrow{margin-bottom:7px}.turn pre{margin:0}
+.conversationMeta{font-size:11px;color:#8f899b;margin-top:8px;min-height:16px}
+.syncLive{color:var(--mint)}
 details.tech{margin-top:12px;border-top:1px solid #302e39;padding-top:10px;color:var(--muted)}
 details.tech summary{cursor:pointer;font-size:12px;font-weight:800;color:#a9a2b8}
 details.tech pre{font-size:11px;color:#aaa5b7}
@@ -95,6 +97,7 @@ details.tech pre{font-size:11px;color:#aaa5b7}
 
 <section class="card reply">
   <div class="stateRow"><div class="eyebrow">Conversation</div><span class="badge" id="stage">PRÊT</span></div>
+  <div class="conversationMeta" id="conversationMeta">Synchronisation active</div>
   <div class="turn user" id="userTurn" hidden>
     <div class="eyebrow">👤 Ta demande</div>
     <pre id="submitted"></pre>
@@ -108,7 +111,8 @@ details.tech pre{font-size:11px;color:#aaa5b7}
 </main>
 <script>
 const q=document.querySelector('#q'),send=document.querySelector('#send'),stage=document.querySelector('#stage'),result=document.querySelector('#result');
-const userTurn=document.querySelector('#userTurn'),submitted=document.querySelector('#submitted'),tech=document.querySelector('#tech'),techResult=document.querySelector('#techResult');
+const userTurn=document.querySelector('#userTurn'),submitted=document.querySelector('#submitted'),tech=document.querySelector('#tech'),techResult=document.querySelector('#techResult'),conversationMeta=document.querySelector('#conversationMeta');
+let lastSeenRequestId='',lastSeenDigest='',conversationSyncBusy=false;
 const globalPct=document.querySelector('#globalPct'),globalFill=document.querySelector('#globalFill'),globalLabel=document.querySelector('#globalLabel');
 const workPct=document.querySelector('#workPct'),workFill=document.querySelector('#workFill'),workState=document.querySelector('#workState'),headline=document.querySelector('#headline'),modules=document.querySelector('#modules');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -123,26 +127,48 @@ function renderProgress(p){
 async function refreshProgress(){
  try{const r=await fetch('/api/v1/progress',{cache:'no-store'});if(r.ok)renderProgress(await r.json())}catch(_){}
 }
-function renderConversation(z){
+function displayTime(iso){
+ try{return new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date(iso))}catch(_){return ''}
+}
+function renderConversation(z,digest=''){
  const cv=z?.conversation||{};
  const asked=String(z?.submitted_user_message||'').trim();
  if(asked){submitted.textContent=asked;userTurn.hidden=false}else{submitted.textContent='';userTurn.hidden=true}
- stage.textContent=z?.status||cv.kind||'PRÊT';
+ const status=String(z?.status||cv.kind||'PRÊT').toUpperCase();
+ const labels={SUCCESS:'TERMINÉ',PASS:'TERMINÉ',OK:'OK',BLOCKED:'BLOQUÉ',FAILED:'ÉCHEC',PARTIAL:'PARTIEL',AWAITING_APPROVAL:'VALIDATION'};
+ stage.textContent=labels[status]||status;
  result.textContent=cv.message||z?.message||'Traitement terminé.';
+ const rid=String(z?.request_id||cv?.source_request_id||'');
+ const when=displayTime(z?.responded_at||cv?.responded_at);
+ conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span>'+(when?' • réponse '+esc(when):'')+(rid?' • '+esc(rid.slice(0,12))+'…':'');
  techResult.textContent=JSON.stringify({
-   status:z?.status,next_action:z?.next_action,project:z?.session_project_id||z?.project_id,
-   execution_project:z?.execution_project_id,continuation_steps:z?.continuation_steps||[]
+   status:z?.status,next_action:z?.next_action,request_id:rid,responded_at:z?.responded_at||cv?.responded_at,
+   project:z?.session_project_id||z?.project_id,execution_project:z?.execution_project_id,
+   continuation_steps:z?.continuation_steps||[]
  },null,2);
  tech.hidden=false;
+ if(rid)lastSeenRequestId=rid;
+ if(digest)lastSeenDigest=digest;
 }
-async function hydrateConversation(){
+async function syncConversation(force=false){
+ if(conversationSyncBusy)return;
+ conversationSyncBusy=true;
  try{
   const r=await fetch('/api/v1/session',{cache:'no-store'});
   if(!r.ok)return;
   const s=await r.json();
-  if(s.last_response)renderConversation(s.last_response);
- }catch(_){}
+  const rid=String(s.last_request_id||'');
+  const dig=String(s.last_response_digest||'');
+  if(s.last_response&&(force||rid!==lastSeenRequestId||dig!==lastSeenDigest)){
+    renderConversation(s.last_response,dig);
+  }else if(rid&&rid===lastSeenRequestId){
+    conversationMeta.classList.add('syncLive');
+  }
+ }catch(_){
+  conversationMeta.textContent='Synchronisation momentanément indisponible';
+ }finally{conversationSyncBusy=false}
 }
+async function hydrateConversation(){return syncConversation(true)}
 async function submit(text,fromEditor=false){
  const original=String(text||'').trim();if(!original)return;
  let accepted=false;send.disabled=true;stage.textContent='ENVOI';result.textContent='ChaCha prend la demande…';tech.hidden=true;await refreshProgress();
@@ -150,6 +176,7 @@ async function submit(text,fromEditor=false){
   const r=await fetch('/api/v1/intent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:original})});
   const x=await r.json();if(!r.ok)throw new Error(x.reason||x.status||'Erreur');
   accepted=true;submitted.textContent=original;userTurn.hidden=false;if(fromEditor)q.value='';
+  conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span> • nouvelle demande acceptée';
   for(;;){await sleep(700);await refreshProgress();const jr=await fetch('/api/v1/jobs/'+x.job_id,{cache:'no-store'});const j=await jr.json();stage.textContent=j.state||'…';
    if(j.state==='COMPLETE'){
     renderConversation(j.response||{});
@@ -167,6 +194,10 @@ document.querySelector('#mic').onclick=()=>{q.focus();result.textContent='Sur le
 q.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')submit(q.value,true)});
 window.chachaSetPrompt=(text)=>{q.value=String(text||'');q.focus();};
 window.chachaSubmit=(text)=>submit(String(text||''));
-window.chachaRefresh=()=>{hydrateConversation();refreshProgress();};
-hydrateConversation();refreshProgress();setInterval(refreshProgress,1500);
+window.chachaRefresh=()=>{syncConversation(true);refreshProgress();};
+hydrateConversation();refreshProgress();
+setInterval(refreshProgress,1500);
+setInterval(()=>syncConversation(false),1500);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){syncConversation(true);refreshProgress()}});
+window.addEventListener('focus',()=>syncConversation(true));
 </script></body></html>
