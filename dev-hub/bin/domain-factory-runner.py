@@ -69,7 +69,17 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
     if reconciliation.get("assembly_allowed") is not True:
         errors.append("COMPONENT_CONTRACT_RECONCILIATION_FAILED")
 
+    contract_projects=sorted({
+      str(x.get("project_id") or "") for x in (components.get("contracts") or [])
+      if isinstance(x,dict) and str(x.get("project_id") or "")
+    })
     project_id=str(plan.get("project_id") or council.get("project_id") or components.get("project_id") or "")
+    if not project_id and len(contract_projects)==1:
+        project_id=contract_projects[0]
+    elif not project_id and len(contract_projects)>1:
+        errors.append("PROJECT_ID_AMBIGUOUS")
+    if not project_id:
+        errors.append("PROJECT_ID_UNRESOLVED")
     by_package={str(x.get("package_id") or ""):x for x in components.get("contracts") or [] if isinstance(x,dict)}
     manifests=[]
     tasks=[]
