@@ -32,6 +32,21 @@ def safe_id(v:str)->str:
 def normalize(text:str)->str:
     t=re.sub(r"[\s!?.,;:]+$","",text.strip().casefold())
     return {"allo":"STATUS","go":"CONTINUE","stop":"STOP"}.get(t,"INSTRUCTION")
+
+def transient_project(value:Any)->bool:
+    v=str(value or "")
+    return v.startswith("human-interface-request-") or v.startswith("dor-")
+
+def stable_project(value:Any,default_project:str="chacha-dev-platform")->str:
+    v=str(value or "").strip()
+    return default_project if not v or transient_project(v) else v
+
+def should_auto_continue(receipt:dict[str,Any])->bool:
+    status=str(receipt.get("status") or "").upper()
+    next_action=str(receipt.get("next_action") or "").upper()
+    if status not in {"PLAN_READY","CONTINUED","READY"}: return False
+    if next_action.startswith("AWAIT_") or "APPROVAL" in next_action: return False
+    return True
 def decode_identity(v:str)->str:
     try:
         out=[]
@@ -57,7 +72,8 @@ def wrap(intent:dict[str,Any],receipt:dict[str,Any])->dict[str,Any]:
     return {
       "schema":HUMAN_RESPONSE_SCHEMA,"request_id":intent["request_id"],"responded_at":now_iso(),
       "route":"CHACHA_DEV","command":intent["command"],
-      "project_id":receipt.get("project_id") or intent.get("project_id"),
+      "project_id":intent.get("project_id"),
+      "execution_project_id":receipt.get("project_id") or intent.get("project_id"),
       "status":status,"authority":"central-orchestrator",
       "brain_decision_obtained":receipt.get("brain_decision_obtained") is True and status not in {"BRAIN_UNAVAILABLE","BRAIN_RECEIPT_INVALID"},
       "next_action":receipt.get("next_action") or "AWAIT_USER_DIRECTIVE",
@@ -132,6 +148,7 @@ class State:
         return load(out)
 
     def process(self,jid:str,text:str,project:str,operator:str)->None:
+        project=stable_project(project,str(self.policy.get("default_project") or "chacha-dev-platform"))
         request_id="dor-"+uuid.uuid4().hex
         command=normalize(text)
         work=self.root/"requests"/request_id;work.mkdir(parents=True,exist_ok=True)
@@ -187,6 +204,43 @@ class State:
                 self.progress.update("central-orchestrator",90,"RUNNING","Décision centrale reçue",88,"ChaCha finalise")
             if receipt.get("schema")!=CENTRAL_RECEIPT_SCHEMA:
                 raise RuntimeError("CENTRAL_RECEIPT_SCHEMA_INVALID")
+
+            continuation_steps=[]
+            max_steps=max(1,int(((self.policy.get("auto_continue") or {}).get("max_steps")) or 24))
+            if command in {"INSTRUCTION","CONTINUE"}:
+                for step in range(max_steps):
+                    if not should_auto_continue(receipt): break
+                    prior_response=wrap(intent,receipt)
+                    prior_response["project_id"]=project
+                    prior_response["execution_project_id"]=receipt.get("project_id") or project
+                    prior_path=work/("continuation-prior-%02d.json"%step)
+                    atomic(prior_path,prior_response)
+                    self.set_job(jid,state="CENTRAL_ORCHESTRATION",continuation_step=step+1,
+                                 execution_project_id=prior_response["execution_project_id"],
+                                 next_action=receipt.get("next_action"))
+                    pct=min(92,64+(step+1)*4)
+                    self.progress.update("central-orchestrator",pct,"RUNNING",
+                      "Exécution : "+str(receipt.get("next_action") or "étape suivante"),
+                      pct,"ChaCha poursuit l’exécution")
+                    receipt=self.central(["continue","--project",project,"--prior-response",str(prior_path),
+                      "--expected-response-digest",fd(prior_path),"--output-dir",str(work/("brain-cont-%02d"%step))],
+                      work/("brain-receipt-cont-%02d.json"%step))
+                    if receipt.get("schema")!=CENTRAL_RECEIPT_SCHEMA:
+                        raise RuntimeError("CENTRAL_CONTINUATION_RECEIPT_SCHEMA_INVALID")
+                    continuation_steps.append({
+                      "step":step+1,"status":receipt.get("status"),"next_action":receipt.get("next_action"),
+                      "execution_project_id":receipt.get("project_id")
+                    })
+                if should_auto_continue(receipt):
+                    receipt={
+                      "schema":CENTRAL_RECEIPT_SCHEMA,"receipt_id":"autocont-"+uuid.uuid4().hex,
+                      "observed_at":now_iso(),"command":command,"project_id":project,
+                      "status":"PARTIAL","authority":"central-orchestrator","brain_decision_obtained":True,
+                      "next_action":"MANUAL_CONTINUE_REQUIRED","evidence_refs":receipt.get("evidence_refs") or [],
+                      "decision":{"reason":"AUTO_CONTINUE_STEP_LIMIT","last_receipt":receipt},
+                      "automatic_external_spend_eur":0
+                    }
+
             central_for_conversation=work/"central-receipt-for-conversation.json"
             atomic(central_for_conversation,receipt)
             conversation_path=work/"conversation-response.json"
@@ -205,14 +259,23 @@ class State:
             response=wrap(intent,receipt)
             response["conversation"]=conversation
             response["message"]=conversation.get("message")
+            response["submitted_user_message"]=text
+            response["session_project_id"]=project
+            response["continuation_steps"]=continuation_steps
             response_path=self.responses/(safe_id(request_id)+".json");atomic(response_path,response)
             with self.lock:
                 s=self.session();s.update({"schema":"chacha.dev/direct-operator-session/v1","updated_at":now_iso(),
-                  "active_project":response.get("project_id") or project,"last_request_id":request_id,
+                  "active_project":project,"last_request_id":request_id,
                   "last_response_path":str(response_path),"last_response_digest":fd(response_path),
                   "last_command":command,"last_operator":operator});self.save_session(s)
             self.set_job(jid,state="COMPLETE",response=response,response_path=str(response_path))
-            self.progress.complete("C’est fait ✨")
+            final_status=str(response.get("status") or "UNKNOWN").upper()
+            if final_status in {"SUCCESS","PASS","OK","COMPLETE"}:
+                self.progress.complete("C’est fait ✨")
+            elif final_status in {"BLOCKED","FAILED","PARTIAL","AWAITING_APPROVAL"}:
+                self.progress.complete("Traitement terminé — action requise")
+            else:
+                self.progress.complete("Traitement terminé")
         except Exception as exc:
             self.progress.fail("ChaCha a rencontré un problème")
             self.set_job(jid,state="FAILED",error=str(exc)[:2000])
@@ -283,7 +346,9 @@ class Handler(BaseHTTPRequestHandler):
         except Exception:return self.json(400,{"status":"INVALID_JSON"})
         text=str(body.get("text") or "").strip()
         if not text:return self.json(400,{"status":"TEXT_REQUIRED"})
-        s=self.st.session();project=str(body.get("project") or s.get("active_project") or self.st.policy.get("default_project"))
+        s=self.st.session()
+        default_project=str(self.st.policy.get("default_project") or "chacha-dev-platform")
+        project=stable_project(body.get("project") or s.get("active_project"),default_project)
         jid="doj-"+uuid.uuid4().hex
         self.st.set_job(jid,state="QUEUED",operator=identity,project_id=project)
         threading.Thread(target=self.st.process,args=(jid,text,project,identity),daemon=True).start()
