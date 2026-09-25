@@ -1,0 +1,315 @@
+{
+  "schema": "chacha.dev/capability-semantics/v1",
+  "version": "8.0.11",
+  "principles": {
+    "default_missing_kind": "runtime_provider",
+    "domain_feature_is_not_provider_authority": true,
+    "domain_feature_never_auto_registers_provider": true,
+    "runtime_provider_gap_remains_fail_closed": true,
+    "implementation_evidence_required_for_reusable_feature": true,
+    "architecture_council_final_authority": true,
+    "automatic_external_spend_eur": 0
+  },
+  "domain_features": {
+    "register-adaptation": {
+      "kind": "domain_feature",
+      "owner_domain": "translation",
+      "implementation_state": "BUILD_REQUIRED",
+      "provider_registration_required": false,
+      "evidence": []
+    },
+    "locale-localization": {
+      "kind": "domain_feature",
+      "owner_domain": "translation",
+      "implementation_state": "BUILD_REQUIRED",
+      "provider_registration_required": false,
+      "evidence": []
+    },
+    "ui-length-aware-translation": {
+      "kind": "domain_feature",
+      "owner_domain": "translation",
+      "implementation_state": "BUILD_REQUIRED",
+      "provider_registration_required": false,
+      "evidence": []
+    },
+    "structured-content-preservation": {
+      "kind": "domain_feature",
+      "owner_domain": "translation",
+      "implementation_state": "BUILD_REQUIRED",
+      "provider_registration_required": false,
+      "evidence": []
+    },
+    "project-translation-memory": {
+      "kind": "domain_feature",
+      "owner_domain": "translation",
+      "implementation_state": "BUILD_REQUIRED",
+      "provider_registration_required": false,
+      "evidence": []
+    },
+    "deep-web-source-intake": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-agent.py",
+        "dev-hub/bin/dark-intelligence-collector.py",
+        "dev-hub/bin/dark-intelligence-collector-runner.py",
+        "dev-hub/config/dark-intelligence-agent.v1.json",
+        "dev-hub/config/dark-intelligence-collector.v1.json"
+      ]
+    },
+    "dark-web-source-intake": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-agent.py",
+        "dev-hub/bin/dark-intelligence-collector.py",
+        "dev-hub/bin/dark-intelligence-collector-runner.py",
+        "dev-hub/config/dark-intelligence-agent.v1.json",
+        "dev-hub/config/dark-intelligence-collector.v1.json"
+      ]
+    },
+    "threat-intelligence-triage": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-agent.py",
+        "dev-hub/bin/dark-intelligence-collector.py",
+        "dev-hub/bin/dark-intelligence-collector-runner.py",
+        "dev-hub/config/dark-intelligence-agent.v1.json",
+        "dev-hub/config/dark-intelligence-collector.v1.json"
+      ]
+    },
+    "source-provenance-normalization": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-agent.py",
+        "dev-hub/bin/dark-intelligence-collector.py",
+        "dev-hub/bin/dark-intelligence-collector-runner.py",
+        "dev-hub/config/dark-intelligence-agent.v1.json",
+        "dev-hub/config/dark-intelligence-collector.v1.json"
+      ]
+    },
+    "technology-watch-validation-handoff": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-agent.py",
+        "dev-hub/bin/dark-intelligence-collector.py",
+        "dev-hub/bin/dark-intelligence-collector-runner.py",
+        "dev-hub/config/dark-intelligence-agent.v1.json",
+        "dev-hub/config/dark-intelligence-collector.v1.json"
+      ]
+    },
+    "isolated-network-collection": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-agent.py",
+        "dev-hub/bin/dark-intelligence-collector.py",
+        "dev-hub/bin/dark-intelligence-collector-runner.py",
+        "dev-hub/config/dark-intelligence-agent.v1.json",
+        "dev-hub/config/dark-intelligence-collector.v1.json"
+      ]
+    },
+    "untrusted-content-sanitization": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-agent.py",
+        "dev-hub/bin/dark-intelligence-collector.py",
+        "dev-hub/bin/dark-intelligence-collector-runner.py",
+        "dev-hub/config/dark-intelligence-agent.v1.json",
+        "dev-hub/config/dark-intelligence-collector.v1.json"
+      ]
+    },
+    "semantic-source-analysis": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-agent.py",
+        "dev-hub/bin/dark-intelligence-collector.py",
+        "dev-hub/bin/dark-intelligence-collector-runner.py",
+        "dev-hub/config/dark-intelligence-agent.v1.json",
+        "dev-hub/config/dark-intelligence-collector.v1.json"
+      ]
+    },
+    "prompt-injection-resistant-analysis": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-agent.py",
+        "dev-hub/bin/dark-intelligence-collector.py",
+        "dev-hub/bin/dark-intelligence-collector-runner.py",
+        "dev-hub/config/dark-intelligence-agent.v1.json",
+        "dev-hub/config/dark-intelligence-collector.v1.json"
+      ]
+    },
+    "claim-corroboration-handoff": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-corroboration.py",
+        "dev-hub/bin/dark-intelligence-corroboration-analysis.py",
+        "dev-hub/config/dark-intelligence-corroboration.v1.json",
+        "dev-hub/config/dark-intelligence-public-corroboration.v1.json"
+      ]
+    },
+    "independent-claim-corroboration": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-corroboration.py",
+        "dev-hub/bin/dark-intelligence-corroboration-analysis.py",
+        "dev-hub/config/dark-intelligence-corroboration.v1.json",
+        "dev-hub/config/dark-intelligence-public-corroboration.v1.json"
+      ]
+    },
+    "corroboration-gating": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-corroboration.py",
+        "dev-hub/bin/dark-intelligence-corroboration-analysis.py",
+        "dev-hub/config/dark-intelligence-corroboration.v1.json",
+        "dev-hub/config/dark-intelligence-public-corroboration.v1.json"
+      ]
+    },
+    "independent-source-research": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-corroboration.py",
+        "dev-hub/bin/dark-intelligence-corroboration-analysis.py",
+        "dev-hub/config/dark-intelligence-corroboration.v1.json",
+        "dev-hub/config/dark-intelligence-public-corroboration.v1.json"
+      ]
+    },
+    "public-web-corroboration-search": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-corroboration.py",
+        "dev-hub/bin/dark-intelligence-corroboration-analysis.py",
+        "dev-hub/config/dark-intelligence-corroboration.v1.json",
+        "dev-hub/config/dark-intelligence-public-corroboration.v1.json"
+      ]
+    },
+    "retrieved-source-stance-classification": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-corroboration.py",
+        "dev-hub/bin/dark-intelligence-corroboration-analysis.py",
+        "dev-hub/config/dark-intelligence-corroboration.v1.json",
+        "dev-hub/config/dark-intelligence-public-corroboration.v1.json"
+      ]
+    },
+    "keyless-public-source-discovery": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-corroboration.py",
+        "dev-hub/bin/dark-intelligence-corroboration-analysis.py",
+        "dev-hub/config/dark-intelligence-corroboration.v1.json",
+        "dev-hub/config/dark-intelligence-public-corroboration.v1.json"
+      ]
+    },
+    "isolated-public-source-refetch": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-corroboration.py",
+        "dev-hub/bin/dark-intelligence-corroboration-analysis.py",
+        "dev-hub/config/dark-intelligence-corroboration.v1.json",
+        "dev-hub/config/dark-intelligence-public-corroboration.v1.json"
+      ]
+    },
+    "corroboration-classification-retry": {
+      "kind": "domain_feature",
+      "owner_domain": "threat-intelligence",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/dark-intelligence-corroboration.py",
+        "dev-hub/bin/dark-intelligence-corroboration-analysis.py",
+        "dev-hub/config/dark-intelligence-corroboration.v1.json",
+        "dev-hub/config/dark-intelligence-public-corroboration.v1.json"
+      ]
+    },
+    "human-conversation-rendering": {
+      "kind": "domain_feature",
+      "owner_domain": "conversation-interface",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/conversation-interface-agent.py",
+        "dev-hub/config/conversation-interface-agent.v1.json"
+      ]
+    },
+    "central-receipt-explanation": {
+      "kind": "domain_feature",
+      "owner_domain": "conversation-interface",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/conversation-interface-agent.py",
+        "dev-hub/config/conversation-interface-agent.v1.json"
+      ]
+    },
+    "user-confirmation-dialogue": {
+      "kind": "domain_feature",
+      "owner_domain": "conversation-interface",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/conversation-interface-agent.py",
+        "dev-hub/config/conversation-interface-agent.v1.json"
+      ]
+    },
+    "conversation-context-continuity": {
+      "kind": "domain_feature",
+      "owner_domain": "conversation-interface",
+      "implementation_state": "REUSABLE",
+      "provider_registration_required": false,
+      "evidence": [
+        "dev-hub/bin/conversation-interface-agent.py",
+        "dev-hub/config/conversation-interface-agent.v1.json"
+      ]
+    }
+  }
+}
