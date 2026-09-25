@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,hashlib,json,os,re,subprocess,tempfile
+import argparse,hashlib,json,os,re,subprocess,tempfile,time
 from pathlib import Path
 from typing import Any
 
@@ -9,6 +9,7 @@ MODEL_SPEC=os.environ.get("CHACHA_DEV_DARK_CORROBORATION_MODELS") or "gemini-3.6
 MODELS=[x.strip() for x in MODEL_SPEC.split(",") if x.strip()]
 MAX_TEXT_PER_CANDIDATE=5000
 MAX_CANDIDATES_PER_CLAIM=6
+MAX_CLAIMS_PER_RUN=5
 EVIDENCE_TYPES=["official_technical","security_advisory","independent_technical","maintainer_issue","postmortem","unverified_blog"]
 
 SCHEMA="chacha.dev/dark-intelligence-corroboration-classification/v1"
@@ -117,7 +118,7 @@ def classify_claim(claim_id:str,claim_text:str,candidates:list[dict[str,Any]],ti
     usable=[c for c in candidates if c.get("retrieval_verified") is True and str(c.get("retrieved_text") or "").strip()]
     if not usable:
         return {"schema":SCHEMA,"status":"CLASSIFIED","classifications":[],"limitations":["No retrieved public candidate text available."]},{"models_attempted":[]}
-    attempts=[];per=max(30,min(60,timeout//max(1,len(MODELS))))
+    attempts=[];deadline=time.monotonic()+max(5,int(timeout))
     with tempfile.TemporaryDirectory(prefix="chacha-dark-corroboration-") as td:
         wd=Path(td);ad=wd/".agents/agents/chacha-dark-corroboration-classifier";ad.mkdir(parents=True)
         (ad/"agent.md").write_text(agent_md(),encoding="utf-8")
@@ -125,12 +126,17 @@ def classify_claim(claim_id:str,claim_text:str,candidates:list[dict[str,Any]],ti
         env=os.environ.copy();env["CI"]="1";env["NO_COLOR"]="1"
         pp=prompt(claim_id,claim_text,usable)
         for model in MODELS:
+            remaining=int(deadline-time.monotonic())
+            if remaining<5:
+                attempts.append({"model":model,"status":"SKIPPED","failure_class":"GLOBAL_DEADLINE"})
+                break
+            per=max(4,min(30,remaining-2))
             proc=None
             try:
                 proc=subprocess.run([str(BACKEND),"-p",pp,"--model",model,"--agent","chacha-dark-corroboration-classifier",
                   "--output-format","json","--json-schema",str(sp),"--print-timeout",f"{per}s","--sandbox"],
                   stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,cwd=str(wd),env=env,
-                  check=False,timeout=per+15)
+                  check=False,timeout=per+2)
                 if proc.returncode!=0:
                     attempts.append({"model":model,"status":"FAILED","failure_class":failure_class(proc)});continue
                 out=parse_backend(proc.stdout)
@@ -141,7 +147,8 @@ def classify_claim(claim_id:str,claim_text:str,candidates:list[dict[str,Any]],ti
                     if row.get("candidate_id") not in ids:raise ValueError("CORROBORATION_CLASSIFIER_UNKNOWN_CANDIDATE")
                 return out,{"model":model,"models_attempted":attempts+[{"model":model,"status":"PASS"}],
                             "tool_access":"DENIED_BY_CUSTOM_AGENT","sandbox":True,
-                            "decision_authority":False,"automatic_external_spend_eur":0}
+                            "decision_authority":False,"global_deadline_enforced":True,
+                            "automatic_external_spend_eur":0}
             except subprocess.TimeoutExpired:
                 attempts.append({"model":model,"status":"FAILED","failure_class":"TIMEOUT"})
             except Exception as exc:
@@ -149,42 +156,59 @@ def classify_claim(claim_id:str,claim_text:str,candidates:list[dict[str,Any]],ti
     return {"schema":SCHEMA,"status":"DEFERRED_PROVIDER_UNAVAILABLE","classifications":[],
             "limitations":["Semantic stance classification deferred; no candidate was promoted to verified evidence."]},{
               "model":None,"models_attempted":attempts,"tool_access":"DENIED_BY_CUSTOM_AGENT","sandbox":True,
-              "decision_authority":False,"retry_required":True,"retry_after_seconds":900,"automatic_external_spend_eur":0}
+              "decision_authority":False,"global_deadline_enforced":True,
+              "retry_required":True,"retry_after_seconds":900,"automatic_external_spend_eur":0}
 
 def build_evidence(candidates_doc:dict[str,Any],timeout:int=180)->dict[str,Any]:
     if candidates_doc.get("schema")!="chacha.dev/dark-intelligence-corroboration-candidates/v1":
         raise ValueError("CORROBORATION_CANDIDATES_SCHEMA_INVALID")
     evidence=[];runs=[];deferred=False
     confidence={"LOW":50,"MEDIUM":70,"HIGH":90}
-    for claim in candidates_doc.get("claims") or []:
+    deadline=time.monotonic()+max(10,int(timeout))
+    claims=[x for x in candidates_doc.get("claims") or [] if isinstance(x,dict)]
+    truncated=max(0,len(claims)-MAX_CLAIMS_PER_RUN)
+    for claim in claims[:MAX_CLAIMS_PER_RUN]:
         cid=str(claim.get("claim_id") or "");ctext=str(claim.get("claim_text") or "")
         candidates=[x for x in claim.get("candidates") or [] if isinstance(x,dict)]
-        out,meta=classify_claim(cid,ctext,candidates,timeout)
+        remaining=int(deadline-time.monotonic())
+        if remaining<5:
+            deferred=True
+            runs.append({"claim_id":cid,"status":"DEFERRED_PROVIDER_UNAVAILABLE",
+              "runtime":{"models_attempted":[],"failure_class":"GLOBAL_DEADLINE","global_deadline_enforced":True}})
+            continue
+        out,meta=classify_claim(cid,ctext,candidates,max(5,remaining))
         runs.append({"claim_id":cid,"status":out.get("status"),"runtime":meta})
         if out.get("status")=="DEFERRED_PROVIDER_UNAVAILABLE":deferred=True;continue
         by={str(x.get("candidate_id")):x for x in candidates}
         for row in out.get("classifications") or []:
-            c=by.get(str(row.get("candidate_id"))) or {}
+            item=by.get(str(row.get("candidate_id"))) or {}
             stance=str(row.get("stance") or "IRRELEVANT")
             relevant=stance in {"SUPPORT","CONTRADICT"} and str(row.get("relevance")) in {"MEDIUM","HIGH"}
             evidence.append({
-              "id":str(c.get("candidate_id")),"claim_id":cid,
+              "id":str(item.get("candidate_id")),"claim_id":cid,
               "type":str(row.get("evidence_type") or "unverified_blog"),
-              "origin":str(c.get("url") or ""),"source_owner":str(c.get("source_owner") or ""),
-              "independence_group":str(c.get("source_owner") or c.get("url") or c.get("candidate_id") or ""),
+              "origin":str(item.get("url") or ""),"source_owner":str(item.get("source_owner") or ""),
+              "independence_group":str(item.get("source_owner") or item.get("url") or item.get("candidate_id") or ""),
               "stance":stance if stance in {"SUPPORT","CONTRADICT"} else "IRRELEVANT",
-              "verified":bool(c.get("retrieval_verified") is True and relevant),
+              "verified":bool(item.get("retrieval_verified") is True and relevant),
               "reproducible":False,"confidence_score":confidence.get(str(row.get("confidence")),50),
-              "retrieval_verified":bool(c.get("retrieval_verified")),"semantic_classification_verified":relevant,
-              "derived_from_primary_source":bool(c.get("derived_from_primary_source") is True),
-              "title":c.get("title"),"content_sha256":c.get("content_sha256"),
+              "retrieval_verified":bool(item.get("retrieval_verified")),"semantic_classification_verified":relevant,
+              "derived_from_primary_source":bool(item.get("derived_from_primary_source") is True),
+              "title":item.get("title"),"content_sha256":item.get("content_sha256"),
               "classification_rationale":str(row.get("rationale") or "")[:500]
             })
+    if truncated:
+        deferred=True
+        runs.append({"claim_id":"__TRUNCATED__","status":"DEFERRED_PROVIDER_UNAVAILABLE",
+          "runtime":{"failure_class":"MAX_CLAIMS_PER_RUN","deferred_claim_count":truncated,
+                     "global_deadline_enforced":True}})
     status="DEFERRED_PROVIDER_UNAVAILABLE" if deferred and not any(x.get("verified") for x in evidence) else "PASS"
     return {"schema":"chacha.dev/dark-intelligence-corroboration-evidence/v1","status":status,
             "provider":"technology-watch-public-corroboration","evidence":evidence,"classification_runs":runs,
             "fact_authority":"NONE","technology_watch_must_score":True,"logician_must_refalsify":True,
-            "retry_required":status=="DEFERRED_PROVIDER_UNAVAILABLE","retry_after_seconds":900 if status=="DEFERRED_PROVIDER_UNAVAILABLE" else 0,
+            "global_timeout_seconds":int(timeout),"max_claims_per_run":MAX_CLAIMS_PER_RUN,
+            "classification_partial":deferred,
+            "retry_required":deferred,"retry_after_seconds":900 if deferred else 0,
             "automatic_external_spend_eur":0}
 
 def main()->int:
