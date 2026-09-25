@@ -1,0 +1,17 @@
+[Unit]
+Description=ChaCha DEV Dark Intelligence deferred analysis retry
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/chacha-dev/platform/current
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/dark-intelligence-analysis-queue.py run-due --limit 2
+Nice=10
+IOSchedulingClass=idle
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/chacha-dev/runtime/dark-intelligence
