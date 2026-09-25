@@ -22,6 +22,7 @@ runner=loadmod("v801_runner",ROOT/"dev-hub/bin/dark-intelligence-collector-runne
 analysis_adapter=loadmod("v801_analysis",ROOT/"dev-hub/bin/dark-intelligence-analysis-adapter.py")
 pipeline=loadmod("v801_pipeline",ROOT/"dev-hub/bin/dark-intelligence-pipeline.py")
 analysis_queue=loadmod("v801_queue",ROOT/"dev-hub/bin/dark-intelligence-analysis-queue.py")
+corroboration_queue=loadmod("v801_corroboration_queue",ROOT/"dev-hub/bin/dark-intelligence-corroboration-queue.py")
 corroboration=loadmod("v801_corroboration",ROOT/"dev-hub/bin/dark-intelligence-corroboration.py")
 corroboration_policy=load(ROOT/"dev-hub/config/dark-intelligence-corroboration.v1.json")
 
@@ -322,6 +323,35 @@ with tempfile.TemporaryDirectory(prefix="v801-queue-") as td:
     due=analysis_queue.due_jobs(root,1)
     assert len(due)==1 and due[0][1]["status"]=="DEFERRED_PROVIDER_UNAVAILABLE"
 
+# Corroboration-classifier retries snapshot existing evidence inputs and never
+# repeat Tor/public-web collection.
+with tempfile.TemporaryDirectory(prefix="v801-corroboration-queue-") as td:
+    root=Path(td)/"corroboration-queue"
+    capture=Path(td)/"capture.json";analysis=Path(td)/"analysis.json";candidates=Path(td)/"candidates.json"
+    capture.write_text(json.dumps(fake_capture),encoding="utf-8")
+    analysis.write_text(json.dumps(fake_analysis),encoding="utf-8")
+    candidates.write_text(json.dumps({
+      "schema":"chacha.dev/dark-intelligence-corroboration-candidates/v1",
+      "status":"PASS","provider":"firecrawl-keyless","claims":[]
+    }),encoding="utf-8")
+    cq=corroboration_queue.enqueue(root,capture,analysis,candidates,"corroboration-subject")
+    assert cq["status"]=="PENDING"
+    assert cq["job_id"].startswith("dicq-")
+    assert cq["network_recollection_required"] is False
+    assert corroboration_queue.status(root)["counts"]["PENDING"]==1
+    assert corroboration_queue.status(root)["network_recollection_on_retry"] is False
+    snaps=cq["snapshots"]
+    for name in ("capture.json","analysis.json","candidates.json"):
+        assert Path(snaps[name]["path"]).is_file()
+        assert corroboration_queue.digest_file(Path(snaps[name]["path"]))==snaps[name]["sha256"]
+    snap_candidates=Path(snaps["candidates.json"]["path"]).read_text(encoding="utf-8")
+    candidates.write_text('{"changed":true}',encoding="utf-8")
+    assert Path(snaps["candidates.json"]["path"]).read_text(encoding="utf-8")==snap_candidates
+    pq=pipeline.enqueue_corroboration_deferred(ROOT,capture,analysis,Path(snaps["candidates.json"]["path"]),
+                                               "pipeline-corroboration-subject",Path(td)/"pipeline-queue")
+    assert pq["status"]=="PENDING"
+    assert pq["network_recollection_required"] is False
+
 with tempfile.TemporaryDirectory(prefix="v801-pipeline-autoqueue-") as td:
     root=Path(td)/"queue";capture=Path(td)/"capture.json"
     capture.write_text(json.dumps(fake_capture),encoding="utf-8")
@@ -364,6 +394,11 @@ timer=(ROOT/"dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.timer")
 assert "NoNewPrivileges=true" in service and "ProtectSystem=strict" in service
 assert "ReadWritePaths=/opt/chacha-dev/runtime/dark-intelligence" in service
 assert "OnUnitActiveSec=15min" in timer
+corroboration_retry_service=(ROOT/"dev-hub/systemd/chacha-dev-dark-intelligence-corroboration-retry.service").read_text(encoding="utf-8")
+corroboration_retry_timer=(ROOT/"dev-hub/systemd/chacha-dev-dark-intelligence-corroboration-retry.timer").read_text(encoding="utf-8")
+assert "NoNewPrivileges=true" in corroboration_retry_service and "ProtectSystem=strict" in corroboration_retry_service
+assert "dark-intelligence-corroboration-queue.py run-due" in corroboration_retry_service
+assert "OnUnitActiveSec=15min" in corroboration_retry_timer
 assert dark_policy["collection"]["analysis_retry_max_attempts"]==12
 assert dark_policy["collection"]["analysis_retry_infinite_loop_forbidden"] is True
 
@@ -568,6 +603,7 @@ print("CHACHA_DEV_V801_EXTRACTIVE_QUOTA_FALLBACK=PASS")
 print("CHACHA_DEV_V801_PROVISIONAL_FACT_AUTHORITY=NO")
 print("CHACHA_DEV_V801_SEMANTIC_REFINEMENT_QUEUE=PASS")
 print("CHACHA_DEV_V801_PERSISTENT_RETRY_QUEUE=PASS")
+print("CHACHA_DEV_V801_CORROBORATION_RETRY_NO_RECOLLECTION=PASS")
 print("CHACHA_DEV_V801_DEFERRED_AUTO_ENQUEUE=PASS")
 print("CHACHA_DEV_V801_DEFERRED_AUTO_ENQUEUE_CLI=PASS")
 print("CHACHA_DEV_V801_RETRY_LOOP_BOUNDED=PASS")
