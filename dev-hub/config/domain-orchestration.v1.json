@@ -417,7 +417,12 @@
       "capabilities": [
         "translation",
         "terminology-management",
-        "translation-quality-review"
+        "translation-quality-review",
+        "register-adaptation",
+        "locale-localization",
+        "ui-length-aware-translation",
+        "structured-content-preservation",
+        "project-translation-memory"
       ],
       "keywords": [
         "traduction",
@@ -429,12 +434,22 @@
         "français",
         "anglais",
         "italien",
-        "espagnol"
+        "espagnol",
+        "registre",
+        "register",
+        "ton",
+        "style conversationnel",
+        "style applicatif",
+        "localiser",
+        "locale"
       ],
       "toolchain": [
         "project-glossary",
         "generic-language-memory",
-        "local-or-included-model"
+        "local-or-included-model",
+        "style-registry",
+        "translation-memory",
+        "professional-localization-policy"
       ],
       "reviews": [
         "documentation",
@@ -502,6 +517,71 @@
         "qa",
         "cybersecurity",
         "documentation"
+      ]
+    },
+    "threat-intelligence": {
+      "orchestrator": "domain-threat-intelligence-orchestrator",
+      "roles": [
+        "dark-intelligence-agent",
+        "technology-watch-agent"
+      ],
+      "capabilities": [
+        "deep-web-source-intake",
+        "dark-web-source-intake",
+        "threat-intelligence-triage",
+        "source-provenance-normalization",
+        "technology-watch-validation-handoff"
+      ],
+      "keywords": [
+        "dark web",
+        "deep web",
+        "darknet",
+        "onion",
+        "tor",
+        "threat intelligence",
+        "leak monitoring",
+        "fuite",
+        "veille menace"
+      ],
+      "toolchain": [
+        "isolated-intelligence-capsule",
+        "dark-intelligence-agent",
+        "technology-watch-service",
+        "technology-truth-scoring",
+        "technology-source-reputation",
+        "technology-watch-logician"
+      ],
+      "reviews": [
+        "cybersecurity",
+        "knowledge-research"
+      ]
+    },
+    "conversation-interface": {
+      "orchestrator": "domain-conversation-interface-orchestrator",
+      "roles": [
+        "conversation-interface-agent"
+      ],
+      "capabilities": [
+        "human-conversation-rendering",
+        "central-receipt-explanation",
+        "user-confirmation-dialogue",
+        "conversation-context-continuity"
+      ],
+      "keywords": [
+        "conversation",
+        "dialogue",
+        "réponse utilisateur",
+        "reponse utilisateur",
+        "cerveau central répond",
+        "brain response"
+      ],
+      "toolchain": [
+        "conversation-interface-agent",
+        "translation-specialist",
+        "progress-reporting"
+      ],
+      "reviews": [
+        "translation"
       ]
     }
   },
