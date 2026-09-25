@@ -1,0 +1,24 @@
+[Unit]
+Description=WfGg Collector Knowledge Engine worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/bin/python3 /opt/wfgg-radar/collector-knowledge/knowledge_engine.py worker --config /opt/wfgg-radar/collector-knowledge/config.json
+Restart=always
+RestartSec=10
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=6
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/wfgg-radar/data/collector-knowledge /opt/wfgg-radar/knowledge
+ReadOnlyPaths=/opt/wfgg-radar/collector-knowledge
+
+[Install]
+WantedBy=multi-user.target
