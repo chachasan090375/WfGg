@@ -998,3 +998,189 @@
       ],
       "forbidden_actions": [
         "FINAL_ARCHITECTURE_DECISION",
+        "EXECUTE_PROVIDER_DIRECTLY",
+        "MUTATE_APPLICATION",
+        "PRODUCTION_DEPLOY",
+        "MODIFY_GUARDIAN_CONTRACTS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan"
+      ],
+      "required_evidence": [],
+      "authority_scope": "PLANNING_ONLY"
+    },
+    {
+      "contract_id": "role:progress-state-controller",
+      "kind": "role",
+      "allowed_actions": [
+        "REPORT_PROGRESS",
+        "READ_PROGRESS"
+      ],
+      "forbidden_actions": [
+        "PRODUCTION_DEPLOY",
+        "PROMOTE_COMPONENT",
+        "MODIFY_GUARDIAN_CONTRACTS",
+        "EXPAND_PERMISSIONS",
+        "MUTATE_RUNTIME_OUTSIDE_PROGRESS_STATE",
+        "EXECUTE_TECHNICAL_ACTION"
+      ],
+      "allowed_permissions": [
+        "read",
+        "workspace-write"
+      ],
+      "required_evidence": [
+        "persistent_progress_contract",
+        "shared_web_android_source",
+        "no_execution_authority"
+      ]
+    },
+    {
+      "contract_id": "role:live-ui-publisher",
+      "kind": "role",
+      "allowed_actions": [
+        "PUBLISH_LIVE_UI",
+        "ROLLBACK_LIVE_UI"
+      ],
+      "forbidden_actions": [
+        "INSTALL_APK",
+        "NATIVE_APP_UPDATE",
+        "MUTATE_SYSTEMD",
+        "EXPAND_PERMISSIONS",
+        "ARBITRARY_RUNTIME_MUTATION",
+        "PRODUCTION_DEPLOY_OUTSIDE_LIVE_UI"
+      ],
+      "allowed_permissions": [
+        "read",
+        "workspace-write"
+      ],
+      "required_evidence": [
+        "central_orchestrator_handoff",
+        "exact_sha_qualification",
+        "sentinel_exact_sha",
+        "atomic_switch",
+        "rollback_available"
+      ]
+    },
+    {
+      "contract_id": "role:native-update-publisher",
+      "kind": "role",
+      "allowed_actions": [
+        "PUBLISH_NATIVE_UPDATE",
+        "ROLLBACK_NATIVE_UPDATE"
+      ],
+      "forbidden_actions": [
+        "SILENT_INSTALL",
+        "EXPORT_SIGNING_KEY",
+        "PUBLISH_UNPINNED_APK",
+        "MUTATE_SYSTEMD",
+        "EXPAND_PERMISSIONS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "workspace-write"
+      ],
+      "required_evidence": [
+        "central_orchestrator_handoff",
+        "exact_sha_qualification",
+        "sentinel_exact_sha",
+        "pinned_signing_certificate",
+        "android_user_confirmation",
+        "rollback_available"
+      ]
+    },
+    {
+      "contract_id": "role:android-release-signer",
+      "kind": "role",
+      "allowed_actions": [
+        "SIGN_ANDROID_RELEASE",
+        "VERIFY_ANDROID_SIGNATURE"
+      ],
+      "forbidden_actions": [
+        "EXPORT_SIGNING_KEY",
+        "SIGN_UNQUALIFIED_APK",
+        "INSTALL_APK",
+        "PUBLISH_NATIVE_UPDATE",
+        "MUTATE_SYSTEMD",
+        "EXPAND_PERMISSIONS"
+      ],
+      "allowed_permissions": [
+        "read",
+        "workspace-write"
+      ],
+      "required_evidence": [
+        "central_orchestrator_handoff",
+        "unsigned_apk_sha256",
+        "exact_sha_qualification",
+        "sentinel_exact_sha",
+        "pinned_release_certificate"
+      ]
+    },
+    {
+      "contract_id": "role:object-factory",
+      "kind": "role",
+      "allowed_actions": [
+        "PLAN_DOMAIN_OBJECT",
+        "REUSE_DOMAIN_OBJECT",
+        "BUILD_OBJECT_CONTRACT",
+        "HANDOFF_COMPONENT_FACTORY"
+      ],
+      "forbidden_actions": [
+        "SELECT_PRODUCTION_PROVIDER",
+        "PRODUCTION_DEPLOY",
+        "PROMOTE_COMPONENT",
+        "EXPAND_PERMISSIONS",
+        "DIRECT_DATABASE_MUTATION"
+      ],
+      "allowed_permissions": [
+        "read",
+        "plan",
+        "workspace-write"
+      ],
+      "required_evidence": [
+        "explicit_object_contract",
+        "reuse_search",
+        "validation_contract",
+        "component_factory_handoff"
+      ]
+    },
+    {
+      "contract_id": "role:human-behavior-center",
+      "kind": "role",
+      "allowed_actions": [
+        "READ_DERIVED_HUMAN_BEHAVIOR_EVIDENCE",
+        "INGEST_DERIVED_HUMAN_BEHAVIOR_OBSERVATION",
+        "SYNTHESIZE_FICTIONAL_PERSONA",
+        "RECORD_PERSONA_FEEDBACK",
+        "EMIT_INCREMENTAL_LEARNING_DELTA"
+      ],
+      "forbidden_actions": [
+        "INFER_REAL_PERSON_PROTECTED_TRAITS",
+        "DIAGNOSE_REAL_PERSON_MENTAL_STATE",
+        "TREAT_FICTION_AS_EMPIRICAL_POPULATION_TRUTH",
+        "STORE_RAW_COPYRIGHTED_MEDIA",
+        "STORE_FULL_COPYRIGHTED_TRANSCRIPT",
+        "EXECUTE_PROJECT_MUTATION",
+        "PRODUCTION_DEPLOY",
+        "EXPAND_PERMISSIONS",
+        "MODIFY_GUARDIAN_CONTRACTS",
+        "MODIFY_OWN_POLICY",
+        "AUTOMATIC_PAID_UPGRADE"
+      ],
+      "allowed_permissions": [
+        "read",
+        "knowledge-read",
+        "knowledge-append",
+        "persona-synthesis"
+      ],
+      "required_evidence": [
+        "source_provenance",
+        "evidence_scope",
+        "derived_not_raw",
+        "confidence",
+        "fictional_persona_contract",
+        "automatic_external_spend_eur_zero"
+      ]
+    }
+  ]
+}
