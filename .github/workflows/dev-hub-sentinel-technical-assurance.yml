@@ -165,7 +165,8 @@ jobs:
           workflow_run_id=excluded.workflow_run_id,
           audit_digest=excluded.audit_digest,
           conclusion='PASS',
-          attested_at=datetime('now')"""
+          attested_at=datetime('now')
+          RETURNING repository,revision,workflow_name,workflow_run_id,audit_digest,conclusion"""
           query_url=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{dbid}/query"
           status,payload=call(query_url,"POST",{
               "sql":sql,
@@ -174,20 +175,12 @@ jobs:
           if status!=200 or not payload.get("success"):
               raise SystemExit("SENTINEL_ATTESTATION_WRITE_FAILED:"+str(status)+":"+json.dumps(payload)[:500])
 
-          status,payload=call(query_url,"POST",{
-              "sql":"""SELECT repository,revision,workflow_name,workflow_run_id,audit_digest,conclusion
-                       FROM technical_workflow_attestations
-                       WHERE repository=?1 AND revision=?2 AND workflow_name=?3""",
-              "params":[repo,revision,workflow]
-          })
-          if status!=200 or not payload.get("success"):
-              raise SystemExit("SENTINEL_ATTESTATION_VERIFY_QUERY_FAILED:"+str(status))
           result=payload.get("result") or []
           data=[]
           for block in result:
               data.extend(block.get("results") or [])
           if len(data)!=1:
-              raise SystemExit("SENTINEL_ATTESTATION_VERIFY_MISSING:"+str(len(data)))
+              raise SystemExit("SENTINEL_ATTESTATION_VERIFY_MISSING:"+str(len(data))+":"+json.dumps(payload)[:500])
           row=data[0]
           assert row["repository"]==repo,row
           assert row["revision"]==revision,row

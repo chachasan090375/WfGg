@@ -9,6 +9,7 @@ on:
       - 'dev-hub/bin/domain-toolchain-readiness.py'
       - 'dev-hub/tests/test_v828_domain_execution_continuation.py'
       - '.github/workflows/dev-hub-v828-domain-execution-continuation.yml'
+      - '.github/workflows/dev-hub-sentinel-technical-assurance.yml'
   workflow_dispatch:
 
 permissions:
