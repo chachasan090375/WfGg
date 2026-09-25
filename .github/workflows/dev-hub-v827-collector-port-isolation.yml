@@ -1,0 +1,46 @@
+name: ChaCha DEV V8.0.27 Collector Port Isolation
+
+on:
+  push:
+    branches:
+      - dev-hub-v827-collector-port-isolation
+    paths:
+      - 'collector-knowledge/**'
+      - 'radar-vps/install-collector-knowledge-v1.sh'
+      - 'radar-vps/probe-collector-knowledge-v1-runtime.sh'
+      - 'radar-vps/wfgg-collector-knowledge-worker.service'
+      - 'radar-vps/wfgg-collector-knowledge-api.service'
+      - 'dev-hub/adapters/collector-knowledge-adapter.py'
+      - 'dev-hub/bin/run-collector-knowledge-v1-pilot-via-chacha-dev.sh'
+      - 'dev-hub/tests/test_v827_collector_port_isolation.py'
+      - '.github/workflows/dev-hub-v827-collector-port-isolation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax and compile
+        run: |
+          set -euo pipefail
+          bash -n radar-vps/install-collector-knowledge-v1.sh
+          bash -n radar-vps/probe-collector-knowledge-v1-runtime.sh
+          bash -n dev-hub/bin/run-collector-knowledge-v1-pilot-via-chacha-dev.sh
+          python3 -m py_compile             collector-knowledge/knowledge_engine.py             collector-knowledge/source_refresh.py             dev-hub/adapters/collector-knowledge-adapter.py             dev-hub/tests/test_v827_collector_port_isolation.py
+      - name: V8.0.27 qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v827_collector_port_isolation.py | tee /tmp/v827.out
+          grep -Fq 'CHACHA_DEV_V827_CENTRAL_INGRESS_PORT_RESERVED=PASS' /tmp/v827.out
+          grep -Fq 'CHACHA_DEV_V827_COLLECTOR_PORT_8793=PASS' /tmp/v827.out
+          grep -Fq 'CHACHA_DEV_V827_ADAPTER_PORT_ALIGNED=PASS' /tmp/v827.out
+          grep -Fq 'CHACHA_DEV_V827_KNOWLEDGE_REVISION_COHERENT=PASS' /tmp/v827.out
+          grep -Fq 'CHACHA_DEV_V827_GUARDIAN_BINDING_PRESERVED=PASS' /tmp/v827.out
+          grep -Fq 'CHACHA_DEV_V827_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v827.out
