@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,json
+import argparse,json,os
 from pathlib import Path
 from typing import Any
 
@@ -60,17 +60,22 @@ def provider_candidate(repo_root:Path,provider:dict[str,Any],bindings:dict[str,A
     adapter_status=str((adapter or {}).get("status") or "UNREGISTERED")
     execution=str(binding.get("execution") or "")
     executable=(adapter or {}).get("executable")
+    executable_path=Path(str(executable)) if executable else None
+    executable_exists=bool(executable_path and executable_path.is_file())
+    executable_is_executable=bool(executable_exists and os.access(executable_path,os.X_OK))
     row={
       "provider":pid,"provider_status":status,"kind":"provider",
       "adapter_id":adapter_id or None,"adapter_status":adapter_status,
       "execution":execution,"executable":executable,
+      "executable_exists":executable_exists,
+      "executable_is_executable":executable_is_executable,
       "probe_defined":pid in probe_defs,
       "rank":STATUS_SCORE.get(status,-100)
     }
     preenabled=adapter_status in {"PILOT","CONTRACT_OK"}
-    if execution=="vps" and not executable:
+    if execution=="vps" and not executable_is_executable:
         row["gate"]="ADAPTER_ENABLEMENT_REQUIRED"
-        row["reason"]="vps-adapter-missing-executable"
+        row["reason"]="vps-adapter-runtime-missing-or-not-executable"
     elif adapter_status=="ENABLED":
         if pid not in probe_defs:
             row["gate"]="PROVIDER_PROBE_DEFINITION_REQUIRED"
