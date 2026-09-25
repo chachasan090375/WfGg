@@ -7,7 +7,7 @@ from typing import Any
 
 SCHEMA="chacha.dev/dark-intelligence-analysis/v1"
 BACKEND=Path("/usr/local/bin/agy-dev")
-MODEL_SPEC=(os.environ.get("CHACHA_DEV_DARK_INTEL_MODELS") or os.environ.get("CHACHA_DEV_DARK_INTEL_MODEL") or "gemini-3.6-flash-medium,gemini-3.8-flash-medium,gemini-3.7-flash-medium")
+MODEL_SPEC=(os.environ.get("CHACHA_DEV_DARK_INTEL_MODELS") or os.environ.get("CHACHA_DEV_DARK_INTEL_MODEL") or "gemini-3.8-flash-medium,gemini-3.7-flash-medium,gemini-3.7-flash-low,gemini-3.6-flash-medium,gemini-3.8-flash-low,gemini-3.6-flash-low")
 MODELS=[x.strip() for x in MODEL_SPEC.split(",") if x.strip()]
 MAX_CAPTURE_BYTES=2*1024*1024
 MAX_ANALYSIS_CHARS=8000
