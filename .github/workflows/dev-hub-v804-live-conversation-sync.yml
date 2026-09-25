@@ -1,0 +1,33 @@
+name: ChaCha DEV V8.0.4 Live Conversation Sync
+
+on:
+  push:
+    branches:
+      - dev-hub-v804-live-conversation-sync
+    paths:
+      - 'dev-hub/direct-operator-ui/index.html'
+      - 'dev-hub/tests/test_v804_live_conversation_sync.py'
+      - '.github/workflows/dev-hub-v804-live-conversation-sync.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: V8.0.4 qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v804_live_conversation_sync.py | tee /tmp/v804.out
+          grep -Fq 'CHACHA_DEV_V804_LIVE_CONVERSATION_POLLING=PASS' /tmp/v804.out
+          grep -Fq 'CHACHA_DEV_V804_VISIBILITY_RESYNC=PASS' /tmp/v804.out
+          grep -Fq 'CHACHA_DEV_V804_REQUEST_DIGEST_CHANGE_DETECTION=PASS' /tmp/v804.out
+          grep -Fq 'CHACHA_DEV_V804_RESPONSE_TIMESTAMP_VISIBLE=PASS' /tmp/v804.out
+          grep -Fq 'CHACHA_DEV_V804_NO_APP_REOPEN_REQUIRED=PASS' /tmp/v804.out
+          grep -Fq 'CHACHA_DEV_V804_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v804.out
