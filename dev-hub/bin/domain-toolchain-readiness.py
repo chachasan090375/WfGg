@@ -67,18 +67,27 @@ def provider_candidate(repo_root:Path,provider:dict[str,Any],bindings:dict[str,A
       "probe_defined":pid in probe_defs,
       "rank":STATUS_SCORE.get(status,-100)
     }
-    if adapter_status!="ENABLED":
+    preenabled=adapter_status in {"PILOT","CONTRACT_OK"}
+    if execution=="vps" and not executable:
+        row["gate"]="ADAPTER_ENABLEMENT_REQUIRED"
+        row["reason"]="vps-adapter-missing-executable"
+    elif adapter_status=="ENABLED":
+        if pid not in probe_defs:
+            row["gate"]="PROVIDER_PROBE_DEFINITION_REQUIRED"
+            row["reason"]="provider-probe-not-defined"
+        else:
+            row["gate"]="PROVIDER_HEALTH_PROBE_REQUIRED"
+            row["reason"]="provider-ready-for-health-probe"
+    elif preenabled and executable:
+        if pid not in probe_defs:
+            row["gate"]="PROVIDER_PROBE_DEFINITION_REQUIRED"
+            row["reason"]="preenabled-provider-probe-not-defined"
+        else:
+            row["gate"]="PROVIDER_HEALTH_PROBE_REQUIRED"
+            row["reason"]="preenabled-adapter-awaiting-health-promotion"
+    else:
         row["gate"]="ADAPTER_ENABLEMENT_REQUIRED"
         row["reason"]="adapter-not-enabled"
-    elif execution=="vps" and not executable:
-        row["gate"]="ADAPTER_ENABLEMENT_REQUIRED"
-        row["reason"]="enabled-vps-adapter-missing-executable"
-    elif pid not in probe_defs:
-        row["gate"]="PROVIDER_PROBE_DEFINITION_REQUIRED"
-        row["reason"]="provider-probe-not-defined"
-    else:
-        row["gate"]="PROVIDER_HEALTH_PROBE_REQUIRED"
-        row["reason"]="provider-ready-for-health-probe"
     return row
 
 def choose_candidate(candidates:list[dict[str,Any]])->dict[str,Any]|None:
