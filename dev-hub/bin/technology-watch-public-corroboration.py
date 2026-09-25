@@ -76,7 +76,9 @@ def public_url(value:str)->bool:
 
 COMMON_SECOND_LEVEL={"co.uk","org.uk","ac.uk","com.au","net.au","org.au","co.nz","com.br","com.mx","co.jp","co.kr","com.sg","com.tr"}
 def owner_for(url:str,author:str="")->str:
-    if author and author.strip() and author.strip().casefold() not in {"n/a","unknown"}:return author.strip().casefold()
+    # Ownership is derived from the network origin, never from a free-form
+    # Author label returned by a search provider. This prevents the same site
+    # from becoming multiple "independent" sources via inconsistent author text.
     host=(urlparse(url).hostname or "").lower().rstrip(".")
     parts=host.split(".")
     if len(parts)>=3 and ".".join(parts[-2:]) in COMMON_SECOND_LEVEL:return ".".join(parts[-3:])
