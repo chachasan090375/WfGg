@@ -24,6 +24,14 @@ def load(path: Path) -> dict[str,Any]:
 def normalize(text: str) -> str:
     return re.sub(r"\s+"," ",text.strip().lower())
 
+def keyword_matches(text:str,keyword:str)->bool:
+    k=normalize(keyword)
+    if not k:return False
+    parts=[re.escape(x) for x in k.split(" ") if x]
+    if not parts:return False
+    pattern=r"(?<!\\w)"+r"\\s+".join(parts)+r"(?!\\w)"
+    return re.search(pattern,text,flags=re.UNICODE) is not None
+
 def canonical_digest(value: Any) -> str:
     raw=json.dumps(value,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
     return hashlib.sha256(raw).hexdigest()
@@ -47,7 +55,7 @@ def match_domains(text: str,cfg: dict[str,Any],explicit: list[str]) -> tuple[lis
             reasons.setdefault(d,[]).append("explicit")
     if not explicit:
         for domain,spec in domains.items():
-            hits=sorted({str(k) for k in spec.get("keywords") or [] if normalize(str(k)) in text})
+            hits=sorted({str(k) for k in spec.get("keywords") or [] if keyword_matches(text,str(k))})
             if hits:
                 reasons.setdefault(domain,[]).append("keywords:"+",".join(hits[:8]))
     if not reasons:
