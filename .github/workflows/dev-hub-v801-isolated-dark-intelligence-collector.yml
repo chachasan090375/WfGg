@@ -11,6 +11,9 @@ on:
       - 'dev-hub/bin/dark-intelligence-collector-runner.py'
       - 'dev-hub/bin/dark-intelligence-analysis-adapter.py'
       - 'dev-hub/bin/dark-intelligence-pipeline.py'
+      - 'dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.timer'
+      - 'dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.service'
+      - 'dev-hub/bin/dark-intelligence-analysis-queue.py'
       - 'dev-hub/config/dark-intelligence-collector.v1.json'
       - 'dev-hub/config/dark-intelligence-agent.v1.json'
       - 'dev-hub/config/domain-orchestration.v1.json'
@@ -33,7 +36,7 @@ jobs:
       - name: Compile
         run: |
           set -euo pipefail
-          python3 -m py_compile             dev-hub/bin/dark-intelligence-collector.py             dev-hub/bin/dark-intelligence-isolation.py             dev-hub/bin/dark-intelligence-tor-toolcache.py             dev-hub/bin/dark-intelligence-collector-runner.py             dev-hub/bin/dark-intelligence-analysis-adapter.py             dev-hub/bin/dark-intelligence-pipeline.py             dev-hub/tests/test_v801_isolated_dark_intelligence_collector.py
+          python3 -m py_compile             dev-hub/bin/dark-intelligence-collector.py             dev-hub/bin/dark-intelligence-isolation.py             dev-hub/bin/dark-intelligence-tor-toolcache.py             dev-hub/bin/dark-intelligence-collector-runner.py             dev-hub/bin/dark-intelligence-analysis-adapter.py             dev-hub/bin/dark-intelligence-pipeline.py             dev-hub/bin/dark-intelligence-analysis-queue.py             dev-hub/tests/test_v801_isolated_dark_intelligence_collector.py
           python3 -m json.tool dev-hub/config/dark-intelligence-collector.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/dark-intelligence-agent.v1.json >/dev/null
       - name: Preserve V8.0 guarantees
@@ -57,5 +60,7 @@ jobs:
           grep -Fq 'CHACHA_DEV_V801_BOUNDED_RELEVANT_ANALYSIS_CONTEXT=PASS' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_SEMANTIC_MODEL_FAILOVER=PASS' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_PROVIDER_UNAVAILABLE_DEFER_FAILSAFE=PASS' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_PERSISTENT_RETRY_QUEUE=PASS' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_RETRY_LOOP_BOUNDED=PASS' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_END_TO_END_TECHNOLOGY_WATCH_LOGICIAN=PASS' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v801.out
