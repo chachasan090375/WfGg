@@ -179,7 +179,7 @@ assert "Download Tor Browser" not in noise_text
 assert "Join the Tor Community" not in noise_text
 assert "Do you teach your community" not in noise_text
 assert "Onion Services" not in [x["text"].removeprefix("Unverified source statement: ") for x in noise_analysis["claims"]]
-assert "human rights defenders" in noise_text
+assert "Tor community is made up of all kinds of contributors" in noise_text
 assert "defeat surveillance and censorship" in noise_text
 assert len(noise_analysis["claims"])<=6
 pipeline_src=(ROOT/"dev-hub/bin/dark-intelligence-pipeline.py").read_text(encoding="utf-8")
