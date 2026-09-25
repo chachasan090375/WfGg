@@ -66,7 +66,7 @@ def _owner(e:dict[str,Any])->str:
 def _best_by_group(rows:list[dict[str,Any]],allowed:set[str],primary_group:str)->dict[str,dict[str,Any]]:
     # Independence is fail-closed: changing an independence_group cannot turn two
     # observations from the same origin/owner into two independent sources.
-    out={};seen_origins=set();seen_owners=set()
+    out={};seen_origins=set();seen_owners=set();seen_content=set()
     ordered=sorted(rows,key=lambda e:float(e.get("confidence_score") or 50),reverse=True)
     for e in ordered:
         if not isinstance(e,dict): continue
@@ -77,11 +77,13 @@ def _best_by_group(rows:list[dict[str,Any]],allowed:set[str],primary_group:str)-
         group=str(e.get("independence_group") or e.get("origin") or e.get("id") or "")
         origin=str(e.get("origin") or "").strip().casefold()
         owner=_owner(e)
+        content=str(e.get("content_sha256") or "").strip().casefold()
         if not group or group==primary_group: continue
-        if group in out or (origin and origin in seen_origins) or (owner and owner in seen_owners): continue
+        if group in out or (origin and origin in seen_origins) or (owner and owner in seen_owners) or (content and content in seen_content): continue
         out[group]=e
         if origin:seen_origins.add(origin)
         if owner:seen_owners.add(owner)
+        if content:seen_content.add(content)
     return out
 
 def evaluate(dossier:dict[str,Any],evidence:list[dict[str,Any]],policy:dict[str,Any])->dict[str,Any]:
