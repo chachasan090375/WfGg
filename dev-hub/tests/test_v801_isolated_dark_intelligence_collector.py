@@ -278,6 +278,15 @@ with tempfile.TemporaryDirectory(prefix="v801-queue-") as td:
     due=analysis_queue.due_jobs(root,1)
     assert len(due)==1 and due[0][1]["status"]=="DEFERRED_PROVIDER_UNAVAILABLE"
 
+with tempfile.TemporaryDirectory(prefix="v801-pipeline-autoqueue-") as td:
+    root=Path(td)/"queue";capture=Path(td)/"capture.json"
+    capture.write_text(json.dumps(fake_capture),encoding="utf-8")
+    q=pipeline.enqueue_deferred(ROOT,capture,"auto-queued-subject",["term-a","term-b"],root)
+    assert q["status"]=="PENDING"
+    assert q["job_id"].startswith("diaq-")
+    assert q["next_attempt_epoch"] is not None
+    assert analysis_queue.status(root)["counts"]["PENDING"]==1
+
 service=(ROOT/"dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.service").read_text(encoding="utf-8")
 timer=(ROOT/"dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.timer").read_text(encoding="utf-8")
 assert "NoNewPrivileges=true" in service and "ProtectSystem=strict" in service
@@ -298,6 +307,7 @@ print("CHACHA_DEV_V801_BOUNDED_RELEVANT_ANALYSIS_CONTEXT=PASS")
 print("CHACHA_DEV_V801_SEMANTIC_MODEL_FAILOVER=PASS")
 print("CHACHA_DEV_V801_PROVIDER_UNAVAILABLE_DEFER_FAILSAFE=PASS")
 print("CHACHA_DEV_V801_PERSISTENT_RETRY_QUEUE=PASS")
+print("CHACHA_DEV_V801_DEFERRED_AUTO_ENQUEUE=PASS")
 print("CHACHA_DEV_V801_RETRY_LOOP_BOUNDED=PASS")
 print("CHACHA_DEV_V801_END_TO_END_TECHNOLOGY_WATCH_LOGICIAN=PASS")
 print("CHACHA_DEV_V801_INDEPENDENT_CORROBORATION_GATE=PASS")
