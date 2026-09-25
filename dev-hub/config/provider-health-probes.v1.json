@@ -36,6 +36,7 @@
     "chacha-tech-watch": {"scope": "platform", "probe": "runtime-command", "functional_check": "radar-status"},
     "chacha-dev-architect": {"scope": "platform", "probe": "runtime-command", "functional_check": "architect-status"},
     "storage-governor": {"scope": "platform", "probe": "runtime-command", "functional_check": "storage-audit"},
+    "collector-knowledge-runtime": {"scope": "platform", "probe": "collector-knowledge-local", "functional_check": "worker-api-health-and-adapter-runtime"},
     "openssl-ed25519": {"scope": "platform", "probe": "runtime-command", "functional_check": "openssl-version-and-ed25519-public-key-operations"}
   }
 }
