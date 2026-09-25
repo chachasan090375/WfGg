@@ -10,7 +10,9 @@ on:
       - 'dev-hub/bin/dark-intelligence-tor-toolcache.py'
       - 'dev-hub/bin/dark-intelligence-collector-runner.py'
       - 'dev-hub/bin/dark-intelligence-analysis-adapter.py'
-      - 'dev-hub/bin/dark-intelligence-pipeline.py'
+      - 'dev-hub/bin/dark-intelligence-pipeline.py             dev-hub/bin/central-interface-controller.py             dev-hub/bin/conversation-interface-agent.py'
+      - 'dev-hub/bin/conversation-interface-agent.py'
+      - 'dev-hub/bin/central-interface-controller.py'
       - 'dev-hub/bin/dark-intelligence-corroboration.py'
       - 'dev-hub/bin/technology-watch-public-corroboration.py'
       - 'dev-hub/bin/technology-watch-firecrawl-fallback.py'
@@ -27,6 +29,7 @@ on:
       - 'dev-hub/bin/dark-intelligence-corroboration-queue.py'
       - 'dev-hub/config/dark-intelligence-collector.v1.json'
       - 'dev-hub/config/dark-intelligence-agent.v1.json'
+      - 'dev-hub/config/platform-extension.v1.json'
       - 'dev-hub/config/domain-orchestration.v1.json'
       - 'dev-hub/config/agent-routing.v1.json'
       - 'dev-hub/tests/test_v660_independent_accuracy_attestation.py'
@@ -53,6 +56,7 @@ jobs:
           python3 -m py_compile             dev-hub/bin/dark-intelligence-collector.py             dev-hub/bin/dark-intelligence-isolation.py             dev-hub/bin/dark-intelligence-tor-toolcache.py             dev-hub/bin/dark-intelligence-collector-runner.py             dev-hub/bin/dark-intelligence-analysis-adapter.py             dev-hub/bin/dark-intelligence-pipeline.py             dev-hub/bin/dark-intelligence-corroboration.py             dev-hub/bin/technology-watch-public-corroboration.py             dev-hub/bin/technology-watch-firecrawl-fallback.py             dev-hub/bin/dark-intelligence-corroboration-analysis.py             dev-hub/bin/dark-intelligence-analysis-queue.py             dev-hub/bin/dark-intelligence-corroboration-queue.py             dev-hub/tests/test_v801_isolated_dark_intelligence_collector.py
           python3 -m json.tool dev-hub/config/dark-intelligence-collector.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/dark-intelligence-agent.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/platform-extension.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/dark-intelligence-corroboration.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/dark-intelligence-public-corroboration.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/dark-intelligence-firecrawl-fallback.v1.json >/dev/null
@@ -69,6 +73,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 dev-hub/tests/test_v801_isolated_dark_intelligence_collector.py | tee /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_PLATFORM_EXTENSION_STATUS=PASS' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_DEDICATED_NETWORK_NAMESPACE=PASS' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_HOST_AND_PRIVATE_NETWORK_BLOCK=PASS' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_TOR_SYSTEM_INSTALL=NO' /tmp/v801.out
