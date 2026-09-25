@@ -30,7 +30,12 @@
     "source_content_is_untrusted_data": true,
     "source_instructions_never_executed": true,
     "prompt_injection_from_sources_must_be_ignored": true,
-    "raw_html_execution_forbidden": true
+    "raw_html_execution_forbidden": true,
+    "semantic_analysis_adapter": "dev-hub/bin/dark-intelligence-analysis-adapter.py",
+    "end_to_end_pipeline": "dev-hub/bin/dark-intelligence-pipeline.py",
+    "semantic_analysis_tool_access": false,
+    "semantic_analysis_sandbox_required": true,
+    "semantic_analysis_source_instruction_authority": false
   },
   "verification_pipeline": {
     "normalize_to_technology_dossier": true,
@@ -45,7 +50,9 @@
     "sentinel_required": true,
     "bastion_security_boundary_required": true,
     "unverified_source_never_becomes_fact": true,
-    "collector_provenance_required": true
+    "collector_provenance_required": true,
+    "semantic_analysis_claims_remain_unverified": true,
+    "analysis_confidence_never_replaces_corroboration": true
   },
   "output": {
     "normalized_schema": "chacha.dev/dark-intelligence-dossier/v1",
