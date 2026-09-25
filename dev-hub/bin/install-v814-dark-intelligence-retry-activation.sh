@@ -98,7 +98,7 @@ stage verify-runtime
 for timer in "${TIMERS[@]}"; do
   NEXT_REALTIME="$(systemctl show "$timer" -p NextElapseUSecRealtime --value)"
   NEXT_MONOTONIC="$(systemctl show "$timer" -p NextElapseUSecMonotonic --value)"
-  if { [ -z "$NEXT_REALTIME" ] || [ "$NEXT_REALTIME" = "infinity" ]; } && { [ -z "$NEXT_MONOTONIC" ] || [ "$NEXT_MONOTONIC" = "0" ]; }; then
+  if { [ -z "$NEXT_REALTIME" ] || [ "$NEXT_REALTIME" = "infinity" ] || [ "$NEXT_REALTIME" = "0" ]; } && { [ -z "$NEXT_MONOTONIC" ] || [ "$NEXT_MONOTONIC" = "infinity" ] || [ "$NEXT_MONOTONIC" = "0" ]; }; then
     echo "CHACHA_DEV_V814_INSTALL=BLOCKED reason=timer_not_scheduled:$timer"
     exit 3
   fi
