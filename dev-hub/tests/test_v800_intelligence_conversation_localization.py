@@ -17,7 +17,8 @@ dark_policy=load(ROOT/"dev-hub/config/dark-intelligence-agent.v1.json")
 conv_policy=load(ROOT/"dev-hub/config/conversation-interface-agent.v1.json")
 loc_policy=load(ROOT/"dev-hub/config/professional-localization.v1.json")
 routing=load(ROOT/"dev-hub/config/agent-routing.v1.json")
-domains=load(ROOT/"dev-hub/config/domain-orchestration.v1.json")
+domains_cfg=load(ROOT/"dev-hub/config/domain-orchestration.v1.json")
+domains=domains_cfg["domains"]
 direct=load(ROOT/"dev-hub/config/direct-operator.v1.json")
 progress=load(ROOT/"dev-hub/config/progress-reporting.v1.json")
 
