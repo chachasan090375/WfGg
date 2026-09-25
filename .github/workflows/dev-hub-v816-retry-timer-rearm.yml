@@ -1,0 +1,47 @@
+name: ChaCha DEV V8.0.16 Retry Timer Rearm
+
+on:
+  push:
+    branches:
+      - dev-hub-v816-retry-timer-rearm
+    paths:
+      - 'dev-hub/bin/install-v814-dark-intelligence-retry-activation.sh'
+      - 'dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.timer'
+      - 'dev-hub/systemd/chacha-dev-dark-intelligence-corroboration-retry.timer'
+      - 'dev-hub/tests/test_v814_dark_intelligence_retry_activation.py'
+      - 'dev-hub/tests/test_v816_retry_timer_rearm.py'
+      - '.github/workflows/dev-hub-v816-retry-timer-rearm.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Unit syntax
+        run: |
+          set -euo pipefail
+          bash -n dev-hub/bin/install-v814-dark-intelligence-retry-activation.sh
+          systemd-analyze verify             dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.service             dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.timer             dev-hub/systemd/chacha-dev-dark-intelligence-corroboration-retry.service             dev-hub/systemd/chacha-dev-dark-intelligence-corroboration-retry.timer
+      - name: V8.0.16 qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v816_retry_timer_rearm.py | tee /tmp/v816.out
+          grep -Fq 'CHACHA_DEV_V816_TIMER_FIRST_WAKE=PASS' /tmp/v816.out
+          grep -Fq 'CHACHA_DEV_V816_TIMER_REARM_AFTER_INACTIVE=PASS' /tmp/v816.out
+          grep -Fq 'CHACHA_DEV_V816_ELAPSED_INFINITY_REJECTED=PASS' /tmp/v816.out
+          grep -Fq 'CHACHA_DEV_V816_V814_SECURITY_GUARANTEES=PASS' /tmp/v816.out
+          grep -Fq 'CHACHA_DEV_V816_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v816.out
+      - name: Preserve V8.0.1 retry safety
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v801_isolated_dark_intelligence_collector.py | tee /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_RETRY_LOOP_BOUNDED=PASS' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_CORROBORATION_RETRY_NO_RECOLLECTION=PASS' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v801.out
