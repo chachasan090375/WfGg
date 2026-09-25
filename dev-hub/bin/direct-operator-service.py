@@ -399,7 +399,8 @@ class Handler(BaseHTTPRequestHandler):
         text=str(body.get("text") or "").strip()
         if not text:return self.json(400,{"status":"TEXT_REQUIRED"})
         client_request_id=str(body.get("client_request_id") or "").strip()
-        if not client_request_id:return self.json(400,{"status":"CLIENT_REQUEST_ID_REQUIRED"})
+        legacy_client_request_id=not bool(client_request_id)
+        if legacy_client_request_id:client_request_id="legacy-"+uuid.uuid4().hex
         s=self.st.session()
         default_project=str(self.st.policy.get("default_project") or "chacha-dev-platform")
         project=stable_project(body.get("project") or s.get("active_project"),default_project)
@@ -411,7 +412,8 @@ class Handler(BaseHTTPRequestHandler):
             threading.Thread(target=self.st.process,args=(jid,text,project,identity),daemon=True).start()
         state=load(self.st.job_path(jid)).get("state") or "QUEUED"
         self.json(202,{"status":"ACCEPTED","job_id":jid,"state":state,"project_id":project,
-                       "client_request_id":client_request_id,"deduplicated":not created})
+                       "client_request_id":client_request_id,"deduplicated":not created,
+                       "legacy_non_idempotent_client":legacy_client_request_id})
 
 def main()->int:
     ap=argparse.ArgumentParser()
