@@ -4,6 +4,7 @@ import importlib.util,json,subprocess,sys,tempfile
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
+# V8.0.1 qualification trigger after inherited V8 contract alignment.
 
 def load(path):
     return json.loads(Path(path).read_text(encoding="utf-8"))
