@@ -24,13 +24,15 @@ def load(path: Path) -> dict[str,Any]:
 def normalize(text: str) -> str:
     return re.sub(r"\s+"," ",text.strip().lower())
 
+def lexical_form(text:str)->str:
+    raw=normalize(text)
+    cleaned="".join(ch if (ch.isalnum() or ch in "-_") else " " for ch in raw)
+    return " ".join(cleaned.split())
+
 def keyword_matches(text:str,keyword:str)->bool:
-    k=normalize(keyword)
-    if not k:return False
-    parts=[re.escape(x) for x in k.split(" ") if x]
-    if not parts:return False
-    pattern=r"(?<!\\w)"+r"\\s+".join(parts)+r"(?!\\w)"
-    return re.search(pattern,text,flags=re.UNICODE) is not None
+    hay=" "+lexical_form(text)+" "
+    needle=lexical_form(keyword)
+    return bool(needle) and (" "+needle+" ") in hay
 
 def canonical_digest(value: Any) -> str:
     raw=json.dumps(value,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
