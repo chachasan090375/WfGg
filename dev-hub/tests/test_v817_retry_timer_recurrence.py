@@ -47,7 +47,7 @@ for marker in [
 def row_has_next(row:str)->bool:
     if not row.strip():
         return False
-    return re.search(r'^[[:space:]]*-[[:space:]]+-[[:space:]]+',row) is None
+    return re.search(r'^\s*-\s+-\s+',row) is None
 
 # Representative list-timers rows from the VPS:
 assert row_has_next("Fri 2026-09-25 16:34:18 UTC 14min Fri 2026-09-25 16:19:18 UTC 1s ago chacha-v816-probe.timer chacha-v816-probe.service")
