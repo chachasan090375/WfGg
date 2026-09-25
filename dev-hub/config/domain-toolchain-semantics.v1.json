@@ -1,0 +1,29 @@
+{
+  "schema": "chacha.dev/domain-toolchain-semantics/v1",
+  "version": "8.0.20",
+  "principles": {
+    "direct_provider_requires_provider_adapter_binding": true,
+    "encapsulated_provider_never_requires_direct_run_controller_binding": true,
+    "encapsulated_provider_must_have_owner_component_evidence": true,
+    "missing_semantics_remains_fail_closed_for_direct_provider_tools": true,
+    "automatic_external_spend_eur": 0
+  },
+  "encapsulated_provider_tools": {
+    "technology-radar": {
+      "owner_component": "technology-watch-service",
+      "direct_adapter_required": false,
+      "evidence": [
+        "dev-hub/bin/technology-radar-domain-watch-validate.py",
+        "dev-hub/config/technology-radar-domain-watch.v2.json"
+      ]
+    },
+    "exa-mcp": {
+      "owner_component": "technology-watch-public-corroboration",
+      "direct_adapter_required": false,
+      "evidence": [
+        "dev-hub/bin/technology-watch-public-corroboration.py",
+        "dev-hub/config/dark-intelligence-public-corroboration.v1.json"
+      ]
+    }
+  }
+}
