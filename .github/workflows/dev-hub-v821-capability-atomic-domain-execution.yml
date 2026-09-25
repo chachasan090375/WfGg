@@ -1,0 +1,39 @@
+name: ChaCha DEV V8.0.21 Capability Atomic Domain Execution
+
+on:
+  push:
+    branches:
+      - dev-hub-v821-capability-atomic-domain-execution
+    paths:
+      - 'dev-hub/bin/domain-factory-runner.py'
+      - 'dev-hub/bin/domain-toolchain-readiness.py'
+      - 'dev-hub/tests/test_v821_capability_atomic_domain_execution.py'
+      - '.github/workflows/dev-hub-v821-capability-atomic-domain-execution.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/domain-factory-runner.py             dev-hub/bin/domain-toolchain-readiness.py             dev-hub/tests/test_v821_capability_atomic_domain_execution.py
+      - name: V8.0.21 qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v821_capability_atomic_domain_execution.py | tee /tmp/v821.out
+          grep -Fq 'CHACHA_DEV_V821_CAPABILITY_ATOMIC_TASKS=PASS' /tmp/v821.out
+          grep -Fq 'CHACHA_DEV_V821_DOMAIN_FEATURES_STAY_INTERNAL=PASS' /tmp/v821.out
+          grep -Fq 'CHACHA_DEV_V821_ENCAPSULATED_PROVIDER_STAYS_INTERNAL=PASS' /tmp/v821.out
+          grep -Fq 'CHACHA_DEV_V821_OPTIONAL_AGENT_TOOL_NOT_BLOCKING=PASS' /tmp/v821.out
+          grep -Fq 'CHACHA_DEV_V821_BEST_PROVIDER_PATH_SELECTED=PASS' /tmp/v821.out
+          grep -Fq 'CHACHA_DEV_V821_MULTI_PROVIDER_TASK_FAIL_CLOSED=PASS' /tmp/v821.out
+          grep -Fq 'CHACHA_DEV_V821_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v821.out
