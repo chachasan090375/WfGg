@@ -27,7 +27,16 @@
       "240.0.0.0/4"
     ],
     "outbound_interface_mode": "DEFAULT_ROUTE_AUTO",
-    "nat_only_for_namespace_subnet": true
+    "nat_only_for_namespace_subnet": true,
+    "dns": {
+      "mode": "NAMESPACE_SPECIFIC_EXTERNAL_RESOLVERS",
+      "resolvers": [
+        "1.1.1.1",
+        "9.9.9.9"
+      ],
+      "inherit_host_resolver": false,
+      "ephemeral_resolv_conf": true
+    }
   },
   "tor": {
     "toolcache_root": "/opt/chacha-dev/runtime/toolcache/tor-v801",
@@ -43,13 +52,21 @@
     "system_service_install_forbidden": true
   },
   "request": {
-    "allowed_modes": ["TOR_ONION", "ISOLATED_HTTPS"],
-    "allowed_methods": ["GET"],
+    "allowed_modes": [
+      "TOR_ONION",
+      "ISOLATED_HTTPS"
+    ],
+    "allowed_methods": [
+      "GET"
+    ],
     "tor_onion_requires_onion_hostname": true,
     "isolated_https_requires_https": true,
     "url_credentials_forbidden": true,
     "ip_literal_targets_forbidden": true,
-    "allowed_ports": [80, 443],
+    "allowed_ports": [
+      80,
+      443
+    ],
     "max_redirects": 3,
     "redirect_must_preserve_source_class": true,
     "clearweb_redirect_must_preserve_hostname": true,
