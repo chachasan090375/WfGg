@@ -5,7 +5,7 @@ set -Eeuo pipefail
 
 REV="${WFGG_DEV_HUB_COLLECTOR_KNOWLEDGE_DEPLOY_REV:-}"
 PROJECT="wfgg-radar"
-KNOWLEDGE_REV="6ddbc5d848cf2aebc2c6175b2aa9ba1645c2e2ae"
+KNOWLEDGE_REV="$REV"
 RAW_ARCHIVE="https://codeload.github.com/chachasan090375/WfGg/tar.gz/${REV}"
 RUNTIME="/opt/chacha-dev/runtime"
 WORK_ROOT="$RUNTIME/tmp"
