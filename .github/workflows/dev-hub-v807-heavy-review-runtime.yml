@@ -1,0 +1,36 @@
+name: ChaCha DEV V8.0.7 Heavy Review Runtime
+
+on:
+  push:
+    branches:
+      - dev-hub-v807-heavy-review-runtime
+    paths:
+      - 'dev-hub/bin/branch-blueprint-optimizer.py'
+      - 'dev-hub/tests/test_v807_heavy_review_runtime.py'
+      - '.github/workflows/dev-hub-v807-heavy-review-runtime.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/branch-blueprint-optimizer.py             dev-hub/tests/test_v807_heavy_review_runtime.py
+      - name: V8.0.7 qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v807_heavy_review_runtime.py | tee /tmp/v807.out
+          grep -Fq 'CHACHA_DEV_V807_HEAVY_REVIEW_EPHEMERAL=PASS' /tmp/v807.out
+          grep -Fq 'CHACHA_DEV_V807_LIGHT_REVIEW_VIRTUAL=PASS' /tmp/v807.out
+          grep -Fq 'CHACHA_DEV_V807_EXPLICIT_RUNTIME_REVIEW_EPHEMERAL=PASS' /tmp/v807.out
+          grep -Fq 'CHACHA_DEV_V807_NO_PERMISSION_EXPANSION=PASS' /tmp/v807.out
+          grep -Fq 'CHACHA_DEV_V807_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v807.out
