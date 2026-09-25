@@ -90,11 +90,13 @@ assert reply["requires_user_response"] is True
 status_reply=conv.compose({
   "schema":"chacha.dev/central-interface-receipt/v1","status":"OK","project_id":"chacha-dev-platform",
   "next_action":"AWAIT_USER_DIRECTIVE","brain_decision_obtained":True,
-  "decision":{"platform_status":{"platform_version":"7.8.0","emergency_stop_active":False,
-    "guardian_all_hooks_active":True,"agent_count":35,
+  "decision":{"platform_status":{"platform_version":"7.8.0",
+    "platform_extension":{"name":"Intelligence & Localization","version":"8.0.1"},
+    "emergency_stop_active":False,"guardian_all_hooks_active":True,"agent_count":35,
     "hygiene":{"metrics":{"hygiene_debt_score":0}}}}
 })
-assert "version active 7.8.0" in status_reply["message"]
+assert "noyau 7.8.0" in status_reply["message"]
+assert "extension Intelligence & Localization 8.0.1" in status_reply["message"]
 assert "Guardian actif" in status_reply["message"]
 assert "35 agents enregistrés" in status_reply["message"]
 
