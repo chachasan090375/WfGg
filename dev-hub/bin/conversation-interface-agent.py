@@ -26,8 +26,8 @@ def compose(receipt:dict[str,Any],intent:dict[str,Any]|None=None)->dict[str,Any]
     decision=receipt.get("decision") if isinstance(receipt.get("decision"),dict) else {}
     message=first_text(decision,["human_message","message","summary","result","reason","detail"])
     needs=bool(decision.get("requires_user_response") is True or decision.get("requires_confirmation") is True or "AWAIT" in next_action or "CONFIRM" in next_action)
-    if status in {"BRAIN_UNAVAILABLE","BRAIN_RECEIPT_INVALID"}: kind="ERROR"
-    elif status=="STOP_ACTIVE": kind="WARNING"
+    if status in {"BRAIN_UNAVAILABLE","BRAIN_RECEIPT_INVALID","FAILED"}: kind="ERROR"
+    elif status in {"STOP_ACTIVE","BLOCKED","PARTIAL","AWAITING_APPROVAL"}: kind="WARNING"
     elif bool(decision.get("requires_confirmation")): kind="CONFIRMATION"
     elif needs: kind="QUESTION"
     elif status in {"PASS","COMPLETE","COMPLETED","SUCCESS","OK"}: kind="RESULT"
@@ -56,13 +56,26 @@ def compose(receipt:dict[str,Any],intent:dict[str,Any]|None=None)->dict[str,Any]
             message="ChaCha DEV est opérationnel."
             if bits: message+=" "+", ".join(bits)+"."
         else:
+            human_next=humanize(next_action)
             defaults={
               "BRAIN_UNAVAILABLE":"Je n’arrive pas à joindre correctement le cerveau central pour le moment.",
               "BRAIN_RECEIPT_INVALID":"La réponse du cerveau central n’est pas exploitable telle quelle.",
               "STOP_ACTIVE":"L’arrêt d’urgence est actif.",
-              "PASS":"C’est validé.","SUCCESS":"C’est validé.","OK":"C’est bon.","COMPLETE":"C’est terminé.","COMPLETED":"C’est terminé."
+              "PASS":"✅ C’est terminé et validé.",
+              "SUCCESS":"✅ C’est terminé avec succès.",
+              "OK":"✅ C’est bon.",
+              "COMPLETE":"✅ Le traitement est terminé.",
+              "COMPLETED":"✅ Le traitement est terminé.",
+              "FAILED":"❌ Je n’ai pas pu terminer la demande.",
+              "BLOCKED":"⛔ Je n’ai pas pu terminer la demande : l’exécution est bloquée.",
+              "PARTIAL":"⚠️ Une partie du travail est terminée, mais la chaîne complète n’a pas pu aller jusqu’au bout.",
+              "AWAITING_APPROVAL":"⏸️ Le travail est prêt à continuer, mais une validation humaine est nécessaire.",
+              "PLAN_READY":"Le plan est prêt. L’exécution doit encore continuer.",
+              "CONTINUED":"L’exécution a avancé et doit encore continuer."
             }
             message=defaults.get(status,"Le cerveau central a répondu : "+humanize(status)+".")
+            if status in {"BLOCKED","FAILED","PARTIAL","AWAITING_APPROVAL","PLAN_READY","CONTINUED"} and human_next:
+                message+=("\n\nÉtape suivante : "+human_next+".")
     action_text={
       "AWAIT_USER_DIRECTIVE":"Dis-moi ce que tu veux faire ensuite.",
       "AWAIT_NEW_INSTRUCTION":"Donne-moi une nouvelle instruction.",
