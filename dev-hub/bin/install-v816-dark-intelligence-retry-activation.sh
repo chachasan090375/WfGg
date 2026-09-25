@@ -89,7 +89,8 @@ for unit in "${UNITS[@]}"; do
 done
 systemctl daemon-reload
 for timer in "${TIMERS[@]}"; do
-  systemctl enable --now "$timer"
+  systemctl enable "$timer"
+  systemctl restart "$timer"
   systemctl is-enabled --quiet "$timer"
   systemctl is-active --quiet "$timer"
 done
