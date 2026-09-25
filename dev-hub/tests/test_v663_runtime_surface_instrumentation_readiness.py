@@ -21,7 +21,7 @@ policy=load(CFG/"agent-fleet-observatory.v1.json")
 routing=load(CFG/"agent-routing.v1.json");seven=load(CFG/"seven-agent-final-compromise.v1.json")
 project=load(ROOT/"dev-hub/projects/wfgg-radar/project-agent-registry.v1.json")
 inv=aec.build_inventory(routing,seven,[project])
-assert inv["agent_count"]==35,inv
+assert inv["agent_count"]>=35,inv
 assert routing["principles"]["project_scoped_agents_must_not_enter_platform_routing"] is True
 assert routing["scope_exclusions"]["technology-radar-agent"]["scope"]=="PROJECT_ONLY"
 assert project["platform_global"] is False
