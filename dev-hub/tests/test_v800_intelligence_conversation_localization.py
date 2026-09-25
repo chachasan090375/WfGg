@@ -87,6 +87,17 @@ assert reply["central_authority_preserved"] is True
 assert reply["decision_modified"] is False
 assert reply["requires_user_response"] is True
 
+status_reply=conv.compose({
+  "schema":"chacha.dev/central-interface-receipt/v1","status":"OK","project_id":"chacha-dev-platform",
+  "next_action":"AWAIT_USER_DIRECTIVE","brain_decision_obtained":True,
+  "decision":{"platform_status":{"platform_version":"7.8.0","emergency_stop_active":False,
+    "guardian_all_hooks_active":True,"agent_count":35,
+    "hygiene":{"metrics":{"hygiene_debt_score":0}}}}
+})
+assert "version active 7.8.0" in status_reply["message"]
+assert "Guardian actif" in status_reply["message"]
+assert "35 agents enregistrés" in status_reply["message"]
+
 direct_src=(ROOT/"dev-hub/bin/direct-operator-service.py").read_text(encoding="utf-8")
 ui=(ROOT/"dev-hub/direct-operator-ui/index.html").read_text(encoding="utf-8")
 assert "conversation-interface-agent.py" in direct_src
