@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,hashlib,json,time
+import argparse,hashlib,json,time,subprocess,sys
 from pathlib import Path
 from typing import Any
 
@@ -75,8 +75,38 @@ def normalize(obs:dict[str,Any],policy:dict[str,Any])->dict[str,Any]:
       "direct_fact_promotion_allowed":False,"direct_decision_authority":False,
       "automatic_external_spend_eur":0
     }
+def verify_with_technology_watch(repo_root:Path,dossier:dict[str,Any],output_dir:Path)->dict[str,Any]:
+    output_dir.mkdir(parents=True,exist_ok=True)
+    technology_dossier=output_dir/"technology-dossier.json"
+    save(technology_dossier,dossier["technology_dossier"])
+    service=repo_root/"dev-hub/bin/technology-watch-service.py"
+    p=subprocess.run([
+      sys.executable,str(service),"--repo-root",str(repo_root),"evaluate",
+      "--dossier",str(technology_dossier),"--output-dir",str(output_dir)
+    ],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=180)
+    evaluation=output_dir/"evaluation.json"
+    if p.returncode!=0 or not evaluation.is_file():
+        raise RuntimeError("DARK_INTELLIGENCE_TECHNOLOGY_WATCH_HANDOFF_FAILED:"+(p.stderr or p.stdout)[-1200:])
+    result=load(evaluation)
+    if result.get("status")!="PASS":
+        raise RuntimeError("DARK_INTELLIGENCE_TECHNOLOGY_WATCH_EVALUATION_INVALID")
+    return result
+
 def main()->int:
-    ap=argparse.ArgumentParser();ap.add_argument("--policy",type=Path,required=True);ap.add_argument("--observation",type=Path,required=True);ap.add_argument("--output",type=Path,required=True)
-    a=ap.parse_args();out=normalize(load(a.observation),load(a.policy));save(a.output,out);print(json.dumps(out,ensure_ascii=False))
-    print("CHACHA_DEV_V800_DARK_INTELLIGENCE_NORMALIZATION=PASS");print("CHACHA_DEV_V800_UNVERIFIED_SOURCE_AUTHORITY=NO");return 0
+    ap=argparse.ArgumentParser()
+    ap.add_argument("--repo-root",type=Path,default=Path(__file__).resolve().parents[2])
+    ap.add_argument("--policy",type=Path,required=True)
+    ap.add_argument("--observation",type=Path,required=True)
+    ap.add_argument("--output",type=Path,required=True)
+    ap.add_argument("--verification-output-dir",type=Path,required=True)
+    a=ap.parse_args()
+    out=normalize(load(a.observation),load(a.policy));save(a.output,out)
+    evaluation=verify_with_technology_watch(a.repo_root.resolve(),out,a.verification_output_dir)
+    out["technology_watch_evaluation"]=evaluation
+    save(a.output,out)
+    print(json.dumps(out,ensure_ascii=False))
+    print("CHACHA_DEV_V800_DARK_INTELLIGENCE_NORMALIZATION=PASS")
+    print("CHACHA_DEV_V800_TECHNOLOGY_WATCH_HANDOFF=PASS")
+    print("CHACHA_DEV_V800_UNVERIFIED_SOURCE_AUTHORITY=NO")
+    return 0
 if __name__=="__main__": raise SystemExit(main())
