@@ -105,7 +105,8 @@ rollback(){
 trap rollback EXIT
 
 [ "$(id -u)" -eq 0 ] || { echo "CHACHA_DEV_V780_INSTALL=BLOCKED reason=root_required"; exit 2; }
-mkdir -p "$RUNTIME/control" "$RUNTIME/secrets" "$RUNTIME/direct-operator" "$RUNTIME/progress" "$RUNTIME/live-ui" "$RUNTIME/native-update"
+mkdir -p "$RUNTIME/control" "$RUNTIME/secrets" "$RUNTIME/secrets/project-assurance" "$RUNTIME/direct-operator" "$RUNTIME/progress" "$RUNTIME/live-ui" "$RUNTIME/native-update"
+chmod 700 "$RUNTIME/secrets/project-assurance"
 exec 9>"$DEPLOY_LOCK"
 flock -n 9 || { echo "CHACHA_DEV_V780_INSTALL=BLOCKED reason=platform_deploy_lock_busy"; exit 73; }
 printf '%s' "$REV" | grep -Eq '^[0-9a-f]{40}$' || { echo "CHACHA_DEV_V780_INSTALL=BLOCKED reason=pinned_revision_required"; exit 2; }
