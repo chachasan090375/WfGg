@@ -1,0 +1,121 @@
+{
+  "schema": "chacha.dev/human-behavior-center-policy/v1",
+  "version": "8.1.2",
+  "agent_id": "human-behavior-center",
+  "display_name": "Centre Humain / Émotionnel / Personas",
+  "purpose": "Build an evolving evidence-backed library of human communication, emotional reactions and cultural representations for fictional personas and conversational design.",
+  "components": {
+    "observation_agent": {
+      "role": "Convert permitted source material into derived observations with provenance.",
+      "execution_authority": false
+    },
+    "behavior_analyst": {
+      "role": "Compare and contextualize observations without treating group patterns as deterministic truths.",
+      "execution_authority": false
+    },
+    "persona_synthesizer": {
+      "role": "Create fictional persona cards from explicit creative specifications plus compatible evidence.",
+      "execution_authority": false
+    },
+    "learning_curator": {
+      "role": "Promote reviewed incremental learning deltas to central memory; never self-modify policy or permissions.",
+      "execution_authority": false
+    }
+  },
+  "authority": {
+    "decision_authority": false,
+    "architecture_authority": false,
+    "execution_authority": false,
+    "production_mutation_authority": false,
+    "permission_expansion_authority": false,
+    "may_modify_own_contract": false
+  },
+  "storage": {
+    "evidence_db": "/opt/chacha-dev/runtime/knowledge/human-behavior/evidence.db",
+    "persona_dir": "/opt/chacha-dev/runtime/knowledge/human-behavior/personas",
+    "feedback_dir": "/opt/chacha-dev/runtime/knowledge/human-behavior/feedback",
+    "derived_observations_only": true,
+    "raw_video_storage": false,
+    "raw_audio_storage": false,
+    "raw_film_storage": false,
+    "raw_transcript_storage": false
+  },
+  "source_classes": {
+    "PEER_REVIEWED_RESEARCH": {"weight": 1.0, "allowed_scopes": ["EMPIRICAL_HINT"]},
+    "ACADEMIC_BOOK": {"weight": 0.9, "allowed_scopes": ["EMPIRICAL_HINT"]},
+    "SURVEY": {"weight": 0.85, "allowed_scopes": ["EMPIRICAL_HINT"]},
+    "DOCUMENTARY_INTERVIEW": {"weight": 0.7, "allowed_scopes": ["CONTEXTUAL_OBSERVATION"]},
+    "LONGFORM_INTERVIEW": {"weight": 0.65, "allowed_scopes": ["CONTEXTUAL_OBSERVATION"]},
+    "PUBLIC_VIDEO_OBSERVATION": {"weight": 0.5, "allowed_scopes": ["CONTEXTUAL_OBSERVATION"]},
+    "SOCIAL_MEDIA_PUBLIC": {"weight": 0.4, "allowed_scopes": ["CONTEXTUAL_OBSERVATION"]},
+    "FICTIONAL_FILM": {"weight": 0.35, "allowed_scopes": ["REPRESENTATION_ONLY"]},
+    "FICTIONAL_TV": {"weight": 0.35, "allowed_scopes": ["REPRESENTATION_ONLY"]},
+    "FICTIONAL_LITERATURE": {"weight": 0.35, "allowed_scopes": ["REPRESENTATION_ONLY"]},
+    "USER_FEEDBACK": {"weight": 0.6, "allowed_scopes": ["PERSONA_FEEDBACK"]}
+  },
+  "observation_domains": [
+    "speech",
+    "politeness",
+    "humor",
+    "emotion_expression",
+    "conflict_response",
+    "affection",
+    "uncertainty",
+    "decision_style",
+    "social_distance",
+    "gesture",
+    "status_signaling",
+    "cultural_reference",
+    "regional_expression"
+  ],
+  "persona": {
+    "mode": "FICTIONAL_ARCHETYPE",
+    "creative_stereotype_mode_allowed": true,
+    "stereotype_intensity_min": 0,
+    "stereotype_intensity_max": 3,
+    "default_stereotype_intensity": 1,
+    "persona_is_fictional_by_contract": true,
+    "real_person_prediction_from_persona_forbidden": true,
+    "real_person_protected_trait_inference_forbidden": true,
+    "real_person_psychological_diagnosis_forbidden": true,
+    "degrading_or_dehumanizing_generalization_forbidden": true,
+    "evidence_and_creative_assumption_must_be_separable": true
+  },
+  "evidence": {
+    "provenance_required": true,
+    "source_type_required": true,
+    "source_ref_required": true,
+    "time_context_required_when_known": true,
+    "geographic_context_required_when_relevant": true,
+    "confidence_required": true,
+    "derived_not_raw_required": true,
+    "fiction_never_promoted_to_empirical_truth": true,
+    "single_source_never_becomes_population_rule": true,
+    "contradictory_observations_preserved": true
+  },
+  "learning": {
+    "enabled": true,
+    "incremental_only": true,
+    "central_memory": "chacha-dev",
+    "learning_delta_kind": "human-behavior-evidence-delta",
+    "human_review_required_for_policy_change": true,
+    "guardian_required_for_material_change": true,
+    "sentinel_required_for_material_change": true,
+    "self_modification_forbidden": true
+  },
+  "media_analysis_future_contract": {
+    "video_analysis_allowed": true,
+    "film_analysis_allowed": true,
+    "store_only_derived_observations_and_provenance": true,
+    "store_full_copyrighted_media": false,
+    "store_full_dialogue_transcripts": false,
+    "fiction_is_representation_not_population_truth": true
+  },
+  "governance": {
+    "guardian_role_contract_required": true,
+    "sentinel_regression_required": true,
+    "observation_bus_visible": true,
+    "automatic_external_spend_eur": 0
+  },
+  "automatic_external_spend_eur": 0
+}

@@ -19,7 +19,7 @@ TURN_SCHEMA="chacha.dev/conversation-turn/v1"
 PROFILE_ALLOWED_FIELDS={
   "preferred_name","preferred_form_of_address","gender_identity","age_band","languages",
   "cultural_contexts","regional_contexts","conversation_register","directness","verbosity",
-  "humor_level","voice_preferences"
+  "humor_level","voice_preferences","assistant_persona_id"
 }
 
 def now_iso()->str:return time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())
@@ -118,6 +118,8 @@ class State:
         self.dialogue_orchestrator=repo/str(dialogue_cfg.get("script") or "dev-hub/bin/dialogue-orchestrator.py")
         self.dialogue_policy=repo/str(dialogue_cfg.get("policy") or "dev-hub/config/dialogue-orchestrator.v1.json")
         self.dialogue_attestation=Path(str(dialogue_cfg.get("zero_cost_attestation") or "/opt/chacha-dev/runtime/provider-economics/agy-conversation-zero-cost.json"))
+        hbc_cfg=policy.get("human_behavior_center") if isinstance(policy.get("human_behavior_center"),dict) else {}
+        self.persona_dir=Path(str(hbc_cfg.get("persona_dir") or "/opt/chacha-dev/runtime/knowledge/human-behavior/personas"))
         self.emergency=repo/str(policy.get("emergency_controller") or "dev-hub/bin/emergency-stop-controller.py")
         progress_policy=repo/str(policy.get("progress_policy") or "dev-hub/config/progress-reporting.v1.json")
         self.progress=ProgressStore(load(progress_policy))
@@ -219,7 +221,9 @@ class State:
           "submitted_at":response.get("submitted_at"),"responded_at":response.get("responded_at") or cv.get("responded_at"),
           "user":{"role":"user","text":str(response.get("submitted_user_message") or "")},
           "assistant":{"role":"assistant","text":str(cv.get("message") or response.get("message") or ""),
-                       "kind":cv.get("kind") or "INFO"},
+                       "kind":cv.get("kind") or "INFO",
+                       "persona_id":((cv.get("dialogue_orchestrator") or {}).get("speaker_persona_id")
+                         if isinstance(cv.get("dialogue_orchestrator"),dict) else None)},
           "status":response.get("status"),"next_action":response.get("next_action"),
           "response_digest":None,"automatic_external_spend_eur":0
         }
@@ -245,6 +249,38 @@ class State:
             except Exception:pass
         return {"schema":TIMELINE_SCHEMA,"items":items,"count":len(items),"limit":limit,
                 "profile_available":self.profile_path(operator).is_file(),"automatic_external_spend_eur":0}
+
+    def persona_catalog(self,limit:int=100)->dict[str,Any]:
+        items=[]
+        if self.persona_dir.is_dir():
+            for path in sorted(self.persona_dir.glob("*.json"))[:max(1,min(200,int(limit)))]:
+                try:
+                    x=load(path)
+                except Exception:
+                    continue
+                if x.get("schema")!="chacha.dev/fictional-persona-card/v1":continue
+                items.append({
+                  "persona_id":x.get("persona_id"),
+                  "display_name":x.get("display_name"),
+                  "stereotype_intensity":x.get("stereotype_intensity"),
+                  "identity_frame":x.get("identity_frame") if isinstance(x.get("identity_frame"),dict) else {},
+                  "source_mix":x.get("source_mix") if isinstance(x.get("source_mix"),dict) else {}
+                })
+        return {"schema":"chacha.dev/persona-catalog/v1","items":items,"count":len(items),
+                "automatic_external_spend_eur":0}
+
+    def selected_persona_path(self,operator:str)->Path|None:
+        try:profile=self.profile_view(operator)
+        except Exception:return None
+        pid=str(profile.get("assistant_persona_id") or "").strip()
+        if not pid:return None
+        candidate=self.persona_dir/(safe_id(pid)+".json")
+        if not candidate.is_file():return None
+        try:
+            x=load(candidate)
+            if x.get("schema")!="chacha.dev/fictional-persona-card/v1" or str(x.get("persona_id") or "")!=pid:return None
+        except Exception:return None
+        return candidate
 
     def job_path(self,jid:str)->Path:return self.jobs/(safe_id(jid)+".json")
     def set_job(self,jid:str,**fields)->dict[str,Any]:
@@ -416,6 +452,9 @@ class State:
               "--base",str(conversation_path),"--human-context",str(human_context_path),
               "--timeline",str(dialogue_history_path),"--policy",str(self.dialogue_policy),
               "--output",str(dialogue_path)]
+            persona_path=self.selected_persona_path(operator)
+            if persona_path is not None:
+                dialogue_cmd.extend(["--persona-card",str(persona_path)])
             if self.dialogue_attestation.is_file():
                 dialogue_cmd.extend(["--attestation",str(self.dialogue_attestation)])
             dp=run(dialogue_cmd,150)
@@ -483,6 +522,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.json(200,self.st.conversation_view(identity,limit))
         if path=="/api/v1/human-profile":
             return self.json(200,self.st.profile_view(identity))
+        if path=="/api/v1/personas":
+            return self.json(200,self.st.persona_catalog())
         if path=="/api/v1/progress":
             return self.json(200,self.st.progress.snapshot())
         if path=="/api/v1/app-config":

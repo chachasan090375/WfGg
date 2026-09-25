@@ -93,6 +93,9 @@ Hard rules:
 - Never infer age, gender, ethnicity, religion, culture, region or personality from name, voice, accent or location.
 - Interaction signals are temporary communication cues, not diagnoses.
 - Adapt register, directness, verbosity and light humor only when explicitly requested.
+- If SPEAKER_PERSONA is present, embody that fictional persona's language, social style, humor and emotional expression.
+- SPEAKER_PERSONA is a creative performance contract, not evidence about any real person or population.
+- Persona performance must never change the locked operational meaning, status, next action, approvals or uncertainty.
 - Preserve uncertainty from the locked response.
 - Return only JSON matching the supplied schema.
 """
@@ -119,7 +122,40 @@ def style_context(human:dict[str,Any])->dict[str,Any]:
       "rules":{"no_stereotype_inference":True,"no_psychological_diagnosis":True}
     }
 
-def build_prompt(base:dict[str,Any],human:dict[str,Any],timeline:dict[str,Any],policy:dict[str,Any])->str:
+def persona_context(persona:dict[str,Any]|None)->dict[str,Any]:
+    if not isinstance(persona,dict) or persona.get("schema")!="chacha.dev/fictional-persona-card/v1":
+        return {}
+    dims=persona.get("behavior_dimensions") if isinstance(persona.get("behavior_dimensions"),dict) else {}
+    compact={}
+    for domain,rows in dims.items():
+        if not isinstance(rows,list):continue
+        picked=[]
+        for row in rows[:6]:
+            if not isinstance(row,dict):continue
+            strength=float(row.get("strength") or 0)
+            if strength<=0:continue
+            picked.append({
+              "pattern":str(row.get("pattern") or "")[:800],
+              "strength":round(strength,3),
+              "evidence_scope":row.get("evidence_scope")
+            })
+        if picked:compact[str(domain)]=picked
+    return {
+      "persona_id":persona.get("persona_id"),
+      "display_name":persona.get("display_name"),
+      "mode":"FICTIONAL_ARCHETYPE",
+      "stereotype_intensity":persona.get("stereotype_intensity"),
+      "identity_frame":persona.get("identity_frame") if isinstance(persona.get("identity_frame"),dict) else {},
+      "creative_assumptions":list(persona.get("creative_assumptions") or [])[:20],
+      "behavior_dimensions":compact,
+      "governance":{
+        "fictional_persona":True,
+        "not_a_prediction_about_real_people":True,
+        "technical_decision_authority":False
+      }
+    }
+
+def build_prompt(base:dict[str,Any],human:dict[str,Any],timeline:dict[str,Any],policy:dict[str,Any],persona:dict[str,Any]|None=None)->str:
     c=policy.get("context") if isinstance(policy.get("context"),dict) else {}
     payload={
       "LOCKED_RESPONSE":{
@@ -131,7 +167,8 @@ def build_prompt(base:dict[str,Any],human:dict[str,Any],timeline:dict[str,Any],p
       },
       "RECENT_DIALOGUE":bounded_timeline(timeline,int(c.get("recent_turn_limit") or 16)),
       "HUMAN_STYLE_CONTEXT":style_context(human),
-      "TASK":"Rewrite only LOCKED_RESPONSE.message as a natural reply. Convey exactly the same operational meaning and uncertainty. Do not add technical facts."
+      "SPEAKER_PERSONA":persona_context(persona),
+      "TASK":"Rewrite only LOCKED_RESPONSE.message as a natural reply. Convey exactly the same operational meaning and uncertainty. When SPEAKER_PERSONA is present, perform that fictional persona without adding technical facts."
     }
     prompt="DIALOGUE_JOB_JSON="+json.dumps(payload,ensure_ascii=False,separators=(",",":"))
     max_chars=max(4000,int(c.get("max_prompt_chars") or 30000))
@@ -181,7 +218,7 @@ def parse_backend(raw:bytes)->dict[str,Any]:
         raise ValueError("DIALOGUE_MODEL_SCHEMA_INVALID")
     return structured
 
-def invoke_model(base:dict[str,Any],human:dict[str,Any],timeline:dict[str,Any],policy:dict[str,Any],backend_override:Path|None=None)->tuple[str|None,dict[str,Any]]:
+def invoke_model(base:dict[str,Any],human:dict[str,Any],timeline:dict[str,Any],policy:dict[str,Any],backend_override:Path|None=None,persona:dict[str,Any]|None=None)->tuple[str|None,dict[str,Any]]:
     p=policy.get("provider") if isinstance(policy.get("provider"),dict) else {}
     backend=backend_override or Path(str(p.get("backend") or "/usr/local/bin/agy-dev"))
     if not backend.is_file() or not os.access(backend,os.X_OK):
@@ -198,7 +235,7 @@ def invoke_model(base:dict[str,Any],human:dict[str,Any],timeline:dict[str,Any],p
         for model in models:
             try:
                 proc=subprocess.run([
-                  str(backend),"-p",build_prompt(base,human,timeline,policy),
+                  str(backend),"-p",build_prompt(base,human,timeline,policy,persona),
                   "--model",model,"--agent","chacha-human-dialogue",
                   "--output-format","json","--json-schema",str(schema),
                   "--print-timeout",f"{timeout}s","--sandbox"
@@ -219,7 +256,8 @@ def invoke_model(base:dict[str,Any],human:dict[str,Any],timeline:dict[str,Any],p
     return None,{"status":"UNAVAILABLE","reason":"ALL_MODELS_FAILED_OR_REJECTED","attempts":attempts}
 
 def orchestrate(base:dict[str,Any],human:dict[str,Any],timeline:dict[str,Any],policy:dict[str,Any],
-                attestation:dict[str,Any]|None=None,backend_override:Path|None=None)->dict[str,Any]:
+                attestation:dict[str,Any]|None=None,backend_override:Path|None=None,
+                persona:dict[str,Any]|None=None)->dict[str,Any]:
     if policy.get("schema")!=POLICY_SCHEMA:raise ValueError("DIALOGUE_POLICY_INVALID")
     if base.get("schema")!=BASE_SCHEMA:raise ValueError("DIALOGUE_BASE_RESPONSE_INVALID")
     out=dict(base)
@@ -230,10 +268,13 @@ def orchestrate(base:dict[str,Any],human:dict[str,Any],timeline:dict[str,Any],po
       "provider_reason":elig.get("reason"),"provider_invoked":False,
       "mode":"DETERMINISTIC_BASE_RESPONSE","central_status_immutable":True,
       "central_next_action_immutable":True,"central_authority_preserved":True,
-      "decision_modified":False,"automatic_external_spend_eur":0
+      "decision_modified":False,
+      "speaker_persona_id":(persona or {}).get("persona_id") if isinstance(persona,dict) else None,
+      "speaker_persona_applied":bool(persona_context(persona)),
+      "automatic_external_spend_eur":0
     }
     if elig.get("eligible"):
-        msg,runtime=invoke_model(base,human,timeline,policy,backend_override)
+        msg,runtime=invoke_model(base,human,timeline,policy,backend_override,persona)
         meta["provider_invoked"]=True;meta["runtime"]=runtime
         if msg:
             out["message"]=msg;meta["mode"]="MODEL_REPHRASE"
@@ -252,14 +293,16 @@ def main()->int:
     ap.add_argument("--base",type=Path,required=True)
     ap.add_argument("--human-context",type=Path)
     ap.add_argument("--timeline",type=Path)
+    ap.add_argument("--persona-card",type=Path)
     ap.add_argument("--policy",type=Path,required=True)
     ap.add_argument("--attestation",type=Path)
     ap.add_argument("--backend",type=Path)
     ap.add_argument("--output",type=Path,required=True)
     a=ap.parse_args()
     base=load(a.base);human=load(a.human_context,{}) if a.human_context else {};timeline=load(a.timeline,{}) if a.timeline else {}
+    persona=load(a.persona_card,{}) if a.persona_card and a.persona_card.is_file() else {}
     policy=load(a.policy);att=load(a.attestation) if a.attestation and a.attestation.is_file() else None
-    out=orchestrate(base,human,timeline,policy,att,a.backend)
+    out=orchestrate(base,human,timeline,policy,att,a.backend,persona)
     save(a.output,out)
     print(json.dumps(out,ensure_ascii=False))
     print("CHACHA_DEV_V811_DIALOGUE_ORCHESTRATOR=PASS",file=os.sys.stderr)

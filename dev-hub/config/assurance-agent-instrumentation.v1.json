@@ -169,6 +169,26 @@
         "robustness"
       ],
       "quality_claim_from_activity": false
+    },
+    {
+      "agent_id": "human-behavior-center",
+      "risk": "medium",
+      "boundaries": [
+        "central-memory",
+        "dialogue-orchestrator",
+        "guardian",
+        "sentinel"
+      ],
+      "observed_dimensions": [
+        "provenance",
+        "evidence_scope_correctness",
+        "fiction_vs_empirical_separation",
+        "persona_fictionality",
+        "authority_boundary",
+        "privacy",
+        "learning_quality"
+      ],
+      "quality_claim_from_activity": false
     }
   ],
   "invariants": {

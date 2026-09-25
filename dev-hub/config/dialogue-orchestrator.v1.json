@@ -9,7 +9,13 @@
     "cost_class": "quota",
     "zero_cost_attestation_required": true,
     "zero_cost_attestation": "/opt/chacha-dev/runtime/provider-economics/agy-conversation-zero-cost.json",
-    "allowed_zero_cost_classes": ["free", "owned", "included", "local", "quota"],
+    "allowed_zero_cost_classes": [
+      "free",
+      "owned",
+      "included",
+      "local",
+      "quota"
+    ],
     "models": [
       "gemini-3.8-flash-low",
       "gemini-3.7-flash-low",
@@ -44,5 +50,27 @@
     "provider_unavailable_is_not_user_request_failure": true,
     "provider_cost_unattested_is_fail_closed": true
   },
-  "automatic_external_spend_eur": 0
+  "automatic_external_spend_eur": 0,
+  "persona": {
+    "enabled": true,
+    "accepted_schema": "chacha.dev/fictional-persona-card/v1",
+    "creative_performance_only": true,
+    "may_affect": [
+      "language",
+      "sociolect",
+      "humor",
+      "emotional_expression",
+      "social_style",
+      "reaction_style"
+    ],
+    "may_not_affect": [
+      "status",
+      "next_action",
+      "technical_facts",
+      "approvals",
+      "authority",
+      "uncertainty"
+    ],
+    "real_person_inference": false
+  }
 }

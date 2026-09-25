@@ -129,6 +129,7 @@ details.tech pre{font-size:11px;color:#aaa5b7}
     <input id="hpRegion" placeholder="Région(s), ex. Provence">
     <input id="hpRegister" placeholder="Registre, ex. familier-direct">
     <input id="hpHumor" placeholder="Humour, ex. léger">
+    <select id="hpPersona"><option value="">Persona de ChaCha : neutre</option></select>
   </div>
   <button id="hpSave" style="margin-top:10px">Enregistrer mes préférences</button>
   <span class="tiny" id="hpStatus" style="margin-left:8px"></span>
@@ -137,7 +138,7 @@ details.tech pre{font-size:11px;color:#aaa5b7}
 <script>
 const q=document.querySelector('#q'),send=document.querySelector('#send'),stage=document.querySelector('#stage');
 const timeline=document.querySelector('#timeline'),typing=document.querySelector('#typing'),tech=document.querySelector('#tech'),techResult=document.querySelector('#techResult'),conversationMeta=document.querySelector('#conversationMeta');
-const hpName=document.querySelector('#hpName'),hpAddress=document.querySelector('#hpAddress'),hpGender=document.querySelector('#hpGender'),hpAge=document.querySelector('#hpAge'),hpCulture=document.querySelector('#hpCulture'),hpRegion=document.querySelector('#hpRegion'),hpRegister=document.querySelector('#hpRegister'),hpHumor=document.querySelector('#hpHumor'),hpSave=document.querySelector('#hpSave'),hpStatus=document.querySelector('#hpStatus');
+const hpName=document.querySelector('#hpName'),hpAddress=document.querySelector('#hpAddress'),hpGender=document.querySelector('#hpGender'),hpAge=document.querySelector('#hpAge'),hpCulture=document.querySelector('#hpCulture'),hpRegion=document.querySelector('#hpRegion'),hpRegister=document.querySelector('#hpRegister'),hpHumor=document.querySelector('#hpHumor'),hpPersona=document.querySelector('#hpPersona'),hpSave=document.querySelector('#hpSave'),hpStatus=document.querySelector('#hpStatus');
 let lastSeenRequestId='',lastSeenDigest='',lastTimelineToken='',conversationSyncBusy=false,progressBusy=false;
 let runtimeRevision='',activeJobId='',pendingUiReload=false;
 const globalPct=document.querySelector('#globalPct'),globalFill=document.querySelector('#globalFill'),globalLabel=document.querySelector('#globalLabel');
@@ -313,6 +314,19 @@ async function checkUiRevision(){
   }
  }catch(_){}
 }
+async function loadPersonas(selected=''){
+ try{
+  const x=await fetchJson('/api/v1/personas',{},2);
+  const items=Array.isArray(x.items)?x.items:[];
+  hpPersona.innerHTML='<option value="">Persona de ChaCha : neutre</option>'+items.map(p=>{
+   const id=String(p.persona_id||'');const label=String(p.display_name||id);
+   return '<option value="'+esc(id)+'">'+esc(label)+'</option>';
+  }).join('');
+  hpPersona.value=selected||'';
+ }catch(_){
+  hpPersona.innerHTML='<option value="">Persona de ChaCha : neutre</option>';
+ }
+}
 async function loadHumanProfile(){
  try{
   const p=await fetchJson('/api/v1/human-profile',{},2);
@@ -324,7 +338,8 @@ async function loadHumanProfile(){
   hpRegion.value=(p.regional_contexts||[]).join(', ');
   hpRegister.value=p.conversation_register||'';
   hpHumor.value=p.humor_level||'';
- }catch(_){}
+  await loadPersonas(p.assistant_persona_id||'');
+ }catch(_){await loadPersonas('')}
 }
 hpSave.onclick=async()=>{
  hpSave.disabled=true;hpStatus.textContent='Enregistrement…';
@@ -340,7 +355,8 @@ hpSave.onclick=async()=>{
     cultural_contexts:split(hpCulture.value),
     regional_contexts:split(hpRegion.value),
     conversation_register:hpRegister.value.trim(),
-    humor_level:hpHumor.value.trim()
+    humor_level:hpHumor.value.trim(),
+    assistant_persona_id:hpPersona.value
    })
   },2);
   hpStatus.textContent='Préférences enregistrées';

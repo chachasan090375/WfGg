@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "chacha.dev/fictional-persona-card/v1",
+  "type":"object",
+  "required":["schema","persona_id","display_name","mode","stereotype_intensity","identity_frame","behavior_dimensions","creative_assumptions","evidence_hints","governance"],
+  "properties":{
+    "schema":{"const":"chacha.dev/fictional-persona-card/v1"},
+    "persona_id":{"type":"string"},
+    "display_name":{"type":"string"},
+    "mode":{"const":"FICTIONAL_ARCHETYPE"},
+    "stereotype_intensity":{"type":"integer","minimum":0,"maximum":3},
+    "identity_frame":{"type":"object"},
+    "behavior_dimensions":{"type":"object"},
+    "creative_assumptions":{"type":"array","items":{"type":"string"}},
+    "evidence_hints":{"type":"array","items":{"type":"object"}},
+    "source_mix":{"type":"object"},
+    "governance":{"type":"object"}
+  }
+}

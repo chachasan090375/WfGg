@@ -1,0 +1,76 @@
+name: ChaCha DEV V8.1.2 Human Behavior Persona Center
+
+on:
+  push:
+    branches:
+      - dev-hub-v812-human-behavior-persona-center
+    paths:
+      - 'dev-hub/bin/human-behavior-center.py'
+      - 'dev-hub/bin/dialogue-orchestrator.py'
+      - 'dev-hub/bin/direct-operator-service.py'
+      - 'dev-hub/config/human-behavior-center.v1.json'
+      - 'dev-hub/config/dialogue-orchestrator.v1.json'
+      - 'dev-hub/config/direct-operator.v1.json'
+      - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/config/assurance-agent-instrumentation.v1.json'
+      - 'dev-hub/config/universal-learning.v1.json'
+      - 'dev-hub/direct-operator-ui/index.html'
+      - 'dev-hub/schemas/human-behavior-observation-v1.schema.json'
+      - 'dev-hub/schemas/fictional-persona-spec-v1.schema.json'
+      - 'dev-hub/schemas/fictional-persona-card-v1.schema.json'
+      - 'dev-hub/tests/test_v812_human_behavior_persona_center.py'
+      - 'dev-hub/docs/HUMAN_BEHAVIOR_PERSONA_CENTER_V812.md'
+      - '.github/workflows/dev-hub-v812-human-behavior-persona-center.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/human-behavior-center.py             dev-hub/bin/dialogue-orchestrator.py             dev-hub/bin/direct-operator-service.py             dev-hub/tests/test_v810_human_conversation_foundation.py             dev-hub/tests/test_v811_dialogue_orchestrator.py             dev-hub/tests/test_v812_human_behavior_persona_center.py
+          python3 -m json.tool dev-hub/config/human-behavior-center.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/dialogue-orchestrator.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/direct-operator.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/assurance-agent-instrumentation.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/universal-learning.v1.json >/dev/null
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('dev-hub/direct-operator-ui/index.html').read_text()
+          js=s.split('<script>',1)[1].split('</script>',1)[0]
+          Path('/tmp/v812-ui.js').write_text(js)
+          PY
+          node --check /tmp/v812-ui.js
+
+      - name: V8.1.0 conversation regression
+        run: python3 dev-hub/tests/test_v810_human_conversation_foundation.py
+
+      - name: V8.1.1 dialogue regression
+        run: python3 dev-hub/tests/test_v811_dialogue_orchestrator.py
+
+      - name: V8.1.2 qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v812_human_behavior_persona_center.py | tee /tmp/v812.out
+          grep -Fq 'CHACHA_DEV_V812_DERIVED_EVIDENCE_STORE=PASS' /tmp/v812.out
+          grep -Fq 'CHACHA_DEV_V812_FICTION_SCOPE_SEPARATION=PASS' /tmp/v812.out
+          grep -Fq 'CHACHA_DEV_V812_CONTRADICTORY_REPRESENTATIONS_PRESERVED=PASS' /tmp/v812.out
+          grep -Fq 'CHACHA_DEV_V812_CONTROLLED_STEREOTYPE_INTENSITY=PASS' /tmp/v812.out
+          grep -Fq 'CHACHA_DEV_V812_FICTIONAL_PERSONA_SYNTHESIS=PASS' /tmp/v812.out
+          grep -Fq 'CHACHA_DEV_V812_DIALOGUE_PERSONA_CONTEXT=PASS' /tmp/v812.out
+          grep -Fq 'CHACHA_DEV_V812_GUARDIAN_ROLE_CONTRACT=PASS' /tmp/v812.out
+          grep -Fq 'CHACHA_DEV_V812_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v812.out

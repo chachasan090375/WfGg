@@ -97,5 +97,15 @@
     "mutation_authority": false,
     "fallback_is_deterministic": true,
     "automatic_external_spend_eur": 0
+  },
+  "human_behavior_center": {
+    "agent_id": "human-behavior-center",
+    "policy": "dev-hub/config/human-behavior-center.v1.json",
+    "script": "dev-hub/bin/human-behavior-center.py",
+    "persona_dir": "/opt/chacha-dev/runtime/knowledge/human-behavior/personas",
+    "evidence_db": "/opt/chacha-dev/runtime/knowledge/human-behavior/evidence.db",
+    "decision_authority": false,
+    "execution_authority": false,
+    "automatic_external_spend_eur": 0
   }
 }

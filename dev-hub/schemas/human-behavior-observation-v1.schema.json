@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "chacha.dev/human-behavior-observation/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema","observation_id","source","evidence_scope","domain","facets","pattern","confidence","derived_not_raw"],
+  "properties": {
+    "schema": {"const": "chacha.dev/human-behavior-observation/v1"},
+    "observation_id": {"type":"string","minLength":3},
+    "source": {
+      "type":"object",
+      "additionalProperties": false,
+      "required":["type","ref"],
+      "properties":{
+        "type":{"type":"string"},
+        "ref":{"type":"string","minLength":1},
+        "title":{"type":"string"},
+        "creator":{"type":"string"},
+        "published_at":{"type":"string"}
+      }
+    },
+    "evidence_scope":{"enum":["EMPIRICAL_HINT","CONTEXTUAL_OBSERVATION","REPRESENTATION_ONLY","PERSONA_FEEDBACK"]},
+    "domain":{"type":"string"},
+    "facets":{"type":"object"},
+    "pattern":{"type":"string","minLength":3,"maxLength":3000},
+    "context":{"type":"string","maxLength":3000},
+    "confidence":{"type":"number","minimum":0,"maximum":1},
+    "derived_not_raw":{"const":true},
+    "corroboration_refs":{"type":"array","items":{"type":"string"}},
+    "notes":{"type":"array","items":{"type":"string"}}
+  }
+}

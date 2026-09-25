@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "chacha.dev/fictional-persona-spec/v1",
+  "type": "object",
+  "additionalProperties": true,
+  "required":["schema","persona_id","mode","display_name"],
+  "properties":{
+    "schema":{"const":"chacha.dev/fictional-persona-spec/v1"},
+    "persona_id":{"type":"string","minLength":2},
+    "mode":{"const":"FICTIONAL_ARCHETYPE"},
+    "display_name":{"type":"string","minLength":1},
+    "stereotype_intensity":{"type":"integer","minimum":0,"maximum":3},
+    "presentation_gender":{"type":"string"},
+    "age_band":{"type":"string"},
+    "regions":{"type":"array","items":{"type":"string"}},
+    "cultures":{"type":"array","items":{"type":"string"}},
+    "social_milieu":{"type":"array","items":{"type":"string"}},
+    "education":{"type":"array","items":{"type":"string"}},
+    "occupations":{"type":"array","items":{"type":"string"}},
+    "era":{"type":"string"},
+    "languages":{"type":"array","items":{"type":"string"}},
+    "sociolect":{"type":"array","items":{"type":"string"}},
+    "temperament":{"type":"array","items":{"type":"string"}},
+    "values":{"type":"array","items":{"type":"string"}},
+    "speech_style":{"type":"array","items":{"type":"string"}},
+    "creative_notes":{"type":"array","items":{"type":"string"}}
+  }
+}
