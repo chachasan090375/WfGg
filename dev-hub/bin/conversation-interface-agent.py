@@ -33,13 +33,31 @@ def compose(receipt:dict[str,Any],intent:dict[str,Any]|None=None)->dict[str,Any]
     elif status in {"PASS","COMPLETE","COMPLETED","SUCCESS","OK"}: kind="RESULT"
     else: kind="INFO"
     if not message:
-        defaults={
-          "BRAIN_UNAVAILABLE":"Je n’arrive pas à joindre correctement le cerveau central pour le moment.",
-          "BRAIN_RECEIPT_INVALID":"La réponse du cerveau central n’est pas exploitable telle quelle.",
-          "STOP_ACTIVE":"L’arrêt d’urgence est actif.",
-          "PASS":"C’est validé.","SUCCESS":"C’est validé.","OK":"C’est bon.","COMPLETE":"C’est terminé.","COMPLETED":"C’est terminé."
-        }
-        message=defaults.get(status,"Le cerveau central a répondu : "+humanize(status)+".")
+        platform=decision.get("platform_status") if isinstance(decision.get("platform_status"),dict) else None
+        if platform:
+            bits=[]
+            version=str(platform.get("platform_version") or "").strip()
+            if version: bits.append("version active "+version)
+            if "emergency_stop_active" in platform:
+                bits.append("arrêt d’urgence "+("actif" if platform.get("emergency_stop_active") else "désactivé"))
+            if "guardian_all_hooks_active" in platform:
+                bits.append("Guardian "+("actif" if platform.get("guardian_all_hooks_active") else "à vérifier"))
+            if platform.get("agent_count") is not None:
+                bits.append(str(platform.get("agent_count"))+" agents enregistrés")
+            hygiene=platform.get("hygiene") if isinstance(platform.get("hygiene"),dict) else {}
+            metrics=hygiene.get("metrics") if isinstance(hygiene.get("metrics"),dict) else {}
+            if metrics.get("hygiene_debt_score") is not None:
+                bits.append("dette d’hygiène "+str(metrics.get("hygiene_debt_score")))
+            message="ChaCha DEV est opérationnel."
+            if bits: message+=" "+", ".join(bits)+"."
+        else:
+            defaults={
+              "BRAIN_UNAVAILABLE":"Je n’arrive pas à joindre correctement le cerveau central pour le moment.",
+              "BRAIN_RECEIPT_INVALID":"La réponse du cerveau central n’est pas exploitable telle quelle.",
+              "STOP_ACTIVE":"L’arrêt d’urgence est actif.",
+              "PASS":"C’est validé.","SUCCESS":"C’est validé.","OK":"C’est bon.","COMPLETE":"C’est terminé.","COMPLETED":"C’est terminé."
+            }
+            message=defaults.get(status,"Le cerveau central a répondu : "+humanize(status)+".")
     action_text={
       "AWAIT_USER_DIRECTIVE":"Dis-moi ce que tu veux faire ensuite.",
       "AWAIT_NEW_INSTRUCTION":"Donne-moi une nouvelle instruction.",
