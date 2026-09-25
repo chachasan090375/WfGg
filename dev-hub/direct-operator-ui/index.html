@@ -112,11 +112,33 @@ details.tech pre{font-size:11px;color:#aaa5b7}
 <script>
 const q=document.querySelector('#q'),send=document.querySelector('#send'),stage=document.querySelector('#stage'),result=document.querySelector('#result');
 const userTurn=document.querySelector('#userTurn'),submitted=document.querySelector('#submitted'),tech=document.querySelector('#tech'),techResult=document.querySelector('#techResult'),conversationMeta=document.querySelector('#conversationMeta');
-let lastSeenRequestId='',lastSeenDigest='',conversationSyncBusy=false;
+let lastSeenRequestId='',lastSeenDigest='',conversationSyncBusy=false,progressBusy=false;
+let runtimeRevision='',activeJobId='',pendingUiReload=false;
 const globalPct=document.querySelector('#globalPct'),globalFill=document.querySelector('#globalFill'),globalLabel=document.querySelector('#globalLabel');
 const workPct=document.querySelector('#workPct'),workFill=document.querySelector('#workFill'),workState=document.querySelector('#workState'),headline=document.querySelector('#headline'),modules=document.querySelector('#modules');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const requestId=()=>{try{return crypto.randomUUID()}catch(_){return 'web-'+Date.now()+'-'+Math.random().toString(16).slice(2)}};
+async function fetchJson(url,options={},attempts=3){
+ let lastErr;
+ for(let i=0;i<attempts;i++){
+  const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),10000);
+  try{
+   const r=await fetch(url,{cache:'no-store',...options,signal:ctl.signal});
+   let body={};try{body=await r.json()}catch(_){}
+   if(r.ok)return body;
+   const err=new Error(body.reason||body.status||('HTTP '+r.status));
+   err.httpStatus=r.status;
+   if(r.status<500)throw err;
+   lastErr=err;
+  }catch(e){
+   lastErr=e;
+   if(e?.httpStatus&&e.httpStatus<500)throw e;
+  }finally{clearTimeout(timer)}
+  if(i<attempts-1)await sleep(700*Math.pow(2,i));
+ }
+ throw lastErr||new Error('Connexion impossible');
+}
 function renderProgress(p){
  const g=Math.max(0,Math.min(100,Number(p.platform_maturity_percent||0))),w=Math.max(0,Math.min(100,Number(p.active_work_percent||0)));
  globalPct.textContent=g+'%';globalFill.style.width=g+'%';globalLabel.textContent=p.platform_maturity_label||'ChaCha DEV global';
@@ -125,7 +147,9 @@ function renderProgress(p){
  modules.innerHTML=rows.map(m=>'<div class="module"><div class="moduleTop"><div class="moduleName">'+esc((m.icon||'•')+' '+(m.label||m.id))+'</div><div class="modulePct">'+Number(m.percent||0)+'%</div></div><div class="bar"><div class="fill work" style="width:'+Number(m.percent||0)+'%"></div></div><div class="moduleDetail">'+esc(m.detail||m.state||'')+'</div></div>').join('');
 }
 async function refreshProgress(){
- try{const r=await fetch('/api/v1/progress',{cache:'no-store'});if(r.ok)renderProgress(await r.json())}catch(_){}
+ if(progressBusy)return;progressBusy=true;
+ try{renderProgress(await fetchJson('/api/v1/progress',{},2))}catch(_){}
+ finally{progressBusy=false}
 }
 function displayTime(iso){
  try{return new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date(iso))}catch(_){return ''}
@@ -154,50 +178,79 @@ async function syncConversation(force=false){
  if(conversationSyncBusy)return;
  conversationSyncBusy=true;
  try{
-  const r=await fetch('/api/v1/session',{cache:'no-store'});
-  if(!r.ok)return;
-  const s=await r.json();
+  const s=await fetchJson('/api/v1/session',{},2);
   const rid=String(s.last_request_id||'');
   const dig=String(s.last_response_digest||'');
   if(s.last_response&&(force||rid!==lastSeenRequestId||dig!==lastSeenDigest)){
     renderConversation(s.last_response,dig);
   }else if(rid&&rid===lastSeenRequestId){
-    conversationMeta.classList.add('syncLive');
+    conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span> • synchronisé';
   }
  }catch(_){
-  conversationMeta.textContent='Synchronisation momentanément indisponible';
+  conversationMeta.textContent='Connexion interrompue — reconnexion automatique…';
  }finally{conversationSyncBusy=false}
 }
 async function hydrateConversation(){return syncConversation(true)}
 async function submit(text,fromEditor=false){
  const original=String(text||'').trim();if(!original)return;
+ const clientRequestId=requestId();
  let accepted=false;send.disabled=true;stage.textContent='ENVOI';result.textContent='ChaCha prend la demande…';tech.hidden=true;await refreshProgress();
  try{
-  const r=await fetch('/api/v1/intent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:original})});
-  const x=await r.json();if(!r.ok)throw new Error(x.reason||x.status||'Erreur');
-  accepted=true;submitted.textContent=original;userTurn.hidden=false;if(fromEditor)q.value='';
-  conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span> • nouvelle demande acceptée';
-  for(;;){await sleep(700);await refreshProgress();const jr=await fetch('/api/v1/jobs/'+x.job_id,{cache:'no-store'});const j=await jr.json();stage.textContent=j.state||'…';
-   if(j.state==='COMPLETE'){
-    renderConversation(j.response||{});
-    break
+  const x=await fetchJson('/api/v1/intent',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({text:original,client_request_id:clientRequestId})
+  },4);
+  accepted=true;activeJobId=x.job_id;submitted.textContent=original;userTurn.hidden=false;if(fromEditor)q.value='';
+  conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span> • demande acceptée • '+esc(clientRequestId.slice(0,8));
+  for(;;){
+   await sleep(1200);await refreshProgress();
+   try{
+    const j=await fetchJson('/api/v1/jobs/'+x.job_id,{},3);
+    stage.textContent=j.state||'…';
+    if(j.state==='COMPLETE'){renderConversation(j.response||{});break}
+    if(j.state==='FAILED')throw new Error(j.error||'Échec')
+   }catch(e){
+    conversationMeta.textContent='Connexion interrompue — la demande est conservée, reconnexion…';
+    continue;
    }
-   if(j.state==='FAILED')throw new Error(j.error||'Échec')
   }
  }catch(e){
-  stage.textContent='ERREUR';result.textContent=String(e);
-  if(fromEditor&&!accepted&&!q.value.trim())q.value=original
- }finally{send.disabled=false;await refreshProgress()}
+  if(accepted){
+   stage.textContent='RECONNEXION';
+   result.textContent='La demande a été acceptée. Je récupère son résultat dès que la connexion revient.';
+  }else{
+   stage.textContent='CONNEXION';
+   result.textContent='Je n’ai pas pu confirmer l’envoi. La demande reste dans la zone de saisie et sera à renvoyer si la reconnexion automatique n’aboutit pas.';
+   if(fromEditor&&!q.value.trim())q.value=original;
+  }
+ }finally{
+  activeJobId='';send.disabled=false;await syncConversation(true);await refreshProgress();
+  if(pendingUiReload){location.reload()}
+ }
 }
 send.onclick=()=>submit(q.value,true);document.querySelector('#go').onclick=()=>submit('Go');document.querySelector('#status').onclick=()=>submit('Allo');document.querySelector('#stop').onclick=()=>submit('Stop');
 document.querySelector('#mic').onclick=()=>{q.focus();result.textContent='Sur le widget Android, le micro utilise la dictée native. Ici, utilise le micro du clavier.'};
 q.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')submit(q.value,true)});
 window.chachaSetPrompt=(text)=>{q.value=String(text||'');q.focus();};
 window.chachaSubmit=(text)=>submit(String(text||''));
-window.chachaRefresh=()=>{syncConversation(true);refreshProgress();};
-hydrateConversation();refreshProgress();
-setInterval(refreshProgress,1500);
-setInterval(()=>syncConversation(false),1500);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){syncConversation(true);refreshProgress()}});
-window.addEventListener('focus',()=>syncConversation(true));
+async function checkUiRevision(){
+ try{
+  const cfg=await fetchJson('/api/v1/app-config',{},2);
+  const rev=String(cfg.runtime_revision||'');
+  if(!rev)return;
+  if(!runtimeRevision){runtimeRevision=rev;return}
+  if(rev!==runtimeRevision){
+   if(activeJobId){pendingUiReload=true;conversationMeta.textContent='Nouvelle interface disponible — mise à jour après cette opération…'}
+   else location.reload();
+  }
+ }catch(_){}
+}
+window.chachaRefresh=()=>{syncConversation(true);refreshProgress();checkUiRevision();};
+hydrateConversation();refreshProgress();checkUiRevision();
+setInterval(refreshProgress,2000);
+setInterval(()=>syncConversation(false),2000);
+setInterval(checkUiRevision,10000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){syncConversation(true);refreshProgress();checkUiRevision()}});
+window.addEventListener('focus',()=>{syncConversation(true);checkUiRevision()});
+window.addEventListener('online',()=>{syncConversation(true);refreshProgress();checkUiRevision()});
 </script></body></html>
