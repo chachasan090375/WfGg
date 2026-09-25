@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Final V8.0.1-compatible qualification trigger.
 from pathlib import Path
 import shutil,subprocess
 
