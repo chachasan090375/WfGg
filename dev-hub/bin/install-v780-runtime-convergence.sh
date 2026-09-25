@@ -213,14 +213,14 @@ print("CHACHA_DEV_V780_EXACT_SHA_ASSURANCE=PASS")
 PY
 
 stage guardian-d1-write-capacity-preflight
-# Test Guardian/D1 write capacity against the still-active acquired baseline.
-# This intentionally runs before creating or activating the V7.8 release, so
-# quota exhaustion cannot cause a runtime flip followed by rollback.
-if ! PYTHONPATH="$PREVIOUS/dev-hub/bin" python3 "$PREVIOUS/dev-hub/bin/guardian-coverage-heartbeat.py" \
-  --repo-root "$PREVIOUS" \
-  --manifest "$PREVIOUS/dev-hub/config/guardian-coverage-manifest.v1.json" \
+# Test Guardian/D1 write capacity with the exact V7.8 candidate coverage while
+# the acquired baseline is still active. This avoids false CRITICAL coverage
+# from the older runtime and still runs before any symlink/service activation.
+if ! PYTHONPATH="$SRC/dev-hub/bin" python3 "$SRC/dev-hub/bin/guardian-coverage-heartbeat.py" \
+  --repo-root "$SRC" \
+  --manifest "$SRC/dev-hub/config/guardian-coverage-manifest.v1.json" \
   --policy "$PREVIOUS/dev-hub/config/guardian-runtime-policy.v1.json" \
-  --client "$PREVIOUS/dev-hub/bin/guardian-client.py" \
+  --client "$SRC/dev-hub/bin/guardian-client.py" \
   --output "$WORK/guardian-d1-preflight.json" \
   >"$WORK/guardian-d1-preflight.out" 2>"$WORK/guardian-d1-preflight.err"; then
   echo "CHACHA_DEV_V780_INSTALL=BLOCKED reason=guardian_d1_write_capacity_unavailable"
