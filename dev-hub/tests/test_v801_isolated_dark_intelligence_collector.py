@@ -539,6 +539,35 @@ assert evidence_doc["fact_authority"]=="NONE"
 assert evidence_doc["technology_watch_must_score"] is True
 assert evidence_doc["logician_must_refalsify"] is True
 
+assert public_classify.MAX_CLAIMS_PER_RUN==5
+assert evidence_doc["global_timeout_seconds"]==60
+assert evidence_doc["max_claims_per_run"]==5
+assert evidence_doc["classification_partial"] is False
+
+# Global budget and claim cap: excess claims must be deferred, not multiplied
+# into unbounded per-claim/per-model time.
+many_claims={"schema":"chacha.dev/dark-intelligence-corroboration-candidates/v1","status":"PASS","provider":"synthetic","claims":[]}
+for i in range(8):
+    many_claims["claims"].append({
+      "claim_id":f"claim-{i}","claim_text":f"claim text {i}","status":"PASS",
+      "candidates":[{"candidate_id":f"cor-{i}","url":f"https://owner{i}.example/report",
+        "source_owner":f"owner{i}.example","retrieval_verified":True,"retrieved_text":"relevant text",
+        "derived_from_primary_source":False}]
+    })
+orig_classifier=public_classify.classify_claim
+try:
+    public_classify.classify_claim=lambda claim_id,claim_text,candidates,timeout=180: ({
+      "schema":"chacha.dev/dark-intelligence-corroboration-classification/v1","status":"CLASSIFIED",
+      "classifications":[],"limitations":[]
+    },{"model":"synthetic-ci","global_deadline_enforced":True})
+    bounded=public_classify.build_evidence(many_claims,30)
+finally:
+    public_classify.classify_claim=orig_classifier
+assert len([x for x in bounded["classification_runs"] if x["claim_id"]!="__TRUNCATED__"])==5
+assert any(x["claim_id"]=="__TRUNCATED__" for x in bounded["classification_runs"])
+assert bounded["classification_partial"] is True
+assert bounded["retry_required"] is True
+
 # Automatic pipeline research is testable without network: a provider failure
 # must defer and never turn the single dark source into a validated claim.
 with tempfile.TemporaryDirectory(prefix="v801-auto-corroboration-failclosed-") as td:
@@ -623,6 +652,8 @@ print("CHACHA_DEV_V801_FIRECRAWL_KEYLESS_FALLBACK_CONTRACT=PASS")
 print("CHACHA_DEV_V801_FIRECRAWL_SNIPPET_FACT_AUTHORITY=NO")
 print("CHACHA_DEV_V801_PUBLISHER_DOMAIN_INDEPENDENCE=PASS")
 print("CHACHA_DEV_V801_PUBLIC_CORROBORATION_CLASSIFIER_TOOLS=NONE")
+print("CHACHA_DEV_V801_CORROBORATION_GLOBAL_DEADLINE=PASS")
+print("CHACHA_DEV_V801_CORROBORATION_MAX_CLAIMS_BOUND=PASS")
 print("CHACHA_DEV_V801_PUBLIC_CORROBORATION_FAIL_CLOSED=PASS")
 print("CHACHA_DEV_V801_AUTOMATIC_PUBLIC_CORROBORATION_PIPELINE=PASS")
 print("CHACHA_DEV_V801_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
