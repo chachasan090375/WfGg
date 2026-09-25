@@ -32,7 +32,13 @@ def observation_from(capture:dict[str,Any],analysis_result:dict[str,Any],subject
     if analysis_result.get("schema")!="chacha.dev/dark-intelligence-analysis-result/v1":
         raise ValueError("DARK_PIPELINE_ANALYSIS_RESULT_SCHEMA_INVALID")
     runtime=analysis_result.get("runtime") if isinstance(analysis_result.get("runtime"),dict) else {}
-    if runtime.get("tool_access")!="DENIED_BY_CUSTOM_AGENT" or runtime.get("analysis_decision_authority") is not False:
+    tool_access=str(runtime.get("tool_access") or "")
+    backend=str(runtime.get("backend") or "")
+    safe_tool_contract=(
+      tool_access=="DENIED_BY_CUSTOM_AGENT" or
+      (tool_access=="NONE" and backend=="deterministic-extractive-fallback")
+    )
+    if not safe_tool_contract or runtime.get("analysis_decision_authority") is not False:
         raise ValueError("DARK_PIPELINE_ANALYSIS_AUTHORITY_INVALID")
     analysis=analysis_result.get("analysis") if isinstance(analysis_result.get("analysis"),dict) else {}
     claims=[]
