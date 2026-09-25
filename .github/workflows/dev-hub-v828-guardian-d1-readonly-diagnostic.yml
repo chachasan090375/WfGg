@@ -1,0 +1,100 @@
+name: ChaCha DEV V8.0.28 Guardian D1 Readonly Diagnostic
+
+on:
+  push:
+    branches:
+      - diag-v828-guardian-d1-readonly
+    paths:
+      - '.github/workflows/dev-hub-v828-guardian-d1-readonly-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read-only Guardian D1 diagnostic
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request,urllib.error
+
+          token=os.environ.get("CF_API_TOKEN","").strip()
+          if not token:
+              raise SystemExit("MISSING_SECRET=CLOUDFLARE_API_TOKEN")
+          headers={"Authorization":"Bearer "+token,"Content-Type":"application/json"}
+
+          def call(url,method="GET",body=None):
+              data=None if body is None else json.dumps(body).encode()
+              req=urllib.request.Request(url,headers=headers,method=method,data=data)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:
+                      raw=r.read().decode("utf-8","replace")
+                      return r.status,json.loads(raw)
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode("utf-8","replace")
+                  try: payload=json.loads(raw)
+                  except Exception: payload={"raw":raw[:1200]}
+                  return e.code,payload
+
+          aid=os.environ.get("CF_ACCOUNT_ID","").strip()
+          if not aid:
+              st,p=call("https://api.cloudflare.com/client/v4/accounts?per_page=50")
+              rows=(p.get("result") or []) if st==200 else []
+              if len(rows)!=1:
+                  raise SystemExit("CF_ACCOUNT_RESOLUTION_FAILED:"+str(st)+":"+str(len(rows)))
+              aid=rows[0]["id"]
+
+          st,p=call("https://api.cloudflare.com/client/v4/accounts/"+aid+"/d1/database?name="+urllib.parse.quote("chacha-dev-guardian"))
+          if st!=200 or not p.get("success"):
+              raise SystemExit("GUARDIAN_D1_LOOKUP_FAILED:"+str(st)+":"+json.dumps(p)[:600])
+          rows=p.get("result") or []
+          db=next((x for x in rows if x.get("name")=="chacha-dev-guardian"),None)
+          if not db:
+              raise SystemExit("GUARDIAN_D1_MISSING")
+          dbid=db["uuid"]
+          print("GUARDIAN_D1_DATABASE_LOOKUP=PASS")
+
+          qurl=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{dbid}/query"
+          checks=[
+              ("SELECT_1","SELECT 1 AS ok"),
+              ("IDENTITY_TABLE","SELECT COUNT(*) AS active_count FROM guardian_identities WHERE status='ACTIVE'"),
+              ("ROLE_CONTRACT_TABLE","SELECT COUNT(*) AS contract_count FROM role_contracts")
+          ]
+          failed=[]
+          for label,sql in checks:
+              st,p=call(qurl,"POST",{"sql":sql})
+              success=(st==200 and p.get("success") is True)
+              blocks=p.get("result") or []
+              rows=[]
+              for b in blocks:
+                  if isinstance(b,dict): rows.extend(b.get("results") or [])
+              if success:
+                  print("GUARDIAN_D1_"+label+"=PASS rows="+str(len(rows)))
+              else:
+                  errors=p.get("errors") or []
+                  safe=[{"code":e.get("code"),"message":str(e.get("message") or "")[:300]} for e in errors if isinstance(e,dict)]
+                  print("GUARDIAN_D1_"+label+"=FAIL status="+str(st)+" errors="+json.dumps(safe,separators=(",",":")))
+                  failed.append(label)
+
+          # Metadata-only Worker service lookup; no deployment or mutation.
+          st,p=call(f"https://api.cloudflare.com/client/v4/accounts/{aid}/workers/services/chacha-dev-guardian")
+          if st==200 and p.get("success"):
+              print("GUARDIAN_WORKER_SERVICE_LOOKUP=PASS")
+          else:
+              errors=p.get("errors") or []
+              safe=[{"code":e.get("code"),"message":str(e.get("message") or "")[:300]} for e in errors if isinstance(e,dict)]
+              print("GUARDIAN_WORKER_SERVICE_LOOKUP=UNAVAILABLE status="+str(st)+" errors="+json.dumps(safe,separators=(",",":")))
+
+          print("READ_ONLY_DIAGNOSTIC=YES")
+          print("AUTOMATIC_EXTERNAL_SPEND_EUR=0")
+          if failed:
+              raise SystemExit("GUARDIAN_D1_READONLY_DIAGNOSTIC=FAIL:"+",".join(failed))
+          print("GUARDIAN_D1_READONLY_DIAGNOSTIC=PASS")
+          PY
