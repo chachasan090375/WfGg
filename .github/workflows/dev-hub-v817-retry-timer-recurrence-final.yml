@@ -1,0 +1,39 @@
+name: ChaCha DEV V8.0.17 Retry Timer Recurrence Final
+
+on:
+  push:
+    branches:
+      - dev-hub-v817-retry-timer-recurrence-final
+    paths:
+      - 'dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.service'
+      - 'dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.timer'
+      - 'dev-hub/systemd/chacha-dev-dark-intelligence-corroboration-retry.service'
+      - 'dev-hub/systemd/chacha-dev-dark-intelligence-corroboration-retry.timer'
+      - 'dev-hub/bin/install-v817-dark-intelligence-retry-activation.sh'
+      - 'dev-hub/tests/test_v817_retry_timer_recurrence_final.py'
+      - '.github/workflows/dev-hub-v817-retry-timer-recurrence-final.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: V8.0.17 qualification
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/tests/test_v817_retry_timer_recurrence_final.py
+          python3 dev-hub/tests/test_v817_retry_timer_recurrence_final.py | tee /tmp/v817.out
+          grep -Fq 'CHACHA_DEV_V817_ONESHOT_INACTIVE_RECURRENCE=PASS' /tmp/v817.out
+          grep -Fq 'CHACHA_DEV_V817_LOADED_TIMER_RESTART=PASS' /tmp/v817.out
+          grep -Fq 'CHACHA_DEV_V817_ZERO_ELAPSE_REJECTED=PASS' /tmp/v817.out
+          grep -Fq 'CHACHA_DEV_V817_LIVE_TIMER_LIST_REQUIRED=PASS' /tmp/v817.out
+          grep -Fq 'CHACHA_DEV_V817_INITIAL_ONESHOT_SETTLE_WAIT=PASS' /tmp/v817.out
+          grep -Fq 'CHACHA_DEV_V817_TRANSACTIONAL_ROLLBACK=PASS' /tmp/v817.out
+          grep -Fq 'CHACHA_DEV_V817_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v817.out
