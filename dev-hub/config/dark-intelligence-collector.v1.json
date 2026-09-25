@@ -1,0 +1,116 @@
+{
+  "schema": "chacha.dev/dark-intelligence-collector-policy/v1",
+  "version": "8.0.1",
+  "collector_id": "isolated-dark-intelligence-collector",
+  "mode": "EPHEMERAL_ISOLATED_READ_ONLY",
+  "network_namespace": {
+    "name": "chacha-dark-v801",
+    "host_veth": "cdi801h",
+    "namespace_veth": "cdi801n",
+    "subnet": "10.203.80.0/30",
+    "host_cidr": "10.203.80.1/30",
+    "namespace_cidr": "10.203.80.2/30",
+    "host_gateway": "10.203.80.1",
+    "disable_ipv6": true,
+    "block_host_input": true,
+    "block_host_output_to_namespace": true,
+    "block_private_and_metadata_cidrs": [
+      "0.0.0.0/8",
+      "10.0.0.0/8",
+      "100.64.0.0/10",
+      "127.0.0.0/8",
+      "169.254.0.0/16",
+      "172.16.0.0/12",
+      "192.168.0.0/16",
+      "198.18.0.0/15",
+      "224.0.0.0/4",
+      "240.0.0.0/4"
+    ],
+    "outbound_interface_mode": "DEFAULT_ROUTE_AUTO",
+    "nat_only_for_namespace_subnet": true
+  },
+  "tor": {
+    "toolcache_root": "/opt/chacha-dev/runtime/toolcache/tor-v801",
+    "binary": "/opt/chacha-dev/runtime/toolcache/tor-v801/usr/bin/tor",
+    "library_path": "/opt/chacha-dev/runtime/toolcache/tor-v801/usr/lib/x86_64-linux-gnu",
+    "socks_host": "127.0.0.1",
+    "socks_port": 19050,
+    "client_only": true,
+    "control_port": 0,
+    "cookie_authentication": false,
+    "avoid_disk_writes": true,
+    "safe_logging": true,
+    "system_service_install_forbidden": true
+  },
+  "request": {
+    "allowed_modes": ["TOR_ONION", "ISOLATED_HTTPS"],
+    "allowed_methods": ["GET"],
+    "tor_onion_requires_onion_hostname": true,
+    "isolated_https_requires_https": true,
+    "url_credentials_forbidden": true,
+    "ip_literal_targets_forbidden": true,
+    "allowed_ports": [80, 443],
+    "max_redirects": 3,
+    "redirect_must_preserve_source_class": true,
+    "clearweb_redirect_must_preserve_hostname": true,
+    "cookies_forbidden": true,
+    "authorization_headers_forbidden": true,
+    "custom_request_body_forbidden": true,
+    "javascript_forbidden": true,
+    "connect_timeout_seconds": 12,
+    "total_timeout_seconds": 45,
+    "max_response_bytes": 1048576,
+    "max_sanitized_text_chars": 200000,
+    "allowed_content_types": [
+      "text/plain",
+      "text/html",
+      "application/json",
+      "application/xml",
+      "application/xhtml+xml"
+    ],
+    "user_agent": "ChaCha-DarkIntelligence/8.0.1 read-only"
+  },
+  "sandbox": {
+    "dynamic_user": true,
+    "private_tmp": true,
+    "private_devices": true,
+    "protect_system": "strict",
+    "protect_home": true,
+    "no_new_privileges": true,
+    "protect_kernel_tunables": true,
+    "protect_kernel_modules": true,
+    "protect_control_groups": true,
+    "restrict_suid_sgid": true,
+    "lock_personality": true,
+    "protect_proc": "invisible",
+    "inaccessible_paths": [
+      "/opt/chacha-dev/secrets",
+      "/opt/chacha-dev/runtime/secrets",
+      "/root",
+      "/home"
+    ],
+    "memory_max_mb": 128,
+    "tasks_max": 32,
+    "runtime_max_seconds": 180
+  },
+  "content_security": {
+    "source_content_is_untrusted_data": true,
+    "source_instructions_never_executed": true,
+    "html_is_parsed_as_text_only": true,
+    "scripts_and_styles_are_discarded": true,
+    "non_text_payload_execution_forbidden": true,
+    "non_text_payload_persistence": "METADATA_ONLY_BODY_DISCARDED",
+    "prompt_injection_possible": true,
+    "raw_content_never_grants_authority": true
+  },
+  "handoff": {
+    "next_agent": "dark-intelligence-agent",
+    "technology_watch_verification_required_after_analysis": true,
+    "guardian_required": true,
+    "sentinel_required": true,
+    "bastion_security_boundary_required": true
+  },
+  "economics": {
+    "automatic_external_spend_eur": 0
+  }
+}
