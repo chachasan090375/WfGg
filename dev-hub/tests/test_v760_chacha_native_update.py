@@ -103,6 +103,8 @@ manifest=(ROOT/"android/chacha-direct-operator-widget/app/src/main/AndroidManife
 strings=(ROOT/"android/chacha-direct-operator-widget/app/src/main/res/values/strings.xml").read_text(encoding="utf-8")
 gradle=(ROOT/"android/chacha-direct-operator-widget/app/build.gradle.kts").read_text(encoding="utf-8")
 assert "PackageInstaller" in manager and "APK_SIGNING_CERT_MISMATCH" in manager
+assert 'session.fsync(out);\n            }\n\n            // All PackageInstaller session streams must be closed before commit().' in manager
+assert manager.index('// All PackageInstaller session streams must be closed before commit().') < manager.index('session.commit(pending.getIntentSender());')
 assert "canRequestPackageInstalls" in manager
 assert "USER_ACTION_REQUIRED" in manager
 assert "STATUS_PENDING_USER_ACTION" in receiver
@@ -131,4 +133,5 @@ print("CHACHA_DEV_V760_ANDROID_USER_CONFIRMATION=REQUIRED")
 print("CHACHA_DEV_V760_SILENT_INSTALL=NO")
 print("CHACHA_DEV_V760_NATIVE_PUBLISH_ROLLBACK=PASS")
 print("CHACHA_DEV_V760_LIVE_UI_RUNTIME_SWITCH=PASS")
+print("CHACHA_DEV_V760_PACKAGE_INSTALLER_STREAM_CLOSE=PASS")
 print("CHACHA_DEV_V760_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
