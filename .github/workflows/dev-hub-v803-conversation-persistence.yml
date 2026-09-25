@@ -1,0 +1,37 @@
+name: ChaCha DEV V8.0.3 Conversation Persistence
+
+on:
+  push:
+    branches:
+      - dev-hub-v803-conversation-persistence
+    paths:
+      - 'dev-hub/bin/direct-operator-service.py'
+      - 'dev-hub/direct-operator-ui/index.html'
+      - 'dev-hub/tests/test_v803_conversation_persistence.py'
+      - '.github/workflows/dev-hub-v803-conversation-persistence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/direct-operator-service.py             dev-hub/tests/test_v803_conversation_persistence.py
+      - name: V8.0.3 qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v803_conversation_persistence.py | tee /tmp/v803.out
+          grep -Fq 'CHACHA_DEV_V803_LAST_RESPONSE_PERSISTED=PASS' /tmp/v803.out
+          grep -Fq 'CHACHA_DEV_V803_RELOAD_HYDRATES_CONVERSATION=PASS' /tmp/v803.out
+          grep -Fq 'CHACHA_DEV_V803_SESSION_PATH_ESCAPE_BLOCKED=PASS' /tmp/v803.out
+          grep -Fq 'CHACHA_DEV_V803_ACCEPTED_PROMPT_STAYS_CLEARED=PASS' /tmp/v803.out
+          grep -Fq 'CHACHA_DEV_V803_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v803.out
