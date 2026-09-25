@@ -35,7 +35,11 @@ for p in services:
 for p in timers:
     text=p.read_text(encoding="utf-8")
     assert "[Timer]" in text
-    assert "OnUnitActiveSec=15min" in text
+    if "OnUnitInactiveSec=15min" in text:
+        assert "OnActiveSec=1min" in text
+        assert "OnUnitActiveSec=" not in text
+    else:
+        assert "OnUnitActiveSec=15min" in text
     assert "Persistent=true" in text
     assert "[Install]" in text
     assert "WantedBy=timers.target" in text
