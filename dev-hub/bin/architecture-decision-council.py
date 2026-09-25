@@ -12,8 +12,8 @@ def load(p:Path)->dict[str,Any]:
     if not isinstance(x,dict): raise SystemExit("JSON_ROOT_NOT_OBJECT")
     return x
 
-def central_memory_assimilation() -> dict[str,Any]:
-    path=Path("/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json")
+def central_memory_assimilation(snapshot_path:Path|None=None) -> dict[str,Any]:
+    path=snapshot_path or Path("/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json")
     if not path.is_file():
         if not Path("/opt/chacha-dev/runtime").exists():
             return {"available":True,"bootstrap_empty":True,"snapshot_digest":None,
@@ -149,6 +149,7 @@ def main():
     ap.add_argument("--architecture-memory-db",type=Path,default=Path("/opt/chacha-dev/runtime/knowledge/reusable-architectures.db"))
     ap.add_argument("--comparative-pilot-result",type=Path)
     ap.add_argument("--memory-brief",type=Path)
+    ap.add_argument("--memory-snapshot",type=Path)
     ap.add_argument("--challenge-dossier",type=Path)
     ap.add_argument("--output",type=Path,required=True)
     a=ap.parse_args()
@@ -174,7 +175,7 @@ def main():
     mandatory_advisors=list(MANDATORY)+(["logic-ux-compromise"] if challenge_required else [])
     bm=by_package(branch);am=by_package(agent);cm=capability_plan_map(cap)
     max_age=int((policy.get("reuse") or {}).get("maximum_technology_revalidation_age_minutes",60))
-    memory=central_memory_assimilation()
+    memory=central_memory_assimilation(a.memory_snapshot)
     if not memory.get("available"):
         print("CHACHA_DEV_ARCHITECTURE_COUNCIL_BLOCKED=CENTRAL_MEMORY_ASSIMILATION_UNAVAILABLE",file=sys.stderr)
     current_branch=current_branch_versions(memory)
