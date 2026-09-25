@@ -141,6 +141,9 @@ def probe(executable: Path, item: dict[str, Any], timeout: int) -> dict[str, Any
             result = None
         expected_schema = cfg.get("expected_schema")
         expected_status = cfg.get("expected_status")
+        expected_statuses = [str(x) for x in (cfg.get("expected_statuses") or []) if str(x)]
+        if expected_status is not None and not expected_statuses:
+            expected_statuses = [str(expected_status)]
         expected_producer = cfg.get("expected_producer")
         expected_verification = cfg.get("expected_verification_status")
         expected_exit_code = int(cfg.get("expected_exit_code",0))
@@ -150,7 +153,7 @@ def probe(executable: Path, item: dict[str, Any], timeout: int) -> dict[str, Any
             proc.returncode == expected_exit_code
             and isinstance(result, dict)
             and result.get("schema") == expected_schema
-            and result.get("status") == expected_status
+            and (not expected_statuses or str(result.get("status") or "") in expected_statuses)
             and (expected_producer is None or result.get("producer") == expected_producer)
             and (expected_verification is None or verification.get("status") == expected_verification)
             and (expected_reason is None or result.get("reason") == expected_reason)
@@ -160,6 +163,7 @@ def probe(executable: Path, item: dict[str, Any], timeout: int) -> dict[str, Any
             "exit_code": proc.returncode,
             "result_schema": result.get("schema") if isinstance(result, dict) else None,
             "result_status": result.get("status") if isinstance(result, dict) else None,
+            "expected_statuses": expected_statuses,
             "result_reason": result.get("reason") if isinstance(result, dict) else None,
             "producer": result.get("producer") if isinstance(result, dict) else None,
             "expected_exit_code": expected_exit_code,
