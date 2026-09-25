@@ -1,0 +1,21 @@
+[Unit]
+Description=WfGg Collector Knowledge Engine API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/bin/python3 /opt/wfgg-radar/collector-knowledge/knowledge_engine.py serve --config /opt/wfgg-radar/collector-knowledge/config.json
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/wfgg-radar/data/collector-knowledge
+ReadOnlyPaths=/opt/wfgg-radar/collector-knowledge /opt/wfgg-radar/knowledge
+
+[Install]
+WantedBy=multi-user.target
