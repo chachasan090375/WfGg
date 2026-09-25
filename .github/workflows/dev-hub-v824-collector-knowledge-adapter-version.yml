@@ -1,0 +1,33 @@
+name: ChaCha DEV V8.0.24 Collector Knowledge Adapter Version
+
+on:
+  push:
+    branches:
+      - dev-hub-v824-collector-knowledge-adapter-version
+    paths:
+      - 'dev-hub/config/adapter-provisioning.v1.json'
+      - 'dev-hub/tests/test_v824_collector_knowledge_adapter_version.py'
+      - '.github/workflows/dev-hub-v824-collector-knowledge-adapter-version.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: V8.0.24 qualification
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/tests/test_v824_collector_knowledge_adapter_version.py
+          python3 -m json.tool dev-hub/config/adapter-provisioning.v1.json >/dev/null
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v824_collector_knowledge_adapter_version.py | tee /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V824_COLLECTOR_ADAPTER_VERSION_101=PASS' /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V824_IMMUTABLE_VERSION_PATH=PASS' /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V824_BOOTSTRAP_TRUST_CODE_PRESERVED=PASS' /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V824_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v824.out
