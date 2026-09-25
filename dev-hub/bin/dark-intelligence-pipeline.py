@@ -186,6 +186,7 @@ def main()->int:
     ap.add_argument("--capture",type=Path,required=True);ap.add_argument("--subject",default="")
     ap.add_argument("--watch-term",action="append",default=[]);ap.add_argument("--analysis-result",type=Path)
     ap.add_argument("--corroboration-evidence",type=Path)
+    ap.add_argument("--queue-root",type=Path,default=DEFAULT_ANALYSIS_QUEUE)
     ap.add_argument("--output-dir",type=Path,required=True)
     a=ap.parse_args();repo=a.repo_root.resolve();a.output_dir.mkdir(parents=True,exist_ok=True)
     analysis=load(a.analysis_result) if a.analysis_result else run_analysis(repo,a.capture,a.subject,a.watch_term,a.output_dir/"analysis.json")
