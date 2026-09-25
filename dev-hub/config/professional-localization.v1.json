@@ -1,0 +1,46 @@
+{
+  "schema": "chacha.dev/professional-localization-policy/v1",
+  "version": "8.0.0",
+  "owner_role": "translation-specialist",
+  "purpose": "Professional translation, localization and register adaptation for applications, conversations, sites and documents.",
+  "capabilities": [
+    "translation",
+    "terminology-management",
+    "translation-quality-review",
+    "register-adaptation",
+    "locale-localization",
+    "ui-length-aware-translation",
+    "structured-content-preservation",
+    "project-translation-memory"
+  ],
+  "context": {
+    "project_glossary_required_when_available": true,
+    "translation_memory_required_when_available": true,
+    "style_profile_required_when_available": true,
+    "preserve_product_names_and_protected_terms": true,
+    "source_meaning_has_priority_over_literal_wording": true
+  },
+  "registers": [
+    "conversation-natural",
+    "professional",
+    "technical",
+    "marketing",
+    "playful",
+    "formal-letter",
+    "mobile-ui-concise",
+    "documentation"
+  ],
+  "quality": {
+    "terminology_consistency_required": true,
+    "cross_page_consistency_required": true,
+    "variables_and_markup_must_be_preserved": true,
+    "locale_specific_dates_numbers_units_pluralization": true,
+    "back_review_for_high_impact_content": true
+  },
+  "collaboration": {
+    "publication_specialist_for_style_transformation": true,
+    "documentation_reviewer_for_technical_docs": true,
+    "conversation_interface_agent_for_dialogue_register": true
+  },
+  "automatic_external_spend_eur": 0
+}
