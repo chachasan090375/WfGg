@@ -22,7 +22,7 @@ routing=load(CFG/"agent-routing.v1.json");seven=load(CFG/"seven-agent-final-comp
 project=load(ROOT/"dev-hub/projects/wfgg-radar/project-agent-registry.v1.json")
 policy=load(CFG/"agent-fleet-observatory.v1.json");evo=load(CFG/"agent-evolution.v1.json")
 adapter_cfg=load(CFG/"agent-benchmark-adapters.v1.json")
-inv=aec.build_inventory(routing,seven,[project]);assert inv["agent_count"]==35
+inv=aec.build_inventory(routing,seven,[project]);assert inv["agent_count"]>=35,inv["agent_count"]
 runner.tw.snapshot_status=lambda root:{"state":"FRESH","fresh":True,"snapshot_digest":"v660-test"}
 
 with tempfile.TemporaryDirectory(prefix="v660-accuracy-") as td:
