@@ -1,0 +1,49 @@
+name: ChaCha DEV V8.0.23 Collector Knowledge Bootstrap Trust
+
+on:
+  push:
+    branches:
+      - dev-hub-v823-collector-knowledge-bootstrap-trust
+    paths:
+      - 'dev-hub/adapters/collector-knowledge-adapter.py'
+      - 'dev-hub/config/capability-registry.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
+      - 'dev-hub/config/provider-health-probes.v1.json'
+      - 'dev-hub/config/adapter-provisioning.v1.json'
+      - 'dev-hub/bin/install-collector-knowledge-adapter-pilot.sh'
+      - 'dev-hub/bin/run-collector-knowledge-v1-pilot-via-chacha-dev.sh'
+      - 'dev-hub/tests/test_v823_collector_knowledge_bootstrap_trust.py'
+      - '.github/workflows/dev-hub-v823-collector-knowledge-bootstrap-trust.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile and validate JSON
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/adapters/collector-knowledge-adapter.py             dev-hub/tests/test_v823_collector_knowledge_bootstrap_trust.py
+          for f in             dev-hub/config/capability-registry.v1.json             dev-hub/config/provider-adapters.v1.json             dev-hub/config/provider-health-probes.v1.json             dev-hub/config/adapter-provisioning.v1.json; do
+            python3 -m json.tool "$f" >/dev/null
+          done
+          bash -n dev-hub/bin/install-collector-knowledge-adapter-pilot.sh
+          bash -n dev-hub/bin/run-collector-knowledge-v1-pilot-via-chacha-dev.sh
+      - name: V8.0.23 qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v823_collector_knowledge_bootstrap_trust.py | tee /tmp/v823.out
+          grep -Fq 'CHACHA_DEV_V823_BOOTSTRAP_RUNTIME_TRUST_SEPARATED=PASS' /tmp/v823.out
+          grep -Fq 'CHACHA_DEV_V823_PROVISIONING_PROBE_RUNTIME_INDEPENDENT=PASS' /tmp/v823.out
+          grep -Fq 'CHACHA_DEV_V823_BOOTSTRAP_ACTION_SCOPE=PASS' /tmp/v823.out
+          grep -Fq 'CHACHA_DEV_V823_RUNTIME_ACTION_SCOPE=PASS' /tmp/v823.out
+          grep -Fq 'CHACHA_DEV_V823_NO_PREMATURE_RUNTIME_HEALTH=PASS' /tmp/v823.out
+          grep -Fq 'CHACHA_DEV_V823_TWO_PHASE_PILOT=PASS' /tmp/v823.out
+          grep -Fq 'CHACHA_DEV_V823_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v823.out
