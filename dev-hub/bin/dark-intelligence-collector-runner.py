@@ -25,8 +25,11 @@ def module(path:Path,name:str):
 def sandbox_args(policy:dict[str,Any],namespace_path:str,network_profile:str="full")->list[str]:
     s=policy["sandbox"]
     inaccessible=" ".join(str(x) for x in s.get("inaccessible_paths") or [])
+    namespace_name=Path(namespace_path).name
+    namespace_resolver="/etc/netns/"+namespace_name+"/resolv.conf"
     props=[
       "NetworkNamespacePath="+namespace_path,
+      "BindReadOnlyPaths="+namespace_resolver+":/etc/resolv.conf",
       "DynamicUser="+("yes" if s.get("dynamic_user",True) else "no"),
       "PrivateTmp="+("yes" if s.get("private_tmp",True) else "no"),
       "PrivateDevices="+("yes" if s.get("private_devices",True) else "no"),
