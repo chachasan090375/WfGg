@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/progress-reporting-policy/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "scope": "PLATFORM_GLOBAL",
   "runtime_state": "/opt/chacha-dev/runtime/progress/progress.json",
   "stale_after_seconds": 1800,
@@ -24,6 +24,11 @@
       "id": "central-orchestrator",
       "label": "Cerveau central",
       "icon": "🧠"
+    },
+    {
+      "id": "conversation-interface-agent",
+      "label": "Réponse conversationnelle",
+      "icon": "💬"
     }
   ],
   "invariants": {
