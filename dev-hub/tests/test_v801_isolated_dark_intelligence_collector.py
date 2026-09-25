@@ -22,6 +22,8 @@ runner=loadmod("v801_runner",ROOT/"dev-hub/bin/dark-intelligence-collector-runne
 analysis_adapter=loadmod("v801_analysis",ROOT/"dev-hub/bin/dark-intelligence-analysis-adapter.py")
 pipeline=loadmod("v801_pipeline",ROOT/"dev-hub/bin/dark-intelligence-pipeline.py")
 analysis_queue=loadmod("v801_queue",ROOT/"dev-hub/bin/dark-intelligence-analysis-queue.py")
+corroboration=loadmod("v801_corroboration",ROOT/"dev-hub/bin/dark-intelligence-corroboration.py")
+corroboration_policy=load(ROOT/"dev-hub/config/dark-intelligence-corroboration.v1.json")
 
 # URL/method safety.
 ok=collector.validate_target("http://examplehiddenservice.onion/path","TOR_ONION",policy)
@@ -97,6 +99,9 @@ assert policy["content_security"]["raw_content_never_grants_authority"] is True
 assert dark_policy["collection"]["isolated_collector"]=="dev-hub/bin/dark-intelligence-collector-runner.py"
 assert dark_policy["collection"]["source_instructions_never_executed"] is True
 assert dark_policy["verification_pipeline"]["technology_watch_evaluation_required"] is True
+assert dark_policy["verification_pipeline"]["corroboration_gate"]=="dev-hub/bin/dark-intelligence-corroboration.py"
+assert dark_policy["verification_pipeline"]["minimum_independent_support_groups"]==2
+assert dark_policy["verification_pipeline"]["primary_dark_source_never_counts_as_independent_corroboration"] is True
 assert "dark-intelligence-collector-runner" in domains["threat-intelligence"]["toolchain"]
 assert "linux-network-namespace" in domains["threat-intelligence"]["toolchain"]
 assert "isolated-network-collection" in routing["roles"]["dark-intelligence-agent"]["capabilities"]
@@ -108,6 +113,10 @@ assert "semantic-source-analysis" in domains["threat-intelligence"]["capabilitie
 assert "dark-intelligence-analysis-adapter" in domains["threat-intelligence"]["toolchain"]
 assert "dark-intelligence-pipeline" in domains["threat-intelligence"]["toolchain"]
 assert "semantic-source-analysis" in routing["roles"]["dark-intelligence-agent"]["capabilities"]
+assert "independent-claim-corroboration" in routing["roles"]["dark-intelligence-agent"]["capabilities"]
+assert "corroboration-gating" in domains["threat-intelligence"]["capabilities"]
+assert "dark-intelligence-corroboration" in domains["threat-intelligence"]["toolchain"]
+assert "technology-radar" in domains["threat-intelligence"]["toolchain"]
 
 # Semantic analyzer has no tools and explicitly treats source text as untrusted data.
 agent_md=analysis_adapter.custom_agent_markdown()
@@ -176,14 +185,74 @@ assert obs["claims"][0]["requires_corroboration"] is True
 assert obs["evidence_type"]=="unverified_blog"
 with tempfile.TemporaryDirectory(prefix="v801-pipeline-") as td:
     cp=Path(td)/"capture.json";cp.write_text(json.dumps(fake_capture),encoding="utf-8")
-    result=pipeline.process(ROOT,cp,fake_analysis,"v801-ci-subject",Path(td)/"out")
+    outdir=Path(td)/"out"
+    result=pipeline.process(ROOT,cp,fake_analysis,"v801-ci-subject",outdir)
     assert result["status"]=="PASS"
     assert result["authority"]["raw_source_authority"]=="ADVISORY_ONLY"
     assert result["authority"]["analysis_decision_authority"] is False
     assert result["authority"]["technology_watch_owns_evidence_score"] is True
+    assert result["authority"]["corroboration_gate_has_execution_authority"] is False
     assert result["truth_score"]["automatic_selection_allowed"] is False
-    assert (Path(td)/"out/technology-watch/logician-falsification.json").is_file()
-    assert (Path(td)/"out/technology-watch/technology-truth-score.json").is_file()
+    assert result["corroboration"]["verdict"]=="INCONCLUSIVE"
+    assert result["corroboration"]["request_route"]["role"]=="technology-watch-agent"
+    assert result["corroboration"]["request_route"]["capability"]=="web-research"
+    assert result["corroboration"]["request_route"]["provider"]=="technology-radar"
+    assert (outdir/"technology-watch/logician-falsification.json").is_file()
+    assert (outdir/"technology-watch/technology-truth-score.json").is_file()
+    assert (outdir/"corroboration-request.json").is_file()
+
+    dossier=load(outdir/"dark-intelligence-dossier.json")
+    primary_group=dossier["source"]["id"]
+    request=corroboration.search_request(dossier,corroboration_policy)
+    assert request["requirements"]["exclude_primary_source_from_corroboration"] is True
+    assert request["requirements"]["independent_sources_required"] is True
+
+    one_support=[{
+      "id":"ind-1","claim_id":"claim-1","type":"independent_technical",
+      "origin":"source-a","independence_group":"group-a","stance":"SUPPORT",
+      "verified":True,"confidence_score":90
+    }]
+    v1=corroboration.evaluate(dossier,one_support,corroboration_policy)
+    assert v1["verdict"]=="INCONCLUSIVE"
+    assert v1["claim_reports"][0]["independent_support_groups"]==1
+
+    two_support=one_support+[
+      {"id":"ind-1-duplicate","claim_id":"claim-1","type":"independent_technical",
+       "origin":"source-a-copy","independence_group":"group-a","stance":"SUPPORT",
+       "verified":True,"confidence_score":70},
+      {"id":"ind-2","claim_id":"claim-1","type":"official_technical",
+       "origin":"source-b","independence_group":"group-b","stance":"SUPPORT",
+       "verified":True,"confidence_score":95},
+      {"id":"primary-repeat","claim_id":"claim-1","type":"official_technical",
+       "origin":"primary-copy","independence_group":primary_group,"stance":"SUPPORT",
+       "verified":True,"confidence_score":100}
+    ]
+    v2=corroboration.evaluate(dossier,two_support,corroboration_policy)
+    assert v2["verdict"]=="CORROBORATED"
+    assert v2["claim_reports"][0]["independent_support_groups"]==2
+    assert v2["primary_dark_source_never_counted_as_independent_corroboration"] is True
+    assert v2["fact_promotion_allowed"] is False
+
+    contradicted=[
+      {"id":"con-1","claim_id":"claim-1","type":"independent_technical",
+       "origin":"contra-a","independence_group":"contra-a","stance":"CONTRADICT",
+       "verified":True,"confidence_score":90},
+      {"id":"con-2","claim_id":"claim-1","type":"official_technical",
+       "origin":"contra-b","independence_group":"contra-b","stance":"CONTRADICT",
+       "verified":True,"confidence_score":95}
+    ]
+    v3=corroboration.evaluate(dossier,contradicted,corroboration_policy)
+    assert v3["verdict"]=="CONTRADICTED"
+
+    ep=Path(td)/"corroboration-evidence.json"
+    ep.write_text(json.dumps({"schema":"chacha.dev/dark-intelligence-corroboration-evidence/v1",
+                              "evidence":two_support}),encoding="utf-8")
+    out2=Path(td)/"out-corroborated"
+    result2=pipeline.process(ROOT,cp,fake_analysis,"v801-ci-subject",out2,ep)
+    assert result2["corroboration"]["verdict"]=="CORROBORATED"
+    assert result2["truth_score"]["automatic_selection_allowed"] is False
+    assert (out2/"technology-watch-corroborated/logician-falsification.json").is_file()
+    assert (out2/"technology-watch-corroborated/technology-truth-score.json").is_file()
 
 # Deferred semantic analysis is persisted and retried without infinite loops.
 with tempfile.TemporaryDirectory(prefix="v801-queue-") as td:
@@ -224,4 +293,9 @@ print("CHACHA_DEV_V801_PROVIDER_UNAVAILABLE_DEFER_FAILSAFE=PASS")
 print("CHACHA_DEV_V801_PERSISTENT_RETRY_QUEUE=PASS")
 print("CHACHA_DEV_V801_RETRY_LOOP_BOUNDED=PASS")
 print("CHACHA_DEV_V801_END_TO_END_TECHNOLOGY_WATCH_LOGICIAN=PASS")
+print("CHACHA_DEV_V801_INDEPENDENT_CORROBORATION_GATE=PASS")
+print("CHACHA_DEV_V801_SINGLE_SOURCE_VALIDATION=BLOCKED")
+print("CHACHA_DEV_V801_DUPLICATE_SOURCE_INFLATION=NO")
+print("CHACHA_DEV_V801_CONTRADICTION_GATE=PASS")
+print("CHACHA_DEV_V801_TECHNOLOGY_RADAR_CORROBORATION_ROUTE=PASS")
 print("CHACHA_DEV_V801_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
