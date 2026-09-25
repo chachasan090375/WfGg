@@ -51,6 +51,7 @@ jobs:
           python3 -m json.tool dev-hub/config/dark-intelligence-corroboration.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/dark-intelligence-public-corroboration.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/mcp-provider-catalog.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/capability-registry.v1.json >/dev/null
       - name: Preserve V8.0 guarantees
         run: |
           set -euo pipefail
@@ -81,6 +82,8 @@ jobs:
           grep -Fq 'CHACHA_DEV_V801_SINGLE_SOURCE_VALIDATION=BLOCKED' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_DUPLICATE_SOURCE_INFLATION=NO' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_SAME_OWNER_INFLATION=NO' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_AUTHOR_LABEL_INFLATION=NO' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_MIRROR_CONTENT_INFLATION=NO' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_PRIMARY_LINK_CORROBORATION=BLOCKED' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_CONTRADICTION_GATE=PASS' /tmp/v801.out
           grep -Fq 'CHACHA_DEV_V801_TECHNOLOGY_RADAR_CORROBORATION_ROUTE=PASS' /tmp/v801.out
