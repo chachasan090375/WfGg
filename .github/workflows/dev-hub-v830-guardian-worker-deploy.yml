@@ -1,0 +1,151 @@
+name: ChaCha DEV V8.0.30 Guardian Worker Deploy
+
+on:
+  push:
+    branches:
+      - dev-hub-v830-d1-quota-resilience
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate exact candidate
+        run: |
+          set -euo pipefail
+          node --check dev-hub/guardian/worker.js
+          grep -Fq 'D1_READ_QUOTA_EXHAUSTED' dev-hub/guardian/worker.js
+          grep -Fq 'guardian_runtime_build:"v730-runtime-1"' dev-hub/guardian/worker.js
+          echo "CHACHA_DEV_V830_GUARDIAN_WORKER_PREFLIGHT=PASS"
+      - name: Require exact-revision Sentinel attestation
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request,urllib.error
+          token=os.environ.get("CF_API_TOKEN","").strip()
+          aid=os.environ.get("CF_ACCOUNT_ID","").strip()
+          headers={"Authorization":"Bearer "+token,"Content-Type":"application/json"}
+          def call(url,method="GET",body=None):
+              data=None if body is None else json.dumps(body).encode()
+              req=urllib.request.Request(url,headers=headers,method=method,data=data)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode("utf-8","replace")
+                  try:p=json.loads(raw)
+                  except Exception:p={"raw":raw[:1000]}
+                  return e.code,p
+          if not token:raise SystemExit("MISSING_SECRET=CLOUDFLARE_API_TOKEN")
+          if not aid:
+              st,p=call("https://api.cloudflare.com/client/v4/accounts?per_page=50")
+              rows=(p.get("result") or []) if st==200 else []
+              if len(rows)!=1:raise SystemExit("CLOUDFLARE_ACCOUNT_RESOLUTION_FAILED")
+              aid=rows[0]["id"]
+          st,p=call("https://api.cloudflare.com/client/v4/accounts/"+aid+"/d1/database?name="+urllib.parse.quote("chacha-dev-sentinel"))
+          if st!=200:raise SystemExit("SENTINEL_D1_LOOKUP_FAILED:"+str(st))
+          db=next((x for x in (p.get("result") or []) if x.get("name")=="chacha-dev-sentinel"),None)
+          if not db:raise SystemExit("SENTINEL_D1_MISSING")
+          sql="""SELECT repository,revision,workflow_name,workflow_run_id,audit_digest,conclusion
+          FROM technical_workflow_attestations
+          WHERE repository=?1 AND revision=?2 AND workflow_name=?3 AND conclusion='PASS'
+          LIMIT 1"""
+          url=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{db['uuid']}/query"
+          st,p=call(url,"POST",{"sql":sql,"params":[os.environ["GITHUB_REPOSITORY"],os.environ["GITHUB_SHA"],"ChaCha DEV Sentinel technical assurance"]})
+          if st!=200 or not p.get("success"):
+              raise SystemExit("SENTINEL_EXACT_HEAD_GATE_UNAVAILABLE:"+str(st)+":"+json.dumps(p)[:500])
+          rows=[]
+          for block in p.get("result") or []:rows.extend(block.get("results") or [])
+          if len(rows)!=1:raise SystemExit("SENTINEL_EXACT_HEAD_ATTESTATION_MISSING")
+          print("CHACHA_DEV_V830_SENTINEL_EXACT_HEAD_GATE=PASS")
+          PY
+      - name: Resolve Guardian target
+        id: cf
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request
+          token=os.environ["CF_API_TOKEN"];aid=os.environ.get("CF_ACCOUNT_ID","").strip()
+          headers={"Authorization":"Bearer "+token}
+          def call(url):
+              req=urllib.request.Request(url,headers=headers)
+              with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+          if not aid:
+              st,p=call("https://api.cloudflare.com/client/v4/accounts?per_page=50")
+              rows=p.get("result") or []
+              if len(rows)!=1:raise SystemExit("CLOUDFLARE_ACCOUNT_RESOLUTION_FAILED")
+              aid=rows[0]["id"]
+          st,p=call("https://api.cloudflare.com/client/v4/accounts/"+aid+"/d1/database?name="+urllib.parse.quote("chacha-dev-guardian"))
+          db=next((x for x in (p.get("result") or []) if x.get("name")=="chacha-dev-guardian"),None)
+          if not db:raise SystemExit("GUARDIAN_D1_MISSING")
+          st,p=call("https://api.cloudflare.com/client/v4/accounts/"+aid+"/workers/subdomain")
+          sub=(p.get("result") or {}).get("subdomain")
+          if not sub:raise SystemExit("WORKERS_SUBDOMAIN_MISSING")
+          with open(os.environ["GITHUB_OUTPUT"],"a") as f:
+              f.write("account_id="+aid+"\n");f.write("database_id="+db["uuid"]+"\n");f.write("workers_subdomain="+sub+"\n")
+          print("CHACHA_DEV_V830_GUARDIAN_TARGET=PASS")
+          PY
+      - name: Prepare Wrangler config
+        run: |
+          cat > .wrangler-guardian-v830.jsonc <<EOF
+          {
+            "name": "chacha-dev-guardian",
+            "main": "dev-hub/guardian/worker.js",
+            "compatibility_date": "2026-09-24",
+            "workers_dev": true,
+            "triggers": {"crons": ["* * * * *"]},
+            "d1_databases": [{
+              "binding": "DB",
+              "database_name": "chacha-dev-guardian",
+              "database_id": "${{ steps.cf.outputs.database_id }}"
+            }]
+          }
+          EOF
+
+      - name: Deploy with automatic rollback
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+          SUBDOMAIN: ${{ steps.cf.outputs.workers_subdomain }}
+        run: |
+          set -euo pipefail
+          DEPLOYED=0
+          rollback() {
+            if [[ "$DEPLOYED" = 1 ]]; then
+              npx --yes wrangler@4.45.0 rollback --config=.wrangler-guardian-v830.jsonc                 --message "ChaCha DEV V8.0.30 automatic rollback after failed healthcheck" || true
+              echo "CHACHA_DEV_V830_GUARDIAN_WORKER_ROLLBACK=PASS"
+            fi
+          }
+          trap rollback ERR
+          npx --yes wrangler@4.45.0 deploy --config=.wrangler-guardian-v830.jsonc
+          DEPLOYED=1
+          URL="https://chacha-dev-guardian.$SUBDOMAIN.workers.dev"
+          ok=0
+          for i in $(seq 1 30); do
+            if curl -fsS "$URL/healthz" -o /tmp/guardian-health.json &&
+               grep -Fq '"external_governance_plane":true' /tmp/guardian-health.json &&
+               grep -Fq '"coverage_watch":true' /tmp/guardian-health.json &&
+               grep -Fq '"guardian_runtime_build":"v730-runtime-1"' /tmp/guardian-health.json; then
+              ok=1; break
+            fi
+            sleep 2
+          done
+          test "$ok" = 1
+          trap - ERR
+          echo "CHACHA_DEV_V830_GUARDIAN_WORKER_DEPLOY=PASS"
+          echo "CHACHA_DEV_V830_GUARDIAN_WORKER_HEALTH=PASS"
+          echo "CHACHA_DEV_V830_AUTOMATIC_EXTERNAL_SPEND_EUR=0"
