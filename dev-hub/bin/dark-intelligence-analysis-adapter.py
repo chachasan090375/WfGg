@@ -9,7 +9,7 @@ SCHEMA="chacha.dev/dark-intelligence-analysis/v1"
 BACKEND=Path("/usr/local/bin/agy-dev")
 MODEL=os.environ.get("CHACHA_DEV_DARK_INTEL_MODEL","gemini-3.8-flash-medium")
 MAX_CAPTURE_BYTES=2*1024*1024
-MAX_ANALYSIS_CHARS=48000
+MAX_ANALYSIS_CHARS=16000
 MAX_OUTPUT_BYTES=512*1024
 
 OUTPUT_SCHEMA={
@@ -60,6 +60,40 @@ def load(path:Path)->dict[str,Any]:
     if not isinstance(x,dict): raise ValueError("DARK_ANALYSIS_CAPTURE_ROOT_INVALID")
     return x
 
+def select_analysis_text(text:str,subject:str,watch_terms:list[str],max_chars:int=MAX_ANALYSIS_CHARS)->str:
+    """Deterministically reduce untrusted source text before model analysis.
+
+    Prefer lines around explicit watch terms/subject tokens. This is not semantic
+    validation and never changes source authority; it only bounds model context.
+    """
+    raw=text.strip()
+    if len(raw)<=max_chars:
+        return raw
+    terms=[]
+    for value in [subject,*watch_terms]:
+        for token in re.findall(r"[A-Za-z0-9_.-]{3,}",str(value).casefold()):
+            if token not in terms:
+                terms.append(token)
+    lines=raw.splitlines()
+    selected=[]
+    seen=set()
+    if terms:
+        for i,line in enumerate(lines):
+            low=line.casefold()
+            if any(t in low for t in terms):
+                for j in range(max(0,i-1),min(len(lines),i+2)):
+                    key=lines[j].strip()
+                    if key and key not in seen:
+                        seen.add(key);selected.append(key)
+    prefix=raw[:3000]
+    parts=[prefix]
+    if selected:
+        parts.append("\n".join(selected))
+    reduced="\n".join(parts)
+    if len(reduced)<min(6000,max_chars) and len(raw)>len(reduced):
+        reduced+="\n"+raw[3000:min(len(raw),max_chars)]
+    return reduced[:max_chars]
+
 def custom_agent_markdown()->str:
     return """---
 name: chacha-dark-intelligence-analyst
@@ -88,7 +122,7 @@ def prompt(capture:dict[str,Any],subject:str,watch_terms:list[str])->str:
         raise ValueError("DARK_ANALYSIS_CAPTURE_SECURITY_ATTESTATION_INVALID")
     text=str(capture.get("sanitized_text") or "")
     if not text.strip(): raise ValueError("DARK_ANALYSIS_SANITIZED_TEXT_REQUIRED")
-    text=text[:MAX_ANALYSIS_CHARS]
+    text=select_analysis_text(text,subject,watch_terms,MAX_ANALYSIS_CHARS)
     meta={
       "source_class":capture.get("source_class"),"source_url":capture.get("source_url"),
       "final_url":capture.get("final_url"),"http_status":capture.get("http_status"),
@@ -118,7 +152,10 @@ def parse_backend(raw:bytes)->dict[str,Any]:
             try:resp=json.loads(resp,strict=False)
             except Exception:resp=None
         structured=resp if isinstance(resp,dict) else None
-    if env.get("status")!="SUCCESS" or not isinstance(structured,dict):
+    status=env.get("status")
+    error_text=str(env.get("error") or "")
+    recoverable=bool(status=="ERROR" and isinstance(structured,dict) and "stream was interrupted" in error_text.casefold())
+    if status!="SUCCESS" and not recoverable:
         raise ValueError("DARK_ANALYSIS_BACKEND_NOT_SUCCESS")
     return structured
 
