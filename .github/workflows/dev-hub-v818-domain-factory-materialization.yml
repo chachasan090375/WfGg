@@ -1,0 +1,40 @@
+name: ChaCha DEV V8.0.18 Domain Factory Materialization
+
+on:
+  push:
+    branches:
+      - dev-hub-v818-domain-factory-materialization
+    paths:
+      - 'dev-hub/bin/domain-factory-runner.py'
+      - 'dev-hub/tests/test_v818_domain_factory_materialization.py'
+      - '.github/workflows/dev-hub-v818-domain-factory-materialization.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/domain-factory-runner.py dev-hub/tests/test_v818_domain_factory_materialization.py
+      - name: V8.0.18 qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v818_domain_factory_materialization.py | tee /tmp/v818.out
+          grep -Fq 'CHACHA_DEV_V818_DOMAIN_FACTORY_MATERIALIZATION=PASS' /tmp/v818.out
+          grep -Fq 'CHACHA_DEV_V818_PROJECT_LOCAL_REGISTRY=PASS' /tmp/v818.out
+          grep -Fq 'CHACHA_DEV_V818_RUNTIME_WAVE_BINDING=PASS' /tmp/v818.out
+          grep -Fq 'CHACHA_DEV_V818_VIRTUAL_COMPONENT_HANDLING=PASS' /tmp/v818.out
+          grep -Fq 'CHACHA_DEV_V818_QUALIFICATION_NOT_BUSINESS_DELIVERY=PASS' /tmp/v818.out
+          grep -Fq 'CHACHA_DEV_V818_PRODUCTION_AUTHORITY=NO' /tmp/v818.out
+          grep -Fq 'CHACHA_DEV_V818_COUNCIL_FAIL_CLOSED=PASS' /tmp/v818.out
+          grep -Fq 'CHACHA_DEV_V818_REUSE_QUALIFIED_FIRST=PASS' /tmp/v818.out
+          grep -Fq 'CHACHA_DEV_V818_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v818.out
