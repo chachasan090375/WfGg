@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import concurrent.futures
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -190,8 +191,10 @@ def _observe_stage(script:Path,args,action_id:str,role:str,returncode:int):
 def run(script,args):
     action_id="stage-"+uuid.uuid4().hex
     guardian_stage(Path(script),args,"PRE_ACTION",action_id)
+    child_env=dict(os.environ)
+    child_env["CHACHA_GUARDIAN_RUN_ID"]=str(_GUARDIAN_CONTEXT.get("run_id") or "")
     p=subprocess.run([sys.executable,str(script),*map(str,args)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
-                     text=True,check=False,timeout=120)
+                     text=True,check=False,timeout=120,env=child_env)
     role=_STAGE_ROLE.get(Path(script).name,"orchestrator")
     _observe_stage(Path(script),args,action_id,role,p.returncode)
     lower=role.lower()
