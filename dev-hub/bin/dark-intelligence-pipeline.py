@@ -99,8 +99,49 @@ def enqueue_deferred(repo:Path,capture:Path,subject:str,watch_terms:list[str],qu
       "queue_root":str(queue_root),"automatic_external_spend_eur":0
     }
 
+def run_auto_corroboration(repo:Path,request_path:Path,output_dir:Path)->tuple[Path|None,dict[str,Any]]:
+    research_dir=output_dir/"public-corroboration";research_dir.mkdir(parents=True,exist_ok=True)
+    candidates_path=research_dir/"candidates.json"
+    search_script=repo/"dev-hub/bin/technology-watch-public-corroboration.py"
+    search_policy=repo/"dev-hub/config/dark-intelligence-public-corroboration.v1.json"
+    p=subprocess.run([sys.executable,str(search_script),"--policy",str(search_policy),
+      "--request",str(request_path),"--output",str(candidates_path)],
+      stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=150)
+    if p.returncode!=0 or not candidates_path.is_file():
+        return None,{"status":"DEFERRED_PROVIDER_UNAVAILABLE","stage":"PUBLIC_SEARCH",
+                     "detail":(p.stderr or p.stdout)[-800:],"retry_required":True,"retry_after_seconds":900}
+    candidates=load(candidates_path)
+    if candidates.get("status")=="PROVIDER_UNAVAILABLE":
+        return None,{"status":"DEFERRED_PROVIDER_UNAVAILABLE","stage":"PUBLIC_SEARCH",
+                     "detail":candidates.get("detail"),"retry_required":True,"retry_after_seconds":900,
+                     "candidates_path":str(candidates_path)}
+    if candidates.get("status")=="NO_RESULTS":
+        return None,{"status":"NO_RESULTS","stage":"PUBLIC_SEARCH","retry_required":False,
+                     "candidate_count":0,"candidates_path":str(candidates_path)}
+
+    evidence_path=research_dir/"evidence.json"
+    classifier=repo/"dev-hub/bin/dark-intelligence-corroboration-analysis.py"
+    p=subprocess.run([sys.executable,str(classifier),"--candidates",str(candidates_path),
+      "--output",str(evidence_path),"--timeout","180"],
+      stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=240)
+    if p.returncode!=0 or not evidence_path.is_file():
+        return None,{"status":"DEFERRED_PROVIDER_UNAVAILABLE","stage":"SEMANTIC_CLASSIFICATION",
+                     "detail":(p.stderr or p.stdout)[-800:],"retry_required":True,"retry_after_seconds":900,
+                     "candidates_path":str(candidates_path)}
+    evidence=load(evidence_path)
+    if evidence.get("status")=="DEFERRED_PROVIDER_UNAVAILABLE":
+        return evidence_path,{"status":"DEFERRED_PROVIDER_UNAVAILABLE","stage":"SEMANTIC_CLASSIFICATION",
+                     "retry_required":True,"retry_after_seconds":int(evidence.get("retry_after_seconds") or 900),
+                     "candidate_count":int(candidates.get("candidate_count") or 0),
+                     "verified_evidence_count":sum(1 for x in evidence.get("evidence") or [] if isinstance(x,dict) and x.get("verified") is True),
+                     "candidates_path":str(candidates_path),"evidence_path":str(evidence_path)}
+    return evidence_path,{"status":"PASS","stage":"COMPLETE","retry_required":False,
+                 "candidate_count":int(candidates.get("candidate_count") or 0),
+                 "verified_evidence_count":sum(1 for x in evidence.get("evidence") or [] if isinstance(x,dict) and x.get("verified") is True),
+                 "candidates_path":str(candidates_path),"evidence_path":str(evidence_path)}
+
 def process(repo:Path,capture_path:Path,analysis_result:dict[str,Any],subject:str,output_dir:Path,
-            corroboration_evidence:Path|None=None)->dict[str,Any]:
+            corroboration_evidence:Path|None=None,auto_corroboration:bool=False)->dict[str,Any]:
     capture=load(capture_path);obs=observation_from(capture,analysis_result,subject)
     output_dir.mkdir(parents=True,exist_ok=True);obs_path=output_dir/"observation.json";save(obs_path,obs)
     agent=mod(repo/"dev-hub/bin/dark-intelligence-agent.py","v801_dark_agent")
@@ -119,6 +160,10 @@ def process(repo:Path,capture_path:Path,analysis_result:dict[str,Any],subject:st
     corroboration_result=corroboration.evaluate(dossier,[],corroboration_policy)
     corroboration_path=output_dir/"corroboration.json";save(corroboration_path,corroboration_result)
 
+    research={"status":"NOT_RUN","retry_required":False}
+    if corroboration_evidence is None and auto_corroboration and (dossier.get("claims") or []):
+        corroboration_evidence,research=run_auto_corroboration(repo,corroboration_request_path,output_dir)
+
     score_path=output_dir/"technology-watch/technology-truth-score.json"
     score=load(score_path)
     final_watch_dir=output_dir/"technology-watch"
@@ -133,19 +178,22 @@ def process(repo:Path,capture_path:Path,analysis_result:dict[str,Any],subject:st
         # Re-score with independently gathered evidence. Only evidence explicitly
         # marked verified may influence the second Technology Watch pass.
         verified_rows=[x for x in evidence_rows if x.get("verified") is True]
-        tech=dossier.get("technology_dossier") if isinstance(dossier.get("technology_dossier"),dict) else {}
-        tech_evidence=tech.get("evidence") if isinstance(tech.get("evidence"),list) else []
-        tech["evidence"]=tech_evidence+verified_rows
-        dossier["technology_dossier"]=tech
         dossier["corroboration"]=corroboration_result
-        final_watch_dir=output_dir/"technology-watch-corroborated"
-        evaluation=agent.verify_with_technology_watch(repo,dossier,final_watch_dir)
-        dossier["technology_watch_evaluation"]=evaluation;save(dossier_path,dossier)
-        score_path=final_watch_dir/"technology-truth-score.json"
-        score=load(score_path)
+        if verified_rows:
+            tech=dossier.get("technology_dossier") if isinstance(dossier.get("technology_dossier"),dict) else {}
+            tech_evidence=tech.get("evidence") if isinstance(tech.get("evidence"),list) else []
+            tech["evidence"]=tech_evidence+verified_rows
+            dossier["technology_dossier"]=tech
+            final_watch_dir=output_dir/"technology-watch-corroborated"
+            evaluation=agent.verify_with_technology_watch(repo,dossier,final_watch_dir)
+            dossier["technology_watch_evaluation"]=evaluation
+            score_path=final_watch_dir/"technology-truth-score.json"
+            score=load(score_path)
+        save(dossier_path,dossier)
 
     result={
-      "schema":"chacha.dev/dark-intelligence-pipeline-result/v1","status":"PASS",
+      "schema":"chacha.dev/dark-intelligence-pipeline-result/v1",
+      "status":"CORROBORATION_DEFERRED" if research.get("status")=="DEFERRED_PROVIDER_UNAVAILABLE" else "PASS",
       "subject":subject,"source":dossier.get("source"),"analysis":analysis_result.get("analysis"),
       "claim_count":len(dossier.get("claims") or []),
       "technology_watch_evaluation":evaluation,
@@ -155,7 +203,8 @@ def process(repo:Path,capture_path:Path,analysis_result:dict[str,Any],subject:st
         "request_route":corroboration_request.get("route"),
         "independent_sources_required":True,
         "request_path":str(corroboration_request_path),
-        "evaluation_path":str(corroboration_path)
+        "evaluation_path":str(corroboration_path),
+        "research":research
       },
       "truth_score":{
         "technical_truth_score":score.get("technical_truth_score"),
@@ -186,6 +235,7 @@ def main()->int:
     ap.add_argument("--capture",type=Path,required=True);ap.add_argument("--subject",default="")
     ap.add_argument("--watch-term",action="append",default=[]);ap.add_argument("--analysis-result",type=Path)
     ap.add_argument("--corroboration-evidence",type=Path)
+    ap.add_argument("--no-auto-corroboration",action="store_true")
     ap.add_argument("--queue-root",type=Path,default=DEFAULT_ANALYSIS_QUEUE)
     ap.add_argument("--output-dir",type=Path,required=True)
     a=ap.parse_args();repo=a.repo_root.resolve();a.output_dir.mkdir(parents=True,exist_ok=True)
@@ -212,7 +262,13 @@ def main()->int:
         }
         save(a.output_dir/"pipeline-result.json",result)
     else:
-        result=process(repo,a.capture,analysis,a.subject,a.output_dir,a.corroboration_evidence)
+        result=process(repo,a.capture,analysis,a.subject,a.output_dir,a.corroboration_evidence,not a.no_auto_corroboration)
+        if result.get("status")=="CORROBORATION_DEFERRED":
+            queued=enqueue_deferred(repo,a.capture.resolve(),a.subject,a.watch_term,a.queue_root.resolve())
+            result["retry"]={"required":True,
+              "after_seconds":int((((result.get("corroboration") or {}).get("research") or {}).get("retry_after_seconds") or 900)),
+              "persistent_queue":True,"queue_job":queued}
+            save(a.output_dir/"pipeline-result.json",result)
     print(json.dumps(result,indent=2,ensure_ascii=False))
     print("CHACHA_DEV_V801_DARK_END_TO_END_PIPELINE=PASS")
     print("CHACHA_DEV_V801_RAW_SOURCE_FACT_AUTHORITY=NO")
