@@ -3,7 +3,7 @@ Description=ChaCha DEV Dark Intelligence analysis retry timer
 
 [Timer]
 OnBootSec=15min
-OnUnitActiveSec=15min
+OnUnitInactiveSec=15min
 RandomizedDelaySec=90
 Persistent=true
 Unit=chacha-dev-dark-intelligence-analysis-retry.service
