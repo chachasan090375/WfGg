@@ -1,0 +1,48 @@
+{
+  "schema": "chacha.dev/dialogue-orchestrator-policy/v1",
+  "version": "8.1.1",
+  "component": "dialogue-orchestrator",
+  "purpose": "Turn a locked central conversation response into natural dialogue without changing technical decisions.",
+  "provider": {
+    "id": "agy-gemini-conversation",
+    "backend": "/usr/local/bin/agy-dev",
+    "cost_class": "quota",
+    "zero_cost_attestation_required": true,
+    "zero_cost_attestation": "/opt/chacha-dev/runtime/provider-economics/agy-conversation-zero-cost.json",
+    "allowed_zero_cost_classes": ["free", "owned", "included", "local", "quota"],
+    "models": [
+      "gemini-3.8-flash-low",
+      "gemini-3.7-flash-low",
+      "gemini-3.6-flash-low"
+    ],
+    "timeout_seconds": 75,
+    "sandbox": true,
+    "tool_access": "NONE"
+  },
+  "context": {
+    "recent_turn_limit": 16,
+    "max_prompt_chars": 30000,
+    "include_declared_profile": true,
+    "include_ephemeral_interaction_signals": true,
+    "include_technical_details": false
+  },
+  "invariants": {
+    "central_status_immutable": true,
+    "central_next_action_immutable": true,
+    "central_authority_preserved": true,
+    "model_has_no_execution_authority": true,
+    "model_has_no_mutation_authority": true,
+    "model_has_no_architecture_authority": true,
+    "model_may_only_rephrase_human_message": true,
+    "new_technical_identifiers_rejected": true,
+    "stereotype_inference_forbidden": true,
+    "psychological_diagnosis_forbidden": true,
+    "automatic_external_spend_eur": 0
+  },
+  "fallback": {
+    "mode": "DETERMINISTIC_BASE_RESPONSE",
+    "provider_unavailable_is_not_user_request_failure": true,
+    "provider_cost_unattested_is_fail_closed": true
+  },
+  "automatic_external_spend_eur": 0
+}

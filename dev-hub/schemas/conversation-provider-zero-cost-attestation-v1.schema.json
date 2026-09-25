@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "chacha.dev/conversation-provider-zero-cost-attestation/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "provider_id",
+    "status",
+    "cost_class",
+    "automatic_external_spend_eur"
+  ],
+  "properties": {
+    "schema": {
+      "const": "chacha.dev/conversation-provider-zero-cost-attestation/v1"
+    },
+    "provider_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "const": "PASS"
+    },
+    "cost_class": {
+      "enum": ["free", "owned", "included", "local", "quota"]
+    },
+    "quota_available": {
+      "type": "boolean"
+    },
+    "valid_until": {
+      "type": "string"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "attested_by": {
+      "type": "string"
+    },
+    "automatic_external_spend_eur": {
+      "const": 0
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "cost_class": {
+            "const": "quota"
+          }
+        }
+      },
+      "then": {
+        "required": ["quota_available", "valid_until"],
+        "properties": {
+          "quota_available": {
+            "const": true
+          }
+        }
+      }
+    }
+  ]
+}

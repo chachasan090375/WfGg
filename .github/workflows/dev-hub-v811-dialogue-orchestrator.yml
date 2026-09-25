@@ -1,0 +1,67 @@
+name: ChaCha DEV V8.1.1 Dialogue Orchestrator
+
+on:
+  push:
+    branches:
+      - dev-hub-v811-dialogue-orchestrator
+    paths:
+      - 'dev-hub/bin/dialogue-orchestrator.py'
+      - 'dev-hub/bin/direct-operator-service.py'
+      - 'dev-hub/config/dialogue-orchestrator.v1.json'
+      - 'dev-hub/config/direct-operator.v1.json'
+      - 'dev-hub/direct-operator-ui/index.html'
+      - 'dev-hub/schemas/conversation-provider-zero-cost-attestation-v1.schema.json'
+      - 'dev-hub/tests/test_v811_dialogue_orchestrator.py'
+      - 'dev-hub/tests/test_v810_human_conversation_foundation.py'
+      - 'dev-hub/docs/DIALOGUE_ORCHESTRATOR_V811.md'
+      - '.github/workflows/dev-hub-v811-dialogue-orchestrator.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/dialogue-orchestrator.py             dev-hub/bin/direct-operator-service.py             dev-hub/bin/conversation-interface-agent.py             dev-hub/bin/human-context-engine.py             dev-hub/tests/test_v810_human_conversation_foundation.py             dev-hub/tests/test_v811_dialogue_orchestrator.py
+          python3 -m json.tool dev-hub/config/dialogue-orchestrator.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/direct-operator.v1.json >/dev/null
+          python3 -m json.tool dev-hub/schemas/conversation-provider-zero-cost-attestation-v1.schema.json >/dev/null
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('dev-hub/direct-operator-ui/index.html').read_text()
+          js=s.split('<script>',1)[1].split('</script>',1)[0]
+          Path('/tmp/v811-ui.js').write_text(js)
+          PY
+          node --check /tmp/v811-ui.js
+
+      - name: V8.1.0 foundation regression
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v810_human_conversation_foundation.py | tee /tmp/v810.out
+          grep -Fq 'CHACHA_DEV_V810_MULTI_TURN_TIMELINE=PASS' /tmp/v810.out
+          grep -Fq 'CHACHA_DEV_V810_NO_DEMOGRAPHIC_INFERENCE=PASS' /tmp/v810.out
+          grep -Fq 'CHACHA_DEV_V810_CENTRAL_AUTHORITY_PRESERVED=PASS' /tmp/v810.out
+
+      - name: V8.1.1 dialogue qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v811_dialogue_orchestrator.py | tee /tmp/v811.out
+          grep -Fq 'CHACHA_DEV_V811_ZERO_COST_GATE_FAIL_CLOSED=PASS' /tmp/v811.out
+          grep -Fq 'CHACHA_DEV_V811_PROVIDER_NOT_CALLED_WITHOUT_ATTESTATION=PASS' /tmp/v811.out
+          grep -Fq 'CHACHA_DEV_V811_ATTESTED_PROVIDER_REPHRASE=PASS' /tmp/v811.out
+          grep -Fq 'CHACHA_DEV_V811_STATUS_AND_NEXT_ACTION_IMMUTABLE=PASS' /tmp/v811.out
+          grep -Fq 'CHACHA_DEV_V811_NEW_TECHNICAL_FACT_REJECTION=PASS' /tmp/v811.out
+          grep -Fq 'CHACHA_DEV_V811_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v811.out

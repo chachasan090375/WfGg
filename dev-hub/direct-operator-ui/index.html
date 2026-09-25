@@ -221,7 +221,10 @@ function renderConversation(z,digest=''){
  techResult.textContent=JSON.stringify({
    status:z?.status,next_action:z?.next_action,request_id:rid,responded_at:when,
    project:z?.session_project_id||z?.project_id,execution_project:z?.execution_project_id,
-   continuation_steps:z?.continuation_steps||[],human_context_applied:cv?.human_context_applied||false
+   continuation_steps:z?.continuation_steps||[],human_context_applied:cv?.human_context_applied||false,
+   dialogue_mode:cv?.dialogue_orchestrator?.mode||'DETERMINISTIC_BASE_RESPONSE',
+   dialogue_provider_invoked:cv?.dialogue_orchestrator?.provider_invoked||false,
+   dialogue_provider_reason:cv?.dialogue_orchestrator?.provider_reason||null
  },null,2);
  tech.hidden=false;
  typing.hidden=true;

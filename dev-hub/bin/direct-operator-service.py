@@ -114,6 +114,10 @@ class State:
         self.translator=repo/str(((policy.get("translator") or {}).get("script")) or "dev-hub/bin/functional-translator-agent.py")
         self.conversation=repo/str(((policy.get("conversation") or {}).get("script")) or "dev-hub/bin/conversation-interface-agent.py")
         self.human_context=repo/str(((policy.get("human_conversation") or {}).get("context_engine")) or "dev-hub/bin/human-context-engine.py")
+        dialogue_cfg=policy.get("dialogue_orchestrator") if isinstance(policy.get("dialogue_orchestrator"),dict) else {}
+        self.dialogue_orchestrator=repo/str(dialogue_cfg.get("script") or "dev-hub/bin/dialogue-orchestrator.py")
+        self.dialogue_policy=repo/str(dialogue_cfg.get("policy") or "dev-hub/config/dialogue-orchestrator.v1.json")
+        self.dialogue_attestation=Path(str(dialogue_cfg.get("zero_cost_attestation") or "/opt/chacha-dev/runtime/provider-economics/agy-conversation-zero-cost.json"))
         self.emergency=repo/str(policy.get("emergency_controller") or "dev-hub/bin/emergency-stop-controller.py")
         progress_policy=repo/str(policy.get("progress_policy") or "dev-hub/config/progress-reporting.v1.json")
         self.progress=ProgressStore(load(progress_policy))
@@ -401,8 +405,28 @@ class State:
                   "requires_user_response":False,"status":receipt.get("status"),
                   "next_action":receipt.get("next_action"),"central_authority_preserved":True,
                   "decision_modified":False,"fallback":True,"automatic_external_spend_eur":0}
-            try:human_context_path.unlink(missing_ok=True)
-            except Exception:pass
+
+            # Dialogue Orchestrator may rephrase the already-locked human message.
+            # It never receives or gains technical execution authority.
+            dialogue_history_path=work/"dialogue-history.json"
+            atomic(dialogue_history_path,self.conversation_view(operator,16))
+            dialogue_path=work/"dialogue-response.json"
+            self.progress.update("conversation-interface-agent",78,"RUNNING","ChaCha ajuste sa réponse",96,"ChaCha te répond naturellement")
+            dialogue_cmd=[sys.executable,str(self.dialogue_orchestrator),
+              "--base",str(conversation_path),"--human-context",str(human_context_path),
+              "--timeline",str(dialogue_history_path),"--policy",str(self.dialogue_policy),
+              "--output",str(dialogue_path)]
+            if self.dialogue_attestation.is_file():
+                dialogue_cmd.extend(["--attestation",str(self.dialogue_attestation)])
+            dp=run(dialogue_cmd,150)
+            if dp.returncode==0 and dialogue_path.is_file():
+                candidate=load(dialogue_path)
+                if candidate.get("schema")=="chacha.dev/conversation-response/v1":
+                    conversation=candidate
+
+            for ephemeral in (human_context_path,dialogue_history_path):
+                try:ephemeral.unlink(missing_ok=True)
+                except Exception:pass
             self.progress.update("conversation-interface-agent",100,"COMPLETE","Réponse prête",98,"Réponse prête ✨")
             response=wrap(intent,receipt)
             response["conversation"]=conversation
