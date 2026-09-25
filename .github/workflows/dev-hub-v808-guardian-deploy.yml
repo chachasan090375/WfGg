@@ -1,0 +1,109 @@
+name: ChaCha DEV V8.0.8 Guardian deploy
+
+on:
+  push:
+    branches:
+      - dev-hub-v808-guardian-deploy-control
+    paths:
+      - '.github/workflows/dev-hub-v808-guardian-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 8ac17f91f49ff92104e7cf77c926cd25ca93fe7a
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate qualified Guardian worker
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "8ac17f91f49ff92104e7cf77c926cd25ca93fe7a"
+          node --check dev-hub/guardian/worker.js
+          grep -Fq "h.run_id=?4" dev-hub/guardian/worker.js
+          grep -Fq "d.source_alert_id NOT LIKE 'lease-expired-%'" dev-hub/guardian/worker.js
+          echo CHACHA_DEV_V808_GUARDIAN_DEPLOY_INPUT=PASS
+
+      - name: Resolve existing Guardian D1
+        id: cf
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request
+          token=os.environ.get('CF_API_TOKEN','').strip()
+          if not token: raise SystemExit('MISSING_SECRET=CLOUDFLARE_API_TOKEN')
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url):
+              req=urllib.request.Request(url,headers=headers)
+              with urllib.request.urlopen(req,timeout=30) as r:return json.loads(r.read())
+          aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          if not aid:
+              rows=call('https://api.cloudflare.com/client/v4/accounts?per_page=50').get('result') or []
+              if len(rows)!=1: raise SystemExit('CLOUDFLARE_ACCOUNT_RESOLUTION_AMBIGUOUS')
+              aid=rows[0]['id']
+          rows=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-guardian')).get('result') or []
+          db=next((x for x in rows if x.get('name')=='chacha-dev-guardian'),None)
+          if not db: raise SystemExit('GUARDIAN_D1_MISSING')
+          sub=(call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/workers/subdomain').get('result') or {}).get('subdomain')
+          if not sub: raise SystemExit('WORKERS_SUBDOMAIN_MISSING')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('account_id='+aid+'\n')
+              f.write('database_id='+db['uuid']+'\n')
+              f.write('workers_subdomain='+sub+'\n')
+          print('CHACHA_DEV_V808_GUARDIAN_EXISTING_D1=PASS')
+          PY
+
+      - name: Deploy qualified Guardian worker only
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          cat > .wrangler-v808.jsonc <<EOF
+          {
+            "name": "chacha-dev-guardian",
+            "main": "dev-hub/guardian/worker.js",
+            "compatibility_date": "2026-09-22",
+            "workers_dev": true,
+            "triggers": {"crons": ["* * * * *"]},
+            "d1_databases": [{
+              "binding": "DB",
+              "database_name": "chacha-dev-guardian",
+              "database_id": "${{ steps.cf.outputs.database_id }}"
+            }]
+          }
+          EOF
+          npx --yes wrangler@4.45.0 deploy --config=.wrangler-v808.jsonc
+          echo CHACHA_DEV_V808_GUARDIAN_DEPLOY=PASS
+          echo DEPLOYED_REVISION=8ac17f91f49ff92104e7cf77c926cd25ca93fe7a
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+
+      - name: Verify Guardian health
+        env:
+          SUBDOMAIN: ${{ steps.cf.outputs.workers_subdomain }}
+        run: |
+          set -euo pipefail
+          URL="https://chacha-dev-guardian.$SUBDOMAIN.workers.dev"
+          for i in $(seq 1 30); do
+            if curl -fsS "$URL/healthz" -o /tmp/health.json &&
+               grep -Fq '"external_governance_plane":true' /tmp/health.json &&
+               grep -Fq '"action_lease_protocol":true' /tmp/health.json &&
+               grep -Fq '"remediation_holds":true' /tmp/health.json; then
+              cat /tmp/health.json
+              echo CHACHA_DEV_V808_GUARDIAN_HEALTH=PASS
+              exit 0
+            fi
+            sleep 3
+          done
+          exit 1
