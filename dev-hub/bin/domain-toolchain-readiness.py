@@ -21,6 +21,8 @@ def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path)->dic
     adapters=load(repo_root/"dev-hub/config/provider-adapters.v1.json")
     probes=load(repo_root/"dev-hub/config/provider-health-probes.v1.json")
     registry=load(repo_root/"dev-hub/config/capability-registry.v1.json")
+    semantics_path=repo_root/"dev-hub/config/domain-toolchain-semantics.v1.json"
+    semantics=load(semantics_path) if semantics_path.is_file() else {"encapsulated_provider_tools":{}}
 
     if graph.get("schema")!="chacha.dev/task-graph/v1":raise SystemExit("DOMAIN_EXECUTION_GRAPH_SCHEMA_INVALID")
     if topology.get("schema")!="chacha.dev/agent-topology/v1":raise SystemExit("AGENT_TOPOLOGY_SCHEMA_INVALID")
@@ -31,6 +33,7 @@ def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path)->dic
     bindings=adapters.get("providers") or {}
     adapter_defs=adapters.get("adapters") or {}
     probe_defs=probes.get("providers") or {}
+    encapsulated_defs=semantics.get("encapsulated_provider_tools") or {}
     provider_ids=set()
     for cap in (registry.get("capabilities") or {}).values():
         if not isinstance(cap,dict):continue
@@ -39,7 +42,8 @@ def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path)->dic
 
     decisions={str(x.get("package_id") or ""):x for x in topology.get("decisions") or [] if isinstance(x,dict)}
     package_rows=[]
-    all_internal=set();all_probe=set();all_binding=set();all_enable=set();all_probe_def=set()
+    all_internal=set();all_encapsulated=set();all_encap_missing=set()
+    all_probe=set();all_binding=set();all_enable=set();all_probe_def=set()
 
     for task in graph.get("tasks") or []:
         if not isinstance(task,dict):continue
@@ -49,7 +53,20 @@ def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path)->dic
         tools=[str(x) for x in (manifest.get("tools") or decision.get("toolchain") or [])]
         rows=[]
         for tool in tools:
-            if tool in bindings:
+            encap=encapsulated_defs.get(tool) if isinstance(encapsulated_defs,dict) else None
+            if isinstance(encap,dict):
+                evidence=[];complete=True
+                for raw in encap.get("evidence") or []:
+                    p=Path(str(raw));p=p if p.is_absolute() else repo_root/p
+                    ok=p.is_file();evidence.append({"path":str(raw),"exists":ok});complete=complete and ok
+                row={"tool":tool,"kind":"encapsulated-provider",
+                     "owner_component":encap.get("owner_component"),
+                     "direct_adapter_required":False,
+                     "evidence":evidence,"evidence_complete":complete,
+                     "gate":"INTERNAL_COMPONENT" if complete else "ENCAPSULATED_PROVIDER_EVIDENCE_REQUIRED"}
+                if complete:all_encapsulated.add(tool)
+                else:all_encap_missing.add(tool)
+            elif tool in bindings:
                 binding=bindings.get(tool) or {}
                 adapter_id=str(binding.get("adapter") or "")
                 adapter=adapter_defs.get(adapter_id) if adapter_id else None
@@ -76,7 +93,9 @@ def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path)->dic
           "tool_count":len(tools),"tools":rows
         })
 
-    if all_binding:
+    if all_encap_missing:
+        status="BLOCKED";next_stage="ENCAPSULATED_PROVIDER_EVIDENCE_REQUIRED"
+    elif all_binding:
         status="BLOCKED";next_stage="PROVIDER_BINDING_REQUIRED"
     elif all_enable:
         status="BLOCKED";next_stage="ADAPTER_ENABLEMENT_REQUIRED"
@@ -95,12 +114,16 @@ def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path)->dic
       "packages":package_rows,
       "summary":{
         "internal_tool_count":len(all_internal),
+        "encapsulated_provider_count":len(all_encapsulated),
+        "encapsulated_provider_evidence_required_count":len(all_encap_missing),
         "provider_binding_required_count":len(all_binding),
         "adapter_enablement_required_count":len(all_enable),
         "probe_definition_required_count":len(all_probe_def),
         "health_probe_required_count":len(all_probe)
       },
       "internal_tools":sorted(all_internal),
+      "encapsulated_providers":sorted(all_encapsulated),
+      "encapsulated_provider_evidence_required":sorted(all_encap_missing),
       "provider_binding_required":sorted(all_binding),
       "adapter_enablement_required":sorted(all_enable),
       "probe_definition_required":sorted(all_probe_def),
@@ -124,6 +147,8 @@ def main()->int:
     print("CHACHA_DEV_V819_DOMAIN_TOOLCHAIN_READINESS="+("PASS" if result["status"]=="READY" else "BLOCKED"))
     print("NEXT_STAGE="+result["next_stage"])
     print("INTERNAL_TOOLS="+str(result["summary"]["internal_tool_count"]))
+    print("ENCAPSULATED_PROVIDERS="+str(result["summary"]["encapsulated_provider_count"]))
+    print("ENCAPSULATED_PROVIDER_EVIDENCE_REQUIRED="+str(result["summary"]["encapsulated_provider_evidence_required_count"]))
     print("PROVIDER_BINDING_REQUIRED="+str(result["summary"]["provider_binding_required_count"]))
     print("ADAPTER_ENABLEMENT_REQUIRED="+str(result["summary"]["adapter_enablement_required_count"]))
     print("PROVIDER_PROBE_DEFINITION_REQUIRED="+str(result["summary"]["probe_definition_required_count"]))
