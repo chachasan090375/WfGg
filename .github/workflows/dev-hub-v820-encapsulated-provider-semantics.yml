@@ -1,0 +1,39 @@
+name: ChaCha DEV V8.0.20 Encapsulated Provider Semantics
+
+on:
+  push:
+    branches:
+      - dev-hub-v820-encapsulated-provider-semantics
+    paths:
+      - 'dev-hub/config/domain-toolchain-semantics.v1.json'
+      - 'dev-hub/bin/domain-toolchain-readiness.py'
+      - 'dev-hub/tests/test_v820_encapsulated_provider_semantics.py'
+      - '.github/workflows/dev-hub-v820-encapsulated-provider-semantics.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/domain-toolchain-readiness.py             dev-hub/tests/test_v820_encapsulated_provider_semantics.py
+          python3 -m json.tool dev-hub/config/domain-toolchain-semantics.v1.json >/dev/null
+      - name: V8.0.20 qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v820_encapsulated_provider_semantics.py | tee /tmp/v820.out
+          grep -Fq 'CHACHA_DEV_V820_TECHNOLOGY_RADAR_ENCAPSULATED=PASS' /tmp/v820.out
+          grep -Fq 'CHACHA_DEV_V820_EXA_MCP_ENCAPSULATED=PASS' /tmp/v820.out
+          grep -Fq 'CHACHA_DEV_V820_DIRECT_BINDING_NOT_REQUIRED=PASS' /tmp/v820.out
+          grep -Fq 'CHACHA_DEV_V820_OWNER_EVIDENCE_FAIL_CLOSED=PASS' /tmp/v820.out
+          grep -Fq 'CHACHA_DEV_V820_DIRECT_PROVIDER_GATE_PRESERVED=PASS' /tmp/v820.out
+          grep -Fq 'CHACHA_DEV_V820_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v820.out
