@@ -1,0 +1,38 @@
+name: ChaCha DEV V8.0.26 Collector Guardian Binding
+
+on:
+  push:
+    branches:
+      - dev-hub-v826-collector-guardian-binding
+    paths:
+      - 'dev-hub/bin/run-collector-knowledge-v1-pilot-via-chacha-dev.sh'
+      - 'dev-hub/tests/test_v826_collector_guardian_binding.py'
+      - '.github/workflows/dev-hub-v826-collector-guardian-binding.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          bash -n dev-hub/bin/run-collector-knowledge-v1-pilot-via-chacha-dev.sh
+          python3 -m py_compile             dev-hub/bin/task-contract-binder.py             dev-hub/tests/test_v826_collector_guardian_binding.py
+      - name: V8.0.26 qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v826_collector_guardian_binding.py | tee /tmp/v826.out
+          grep -Fq 'CHACHA_DEV_V826_COLLECTOR_AGENT_ROLE_BINDING=PASS' /tmp/v826.out
+          grep -Fq 'CHACHA_DEV_V826_GUARDIAN_BINDING_DIGEST=PASS' /tmp/v826.out
+          grep -Fq 'CHACHA_DEV_V826_WORKSPACE_WRITE_WITHIN_AGENT_ROLE=PASS' /tmp/v826.out
+          grep -Fq 'CHACHA_DEV_V826_PRODUCTION_PERMISSION_NOT_GRANTED=PASS' /tmp/v826.out
+          grep -Fq 'CHACHA_DEV_V826_QUERY_AND_PROBE_BOUND=PASS' /tmp/v826.out
+          grep -Fq 'CHACHA_DEV_V826_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v826.out
