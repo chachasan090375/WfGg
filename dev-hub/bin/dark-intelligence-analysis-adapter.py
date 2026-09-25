@@ -335,7 +335,8 @@ def analyze(capture_path:Path,subject:str,watch_terms:list[str],timeout:int=180)
                 return out,meta
             except subprocess.TimeoutExpired:
                 attempts.append({"model":model,"status":"FAILED","failure_class":"TIMEOUT"})
-    return extractive_fallback(capture,subject,watch_terms,attempts)\n
+    return extractive_fallback(capture,subject,watch_terms,attempts)
+
 def main()->int:
     ap=argparse.ArgumentParser();ap.add_argument("--capture",type=Path,required=True);ap.add_argument("--subject",default="")
     ap.add_argument("--watch-term",action="append",default=[]);ap.add_argument("--output",type=Path,required=True);ap.add_argument("--timeout",type=int,default=180)
