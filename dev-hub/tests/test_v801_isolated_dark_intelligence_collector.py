@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import importlib.util,json,tempfile
+import importlib.util,json,subprocess,sys,tempfile
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -287,6 +287,34 @@ with tempfile.TemporaryDirectory(prefix="v801-pipeline-autoqueue-") as td:
     assert q["next_attempt_epoch"] is not None
     assert analysis_queue.status(root)["counts"]["PENDING"]==1
 
+    deferred_path=Path(td)/"deferred-analysis.json"
+    deferred_payload={
+      "schema":"chacha.dev/dark-intelligence-analysis-result/v1",
+      "analysis":deferred,
+      "runtime":{
+        "backend":"antigravity","model":None,"models_attempted":[],
+        "tool_access":"DENIED_BY_CUSTOM_AGENT","sandbox":True,
+        "source_content_authority":"NONE","analysis_decision_authority":False,
+        "provider_state":"DEFERRED_PROVIDER_UNAVAILABLE","retry_required":True,
+        "retry_after_seconds":900,"automatic_external_spend_eur":0
+      }
+    }
+    deferred_path.write_text(json.dumps(deferred_payload),encoding="utf-8")
+    cli_queue=Path(td)/"cli-queue";outdir=Path(td)/"cli-out"
+    proc=subprocess.run([
+      sys.executable,str(ROOT/"dev-hub/bin/dark-intelligence-pipeline.py"),
+      "--repo-root",str(ROOT),"--capture",str(capture),
+      "--subject","cli-auto-queued-subject","--watch-term","term-cli",
+      "--analysis-result",str(deferred_path),"--queue-root",str(cli_queue),
+      "--output-dir",str(outdir)
+    ],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=60)
+    assert proc.returncode==0,(proc.stdout,proc.stderr)
+    cli_result=load(outdir/"pipeline-result.json")
+    assert cli_result["status"]=="DEFERRED_PROVIDER_UNAVAILABLE"
+    assert cli_result["retry"]["persistent_queue"] is True
+    assert cli_result["retry"]["queue_job"]["status"]=="PENDING"
+    assert analysis_queue.status(cli_queue)["counts"]["PENDING"]==1
+
 service=(ROOT/"dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.service").read_text(encoding="utf-8")
 timer=(ROOT/"dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.timer").read_text(encoding="utf-8")
 assert "NoNewPrivileges=true" in service and "ProtectSystem=strict" in service
@@ -308,6 +336,7 @@ print("CHACHA_DEV_V801_SEMANTIC_MODEL_FAILOVER=PASS")
 print("CHACHA_DEV_V801_PROVIDER_UNAVAILABLE_DEFER_FAILSAFE=PASS")
 print("CHACHA_DEV_V801_PERSISTENT_RETRY_QUEUE=PASS")
 print("CHACHA_DEV_V801_DEFERRED_AUTO_ENQUEUE=PASS")
+print("CHACHA_DEV_V801_DEFERRED_AUTO_ENQUEUE_CLI=PASS")
 print("CHACHA_DEV_V801_RETRY_LOOP_BOUNDED=PASS")
 print("CHACHA_DEV_V801_END_TO_END_TECHNOLOGY_WATCH_LOGICIAN=PASS")
 print("CHACHA_DEV_V801_INDEPENDENT_CORROBORATION_GATE=PASS")
