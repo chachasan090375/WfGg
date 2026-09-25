@@ -206,6 +206,34 @@ def handle_continue(a)->dict[str,Any]:
     # to replay the whole central bootstrap. Materialize the already-approved
     # dynamic branch packages under their Guardian contracts and expose the
     # next real gate (provider health) with evidence.
+    # V8.0.19: after Domain Factories, inspect adapter readiness before any
+    # provider health claim or scheduler dispatch. Adapter presence never implies
+    # provider health; this stage only proves whether a callable bridge exists.
+    if project=="chacha-dev-platform" and prior_next=="PROVIDER_HEALTH_REQUIRED":
+        factory=(brain_decision.get("domain_factories") or {}) if isinstance(brain_decision,dict) else {}
+        req_path=Path(str(factory.get("provider_health_requirements") or ""))
+        if not req_path.is_file():
+            return make_receipt("CONTINUE",project,"BRAIN_RECEIPT_INVALID","AWAIT_NEW_INSTRUCTION",
+                                list(prior.get("evidence_refs") or []),{"reason":"PROVIDER_HEALTH_REQUIREMENTS_MISSING"})
+        inspector=a.repo_root/"dev-hub/bin/provider-adapter-readiness.py"
+        readiness_path=a.output_dir/"provider-adapter-readiness.json"
+        proc=subprocess.run([sys.executable,str(inspector),"--repo-root",str(a.repo_root),
+                             "--requirements",str(req_path),"--output",str(readiness_path)],
+                            stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=60)
+        if not readiness_path.is_file():
+            return make_receipt("CONTINUE",project,"BLOCKED","PROVIDER_ADAPTER_READINESS_REPAIR_REQUIRED",
+                                list(prior.get("evidence_refs") or []),
+                                {"reason":"PROVIDER_ADAPTER_READINESS_RESULT_MISSING",
+                                 "stdout":proc.stdout[-1600:],"stderr":proc.stderr[-1600:]})
+        readiness=load(readiness_path)
+        refs=[str(readiness_path)+"#"+file_digest(readiness_path),str(req_path)+"#"+file_digest(req_path)]
+        receipt=make_receipt("CONTINUE",project,"BLOCKED",str(readiness.get("next_stage") or "PROVIDER_ADAPTER_BUILD_REQUIRED"),refs,
+                             {"provider_adapter_readiness":readiness,
+                              "continuation_mode":"PROVIDER_ADAPTER_READINESS",
+                              "domain_factories_completed":True})
+        receipt["continuation_of_request_id"]=prior.get("request_id")
+        return receipt
+
     if project=="chacha-dev-platform" and prior_next=="DOMAIN_FACTORIES":
         bootstrap=Path(str(brain_decision.get("bootstrap_result") or brain.get("bootstrap_result") or ""))
         if not bootstrap.is_file():
