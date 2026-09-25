@@ -6,6 +6,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 DEFAULT_ANALYSIS_QUEUE=Path("/opt/chacha-dev/runtime/dark-intelligence/analysis-queue")
+DEFAULT_CORROBORATION_QUEUE=Path("/opt/chacha-dev/runtime/dark-intelligence/corroboration-queue")
 
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding="utf-8"))
@@ -103,6 +104,18 @@ def enqueue_deferred(repo:Path,capture:Path,subject:str,watch_terms:list[str],qu
       "job_id":job.get("job_id"),"status":job.get("status"),
       "attempt_count":job.get("attempt_count"),"next_attempt_epoch":job.get("next_attempt_epoch"),
       "queue_root":str(queue_root),"automatic_external_spend_eur":0
+    }
+
+
+def enqueue_corroboration_deferred(repo:Path,capture:Path,analysis:Path,candidates:Path,
+                                   subject:str,queue_root:Path)->dict[str,Any]:
+    queue=mod(repo/"dev-hub/bin/dark-intelligence-corroboration-queue.py","v801_dark_corroboration_queue")
+    job=queue.enqueue(queue_root,capture,analysis,candidates,subject)
+    return {
+      "job_id":job.get("job_id"),"status":job.get("status"),
+      "attempt_count":job.get("attempt_count"),"next_attempt_epoch":job.get("next_attempt_epoch"),
+      "queue_root":str(queue_root),"network_recollection_required":False,
+      "automatic_external_spend_eur":0
     }
 
 def run_auto_corroboration(repo:Path,request_path:Path,output_dir:Path)->tuple[Path|None,dict[str,Any]]:
@@ -283,9 +296,11 @@ def main()->int:
     ap.add_argument("--corroboration-evidence",type=Path)
     ap.add_argument("--no-auto-corroboration",action="store_true")
     ap.add_argument("--queue-root",type=Path,default=DEFAULT_ANALYSIS_QUEUE)
+    ap.add_argument("--corroboration-queue-root",type=Path,default=DEFAULT_CORROBORATION_QUEUE)
     ap.add_argument("--output-dir",type=Path,required=True)
     a=ap.parse_args();repo=a.repo_root.resolve();a.output_dir.mkdir(parents=True,exist_ok=True)
-    analysis=load(a.analysis_result) if a.analysis_result else run_analysis(repo,a.capture,a.subject,a.watch_term,a.output_dir/"analysis.json")
+    analysis_path=a.analysis_result.resolve() if a.analysis_result else (a.output_dir/"analysis.json")
+    analysis=load(analysis_path) if a.analysis_result else run_analysis(repo,a.capture,a.subject,a.watch_term,analysis_path)
     analysis_body=analysis.get("analysis") if isinstance(analysis.get("analysis"),dict) else {}
     if analysis_body.get("status")=="DEFERRED_PROVIDER_UNAVAILABLE":
         queued=enqueue_deferred(repo,a.capture.resolve(),a.subject,a.watch_term,a.queue_root.resolve())
@@ -322,10 +337,23 @@ def main()->int:
             }
             save(a.output_dir/"pipeline-result.json",result)
         if result.get("status")=="CORROBORATION_DEFERRED":
-            queued=enqueue_deferred(repo,a.capture.resolve(),a.subject,a.watch_term,a.queue_root.resolve())
-            result["retry"]={"required":True,
-              "after_seconds":int((((result.get("corroboration") or {}).get("research") or {}).get("retry_after_seconds") or 900)),
-              "persistent_queue":True,"queue_job":queued}
+            research=((result.get("corroboration") or {}).get("research") or {})
+            candidates_path=Path(str(research.get("candidates_path") or ""))
+            if research.get("stage")=="SEMANTIC_CLASSIFICATION" and candidates_path.is_file():
+                queued=enqueue_corroboration_deferred(
+                  repo,a.capture.resolve(),analysis_path,candidates_path,a.subject,
+                  a.corroboration_queue_root.resolve())
+                result["retry"]={"required":True,
+                  "retry_kind":"CORROBORATION_CLASSIFICATION_ONLY",
+                  "after_seconds":int(research.get("retry_after_seconds") or 900),
+                  "persistent_queue":True,"queue_job":queued,
+                  "network_recollection_required":False}
+            else:
+                queued=enqueue_deferred(repo,a.capture.resolve(),a.subject,a.watch_term,a.queue_root.resolve())
+                result["retry"]={"required":True,
+                  "retry_kind":"FULL_ANALYSIS_OR_PUBLIC_SEARCH",
+                  "after_seconds":int(research.get("retry_after_seconds") or 900),
+                  "persistent_queue":True,"queue_job":queued}
             save(a.output_dir/"pipeline-result.json",result)
     print(json.dumps(result,indent=2,ensure_ascii=False))
     print("CHACHA_DEV_V801_DARK_END_TO_END_PIPELINE=PASS")
