@@ -1,0 +1,26 @@
+name: ChaCha DEV V8.0.22 Adapter Lifecycle Reconciliation
+
+on:
+  push:
+    branches:
+      - dev-hub-v822-adapter-lifecycle-reconciliation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: V8.0.22 qualification
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/adapters/architecture-specialist-adapter.py dev-hub/bin/domain-toolchain-readiness.py dev-hub/tests/test_v822_adapter_lifecycle_reconciliation.py
+          python3 -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/provider-health-probes.v1.json >/dev/null
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v822_adapter_lifecycle_reconciliation.py
