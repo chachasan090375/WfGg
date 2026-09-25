@@ -88,7 +88,8 @@ def run_analysis(repo:Path,capture:Path,subject:str,watch_terms:list[str],output
         raise RuntimeError("DARK_PIPELINE_ANALYSIS_FAILED:"+(p.stderr or p.stdout)[-1600:])
     return load(output)
 
-def process(repo:Path,capture_path:Path,analysis_result:dict[str,Any],subject:str,output_dir:Path)->dict[str,Any]:
+def process(repo:Path,capture_path:Path,analysis_result:dict[str,Any],subject:str,output_dir:Path,
+            corroboration_evidence:Path|None=None)->dict[str,Any]:
     capture=load(capture_path);obs=observation_from(capture,analysis_result,subject)
     output_dir.mkdir(parents=True,exist_ok=True);obs_path=output_dir/"observation.json";save(obs_path,obs)
     agent=mod(repo/"dev-hub/bin/dark-intelligence-agent.py","v801_dark_agent")
@@ -96,13 +97,55 @@ def process(repo:Path,capture_path:Path,analysis_result:dict[str,Any],subject:st
     dossier=agent.normalize(obs,policy);dossier_path=output_dir/"dark-intelligence-dossier.json";save(dossier_path,dossier)
     evaluation=agent.verify_with_technology_watch(repo,dossier,output_dir/"technology-watch")
     dossier["technology_watch_evaluation"]=evaluation;save(dossier_path,dossier)
+
+    # Every dark/deep-web claim must leave the single-source state through an
+    # explicit independent-corroboration request. The gate itself never searches
+    # or decides facts; Technology Watch owns research/evidence scoring.
+    corroboration=mod(repo/"dev-hub/bin/dark-intelligence-corroboration.py","v801_corroboration")
+    corroboration_policy=load(repo/"dev-hub/config/dark-intelligence-corroboration.v1.json")
+    corroboration_request=corroboration.search_request(dossier,corroboration_policy)
+    corroboration_request_path=output_dir/"corroboration-request.json";save(corroboration_request_path,corroboration_request)
+    corroboration_result=corroboration.evaluate(dossier,[],corroboration_policy)
+    corroboration_path=output_dir/"corroboration.json";save(corroboration_path,corroboration_result)
+
     score_path=output_dir/"technology-watch/technology-truth-score.json"
     score=load(score_path)
+    final_watch_dir=output_dir/"technology-watch"
+    if corroboration_evidence:
+        evidence_doc=load(corroboration_evidence)
+        if evidence_doc.get("schema")!="chacha.dev/dark-intelligence-corroboration-evidence/v1":
+            raise ValueError("DARK_PIPELINE_CORROBORATION_EVIDENCE_SCHEMA_INVALID")
+        evidence_rows=[x for x in evidence_doc.get("evidence") or [] if isinstance(x,dict)]
+        corroboration_result=corroboration.evaluate(dossier,evidence_rows,corroboration_policy)
+        save(corroboration_path,corroboration_result)
+
+        # Re-score with independently gathered evidence. Only evidence explicitly
+        # marked verified may influence the second Technology Watch pass.
+        verified_rows=[x for x in evidence_rows if x.get("verified") is True]
+        tech=dossier.get("technology_dossier") if isinstance(dossier.get("technology_dossier"),dict) else {}
+        tech_evidence=tech.get("evidence") if isinstance(tech.get("evidence"),list) else []
+        tech["evidence"]=tech_evidence+verified_rows
+        dossier["technology_dossier"]=tech
+        dossier["corroboration"]=corroboration_result
+        final_watch_dir=output_dir/"technology-watch-corroborated"
+        evaluation=agent.verify_with_technology_watch(repo,dossier,final_watch_dir)
+        dossier["technology_watch_evaluation"]=evaluation;save(dossier_path,dossier)
+        score_path=final_watch_dir/"technology-truth-score.json"
+        score=load(score_path)
+
     result={
       "schema":"chacha.dev/dark-intelligence-pipeline-result/v1","status":"PASS",
       "subject":subject,"source":dossier.get("source"),"analysis":analysis_result.get("analysis"),
       "claim_count":len(dossier.get("claims") or []),
       "technology_watch_evaluation":evaluation,
+      "corroboration":{
+        "verdict":corroboration_result.get("verdict"),
+        "claim_reports":corroboration_result.get("claim_reports") or [],
+        "request_route":corroboration_request.get("route"),
+        "independent_sources_required":True,
+        "request_path":str(corroboration_request_path),
+        "evaluation_path":str(corroboration_path)
+      },
       "truth_score":{
         "technical_truth_score":score.get("technical_truth_score"),
         "recommendation_class":score.get("recommendation_class"),
@@ -112,11 +155,14 @@ def process(repo:Path,capture_path:Path,analysis_result:dict[str,Any],subject:st
       },
       "authority":{
         "raw_source_authority":"ADVISORY_ONLY","analysis_decision_authority":False,
-        "technology_watch_owns_evidence_score":True,"architecture_council_final_authority":True
+        "technology_watch_owns_evidence_score":True,"corroboration_gate_has_execution_authority":False,
+        "architecture_council_final_authority":True
       },
       "artifacts":{
         "observation":str(obs_path),"dossier":str(dossier_path),
-        "logician_falsification":str(output_dir/"technology-watch/logician-falsification.json"),
+        "corroboration_request":str(corroboration_request_path),
+        "corroboration_evaluation":str(corroboration_path),
+        "logician_falsification":str(final_watch_dir/"logician-falsification.json"),
         "technology_truth_score":str(score_path)
       },
       "automatic_external_spend_eur":0
@@ -128,6 +174,7 @@ def main()->int:
     ap=argparse.ArgumentParser();ap.add_argument("--repo-root",type=Path,default=Path(__file__).resolve().parents[2])
     ap.add_argument("--capture",type=Path,required=True);ap.add_argument("--subject",default="")
     ap.add_argument("--watch-term",action="append",default=[]);ap.add_argument("--analysis-result",type=Path)
+    ap.add_argument("--corroboration-evidence",type=Path)
     ap.add_argument("--output-dir",type=Path,required=True)
     a=ap.parse_args();repo=a.repo_root.resolve();a.output_dir.mkdir(parents=True,exist_ok=True)
     analysis=load(a.analysis_result) if a.analysis_result else run_analysis(repo,a.capture,a.subject,a.watch_term,a.output_dir/"analysis.json")
@@ -147,7 +194,7 @@ def main()->int:
         }
         save(a.output_dir/"pipeline-result.json",result)
     else:
-        result=process(repo,a.capture,analysis,a.subject,a.output_dir)
+        result=process(repo,a.capture,analysis,a.subject,a.output_dir,a.corroboration_evidence)
     print(json.dumps(result,indent=2,ensure_ascii=False))
     print("CHACHA_DEV_V801_DARK_END_TO_END_PIPELINE=PASS")
     print("CHACHA_DEV_V801_RAW_SOURCE_FACT_AUTHORITY=NO")
