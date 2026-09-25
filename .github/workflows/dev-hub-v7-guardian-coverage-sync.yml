@@ -32,6 +32,7 @@ on:
       - '.github/workflows/dev-hub-v7-guardian-contract-sync.yml'
       - '.github/workflows/dev-hub-v730-direct-operator-qualification.yml'
       - '.github/workflows/dev-hub-v7-guardian-coverage-sync.yml'
+      - '.github/workflows/dev-hub-v780-runtime-convergence.yml'
   workflow_dispatch:
 
 permissions:
