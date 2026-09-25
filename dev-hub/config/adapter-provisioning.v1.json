@@ -230,9 +230,13 @@
           }
         },
         "expected_schema": "chacha.dev/task-result/v1",
-        "expected_status": "BLOCKED",
         "expected_producer": "collector-knowledge-adapter",
-        "expected_verification_status": "UNVERIFIED"
+        "expected_verification_status": "UNVERIFIED",
+        "expected_statuses": [
+          "OK",
+          "BLOCKED"
+        ],
+        "health_decision_deferred_to_provider_probe": true
       }
     },
     "cloudflare-pages-production-adapter": {
