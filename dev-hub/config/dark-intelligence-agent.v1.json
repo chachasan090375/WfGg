@@ -82,7 +82,18 @@
     "public_corroboration_automatic": true,
     "public_corroboration_provider_or_classifier_failure": "DEFERRED_PROVIDER_UNAVAILABLE",
     "public_corroboration_failure_auto_enqueue": true,
-    "exa_search_result_has_fact_authority": false
+    "exa_search_result_has_fact_authority": false,
+    "public_corroboration_fallback_policy": "dev-hub/config/dark-intelligence-firecrawl-fallback.v1.json",
+    "public_corroboration_fallback_adapter": "dev-hub/bin/technology-watch-firecrawl-fallback.py",
+    "public_corroboration_fallback_provider": "firecrawl-keyless",
+    "public_corroboration_fallback_provider_status": "PILOT",
+    "firecrawl_search_result_has_fact_authority": false,
+    "firecrawl_provider_snippet_counts_as_retrieved_evidence": false,
+    "firecrawl_candidate_isolated_refetch_required": true,
+    "corroboration_retry_queue": "dev-hub/bin/dark-intelligence-corroboration-queue.py",
+    "corroboration_retry_timer": "dev-hub/systemd/chacha-dev-dark-intelligence-corroboration-retry.timer",
+    "corroboration_retry_network_recollection": false,
+    "corroboration_retry_max_attempts": 12
   },
   "output": {
     "normalized_schema": "chacha.dev/dark-intelligence-dossier/v1",
