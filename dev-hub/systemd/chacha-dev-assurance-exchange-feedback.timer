@@ -3,7 +3,7 @@ Description=ChaCha DEV Assurance Exchange polling timer
 
 [Timer]
 OnBootSec=30s
-OnUnitActiveSec=30s
+OnUnitActiveSec=180s
 AccuracySec=5s
 Unit=chacha-dev-assurance-exchange-feedback.service
 
