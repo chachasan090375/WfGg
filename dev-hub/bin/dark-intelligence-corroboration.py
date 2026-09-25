@@ -2,6 +2,7 @@
 from __future__ import annotations
 import argparse,hashlib,json
 from pathlib import Path
+from urllib.parse import urlparse
 from typing import Any
 
 SCHEMA="chacha.dev/dark-intelligence-corroboration/v1"
@@ -52,18 +53,35 @@ def search_request(dossier:dict[str,Any],policy:dict[str,Any])->dict[str,Any]:
       "automatic_external_spend_eur":0
     }
 
+def _owner(e:dict[str,Any])->str:
+    explicit=str(e.get("source_owner") or e.get("publisher") or "").strip().casefold()
+    if explicit: return explicit
+    origin=str(e.get("origin") or "").strip()
+    try:
+        host=(urlparse(origin).hostname or "").strip().casefold()
+        if host:return host
+    except Exception:pass
+    return origin.casefold()
+
 def _best_by_group(rows:list[dict[str,Any]],allowed:set[str],primary_group:str)->dict[str,dict[str,Any]]:
-    out={}
-    for e in rows:
+    # Independence is fail-closed: changing an independence_group cannot turn two
+    # observations from the same origin/owner into two independent sources.
+    out={};seen_origins=set();seen_owners=set()
+    ordered=sorted(rows,key=lambda e:float(e.get("confidence_score") or 50),reverse=True)
+    for e in ordered:
         if not isinstance(e,dict): continue
         if e.get("verified") is not True: continue
+        if e.get("derived_from_primary_source") is True: continue
         typ=str(e.get("type") or "")
         if typ not in allowed: continue
         group=str(e.get("independence_group") or e.get("origin") or e.get("id") or "")
+        origin=str(e.get("origin") or "").strip().casefold()
+        owner=_owner(e)
         if not group or group==primary_group: continue
-        prev=out.get(group)
-        quality=float(e.get("confidence_score") or 50)
-        if prev is None or quality>float(prev.get("confidence_score") or 50): out[group]=e
+        if group in out or (origin and origin in seen_origins) or (owner and owner in seen_owners): continue
+        out[group]=e
+        if origin:seen_origins.add(origin)
+        if owner:seen_owners.add(owner)
     return out
 
 def evaluate(dossier:dict[str,Any],evidence:list[dict[str,Any]],policy:dict[str,Any])->dict[str,Any]:
