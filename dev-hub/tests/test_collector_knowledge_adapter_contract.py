@@ -11,6 +11,8 @@ spec.loader.exec_module(mod)
 
 def envelope(action,permission,extra=None):
     meta={"collector_knowledge":{"action":action}}
+    provider="collector-knowledge-bootstrap" if action in {"pilot-install","pilot-probe"} else "collector-knowledge-runtime"
+    capability="collector-knowledge-control" if action in {"pilot-install","pilot-probe"} else "collector-knowledge-inspect"
     if extra:
         meta["collector_knowledge"].update(extra)
     return {
@@ -29,8 +31,8 @@ def envelope(action,permission,extra=None):
             "verification":{"mode":"machine","self_certification_allowed":False,"required_evidence":[]},
         },
         "bindings":[{
-            "capability":"collector-knowledge-inspect",
-            "provider":"collector-knowledge-runtime",
+            "capability":capability,
+            "provider":provider,
             "adapter":"collector-knowledge-adapter",
             "fallback_used":False,
             "health_state":"HEALTHY",
@@ -75,7 +77,7 @@ class CollectorKnowledgeAdapterTests(unittest.TestCase):
         req=envelope("status","read")
         req["bindings"][0]["provider"]="radar-vps-runtime"
         _k,err=mod.validate_request(req)
-        self.assertEqual(err,"COLLECTOR_KNOWLEDGE_BINDING_MISSING")
+        self.assertEqual(err,"COLLECTOR_KNOWLEDGE_BINDING_MISSING:collector-knowledge-runtime")
 
     def test_download_paths_are_fixed(self):
         self.assertEqual(mod.INSTALLER_PATH,"radar-vps/install-collector-knowledge-v1.sh")
