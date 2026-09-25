@@ -25,6 +25,17 @@ analysis_queue=loadmod("v801_queue",ROOT/"dev-hub/bin/dark-intelligence-analysis
 corroboration_queue=loadmod("v801_corroboration_queue",ROOT/"dev-hub/bin/dark-intelligence-corroboration-queue.py")
 corroboration=loadmod("v801_corroboration",ROOT/"dev-hub/bin/dark-intelligence-corroboration.py")
 corroboration_policy=load(ROOT/"dev-hub/config/dark-intelligence-corroboration.v1.json")
+extension=load(ROOT/"dev-hub/config/platform-extension.v1.json")
+
+assert extension["version"]=="8.0.1"
+assert extension["core_platform_version"]=="7.8.0"
+assert "conversation-interface-agent" in extension["components"]
+assert "isolated-dark-intelligence-collector" in extension["components"]
+central_src=(ROOT/"dev-hub/bin/central-interface-controller.py").read_text(encoding="utf-8")
+conversation_src=(ROOT/"dev-hub/bin/conversation-interface-agent.py").read_text(encoding="utf-8")
+assert 'platform-extension.v1.json' in central_src
+assert 'platform_extension' in central_src
+assert 'extension ' in conversation_src and 'noyau ' in conversation_src
 
 # URL/method safety.
 ok=collector.validate_target("http://examplehiddenservice.onion/path","TOR_ONION",policy)
@@ -615,6 +626,7 @@ with tempfile.TemporaryDirectory(prefix="v801-auto-corroboration-pass-") as td:
     assert (Path(td)/"out/technology-watch-corroborated/logician-falsification.json").is_file()
     assert rr["truth_score"]["automatic_selection_allowed"] is False
 
+print("CHACHA_DEV_V801_PLATFORM_EXTENSION_STATUS=PASS")
 print("CHACHA_DEV_V801_DEDICATED_NETWORK_NAMESPACE=PASS")
 print("CHACHA_DEV_V801_HOST_AND_PRIVATE_NETWORK_BLOCK=PASS")
 print("CHACHA_DEV_V801_NAMESPACE_SPECIFIC_DNS=PASS")
