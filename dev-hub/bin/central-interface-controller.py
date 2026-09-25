@@ -64,6 +64,14 @@ def platform_status(repo_root:Path,runtime_root:Path)->dict[str,Any]:
       "hygiene":None,
       "physical_release_count":None
     }
+    try:
+        ext=load(repo_root/"dev-hub/config/platform-extension.v1.json")
+        out["platform_extension"]={
+          "version":ext.get("version"),"name":ext.get("name"),
+          "core_platform_version":ext.get("core_platform_version"),
+          "components":ext.get("components") or []
+        }
+    except Exception:out["platform_extension"]=None
     try:out["emergency_stop_active"]=bool(load(runtime_root/"control/emergency-stop.json").get("active"))
     except Exception:pass
     try:out["guardian_all_hooks_active"]=load(runtime_root/"guardian/coverage-latest.json").get("all_hooks_active")
