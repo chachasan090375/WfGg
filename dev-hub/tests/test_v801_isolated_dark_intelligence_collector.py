@@ -21,6 +21,7 @@ isolation=loadmod("v801_isolation",ROOT/"dev-hub/bin/dark-intelligence-isolation
 runner=loadmod("v801_runner",ROOT/"dev-hub/bin/dark-intelligence-collector-runner.py")
 analysis_adapter=loadmod("v801_analysis",ROOT/"dev-hub/bin/dark-intelligence-analysis-adapter.py")
 pipeline=loadmod("v801_pipeline",ROOT/"dev-hub/bin/dark-intelligence-pipeline.py")
+analysis_queue=loadmod("v801_queue",ROOT/"dev-hub/bin/dark-intelligence-analysis-queue.py")
 
 # URL/method safety.
 ok=collector.validate_target("http://examplehiddenservice.onion/path","TOR_ONION",policy)
@@ -184,6 +185,31 @@ with tempfile.TemporaryDirectory(prefix="v801-pipeline-") as td:
     assert (Path(td)/"out/technology-watch/logician-falsification.json").is_file()
     assert (Path(td)/"out/technology-watch/technology-truth-score.json").is_file()
 
+# Deferred semantic analysis is persisted and retried without infinite loops.
+with tempfile.TemporaryDirectory(prefix="v801-queue-") as td:
+    root=Path(td)/"queue";results=Path(td)/"results";capture=Path(td)/"capture.json"
+    capture.write_text(json.dumps(fake_capture),encoding="utf-8")
+    j1=analysis_queue.enqueue(root,capture,"watched-subject",["term-a"])
+    j2=analysis_queue.enqueue(root,capture,"watched-subject",["term-a"])
+    assert j1["job_id"]==j2["job_id"]
+    assert analysis_queue.status(root)["counts"]["PENDING"]==1
+    assert analysis_queue.backoff(1)==900
+    assert analysis_queue.backoff(2)==1800
+    assert analysis_queue.backoff(20)==21600
+    p=root/(j1["job_id"]+".json")
+    queued=analysis_queue.load(p);queued["status"]="DEFERRED_PROVIDER_UNAVAILABLE";queued["attempt_count"]=1
+    queued["next_attempt_epoch"]=0;analysis_queue.save(p,queued)
+    due=analysis_queue.due_jobs(root,1)
+    assert len(due)==1 and due[0][1]["status"]=="DEFERRED_PROVIDER_UNAVAILABLE"
+
+service=(ROOT/"dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.service").read_text(encoding="utf-8")
+timer=(ROOT/"dev-hub/systemd/chacha-dev-dark-intelligence-analysis-retry.timer").read_text(encoding="utf-8")
+assert "NoNewPrivileges=true" in service and "ProtectSystem=strict" in service
+assert "ReadWritePaths=/opt/chacha-dev/runtime/dark-intelligence" in service
+assert "OnUnitActiveSec=15min" in timer
+assert dark_policy["collection"]["analysis_retry_max_attempts"]==12
+assert dark_policy["collection"]["analysis_retry_infinite_loop_forbidden"] is True
+
 print("CHACHA_DEV_V801_DEDICATED_NETWORK_NAMESPACE=PASS")
 print("CHACHA_DEV_V801_HOST_AND_PRIVATE_NETWORK_BLOCK=PASS")
 print("CHACHA_DEV_V801_NAMESPACE_SPECIFIC_DNS=PASS")
@@ -195,5 +221,7 @@ print("CHACHA_DEV_V801_TOOL_FREE_SEMANTIC_ANALYSIS=PASS")
 print("CHACHA_DEV_V801_BOUNDED_RELEVANT_ANALYSIS_CONTEXT=PASS")
 print("CHACHA_DEV_V801_SEMANTIC_MODEL_FAILOVER=PASS")
 print("CHACHA_DEV_V801_PROVIDER_UNAVAILABLE_DEFER_FAILSAFE=PASS")
+print("CHACHA_DEV_V801_PERSISTENT_RETRY_QUEUE=PASS")
+print("CHACHA_DEV_V801_RETRY_LOOP_BOUNDED=PASS")
 print("CHACHA_DEV_V801_END_TO_END_TECHNOLOGY_WATCH_LOGICIAN=PASS")
 print("CHACHA_DEV_V801_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
