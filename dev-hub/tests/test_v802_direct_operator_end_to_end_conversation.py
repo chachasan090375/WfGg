@@ -22,6 +22,7 @@ assert gateway.stable_project("human-interface-request-dor-abc")=="chacha-dev-pl
 
 assert direct.should_auto_continue({"status":"PLAN_READY","next_action":"DOMAIN_FACTORIES"}) is True
 assert direct.should_auto_continue({"status":"CONTINUED","next_action":"ASSEMBLY"}) is True
+assert direct.should_auto_continue({"status":"CONTINUED_PLAN_READY","next_action":"DOMAIN_FACTORIES"}) is True
 assert direct.should_auto_continue({"status":"READY","next_action":"DELIVERY"}) is True
 assert direct.should_auto_continue({"status":"BLOCKED","next_action":"REPLAN_REQUIRED"}) is False
 assert direct.should_auto_continue({"status":"AWAITING_APPROVAL","next_action":"AWAIT_HUMAN_APPROVAL"}) is False
