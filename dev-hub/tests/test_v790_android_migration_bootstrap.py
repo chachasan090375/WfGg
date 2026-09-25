@@ -12,6 +12,8 @@ gradle=(ROOT/"android/chacha-migration-bootstrap/app/build.gradle.kts").read_tex
 assert policy["migration_package"]=="com.wfgg.chachadev.migration"
 assert policy["target_package"]=="com.wfgg.chachadev.operator"
 assert policy["target_version_code"]==6
+assert policy["target_apk_private_url"]=="https://chachavps.tail3ab05a.ts.net:8445/chacha-jai-pete-v0.6.0-4fb319fcea6d.apk"
+assert policy["target_apk_sha256"]=="741c3e2be48d55e09a33f805fbd39d99d579cc4efcdf4d215387e93a2228e0bb"
 assert policy["target_apk_sha256"] in src
 assert policy["target_signing_cert_sha256"] in src
 assert policy["target_apk_private_url"] in src
@@ -43,6 +45,7 @@ assert policy["invariants"]["uninstall_skipped_if_release_certificate_matches"] 
 assert policy["invariants"]["private_tailscale_distribution"] is True
 
 print("CHACHA_DEV_V790_ANDROID_MIGRATION_BOOTSTRAP=PASS")
+print("CORRECTED_RELEASE_TARGET_PIN=PASS")
 print("LEGACY_SIGNATURE_UNINSTALL_CONFIRMATION=REQUIRED")
 print("RELEASE_SIGNATURE_UNINSTALL_SKIPPED=YES")
 print("PRIVATE_RELEASE_DOWNLOAD=YES")
