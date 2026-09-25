@@ -1,0 +1,40 @@
+name: ChaCha DEV V8.0.19 Domain Toolchain Readiness
+
+on:
+  push:
+    branches:
+      - dev-hub-v819-domain-toolchain-readiness
+    paths:
+      - 'dev-hub/bin/domain-toolchain-readiness.py'
+      - 'dev-hub/bin/domain-factory-runner.py'
+      - 'dev-hub/bin/central-interface-controller.py'
+      - 'dev-hub/tests/test_v819_domain_toolchain_readiness.py'
+      - '.github/workflows/dev-hub-v819-domain-toolchain-readiness.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/domain-toolchain-readiness.py             dev-hub/bin/domain-factory-runner.py             dev-hub/bin/central-interface-controller.py             dev-hub/tests/test_v819_domain_toolchain_readiness.py
+      - name: V8.0.19 qualification
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v819_domain_toolchain_readiness.py | tee /tmp/v819.out
+          grep -Fq 'CHACHA_DEV_V819_INTERNAL_TOOL_NOT_PROVIDER=PASS' /tmp/v819.out
+          grep -Fq 'CHACHA_DEV_V819_PROVIDER_BINDING_GATE=PASS' /tmp/v819.out
+          grep -Fq 'CHACHA_DEV_V819_ADAPTER_ENABLEMENT_GATE=PASS' /tmp/v819.out
+          grep -Fq 'CHACHA_DEV_V819_PROBE_DEFINITION_GATE=PASS' /tmp/v819.out
+          grep -Fq 'CHACHA_DEV_V819_HEALTH_PROBE_GATE=PASS' /tmp/v819.out
+          grep -Fq 'CHACHA_DEV_V819_CONTINUE_NO_BOOTSTRAP_LOOP=PASS' /tmp/v819.out
+          grep -Fq 'CHACHA_DEV_V819_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v819.out
