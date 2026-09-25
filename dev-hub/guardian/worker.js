@@ -393,7 +393,7 @@ async function createRemediation(env,{alertId,eventId,severity,reasons,payload})
          plan.project_id,plan.run_id,String(severity),plan.required_action,
          JSON.stringify(reasons||[]),JSON.stringify(plan.instructions)).run();
   if(["BLOCK","CRITICAL"].includes(String(severity))){
-    const holdKey=[plan.target_actor,plan.project_id||"*"].join("|");
+    const holdKey=[plan.target_actor,plan.project_id||"*",plan.run_id||"*"].join("|");
     await env.DB.prepare(
       `INSERT OR IGNORE INTO remediation_holds
         (hold_key,directive_id,target_actor,target_role,project_id,run_id,severity,active,created_at)
@@ -438,10 +438,25 @@ async function resolveSatisfiedRemediationDependencies(env){
 
 async function activeRemediationHold(event,env){
   const actor=String(event.actor||""),subject=String(event.subject_role||""),project=String(event.project_id||"");
+  const run=String(event.run_id||"");
+  if(run){
+    return env.DB.prepare(
+      `SELECT h.* FROM remediation_holds h
+        JOIN remediation_directives d ON d.directive_id=h.directive_id
+        WHERE h.active=1 AND (h.target_actor=?1 OR h.target_role=?2)
+          AND (h.project_id IS NULL OR h.project_id='' OR h.project_id=?3)
+          AND (
+            h.run_id=?4 OR
+            ((h.run_id IS NULL OR h.run_id='') AND d.source_alert_id NOT LIKE 'lease-expired-%')
+          )
+        ORDER BY h.created_at ASC LIMIT 1`
+    ).bind(actor,subject,project,run).first();
+  }
   return env.DB.prepare(
     `SELECT * FROM remediation_holds
       WHERE active=1 AND (target_actor=?1 OR target_role=?2)
         AND (project_id IS NULL OR project_id='' OR project_id=?3)
+        AND (run_id IS NULL OR run_id='')
       ORDER BY created_at ASC LIMIT 1`
   ).bind(actor,subject,project).first();
 }
