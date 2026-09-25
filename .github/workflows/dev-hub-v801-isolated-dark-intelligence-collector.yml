@@ -1,0 +1,54 @@
+name: ChaCha DEV V8.0.1 Isolated Dark Intelligence Collector
+
+on:
+  push:
+    branches:
+      - dev-hub-v801-isolated-dark-intelligence-collector
+    paths:
+      - 'dev-hub/bin/dark-intelligence-collector.py'
+      - 'dev-hub/bin/dark-intelligence-isolation.py'
+      - 'dev-hub/bin/dark-intelligence-tor-toolcache.py'
+      - 'dev-hub/bin/dark-intelligence-collector-runner.py'
+      - 'dev-hub/config/dark-intelligence-collector.v1.json'
+      - 'dev-hub/config/dark-intelligence-agent.v1.json'
+      - 'dev-hub/config/domain-orchestration.v1.json'
+      - 'dev-hub/config/agent-routing.v1.json'
+      - 'dev-hub/tests/test_v801_isolated_dark_intelligence_collector.py'
+      - '.github/workflows/dev-hub-v801-isolated-dark-intelligence-collector.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile             dev-hub/bin/dark-intelligence-collector.py             dev-hub/bin/dark-intelligence-isolation.py             dev-hub/bin/dark-intelligence-tor-toolcache.py             dev-hub/bin/dark-intelligence-collector-runner.py             dev-hub/tests/test_v801_isolated_dark_intelligence_collector.py
+          python3 -m json.tool dev-hub/config/dark-intelligence-collector.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/dark-intelligence-agent.v1.json >/dev/null
+      - name: Preserve V8.0 guarantees
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v800_intelligence_conversation_localization.py | tee /tmp/v800.out
+          grep -Fq 'CHACHA_DEV_V800_DARK_TO_TECHNOLOGY_WATCH_RUNTIME_HANDOFF=PASS' /tmp/v800.out
+          grep -Fq 'CHACHA_DEV_V800_CONVERSATION_BRAIN_TO_HUMAN_PATH=PASS' /tmp/v800.out
+          grep -Fq 'CHACHA_DEV_V800_PROFESSIONAL_LOCALIZATION=PASS' /tmp/v800.out
+      - name: V8.0.1 qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v801_isolated_dark_intelligence_collector.py | tee /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_DEDICATED_NETWORK_NAMESPACE=PASS' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_HOST_AND_PRIVATE_NETWORK_BLOCK=PASS' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_TOR_SYSTEM_INSTALL=NO' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_GET_ONLY_NO_CREDENTIALS=PASS' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_UNTRUSTED_CONTENT_AS_DATA_ONLY=PASS' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_DARK_AGENT_TECHNOLOGY_WATCH_HANDOFF=PASS' /tmp/v801.out
+          grep -Fq 'CHACHA_DEV_V801_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v801.out
