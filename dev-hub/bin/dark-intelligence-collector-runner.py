@@ -22,7 +22,7 @@ def run(argv:list[str],timeout:int=240,check=True)->subprocess.CompletedProcess[
 def module(path:Path,name:str):
     s=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
 
-def sandbox_args(policy:dict[str,Any],namespace_path:str)->list[str]:
+def sandbox_args(policy:dict[str,Any],namespace_path:str,network_profile:str="full")->list[str]:
     s=policy["sandbox"]
     inaccessible=" ".join(str(x) for x in s.get("inaccessible_paths") or [])
     props=[
@@ -46,6 +46,8 @@ def sandbox_args(policy:dict[str,Any],namespace_path:str)->list[str]:
       "RuntimeMaxSec="+str(int(s.get("runtime_max_seconds") or 180))
     ]
     if inaccessible: props.append("InaccessiblePaths="+inaccessible)
+    if network_profile=="tor-loopback-only":
+        props.extend(["IPAddressDeny=any","IPAddressAllow=localhost"])
     out=[]
     for p in props: out.append("--property="+p)
     return out
@@ -82,7 +84,7 @@ def collect(repo:Path,policy_path:Path,policy:dict[str,Any],namespace_path:str,u
     unit="chacha-dark-fetch-"+run_token
     script=repo/"dev-hub/bin/dark-intelligence-collector.py"
     cmd=["/usr/bin/systemd-run","--pipe","--wait","--quiet","--collect","--unit="+unit,
-         *sandbox_args(policy,namespace_path),
+         *sandbox_args(policy,namespace_path,"tor-loopback-only" if mode=="TOR_ONION" else "full"),
          "--setenv=CHACHA_DARK_INTEL_NETWORK_ISOLATED=1",
          "--setenv=CHACHA_DARK_INTEL_NAMESPACE="+str(policy["network_namespace"]["name"])]
     if mode=="TOR_ONION": cmd.append("--setenv=CHACHA_DARK_INTEL_TOR_READY=1")
