@@ -17,6 +17,7 @@ on:
       - 'dev-hub/systemd/chacha-dev-sentinel-remediation.timer'
       - 'dev-hub/tests/test_v830_d1_quota_resilience.py'
       - '.github/workflows/dev-hub-v830-d1-quota-resilience.yml'
+      - '.github/workflows/dev-hub-v830-guardian-worker-deploy.yml'
   workflow_dispatch:
 
 permissions:
