@@ -28,6 +28,19 @@ def save(p,x):
     Path(p).parent.mkdir(parents=True,exist_ok=True)
     Path(p).write_text(json.dumps(x,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
 
+def pin_memory_snapshot(source:Path,destination:Path)->Path:
+    source=Path(source);destination=Path(destination)
+    if not source.is_file():
+        raise RuntimeError("CENTRAL_MEMORY_ASSIMILATION_MISSING:"+str(source))
+    destination.parent.mkdir(parents=True,exist_ok=True)
+    shutil.copy2(source,destination)
+    snapshot=load(destination)
+    if snapshot.get("schema")!="chacha.dev/central-memory-assimilation/v1":
+        raise RuntimeError("CENTRAL_MEMORY_ASSIMILATION_SCHEMA_INVALID")
+    if not snapshot.get("snapshot_digest"):
+        raise RuntimeError("CENTRAL_MEMORY_ASSIMILATION_DIGEST_MISSING")
+    return destination
+
 _GUARDIAN_CONTEXT={"enabled":False}
 _STAGE_ROLE={
     "specification-compiler.py":"specification-compiler",
@@ -441,9 +454,13 @@ def main():
 
     # V6.23: the central brain recalls only context-relevant memory before asking the Foundries.
     # Recall is advisory; current Technology Watch and Council remain mandatory.
+    initial_memory_snapshot=pin_memory_snapshot(
+        Path("/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json"),
+        out/"central-memory-snapshot-initial.json"
+    )
     initial_memory_brief=out/"central-memory-brief-initial.json"
     run(bin_dir/"central-memory-recall.py",[
-        "--memory",Path("/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json"),
+        "--memory",initial_memory_snapshot,
         "--policy",cfg/"central-memory-recall.v1.json",
         "--intent",a.intent,"--preplan",pre,"--project-id",pid,"--output",initial_memory_brief
     ])
@@ -575,10 +592,16 @@ def main():
         ])
         active_pre=revised_pre;active_intent=revised_intent;active_domain=merged_domain;active_routing=merged_routing
 
-    # V6.23: capability discovery may change context, so recall is refreshed before final Foundry decisions.
+    # V8.0.12: pin one immutable memory generation for final recall + Council.
+    # The live central memory may continue learning in parallel, but this decision
+    # must never mix two snapshot generations in the same architecture evaluation.
+    memory_snapshot=pin_memory_snapshot(
+        Path("/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json"),
+        out/"central-memory-snapshot-final.json"
+    )
     memory_brief=out/"central-memory-brief.json"
     run(bin_dir/"central-memory-recall.py",[
-        "--memory",Path("/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json"),
+        "--memory",memory_snapshot,
         "--policy",cfg/"central-memory-recall.v1.json",
         "--intent",active_intent,"--preplan",active_pre,"--project-id",pid,"--output",memory_brief
     ])
@@ -658,6 +681,7 @@ def main():
         "--capability-foundry",foundry_plan,
         "--policy",cfg/"architecture-decision-council.v1.json",
         "--memory-brief",memory_brief,
+        "--memory-snapshot",memory_snapshot,
         "--challenge-dossier",compromise,
         "--output",architecture_council
     ])
@@ -694,6 +718,7 @@ def main():
                 "--capability-foundry",foundry_plan,
                 "--policy",cfg/"architecture-decision-council.v1.json",
                 "--memory-brief",memory_brief,
+                "--memory-snapshot",memory_snapshot,
                 "--challenge-dossier",compromise,
                 "--comparative-pilot-result",comparative_pilot,
                 "--output",architecture_council
