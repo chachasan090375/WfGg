@@ -1,0 +1,501 @@
+diff --git a/dev-hub/config/intendant-hygiene-cycle.v1.json b/dev-hub/config/intendant-hygiene-cycle.v1.json
+index 62694240..643f998d 100644
+--- a/dev-hub/config/intendant-hygiene-cycle.v1.json
++++ b/dev-hub/config/intendant-hygiene-cycle.v1.json
+@@ -38,10 +38,10 @@
+           }
+         ],
+         "require_no_open_file_descriptors": true,
+-        "central_orchestrator_executes_delete": true,
+-        "central_orchestrator_executor": "dev-hub/bin/central-platform-hygiene-executor.py",
+         "standing_operator_approval": true,
+-        "standing_operator_approval_scope": "SAFE_TEMP_ONLY"
++        "standing_operator_approval_scope": "SAFE_TEMP_ONLY",
++        "physical_executor": "platform-hygiene-executor",
++        "executor": "dev-hub/bin/central-platform-hygiene-executor.py"
+       }
+     },
+     "WEEKLY_DRY_RUN": {
+@@ -61,8 +61,9 @@
+         "auto_apply_when_fully_governed": true,
+         "standing_operator_approval": true,
+         "reason_must_equal": "SUPERSEDED_PHYSICAL_RELEASE",
+-        "central_orchestrator_executor": "dev-hub/bin/central-platform-hygiene-executor.py",
+-        "standing_operator_approval_scope": "SAFE_SUPERSEDED_PHYSICAL_RELEASES_ONLY"
++        "standing_operator_approval_scope": "SAFE_SUPERSEDED_PHYSICAL_RELEASES_ONLY",
++        "physical_executor": "platform-hygiene-executor",
++        "executor": "dev-hub/bin/central-platform-hygiene-executor.py"
+       }
+     },
+     "MONTHLY_CONSOLIDATION": {
+diff --git a/dev-hub/config/object-factory.v1.json b/dev-hub/config/object-factory.v1.json
+index 6762aa31..a2b30b1d 100644
+--- a/dev-hub/config/object-factory.v1.json
++++ b/dev-hub/config/object-factory.v1.json
+@@ -14,7 +14,11 @@
+     "relationships_must_be_explicit": true,
+     "sensitive_fields_must_be_marked": true,
+     "storage_mapping_is_a_plan_not_a_deployment": true,
+-    "automatic_external_spend_eur": 0
++    "automatic_external_spend_eur": 0,
++    "canonical_component_registry_required": true,
++    "universal_materialization_gate_required": true,
++    "birth_contract_required": true,
++    "retention_and_purge_contract_required": true
+   },
+   "supported_field_types": [
+     "string",
+@@ -39,5 +43,13 @@
+     "relational",
+     "object-storage",
+     "hybrid"
+-  ]
++  ],
++  "universal_materialization": {
++    "policy": "dev-hub/config/canonical-component-registry.v1.json",
++    "gate": "dev-hub/bin/universal-materialization-gate.py",
++    "registry_builder": "dev-hub/bin/canonical_component_registry.py",
++    "pre_registration_status": "PENDING_CANONICAL_REGISTRATION",
++    "active_only_after_gate_pass": true,
++    "automatic_external_spend_eur": 0
++  }
+ }
+diff --git a/dev-hub/config/operator-directive-sinks.v1.json b/dev-hub/config/operator-directive-sinks.v1.json
+new file mode 100644
+index 00000000..200fdf1c
+--- /dev/null
++++ b/dev-hub/config/operator-directive-sinks.v1.json
+@@ -0,0 +1,25 @@
++{
++  "schema": "chacha.dev/operator-directive-sink-catalog/v1",
++  "version": "1.0.0",
++  "sinks": {
++    "canonical-component-registry": ["dev-hub/bin/canonical_component_registry.py", "dev-hub/config/canonical-component-registry.v1.json"],
++    "universal-materialization-gate": ["dev-hub/bin/universal-materialization-gate.py"],
++    "all-foundries": ["dev-hub/config/agent-foundry.v1.json", "dev-hub/config/branch-foundry.v1.json", "dev-hub/config/capability-foundry.v1.json", "dev-hub/config/object-factory.v1.json"],
++    "component-registry-reconciler": ["dev-hub/bin/component_registry_reconciler.py"],
++    "fleet-observatory": ["dev-hub/bin/agent_fleet_observatory.py"],
++    "guardian": ["dev-hub/config/guardian-role-contracts.v1.json"],
++    "sentinel": ["dev-hub/config/sentinel-technical-policy.v1.json"],
++    "assurance": ["dev-hub/config/assurance-agent-instrumentation.v1.json"],
++    "intendant": ["dev-hub/bin/intendant-hygiene-cycle.py", "dev-hub/config/intendant-hygiene-cycle.v1.json"],
++    "platform-hygiene-executor": ["dev-hub/bin/central-platform-hygiene-executor.py"],
++    "guardian-state-reconciliation": ["dev-hub/bin/component_registry_reconciler.py"],
++    "architecture-governance": ["dev-hub/bin/component_evolution_governance.py"],
++    "release-qualification": [".github/workflows"],
++    "provider-economics": ["dev-hub/config/provider-economics.v1.json"],
++    "materialization-gate": ["dev-hub/bin/universal-materialization-gate.py"],
++    "run-controller": ["dev-hub/bin/run-controller.py"],
++    "direct-operator": ["dev-hub/bin/direct-operator-service.py"],
++    "conversation-channel": ["dev-hub/bin/conversation-channel-router.py"]
++  },
++  "automatic_external_spend_eur": 0
++}
+diff --git a/dev-hub/config/operator-directives.v1.json b/dev-hub/config/operator-directives.v1.json
+new file mode 100644
+index 00000000..10d91156
+--- /dev/null
++++ b/dev-hub/config/operator-directives.v1.json
+@@ -0,0 +1,198 @@
++{
++  "schema": "chacha.dev/operator-directive-registry-policy/v1",
++  "version": "1.0.0",
++  "purpose": "Persist operator structural rules independently of any conversation and propagate them into ChaCha DEV governance.",
++  "principles": {
++    "operator_structural_rules_are_persistent": true,
++    "global_directive_requires_verified_propagation": true,
++    "prompt_sent_is_not_proof_of_application": true,
++    "existing_components_require_backfill": true,
++    "future_components_inherit_active_global_directives": true,
++    "automatic_external_spend_eur": 0
++  },
++  "directives": [
++    {
++      "directive_id": "opdir-universal-materialization",
++      "scope": "PLATFORM_GLOBAL",
++      "category": "ARCHITECTURE",
++      "status": "ACTIVE",
++      "normalized_requirement": "Every materialized component must have a canonical birth contract and pass the Universal Materialization Gate before ACTIVE.",
++      "required_sinks": [
++        "canonical-component-registry",
++        "universal-materialization-gate",
++        "all-foundries",
++        "component-registry-reconciler"
++      ],
++      "backfill_required": true
++    },
++    {
++      "directive_id": "opdir-canonical-inventory",
++      "scope": "PLATFORM_GLOBAL",
++      "category": "ARCHITECTURE",
++      "status": "ACTIVE",
++      "normalized_requirement": "Fleet, Guardian, Assurance, lifecycle and hygiene must derive their governed inventory from one canonical component registry.",
++      "required_sinks": [
++        "canonical-component-registry",
++        "fleet-observatory",
++        "guardian",
++        "assurance",
++        "intendant"
++      ],
++      "backfill_required": true
++    },
++    {
++      "directive_id": "opdir-version-agnostic-runtime",
++      "scope": "PLATFORM_GLOBAL",
++      "category": "ARCHITECTURE",
++      "status": "ACTIVE",
++      "normalized_requirement": "Active platform logic must decide by capabilities, contracts, schemas or metadata rather than V7/V8/V9 major-version literals when a generic mechanism exists.",
++      "required_sinks": [
++        "all-foundries",
++        "release-qualification",
++        "component-registry-reconciler"
++      ],
++      "backfill_required": true
++    },
++    {
++      "directive_id": "opdir-universal-hygiene",
++      "scope": "PLATFORM_GLOBAL",
++      "category": "ARCHITECTURE",
++      "status": "ACTIVE",
++      "normalized_requirement": "Lifecycle, retention and purge must cover releases, agents, objects, adapters, runtimes, temporaries and terminal Guardian state without circular dependency on the component being repaired.",
++      "required_sinks": [
++        "intendant",
++        "platform-hygiene-executor",
++        "guardian-state-reconciliation",
++        "component-registry-reconciler"
++      ],
++      "backfill_required": true
++    },
++    {
++      "directive_id": "opdir-root-cause-to-invariant",
++      "scope": "PLATFORM_GLOBAL",
++      "category": "ARCHITECTURE",
++      "status": "ACTIVE",
++      "normalized_requirement": "When an incident reveals a missing general rule, repair the root cause and promote the correction into a permanent invariant that prevents recurrence.",
++      "required_sinks": [
++        "architecture-governance",
++        "component-registry-reconciler",
++        "release-qualification"
++      ],
++      "backfill_required": false
++    },
++    {
++      "directive_id": "opdir-guardian-sentinel-no-bypass",
++      "scope": "PLATFORM_GLOBAL",
++      "category": "SAFETY_GOVERNANCE",
++      "status": "ACTIVE",
++      "normalized_requirement": "Guardian and Sentinel must never be bypassed; blocked paths require root-cause repair rather than synthetic PASS or authority escalation.",
++      "required_sinks": [
++        "guardian",
++        "sentinel",
++        "release-qualification"
++      ],
++      "backfill_required": true
++    },
++    {
++      "directive_id": "opdir-zero-auto-external-spend",
++      "scope": "PLATFORM_GLOBAL",
++      "category": "SAFETY_GOVERNANCE",
++      "status": "ACTIVE",
++      "normalized_requirement": "Automatic external spend is zero unless the operator explicitly authorizes a paid action.",
++      "required_sinks": [
++        "all-foundries",
++        "provider-economics",
++        "materialization-gate",
++        "release-qualification"
++      ],
++      "backfill_required": true
++    },
++    {
++      "directive_id": "opdir-preserve-valid-qualification",
++      "scope": "PLATFORM_GLOBAL",
++      "category": "ARCHITECTURE",
++      "status": "ACTIVE",
++      "normalized_requirement": "Do not replay previously acquired PASS qualifications when the exact HEAD and affected scope have not changed.",
++      "required_sinks": [
++        "release-qualification",
++        "run-controller"
++      ],
++      "backfill_required": false
++    },
++    {
++      "directive_id": "opdir-autonomous-nonblocking-continuation",
++      "scope": "PLATFORM_GLOBAL",
++      "category": "USER_EXPERIENCE",
++      "status": "ACTIVE",
++      "normalized_requirement": "Continue automatically across authorized non-blocking internal steps and stop only at real human boundaries or unresolved external conditions.",
++      "required_sinks": [
++        "direct-operator",
++        "run-controller",
++        "conversation-channel"
++      ],
++      "backfill_required": false
++    },
++    {
++      "directive_id": "opdir-structural-instruction-intake",
++      "scope": "PLATFORM_GLOBAL",
++      "category": "ARCHITECTURE",
++      "status": "ACTIVE",
++      "normalized_requirement": "Structural operator instructions must be durably captured before downstream execution and must not be considered applied until architecture propagation is VERIFIED and ACTIVE.",
++      "required_sinks": [
++        "direct-operator",
++        "architecture-governance",
++        "release-qualification"
++      ],
++      "backfill_required": false
++    }
++  ],
++  "runtime": {
++    "snapshot": "/opt/chacha-dev/runtime/governance/operator-directives/active-directives.json",
++    "impact_report": "/opt/chacha-dev/runtime/governance/operator-directives/impact-latest.json",
++    "propagation_receipt": "/opt/chacha-dev/runtime/governance/operator-directives/propagation-latest.json",
++    "intake": "/opt/chacha-dev/runtime/governance/operator-directives/intake.jsonl"
++  },
++  "automatic_external_spend_eur": 0,
++  "intake_classification": {
++    "high_confidence_phrases": [
++      "à partir de maintenant",
++      "désormais",
++      "tous les agents",
++      "toutes les applications",
++      "tous les composants",
++      "les futurs agents",
++      "les futurs composants",
++      "aucun composant",
++      "je veux que le système"
++    ],
++    "structural_terms": [
++      "architecture",
++      "agent",
++      "agents",
++      "application",
++      "applications",
++      "composant",
++      "composants",
++      "fonderie",
++      "foundry",
++      "purge",
++      "guardian",
++      "sentinel",
++      "plateforme",
++      "système",
++      "systeme"
++    ],
++    "global_quantifiers": [
++      "tous",
++      "toutes",
++      "aucun",
++      "aucune",
++      "toujours",
++      "futurs",
++      "futures"
++    ],
++    "default_candidate_scope": "PLATFORM_GLOBAL",
++    "candidate_status": "RECEIVED",
++    "activation_requires": "APPLIED+VERIFIED+ACTIVE"
++  }
++}
+diff --git a/dev-hub/config/platform-consolidation.v1.json b/dev-hub/config/platform-consolidation.v1.json
+index 5b3fdd96..890279a3 100644
+--- a/dev-hub/config/platform-consolidation.v1.json
++++ b/dev-hub/config/platform-consolidation.v1.json
+@@ -1,7 +1,7 @@
+ {
+   "schema": "chacha.dev/platform-consolidation-policy/v1",
+-  "version": "1.1.0",
+-  "target_platform_version": "7.x",
++  "version": "2.0.0",
++  "target_platform_version": "CURRENT_ACTIVE_RELEASE",
+   "owner_agent": "intendant",
+   "purpose": [
+     "compile a single canonical runtime baseline",
+@@ -51,41 +51,43 @@
+       "dev-hub/evidence/**"
+     ],
+     "compiled_release_must_pass_import_scan": true,
+-    "compiled_release_must_pass_v7_qualification": true
++    "compiled_release_must_pass_exact_revision_qualification": true
+   },
+   "physical_release_retention": {
+     "keep_active_release": true,
+     "rollback_slots": 2,
+-    "rollback_selection_strategy": "MOST_RECENT_VERIFIED_PRIOR_RELEASES",
++    "rollback_selection_strategy": "MOST_RECENT_STRONGLY_VERIFIED_DISTINCT_REVISIONS",
+     "verification_evidence_root": "/opt/chacha-dev/evidence",
+     "fallback_verified_rollback_revisions": [
+-      "b061f1405fc758ff22be241c5c791a3ecb58c9ec",
+-      "a3803180a64f1ea95d94466b7b10529a7a4af92f"
++      "4a9f6c98db44debcd938c596b86272eab7d01ab1"
+     ],
+     "max_physical_releases_after_consolidation": 3,
+     "archive_manifest_before_delete": true,
+-    "archive_sha256_before_delete": true
++    "archive_sha256_before_delete": true,
++    "runtime_evidence_root": "/opt/chacha-dev/runtime",
++    "strong_install_gate_glob": "release-gates/*-install-pass.json",
++    "legacy_active_execution_glob": "intendant/work/*/release-execution.json"
+   },
+   "source_retirement": {
+-    "delete_from_v7_head_only_after_reference_scan": true,
+     "historical_v6_tests_and_docs_not_required_in_runtime_release": true,
+     "branch_retirement_requires_separate_review": true,
+-    "no_automatic_remote_branch_deletion": true
++    "no_automatic_remote_branch_deletion": true,
++    "delete_from_active_head_only_after_reference_scan": true
+   },
+   "execution": {
+     "default_mode": "DRY_RUN",
+     "apply_requires": [
+       "guardian PASS",
+-      "sentinel PASS on exact V7 revision",
++      "sentinel PASS on exact active revision",
+       "architecture council consolidation approval",
+-      "V7 active runtime health PASS",
+-      "rollback release verified"
++      "active runtime health PASS",
++      "two strongly verified distinct rollback revisions"
+     ],
+     "destructive_apply_requires_explicit_flag": true,
+     "standing_operator_approval_allowed_for_safe_release_retirement": true,
+     "source_code_retirement_requires_fresh_explicit_review": true,
+     "planner_owner": "intendant",
+-    "physical_retirement_executor": "central-orchestrator",
++    "physical_retirement_executor": "platform-hygiene-executor",
+     "intendant_direct_mutation": false,
+     "architecture_council_plan_digest_binding_required": true,
+     "standing_operator_approval_scope": "SAFE_SUPERSEDED_PHYSICAL_RELEASES_ONLY",
+@@ -96,7 +98,7 @@
+       "benchmark-evidence",
+       "acquisition-evidence"
+     ],
+-    "exact_revision_qualification_workflow": "ChaCha DEV V7 platform qualification",
++    "exact_revision_qualification_workflow": "ChaCha DEV platform qualification",
+     "sentinel_workflow": "ChaCha DEV Sentinel technical assurance",
+     "guardian_realtime_verdict_required_for_council": false,
+     "guardian_realtime_verdict_required_for_executor": true
+diff --git a/dev-hub/config/platform-extension.v1.json b/dev-hub/config/platform-extension.v1.json
+index 7fde8ec7..77b31840 100644
+--- a/dev-hub/config/platform-extension.v1.json
++++ b/dev-hub/config/platform-extension.v1.json
+@@ -9,6 +9,6 @@
+     "isolated-dark-intelligence-collector",
+     "independent-public-corroboration"
+   ],
+-  "core_platform_version": "7.8.0",
+-  "automatic_external_spend_eur": 0
++  "automatic_external_spend_eur": 0,
++  "core_platform_compatibility": "CANONICAL_ACTIVE_RELEASE"
+ }
+diff --git a/dev-hub/config/universal-learning.v1.json b/dev-hub/config/universal-learning.v1.json
+index f3860eaf..d9297310 100644
+--- a/dev-hub/config/universal-learning.v1.json
++++ b/dev-hub/config/universal-learning.v1.json
+@@ -76,5 +76,13 @@
+     "direct_application_mutation": false,
+     "verified_success_increases_confidence": true,
+     "verified_failure_decreases_confidence": true
+-  }
++  },
++  "canonical_registry_discovery": true,
++  "canonical_registry": "dev-hub/runtime/canonical-component-registry.json",
++  "learning_agent_classes": [
++    "FULL_AGENT",
++    "LIGHTWEIGHT_PROJECT_AGENT",
++    "LIGHTWEIGHT_EMBEDDED_AGENT"
++  ],
++  "manual_source_kinds_are_additive_not_authoritative": true
+ }
+diff --git a/dev-hub/guardian/worker.js b/dev-hub/guardian/worker.js
+index 6d513d19..0be80445 100644
+--- a/dev-hub/guardian/worker.js
++++ b/dev-hub/guardian/worker.js
+@@ -444,7 +444,8 @@ async function activeRemediationHold(event,env){
+     return env.DB.prepare(
+       `SELECT h.* FROM remediation_holds h
+         JOIN remediation_directives d ON d.directive_id=h.directive_id
+-        WHERE h.active=1 AND (h.target_actor=?1 OR h.target_role=?2)
++        WHERE h.active=1 AND d.status IN ('OPEN','DELIVERED')
++          AND (h.target_actor=?1 OR h.target_role=?2)
+           AND (h.project_id IS NULL OR h.project_id='' OR h.project_id=?3)
+           AND (
+             h.run_id=?4 OR
+@@ -454,11 +455,13 @@ async function activeRemediationHold(event,env){
+     ).bind(actor,subject,project,run).first();
+   }
+   return env.DB.prepare(
+-    `SELECT * FROM remediation_holds
+-      WHERE active=1 AND (target_actor=?1 OR target_role=?2)
+-        AND (project_id IS NULL OR project_id='' OR project_id=?3)
+-        AND (run_id IS NULL OR run_id='')
+-      ORDER BY created_at ASC LIMIT 1`
++    `SELECT h.* FROM remediation_holds h
++      JOIN remediation_directives d ON d.directive_id=h.directive_id
++      WHERE h.active=1 AND d.status IN ('OPEN','DELIVERED')
++        AND (h.target_actor=?1 OR h.target_role=?2)
++        AND (h.project_id IS NULL OR h.project_id='' OR h.project_id=?3)
++        AND (h.run_id IS NULL OR h.run_id='')
++      ORDER BY h.created_at ASC LIMIT 1`
+   ).bind(actor,subject,project).first();
+ }
+ 
+diff --git a/dev-hub/systemd/chacha-dev-intendant-hygiene.service b/dev-hub/systemd/chacha-dev-intendant-hygiene.service
+index 15236cc0..9137b68f 100644
+--- a/dev-hub/systemd/chacha-dev-intendant-hygiene.service
++++ b/dev-hub/systemd/chacha-dev-intendant-hygiene.service
+@@ -9,7 +9,7 @@ Type=oneshot
+ User=root
+ Group=root
+ WorkingDirectory=/opt/chacha-dev/platform/current
+-ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/intendant-hygiene-cycle.py --repo-root /opt/chacha-dev/platform/current --runtime-root /opt/chacha-dev/runtime --platform-root /opt/chacha-dev/platform --policy /opt/chacha-dev/platform/current/dev-hub/config/intendant-hygiene-cycle.v1.json --consolidation-policy /opt/chacha-dev/platform/current/dev-hub/config/platform-consolidation.v1.json --guardian-client /opt/chacha-dev/platform/current/dev-hub/bin/guardian-client.py --guardian-policy /opt/chacha-dev/platform/current/dev-hub/config/guardian-runtime-policy.v1.json --guardian-coverage /opt/chacha-dev/runtime/guardian/coverage-latest.json --council /opt/chacha-dev/platform/current/dev-hub/bin/architecture-council-platform-consolidation-v7.py --consolidator /opt/chacha-dev/platform/current/dev-hub/bin/intendant-platform-consolidator.py --hygiene-executor /opt/chacha-dev/platform/current/dev-hub/bin/central-platform-hygiene-executor.py
++ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/intendant-hygiene-cycle.py --repo-root /opt/chacha-dev/platform/current --runtime-root /opt/chacha-dev/runtime --platform-root /opt/chacha-dev/platform --policy /opt/chacha-dev/platform/current/dev-hub/config/intendant-hygiene-cycle.v1.json --consolidation-policy /opt/chacha-dev/platform/current/dev-hub/config/platform-consolidation.v1.json --guardian-client /opt/chacha-dev/platform/current/dev-hub/bin/guardian-client.py --guardian-policy /opt/chacha-dev/platform/current/dev-hub/config/guardian-runtime-policy.v1.json --guardian-coverage /opt/chacha-dev/runtime/guardian/coverage-latest.json --council /opt/chacha-dev/platform/current/dev-hub/bin/architecture-council-platform-consolidation.py --consolidator /opt/chacha-dev/platform/current/dev-hub/bin/intendant-platform-consolidator.py --hygiene-executor /opt/chacha-dev/platform/current/dev-hub/bin/central-platform-hygiene-executor.py
+ NoNewPrivileges=true
+ ProtectSystem=strict
+ ProtectHome=true
+diff --git a/dev-hub/tests/test_v617_dynamic_agent_role_contracts.py b/dev-hub/tests/test_v617_dynamic_agent_role_contracts.py
+index 3cb4a620..3d981d35 100644
+--- a/dev-hub/tests/test_v617_dynamic_agent_role_contracts.py
++++ b/dev-hub/tests/test_v617_dynamic_agent_role_contracts.py
+@@ -64,7 +64,7 @@ for marker in [
+   "/v1/dynamic-contracts/register",
+   "dynamic_role_contracts",
+   "DYNAMIC_AGENT_CONTRACT_REQUIRED",
+-  "DYNAMIC_AGENT_CONTRACT_NOT_FOUND",
++  "DYNAMIC_SUBJECT_CONTRACT_NOT_FOUND",
+   "CAPABILITY_OUTSIDE_AGENT_MISSION",
+   "DYNAMIC_AGENT_PROJECT_SCOPE_MISMATCH",
+   "dynamic_contract_permission_escalation",
+@@ -73,8 +73,8 @@ for marker in [
+     assert marker in worker,marker
+ 
+ runctl=(BIN/"run-controller.py").read_text(encoding="utf-8")
+-assert '"subject_contract_id": task.get("guardian_contract_id")' in runctl
+-assert '"subject_contract_version": task.get("guardian_contract_version")' in runctl
++assert '"subject_contract_id": task_guardian.get("dynamic_contract_id")' in runctl
++assert '"subject_contract_version": task_guardian.get("dynamic_contract_version")' in runctl
+ assert '"capabilities": [str(x) for x in (task.get("capabilities") or [])]' in runctl
+ 
+ orch=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
+diff --git a/dev-hub/tests/test_v640_capability_foundry_auto_closure.py b/dev-hub/tests/test_v640_capability_foundry_auto_closure.py
+index d9ff0430..11a14a1a 100644
+--- a/dev-hub/tests/test_v640_capability_foundry_auto_closure.py
++++ b/dev-hub/tests/test_v640_capability_foundry_auto_closure.py
+@@ -176,7 +176,7 @@ assert 'merge_caps(cfg/"capability-registry.v1.json",cap_overlay,merged_caps)' n
+ assert '"active_capability_registry":str(active_capabilities)' in orch
+ assert 'next_stage="CAPABILITY_BUILD_REQUIRED"' in orch
+ assert 'final_v["dispatch_allowed"]=False' in orch
+-assert any(v in orch for v in ['"version":"6.40.0"','"version":"6.41.0"','"version":"6.42.0"','"version":"6.43.0"'])
++assert '"schema":"chacha.dev/autonomous-project-bootstrap/v1"' in orch
+ 
+ print("CHACHA_DEV_V640_EXISTING_ENABLED_PROVIDER_AUTO_CLOSURE=PASS")
+ print("CHACHA_DEV_V640_NONZERO_SPEND_FAIL_CLOSED=PASS")
+diff --git a/dev-hub/tests/test_v641_capability_build_loop.py b/dev-hub/tests/test_v641_capability_build_loop.py
+index 6c7b7e6f..630d4975 100644
+--- a/dev-hub/tests/test_v641_capability_build_loop.py
++++ b/dev-hub/tests/test_v641_capability_build_loop.py
+@@ -254,7 +254,7 @@ assert 'active_provider_adapters=current_provider_registry' in orch
+ assert 'active_capabilities=current_capability_registry' in orch
+ assert 'capability_build_required_count=capability_build_specialist_required_count' in orch
+ assert '"capability_build_durable_adoption_before_project_success":False' in orch
+-assert any(v in orch for v in ['"version":"6.41.0"','"version":"6.42.0"','"version":"6.43.0"'])
++assert '"schema":"chacha.dev/autonomous-project-bootstrap/v1"' in orch
+ assert orch.index('architecture_council_v=load(architecture_council)') < orch.index('capability_build_batch=out/"capability-build-request-batch.json"')
