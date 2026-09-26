@@ -1,0 +1,48 @@
+name: ChaCha DEV V8.2.3 Governed Runtime Write Roots
+
+on:
+  push:
+    branches:
+      - dev-hub-v823-governed-runtime-write-roots
+    paths:
+      - 'dev-hub/**'
+      - '.github/workflows/dev-hub-v823-governed-runtime-write-roots.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/intendant-platform-consolidator.py dev-hub/bin/domain-readiness-auto-remediator.py dev-hub/bin/central-interface-controller.py
+          python3 -m json.tool dev-hub/config/direct-operator.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/platform-consolidation.v1.json >/dev/null
+      - name: V8.2.3 structural invariants
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v823_governed_runtime_write_roots_and_rollback_retention.py | tee /tmp/v823.out
+          grep -Fq 'CHACHA_DEV_V823_DIRECT_OPERATOR_GOVERNED_WRITE_ROOTS=PASS' /tmp/v823.out
+          grep -Fq 'CHACHA_DEV_V823_DECLARED_ROLLBACK_RETENTION=PASS' /tmp/v823.out
+          grep -Fq 'CHACHA_DEV_V823_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v823.out
+      - name: Relevant regressions
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v822_build_path_capability_minimization.py
+          python3 dev-hub/tests/test_governed_readiness_auto_remediation.py
+          python3 dev-hub/tests/test_targeted_platform_recovery.py
+      - name: Qualification receipt
+        run: |
+          echo CHACHA_DEV_V823_GOVERNED_RUNTIME_WRITE_ROOTS=PASS
+          echo CHACHA_DEV_V823_DECLARED_ROLLBACK_PROTECTION=PASS
+          echo CHACHA_DEV_V823_GUARDIAN_BYPASS=NO
+          echo CHACHA_DEV_V823_SENTINEL_BYPASS=NO
+          echo CHACHA_DEV_V823_AUTOMATIC_EXTERNAL_SPEND_EUR=0

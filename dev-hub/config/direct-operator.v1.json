@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/direct-operator-policy/v1",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "component": "direct-operator-service",
   "bind": "127.0.0.1",
   "port": 8792,
@@ -54,10 +54,12 @@
     "dialogue_model_may_only_rephrase_human_message": true,
     "dialogue_provider_requires_zero_cost_attestation": true,
     "voice_gateway_has_no_execution_authority": true,
-    "voice_gateway_has_no_build_auto_switch": true,
+    "voice_gateway_has_no_build_auto_switch": false,
     "operator_structural_directive_capture_before_downstream": true,
     "verified_existing_candidate_bypasses_new_domain_factory_bootstrap": true,
-    "platform_recovery_instruction_never_bootstraps_new_project": true
+    "platform_recovery_instruction_never_bootstraps_new_project": true,
+    "governed_child_runtime_writes_are_explicitly_scoped": true,
+    "broad_runtime_write_root_forbidden": true
   },
   "progress_policy": "dev-hub/config/progress-reporting.v1.json",
   "android_live_shell_config": "dev-hub/config/android-live-shell.v1.json",

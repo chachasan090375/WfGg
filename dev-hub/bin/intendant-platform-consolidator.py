@@ -158,6 +158,16 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
             })
     active_path=str(active) if active else ""
     active_revision=revision_of(active) if active and active.is_dir() else ""
+    declared_rollback_revision=""
+    if active and active.is_dir():
+        prep=active/".release-preparation.json"
+        if prep.is_file():
+            try:
+                candidate=str(load(prep).get("rollback_revision") or "").lower().strip()
+                if len(candidate)==40 and all(ch in "0123456789abcdef" for ch in candidate) and candidate!=str(active_revision or "").lower():
+                    declared_rollback_revision=candidate
+            except Exception:
+                declared_rollback_revision=""
     protected_paths=set()
     reasons={}
     if active:
@@ -172,6 +182,13 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
     verified_ranks=dict(strong_ranks)
     verified=set(verified_ranks)
     selected=[];seen=set();all_candidates=[]
+    declared_rollback_protected=False
+    if bool(retention.get("protect_declared_active_release_rollback",True)) and declared_rollback_revision:
+        hit=latest_for_revision(rows,declared_rollback_revision)
+        rank=max(float(strong_ranks.get(declared_rollback_revision,0.0)),float(legacy_ranks.get(declared_rollback_revision,0.0)))
+        if hit is not None and rank>0:
+            selected.append(hit);seen.add(declared_rollback_revision);verified_ranks[declared_rollback_revision]=rank
+            reasons[hit["path"]]="DECLARED_ROLLBACK";declared_rollback_protected=True
     if strategy in {"MOST_RECENT_VERIFIED_PRIOR_RELEASES","MOST_RECENT_STRONGLY_VERIFIED_DISTINCT_REVISIONS"}:
         for rev,rank in strong_ranks.items():
             if rev==str(active_revision or "").lower():continue
@@ -217,10 +234,12 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
       "estimated_bytes_after":sum(x["size_bytes"] for x in keep),
       "rollback_slots":slots,
       "rollback_revision_must_differ_from_active":True,
+      "declared_rollback_revision":declared_rollback_revision,
+      "declared_rollback_protected":declared_rollback_protected,
       "selected_rollback_revisions":[str(x.get("revision") or "") for x in selected[:slots]],
       "selected_rollback_evidence_epochs":[verified_ranks.get(str(x.get("revision") or "").lower(),0.0) for x in selected[:slots]],
       "selected_rollback_versions":[str(x.get("version") or "") for x in selected[:slots]],
-      "rollback_selection_basis":"RECENCY_DISTINCT_REVISION_WITH_STRONG_INSTALL_OR_ACTIVE_HISTORY_EVIDENCE",
+      "rollback_selection_basis":"DECLARED_ACTIVE_RELEASE_ROLLBACK_THEN_RECENCY_DISTINCT_REVISION_WITH_STRONG_INSTALL_OR_ACTIVE_HISTORY_EVIDENCE",
       "verified_revision_count":len(verified),
       "missing_verified_rollback_count":missing_rollbacks,
       "rows":rows,

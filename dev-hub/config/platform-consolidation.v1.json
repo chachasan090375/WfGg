@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/platform-consolidation-policy/v1",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "target_platform_version": "CURRENT_ACTIVE_RELEASE",
   "owner_agent": "intendant",
   "purpose": [
@@ -19,7 +19,8 @@
     "guardian_required": true,
     "sentinel_required": true,
     "architecture_council_final_authority": true,
-    "automatic_external_spend_eur": 0
+    "automatic_external_spend_eur": 0,
+    "declared_active_release_rollback_must_be_retained": true
   },
   "runtime_release_compilation": {
     "exclude_globs": [
@@ -66,7 +67,8 @@
     "archive_sha256_before_delete": true,
     "runtime_evidence_root": "/opt/chacha-dev/runtime",
     "strong_install_gate_glob": "release-gates/*-install-pass.json",
-    "legacy_active_execution_glob": "intendant/work/*/release-execution.json"
+    "legacy_active_execution_glob": "intendant/work/*/release-execution.json",
+    "protect_declared_active_release_rollback": true
   },
   "source_retirement": {
     "historical_v6_tests_and_docs_not_required_in_runtime_release": true,
