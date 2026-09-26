@@ -12,7 +12,7 @@ permissions:
 jobs:
   materialize:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,16 +43,75 @@ jobs:
           test "$TREE" = "6ae940a3e8319973a7ce3575f5f2455cfd5acbcd"
           git config user.name "ChaCha DEV"
           git config user.email "chacha-dev@local.invalid"
-          git commit -m "feat(v820): enforce universal materialization and operator constitution"
+          GIT_AUTHOR_DATE='2026-09-26T10:19:31+00:00' \
+          GIT_COMMITTER_DATE='2026-09-26T10:19:31+00:00' \
+            git commit -m "feat(v820): enforce universal materialization and operator constitution"
           test "$(git rev-parse HEAD^{tree})" = "6ae940a3e8319973a7ce3575f5f2455cfd5acbcd"
-          echo "MATERIALIZED_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          test "$(git rev-parse HEAD)" = "40c54ea4848fa1363a6c508017d16a0b9f45a31d"
 
-      - name: Publish neutral materialized ref
+      - name: Upload exact Git objects without updating refs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
           cd /tmp/v820-target
-          git push origin HEAD:refs/heads/materialized-v820-atomic-40c54ea --force
-          echo "CHACHA_DEV_V820_ATOMIC_TREE=PASS"
-          echo "LOCAL_TREE=6ae940a3e8319973a7ce3575f5f2455cfd5acbcd"
-          echo "MATERIALIZED_SHA=$MATERIALIZED_SHA"
-          echo "AUTOMATIC_EXTERNAL_SPEND_EUR=0"
+          python3 - <<'PY'
+          import base64, json, os, subprocess, urllib.request, urllib.error
+
+          repo=os.environ['GH_REPO']
+          token=os.environ['GH_TOKEN']
+          api=f'https://api.github.com/repos/{repo}'
+          parent='effd2d8185f219b4443d04cfdf63cf9576c16b2c'
+          expected_tree='6ae940a3e8319973a7ce3575f5f2455cfd5acbcd'
+          expected_commit='40c54ea4848fa1363a6c508017d16a0b9f45a31d'
+          message='feat(v820): enforce universal materialization and operator constitution'
+          identity={'name':'ChaCha DEV','email':'chacha-dev@local.invalid','date':'2026-09-26T10:19:31Z'}
+
+          def post(path, payload):
+              data=json.dumps(payload,separators=(',',':')).encode()
+              req=urllib.request.Request(api+path,data=data,method='POST',headers={
+                  'Authorization':f'Bearer {token}',
+                  'Accept':'application/vnd.github+json',
+                  'X-GitHub-Api-Version':'2022-11-28',
+                  'Content-Type':'application/json',
+                  'User-Agent':'chacha-v820-atomic-materializer'})
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:
+                      return json.load(r)
+              except urllib.error.HTTPError as e:
+                  body=e.read().decode(errors='replace')
+                  raise SystemExit(f'GITHUB_API_ERROR:{e.code}:{path}:{body[:1000]}')
+
+          paths=subprocess.check_output(['git','diff','--name-only',parent,'HEAD'],text=True).splitlines()
+          if len(paths)!=53:
+              raise SystemExit(f'CHANGED_PATH_COUNT_MISMATCH:{len(paths)}')
+          entries=[]
+          for idx,p in enumerate(paths,1):
+              ls=subprocess.check_output(['git','ls-tree','HEAD','--',p],text=True).strip()
+              mode=ls.split(None,1)[0]
+              raw=open(p,'rb').read()
+              blob=post('/git/blobs',{'content':base64.b64encode(raw).decode(),'encoding':'base64'})
+              entries.append({'path':p,'mode':mode,'type':'blob','sha':blob['sha']})
+              if idx%10==0 or idx==len(paths):
+                  print(f'BLOBS_UPLOADED={idx}/{len(paths)}')
+
+          base_tree=subprocess.check_output(['git','rev-parse',f'{parent}^{{tree}}'],text=True).strip()
+          tree=post('/git/trees',{'base_tree':base_tree,'tree':entries})
+          print('REMOTE_TREE='+tree['sha'])
+          if tree['sha']!=expected_tree:
+              raise SystemExit('REMOTE_TREE_MISMATCH')
+
+          commit=post('/git/commits',{
+              'message':message,
+              'tree':expected_tree,
+              'parents':[parent],
+              'author':identity,
+              'committer':identity})
+          print('REMOTE_COMMIT='+commit['sha'])
+          if commit['sha']!=expected_commit:
+              raise SystemExit('REMOTE_COMMIT_MISMATCH')
+          print('CHACHA_DEV_V820_ATOMIC_OBJECT_UPLOAD=PASS')
+          print('CHACHA_DEV_V820_ATOMIC_TREE=PASS')
+          print('AUTOMATIC_EXTERNAL_SPEND_EUR=0')
+          PY
