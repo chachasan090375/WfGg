@@ -1,5 +1,5 @@
 from __future__ import annotations
-import importlib.util,json,subprocess,sys,tempfile
+import importlib.util,json,os,subprocess,sys,tempfile
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -43,8 +43,12 @@ assert ok,blockers
 assert profile['automatic_external_spend_eur']==0
 
 fixture=provisioning['adapters']['platform-selftest-adapter']['probe']['input']
-proc=subprocess.run([sys.executable,str(ROOT/'dev-hub/adapters/platform-selftest-adapter.py')],
-                    input=json.dumps(fixture),text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,check=False)
+with tempfile.TemporaryDirectory(prefix='v822-platform-selftest-') as td:
+    revision_file=Path(td)/'.revision'
+    revision_file.write_text('v822-ci-fixture\n',encoding='utf-8')
+    env=dict(os.environ);env['CHACHA_DEV_PLATFORM_REVISION_FILE']=str(revision_file)
+    proc=subprocess.run([sys.executable,str(ROOT/'dev-hub/adapters/platform-selftest-adapter.py')],
+                        input=json.dumps(fixture),text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,check=False,env=env)
 assert proc.returncode==0,proc.stderr
 result=json.loads(proc.stdout)
 assert result['status']=='OK' and result['producer']=='platform-selftest-adapter',result
