@@ -76,6 +76,11 @@ jobs:
             --repo-root . --output /tmp/version-coupling.json --strict
           grep -Fq '"blocking_count": 0' /tmp/version-coupling.json
 
+      - name: Guardian generic production deploy contract
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v820_guardian_production_deploy_contract.py
+
       - name: Guardian terminal-hold invariant
         run: |
           set -euo pipefail
