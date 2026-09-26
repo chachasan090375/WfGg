@@ -87,3 +87,4 @@ assert ag_proc.returncode==2,(ag_proc.returncode,ag_result,ag_proc.stderr)
 assert ag_result['status']=='BLOCKED' and ag_result['summary']=='ZERO_COST_ATTESTATION_MISSING',ag_result
 assert ag_result['evidence'][0]['details']['provider_invocation_started'] is False
 print('CHACHA_DEV_V822_ANTIGRAVITY_NO_ATTESTATION_NO_INVOCATION=PASS')
+# qualification-trigger
