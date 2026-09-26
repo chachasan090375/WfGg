@@ -143,7 +143,7 @@ assert {"logician","ergonomist","multi-agent-compromise-engine","compromise-rele
 orch=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
 council_script=(BIN/"architecture-decision-council.py").read_text(encoding="utf-8")
 guardian_worker=(ROOT/"dev-hub/guardian/worker.js").read_text(encoding="utf-8")
-assert any(v in orch for v in ['"version":"6.34.0"','"version":"6.35.0"','"version":"6.40.0"','"version":"6.41.0"','"version":"6.42.0"','"version":"6.43.0"','"version":"6.44.0"','"version":"6.45.0"','"version":"6.46.0"','"version":"6.47.0"','"version":"6.48.0"','"version":"6.49.0"','"version":"6.50.0"','"version":"6.51.0"','"version":"6.52.0"','"version":"6.53.0"','"version":"6.54.0"','"version":"6.55.0"','"version":"6.56.0"','"version":"6.57.0"','"version":"6.58.0"','"version":"6.59.0"','"version":"6.60.0"','"version":"6.61.0"','"version":"6.62.0"','"version":"6.63.0"','"version":"6.64.0"','"version":"7.0.0"','"version":"7.1.0"','"version":"7.2.0"','"version":"7.3.0"','"version":"7.8.0"'])
+assert '"schema":"chacha.dev/autonomous-project-bootstrap/v1"' in orch
 assert '"--challenge-dossier",compromise' in orch
 assert "REVISION_REQUEST_ONLY_AFTER_FAILED_COMPROMISE=YES" in orch
 assert "MULTI_AGENT_COMPROMISE_REQUIRED" in orch

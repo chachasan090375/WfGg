@@ -75,14 +75,13 @@ for m in ["--memory-brief","central_memory_recall_consumed","previous_solution_i
 council=(BIN/"architecture-decision-council.py").read_text(encoding="utf-8")
 assert '"central-memory-recall"' in council
 assert '--memory-brief' in council
-assert any(v in council for v in ['"version":"6.23.0"','"version":"6.25.0"','"version":"6.34.0"'])
+assert '"schema":"chacha.dev/architecture-decision-council/v1"' in council
 assert "recall_branch_rank" in council and "recall_arch_rank" in council
 
 orch=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
 assert orch.count('"central-memory-recall.py"')>=3,orch.count('"central-memory-recall.py"')
 assert orch.count('"--memory-brief"')>=5,orch.count('"--memory-brief"')
-m=re.search(r'"version":"(\d+)\.(\d+)\.(\d+)"',orch)
-assert m and (int(m.group(1))>6 or (int(m.group(1))==6 and int(m.group(2))>=23)),(m.group(0) if m else "version missing")
+assert '"schema":"chacha.dev/autonomous-project-bootstrap/v1"' in orch
 assert '"central_memory_brief"' in orch
 
 guardian=(ROOT/"dev-hub/guardian/worker.js").read_text(encoding="utf-8")
