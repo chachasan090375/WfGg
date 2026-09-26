@@ -1,0 +1,13 @@
+{
+  "schema": "chacha.dev/production-approval/v1",
+  "scope": "guardian-worker-production",
+  "approved": true,
+  "approved_by": "operator",
+  "revision": "968a9bca5f6c41c96585f8c6e6550def5296c3ea",
+  "tree": "c30dda18e64245b428d2126cfe36f5aa09e11380",
+  "rollback_revision": "778ce660a0472b0c472094848a5898fb2aaff644",
+  "guardian_bypass": false,
+  "sentinel_bypass": false,
+  "automatic_external_spend_eur": 0,
+  "operator_statement": "J’approuve la promotion production ChaCha DEV V8.2.1, candidat 968a9bca5f6c41c96585f8c6e6550def5296c3ea, tree c30dda18e64245b428d2126cfe36f5aa09e11380, après qualifications V8.2.1, Platform, Sentinel, Guardian et Reconciler PASS, avec rollback immédiat vers 778ce660a0472b0c472094848a5898fb2aaff644 en cas d’échec, sans bypass Guardian/Sentinel et avec dépense externe automatique maintenue à 0 €."
+}
