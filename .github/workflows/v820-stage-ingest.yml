@@ -1,0 +1,41 @@
+name: V820 staging ingest
+
+on:
+  push:
+    branches:
+      - v820-publication-staging-20260926
+
+permissions:
+  contents: write
+
+jobs:
+  ingest:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fetch exact verified VPS candidate bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://chachavps.tail3ab05a.ts.net/v820-publication-bundle'
+          EXPECTED='2e3ff909a0b2de9a1d6c188040b4ba6237d50cb18939d6834d83d265c620b34e'
+          curl -fL --retry 5 --retry-all-errors --connect-timeout 20 "$URL" -o /tmp/v820-publish-bundle.tar.gz
+          echo "$EXPECTED  /tmp/v820-publish-bundle.tar.gz" | sha256sum -c -
+          rm -f .github/workflows/v820-stage-ingest.yml
+          tar -xzf /tmp/v820-publish-bundle.tar.gz -C .
+          chmod 0755 dev-hub/bin/existing-candidate-resume.py
+          git config user.name 'ChaCha DEV publication bridge'
+          git config user.email 'chacha-dev@local.invalid'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'CHACHA_DEV_V820_STAGE_INGEST=NO_CHANGES'
+            exit 0
+          fi
+          git commit -m 'chore(v820): publish verified local candidate tree'
+          git push origin HEAD:v820-publication-staging-20260926
+          echo 'CHACHA_DEV_V820_STAGE_INGEST=PASS'
+          echo 'CHACHA_DEV_AUTOMATIC_EXTERNAL_SPEND_EUR=0'
