@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/direct-operator-policy/v1",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "component": "direct-operator-service",
   "bind": "127.0.0.1",
   "port": 8792,
@@ -52,7 +52,9 @@
     "plan_ready_is_not_terminal": true,
     "accepted_prompt_is_removed_from_editor": true,
     "dialogue_model_may_only_rephrase_human_message": true,
-    "dialogue_provider_requires_zero_cost_attestation": true
+    "dialogue_provider_requires_zero_cost_attestation": true,
+    "voice_gateway_has_no_execution_authority": true,
+    "voice_gateway_has_no_build_auto_switch": true
   },
   "progress_policy": "dev-hub/config/progress-reporting.v1.json",
   "android_live_shell_config": "dev-hub/config/android-live-shell.v1.json",
@@ -72,11 +74,7 @@
   "auto_continue": {
     "enabled": true,
     "max_steps": 24,
-    "non_terminal_statuses": [
-      "PLAN_READY",
-      "CONTINUED",
-      "READY"
-    ],
+    "non_terminal_statuses": ["PLAN_READY", "CONTINUED", "READY"],
     "stop_on_human_approval": true,
     "stop_on_await_user_action": true
   },
@@ -128,5 +126,14 @@
     "central_orchestrator_required": "BUILD_CHANNEL_ONLY",
     "emergency_stop_scope": "GLOBAL_ALL_CHANNELS",
     "conversation_stop_routed_to_control_plane": true
+  },
+  "voice_gateway": {
+    "policy": "dev-hub/config/voice-gateway.v1.json",
+    "native_shell_protocol_version": 2,
+    "progressive_enhancement": true,
+    "conversation_channel_only": true,
+    "build_auto_switch": false,
+    "raw_audio_persistence": false,
+    "automatic_external_spend_eur": 0
   }
 }

@@ -1,0 +1,15 @@
+{
+  "schema": "chacha.dev/voice-gateway-policy/v1",
+  "version": "8.1.4",
+  "gateway_id": "android-native-voice-gateway",
+  "purpose": "Bidirectional spoken conversation for the lightweight ChaCha channel.",
+  "input": {"provider":"ANDROID_RECOGNIZER_INTENT","mode":"TURN_BASED","auto_submit_transcript":true,"target_channel":"CONVERSATION","raw_audio_persistence":false,"transcript_persistence":"NORMAL_CONVERSATION_TIMELINE_ONLY"},
+  "output": {"provider":"ANDROID_TEXT_TO_SPEECH","speak_assistant_message_only":true,"speak_technical_details":false,"continue_listening_after_reply":true},
+  "turn_taking": {"mode":"NATIVE_ACTIVITY_TURN_LOOP","manual_barge_in":true,"manual_barge_in_action":"STOP_TTS_THEN_LISTEN","automatic_vad_barge_in":false,"automatic_vad_phase":"DEFERRED","cancel_stops_voice_session":true},
+  "privacy": {"speaker_biometric_identification":false,"age_inference_from_voice":false,"gender_inference_from_voice":false,"accent_to_origin_inference":false,"emotion_diagnosis_from_voice":false,"human_context_may_use_explicit_transcript_signals":true},
+  "authority": {"decision_authority":false,"execution_authority":false,"mutation_authority":false,"build_channel_auto_switch":false},
+  "native_bridge": {"javascript_interface":"ChaChaVoice","methods":["listen","speak","stop","isAvailable"],"same_private_origin_ui_only":true,"native_methods_have_no_network_or_execution_authority":true},
+  "compatibility": {"old_shell_remains_text_compatible":true,"voice_capabilities_are_progressive_enhancement":true,"android_version_code":7,"android_version_name":"0.7.0"},
+  "governance": {"guardian_role_contract_required":true,"sentinel_regression_required":true,"native_update_requires_user_android_install_confirmation":true,"automatic_external_spend_eur":0},
+  "automatic_external_spend_eur": 0
+}

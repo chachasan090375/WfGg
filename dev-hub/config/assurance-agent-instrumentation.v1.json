@@ -6,246 +6,140 @@
     {
       "agent_id": "bastion",
       "risk": "critical",
-      "boundaries": [
-        "seven-agent-final-compromise"
-      ],
-      "verified_dimensions": [
-        "handoff_quality"
-      ]
+      "boundaries": ["seven-agent-final-compromise"],
+      "verified_dimensions": ["handoff_quality"]
     },
     {
       "agent_id": "guardian",
       "risk": "high",
-      "boundaries": [
-        "seven-agent-final-compromise"
-      ],
-      "verified_dimensions": [
-        "handoff_quality"
-      ]
+      "boundaries": ["seven-agent-final-compromise"],
+      "verified_dimensions": ["handoff_quality"]
     },
     {
       "agent_id": "sentinel",
       "risk": "high",
-      "boundaries": [
-        "seven-agent-final-compromise"
-      ],
-      "verified_dimensions": [
-        "handoff_quality"
-      ]
+      "boundaries": ["seven-agent-final-compromise"],
+      "verified_dimensions": ["handoff_quality"]
     },
     {
       "agent_id": "autonomous-recovery-agent",
       "risk": "high",
-      "boundaries": [
-        "recovery-orchestrator"
-      ],
-      "observed_dimensions": [
-        "coverage"
-      ],
+      "boundaries": ["recovery-orchestrator"],
+      "observed_dimensions": ["coverage"],
       "quality_claim_from_activity": false
     },
     {
       "agent_id": "logician",
       "risk": "medium",
-      "boundaries": [
-        "central-orchestrator",
-        "seven-agent-final-compromise"
-      ],
-      "observed_dimensions": [
-        "robustness"
-      ],
-      "verified_dimensions": [
-        "handoff_quality"
-      ]
+      "boundaries": ["central-orchestrator", "seven-agent-final-compromise"],
+      "observed_dimensions": ["robustness"],
+      "verified_dimensions": ["handoff_quality"]
     },
     {
       "agent_id": "ergonomist",
       "risk": "medium",
-      "boundaries": [
-        "central-orchestrator",
-        "seven-agent-final-compromise"
-      ],
-      "observed_dimensions": [
-        "robustness"
-      ],
-      "verified_dimensions": [
-        "handoff_quality"
-      ]
+      "boundaries": ["central-orchestrator", "seven-agent-final-compromise"],
+      "observed_dimensions": ["robustness"],
+      "verified_dimensions": ["handoff_quality"]
     },
     {
       "agent_id": "curator",
       "risk": "medium",
-      "boundaries": [
-        "seven-agent-final-compromise"
-      ],
-      "verified_dimensions": [
-        "handoff_quality"
-      ]
+      "boundaries": ["seven-agent-final-compromise"],
+      "verified_dimensions": ["handoff_quality"]
     },
     {
       "agent_id": "intendant",
       "risk": "medium",
-      "boundaries": [
-        "seven-agent-final-compromise"
-      ],
-      "verified_dimensions": [
-        "handoff_quality"
-      ]
+      "boundaries": ["seven-agent-final-compromise"],
+      "verified_dimensions": ["handoff_quality"]
     },
     {
       "agent_id": "agent-foundry-architect",
       "risk": "medium",
-      "boundaries": [
-        "central-orchestrator"
-      ],
-      "observed_dimensions": [
-        "robustness"
-      ]
+      "boundaries": ["central-orchestrator"],
+      "observed_dimensions": ["robustness"]
     },
     {
       "agent_id": "branch-foundry-architect",
       "risk": "medium",
-      "boundaries": [
-        "central-orchestrator"
-      ],
-      "observed_dimensions": [
-        "robustness"
-      ]
+      "boundaries": ["central-orchestrator"],
+      "observed_dimensions": ["robustness"]
     },
     {
       "agent_id": "capability-foundry-architect",
       "risk": "medium",
-      "boundaries": [
-        "central-orchestrator"
-      ],
-      "observed_dimensions": [
-        "robustness"
-      ]
+      "boundaries": ["central-orchestrator"],
+      "observed_dimensions": ["robustness"]
     },
     {
       "agent_id": "contract-integrator",
       "risk": "medium",
-      "boundaries": [
-        "central-orchestrator"
-      ],
-      "observed_dimensions": [
-        "coverage",
-        "robustness"
-      ],
+      "boundaries": ["central-orchestrator"],
+      "observed_dimensions": ["coverage", "robustness"],
       "quality_claim_from_activity": false
     },
     {
       "agent_id": "integration-architect",
       "risk": "medium",
-      "boundaries": [
-        "central-orchestrator"
-      ],
-      "observed_dimensions": [
-        "coverage",
-        "robustness"
-      ],
+      "boundaries": ["central-orchestrator"],
+      "observed_dimensions": ["coverage", "robustness"],
       "quality_claim_from_activity": false
     },
     {
       "agent_id": "knowledge-compiler-agent",
       "risk": "low",
-      "boundaries": [
-        "central-orchestrator"
-      ],
-      "observed_dimensions": [
-        "coverage",
-        "robustness"
-      ],
+      "boundaries": ["central-orchestrator"],
+      "observed_dimensions": ["coverage", "robustness"],
       "quality_claim_from_activity": false
     },
     {
       "agent_id": "uncertainty-resolution-agent",
       "risk": "low",
-      "boundaries": [
-        "central-orchestrator"
-      ],
-      "observed_dimensions": [
-        "coverage",
-        "robustness"
-      ],
+      "boundaries": ["central-orchestrator"],
+      "observed_dimensions": ["coverage", "robustness"],
       "quality_claim_from_activity": false
     },
     {
       "agent_id": "human-behavior-center",
       "risk": "medium",
-      "boundaries": [
-        "central-memory",
-        "dialogue-orchestrator",
-        "guardian",
-        "sentinel"
-      ],
-      "observed_dimensions": [
-        "provenance",
-        "evidence_scope_correctness",
-        "fiction_vs_empirical_separation",
-        "persona_fictionality",
-        "authority_boundary",
-        "privacy",
-        "learning_quality"
-      ],
+      "boundaries": ["central-memory", "dialogue-orchestrator", "guardian", "sentinel"],
+      "observed_dimensions": ["provenance", "evidence_scope_correctness", "fiction_vs_empirical_separation", "persona_fictionality", "authority_boundary", "privacy", "learning_quality"],
       "quality_claim_from_activity": false
     },
     {
       "agent_id": "conversation-channel-router",
       "risk": "medium",
-      "boundaries": [
-        "direct-operator",
-        "build-channel"
-      ],
-      "observed_dimensions": [
-        "routing",
-        "no_auto_escalation",
-        "authority_boundary"
-      ],
+      "boundaries": ["direct-operator", "build-channel"],
+      "observed_dimensions": ["routing", "no_auto_escalation", "authority_boundary"],
       "quality_claim_from_activity": false
     },
     {
       "agent_id": "conversation-advisory-bus",
       "risk": "medium",
-      "boundaries": [
-        "central-memory",
-        "human-behavior-center"
-      ],
-      "observed_dimensions": [
-        "read_only",
-        "privacy",
-        "authority_boundary"
-      ],
+      "boundaries": ["central-memory", "human-behavior-center"],
+      "observed_dimensions": ["read_only", "privacy", "authority_boundary"],
       "quality_claim_from_activity": false
     },
     {
       "agent_id": "conversation-reasoner",
       "risk": "medium",
-      "boundaries": [
-        "dialogue",
-        "provider-economics"
-      ],
-      "observed_dimensions": [
-        "zero_cost_gate",
-        "no_tools",
-        "factual_grounding",
-        "authority_boundary"
-      ],
+      "boundaries": ["dialogue", "provider-economics"],
+      "observed_dimensions": ["zero_cost_gate", "no_tools", "factual_grounding", "authority_boundary"],
       "quality_claim_from_activity": false
     },
     {
       "agent_id": "research-broker",
       "risk": "medium",
-      "boundaries": [
-        "technology-watch-cache",
-        "future-web-research"
-      ],
-      "observed_dimensions": [
-        "cached_only",
-        "network_boundary",
-        "source_provenance",
-        "cost_boundary"
-      ],
+      "boundaries": ["technology-watch-cache", "future-web-research"],
+      "observed_dimensions": ["cached_only", "network_boundary", "source_provenance", "cost_boundary"],
+      "quality_claim_from_activity": false
+    },
+    {
+      "agent_id": "voice-gateway",
+      "risk": "medium",
+      "boundaries": ["android-shell", "conversation-channel", "human-profile"],
+      "observed_dimensions": ["raw_audio_non_persistence", "conversation_only", "barge_in", "no_voice_demographic_inference", "authority_boundary", "native_update_integrity"],
       "quality_claim_from_activity": false
     }
   ],

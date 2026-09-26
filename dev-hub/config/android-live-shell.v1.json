@@ -1,9 +1,9 @@
 {
   "schema": "chacha.dev/android-live-shell-config/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "app_id": "com.wfgg.chachadev.operator",
   "display_name": "ChaCha j’ai pété",
-  "shell_protocol_version": 1,
+  "shell_protocol_version": 2,
   "min_shell_protocol_version": 1,
   "ui_path": "/",
   "progress_path": "/api/v1/progress",
@@ -31,5 +31,13 @@
     "widget_configuration_is_remote": true,
     "fallback_ui_is_local": true,
     "automatic_external_spend_eur": 0
+  },
+  "voice_gateway": {
+    "enabled": true,
+    "policy": "dev-hub/config/voice-gateway.v1.json",
+    "native_bridge": "ChaChaVoice",
+    "minimum_native_version_code": 7,
+    "progressive_enhancement": true,
+    "old_shell_text_mode_preserved": true
   }
 }

@@ -5,18 +5,18 @@
 <meta name="theme-color" content="#6f4cff"><title>ChaCha j’ai pété</title>
 <style>
 :root{
-  font-family:Inter,ui-rounded,"SF Pro Rounded",system-ui,-apple-system,sans-serif;color-scheme:dark;
-  --bg:#111116;--panel:#1b1a22;--panel2:#24232d;--line:#373541;--text:#faf8ff;--muted:#aaa5b7;
-  --violet:#7c5cff;--violet2:#a98cff;--pink:#ec77c8;--mint:#6de0b6;--amber:#ffc66d;--red:#ff7272
+font-family:Inter,ui-rounded,"SF Pro Rounded",system-ui,-apple-system,sans-serif;color-scheme:dark;
+--bg:#111116;--panel:#1b1a22;--panel2:#24232d;--line:#373541;--text:#faf8ff;--muted:#aaa5b7;
+--violet:#7c5cff;--violet2:#a98cff;--pink:#ec77c8;--mint:#6de0b6;--amber:#ffc66d;--red:#ff7272
 }
 *{box-sizing:border-box}
 body{margin:0;min-height:100vh;color:var(--text);background:
- radial-gradient(circle at 12% 0%,#7c5cff2e 0,transparent 34%),
- radial-gradient(circle at 100% 15%,#ec77c81f 0,transparent 30%),var(--bg)}
+radial-gradient(circle at 12% 0%,#7c5cff2e 0,transparent 34%),
+radial-gradient(circle at 100% 15%,#ec77c81f 0,transparent 30%),var(--bg)}
 main{width:min(920px,100%);margin:auto;padding:18px 16px 60px}
 .top{display:flex;gap:14px;align-items:center;justify-content:space-between;margin-bottom:16px}
 .logo{display:flex;gap:12px;align-items:center}.avatar{width:48px;height:48px;border-radius:17px;display:grid;place-items:center;
- background:linear-gradient(135deg,var(--violet),var(--pink));font-size:25px;box-shadow:0 10px 30px #7c5cff35}
+background:linear-gradient(135deg,var(--violet),var(--pink));font-size:25px;box-shadow:0 10px 30px #7c5cff35}
 h1{font-size:22px;line-height:1.05;margin:0}.subtitle{font-size:12px;color:var(--muted);margin-top:5px}
 .live{display:flex;align-items:center;gap:7px;padding:8px 11px;border:1px solid #3a3b43;border-radius:999px;background:#191920cc;font-size:12px;color:#d7d2e4}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 5px #6de0b619}
@@ -26,7 +26,7 @@ h1{font-size:22px;line-height:1.05;margin:0}.subtitle{font-size:12px;color:var(-
 .channelHint{font-size:11px;color:#8f899b;text-align:center;margin:-6px 0 14px}
 .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:14px}
 .card{background:linear-gradient(180deg,#24232ccc,#1a1921e8);border:1px solid var(--line);border-radius:24px;padding:17px;
- box-shadow:0 16px 50px #0005;backdrop-filter:blur(16px)}
+box-shadow:0 16px 50px #0005;backdrop-filter:blur(16px)}
 .card.hero{background:linear-gradient(145deg,#282238,#1b1924 62%,#2b1d35)}
 .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#bdb4d1;font-weight:800}
 .metric{display:flex;align-items:end;justify-content:space-between;gap:15px;margin:8px 0 10px}.metric strong{font-size:38px;letter-spacing:-.05em}
@@ -40,13 +40,14 @@ h1{font-size:22px;line-height:1.05;margin:0}.subtitle{font-size:12px;color:var(-
 .module .bar{height:6px;margin-top:7px}.moduleDetail{font-size:11px;color:#8f899b;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .command{margin-top:14px}.promptWrap{position:relative}
 textarea{width:100%;min-height:120px;resize:vertical;border:1px solid #45414f;border-radius:20px;background:#14131a;color:white;padding:17px 56px 17px 16px;
- font-size:17px;outline:none;line-height:1.4;box-shadow:inset 0 1px 0 #ffffff08}
+font-size:17px;outline:none;line-height:1.4;box-shadow:inset 0 1px 0 #ffffff08}
 textarea:focus{border-color:#8e73ff;box-shadow:0 0 0 4px #7c5cff20}
 textarea::placeholder{color:#77717f}
 input,select{width:100%;border:1px solid #45414f;border-radius:13px;background:#14131a;color:#f6f2fb;padding:11px 12px;font-size:14px;outline:none}
 input:focus,select:focus{border-color:#8e73ff;box-shadow:0 0 0 3px #7c5cff18}
 input::placeholder{color:#77717f}.mic{position:absolute;right:10px;bottom:10px;width:40px;height:40px;border-radius:14px}
-.actions{display:grid;grid-template-columns:1fr repeat(3,auto);gap:8px;margin-top:10px}
+.actions{display:grid;grid-template-columns:1fr repeat(4,auto);gap:8px;margin-top:10px}
+button.voiceActive{color:#d9fff3;background:#18372f;border-color:#2f6b5b}
 button{border:1px solid #403d49;border-radius:15px;padding:12px 14px;background:#2b2933;color:#f8f5ff;font-weight:800;font-size:14px;cursor:pointer}
 button:hover{filter:brightness(1.12)}button.primary{border:0;background:linear-gradient(135deg,var(--violet),#9b70ff);box-shadow:0 8px 22px #7c5cff30}
 button.stop{color:#ffb8b8;background:#351f25;border-color:#5a3038}button:disabled{opacity:.48;cursor:default}
@@ -73,84 +74,30 @@ details.tech pre{font-size:11px;color:#aaa5b7}
 </head>
 <body><main>
 <div class="top">
-  <div class="logo"><div class="avatar">💨</div><div><h1>ChaCha j’ai pété</h1><div class="subtitle">Conversation + création, un même cerveau</div></div></div>
-  <div class="live"><span class="dot"></span><span id="conn">Direct privé</span></div>
+<div class="logo"><div class="avatar">💨</div><div><h1>ChaCha j’ai pété</h1><div class="subtitle">Conversation + création, un même cerveau</div></div></div>
+<div class="live"><span class="dot"></span><span id="conn">Direct privé</span></div>
 </div>
-
 <div class="channelSwitch" role="tablist" aria-label="Canal ChaCha">
-  <button class="channelBtn active" id="channelConversation" type="button">💬 ChaCha</button>
-  <button class="channelBtn" id="channelBuild" type="button">🛠️ Créer</button>
+<button class="channelBtn active" id="channelConversation" type="button">💬 ChaCha</button>
+<button class="channelBtn" id="channelBuild" type="button">🛠️ Créer</button>
 </div>
 <div class="channelHint" id="channelHint">Discussion, recherche et conseil — aucune mutation</div>
-
 <div class="grid">
-  <section class="card hero">
-    <div class="eyebrow">ChaCha DEV global</div>
-    <div class="metric"><strong id="globalPct">86%</strong><span id="globalLabel">Maturité plateforme</span></div>
-    <div class="bar"><div class="fill" id="globalFill" style="width:86%"></div></div>
-    <div class="headline" id="headline">ChaCha est prêt ✨</div>
-    <div class="tiny">Ce pourcentage ne redescend pas quand une nouvelle tâche démarre.</div>
-  </section>
-
-  <section class="card">
-    <div class="eyebrow">Opération en cours</div>
-    <div class="metric"><strong id="workPct">0%</strong><span id="workState">En attente</span></div>
-    <div class="bar"><div class="fill work" id="workFill"></div></div>
-    <div class="modules" id="modules"></div>
-  </section>
+<section class="card hero"><div class="eyebrow">ChaCha DEV global</div><div class="metric"><strong id="globalPct">86%</strong><span id="globalLabel">Maturité plateforme</span></div><div class="bar"><div class="fill" id="globalFill" style="width:86%"></div></div><div class="headline" id="headline">ChaCha est prêt ✨</div><div class="tiny">Ce pourcentage ne redescend pas quand une nouvelle tâche démarre.</div></section>
+<section class="card"><div class="eyebrow">Opération en cours</div><div class="metric"><strong id="workPct">0%</strong><span id="workState">En attente</span></div><div class="bar"><div class="fill work" id="workFill"></div></div><div class="modules" id="modules"></div></section>
 </div>
-
-<section class="card command">
-  <div class="eyebrow">Qu’est-ce qu’on fait ?</div>
-  <div class="promptWrap">
-    <textarea id="q" placeholder="Dis-moi ce que tu veux faire…"></textarea>
-    <button class="mic" id="mic" title="Dicter">🎤</button>
-  </div>
-  <div class="actions">
-    <button class="primary" id="send">Envoyer ✨</button>
-    <button id="status">Allo</button>
-    <button id="go">Go</button>
-    <button class="stop" id="stop">Stop</button>
-  </div>
-</section>
-
-<section class="card reply">
-  <div class="stateRow"><div class="eyebrow">Conversation</div><span class="badge" id="stage">PRÊT</span></div>
-  <div class="conversationMeta" id="conversationMeta">Synchronisation active</div>
-  <div class="timeline" id="timeline" aria-live="polite">
-    <div class="turn assistant" data-bootstrap="true" aria-label="💨 ChaCha répond">
-      <div class="turnHead"><span class="turnWho">💨 ChaCha</span></div>
-      <pre>Je suis là. Dis-moi ce que tu veux faire.</pre>
-    </div>
-  </div>
-  <div class="typing" id="typing" hidden>💨 ChaCha réfléchit…</div>
-  <details class="tech" id="tech" hidden><summary>Détails techniques</summary><pre id="techResult"></pre></details>
-</section>
-
-<details class="card" id="humanProfilePanel" style="margin-top:14px">
-  <summary style="cursor:pointer;font-weight:800">Personnaliser la conversation</summary>
-  <div class="tiny" style="margin:10px 0 12px">Tout est facultatif et déclaré par toi. ChaCha ne déduit pas ton âge, ton genre, ta culture ou ta région.</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
-    <input id="hpName" placeholder="Prénom préféré">
-    <select id="hpAddress"><option value="">Tutoiement / vouvoiement</option><option value="tu">Tutoiement</option><option value="vous">Vouvoiement</option></select>
-    <input id="hpGender" placeholder="Genre (facultatif)">
-    <input id="hpAge" placeholder="Tranche d’âge (facultatif)">
-    <input id="hpCulture" placeholder="Culture(s), séparées par des virgules">
-    <input id="hpRegion" placeholder="Région(s), ex. Provence">
-    <input id="hpRegister" placeholder="Registre, ex. familier-direct">
-    <input id="hpHumor" placeholder="Humour, ex. léger">
-    <select id="hpPersona"><option value="">Persona de ChaCha : neutre</option></select>
-  </div>
-  <button id="hpSave" style="margin-top:10px">Enregistrer mes préférences</button>
-  <span class="tiny" id="hpStatus" style="margin-left:8px"></span>
-</details>
+<section class="card command"><div class="eyebrow">Qu’est-ce qu’on fait ?</div><div class="promptWrap"><textarea id="q" placeholder="Dis-moi ce que tu veux faire…"></textarea><button class="mic" id="mic" title="Dicter">🎤</button></div><div class="actions"><button class="primary" id="send">Envoyer ✨</button><button id="status">Allo</button><button id="go">Go</button><button id="voiceStop" hidden>⏹ Vocal</button><button class="stop" id="stop">Stop</button></div></section>
+<section class="card reply"><div class="stateRow"><div class="eyebrow">Conversation</div><span class="badge" id="stage">PRÊT</span></div><div class="conversationMeta" id="conversationMeta">Synchronisation active</div><div class="timeline" id="timeline" aria-live="polite"><div class="turn assistant" data-bootstrap="true" aria-label="💨 ChaCha répond"><div class="turnHead"><span class="turnWho">💨 ChaCha</span></div><pre>Je suis là. Dis-moi ce que tu veux faire.</pre></div></div><div class="typing" id="typing" hidden>💨 ChaCha réfléchit…</div><details class="tech" id="tech" hidden><summary>Détails techniques</summary><pre id="techResult"></pre></details></section>
+<details class="card" id="humanProfilePanel" style="margin-top:14px"><summary style="cursor:pointer;font-weight:800">Personnaliser la conversation</summary><div class="tiny" style="margin:10px 0 12px">Tout est facultatif et déclaré par toi. ChaCha ne déduit pas ton âge, ton genre, ta culture ou ta région.</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:9px"><input id="hpName" placeholder="Prénom préféré"><select id="hpAddress"><option value="">Tutoiement / vouvoiement</option><option value="tu">Tutoiement</option><option value="vous">Vouvoiement</option></select><input id="hpGender" placeholder="Genre (facultatif)"><input id="hpAge" placeholder="Tranche d’âge (facultatif)"><input id="hpCulture" placeholder="Culture(s), séparées par des virgules"><input id="hpRegion" placeholder="Région(s), ex. Provence"><input id="hpRegister" placeholder="Registre, ex. familier-direct"><input id="hpHumor" placeholder="Humour, ex. léger"><select id="hpPersona"><option value="">Persona de ChaCha : neutre</option></select></div><button id="hpSave" style="margin-top:10px">Enregistrer mes préférences</button><span class="tiny" id="hpStatus" style="margin-left:8px"></span></details>
 </main>
 <script>
 const q=document.querySelector('#q'),send=document.querySelector('#send'),stage=document.querySelector('#stage');
 const timeline=document.querySelector('#timeline'),typing=document.querySelector('#typing'),tech=document.querySelector('#tech'),techResult=document.querySelector('#techResult'),conversationMeta=document.querySelector('#conversationMeta');
 const hpName=document.querySelector('#hpName'),hpAddress=document.querySelector('#hpAddress'),hpGender=document.querySelector('#hpGender'),hpAge=document.querySelector('#hpAge'),hpCulture=document.querySelector('#hpCulture'),hpRegion=document.querySelector('#hpRegion'),hpRegister=document.querySelector('#hpRegister'),hpHumor=document.querySelector('#hpHumor'),hpPersona=document.querySelector('#hpPersona'),hpSave=document.querySelector('#hpSave'),hpStatus=document.querySelector('#hpStatus');
 const channelConversation=document.querySelector('#channelConversation'),channelBuild=document.querySelector('#channelBuild'),channelHint=document.querySelector('#channelHint');
+const mic=document.querySelector('#mic'),voiceStop=document.querySelector('#voiceStop');
 let selectedChannel=localStorage.getItem('chacha-channel')||'CONVERSATION';
+let voiceSessionActive=false,voiceNativeState='UNKNOWN';
 let pendingBuildText='';
 let lastSeenRequestId='',lastSeenDigest='',lastTimelineToken='',conversationSyncBusy=false,progressBusy=false;
 let runtimeRevision='',activeJobId='',pendingUiReload=false;
@@ -159,252 +106,32 @@ const workPct=document.querySelector('#workPct'),workFill=document.querySelector
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const requestId=()=>{try{return crypto.randomUUID()}catch(_){return 'web-'+Date.now()+'-'+Math.random().toString(16).slice(2)}};
-async function fetchJson(url,options={},attempts=3){
- let lastErr;
- for(let i=0;i<attempts;i++){
-  const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),10000);
-  try{
-   const r=await fetch(url,{cache:'no-store',...options,signal:ctl.signal});
-   let body={};try{body=await r.json()}catch(_){}
-   if(r.ok)return body;
-   const err=new Error(body.reason||body.status||('HTTP '+r.status));
-   err.httpStatus=r.status;
-   if(r.status<500)throw err;
-   lastErr=err;
-  }catch(e){
-   lastErr=e;
-   if(e?.httpStatus&&e.httpStatus<500)throw e;
-  }finally{clearTimeout(timer)}
-  if(i<attempts-1)await sleep(700*Math.pow(2,i));
- }
- throw lastErr||new Error('Connexion impossible');
-}
-function renderProgress(p){
- const g=Math.max(0,Math.min(100,Number(p.platform_maturity_percent||0))),w=Math.max(0,Math.min(100,Number(p.active_work_percent||0)));
- globalPct.textContent=g+'%';globalFill.style.width=g+'%';globalLabel.textContent=p.platform_maturity_label||'ChaCha DEV global';
- workPct.textContent=w+'%';workFill.style.width=w+'%';workState.textContent=p.status||'IDLE';headline.textContent=p.headline||'ChaCha est prêt ✨';
- const rows=Object.values(p.modules||{});
- modules.innerHTML=rows.map(m=>'<div class="module"><div class="moduleTop"><div class="moduleName">'+esc((m.icon||'•')+' '+(m.label||m.id))+'</div><div class="modulePct">'+Number(m.percent||0)+'%</div></div><div class="bar"><div class="fill work" style="width:'+Number(m.percent||0)+'%"></div></div><div class="moduleDetail">'+esc(m.detail||m.state||'')+'</div></div>').join('');
-}
-async function refreshProgress(){
- if(progressBusy)return;progressBusy=true;
- try{renderProgress(await fetchJson('/api/v1/progress',{},2))}catch(_){}
- finally{progressBusy=false}
-}
-function displayTime(iso){
- try{return new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date(iso))}catch(_){return ''}
-}
-function turnTime(iso){
- const x=displayTime(iso);return x?'<span class="turnTime">'+esc(x)+'</span>':''
-}
-function turnHtml(role,text,when='',extra=''){
- const who=role==='user'?'👤 Toi':'💨 ChaCha';
- const label=role==='user'?'👤 Ta demande':'💨 ChaCha répond';
- return '<div class="turn '+role+' '+extra+'" aria-label="'+label+'"><div class="turnHead"><span class="turnWho">'+who+'</span>'+turnTime(when)+'</div><pre>'+esc(text)+'</pre></div>';
-}
-function renderTimeline(payload){
- const items=Array.isArray(payload?.items)?payload.items:[];
- if(!items.length)return false;
- timeline.innerHTML=items.map(t=>
-   turnHtml('user',t?.user?.text||'',t?.submitted_at||'')+
-   turnHtml('assistant',t?.assistant?.text||'',t?.responded_at||'')
- ).join('');
- const last=items[items.length-1]||{};
- stage.textContent=String(last.status||'PRÊT').toUpperCase();
- lastSeenRequestId=String(last.request_id||'');
- lastTimelineToken=String(items.length)+':'+String(last.turn_id||'');
- conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span> • '+items.length+' échange'+(items.length>1?'s':'');
- timeline.scrollTop=timeline.scrollHeight;
- return true;
-}
-function renderConversation(z,digest=''){
- const cv=z?.conversation||{};
- const asked=String(z?.submitted_user_message||'').trim();
- const answer=String(cv.message||z?.message||'Traitement terminé.');
- const rid=String(z?.request_id||cv?.source_request_id||'');
- const when=z?.responded_at||cv?.responded_at||'';
- const existing=rid?timeline.querySelector('[data-request="'+CSS.escape(rid)+'"]'):null;
- if(existing)existing.remove();
- const wrap=document.createElement('div');wrap.dataset.request=rid||('local-'+Date.now());
- wrap.innerHTML=(asked?turnHtml('user',asked,z?.submitted_at||''):'')+turnHtml('assistant',answer,when);
- timeline.appendChild(wrap);
- const status=String(z?.status||cv.kind||'PRÊT').toUpperCase();
- if(status==='BUILD_HANDOFF_REQUIRED'&&asked)pendingBuildText=asked;
- const labels={SUCCESS:'TERMINÉ',PASS:'TERMINÉ',OK:'OK',BLOCKED:'BLOQUÉ',FAILED:'ÉCHEC',PARTIAL:'PARTIEL',AWAITING_APPROVAL:'VALIDATION',AWAITING_EXTERNAL_CONDITION:'EN ATTENTE',BUILD_HANDOFF_REQUIRED:'PASSER À CRÉER'};
- stage.textContent=labels[status]||status;
- conversationMeta.innerHTML=status==='BUILD_HANDOFF_REQUIRED'
-   ?'Demande prête : touche 🛠️ Créer pour la reprendre sans la retaper. Rien ne sera lancé avant ton envoi.'
-   :'<span class="syncLive">● Temps réel</span>'+(when?' • réponse '+esc(displayTime(when)):'');
- techResult.textContent=JSON.stringify({
-   status:z?.status,next_action:z?.next_action,request_id:rid,responded_at:when,
-   channel:z?.channel||null,subroute:z?.subroute||null,
-   project:z?.session_project_id||z?.project_id,execution_project:z?.execution_project_id,
-   continuation_steps:z?.continuation_steps||[],human_context_applied:cv?.human_context_applied||false,
-   dialogue_mode:cv?.dialogue_orchestrator?.mode||'DETERMINISTIC_BASE_RESPONSE',
-   dialogue_provider_invoked:cv?.dialogue_orchestrator?.provider_invoked||false,
-   dialogue_provider_reason:cv?.dialogue_orchestrator?.provider_reason||null
- },null,2);
- tech.hidden=false;
- typing.hidden=true;
- if(rid)lastSeenRequestId=rid;
- if(digest)lastSeenDigest=digest;
- timeline.scrollTop=timeline.scrollHeight;
-}
-async function syncConversation(force=false){
- if(conversationSyncBusy)return;
- conversationSyncBusy=true;
- try{
-  const c=await fetchJson('/api/v1/conversation?limit=100',{},2);
-  const items=Array.isArray(c.items)?c.items:[];
-  const last=items[items.length-1]||{};
-  const token=String(items.length)+':'+String(last.turn_id||'');
-  if(items.length&&(force||token!==lastTimelineToken))renderTimeline(c);
-  else if(items.length)conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span> • synchronisé';
- }catch(_){
-  conversationMeta.textContent='Connexion interrompue — reconnexion automatique…';
- }finally{conversationSyncBusy=false}
-}
-async function hydrateConversation(){
- try{
-  const c=await fetchJson('/api/v1/conversation?limit=100',{},2);
-  if(renderTimeline(c))return;
- }catch(_){}
- try{
-  const s=await fetchJson('/api/v1/session',{},2);
-  if(s.last_response)renderConversation(s.last_response);
- }catch(_){}
-}
-function setChannel(channel){
- selectedChannel=channel==='BUILD'?'BUILD':'CONVERSATION';
- localStorage.setItem('chacha-channel',selectedChannel);
- channelConversation.classList.toggle('active',selectedChannel==='CONVERSATION');
- channelBuild.classList.toggle('active',selectedChannel==='BUILD');
- channelHint.textContent=selectedChannel==='CONVERSATION'
-   ?'Discussion, recherche et conseil — aucune mutation'
-   :'Création et exécution — pipeline ChaCha DEV gouverné';
- q.placeholder=selectedChannel==='CONVERSATION'
-   ?'Parle avec ChaCha…'
-   :'Dis-moi ce que tu veux créer ou modifier…';
-}
-channelConversation.onclick=()=>setChannel('CONVERSATION');
-channelBuild.onclick=()=>{
- setChannel('BUILD');
- if(pendingBuildText){q.value=pendingBuildText;pendingBuildText='';q.focus();conversationMeta.textContent='Demande prête dans 🛠️ Créer — envoie-la quand tu veux.';}
-};
-setChannel(selectedChannel);
-
-async function submit(text,fromEditor=false,channelOverride=null){
- const original=String(text||'').trim();if(!original)return;
- const clientRequestId=requestId();
- let accepted=false;send.disabled=true;stage.textContent='ENVOI';tech.hidden=true;typing.hidden=false;await refreshProgress();
- try{
-  const x=await fetchJson('/api/v1/intent',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({text:original,client_request_id:clientRequestId,channel:channelOverride||selectedChannel})
-  },4);
-  accepted=true;activeJobId=x.job_id;if(fromEditor)q.value='';
-  const pending=document.createElement('div');pending.id='pending-'+clientRequestId;
-  pending.innerHTML=turnHtml('user',original,new Date().toISOString(),'pending');
-  timeline.appendChild(pending);timeline.scrollTop=timeline.scrollHeight;
-  conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span> • '+esc((x.channel||selectedChannel)==='BUILD'?'Créer':'ChaCha')+' • demande acceptée • '+esc(clientRequestId.slice(0,8));
-  for(;;){
-   await sleep(1200);await refreshProgress();
-   try{
-    const j=await fetchJson('/api/v1/jobs/'+x.job_id,{},3);
-    stage.textContent=j.state||'…';
-    if(j.state==='COMPLETE'){document.querySelector('#pending-'+CSS.escape(clientRequestId))?.remove();renderConversation(j.response||{});break}
-    if(j.state==='FAILED')throw new Error(j.error||'Échec')
-   }catch(e){
-    conversationMeta.textContent='Connexion interrompue — la demande est conservée, reconnexion…';
-    continue;
-   }
-  }
- }catch(e){
-  if(accepted){
-   stage.textContent='RECONNEXION';
-   typing.hidden=false;conversationMeta.textContent='La demande est acceptée — je récupère sa réponse dès que la connexion revient.';
-  }else{
-   stage.textContent='CONNEXION';
-   conversationMeta.textContent='Je n’ai pas pu confirmer l’envoi. La demande reste dans la zone de saisie.';
-   if(fromEditor&&!q.value.trim())q.value=original;
-  }
- }finally{
-  activeJobId='';send.disabled=false;await syncConversation(true);await refreshProgress();
-  if(pendingUiReload){location.reload()}
- }
-}
+async function fetchJson(url,options={},attempts=3){let lastErr;for(let i=0;i<attempts;i++){const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),10000);try{const r=await fetch(url,{cache:'no-store',...options,signal:ctl.signal});let body={};try{body=await r.json()}catch(_){}if(r.ok)return body;const err=new Error(body.reason||body.status||('HTTP '+r.status));err.httpStatus=r.status;if(r.status<500)throw err;lastErr=err}catch(e){lastErr=e;if(e?.httpStatus&&e.httpStatus<500)throw e}finally{clearTimeout(timer)}if(i<attempts-1)await sleep(700*Math.pow(2,i))}throw lastErr||new Error('Connexion impossible')}
+function renderProgress(p){const g=Math.max(0,Math.min(100,Number(p.platform_maturity_percent||0))),w=Math.max(0,Math.min(100,Number(p.active_work_percent||0)));globalPct.textContent=g+'%';globalFill.style.width=g+'%';globalLabel.textContent=p.platform_maturity_label||'ChaCha DEV global';workPct.textContent=w+'%';workFill.style.width=w+'%';workState.textContent=p.status||'IDLE';headline.textContent=p.headline||'ChaCha est prêt ✨';const rows=Object.values(p.modules||{});modules.innerHTML=rows.map(m=>'<div class="module"><div class="moduleTop"><div class="moduleName">'+esc((m.icon||'•')+' '+(m.label||m.id))+'</div><div class="modulePct">'+Number(m.percent||0)+'%</div></div><div class="bar"><div class="fill work" style="width:'+Number(m.percent||0)+'%"></div></div><div class="moduleDetail">'+esc(m.detail||m.state||'')+'</div></div>').join('')}
+async function refreshProgress(){if(progressBusy)return;progressBusy=true;try{renderProgress(await fetchJson('/api/v1/progress',{},2))}catch(_){}finally{progressBusy=false}}
+function displayTime(iso){try{return new Intl.DateTimeFormat('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date(iso))}catch(_){return ''}}
+function turnTime(iso){const x=displayTime(iso);return x?'<span class="turnTime">'+esc(x)+'</span>':''}
+function turnHtml(role,text,when='',extra=''){const who=role==='user'?'👤 Toi':'💨 ChaCha';const label=role==='user'?'👤 Ta demande':'💨 ChaCha répond';return '<div class="turn '+role+' '+extra+'" aria-label="'+label+'"><div class="turnHead"><span class="turnWho">'+who+'</span>'+turnTime(when)+'</div><pre>'+esc(text)+'</pre></div>'}
+function renderTimeline(payload){const items=Array.isArray(payload?.items)?payload.items:[];if(!items.length)return false;timeline.innerHTML=items.map(t=>turnHtml('user',t?.user?.text||'',t?.submitted_at||'')+turnHtml('assistant',t?.assistant?.text||'',t?.responded_at||'')).join('');const last=items[items.length-1]||{};stage.textContent=String(last.status||'PRÊT').toUpperCase();lastSeenRequestId=String(last.request_id||'');lastTimelineToken=String(items.length)+':'+String(last.turn_id||'');conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span> • '+items.length+' échange'+(items.length>1?'s':'');timeline.scrollTop=timeline.scrollHeight;return true}
+function renderConversation(z,digest=''){const cv=z?.conversation||{};const asked=String(z?.submitted_user_message||'').trim();const answer=String(cv.message||z?.message||'Traitement terminé.');const rid=String(z?.request_id||cv?.source_request_id||'');const when=z?.responded_at||cv?.responded_at||'';const existing=rid?timeline.querySelector('[data-request="'+CSS.escape(rid)+'"]'):null;if(existing)existing.remove();const wrap=document.createElement('div');wrap.dataset.request=rid||('local-'+Date.now());wrap.innerHTML=(asked?turnHtml('user',asked,z?.submitted_at||''):'')+turnHtml('assistant',answer,when);timeline.appendChild(wrap);const status=String(z?.status||cv.kind||'PRÊT').toUpperCase();if(status==='BUILD_HANDOFF_REQUIRED'&&asked)pendingBuildText=asked;const labels={SUCCESS:'TERMINÉ',PASS:'TERMINÉ',OK:'OK',BLOCKED:'BLOQUÉ',FAILED:'ÉCHEC',PARTIAL:'PARTIEL',AWAITING_APPROVAL:'VALIDATION',AWAITING_EXTERNAL_CONDITION:'EN ATTENTE',BUILD_HANDOFF_REQUIRED:'PASSER À CRÉER'};stage.textContent=labels[status]||status;conversationMeta.innerHTML=status==='BUILD_HANDOFF_REQUIRED'?'Demande prête : touche 🛠️ Créer pour la reprendre sans la retaper. Rien ne sera lancé avant ton envoi.':'<span class="syncLive">● Temps réel</span>'+(when?' • réponse '+esc(displayTime(when)):'');const responseChannel=String(z?.channel||selectedChannel).toUpperCase();if(voiceSessionActive&&responseChannel==='CONVERSATION'&&nativeVoiceAvailable()){const terminalVoice=['BUILD_HANDOFF_REQUIRED','AWAITING_APPROVAL','FAILED','BLOCKED'].includes(status);try{window.ChaChaVoice.speak(answer,!terminalVoice)}catch(_){}if(terminalVoice){voiceSessionActive=false;refreshVoiceUi()}}techResult.textContent=JSON.stringify({status:z?.status,next_action:z?.next_action,request_id:rid,responded_at:when,channel:z?.channel||null,subroute:z?.subroute||null,project:z?.session_project_id||z?.project_id,execution_project:z?.execution_project_id,continuation_steps:z?.continuation_steps||[],human_context_applied:cv?.human_context_applied||false,dialogue_mode:cv?.dialogue_orchestrator?.mode||'DETERMINISTIC_BASE_RESPONSE',dialogue_provider_invoked:cv?.dialogue_orchestrator?.provider_invoked||false,dialogue_provider_reason:cv?.dialogue_orchestrator?.provider_reason||null},null,2);tech.hidden=false;typing.hidden=true;if(rid)lastSeenRequestId=rid;if(digest)lastSeenDigest=digest;timeline.scrollTop=timeline.scrollHeight}
+async function syncConversation(force=false){if(conversationSyncBusy)return;conversationSyncBusy=true;try{const c=await fetchJson('/api/v1/conversation?limit=100',{},2);const items=Array.isArray(c.items)?c.items:[];const last=items[items.length-1]||{};const token=String(items.length)+':'+String(last.turn_id||'');if(items.length&&(force||token!==lastTimelineToken))renderTimeline(c);else if(items.length)conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span> • synchronisé'}catch(_){conversationMeta.textContent='Connexion interrompue — reconnexion automatique…'}finally{conversationSyncBusy=false}}
+async function hydrateConversation(){try{const c=await fetchJson('/api/v1/conversation?limit=100',{},2);if(renderTimeline(c))return}catch(_){}try{const s=await fetchJson('/api/v1/session',{},2);if(s.last_response)renderConversation(s.last_response)}catch(_){}}
+function setChannel(channel){selectedChannel=channel==='BUILD'?'BUILD':'CONVERSATION';localStorage.setItem('chacha-channel',selectedChannel);channelConversation.classList.toggle('active',selectedChannel==='CONVERSATION');channelBuild.classList.toggle('active',selectedChannel==='BUILD');channelHint.textContent=selectedChannel==='CONVERSATION'?'Discussion, recherche et conseil — aucune mutation':'Création et exécution — pipeline ChaCha DEV gouverné';q.placeholder=selectedChannel==='CONVERSATION'?'Parle avec ChaCha…':'Dis-moi ce que tu veux créer ou modifier…'}
+function nativeVoiceAvailable(){try{return !!(window.ChaChaVoice&&typeof window.ChaChaVoice.listen==='function')}catch(_){return false}}
+function refreshVoiceUi(){mic.classList.toggle('voiceActive',voiceSessionActive);voiceStop.hidden=!voiceSessionActive;mic.title=voiceSessionActive?'Interrompre ChaCha et parler':'Démarrer la conversation vocale'}
+function startVoiceSession(){setChannel('CONVERSATION');voiceSessionActive=true;refreshVoiceUi();if(nativeVoiceAvailable()){conversationMeta.textContent='Mode vocal actif — je t’écoute.';window.ChaChaVoice.listen()}else{voiceSessionActive=false;refreshVoiceUi();q.focus();conversationMeta.textContent='Le mode vocal complet nécessite la mise à jour Android 0.7.0.'}}
+window.chachaStartVoiceSession=()=>{setChannel('CONVERSATION');voiceSessionActive=true;refreshVoiceUi()};
+window.chachaVoiceTranscript=(text)=>{const spoken=String(text||'').trim();if(!spoken)return;setChannel('CONVERSATION');voiceSessionActive=true;refreshVoiceUi();q.value=spoken;submit(spoken,true,'CONVERSATION')};
+window.chachaVoiceNativeState=(state)=>{voiceNativeState=String(state||'UNKNOWN');if(voiceNativeState==='STOPPED'||voiceNativeState==='TTS_UNAVAILABLE'||voiceNativeState==='TTS_ERROR'||voiceNativeState==='STT_UNAVAILABLE')voiceSessionActive=false;refreshVoiceUi()};
+channelConversation.onclick=()=>setChannel('CONVERSATION');channelBuild.onclick=()=>{setChannel('BUILD');if(pendingBuildText){q.value=pendingBuildText;pendingBuildText='';q.focus();conversationMeta.textContent='Demande prête dans 🛠️ Créer — envoie-la quand tu veux.'}};setChannel(selectedChannel);refreshVoiceUi();
+async function submit(text,fromEditor=false,channelOverride=null){const original=String(text||'').trim();if(!original)return;const clientRequestId=requestId();let accepted=false;send.disabled=true;stage.textContent='ENVOI';tech.hidden=true;typing.hidden=false;await refreshProgress();try{const x=await fetchJson('/api/v1/intent',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:original,client_request_id:clientRequestId,channel:channelOverride||selectedChannel})},4);accepted=true;activeJobId=x.job_id;if(fromEditor)q.value='';const pending=document.createElement('div');pending.id='pending-'+clientRequestId;pending.innerHTML=turnHtml('user',original,new Date().toISOString(),'pending');timeline.appendChild(pending);timeline.scrollTop=timeline.scrollHeight;conversationMeta.innerHTML='<span class="syncLive">● Temps réel</span> • '+esc((x.channel||selectedChannel)==='BUILD'?'Créer':'ChaCha')+' • demande acceptée • '+esc(clientRequestId.slice(0,8));for(;;){await sleep(1200);await refreshProgress();try{const j=await fetchJson('/api/v1/jobs/'+x.job_id,{},3);stage.textContent=j.state||'…';if(j.state==='COMPLETE'){document.querySelector('#pending-'+CSS.escape(clientRequestId))?.remove();renderConversation(j.response||{});break}if(j.state==='FAILED')throw new Error(j.error||'Échec')}catch(e){conversationMeta.textContent='Connexion interrompue — la demande est conservée, reconnexion…';continue}}}catch(e){if(accepted){stage.textContent='RECONNEXION';typing.hidden=false;conversationMeta.textContent='La demande est acceptée — je récupère sa réponse dès que la connexion revient.'}else{stage.textContent='CONNEXION';conversationMeta.textContent='Je n’ai pas pu confirmer l’envoi. La demande reste dans la zone de saisie.';if(fromEditor&&!q.value.trim())q.value=original}}finally{activeJobId='';send.disabled=false;await syncConversation(true);await refreshProgress();if(pendingUiReload){location.reload()}}}
 send.onclick=()=>submit(q.value,true);document.querySelector('#go').onclick=()=>submit('Go');document.querySelector('#status').onclick=()=>submit('Allo');document.querySelector('#stop').onclick=()=>submit('Stop',false,'BUILD');
-document.querySelector('#mic').onclick=()=>{q.focus();conversationMeta.textContent='Sur Android, utilise le bouton micro du widget pour dicter.';};
-q.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')submit(q.value,true)});
-window.chachaSetPrompt=(text)=>{q.value=String(text||'');q.focus();};
-window.chachaSubmit=(text)=>submit(String(text||''));
-async function checkUiRevision(){
- try{
-  const cfg=await fetchJson('/api/v1/app-config',{},2);
-  const rev=String(cfg.runtime_revision||'');
-  if(!rev)return;
-  if(!runtimeRevision){runtimeRevision=rev;return}
-  if(rev!==runtimeRevision){
-   if(activeJobId){pendingUiReload=true;conversationMeta.textContent='Nouvelle interface disponible — mise à jour après cette opération…'}
-   else location.reload();
-  }
- }catch(_){}
-}
-async function loadPersonas(selected=''){
- try{
-  const x=await fetchJson('/api/v1/personas',{},2);
-  const items=Array.isArray(x.items)?x.items:[];
-  hpPersona.innerHTML='<option value="">Persona de ChaCha : neutre</option>'+items.map(p=>{
-   const id=String(p.persona_id||'');const label=String(p.display_name||id);
-   return '<option value="'+esc(id)+'">'+esc(label)+'</option>';
-  }).join('');
-  hpPersona.value=selected||'';
- }catch(_){
-  hpPersona.innerHTML='<option value="">Persona de ChaCha : neutre</option>';
- }
-}
-async function loadHumanProfile(){
- try{
-  const p=await fetchJson('/api/v1/human-profile',{},2);
-  hpName.value=p.preferred_name||'';
-  hpAddress.value=p.preferred_form_of_address||'';
-  hpGender.value=p.gender_identity||'';
-  hpAge.value=p.age_band||'';
-  hpCulture.value=(p.cultural_contexts||[]).join(', ');
-  hpRegion.value=(p.regional_contexts||[]).join(', ');
-  hpRegister.value=p.conversation_register||'';
-  hpHumor.value=p.humor_level||'';
-  await loadPersonas(p.assistant_persona_id||'');
- }catch(_){await loadPersonas('')}
-}
-hpSave.onclick=async()=>{
- hpSave.disabled=true;hpStatus.textContent='Enregistrement…';
- const split=v=>String(v||'').split(',').map(x=>x.trim()).filter(Boolean);
- try{
-  await fetchJson('/api/v1/human-profile',{
-   method:'POST',headers:{'Content-Type':'application/json'},
-   body:JSON.stringify({
-    preferred_name:hpName.value.trim(),
-    preferred_form_of_address:hpAddress.value,
-    gender_identity:hpGender.value.trim(),
-    age_band:hpAge.value.trim(),
-    cultural_contexts:split(hpCulture.value),
-    regional_contexts:split(hpRegion.value),
-    conversation_register:hpRegister.value.trim(),
-    humor_level:hpHumor.value.trim(),
-    assistant_persona_id:hpPersona.value
-   })
-  },2);
-  hpStatus.textContent='Préférences enregistrées';
- }catch(_){hpStatus.textContent='Enregistrement impossible'}
- finally{hpSave.disabled=false}
-};
-window.chachaRefresh=()=>{syncConversation(true);refreshProgress();checkUiRevision();};
-hydrateConversation();loadHumanProfile();refreshProgress();checkUiRevision();
-setInterval(refreshProgress,2000);
-setInterval(()=>syncConversation(false),2000);
-setInterval(checkUiRevision,10000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){syncConversation(true);refreshProgress();checkUiRevision()}});
-window.addEventListener('focus',()=>{syncConversation(true);checkUiRevision()});
-window.addEventListener('online',()=>{syncConversation(true);refreshProgress();checkUiRevision()});
+mic.onclick=()=>{if(nativeVoiceAvailable())startVoiceSession();else{q.focus();conversationMeta.textContent='Le mode vocal complet nécessite la mise à jour Android 0.7.0.'}};
+voiceStop.onclick=()=>{voiceSessionActive=false;refreshVoiceUi();try{if(nativeVoiceAvailable())window.ChaChaVoice.stop()}catch(_){}conversationMeta.textContent='Mode vocal arrêté.'};
+q.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')submit(q.value,true)});window.chachaSetPrompt=(text)=>{q.value=String(text||'');q.focus()};window.chachaSubmit=(text)=>submit(String(text||''));
+async function checkUiRevision(){try{const cfg=await fetchJson('/api/v1/app-config',{},2);const rev=String(cfg.runtime_revision||'');if(!rev)return;if(!runtimeRevision){runtimeRevision=rev;return}if(rev!==runtimeRevision){if(activeJobId){pendingUiReload=true;conversationMeta.textContent='Nouvelle interface disponible — mise à jour après cette opération…'}else location.reload()}}catch(_){}}
+async function loadPersonas(selected=''){try{const x=await fetchJson('/api/v1/personas',{},2);const items=Array.isArray(x.items)?x.items:[];hpPersona.innerHTML='<option value="">Persona de ChaCha : neutre</option>'+items.map(p=>{const id=String(p.persona_id||'');const label=String(p.display_name||id);return '<option value="'+esc(id)+'">'+esc(label)+'</option>'}).join('');hpPersona.value=selected||''}catch(_){hpPersona.innerHTML='<option value="">Persona de ChaCha : neutre</option>'}}
+async function loadHumanProfile(){try{const p=await fetchJson('/api/v1/human-profile',{},2);hpName.value=p.preferred_name||'';hpAddress.value=p.preferred_form_of_address||'';hpGender.value=p.gender_identity||'';hpAge.value=p.age_band||'';hpCulture.value=(p.cultural_contexts||[]).join(', ');hpRegion.value=(p.regional_contexts||[]).join(', ');hpRegister.value=p.conversation_register||'';hpHumor.value=p.humor_level||'';await loadPersonas(p.assistant_persona_id||'')}catch(_){await loadPersonas('')}}
+hpSave.onclick=async()=>{hpSave.disabled=true;hpStatus.textContent='Enregistrement…';const split=v=>String(v||'').split(',').map(x=>x.trim()).filter(Boolean);try{await fetchJson('/api/v1/human-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({preferred_name:hpName.value.trim(),preferred_form_of_address:hpAddress.value,gender_identity:hpGender.value.trim(),age_band:hpAge.value.trim(),cultural_contexts:split(hpCulture.value),regional_contexts:split(hpRegion.value),conversation_register:hpRegister.value.trim(),humor_level:hpHumor.value.trim(),assistant_persona_id:hpPersona.value})},2);hpStatus.textContent='Préférences enregistrées'}catch(_){hpStatus.textContent='Enregistrement impossible'}finally{hpSave.disabled=false}};
+window.chachaRefresh=()=>{syncConversation(true);refreshProgress();checkUiRevision()};hydrateConversation();loadHumanProfile();refreshProgress();checkUiRevision();setInterval(refreshProgress,2000);setInterval(()=>syncConversation(false),2000);setInterval(checkUiRevision,10000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){syncConversation(true);refreshProgress();checkUiRevision()}});window.addEventListener('focus',()=>{syncConversation(true);checkUiRevision()});window.addEventListener('online',()=>{syncConversation(true);refreshProgress();checkUiRevision()});
 </script></body></html>

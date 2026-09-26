@@ -8,7 +8,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.speech.RecognizerIntent;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.webkit.CookieManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -31,7 +34,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class OperatorActivity extends Activity {
     private static final int VOICE_REQUEST = 42;
-    private static final int SHELL_PROTOCOL_VERSION = 1;
+    private static final int SHELL_PROTOCOL_VERSION = 2;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler main = new Handler(Looper.getMainLooper());
@@ -41,6 +44,10 @@ public class OperatorActivity extends Activity {
     private Uri allowedOrigin;
     private boolean pageReady = false;
     private String pendingMode = ChaChaWidgetProvider.MODE_TYPE;
+    private TextToSpeech textToSpeech;
+    private volatile boolean textToSpeechReady = false;
+    private volatile boolean voiceSessionActive = false;
+    private volatile boolean voiceRequestInFlight = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +59,7 @@ public class OperatorActivity extends Activity {
         webView = new WebView(this);
         setContentView(webView);
         configureWebView();
+        initVoiceGateway();
         loadRemoteUi();
     }
 
@@ -95,6 +103,38 @@ public class OperatorActivity extends Activity {
                 if (request.isForMainFrame()) showFallback();
             }
         });
+    }
+
+    private void initVoiceGateway() {
+        webView.addJavascriptInterface(new VoiceBridge(), "ChaChaVoice");
+        textToSpeech = new TextToSpeech(this, status -> {
+            textToSpeechReady = status == TextToSpeech.SUCCESS;
+            if (textToSpeechReady && textToSpeech != null) {
+                textToSpeech.setLanguage(Locale.getDefault());
+            }
+            voiceState(textToSpeechReady ? "READY" : "TTS_UNAVAILABLE");
+        });
+        textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+            @Override public void onStart(String utteranceId) { voiceState("SPEAKING"); }
+            @Override public void onDone(String utteranceId) {
+                main.post(() -> {
+                    voiceState("READY");
+                    if (voiceSessionActive) main.postDelayed(OperatorActivity.this::startVoice, 260);
+                });
+            }
+            @Override public void onError(String utteranceId) {
+                voiceSessionActive = false;
+                voiceState("TTS_ERROR");
+            }
+        });
+    }
+
+    private void voiceState(String state) {
+        main.post(() -> eval("window.chachaVoiceNativeState && window.chachaVoiceNativeState(" + JSONObject.quote(state) + ");"));
+    }
+
+    private void stopSpeech() {
+        if (textToSpeech != null) textToSpeech.stop();
     }
 
     private boolean isAllowed(Uri uri) {
@@ -166,6 +206,8 @@ public class OperatorActivity extends Activity {
         if (ChaChaWidgetProvider.MODE_STATUS.equals(mode)) {
             eval("window.chachaSubmit && window.chachaSubmit('Allo');");
         } else if (ChaChaWidgetProvider.MODE_VOICE.equals(mode)) {
+            voiceSessionActive = true;
+            eval("window.chachaStartVoiceSession && window.chachaStartVoiceSession();");
             main.postDelayed(this::startVoice, 180);
         } else {
             eval("window.chachaSetPrompt && window.chachaSetPrompt('');");
@@ -176,7 +218,44 @@ public class OperatorActivity extends Activity {
         if (pageReady && webView != null) webView.evaluateJavascript(js, null);
     }
 
+    private final class VoiceBridge {
+        @JavascriptInterface public void listen() {
+            main.post(() -> {
+                voiceSessionActive = true;
+                stopSpeech();
+                startVoice();
+            });
+        }
+
+        @JavascriptInterface public void speak(String text, boolean continueListening) {
+            final String safe = text == null ? "" : text.trim();
+            main.post(() -> {
+                voiceSessionActive = continueListening;
+                if (!textToSpeechReady || textToSpeech == null || safe.isEmpty()) {
+                    voiceSessionActive = false;
+                    voiceState("TTS_UNAVAILABLE");
+                    return;
+                }
+                textToSpeech.speak(safe, TextToSpeech.QUEUE_FLUSH, null, "chacha-reply-" + System.currentTimeMillis());
+            });
+        }
+
+        @JavascriptInterface public void stop() {
+            main.post(() -> {
+                voiceSessionActive = false;
+                stopSpeech();
+                voiceState("STOPPED");
+            });
+        }
+
+        @JavascriptInterface public boolean isAvailable() { return textToSpeechReady; }
+    }
+
     private void startVoice() {
+        if (voiceRequestInFlight) return;
+        stopSpeech();
+        voiceRequestInFlight = true;
+        voiceState("LISTENING");
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
@@ -184,6 +263,9 @@ public class OperatorActivity extends Activity {
         try {
             startActivityForResult(intent, VOICE_REQUEST);
         } catch (ActivityNotFoundException e) {
+            voiceRequestInFlight = false;
+            voiceSessionActive = false;
+            voiceState("STT_UNAVAILABLE");
             eval("window.chachaSetPrompt && window.chachaSetPrompt('Dictée indisponible sur ce téléphone');");
         }
     }
@@ -192,12 +274,18 @@ public class OperatorActivity extends Activity {
     @SuppressWarnings("deprecation")
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == VOICE_REQUEST && resultCode == RESULT_OK && data != null) {
+        if (requestCode != VOICE_REQUEST) return;
+        voiceRequestInFlight = false;
+        if (resultCode == RESULT_OK && data != null) {
             ArrayList<String> choices = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
             if (choices != null && !choices.isEmpty()) {
-                eval("window.chachaSetPrompt && window.chachaSetPrompt(" + JSONObject.quote(choices.get(0)) + ");");
+                voiceState("TRANSCRIPT_READY");
+                eval("window.chachaVoiceTranscript && window.chachaVoiceTranscript(" + JSONObject.quote(choices.get(0)) + ");");
+                return;
             }
         }
+        voiceSessionActive = false;
+        voiceState("STOPPED");
     }
 
     @Override
@@ -236,6 +324,12 @@ public class OperatorActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        voiceSessionActive = false;
+        if (textToSpeech != null) {
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+            textToSpeech = null;
+        }
         if (webView != null) {
             webView.stopLoading();
             webView.loadUrl("about:blank");
