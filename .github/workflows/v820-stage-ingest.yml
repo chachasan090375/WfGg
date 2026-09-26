@@ -1,0 +1,39 @@
+name: V820 targeted recovery staging ingest
+
+on:
+  push:
+    branches:
+      - v820-publication-staging-20260926
+
+permissions:
+  contents: write
+
+jobs:
+  ingest:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fetch exact verified targeted-recovery merge bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://chachavps.tail3ab05a.ts.net/v820-publication-bundle'
+          EXPECTED='0c924d0cece4c5f36a97153389752df75e0c355f67395c5ad22fd66155dcd3f9'
+          curl -fL --retry 5 --retry-all-errors --connect-timeout 20 "$URL" -o /tmp/v820-targeted-recovery.tar.gz
+          echo "$EXPECTED  /tmp/v820-targeted-recovery.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/v820-targeted-recovery.tar.gz -C .
+          git config user.name 'ChaCha DEV publication bridge'
+          git config user.email 'chacha-dev@local.invalid'
+          git add dev-hub/bin/central-interface-controller.py dev-hub/bin/direct-operator-service.py dev-hub/config/direct-operator.v1.json dev-hub/tests/test_targeted_platform_recovery.py
+          if git diff --cached --quiet; then
+            echo 'CHACHA_DEV_V820_TARGETED_RECOVERY_STAGE=NO_CHANGES'
+            exit 0
+          fi
+          git commit -m 'fix(v820): preserve targeted existing-request recovery'
+          git push origin HEAD:v820-publication-staging-20260926
+          echo 'CHACHA_DEV_V820_TARGETED_RECOVERY_STAGE=PASS'
+          echo 'CHACHA_DEV_AUTOMATIC_EXTERNAL_SPEND_EUR=0'
