@@ -3,7 +3,7 @@ name: ChaCha DEV V8.1.3 Dual Channel
 on:
   push:
     branches:
-      - dev-hub-v813-dual-channel
+      - dev-hub-v813-dual-channel-advisory
     paths:
       - 'dev-hub/bin/direct-operator-service.py'
       - 'dev-hub/bin/conversation-channel-router.py'
