@@ -1,0 +1,18 @@
+{
+  "schema": "chacha.dev/targeted-platform-recovery-provenance/v1",
+  "observed_at": "2026-09-26T15:37:00Z",
+  "source_base_revision": "effd2d8185f219b4443d04cfdf63cf9576c16b2c",
+  "runtime_synthetic_revision": "bd5980a04c6357823910ca01d9d17aa0328bb104",
+  "scope": "TARGETED_PLATFORM_RECOVERY_ONLY",
+  "files": {
+    "dev-hub/bin/central-interface-controller.py": "sha256:c4e9ceb49f96d091e7a71216f4ac1435bec7c2116839b250e61d6efe492d117c",
+    "dev-hub/bin/direct-operator-service.py": "sha256:60b8fa510f4f4afa3f9ec219c15ba8a088aad38a07f534a6a6f005134a774d4e",
+    "dev-hub/config/direct-operator.v1.json": "sha256:d481ff0c622979870cfdd8e538dad493fe581b7988cff40f194184e67afd46d5",
+    "dev-hub/tests/test_targeted_platform_recovery.py": "sha256:c67d97c3acc2263063421dd87560ac5eb55aeca08b6e04d9d24c79f7ed878cdc"
+  },
+  "runtime_file_hashes_match_source": true,
+  "generic_bootstrap_replayed": false,
+  "functional_translator_replayed": false,
+  "guardian_bypass": false,
+  "automatic_external_spend_eur": 0
+}
