@@ -17,46 +17,34 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Reconstruct exact patch
+      - name: Verify Sentinel remediation patch
         shell: bash
         run: |
           set -euo pipefail
-          cat .chacha-transfer/v820.part1 .chacha-transfer/v820.part2 .chacha-transfer/v820.part3 > /tmp/v820-prefix.b64
-          python3 - <<'PY'
-          import base64,zlib
-          from pathlib import Path
-          raw=base64.b64decode(Path('/tmp/v820-prefix.b64').read_text())
-          d=zlib.decompressobj(16+zlib.MAX_WBITS)
-          partial=d.decompress(raw)
-          if len(partial) < 156475:
-              raise SystemExit(f'PREFIX_TOO_SHORT:{len(partial)}')
-          Path('/tmp/v820.patch').write_bytes(partial[:156475])
-          PY
-          cat .chacha-transfer/v820.suffix1.patch .chacha-transfer/v820.suffix2.patch >> /tmp/v820.patch
-          test "$(sha256sum /tmp/v820.patch | awk '{print $1}')" = "77eab1e8420ac967ecedeb1a155ba1bb5df683cb4985a0695d1d69a358d7ab4a"
-          echo CHACHA_DEV_V820_TRANSFER_PATCH_SHA=PASS
+          test "$(sha256sum .chacha-transfer/v820-sentinel-fix.patch | awk '{print $1}')" = "daeba9b2f0eab2b32c6ff96e6898611fff48ed281d2add6a17b9bcb67e22c931"
+          echo CHACHA_DEV_V820_SENTINEL_PATCH_SHA=PASS
 
-      - name: Recreate exact V8.2.0 commit
+      - name: Recreate exact Sentinel remediation commit
         shell: bash
         env:
-          PARENT: effd2d8185f219b4443d04cfdf63cf9576c16b2c
-          EXPECTED_TREE: 6ae940a3e8319973a7ce3575f5f2455cfd5acbcd
-          EXPECTED_COMMIT: 40c54ea4848fa1363a6c508017d16a0b9f45a31d
+          PARENT: 40c54ea4848fa1363a6c508017d16a0b9f45a31d
+          EXPECTED_TREE: 75f00df96f4de7a62351693e9cd69465f860790f
+          EXPECTED_COMMIT: 7ea4c89f196bf1c52aafae24cc5474e44d296278
         run: |
           set -euo pipefail
           git checkout --detach "$PARENT"
-          git apply --index /tmp/v820.patch
+          git apply --index .chacha-transfer/v820-sentinel-fix.patch
           TREE="$(git write-tree)"
           test "$TREE" = "$EXPECTED_TREE"
-          echo CHACHA_DEV_V820_TRANSFER_TREE_SHA=PASS
+          echo CHACHA_DEV_V820_SENTINEL_TREE_SHA=PASS
           export GIT_AUTHOR_NAME='ChaCha DEV'
           export GIT_AUTHOR_EMAIL='chacha-dev@local.invalid'
-          export GIT_AUTHOR_DATE='1790417971 +0000'
+          export GIT_AUTHOR_DATE='1790423607 +0000'
           export GIT_COMMITTER_NAME='ChaCha DEV'
           export GIT_COMMITTER_EMAIL='chacha-dev@local.invalid'
-          export GIT_COMMITTER_DATE='1790417971 +0000'
-          COMMIT="$(printf '%s\n' 'feat(v820): enforce universal materialization and operator constitution' | git commit-tree "$TREE" -p "$PARENT")"
+          export GIT_COMMITTER_DATE='1790423607 +0000'
+          COMMIT="$(printf '%s\n' 'test(v820): make mandatory regressions version-agnostic' | git commit-tree "$TREE" -p "$PARENT")"
           test "$COMMIT" = "$EXPECTED_COMMIT"
-          echo CHACHA_DEV_V820_TRANSFER_COMMIT_SHA=PASS
+          echo CHACHA_DEV_V820_SENTINEL_COMMIT_SHA=PASS
           git push origin "$COMMIT:refs/heads/dev-hub-v820-universal-materialization-compliance"
-          echo CHACHA_DEV_V820_REMOTE_BRANCH_PUBLISHED=PASS
+          echo CHACHA_DEV_V820_SENTINEL_REMEDIATION_PUBLISHED=PASS
