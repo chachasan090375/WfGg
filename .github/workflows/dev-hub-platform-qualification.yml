@@ -81,6 +81,12 @@ jobs:
           set -euo pipefail
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v820_guardian_production_deploy_contract.py
 
+      - name: Existing platform request recovery invariant
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_targeted_platform_recovery.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v820_existing_candidate_resume.py
+
       - name: Guardian terminal-hold invariant
         run: |
           set -euo pipefail

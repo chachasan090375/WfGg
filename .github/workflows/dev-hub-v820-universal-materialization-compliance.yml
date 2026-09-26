@@ -43,7 +43,8 @@ jobs:
             dev-hub/tests/test_v820_operator_directive_intake.py \
             dev-hub/tests/test_v820_version_agnostic_hygiene.py \
             dev-hub/tests/test_v820_guardian_terminal_hold.py \
-            dev-hub/tests/test_v820_existing_candidate_resume.py
+            dev-hub/tests/test_v820_existing_candidate_resume.py \
+            dev-hub/tests/test_targeted_platform_recovery.py
           node --check dev-hub/guardian/worker.js
           python3 -m json.tool dev-hub/config/operator-directives.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/operator-directive-sinks.v1.json >/dev/null
@@ -77,9 +78,10 @@ jobs:
           set -euo pipefail
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v820_version_agnostic_hygiene.py
 
-      - name: Existing candidate resume routing
+      - name: Existing request and candidate resume routing
         run: |
           set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_targeted_platform_recovery.py
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v820_existing_candidate_resume.py
 
       - name: Guardian generic production deploy contract
@@ -135,6 +137,7 @@ jobs:
           echo CHACHA_DEV_DYNAMIC_RELEASE_RETENTION=PASS
           echo CHACHA_DEV_HYGIENE_EXECUTOR_INDEPENDENT=PASS
           echo CHACHA_DEV_GUARDIAN_TERMINAL_HOLD_FILTER=PASS
+          echo CHACHA_DEV_TARGETED_PLATFORM_RECOVERY=PASS
           echo CHACHA_DEV_EXISTING_CANDIDATE_RESUME=PASS
           echo CHACHA_DEV_NO_ACTIVE_VERSION_MAJOR_COUPLING=PASS
           echo CHACHA_DEV_AUTOMATIC_EXTERNAL_SPEND_EUR=0
