@@ -107,7 +107,7 @@ def strong_installed_revision_ranks(runtime_root:Path)->dict[str,float]:
     out={}
     gates=runtime_root/"release-gates"
     if gates.is_dir():
-        for p in gates.glob("*-install-pass.json"):
+        for p in gates.rglob("*install-pass.json"):
             try:x=load(p)
             except Exception:continue
             rev=str(x.get("revision") or "").lower()

@@ -38,6 +38,15 @@ print('CHACHA_DEV_V823_AUTOMATIC_EXTERNAL_SPEND_EUR=0')
 
 spec=importlib.util.spec_from_file_location('planner',PLANNER)
 planner=importlib.util.module_from_spec(spec);assert spec and spec.loader;spec.loader.exec_module(planner)
+with tempfile.TemporaryDirectory(prefix='v823-strong-install-') as td:
+    runtime=Path(td);nested=runtime/'release-gates'/'nested';nested.mkdir(parents=True)
+    rev='9'*40
+    (nested/'v821-install-pass.json').write_text(json.dumps({
+      'schema':'chacha.dev/platform-install-pass/v1','status':'PASS','revision':rev,
+      'direct_operator_health':'PASS','guardian_realtime':'PASS','installed_at':'2026-09-26T00:00:00Z'})+'\n')
+    ranks=planner.strong_installed_revision_ranks(runtime)
+    assert rev in ranks and ranks[rev]>0,ranks
+print('CHACHA_DEV_V823_NESTED_INSTALL_EVIDENCE_DISCOVERY=PASS')
 with tempfile.TemporaryDirectory(prefix='v823-retention-') as td:
     base=Path(td);platform=base/'platform';releases=platform/'releases';evidence=base/'evidence';runtime=base/'runtime'
     releases.mkdir(parents=True);evidence.mkdir();runtime.mkdir()
