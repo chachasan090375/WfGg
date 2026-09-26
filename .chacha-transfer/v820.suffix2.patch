@@ -1,0 +1,309 @@
+ assert orch.index('capability_build_batch=out/"capability-build-request-batch.json"') < orch.index('effective_branch_topology=out/"branch-topology-effective.json"')
+ 
+diff --git a/dev-hub/tests/test_v642_durable_capability_adoption.py b/dev-hub/tests/test_v642_durable_capability_adoption.py
+index 6c09bf38..912ab93f 100644
+--- a/dev-hub/tests/test_v642_durable_capability_adoption.py
++++ b/dev-hub/tests/test_v642_durable_capability_adoption.py
+@@ -238,7 +238,7 @@ with tempfile.TemporaryDirectory(prefix="v642-e2e-") as td_raw:
+     gaps=td/"project-two-gaps.json"
+     save(preplan,{"packages":[{"domain":"product","capabilities":[capability]}]})
+     save(contract,{"capability_hints":[{"id":capability,"domain":"product"}]})
+-    orch.capability_gaps(preplan,contract,merged_caps,"v642-project-two",gaps)
++    orch.capability_gaps(preplan,contract,merged_caps,ROOT/"dev-hub/config/capability-semantics.v1.json","v642-project-two",gaps)
+     assert load(gaps)["missing_capabilities"]==[],load(gaps)
+ 
+     health=td/"health.json"
+@@ -382,7 +382,7 @@ with tempfile.TemporaryDirectory(prefix="v642-human-boundary-") as td_raw:
+ # Static integration invariants in the central brain.
+ orch_text=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
+ assert '"durable-capability-registry.py"' in orch_text
+-assert 'capability_gaps(pre,contract,durable_caps,pid,gapreq)' in orch_text
++assert 'capability_gaps(pre,contract,durable_caps,cfg/"capability-semantics.v1.json",pid,gapreq)' in orch_text
+ assert '"--capabilities",durable_caps' in orch_text
+ assert '"--provider-adapters",durable_providers' in orch_text
+ assert '"schema":"chacha.dev/capability-adoption-candidates/v1"' in orch_text
+diff --git a/dev-hub/tests/test_v805_direct_operator_network_resilience.py b/dev-hub/tests/test_v805_direct_operator_network_resilience.py
+index 7308cbf4..0a94eb7f 100644
+--- a/dev-hub/tests/test_v805_direct_operator_network_resilience.py
++++ b/dev-hub/tests/test_v805_direct_operator_network_resilience.py
+@@ -14,7 +14,9 @@ policy=mod.load(ROOT/"dev-hub/config/direct-operator.v1.json")
+ 
+ with tempfile.TemporaryDirectory(prefix="v805-idempotency-") as raw:
+     runtime=Path(raw)
+-    st=mod.State(ROOT,runtime,policy)
++    isolated_policy=dict(policy)
++    isolated_policy["runtime_root"]=str(runtime/"direct-operator")
++    st=mod.State(ROOT,runtime,isolated_policy)
+     jid1,created1=st.accept_intent("Test réseau","chacha-dev-platform","operator@example.test","req-12345678")
+     jid2,created2=st.accept_intent("Test réseau","chacha-dev-platform","operator@example.test","req-12345678")
+     assert created1 is True
+diff --git a/dev-hub/tests/test_v811_capability_semantics_separation.py b/dev-hub/tests/test_v811_capability_semantics_separation.py
+index f876ba30..426ba87f 100644
+--- a/dev-hub/tests/test_v811_capability_semantics_separation.py
++++ b/dev-hub/tests/test_v811_capability_semantics_separation.py
+@@ -36,8 +36,9 @@ with tempfile.TemporaryDirectory(prefix="v811-cap-semantics-") as td:
+     fm={r["id"]:r for r in x["domain_feature_requirements"]}
+     assert fm["human-conversation-rendering"]["classification"]=="REUSABLE",fm
+     assert fm["human-conversation-rendering"]["evidence_complete"] is True,fm
+-    assert fm["locale-localization"]["classification"]=="BUILD_REQUIRED",fm
++    assert fm["locale-localization"]["classification"]=="REUSABLE",fm
+     assert fm["locale-localization"]["provider_registration_required"] is False,fm
++    assert fm["locale-localization"]["evidence_complete"] is True,fm
+     assert x["summary"]["runtime_provider_gap_count"]==1
+     assert x["domain_features_do_not_grant_provider_authority"] is True
+ 
+@@ -65,6 +66,6 @@ assert '"runtime_provider_gap_count"' in src
+ print("CHACHA_DEV_V811_DOMAIN_FEATURE_NOT_PROVIDER_GAP=PASS")
+ print("CHACHA_DEV_V811_RUNTIME_PROVIDER_FAIL_CLOSED=PASS")
+ print("CHACHA_DEV_V811_REUSABLE_FEATURE_EVIDENCE=PASS")
+-print("CHACHA_DEV_V811_TRANSLATION_FEATURE_BUILD_REQUIRED=PASS")
++print("CHACHA_DEV_V811_TRANSLATION_FEATURE_REUSABLE_EVIDENCE=PASS")
+ print("CHACHA_DEV_V811_EXPLICIT_RUNTIME_HINT_PRESERVED=PASS")
+ print("CHACHA_DEV_V811_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
+diff --git a/dev-hub/tests/test_v820_guardian_terminal_hold.py b/dev-hub/tests/test_v820_guardian_terminal_hold.py
+new file mode 100644
+index 00000000..7c535ab8
+--- /dev/null
++++ b/dev-hub/tests/test_v820_guardian_terminal_hold.py
+@@ -0,0 +1,24 @@
++#!/usr/bin/env python3
++from pathlib import Path
++
++ROOT=Path(__file__).resolve().parents[2]
++worker=(ROOT/'dev-hub/guardian/worker.js').read_text(encoding='utf-8')
++start=worker.index('async function activeRemediationHold')
++end=worker.index('async function applyRemediationProgress',start)
++fn=worker[start:end]
++
++assert fn.count("d.status IN ('OPEN','DELIVERED')")==2,fn
++assert fn.count('JOIN remediation_directives d ON d.directive_id=h.directive_id')==2,fn
++assert 'SELECT * FROM remediation_holds' not in fn,fn
++
++# Terminal directives are intentionally excluded from active enforcement.
++for terminal in ('APPLIED','CANCELLED','ESCALATED'):
++    assert terminal not in fn,terminal
++
++runtime=(ROOT/'dev-hub/bin/guardian_remediation_runtime.py').read_text(encoding='utf-8')
++assert '{"OPEN","DELIVERED"}' in runtime
++
++print('CHACHA_DEV_GUARDIAN_TERMINAL_HOLD_FILTER=PASS')
++print('CHACHA_DEV_GUARDIAN_ORPHAN_HOLD_BLOCKING=NO')
++print('CHACHA_DEV_GUARDIAN_NO_BYPASS=PASS')
++print('CHACHA_DEV_AUTOMATIC_EXTERNAL_SPEND_EUR=0')
+diff --git a/dev-hub/tests/test_v820_operator_directive_intake.py b/dev-hub/tests/test_v820_operator_directive_intake.py
+new file mode 100644
+index 00000000..c6c04d47
+--- /dev/null
++++ b/dev-hub/tests/test_v820_operator_directive_intake.py
+@@ -0,0 +1,53 @@
++#!/usr/bin/env python3
++from __future__ import annotations
++import importlib.util,json,sys,tempfile
++from pathlib import Path
++
++ROOT=Path(__file__).resolve().parents[2]
++BIN=ROOT/'dev-hub/bin'
++sys.path.insert(0,str(BIN))
++
++spec=importlib.util.spec_from_file_location('direct',BIN/'direct-operator-service.py')
++direct=importlib.util.module_from_spec(spec);assert spec and spec.loader
++spec.loader.exec_module(direct)
++odi=direct.odi
++policy=json.load(open(ROOT/'dev-hub/config/operator-directives.v1.json'))
++text='À partir de maintenant, tous les agents doivent hériter automatiquement des règles globales.'
++classified=odi.classify(text,policy)
++assert classified['structural'] is True,classified
++assert classified['suggested_scope']=='PLATFORM_GLOBAL',classified
++
++with tempfile.TemporaryDirectory(prefix='v820-directive-intake-') as td:
++    td=Path(td)
++    op=json.load(open(ROOT/'dev-hub/config/direct-operator.v1.json'))
++    op['runtime_root']=str(td/'operator')
++    state=direct.State(ROOT,td,op)
++    state.operator_directive_intake=td/'intake.jsonl'
++    state.channel_router=td/'missing-router.py'
++    state.process('conversation-intake-job',text,'chacha-dev-platform','pilot@example.test','CONVERSATION')
++    cjob=json.load(open(state.job_path('conversation-intake-job')))
++    assert cjob['state']=='FAILED',cjob
++    creq=cjob['request_id']
++    creceipt=json.load(open(state.root/'requests'/creq/'operator-directive-intake.json'))
++    assert creceipt['status']=='CAPTURED',creceipt
++    assert creceipt['structural_candidate'] is True,creceipt
++
++    state.translator=td/'missing-translator.py'
++    state.process('build-intake-job',text,'chacha-dev-platform','pilot@example.test','BUILD')
++    bjob=json.load(open(state.job_path('build-intake-job')))
++    assert bjob['state']=='FAILED',bjob
++    breq=bjob['request_id']
++    breceipt=json.load(open(state.root/'requests'/breq/'operator-directive-intake.json'))
++    assert breceipt['status']=='CAPTURED',breceipt
++    assert breceipt['structural_candidate'] is True,breceipt
++
++    rows=[json.loads(x) for x in state.operator_directive_intake.read_text().splitlines() if x.strip()]
++    assert len(rows)==2,rows
++    assert all(x['status']=='RECEIVED' for x in rows)
++    assert all(x['activation_status']=='NOT_ACTIVE_UNTIL_PROPAGATION_VERIFIED' for x in rows)
++    assert all(x['automatic_external_spend_eur']==0 for x in rows)
++print('CHACHA_DEV_OPERATOR_DIRECTIVE_INTAKE=PASS')
++print('CHACHA_DEV_DIRECTIVE_CAPTURE_BEFORE_CONVERSATION_ROUTER=PASS')
++print('CHACHA_DEV_DIRECTIVE_CAPTURE_BEFORE_BUILD_TRANSLATOR=PASS')
++print('CHACHA_DEV_PROMPT_SENT_IS_NOT_APPLICATION_PROOF=PASS')
++print('CHACHA_DEV_AUTOMATIC_EXTERNAL_SPEND_EUR=0')
+diff --git a/dev-hub/tests/test_v820_operator_directives_compliance.py b/dev-hub/tests/test_v820_operator_directives_compliance.py
+new file mode 100644
+index 00000000..f8978fc5
+--- /dev/null
++++ b/dev-hub/tests/test_v820_operator_directives_compliance.py
+@@ -0,0 +1,76 @@
++#!/usr/bin/env python3
++from __future__ import annotations
++import importlib.util,json,sys,tempfile
++from pathlib import Path
++
++ROOT=Path(__file__).resolve().parents[2]
++BIN=ROOT/'dev-hub/bin'
++sys.path.insert(0,str(BIN))
++
++def mod(name,path):
++    spec=importlib.util.spec_from_file_location(name,path)
++    m=importlib.util.module_from_spec(spec);assert spec and spec.loader
++    spec.loader.exec_module(m);return m
++
++odr=mod('odr',BIN/'operator_directive_registry.py')
++impact=mod('impact',BIN/'directive_impact_analyzer.py')
++prop=mod('prop',BIN/'policy_propagation_engine.py')
++vca=mod('vca',BIN/'version_coupling_audit.py')
++canon=mod('canon',BIN/'canonical_component_registry.py')
++gate=mod('gate',BIN/'universal-materialization-gate.py')
++
++policy=json.load(open(ROOT/'dev-hub/config/operator-directives.v1.json'))
++directives=odr.snapshot(policy)
++assert directives['active_global_directive_count']>=9
++required={'opdir-version-agnostic-runtime','opdir-universal-materialization',
++          'opdir-canonical-inventory','opdir-universal-hygiene'}
++assert required.issubset(set(directives['active_global_ids']))
++canonical_policy=json.load(open(ROOT/'dev-hub/config/canonical-component-registry.v1.json'))
++registry=canon.build_registry(ROOT,canonical_policy)
++assert registry['birth_contract_complete'] is True
++assert registry['active_global_directive_digest']==directives['active_global_digest']
++assert registry['component_count']>=190
++for row in registry['components']:
++    controls=row['birth_contract']['controls']
++    value=controls['operator_directives']['value']
++    assert value['active_global_digest']==directives['active_global_digest']
++    assert sorted(value['active_global_ids'])==sorted(directives['active_global_ids'])
++
++catalog=json.load(open(ROOT/'dev-hub/config/operator-directive-sinks.v1.json'))
++report=impact.analyze(ROOT,directives,catalog)
++assert report['status']=='PASS',report
++assert report['missing_target_count']==0,report
++receipt=prop.verify(directives,report,registry)
++assert receipt['status']=='VERIFIED',receipt
++assert receipt['verified_component_count']==registry['component_count']
++version_report=vca.audit(ROOT/'dev-hub')
++assert version_report['status']=='PASS',version_report['blocking']
++assert version_report['blocking_count']==0
++
++manifest={
++  'agent_id':'fixture-agent','governance_class':'FULL_AGENT','owner_foundry':'agent-foundry',
++  'materialization_gate_required':True,'purpose':'fixture','scope':'PLATFORM',
++  'automatic_external_spend_eur':0
++}
++view=gate.materialization_view(manifest)
++verdict=gate.validate(view,manifest,canonical_policy,directives)
++assert verdict['status']=='PASS',verdict
++birth=verdict['birth_contract']
++value=birth['controls']['operator_directives']['value']
++assert value['active_global_digest']==directives['active_global_digest']
++assert sorted(value['active_global_ids'])==sorted(directives['active_global_ids'])
++
++for cfg in ('agent-foundry.v1.json','branch-foundry.v1.json','capability-foundry.v1.json','object-factory.v1.json'):
++    text=(ROOT/'dev-hub/config'/cfg).read_text()
++    assert 'canonical_component_registry_required' in text,cfg
++    assert 'universal_materialization_gate_required' in text,cfg
++    assert 'birth_contract_required' in text,cfg
++print('CHACHA_DEV_OPERATOR_DIRECTIVE_REGISTRY=PASS')
++print('CHACHA_DEV_DIRECTIVE_IMPACT_ANALYZER=PASS')
++print('CHACHA_DEV_GLOBAL_POLICY_PROPAGATION=PASS')
++print('CHACHA_DEV_EXISTING_COMPONENT_BACKFILL=PASS')
++print('CHACHA_DEV_UNIVERSAL_MATERIALIZATION_GATE=PASS')
++print('CHACHA_DEV_ALL_FOUNDRIES_USE_BIRTH_CONTRACT=PASS')
++print('CHACHA_DEV_NO_ACTIVE_VERSION_MAJOR_COUPLING=PASS')
++print('CHACHA_DEV_LEGACY_VERSION_REFERENCE_CLASSIFICATION=PASS')
++print('CHACHA_DEV_AUTOMATIC_EXTERNAL_SPEND_EUR=0')
+diff --git a/dev-hub/tests/test_v820_version_agnostic_hygiene.py b/dev-hub/tests/test_v820_version_agnostic_hygiene.py
+new file mode 100644
+index 00000000..73c3e251
+--- /dev/null
++++ b/dev-hub/tests/test_v820_version_agnostic_hygiene.py
+@@ -0,0 +1,67 @@
++#!/usr/bin/env python3
++from __future__ import annotations
++import importlib.util,json,os,sys,tempfile
++from pathlib import Path
++
++ROOT=Path(__file__).resolve().parents[2]
++BIN=ROOT/'dev-hub/bin'
++sys.path.insert(0,str(BIN))
++
++def mod(name,path):
++    s=importlib.util.spec_from_file_location(name,path)
++    m=importlib.util.module_from_spec(s);assert s and s.loader
++    s.loader.exec_module(m);return m
++
++con=mod('con',BIN/'intendant-platform-consolidator.py')
++hyg=mod('hyg',BIN/'intendant-hygiene-cycle.py')
++state=mod('state',BIN/'release_state_reconciler.py')
++
++with tempfile.TemporaryDirectory(prefix='v820-v42-') as td:
++    td=Path(td);platform=td/'platform';releases=platform/'releases';runtime=td/'runtime'
++    releases.mkdir(parents=True);(runtime/'release-gates').mkdir(parents=True)
++    rows=[('39.0.0','a'*40),('40.0.0','b'*40),('41.0.0','c'*40),('42.0.0','d'*40)]
++    paths=[]
++    for idx,(ver,rev) in enumerate(rows):
++        p=releases/(f'r{idx}-{rev}');p.mkdir();paths.append(p)
++        (p/'.revision').write_text(rev+'\n')
++        prep={'schema':'chacha.dev/release-preparation/v1','version':ver,'revision':rev,
++              'activation_status':'STAGED_NOT_ACTIVE' if idx==3 else 'SUPERSEDED'}
++        (p/'.release-preparation.json').write_text(json.dumps(prep))
++        os.utime(p,(1000+idx,1000+idx))
++    (platform/'current').symlink_to(paths[-1],target_is_directory=True)
++
++    for idx in (1,2):
++        ver,rev=rows[idx]
++        proof={'revision':rev,'release':str(paths[idx]),'status':'PASS',
++               'direct_operator_health':'PASS','guardian_realtime':'PASS',
++               'installed_at':f'2026-01-0{idx+1}T00:00:00Z'}
++        (runtime/'release-gates'/f'v{idx}-install-pass.json').write_text(json.dumps(proof))
++
++    policy=json.load(open(ROOT/'dev-hub/config/platform-consolidation.v1.json'))
++    policy['physical_release_retention']['runtime_evidence_root']=str(runtime)
++    policy['physical_release_retention']['verification_evidence_root']=str(td/'evidence')
++    policy['physical_release_retention']['fallback_verified_rollback_revisions']=[]
++    plan=con.build_plan(platform,policy,td/'evidence')
++    assert plan['active_version']=='42.0.0',plan
++    assert plan['active_revision']=='d'*40,plan
++    assert plan['selected_rollback_revisions']==['c'*40,'b'*40],plan
++    assert plan['selected_rollback_versions']==['41.0.0','40.0.0'],plan
++    assert plan['missing_verified_rollback_count']==0,plan
++    assert plan['keep_count']==3 and plan['retire_count']==1,plan
++    assert hyg.current_version(platform)=='42.0.0'
++
++    active_proof={'revision':'d'*40,'release':str(paths[-1]),'status':'PASS',
++                  'direct_operator_health':'PASS','guardian_realtime':'PASS',
++                  'installed_at':'2026-01-04T00:00:00Z'}
++    (runtime/'release-gates'/'active-install-pass.json').write_text(json.dumps(active_proof))
++    before=state.reconcile(platform,runtime/'release-gates',False)
++    assert before['reconciliation_required'] is True and before['applied'] is False,before
++    applied=state.reconcile(platform,runtime/'release-gates',True)
++    assert applied['applied'] is True,applied
++    after=state.reconcile(platform,runtime/'release-gates',False)
++    assert after['reconciliation_required'] is False,after
++print('CHACHA_DEV_DYNAMIC_RELEASE_RETENTION=PASS')
++print('CHACHA_DEV_FUTURE_MAJOR_VERSION_FIXTURE=PASS')
++print('CHACHA_DEV_RELEASE_STATE_RECONCILIATION=PASS')
++print('CHACHA_DEV_NO_PLATFORM_MAJOR_DEPENDENCY=PASS')
++print('CHACHA_DEV_AUTOMATIC_EXTERNAL_SPEND_EUR=0')
+-- 
+2.43.0
+
