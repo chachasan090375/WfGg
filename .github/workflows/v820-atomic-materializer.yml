@@ -1,0 +1,55 @@
+name: V8.2.0 atomic materializer
+
+on:
+  push:
+    branches:
+      - upload-v820-atomic
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: upload-v820-atomic
+          fetch-depth: 0
+
+      - name: Reassemble exact local patch
+        run: |
+          set -euo pipefail
+          cat transfer/v820-patch-part-1.txt \
+              transfer/v820-patch-part-2.txt \
+              transfer/v820-patch-part-3.txt \
+              transfer/v820-patch-part-4.txt > /tmp/v820.patch.gz.b64
+          base64 -d /tmp/v820.patch.gz.b64 | gzip -d > /tmp/v820.patch
+          test "$(wc -c < /tmp/v820.patch)" -eq 196632
+
+      - name: Materialize exact V8.2.0 tree
+        run: |
+          set -euo pipefail
+          git worktree add --detach /tmp/v820-target effd2d8185f219b4443d04cfdf63cf9576c16b2c
+          cd /tmp/v820-target
+          git apply --index /tmp/v820.patch
+          TREE="$(git write-tree)"
+          echo "TREE=$TREE"
+          test "$TREE" = "6ae940a3e8319973a7ce3575f5f2455cfd5acbcd"
+          git config user.name "ChaCha DEV"
+          git config user.email "chacha-dev@local.invalid"
+          git commit -m "feat(v820): enforce universal materialization and operator constitution"
+          test "$(git rev-parse HEAD^{tree})" = "6ae940a3e8319973a7ce3575f5f2455cfd5acbcd"
+          echo "MATERIALIZED_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Publish neutral materialized ref
+        run: |
+          set -euo pipefail
+          cd /tmp/v820-target
+          git push origin HEAD:refs/heads/materialized-v820-atomic-40c54ea --force
+          echo "CHACHA_DEV_V820_ATOMIC_TREE=PASS"
+          echo "LOCAL_TREE=6ae940a3e8319973a7ce3575f5f2455cfd5acbcd"
+          echo "MATERIALIZED_SHA=$MATERIALIZED_SHA"
+          echo "AUTOMATIC_EXTERNAL_SPEND_EUR=0"
