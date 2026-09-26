@@ -1,0 +1,44 @@
+name: ChaCha DEV V8.2.2 Exact Source Publication Bootstrap
+
+on:
+  push:
+    branches:
+      - publish-v822-bootstrap
+    paths:
+      - '.github/workflows/dev-hub-v822-source-publication-bootstrap.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Materialize exact source tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=968a9bca5f6c41c96585f8c6e6550def5296c3ea
+          EXPECTED_TREE=ae566d25bb2d23402c95185240b2a44150b67cf4
+          PATCH_SHA256=e4cd93da25cea8b45c69dde6b119693d78e322e7665de5c02f0322c9355c6efc
+          test "$(git rev-parse HEAD^)" = "$BASE"
+          curl -fsSL --retry 3 https://chachavps.tail3ab05a.ts.net/v822-build-path-patch -o /tmp/v822.patch
+          echo "$PATCH_SHA256  /tmp/v822.patch" | sha256sum -c -
+          git apply --index --whitespace=error /tmp/v822.patch
+          git rm .github/workflows/dev-hub-v822-source-publication-bootstrap.yml
+          git diff --cached --check
+          TREE="$(git write-tree)"
+          test "$TREE" = "$EXPECTED_TREE"
+          git config user.name 'ChaCha DEV Source Publisher'
+          git config user.email 'chacha-dev-source-publisher@users.noreply.github.com'
+          COMMIT="$(printf '%s\n' 'feat(v822): make build path intent scoped and fail closed on provider cost' | git commit-tree "$TREE" -p "$BASE")"
+          test "$(git show -s --format=%T "$COMMIT")" = "$EXPECTED_TREE"
+          test "$(git show -s --format=%P "$COMMIT")" = "$BASE"
+          git push origin "$COMMIT":refs/heads/dev-hub-v822-build-path-capability-minimization
+          echo "CHACHA_DEV_V822_EXACT_SOURCE_PUBLICATION=PASS"
+          echo "CANDIDATE_COMMIT=$COMMIT"
+          echo "CANDIDATE_TREE=$TREE"
+          echo "AUTOMATIC_EXTERNAL_SPEND_EUR=0"
