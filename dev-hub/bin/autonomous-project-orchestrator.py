@@ -398,6 +398,42 @@ def main():
     cfg=root/"dev-hub/config";bin_dir=root/"dev-hub/bin"
     configure_guardian(root,out)
 
+    # Existing-candidate resume is a central-orchestrator decision, not an interface shortcut.
+    # A verified immutable candidate must continue its release lifecycle without rebuilding
+    # a synthetic project or invoking Domain Factories again.
+    intent_v=load(a.intent)
+    requested_project=str(intent_v.get("requested_project_id") or intent_v.get("project") or "chacha-dev-platform")
+    resume_receipt=out/"existing-candidate-resume.json"
+    if requested_project=="chacha-dev-platform":
+        rp=subprocess.run([sys.executable,str(bin_dir/"existing-candidate-resume.py"),
+                           "--text",str(intent_v.get("text") or ""),"--output",str(resume_receipt)],
+                          stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=30)
+        if resume_receipt.is_file():
+            resume_v=load(resume_receipt)
+            if resume_v.get("status")!="NOT_APPLICABLE":
+                resume_ready=resume_v.get("status")=="READY"
+                next_stage=str(resume_v.get("next_stage") or "CANDIDATE_RESUME_EVIDENCE_INVALID")
+                state={
+                  "schema":"chacha.dev/autonomous-project-bootstrap/v1",
+                  "version":"1.0.0",
+                  "project_id":"chacha-dev-platform",
+                  "architecture_decision_allowed":resume_ready,
+                  "domain_dispatch_allowed":False,
+                  "runtime_schedulable":False,
+                  "central_compromise_found":resume_ready,
+                  "existing_candidate_resume_ready":resume_ready,
+                  "existing_candidate_resume":resume_v,
+                  "existing_candidate_resume_receipt":str(resume_receipt),
+                  "domain_factories_required":False,
+                  "synthetic_project_created":False,
+                  "external_spend_eur":0,
+                  "next_stage":next_stage
+                }
+                save(out/"bootstrap-result.json",state)
+                print("CHACHA_DEV_EXISTING_CANDIDATE_RESUME="+("PASS" if resume_ready else "BLOCKED"))
+                print("NEXT_STAGE="+next_stage)
+                return
+
     contract=out/"functional-contract.json"
     run(bin_dir/"specification-compiler.py",["--intent",a.intent,"--output",contract])
 

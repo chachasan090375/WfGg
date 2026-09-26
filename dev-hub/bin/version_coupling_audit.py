@@ -12,6 +12,7 @@ STARTSWITH_MAJOR=re.compile(r'startswith\(\s*["\']'+MAJOR+r'\.')
 MAJOR_COMPARE=re.compile(r'\b(?:major|platform_major|core_platform_major)\s*(?:==|!=|<=|>=|<|>)\s*'+MAJOR+r'\b')
 PLATFORM_COMPARE=re.compile(r'\b(?:platform_version|core_platform_version)\b[^\n]{0,50}(?:==|!=|<=|>=|<|>)\s*["\']'+MAJOR+r'\.')
 PLATFORM_FIELD=re.compile(r'["\'](?:platform_version|core_platform_version)["\']\s*:\s*["\']'+MAJOR+r'\.\d+(?:\.\d+)?["\']')
+RUNTIME_BUILD_FIELD=re.compile(r'\b(?:guardian_runtime_build|runtime_build|platform_runtime_build)\s*:\s*["\']v'+MAJOR+r'\d*[-_.]')
 
 def save(path:Path,x:dict[str,Any])->None:
     path.parent.mkdir(parents=True,exist_ok=True);tmp=path.with_suffix(path.suffix+'.tmp')
@@ -25,7 +26,7 @@ def classify(rel:str,line:str)->str:
     name=Path(rel).name.casefold()
     if name.startswith('install-v') or name.startswith('run-radar-v') or 'platform-baseline.v' in name:
         return 'RELEASE_INSTALLER_ARCHIVE'
-    if STARTSWITH_MAJOR.search(line) or MAJOR_COMPARE.search(line) or PLATFORM_COMPARE.search(line):
+    if STARTSWITH_MAJOR.search(line) or MAJOR_COMPARE.search(line) or PLATFORM_COMPARE.search(line) or RUNTIME_BUILD_FIELD.search(line):
         return 'ACTIVE_RUNTIME_VERSION_COUPLING'
     if PLATFORM_FIELD.search(line):
         return 'ACTIVE_POLICY_VERSION_COUPLING'
@@ -45,7 +46,7 @@ def audit(root:Path)->dict[str,Any]:
         try:lines=p.read_text(encoding='utf-8',errors='ignore').splitlines()
         except Exception:continue
         for i,line in enumerate(lines,1):
-            if not VERSION_LITERAL.search(line) and 'v7_runtime_health_pass' not in line:continue
+            if not VERSION_LITERAL.search(line) and not RUNTIME_BUILD_FIELD.search(line) and 'v7_runtime_health_pass' not in line:continue
             rows.append({'path':rel,'line':i,'text':line.strip()[:500],'classification':classify(rel,line)})
     blocking=[r for r in rows if r['classification'] in {'ACTIVE_RUNTIME_VERSION_COUPLING','ACTIVE_POLICY_VERSION_COUPLING'}]
     counts={}

@@ -1206,7 +1206,7 @@ export default {
     const u=new URL(req.url);
     try{
     if(req.method==="GET"&&u.pathname==="/healthz")return json({
-      status:"ok",service:"chacha-dev-guardian",guardian_runtime_build:"v730-runtime-1",external_governance_plane:true,
+      status:"ok",service:"chacha-dev-guardian",guardian_runtime_contract:"chacha.dev/guardian-runtime/v1",external_governance_plane:true,
       runtime_contract_mutation_api:false,dynamic_instance_contract_registration:true,
       dynamic_component_contract_registration:true,dynamic_contract_policy_escalation_allowed:false,
       dynamic_component_policy_escalation_allowed:false,tunnel_required:false,action_lease_protocol:true,
@@ -1258,7 +1258,7 @@ export default {
         exception_name:String((err&&err.name)||"Error"),
         error_class:runtimeErrorClass(err),
         fail_closed:true,
-        guardian_runtime_build:"v730-runtime-1"
+        guardian_runtime_contract:"chacha.dev/guardian-runtime/v1"
       },503);
     }
   },

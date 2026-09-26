@@ -176,7 +176,8 @@ def orchestrate(repo_root:Path,orchestrator:Path,human_intent:dict[str,Any],out_
     refs=[str(bootstrap)+"#"+file_digest(bootstrap)]
     council=Path(str(b.get("architecture_decision_council") or ""))
     if council.is_file():refs.append(str(council)+"#"+file_digest(council))
-    allowed=b.get("architecture_decision_allowed") is True and b.get("domain_dispatch_allowed") is True
+    resume_ready=b.get("existing_candidate_resume_ready") is True
+    allowed=resume_ready or (b.get("architecture_decision_allowed") is True and b.get("domain_dispatch_allowed") is True)
     status=("CONTINUED_PLAN_READY" if continuation_of else "PLAN_READY") if allowed else "BLOCKED"
     nxt=str(b.get("next_stage") or ("AWAIT_REPLAN" if not allowed else "AWAIT_CENTRAL_CONTINUATION"))
     decision={
@@ -186,7 +187,11 @@ def orchestrate(repo_root:Path,orchestrator:Path,human_intent:dict[str,Any],out_
       "runtime_schedulable":b.get("runtime_schedulable"),
       "central_compromise_found":b.get("central_compromise_found"),
       "next_stage":b.get("next_stage"),"external_spend_eur":b.get("external_spend_eur"),
-      "bootstrap_result":str(bootstrap),"central_intent":str(central_path)
+      "bootstrap_result":str(bootstrap),"central_intent":str(central_path),
+      "existing_candidate_resume_ready":resume_ready,
+      "existing_candidate_resume":b.get("existing_candidate_resume"),
+      "domain_factories_required":b.get("domain_factories_required"),
+      "synthetic_project_created":b.get("synthetic_project_created")
     }
     if continuation_of:
         decision["continuation_of_request_id"]=continuation_of
@@ -363,6 +368,31 @@ def handle_continue(a)->dict[str,Any]:
     brain=prior.get("brain_receipt") or {}
     brain_decision=(brain.get("decision") or {}) if isinstance(brain,dict) else {}
     prior_next=str(brain.get("next_action") or prior.get("next_action") or brain_decision.get("next_stage") or "")
+
+    # Verified existing candidates continue their release lifecycle directly.
+    # Never manufacture a new domain graph merely to publish/qualify an immutable candidate.
+    if project=="chacha-dev-platform" and prior_next=="EXISTING_CANDIDATE_RELEASE":
+        resume=brain_decision.get("existing_candidate_resume") if isinstance(brain_decision.get("existing_candidate_resume"),dict) else {}
+        refs=list(prior.get("evidence_refs") or [])
+        if resume.get("status")!="READY":
+            return make_receipt("CONTINUE",project,"BRAIN_RECEIPT_INVALID","AWAIT_NEW_INSTRUCTION",refs,
+                                {"reason":"EXISTING_CANDIDATE_RESUME_RECEIPT_INVALID","existing_candidate_resume":resume})
+        receipt=make_receipt("CONTINUE",project,"BLOCKED","CANDIDATE_PUBLICATION_REQUIRED",refs,{
+          "existing_candidate_resume":resume,
+          "continuation_mode":"EXISTING_CANDIDATE_RELEASE",
+          "domain_factories_called":False,
+          "synthetic_project_created":False,
+          "required_transport":"GIT_REPOSITORY_PUBLICATION",
+          "candidate_revision":resume.get("candidate_revision"),
+          "candidate_tree":resume.get("candidate_tree"),
+          "candidate_branch":resume.get("branch"),
+          "guardian_preserved":True,
+          "sentinel_preserved":True,
+          "human_production_approval_preserved":True,
+          "automatic_external_spend_eur":0
+        })
+        receipt["continuation_of_request_id"]=prior.get("request_id")
+        return receipt
 
     # V8.0.18: DOMAIN_FACTORIES is an executable platform handoff, not a reason
     # to replay the whole central bootstrap. Materialize the already-approved

@@ -144,6 +144,19 @@
         "release-qualification"
       ],
       "backfill_required": false
+    },
+    {
+      "directive_id": "opdir-resume-existing-candidate",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "ARCHITECTURE",
+      "status": "ACTIVE",
+      "normalized_requirement": "When the operator supplies a verified immutable existing candidate and requests resume, publish or qualify without reconstruction, validate worktree, revision, tree and lineage and continue the candidate lifecycle without creating a synthetic project or Domain Factory graph.",
+      "required_sinks": [
+        "existing-candidate-resume",
+        "direct-operator",
+        "release-qualification"
+      ],
+      "backfill_required": false
     }
   ],
   "runtime": {

@@ -63,5 +63,9 @@ with tempfile.TemporaryDirectory(prefix='v820-v42-') as td:
 print('CHACHA_DEV_DYNAMIC_RELEASE_RETENTION=PASS')
 print('CHACHA_DEV_FUTURE_MAJOR_VERSION_FIXTURE=PASS')
 print('CHACHA_DEV_RELEASE_STATE_RECONCILIATION=PASS')
+worker=(ROOT/'dev-hub/guardian/worker.js').read_text()
+assert 'guardian_runtime_build:"v730-runtime-1"' not in worker,worker
+assert 'guardian_runtime_contract:"chacha.dev/guardian-runtime/v1"' in worker,worker
+print('CHACHA_DEV_GUARDIAN_RUNTIME_CONTRACT_VERSION_AGNOSTIC=PASS')
 print('CHACHA_DEV_NO_PLATFORM_MAJOR_DEPENDENCY=PASS')
 print('CHACHA_DEV_AUTOMATIC_EXTERNAL_SPEND_EUR=0')
