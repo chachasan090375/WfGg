@@ -1,0 +1,194 @@
+name: ChaCha DEV Guardian production deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: Exact qualified revision to deploy
+        required: true
+        type: string
+      confirm_production:
+        description: Explicit human production approval
+        required: true
+        default: false
+        type: boolean
+  push:
+    branches:
+      - 'production-guardian-deploy-*'
+    paths:
+      - '.chacha-approvals/guardian-worker/*.json'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Resolve explicit production approval
+        id: approval
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            test "${{ inputs.confirm_production }}" = "true"
+            REV='${{ inputs.revision }}'
+          else
+            BEFORE='${{ github.event.before }}'
+            FILE="$(git diff --name-only "$BEFORE" "$GITHUB_SHA" -- '.chacha-approvals/guardian-worker/*.json' | tail -1)"
+            test -n "$FILE"
+            REV="$(python3 - "$FILE" <<'PY2'
+          import json,re,sys
+          x=json.load(open(sys.argv[1],encoding='utf-8'))
+          assert x.get('schema')=='chacha.dev/production-approval/v1',x
+          assert x.get('scope')=='guardian-worker-production',x
+          assert x.get('approved') is True,x
+          assert x.get('approved_by')=='operator',x
+          r=str(x.get('revision') or '')
+          assert re.fullmatch(r'[0-9a-f]{40}',r),x
+          print(r)
+          PY2
+            )"
+          fi
+          echo "revision=$REV" >> "$GITHUB_OUTPUT"
+          echo CHACHA_DEV_GUARDIAN_EXPLICIT_PRODUCTION_APPROVAL=PASS
+
+      - name: Checkout exact approved revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          REV='${{ steps.approval.outputs.revision }}'
+          git fetch --depth=1 origin "$REV"
+          git checkout --detach "$REV"
+          test "$(git rev-parse HEAD)" = "$REV"
+          node --check dev-hub/guardian/worker.js
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v820_guardian_terminal_hold.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/bin/version_coupling_audit.py --repo-root . --output /tmp/version-coupling.json --strict
+          grep -Fq 'guardian_runtime_contract:"chacha.dev/guardian-runtime/v1"' dev-hub/guardian/worker.js
+          echo CHACHA_DEV_GUARDIAN_EXACT_APPROVED_REVISION=PASS
+
+      - name: Require exact-revision Sentinel attestation
+        env:
+          REVISION: ${{ steps.approval.outputs.revision }}
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY2'
+          import json,os,urllib.parse,urllib.request,urllib.error
+          token=os.environ.get('CF_API_TOKEN','').strip(); aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          if not token: raise SystemExit('MISSING_SECRET=CLOUDFLARE_API_TOKEN')
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url,method='GET',body=None):
+              data=None if body is None else json.dumps(body).encode()
+              req=urllib.request.Request(url,headers=headers,method=method,data=data)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode('utf-8','replace')
+                  try:p=json.loads(raw)
+                  except Exception:p={'raw':raw[:1000]}
+                  return e.code,p
+          if not aid:
+              st,p=call('https://api.cloudflare.com/client/v4/accounts?per_page=50')
+              rows=(p.get('result') or []) if st==200 else []
+              if len(rows)!=1: raise SystemExit('CLOUDFLARE_ACCOUNT_RESOLUTION_FAILED')
+              aid=rows[0]['id']
+          st,p=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-sentinel'))
+          db=next((x for x in (p.get('result') or []) if x.get('name')=='chacha-dev-sentinel'),None)
+          if st!=200 or not db: raise SystemExit('SENTINEL_D1_MISSING')
+          sql="""SELECT repository,revision,workflow_name,conclusion FROM technical_workflow_attestations
+          WHERE repository=?1 AND revision=?2 AND workflow_name=?3 AND conclusion='PASS' LIMIT 1"""
+          url=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{db['uuid']}/query"
+          st,p=call(url,'POST',{'sql':sql,'params':[os.environ['GITHUB_REPOSITORY'],os.environ['REVISION'],'ChaCha DEV Sentinel technical assurance']})
+          rows=[]
+          for block in p.get('result') or []: rows.extend(block.get('results') or [])
+          if st!=200 or not p.get('success') or len(rows)!=1: raise SystemExit('SENTINEL_EXACT_HEAD_ATTESTATION_MISSING')
+          print('CHACHA_DEV_GUARDIAN_SENTINEL_EXACT_HEAD_GATE=PASS')
+          PY2
+
+      - name: Resolve Guardian target
+        id: cf
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY2'
+          import json,os,urllib.parse,urllib.request
+          token=os.environ['CF_API_TOKEN']; aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          headers={'Authorization':'Bearer '+token}
+          def call(url):
+              req=urllib.request.Request(url,headers=headers)
+              with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+          if not aid:
+              st,p=call('https://api.cloudflare.com/client/v4/accounts?per_page=50'); rows=p.get('result') or []
+              if len(rows)!=1: raise SystemExit('CLOUDFLARE_ACCOUNT_RESOLUTION_FAILED')
+              aid=rows[0]['id']
+          st,p=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-guardian'))
+          db=next((x for x in (p.get('result') or []) if x.get('name')=='chacha-dev-guardian'),None)
+          if not db: raise SystemExit('GUARDIAN_D1_MISSING')
+          st,p=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/workers/subdomain')
+          sub=(p.get('result') or {}).get('subdomain')
+          if not sub: raise SystemExit('WORKERS_SUBDOMAIN_MISSING')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('account_id='+aid+'\n');f.write('database_id='+db['uuid']+'\n');f.write('workers_subdomain='+sub+'\n')
+          print('CHACHA_DEV_GUARDIAN_TARGET=PASS')
+          PY2
+
+      - name: Prepare generic Wrangler contract
+        run: |
+          cat > .wrangler-guardian-production.jsonc <<EOF
+          {
+            "name": "chacha-dev-guardian",
+            "main": "dev-hub/guardian/worker.js",
+            "compatibility_date": "2026-09-24",
+            "workers_dev": true,
+            "triggers": {"crons": ["* * * * *"]},
+            "d1_databases": [{
+              "binding": "DB",
+              "database_name": "chacha-dev-guardian",
+              "database_id": "${{ steps.cf.outputs.database_id }}"
+            }]
+          }
+          EOF
+
+      - name: Deploy with automatic rollback and capability healthcheck
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+          SUBDOMAIN: ${{ steps.cf.outputs.workers_subdomain }}
+        run: |
+          set -euo pipefail
+          DEPLOYED=0
+          rollback() {
+            if [[ "$DEPLOYED" = 1 ]]; then
+              npx --yes wrangler@4.45.0 rollback --config=.wrangler-guardian-production.jsonc --message 'ChaCha DEV Guardian automatic rollback after failed capability healthcheck' || true
+              echo CHACHA_DEV_GUARDIAN_AUTOMATIC_ROLLBACK=PASS
+            fi
+          }
+          trap rollback ERR
+          npx --yes wrangler@4.45.0 deployments list --config=.wrangler-guardian-production.jsonc --json > /tmp/guardian-deployments-before.json || true
+          npx --yes wrangler@4.45.0 deploy --config=.wrangler-guardian-production.jsonc
+          DEPLOYED=1
+          URL="https://chacha-dev-guardian.$SUBDOMAIN.workers.dev"
+          ok=0
+          for i in $(seq 1 30); do
+            if curl -fsS "$URL/healthz" -o /tmp/guardian-health.json &&
+               grep -Fq '"external_governance_plane":true' /tmp/guardian-health.json &&
+               grep -Fq '"coverage_watch":true' /tmp/guardian-health.json &&
+               grep -Fq '"guardian_runtime_contract":"chacha.dev/guardian-runtime/v1"' /tmp/guardian-health.json; then
+              ok=1; break
+            fi
+            sleep 2
+          done
+          test "$ok" = 1
+          trap - ERR
+          echo CHACHA_DEV_GUARDIAN_PRODUCTION_DEPLOY=PASS
+          echo CHACHA_DEV_GUARDIAN_CAPABILITY_HEALTH=PASS
+          echo CHACHA_DEV_AUTOMATIC_EXTERNAL_SPEND_EUR=0
