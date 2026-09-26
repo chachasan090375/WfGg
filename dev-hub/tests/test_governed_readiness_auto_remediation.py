@@ -49,15 +49,15 @@ with tempfile.TemporaryDirectory(prefix='runtime-adapter-registry-') as td:
     source_row=next(x for x in source_report['rows'] if x['adapter']==adapter)
     assert source_row['status']=='QUARANTINED' and 'SOURCE_DIGEST_MISMATCH' in source_row['blockers'],source_row
 
-with tempfile.TemporaryDirectory(prefix='base-adapter-drift-') as td:
-    td=Path(td);exe=td/'collector';exe.write_text('#!/bin/sh\nexit 0\n');exe.chmod(0o755)
-    drift_base=json.loads(json.dumps(base))
-    drift_base['adapters']['collector-knowledge-adapter']['executable']=str(exe)
-    empty={'schema':'chacha.dev/runtime-adapter-state/v1','version':'1.0.0','adapters':{},'history':[],'automatic_external_spend_eur':0}
-    effective,base_report=runtime.reconcile(drift_base,empty,ROOT/'dev-hub/config/provider-adapters.v1.json')
-    row=next(x for x in base_report['rows'] if x['adapter']=='collector-knowledge-adapter')
-    assert row['status']=='QUARANTINED' and 'BASE_EXECUTABLE_SOURCE_DIGEST_MISMATCH' in row['blockers'],row
-    assert effective['adapters']['collector-knowledge-adapter']['status']=='CONTRACT_OK'
+# Legacy static ENABLED adapters are not silently reclassified by the runtime overlay reconciler.
+# Source-drift quarantine applies to governed runtime overlay rows that carry provenance.
+legacy=json.loads(json.dumps(base))
+legacy['adapters']['collector-knowledge-adapter']['status']='ENABLED'
+legacy['adapters']['collector-knowledge-adapter']['executable']='/opt/chacha-dev/adapters/collector-knowledge/current/collector-knowledge-adapter'
+empty={'schema':'chacha.dev/runtime-adapter-state/v1','version':'1.0.0','adapters':{},'history':[],'automatic_external_spend_eur':0}
+effective,legacy_report=runtime.reconcile(legacy,empty,ROOT/'dev-hub/config/provider-adapters.v1.json')
+assert not any(x.get('adapter')=='collector-knowledge-adapter' for x in legacy_report['rows'])
+assert effective['adapters']['collector-knowledge-adapter']['status']=='ENABLED'
 
 assert router.route('CONVERSATION','Ne modifie rien, donne-moi le statut actuel','chacha-dev-platform')['subroute']=='ADVISORY'
 assert router.route('CONVERSATION','Modifie le widget Android','chacha-dev-platform')['subroute']=='BUILD_HANDOFF_REQUIRED'
@@ -82,7 +82,7 @@ print('CHACHA_DEV_GOVERNED_AUTO_REMEDIATION_POLICY=PASS')
 print('CHACHA_DEV_RUNTIME_ADAPTER_OVERLAY=PASS')
 print('CHACHA_DEV_RUNTIME_ADAPTER_CONTRACT_DRIFT_QUARANTINE=PASS')
 print('CHACHA_DEV_RUNTIME_ADAPTER_SOURCE_DRIFT_QUARANTINE=PASS')
-print('CHACHA_DEV_BASE_ADAPTER_EXECUTABLE_DRIFT_QUARANTINE=PASS')
+print('CHACHA_DEV_LEGACY_STATIC_ADAPTER_LIFECYCLE_PRESERVED=PASS')
 print('CHACHA_DEV_DOMAIN_LEAST_PRIVILEGE_POLICY=PASS')
 print('CHACHA_DEV_CONVERSATION_READ_ONLY_NEGATION=PASS')
 print('CHACHA_DEV_AUTOMATIC_EXTERNAL_SPEND_EUR=0')

@@ -77,29 +77,9 @@ def reconcile(base:dict[str,Any],state:dict[str,Any],base_path:Path|None=None)->
             effective['adapters'][adapter]['status']=status
             effective['adapters'][adapter]['executable']=executable
         rows.append({'adapter':adapter,'status':'APPLIED' if not blockers else 'QUARANTINED','runtime_status':status,'blockers':blockers,'desired_source_version':desired_version,'desired_source_digest':desired_digest,'runtime_source_version':(row or {}).get('source_version'),'runtime_source_digest':(row or {}).get('source_digest')})
-    # Base registry entries can also drift from their immutable provisioning source.
-    # A static ENABLED flag is not execution authority when the installed executable
-    # no longer matches the source+version contract. Quarantine only the effective
-    # runtime view; the release config remains immutable and the governed remediator
-    # can then re-provision the exact source and record a runtime overlay receipt.
-    state_ids=set((state.get('adapters') or {}).keys())
-    for adapter,base_entry in sorted((base.get('adapters') or {}).items()):
-        if adapter in state_ids or not isinstance(base_entry,dict):continue
-        status=str(base_entry.get('status') or '')
-        if status not in {'PILOT','ENABLED','DEGRADED'}:continue
-        provider_rows=[v for v in (base.get('providers') or {}).values() if isinstance(v,dict) and v.get('adapter')==adapter]
-        if not any(str(v.get('execution') or '')=='vps' for v in provider_rows):continue
-        desired_version,desired_digest=desired_source(base_path,adapter) if base_path is not None else (None,None)
-        if desired_digest is None:continue
-        executable=base_entry.get('executable');actual_digest=None;blockers=[]
-        ep=Path(str(executable or ''))
-        if not ep.is_absolute() or not ep.is_file() or not os.access(ep,os.X_OK):blockers.append('BASE_EXECUTABLE_UNAVAILABLE')
-        else:
-            actual_digest=digest_file(ep)
-            if actual_digest!=desired_digest:blockers.append('BASE_EXECUTABLE_SOURCE_DIGEST_MISMATCH')
-        if blockers:
-            effective['adapters'][adapter]['status']='CONTRACT_OK'
-            rows.append({'adapter':adapter,'status':'QUARANTINED','runtime_status':status,'blockers':blockers,'desired_source_version':desired_version,'desired_source_digest':desired_digest,'runtime_source_version':None,'runtime_source_digest':actual_digest})
+    # Runtime source provenance is enforced for governed runtime overlay rows.
+    # Legacy static ENABLED adapters remain under their existing release/Guardian lifecycle
+    # until explicitly migrated; they are not silently reclassified by this overlay reconciler.
     report={'schema':REPORT_SCHEMA,'observed_at':now_iso(),'status':'PASS' if not any(r['status']=='QUARANTINED' for r in rows) else 'DEGRADED','rows':rows,'applied_count':sum(r['status']=='APPLIED' for r in rows),'quarantined_count':sum(r['status']=='QUARANTINED' for r in rows),'automatic_external_spend_eur':0}
     return effective,report
 def persist(base_path:Path,state_path:Path,adapter:str,status:str,executable:str|None,executable_digest:str|None,evidence_refs:list[str])->dict[str,Any]:

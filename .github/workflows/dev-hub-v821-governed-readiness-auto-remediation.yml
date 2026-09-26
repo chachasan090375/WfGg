@@ -51,7 +51,7 @@ jobs:
           python3 dev-hub/tests/test_v824_collector_knowledge_adapter_version.py | tee /tmp/v824.out
           python3 dev-hub/tests/test_v827_collector_port_isolation.py | tee /tmp/v827.out
           grep -Fq 'CHACHA_DEV_GOVERNED_AUTO_REMEDIATION_POLICY=PASS' /tmp/v821-governed.out
-          grep -Fq 'CHACHA_DEV_BASE_ADAPTER_EXECUTABLE_DRIFT_QUARANTINE=PASS' /tmp/v821-governed.out
+          grep -Fq 'CHACHA_DEV_LEGACY_STATIC_ADAPTER_LIFECYCLE_PRESERVED=PASS' /tmp/v821-governed.out
           grep -Fq 'CHACHA_DEV_V824_COLLECTOR_ADAPTER_VERSION_102=PASS' /tmp/v824.out
           grep -Fq 'CHACHA_DEV_V827_COLLECTOR_PORT_8793=PASS' /tmp/v827.out
       - name: Execution and platform regressions
