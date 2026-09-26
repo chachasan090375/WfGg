@@ -15,6 +15,10 @@ BRANCH_TOPOLOGY_SCHEMA="chacha.dev/branch-topology/v1"
 
 QUESTION_HINTS=("?","qu'est-ce","comment ","pourquoi ","où ","quel ","quelle ","peux-tu m'expliquer","explique")
 CHANGE_HINTS=("crée","cree","ajoute","modifie","corrige","déploie","deploy","implémente","implemente","construis","installe","migration","remplace")
+NEGATION_WORDS={"sans","without","no","not","aucun","aucune","jamais","hors"}
+AMBIGUOUS_KEYWORD_CONTEXT={
+    "locale":{"traduction","translate","translation","localisation","localization","langue","i18n","l10n","localiser","localize","locale-fr","locale-en","locale-es","locale-it"}
+}
 
 def load(path: Path) -> dict[str,Any]:
     value=json.loads(path.read_text(encoding="utf-8"))
@@ -30,9 +34,23 @@ def lexical_form(text:str)->str:
     return " ".join(cleaned.split())
 
 def keyword_matches(text:str,keyword:str)->bool:
-    hay=" "+lexical_form(text)+" "
-    needle=lexical_form(keyword)
-    return bool(needle) and (" "+needle+" ") in hay
+    tokens=lexical_form(text).split();needle=lexical_form(keyword).split()
+    if not needle:return False
+    n=len(needle)
+    for i in range(0,len(tokens)-n+1):
+        if tokens[i:i+n]!=needle:continue
+        before=tokens[max(0,i-4):i]
+        # A negative constraint must never activate the domain it explicitly forbids.
+        if any(x in NEGATION_WORDS for x in before):continue
+        if "ne" in before and "pas" in before:continue
+        ctx=AMBIGUOUS_KEYWORD_CONTEXT.get(" ".join(needle))
+        if ctx is not None:
+            window=set(tokens[max(0,i-5):min(len(tokens),i+n+6)])
+            next_token=tokens[i+n] if i+n<len(tokens) else ""
+            language_locale=bool(re.fullmatch(r"(?:fr|en|es|it)(?:-[a-z]{2})?",next_token))
+            if not (window & ctx) and not language_locale:continue
+        return True
+    return False
 
 def canonical_digest(value: Any) -> str:
     raw=json.dumps(value,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
@@ -76,6 +94,21 @@ def expand_reviews(primary: list[str],cfg: dict[str,Any]) -> list[str]:
                 reviews.append(r)
     return reviews
 
+def routed_capabilities(text:str,spec:dict[str,Any],kind:str)->list[str]:
+    declared=[str(x) for x in (spec.get("capabilities") or [])]
+    policy=spec.get("capability_routing") if isinstance(spec.get("capability_routing"),dict) else None
+    if policy is None:return declared
+    selected=[]
+    base=policy.get("review_default") if kind=="review" else policy.get("default")
+    for cap in base or []:
+        if cap in declared and cap not in selected:selected.append(cap)
+    for cap,keywords in (policy.get("triggers") or {}).items():
+        if cap not in declared:continue
+        if any(keyword_matches(text,str(k)) for k in (keywords or [])) and cap not in selected:selected.append(cap)
+    for cap in policy.get("always") or []:
+        if cap in declared and cap not in selected:selected.append(cap)
+    return [cap for cap in declared if cap in selected]
+
 def work_packages(primary: list[str],reviews: list[str],cfg: dict[str,Any],text: str) -> list[dict[str,Any]]:
     domains=cfg.get("domains") or {}
     out=[]
@@ -87,7 +120,7 @@ def work_packages(primary: list[str],reviews: list[str],cfg: dict[str,Any],text:
             "kind":"primary",
             "orchestrator":spec.get("orchestrator"),
             "roles":spec.get("roles") or [],
-            "capabilities":spec.get("capabilities") or [],
+            "capabilities":routed_capabilities(text,spec,"primary"),
             "toolchain":spec.get("toolchain") or [],
             "intent_excerpt":text[:1000],
         })
@@ -99,7 +132,7 @@ def work_packages(primary: list[str],reviews: list[str],cfg: dict[str,Any],text:
             "kind":"review",
             "orchestrator":spec.get("orchestrator"),
             "roles":spec.get("roles") or [],
-            "capabilities":spec.get("capabilities") or [],
+            "capabilities":routed_capabilities(text,spec,"review"),
             "toolchain":spec.get("toolchain") or [],
         })
     return out
@@ -243,6 +276,7 @@ def apply_branch_topology(plan:dict[str,Any],branch_topology:dict[str,Any]) -> d
             x["component_strategy"]=b.get("component_strategy")
             x["resource_budget"]=b.get("resource_budget")
             x["branch_cost"]=b.get("chosen_cost")
+            x["workspace"]=b.get("workspace")
             x["collector_bindings"]=b.get("collector_bindings")
         packages.append(x)
     out=dict(plan)

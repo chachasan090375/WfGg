@@ -290,6 +290,8 @@ def prepare_envelope(
     metadata = dict(source_task.get("metadata") or {})
     metadata.update(scheduled.get("metadata") or {})
     metadata.update({"prepared_at": now_iso(), "controller": "run-controller-v1.2"})
+    if workspace is None and metadata.get("branch_workspace"):
+        workspace=str(metadata.get("branch_workspace"))
     learning_context = build_trusted_learning_context(run_id, source_task, bindings)
     return {
         "schema": ENVELOPE_SCHEMA,
@@ -333,10 +335,41 @@ def prepare_envelope(
     }
 
 
+def workspace_blockers(envelope:dict[str,Any],policy:dict[str,Any])->list[str]:
+    task=envelope.get("task") if isinstance(envelope.get("task"),dict) else {}
+    permission=str(task.get("permission") or "read")
+    write_permissions=set(((policy.get("locking") or {}).get("write_permissions") or []))
+    if permission not in write_permissions:return []
+    raw=str(envelope.get("workspace") or "").strip()
+    if not raw:return ["WORKSPACE_REQUIRED_FOR_WRITE"]
+    p=Path(raw)
+    if not p.is_absolute():return ["WORKSPACE_MUST_BE_ABSOLUTE"]
+    cfg=policy.get("workspace") if isinstance(policy.get("workspace"),dict) else {}
+    root=Path(str(cfg.get("root") or "/opt/chacha-dev/runtime/projects")).resolve()
+    try:resolved=p.resolve(strict=False);resolved.relative_to(root)
+    except Exception:return ["WORKSPACE_OUTSIDE_GOVERNED_ROOT"]
+    project=str(envelope.get("project") or "")
+    if cfg.get("must_match_project",True) and project and project not in resolved.parts:
+        return ["WORKSPACE_PROJECT_MISMATCH"]
+    return []
+
+def ensure_workspace(envelope:dict[str,Any],policy:dict[str,Any])->None:
+    blockers=workspace_blockers(envelope,policy)
+    if blockers:raise RuntimeError(blockers[0])
+    task=envelope.get("task") if isinstance(envelope.get("task"),dict) else {}
+    permission=str(task.get("permission") or "read")
+    write_permissions=set(((policy.get("locking") or {}).get("write_permissions") or []))
+    if permission not in write_permissions:return
+    cfg=policy.get("workspace") if isinstance(policy.get("workspace"),dict) else {}
+    p=Path(str(envelope.get("workspace"))).resolve(strict=False)
+    if cfg.get("create_if_missing",True):p.mkdir(parents=True,exist_ok=True)
+
+
 def task_blockers(
     envelope: dict[str, Any], ledger: dict[str, Any], policy: dict[str, Any], binding_errors: list[str]
 ) -> list[str]:
     blockers = list(binding_errors)
+    blockers.extend(workspace_blockers(envelope,policy))
     context = envelope.get("policy_context") or {}
     if context.get("human_approval_required"):
         approval_id = context.get("approval_id")
@@ -839,6 +872,7 @@ def main() -> None:
             try:
                 if permission in write_permissions:
                     lock_path, lock_fd = acquire_lock(str(plan.get("project")), policy)
+                    ensure_workspace(envelope,policy)
                 task_rec["status"] = "DISPATCHED"
                 task_rec["started_at"] = now_iso()
                 record["summary"]["dispatched"] += 1

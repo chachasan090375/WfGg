@@ -89,12 +89,53 @@
         "service",
         "component",
         "bug",
-        "refactor"
+        "refactor",
+        "bouton",
+        "button",
+        "widget",
+        "android",
+        "application",
+        "app",
+        "page web",
+        "écran",
+        "screen"
       ],
       "reviews": [
         "qa",
         "cybersecurity"
-      ]
+      ],
+      "capability_routing": {
+        "default": [
+          "code-edit"
+        ],
+        "review_default": [
+          "code-edit",
+          "api-contract-review",
+          "integration-design"
+        ],
+        "triggers": {
+          "library-docs": [
+            "library",
+            "bibliothèque",
+            "sdk",
+            "documentation externe",
+            "api docs"
+          ],
+          "api-contract-review": [
+            "api",
+            "endpoint",
+            "contrat api",
+            "api contract"
+          ],
+          "integration-design": [
+            "integration",
+            "intégration",
+            "connecteur",
+            "connector",
+            "webhook"
+          ]
+        }
+      }
     },
     "data-backend": {
       "orchestrator": "domain-data-orchestrator",
@@ -152,7 +193,30 @@
         "markdownlint",
         "git"
       ],
-      "reviews": []
+      "reviews": [],
+      "capability_routing": {
+        "default": [
+          "documentation",
+          "architecture-documentation"
+        ],
+        "review_default": [
+          "architecture-documentation"
+        ],
+        "triggers": {
+          "adr-management": [
+            "adr"
+          ],
+          "runbook-maintenance": [
+            "runbook"
+          ],
+          "library-docs": [
+            "library",
+            "bibliothèque",
+            "sdk",
+            "documentation externe"
+          ]
+        }
+      }
     },
     "ui-layout": {
       "orchestrator": "domain-ui-layout-orchestrator",
@@ -175,7 +239,15 @@
         "accessibilité",
         "component",
         "storybook",
-        "design system"
+        "design system",
+        "bouton",
+        "button",
+        "widget",
+        "interface",
+        "écran",
+        "screen",
+        "page web",
+        "android"
       ],
       "toolchain": [
         "playwright",
@@ -187,7 +259,52 @@
       "reviews": [
         "development",
         "qa"
-      ]
+      ],
+      "capability_routing": {
+        "default": [
+          "accessibility-review",
+          "frontend-performance",
+          "ui-layout-review"
+        ],
+        "review_default": [
+          "accessibility-review"
+        ],
+        "triggers": {
+          "browser-automation": [
+            "playwright",
+            "browser automation",
+            "automatisation navigateur",
+            "e2e navigateur"
+          ],
+          "browser-diagnostics": [
+            "devtools",
+            "diagnostic navigateur",
+            "browser diagnostic"
+          ],
+          "ui-layout-review": [
+            "ui",
+            "ux",
+            "layout",
+            "mise en page",
+            "responsive",
+            "interface",
+            "widget",
+            "écran",
+            "screen",
+            "bouton",
+            "button"
+          ],
+          "accessibility-review": [
+            "accessibilité",
+            "accessibility",
+            "a11y"
+          ],
+          "frontend-performance": [
+            "performance frontend",
+            "web performance"
+          ]
+        }
+      }
     },
     "graphics": {
       "orchestrator": "domain-graphics-orchestrator",
@@ -289,7 +406,33 @@
       "reviews": [
         "development",
         "platform-release"
-      ]
+      ],
+      "capability_routing": {
+        "default": [
+          "threat-model",
+          "secrets-review",
+          "dependency-review"
+        ],
+        "review_default": [
+          "threat-model",
+          "secrets-review",
+          "dependency-review"
+        ],
+        "triggers": {
+          "security-scan-js": [
+            "scan",
+            "npm audit",
+            "vulnerability",
+            "vulnérabilité",
+            "cve"
+          ],
+          "digital-signature-verification": [
+            "signature",
+            "ed25519",
+            "openssl"
+          ]
+        }
+      }
     },
     "qa": {
       "orchestrator": "domain-qa-orchestrator",
@@ -320,7 +463,45 @@
         "playwright",
         "lighthouse"
       ],
-      "reviews": []
+      "reviews": [],
+      "capability_routing": {
+        "default": [
+          "test-strategy"
+        ],
+        "review_default": [
+          "test-strategy"
+        ],
+        "triggers": {
+          "unit-test-js": [
+            "unit",
+            "unitaire",
+            "vitest",
+            "node-test"
+          ],
+          "e2e-test-web": [
+            "e2e",
+            "end to end",
+            "playwright"
+          ],
+          "smoke-test-web": [
+            "smoke",
+            "smoke test"
+          ],
+          "performance-test-web": [
+            "performance",
+            "benchmark",
+            "lighthouse"
+          ],
+          "test-strategy": [
+            "test",
+            "teste",
+            "tester",
+            "qa",
+            "regression",
+            "régression"
+          ]
+        }
+      }
     },
     "platform-release": {
       "orchestrator": "domain-platform-release-orchestrator",
@@ -348,12 +529,68 @@
         "systemd",
         "release",
         "rollback",
-        "monitoring"
+        "monitoring",
+        "déploie",
+        "déployer",
+        "déploiement",
+        "preview",
+        "mise en production"
       ],
       "reviews": [
         "qa",
         "cybersecurity"
-      ]
+      ],
+      "capability_routing": {
+        "default": [
+          "health-checks"
+        ],
+        "review_default": [
+          "health-checks"
+        ],
+        "triggers": {
+          "ci": [
+            "ci",
+            "github actions",
+            "pipeline"
+          ],
+          "cloud-deploy-edge": [
+            "deploy",
+            "déploie",
+            "déployer",
+            "déploiement",
+            "cloudflare",
+            "preview",
+            "production"
+          ],
+          "storage-governance": [
+            "storage",
+            "stockage",
+            "disk",
+            "disque"
+          ],
+          "health-checks": [
+            "health",
+            "santé",
+            "monitoring",
+            "runtime"
+          ],
+          "logging": [
+            "log",
+            "logging",
+            "journal"
+          ],
+          "metrics": [
+            "metric",
+            "métrique",
+            "metrics"
+          ],
+          "alerts": [
+            "alert",
+            "alerte",
+            "alerts"
+          ]
+        }
+      }
     },
     "recovery": {
       "orchestrator": "domain-recovery-orchestrator",
@@ -441,6 +678,8 @@
         "style conversationnel",
         "style applicatif",
         "localiser",
+        "i18n",
+        "l10n",
         "locale"
       ],
       "toolchain": [
@@ -614,6 +853,25 @@
       "reviews": [
         "translation"
       ]
+    },
+    "platform-selftest": {
+      "orchestrator": "domain-platform-selftest-orchestrator",
+      "roles": [
+        "sre-observability-engineer"
+      ],
+      "capabilities": [
+        "platform-selftest"
+      ],
+      "keywords": [
+        "preuve build",
+        "build selftest",
+        "selftest build",
+        "test build local",
+        "preuve plateforme",
+        "revision-proof",
+        "révision plateforme"
+      ],
+      "reviews": []
     }
   },
   "dependencies": {

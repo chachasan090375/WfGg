@@ -29,16 +29,6 @@
           "health": "runtime-check",
           "cost_class": "quota",
           "scope": "workspace",
-          "fallback": [
-            "skywork"
-          ]
-        },
-        {
-          "id": "skywork",
-          "status": "ADOPT",
-          "health": "runtime-check",
-          "cost_class": "local",
-          "scope": "workspace",
           "fallback": []
         }
       ]
@@ -980,6 +970,14 @@
           "cost_class": "free",
           "scope": "test-preview-readonly",
           "fallback": []
+        },
+        {
+          "id": "chacha-dev-architect",
+          "status": "ADOPT",
+          "health": "platform-health",
+          "cost_class": "local",
+          "scope": "technical-design",
+          "fallback": []
         }
       ]
     },
@@ -1455,6 +1453,19 @@
           "fallback": [
             "chacha-dev-architect"
           ]
+        }
+      ]
+    },
+    "platform-selftest": {
+      "class": "verification",
+      "providers": [
+        {
+          "id": "platform-selftest-runtime",
+          "status": "ADOPT",
+          "health": "platform-health",
+          "cost_class": "local",
+          "scope": "platform-readonly",
+          "fallback": []
         }
       ]
     }

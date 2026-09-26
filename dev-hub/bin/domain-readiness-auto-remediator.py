@@ -30,6 +30,29 @@ def run(argv:list[str],cwd:Path,timeout:int=90)->subprocess.CompletedProcess[str
     return subprocess.run(argv,cwd=str(cwd),stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,shell=False,timeout=timeout)
 def evidence(status:str,source:str,details:dict[str,Any])->dict[str,Any]:return {'status':status,'source':source,'observed_at':now_iso(),'details':details}
 
+ATTEST_SCHEMA='chacha.dev/provider-zero-cost-attestation/v1'
+
+def economics_blockers(profile:dict[str,Any],provider:str)->list[str]:
+    if profile.get('zero_cost_attestation_required') is not True:return []
+    raw=str(profile.get('zero_cost_attestation') or '').strip()
+    if not raw:return ['ZERO_COST_ATTESTATION_PATH_MISSING']
+    path=Path(raw)
+    if not path.is_file():return ['ZERO_COST_ATTESTATION_MISSING']
+    try:x=load(path)
+    except Exception:return ['ZERO_COST_ATTESTATION_INVALID']
+    if x.get('schema')!=ATTEST_SCHEMA or x.get('provider_id')!=provider or x.get('status')!='PASS':return ['ZERO_COST_ATTESTATION_INVALID']
+    try:spend=float(x.get('automatic_external_spend_eur'))
+    except Exception:spend=-1
+    if spend!=0:return ['ZERO_COST_ATTESTATION_NONZERO_SPEND']
+    cost=str(x.get('cost_class') or '').lower();allowed={str(v).lower() for v in (profile.get('allowed_zero_cost_classes') or ['free','owned','included','local'])}
+    if cost not in allowed:return ['COST_CLASS_NOT_AUTOMATIC_ZERO']
+    if cost=='quota':
+        if x.get('quota_available') is not True:return ['FREE_QUOTA_NOT_CONFIRMED']
+        try:expiry=datetime.fromisoformat(str(x.get('valid_until') or '').replace('Z','+00:00'))
+        except Exception:return ['ZERO_COST_ATTESTATION_EXPIRED']
+        if expiry<=datetime.now(timezone.utc):return ['ZERO_COST_ATTESTATION_EXPIRED']
+    return []
+
 def selected_targets(readiness:dict[str,Any])->list[tuple[str,str,str]]:
     out=[];seen=set();actionable={'ADAPTER_ENABLEMENT_REQUIRED','PROVIDER_HEALTH_PROBE_REQUIRED'}
     for task in readiness.get('tasks') or []:
@@ -52,6 +75,7 @@ def eligibility(adapter:str,provider:str,registry:dict[str,Any],provisioning:dic
         if provider not in set(str(x) for x in profile.get('provider_allowlist') or []):blockers.append('PROVIDER_NOT_IN_AUTO_REMEDIATION_ALLOWLIST')
         if profile.get('non_destructive_probe') is not True:blockers.append('NON_DESTRUCTIVE_PROBE_NOT_ATTESTED')
         if float(profile.get('automatic_external_spend_eur') or 0)!=0:blockers.append('AUTOMATIC_EXTERNAL_SPEND_NONZERO')
+        blockers.extend(economics_blockers(profile,provider))
     return not blockers,sorted(set(blockers)),profile or {}
 
 def materialize_effective(repo:Path,runtime:Path,work:Path)->Path:

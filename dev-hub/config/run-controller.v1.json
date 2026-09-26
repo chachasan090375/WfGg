@@ -128,5 +128,12 @@
     "all_actions_fail_closed_when_unverified": true,
     "task_contract_binding_required_in_execute_mode": true
   },
-  "version": "1.4.0"
+  "version": "1.4.0",
+  "workspace": {
+    "root": "/opt/chacha-dev/runtime/projects",
+    "required_for_write_permissions": true,
+    "create_if_missing": true,
+    "must_match_project": true,
+    "source_of_truth": "branch-foundry"
+  }
 }

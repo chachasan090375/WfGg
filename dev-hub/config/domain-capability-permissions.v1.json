@@ -29,7 +29,8 @@
     "database-migrate": "workspace-write",
     "browser-automation": "workspace-write",
     "ci": "workspace-write",
-    "cloud-deploy-edge": "workspace-write"
+    "cloud-deploy-edge": "workspace-write",
+    "platform-selftest": "read"
   },
   "guardrails": {
     "production_permission_never_inferred": true,

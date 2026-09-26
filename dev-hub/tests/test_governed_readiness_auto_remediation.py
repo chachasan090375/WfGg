@@ -27,6 +27,14 @@ for adapter,provider in [('platform-command-adapter','chacha-tech-watch'),('cont
 cloud=base['adapters']['cloudflare-pages-production-adapter']
 assert set(cloud['supports']) & set(policy['production_permissions'])
 
+# A quota-backed generative provider is never auto-enabled without a current zero-cost attestation.
+ok,blockers,profile=auto.eligibility('antigravity-adapter','antigravity',base,provisioning,policy)
+assert ok is False,(ok,blockers)
+assert 'ZERO_COST_ATTESTATION_MISSING' in blockers,blockers
+assert 'AUTO_REMEDIATION_PROFILE_NOT_ENABLED' not in blockers,blockers
+assert 'PROVISIONING_CONTRACT_MISSING' not in blockers,blockers
+assert profile['zero_cost_attestation_required'] is True
+
 with tempfile.TemporaryDirectory(prefix='runtime-adapter-registry-') as td:
     td=Path(td);exe=td/'adapter';exe.write_text('#!/bin/sh\nexit 0\n');exe.chmod(0o755)
     state=runtime.empty_state();adapter='platform-command-adapter'

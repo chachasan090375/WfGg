@@ -240,6 +240,52 @@
         "central learning ingress on 127.0.0.1:8791 remains unchanged",
         "no automatic provider fallback performs mutation"
       ]
+    },
+    "platform-selftest-adapter": {
+      "enabled": true,
+      "from_status": "ENABLED",
+      "target_status": "DISABLED",
+      "owner_role": "sre-observability-engineer",
+      "triggers": [
+        "repeatable-runtime-failure",
+        "provider-health-unavailable",
+        "policy-or-security-block"
+      ],
+      "executable_strategy": "retain-for-forensics",
+      "steps": [
+        "stop scheduling platform self-test tasks",
+        "disable through adapter-promotion with evidence",
+        "retain prior receipts and executable for forensics"
+      ],
+      "verification": [
+        "adapter runtime state is DISABLED",
+        "scheduler no longer selects platform-selftest-adapter",
+        "previous receipts remain readable"
+      ]
+    },
+    "antigravity-adapter": {
+      "enabled": true,
+      "from_status": "ENABLED",
+      "target_status": "DISABLED",
+      "owner_role": "capability-foundry",
+      "triggers": [
+        "repeatable-runtime-failure",
+        "provider-health-unavailable",
+        "zero-cost-attestation-invalid",
+        "policy-or-security-block"
+      ],
+      "executable_strategy": "retain-for-forensics",
+      "steps": [
+        "stop scheduling Antigravity tasks",
+        "disable through adapter-promotion with evidence",
+        "retain executable and receipts for forensics"
+      ],
+      "verification": [
+        "adapter runtime state is DISABLED",
+        "scheduler no longer selects antigravity-adapter",
+        "previous receipts remain readable",
+        "automatic external spend remains 0"
+      ]
     }
   }
 }

@@ -138,6 +138,11 @@
       "scope": "platform",
       "probe": "adapter-provisioning-receipt",
       "functional_check": "collector-knowledge-adapter-provisioned"
+    },
+    "platform-selftest-runtime": {
+      "scope": "platform",
+      "probe": "runtime-command",
+      "functional_check": "platform-revision-proof"
     }
   }
 }

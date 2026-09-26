@@ -208,7 +208,9 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
                     "domain_features":[x["id"] for x in features],
                     "execution_mode":"DIRECT_PROVIDER",
                     "intent_excerpt":str(pkg.get("intent_excerpt") or plan.get("intent") or "")[:4000],
-                    **({"collector_knowledge":{"action":"status"}} if cap=="collector-knowledge-inspect" else {})
+                    "branch_workspace":pkg.get("workspace"),
+                    **({"collector_knowledge":{"action":"status"}} if cap=="collector-knowledge-inspect" else {}),
+                    **({"platform_selftest":{"action":"revision-proof"}} if cap=="platform-selftest" else {})
                   }
                 })
             for item in internal_caps:

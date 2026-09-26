@@ -1,0 +1,78 @@
+name: ChaCha DEV V8.2.2 Build Path Capability Minimization
+
+on:
+  push:
+    branches:
+      - dev-hub-v822-build-path-capability-minimization
+    paths:
+      - 'dev-hub/**'
+      - '.github/workflows/dev-hub-v822-build-path-capability-minimization.yml'
+      - '.github/workflows/dev-hub-sentinel-technical-assurance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax and configuration
+        run: |
+          set -euo pipefail
+          python3 -m py_compile \
+            dev-hub/bin/functional-intent-orchestrator.py \
+            dev-hub/bin/domain-factory-runner.py \
+            dev-hub/bin/domain-readiness-auto-remediator.py \
+            dev-hub/bin/run-controller.py \
+            dev-hub/adapters/antigravity-adapter.py
+          for f in \
+            dev-hub/config/adapter-auto-remediation.v1.json \
+            dev-hub/config/adapter-provisioning.v1.json \
+            dev-hub/config/adapter-rollbacks.v1.json \
+            dev-hub/config/capability-registry.v1.json \
+            dev-hub/config/domain-capability-permissions.v1.json \
+            dev-hub/config/domain-orchestration.v1.json \
+            dev-hub/config/provider-adapters.v1.json \
+            dev-hub/config/provider-health-probes.v1.json \
+            dev-hub/config/run-controller.v1.json; do
+            python3 -m json.tool "$f" >/dev/null
+          done
+      - name: V8.2.2 build-path qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v822_build_path_capability_minimization.py | tee /tmp/v822-build-path.out
+          python3 dev-hub/tests/test_governed_readiness_auto_remediation.py | tee /tmp/v822-remediation.out
+          grep -Fq 'CHACHA_DEV_V822_NEGATION_AWARE_DOMAIN_ROUTING=PASS' /tmp/v822-build-path.out
+          grep -Fq 'CHACHA_DEV_V822_PLATFORM_SELFTEST_LANE=PASS' /tmp/v822-build-path.out
+          grep -Fq 'CHACHA_DEV_V822_INTENT_SCOPED_CAPABILITIES=PASS' /tmp/v822-build-path.out
+          grep -Fq 'CHACHA_DEV_V822_ANTIGRAVITY_NO_ATTESTATION_NO_INVOCATION=PASS' /tmp/v822-build-path.out
+      - name: Adapter lifecycle and execution regressions
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v822_adapter_lifecycle_reconciliation.py
+          python3 dev-hub/tests/test_v824_collector_knowledge_adapter_version.py
+          python3 dev-hub/tests/test_v827_collector_port_isolation.py
+          python3 dev-hub/tests/test_v818_domain_factory_handoff.py
+          python3 dev-hub/tests/test_v828_domain_execution_continuation.py
+          python3 dev-hub/tests/test_v720_human_interface_gateway.py
+          python3 dev-hub/tests/test_v813_dual_channel.py
+          python3 dev-hub/tests/test_v813_dual_channel_advisory.py
+          python3 dev-hub/tests/test_v829_external_dependency_conversation.py
+          python3 dev-hub/tests/test_v820_operator_directives_compliance.py
+          python3 dev-hub/tests/test_collector_knowledge_adapter_contract.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v823_collector_knowledge_bootstrap_trust.py
+          python3 dev-hub/tests/test_targeted_platform_recovery.py
+      - name: Qualification receipt
+        run: |
+          set -euo pipefail
+          echo 'CHACHA_DEV_V822_BUILD_PATH_CAPABILITY_MINIMIZATION=PASS'
+          echo 'CHACHA_DEV_V822_PLATFORM_SELFTEST_E2E_CONTRACT=PASS'
+          echo 'CHACHA_DEV_V822_GENERATIVE_PROVIDER_ZERO_COST_GATE=PRESERVED'
+          echo 'CHACHA_DEV_V822_GUARDIAN_BYPASS=NO'
+          echo 'CHACHA_DEV_V822_SENTINEL_BYPASS=NO'
+          echo 'CHACHA_DEV_V822_AUTOMATIC_EXTERNAL_SPEND_EUR=0'

@@ -386,6 +386,137 @@
         "expected_producer": "context7-mcp-adapter",
         "expected_verification_status": "UNVERIFIED"
       }
+    },
+    "platform-selftest-adapter": {
+      "source": "dev-hub/adapters/platform-selftest-adapter.py",
+      "namespace": "platform-selftest",
+      "version": "1.0.0",
+      "executable_name": "platform-selftest-adapter",
+      "mode": "0755",
+      "current_link_name": "current",
+      "probe": {
+        "input": {
+          "schema": "chacha.dev/dispatch-envelope/v1",
+          "project": "platform-selftest-provisioning-probe",
+          "transition": "VERIFY->VERIFY",
+          "run_id": "platform-selftest-provisioning-probe",
+          "wave": 1,
+          "task": {
+            "id": "platform-selftest:revision-proof",
+            "kind": "runtime-status",
+            "description": "Non-mutating platform revision proof.",
+            "owner_role": "sre-observability-engineer",
+            "capabilities": [
+              "platform-selftest"
+            ],
+            "permission": "read",
+            "outputs": [
+              {
+                "type": "artifact",
+                "id": "platform-revision-proof"
+              }
+            ],
+            "verification": {
+              "mode": "machine",
+              "self_certification_allowed": false,
+              "required_evidence": [
+                "source",
+                "timestamp",
+                "digest"
+              ]
+            }
+          },
+          "bindings": [
+            {
+              "capability": "platform-selftest",
+              "provider": "platform-selftest-runtime",
+              "adapter": "platform-selftest-adapter",
+              "fallback_used": false,
+              "health_state": "HEALTHY"
+            }
+          ],
+          "policy_context": {
+            "resource_class": "light",
+            "requires_storage_preflight": false,
+            "human_approval_required": false,
+            "approval_id": null,
+            "timeout_seconds": 20
+          },
+          "workspace": null,
+          "metadata": {
+            "platform_selftest": {
+              "action": "revision-proof"
+            }
+          }
+        },
+        "expected_schema": "chacha.dev/task-result/v1",
+        "expected_status": "OK",
+        "expected_producer": "platform-selftest-adapter",
+        "expected_verification_status": "UNVERIFIED"
+      }
+    },
+    "antigravity-adapter": {
+      "source": "dev-hub/adapters/antigravity-adapter.py",
+      "namespace": "antigravity",
+      "version": "1.0.0",
+      "executable_name": "antigravity-adapter",
+      "mode": "0755",
+      "current_link_name": "current",
+      "probe": {
+        "input": {
+          "schema": "chacha.dev/dispatch-envelope/v1",
+          "project": "antigravity-provisioning-probe",
+          "transition": "VERIFY->VERIFY",
+          "run_id": "antigravity-provisioning-probe",
+          "wave": 1,
+          "task": {
+            "id": "antigravity:provider-status",
+            "kind": "runtime-status",
+            "description": "Non-generative provider readiness probe.",
+            "owner_role": "capability-foundry",
+            "capabilities": [
+              "code-edit"
+            ],
+            "permission": "read",
+            "outputs": [],
+            "verification": {
+              "mode": "machine",
+              "self_certification_allowed": false,
+              "required_evidence": [
+                "source",
+                "timestamp",
+                "digest"
+              ]
+            }
+          },
+          "bindings": [
+            {
+              "capability": "code-edit",
+              "provider": "antigravity",
+              "adapter": "antigravity-adapter",
+              "fallback_used": false,
+              "health_state": "HEALTHY"
+            }
+          ],
+          "policy_context": {
+            "resource_class": "light",
+            "requires_storage_preflight": false,
+            "human_approval_required": false,
+            "approval_id": null,
+            "timeout_seconds": 40
+          },
+          "workspace": null,
+          "metadata": {
+            "antigravity": {
+              "action": "provider-status"
+            }
+          }
+        },
+        "expected_schema": "chacha.dev/task-result/v1",
+        "expected_status": "OK",
+        "expected_producer": "antigravity-adapter",
+        "expected_verification_status": "UNVERIFIED"
+      }
     }
   }
 }

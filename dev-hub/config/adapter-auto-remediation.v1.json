@@ -65,6 +65,35 @@
       "external_network": "none-for-status-probe",
       "cost_basis": "existing-local-collector-knowledge-runtime",
       "automatic_external_spend_eur": 0
+    },
+    "platform-selftest-adapter": {
+      "enabled": true,
+      "provider_allowlist": [
+        "platform-selftest-runtime"
+      ],
+      "non_destructive_probe": true,
+      "external_network": "none",
+      "cost_basis": "existing-local-platform-revision-file",
+      "automatic_external_spend_eur": 0
+    },
+    "antigravity-adapter": {
+      "enabled": true,
+      "provider_allowlist": [
+        "antigravity"
+      ],
+      "non_destructive_probe": true,
+      "external_network": "provider-status-only-during-promotion",
+      "cost_basis": "quota-provider-requires-current-zero-cost-attestation",
+      "zero_cost_attestation_required": true,
+      "zero_cost_attestation": "/opt/chacha-dev/runtime/provider-economics/antigravity-zero-cost.json",
+      "allowed_zero_cost_classes": [
+        "free",
+        "owned",
+        "included",
+        "local",
+        "quota"
+      ],
+      "automatic_external_spend_eur": 0
     }
   }
 }
