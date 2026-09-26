@@ -1,0 +1,102 @@
+From 7ea4c89f196bf1c52aafae24cc5474e44d296278 Mon Sep 17 00:00:00 2001
+From: ChaCha DEV <chacha-dev@local.invalid>
+Date: Sat, 26 Sep 2026 11:53:27 +0000
+Subject: [PATCH] test(v820): make mandatory regressions version-agnostic
+
+---
+ dev-hub/tests/test_v623_contextual_memory_recall.py       | 5 ++---
+ dev-hub/tests/test_v631_assurance_exchange.py             | 2 +-
+ dev-hub/tests/test_v632_project_embedded_assurance.py     | 2 +-
+ dev-hub/tests/test_v633_five_agent_embedded_probes.py     | 2 +-
+ dev-hub/tests/test_v634_logic_ux_compromise_release.py    | 2 +-
+ dev-hub/tests/test_v635_central_specialist_authorities.py | 2 +-
+ 6 files changed, 7 insertions(+), 8 deletions(-)
+
+diff --git a/dev-hub/tests/test_v623_contextual_memory_recall.py b/dev-hub/tests/test_v623_contextual_memory_recall.py
+index a2f81b42..653c981e 100644
+--- a/dev-hub/tests/test_v623_contextual_memory_recall.py
++++ b/dev-hub/tests/test_v623_contextual_memory_recall.py
+@@ -75,14 +75,13 @@ for m in ["--memory-brief","central_memory_recall_consumed","previous_solution_i
+ council=(BIN/"architecture-decision-council.py").read_text(encoding="utf-8")
+ assert '"central-memory-recall"' in council
+ assert '--memory-brief' in council
+-assert any(v in council for v in ['"version":"6.23.0"','"version":"6.25.0"','"version":"6.34.0"'])
++assert '"schema":"chacha.dev/architecture-decision-council/v1"' in council
+ assert "recall_branch_rank" in council and "recall_arch_rank" in council
+ 
+ orch=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
+ assert orch.count('"central-memory-recall.py"')>=3,orch.count('"central-memory-recall.py"')
+ assert orch.count('"--memory-brief"')>=5,orch.count('"--memory-brief"')
+-m=re.search(r'"version":"(\d+)\.(\d+)\.(\d+)"',orch)
+-assert m and (int(m.group(1))>6 or (int(m.group(1))==6 and int(m.group(2))>=23)),(m.group(0) if m else "version missing")
++assert '"schema":"chacha.dev/autonomous-project-bootstrap/v1"' in orch
+ assert '"central_memory_brief"' in orch
+ 
+ guardian=(ROOT/"dev-hub/guardian/worker.js").read_text(encoding="utf-8")
+diff --git a/dev-hub/tests/test_v631_assurance_exchange.py b/dev-hub/tests/test_v631_assurance_exchange.py
+index 43f7b00a..16de1202 100644
+--- a/dev-hub/tests/test_v631_assurance_exchange.py
++++ b/dev-hub/tests/test_v631_assurance_exchange.py
+@@ -113,7 +113,7 @@ for marker in [
+ assert "CENTRAL_ORCHESTRATOR_OWNS_REMEDIATION=YES" in controller
+ assert "DIRECT_MUTATION=NO" in controller
+ assert "assurance_exchange_recommendations" in orchestrator
+-assert any(v in orchestrator for v in ['"version":"6.31.0"','"version":"6.32.0"','"version":"6.33.0"','"version":"6.34.0"','"version":"6.35.0"','"version":"6.40.0"','"version":"6.41.0"','"version":"6.42.0"','"version":"6.43.0"','"version":"6.44.0"','"version":"6.45.0"','"version":"6.46.0"','"version":"6.47.0"','"version":"6.48.0"','"version":"6.49.0"','"version":"6.50.0"','"version":"6.51.0"','"version":"6.52.0"','"version":"6.53.0"','"version":"6.54.0"','"version":"6.55.0"','"version":"6.56.0"','"version":"6.57.0"','"version":"6.58.0"','"version":"6.59.0"','"version":"6.60.0"','"version":"6.61.0"','"version":"6.62.0"','"version":"6.63.0"','"version":"6.64.0"','"version":"7.0.0"','"version":"7.1.0"','"version":"7.2.0"','"version":"7.3.0"','"version":"7.8.0"'])
++assert '"schema":"chacha.dev/autonomous-project-bootstrap/v1"' in orchestrator
+ assert project_control["principles"]["assurance_exchange_is_external_neutral_correlation_plane"] is True
+ assert project_control["principles"]["guardian_sentinel_correlation_never_grants_mutation_authority"] is True
+ assert project_control["principles"]["assurance_optimization_feedback_returns_to_central_orchestrator"] is True
+diff --git a/dev-hub/tests/test_v632_project_embedded_assurance.py b/dev-hub/tests/test_v632_project_embedded_assurance.py
+index 1f25460c..b7d4422b 100644
+--- a/dev-hub/tests/test_v632_project_embedded_assurance.py
++++ b/dev-hub/tests/test_v632_project_embedded_assurance.py
+@@ -110,7 +110,7 @@ for body in [guardian,sentinel]:
+     assert "project_assurance_identity_registration:true" in body
+     assert "requireProjectAssurance" in body
+ 
+-assert any(v in orchestrator for v in ['"version":"6.32.0"','"version":"6.33.0"','"version":"6.34.0"','"version":"6.35.0"','"version":"6.40.0"','"version":"6.41.0"','"version":"6.42.0"','"version":"6.43.0"','"version":"6.44.0"','"version":"6.45.0"','"version":"6.46.0"','"version":"6.47.0"','"version":"6.48.0"','"version":"6.49.0"','"version":"6.50.0"','"version":"6.51.0"','"version":"6.52.0"','"version":"6.53.0"','"version":"6.54.0"','"version":"6.55.0"','"version":"6.56.0"','"version":"6.57.0"','"version":"6.58.0"','"version":"6.59.0"','"version":"6.60.0"','"version":"6.61.0"','"version":"6.62.0"','"version":"6.63.0"','"version":"6.64.0"','"version":"7.0.0"','"version":"7.1.0"','"version":"7.2.0"','"version":"7.3.0"','"version":"7.8.0"'])
++assert '"schema":"chacha.dev/autonomous-project-bootstrap/v1"' in orchestrator
+ assert "project-embedded-assurance.py" in orchestrator
+ assert "project-assurance-identity-manager.py" in orchestrator
+ assert '"embedded_assurance_required":True' in orchestrator
+diff --git a/dev-hub/tests/test_v633_five_agent_embedded_probes.py b/dev-hub/tests/test_v633_five_agent_embedded_probes.py
+index c2956e2a..8f545532 100644
+--- a/dev-hub/tests/test_v633_five_agent_embedded_probes.py
++++ b/dev-hub/tests/test_v633_five_agent_embedded_probes.py
+@@ -111,7 +111,7 @@ for marker in [
+ ]:
+     assert marker in exchange_worker,marker
+ 
+-assert any(v in orchestrator for v in ['"version":"6.33.0"','"version":"6.34.0"','"version":"6.35.0"','"version":"6.40.0"','"version":"6.41.0"','"version":"6.42.0"','"version":"6.43.0"','"version":"6.44.0"','"version":"6.45.0"','"version":"6.46.0"','"version":"6.47.0"','"version":"6.48.0"','"version":"6.49.0"','"version":"6.50.0"','"version":"6.51.0"','"version":"6.52.0"','"version":"6.53.0"','"version":"6.54.0"','"version":"6.55.0"','"version":"6.56.0"','"version":"6.57.0"','"version":"6.58.0"','"version":"6.59.0"','"version":"6.60.0"','"version":"6.61.0"','"version":"6.62.0"','"version":"6.63.0"','"version":"6.64.0"','"version":"7.0.0"','"version":"7.1.0"','"version":"7.2.0"','"version":"7.3.0"','"version":"7.8.0"'])
++assert '"schema":"chacha.dev/autonomous-project-bootstrap/v1"' in orchestrator
+ for marker in [
+     '"curator_local_enabled"',
+     '"bastion_local_enabled"',
+diff --git a/dev-hub/tests/test_v634_logic_ux_compromise_release.py b/dev-hub/tests/test_v634_logic_ux_compromise_release.py
+index 5781f788..f0ea257c 100644
+--- a/dev-hub/tests/test_v634_logic_ux_compromise_release.py
++++ b/dev-hub/tests/test_v634_logic_ux_compromise_release.py
+@@ -143,7 +143,7 @@ assert {"logician","ergonomist","multi-agent-compromise-engine","compromise-rele
+ orch=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
+ council_script=(BIN/"architecture-decision-council.py").read_text(encoding="utf-8")
+ guardian_worker=(ROOT/"dev-hub/guardian/worker.js").read_text(encoding="utf-8")
+-assert any(v in orch for v in ['"version":"6.34.0"','"version":"6.35.0"','"version":"6.40.0"','"version":"6.41.0"','"version":"6.42.0"','"version":"6.43.0"','"version":"6.44.0"','"version":"6.45.0"','"version":"6.46.0"','"version":"6.47.0"','"version":"6.48.0"','"version":"6.49.0"','"version":"6.50.0"','"version":"6.51.0"','"version":"6.52.0"','"version":"6.53.0"','"version":"6.54.0"','"version":"6.55.0"','"version":"6.56.0"','"version":"6.57.0"','"version":"6.58.0"','"version":"6.59.0"','"version":"6.60.0"','"version":"6.61.0"','"version":"6.62.0"','"version":"6.63.0"','"version":"6.64.0"','"version":"7.0.0"','"version":"7.1.0"','"version":"7.2.0"','"version":"7.3.0"','"version":"7.8.0"'])
++assert '"schema":"chacha.dev/autonomous-project-bootstrap/v1"' in orch
+ assert '"--challenge-dossier",compromise' in orch
+ assert "REVISION_REQUEST_ONLY_AFTER_FAILED_COMPROMISE=YES" in orch
+ assert "MULTI_AGENT_COMPROMISE_REQUIRED" in orch
+diff --git a/dev-hub/tests/test_v635_central_specialist_authorities.py b/dev-hub/tests/test_v635_central_specialist_authorities.py
+index dc12512c..9abed007 100644
+--- a/dev-hub/tests/test_v635_central_specialist_authorities.py
++++ b/dev-hub/tests/test_v635_central_specialist_authorities.py
+@@ -95,7 +95,7 @@ for marker in [
+ ]:
+     assert marker in client,marker
+ 
+-assert any(v in orch for v in ['"version":"6.35.0"','"version":"6.40.0"','"version":"6.41.0"','"version":"6.42.0"','"version":"6.43.0"','"version":"6.44.0"','"version":"6.45.0"','"version":"6.46.0"','"version":"6.47.0"','"version":"6.48.0"','"version":"6.49.0"','"version":"6.50.0"','"version":"6.51.0"','"version":"6.52.0"','"version":"6.53.0"','"version":"6.54.0"','"version":"6.55.0"','"version":"6.56.0"','"version":"6.57.0"','"version":"6.58.0"','"version":"6.59.0"','"version":"6.60.0"','"version":"6.61.0"','"version":"6.62.0"','"version":"6.63.0"','"version":"6.64.0"','"version":"7.0.0"','"version":"7.1.0"','"version":"7.2.0"','"version":"7.3.0"','"version":"7.8.0"'])
++assert '"schema":"chacha.dev/autonomous-project-bootstrap/v1"' in orch
+ for marker in [
+   '"--specialist-client",bin_dir/"specialist-authority-client.py"',
+   '"--curator-policy",cfg/"curator-runtime-policy.v1.json"',
+-- 
+2.43.0
