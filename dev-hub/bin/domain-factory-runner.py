@@ -55,6 +55,7 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
     toolchain_semantics_path=repo_root/"dev-hub/config/domain-toolchain-semantics.v1.json"
     toolchain_semantics=load(toolchain_semantics_path) if toolchain_semantics_path.is_file() else {"encapsulated_provider_tools":{}}
     capability_registry=load(repo_root/"dev-hub/config/capability-registry.v1.json")
+    capability_permissions=load(repo_root/"dev-hub/config/domain-capability-permissions.v1.json")
 
     errors=[]
     if plan.get("schema")!="chacha.dev/domain-plan/v1":errors.append("FINAL_PLAN_SCHEMA_INVALID")
@@ -71,7 +72,8 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
     if reconciliation.get("assembly_allowed") is not True:
         errors.append("COMPONENT_CONTRACT_RECONCILIATION_FAILED")
 
-    project_id=str(plan.get("project_id") or council.get("project_id") or components.get("project_id") or "")
+    project_meta=load(planning/"project.json") if (planning/"project.json").is_file() else {}
+    project_id=str(plan.get("project_id") or council.get("project_id") or components.get("project_id") or project_meta.get("project_id") or "")
     by_package={str(x.get("package_id") or ""):x for x in components.get("contracts") or [] if isinstance(x,dict)}
     manifests=[]
     tasks=[]
@@ -176,8 +178,17 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
         manifests.append(manifest)
 
         if state=="READY":
-            permission="workspace-write" if "workspace-write" in set(contract.get("allowed_permissions") or []) else "plan"
+            allowed_permissions=set(str(x) for x in contract.get("allowed_permissions") or [])
+            perm_overrides=capability_permissions.get("overrides") or {}
+            perm_defaults=capability_permissions.get("default_by_class") or {}
             for cap in scheduler_caps:
+                caprow=registry_caps.get(cap) if isinstance(registry_caps.get(cap),dict) else {}
+                requested=str(perm_overrides.get(cap) or perm_defaults.get(str(caprow.get("class") or "")) or capability_permissions.get("guardrails",{}).get("fallback_permission") or "plan")
+                if requested in {"production-deploy","production-data-write","secret-change","destructive-operation","technology-replacement"}:
+                    requested="plan"
+                if requested not in allowed_permissions:
+                    requested="plan" if "plan" in allowed_permissions else "read" if "read" in allowed_permissions else "workspace-write"
+                permission=requested
                 tasks.append({
                   "id":"capability:"+safe(pid)+":"+safe(cap),
                   "kind":"domain-capability",
@@ -195,7 +206,9 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
                     "component_id":branch_id,"domain":domain,"package_id":pid,
                     "capability_id":cap,
                     "domain_features":[x["id"] for x in features],
-                    "execution_mode":"DIRECT_PROVIDER"
+                    "execution_mode":"DIRECT_PROVIDER",
+                    "intent_excerpt":str(pkg.get("intent_excerpt") or plan.get("intent") or "")[:4000],
+                    **({"collector_knowledge":{"action":"status"}} if cap=="collector-knowledge-inspect" else {})
                   }
                 })
             for item in internal_caps:

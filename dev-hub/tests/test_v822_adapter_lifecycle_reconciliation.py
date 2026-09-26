@@ -46,9 +46,9 @@ with tempfile.TemporaryDirectory(prefix="v822-ready-") as td:
     probes={"contract-ok":{},"pilot":{},"designed":{}}
     encap={}
     def row(pid):
-        return ready.provider_candidate(ROOT,{"id":pid,"status":"ADOPT"},bindings,defs,probes,encap)
-    assert row("contract-ok")["gate"]=="PROVIDER_HEALTH_PROBE_REQUIRED",row("contract-ok")
-    assert row("pilot")["gate"]=="PROVIDER_HEALTH_PROBE_REQUIRED",row("pilot")
+        return ready.provider_candidate(ROOT,{"id":pid,"status":"ADOPT"},bindings,defs,probes,encap,{})
+    assert row("contract-ok")["gate"]=="ADAPTER_ENABLEMENT_REQUIRED",row("contract-ok")
+    assert row("pilot")["gate"]=="ADAPTER_ENABLEMENT_REQUIRED",row("pilot")
     assert row("pilot-no-probe")["gate"]=="PROVIDER_PROBE_DEFINITION_REQUIRED",row("pilot-no-probe")
     assert row("designed")["gate"]=="ADAPTER_ENABLEMENT_REQUIRED",row("designed")
 
@@ -64,10 +64,13 @@ assert collector["functional_check"]=="collector-knowledge-status"
 
 print("CHACHA_DEV_V822_ARCH_STATUS_BOOTSTRAP_UNKNOWN=PASS")
 print("CHACHA_DEV_V822_ARCH_INFERENCE_STILL_HEALTHY_ONLY=PASS")
-print("CHACHA_DEV_V822_CONTRACT_OK_GOES_TO_HEALTH_PROBE=PASS")
-print("CHACHA_DEV_V822_PILOT_GOES_TO_HEALTH_PROBE=PASS")
+print("CHACHA_DEV_V822_CONTRACT_OK_REQUIRES_ENABLEMENT=PASS")
+print("CHACHA_DEV_V822_PILOT_REQUIRES_ENABLEMENT=PASS")
 print("CHACHA_DEV_V822_MISSING_PROBE_FAILS_CLOSED=PASS")
 print("CHACHA_DEV_V822_DESIGNED_WITHOUT_EXECUTABLE_STAYS_BLOCKED=PASS")
 print("CHACHA_DEV_V822_COLLECTOR_PROBE_DEFINED=PASS")
-print("CHACHA_DEV_V822_NO_AUTOMATIC_ENABLEMENT=PASS")
+promotion=json.loads((ROOT/"dev-hub/config/adapter-promotion.v1.json").read_text())
+assert promotion["principles"]["blanket_automatic_promotion_forbidden"] is True
+assert promotion["principles"]["governed_zero_spend_nonproduction_auto_remediation_allowed"] is True
+print("CHACHA_DEV_V822_NO_UNGOVERNED_AUTOMATIC_ENABLEMENT=PASS")
 print("CHACHA_DEV_V822_AUTOMATIC_EXTERNAL_SPEND_EUR=0")

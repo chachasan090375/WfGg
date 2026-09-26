@@ -92,7 +92,7 @@ class CollectorKnowledgeAdapterTests(unittest.TestCase):
             self.assertNotIn(forbidden,src)
 
     def test_query_uses_localhost_only(self):
-        self.assertEqual(mod.API_BASE,"http://127.0.0.1:8791")
+        self.assertEqual(mod.API_BASE,"http://127.0.0.1:8793")
 
     def test_no_shell_true(self):
         src=ADAPTER.read_text(encoding="utf-8")

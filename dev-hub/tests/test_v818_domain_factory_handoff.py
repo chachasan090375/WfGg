@@ -57,10 +57,14 @@ with tempfile.TemporaryDirectory(prefix="v818-domain-factory-") as td:
     assert result["package_count"]==2 and result["ready_package_count"]==2,result
     graph=json.loads((out/"domain-execution-graph.json").read_text())
     tasks={x["id"]:x for x in graph["tasks"]}
-    assert tasks["package:domain:product"]["capabilities"]==["requirements-analysis"]
-    conv=tasks["package:domain:conversation-interface"]
-    assert conv["capabilities"]==[],conv
-    assert conv["metadata"]["domain_features"]==["human-conversation-rendering"],conv
+    product=tasks["capability:domain-product:requirements-analysis"]
+    assert product["capabilities"]==["requirements-analysis"],product
+    assert product["permission"]=="plan",product
+    assert product["metadata"]["package_id"]=="domain:product",product
+    assert not any(x.get("metadata",{}).get("package_id")=="domain:conversation-interface" for x in graph["tasks"]),graph
+    internal=graph.get("internal_work_items") or []
+    conv=next(x for x in internal if x.get("package_id")=="domain:conversation-interface")
+    assert conv["features"]==["human-conversation-rendering"],conv
 
     req=json.loads((out/"provider-health-requirements.json").read_text())
     providers={x["provider"]:x for x in req["providers"]}
@@ -75,7 +79,7 @@ for marker in [
   'prior_next=="DOMAIN_FACTORIES"',
   'domain-factory-runner.py',
   '"continuation_mode":"DOMAIN_FACTORY_HANDOFF"',
-  '"domain_factories_completed":True',
+  '["domain_factories_completed"]=True',
   '"PROVIDER_HEALTH_REQUIRED"'
 ]:
     assert marker in controller,marker

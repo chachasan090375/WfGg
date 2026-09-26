@@ -94,17 +94,8 @@ def provider_candidate(repo_root:Path,provider:dict[str,Any],bindings:dict[str,A
             row["gate"]="PROVIDER_PROBE_DEFINITION_REQUIRED"
             row["reason"]="preenabled-provider-probe-not-defined"
         else:
-            health=health_defs.get(pid) if isinstance(health_defs,dict) else None
-            state=str((health or {}).get("state") or "UNKNOWN")
-            row["health_state"]=state
-            row["health_source"]=(health or {}).get("source")
-            row["health_checked_at"]=(health or {}).get("checked_at")
-            if state in {"HEALTHY","DEGRADED"}:
-                row["gate"]="READY"
-                row["reason"]="preenabled-provider-health-evidence-available"
-            else:
-                row["gate"]="PROVIDER_HEALTH_PROBE_REQUIRED"
-                row["reason"]="preenabled-adapter-awaiting-health-evidence"
+            row["gate"]="ADAPTER_ENABLEMENT_REQUIRED"
+            row["reason"]="adapter-lifecycle-not-enabled:"+adapter_status
     else:
         row["gate"]="ADAPTER_ENABLEMENT_REQUIRED"
         row["reason"]="adapter-not-enabled"
@@ -117,10 +108,11 @@ def choose_candidate(candidates:list[dict[str,Any]])->dict[str,Any]|None:
                                            int(x.get("rank") or -100),
                                            str(x.get("provider") or "")),reverse=True)[0]
 
-def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path,health_path:Path|None=None)->dict[str,Any]:
+def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path,health_path:Path|None=None,adapters_path:Path|None=None)->dict[str,Any]:
     graph=load(factory_dir/"domain-execution-graph.json")
     topology=load(planning_dir/"agent-topology.json")
-    adapters=load(repo_root/"dev-hub/config/provider-adapters.v1.json")
+    adapter_source=adapters_path if adapters_path is not None else repo_root/"dev-hub/config/provider-adapters.v1.json"
+    adapters=load(adapter_source)
     probes=load(repo_root/"dev-hub/config/provider-health-probes.v1.json")
     registry=load(repo_root/"dev-hub/config/capability-registry.v1.json")
     semantics_path=repo_root/"dev-hub/config/domain-toolchain-semantics.v1.json"
@@ -264,6 +256,7 @@ def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path,healt
       "probe_definition_required":sorted(all_probe_def),
       "health_probe_required":sorted(all_probe),
       "provider_health_snapshot":str(health_path) if health_path is not None else None,
+      "provider_adapter_registry":str(adapter_source),
       "provider_execution_started":False,
       "adapter_invocation_started":False,
       "production_permissions_allowed":False,
@@ -279,8 +272,9 @@ def main()->int:
     ap.add_argument("--factory-dir",type=Path,required=True)
     ap.add_argument("--output",type=Path,required=True)
     ap.add_argument("--health",type=Path)
+    ap.add_argument("--adapters",type=Path)
     a=ap.parse_args()
-    result=evaluate(a.repo_root.resolve(),a.planning_dir.resolve(),a.factory_dir.resolve(),a.output.resolve(),a.health.resolve() if a.health else None)
+    result=evaluate(a.repo_root.resolve(),a.planning_dir.resolve(),a.factory_dir.resolve(),a.output.resolve(),a.health.resolve() if a.health else None,a.adapters.resolve() if a.adapters else None)
     print("CHACHA_DEV_V821_DOMAIN_TOOLCHAIN_READINESS="+("PASS" if result["status"]=="READY" else "BLOCKED"))
     print("NEXT_STAGE="+result["next_stage"])
     print("ATOMIC_TASKS="+str(result["summary"]["atomic_task_count"]))

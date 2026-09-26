@@ -1,0 +1,75 @@
+name: ChaCha DEV V8.2.1 Governed Readiness Auto Remediation
+
+on:
+  push:
+    branches:
+      - dev-hub-v821-governed-readiness-auto-remediation
+    paths:
+      - 'dev-hub/**'
+      - '.github/workflows/dev-hub-v821-governed-readiness-auto-remediation.yml'
+      - '.github/workflows/dev-hub-sentinel-technical-assurance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax and configuration
+        run: |
+          set -euo pipefail
+          python3 -m py_compile \
+            dev-hub/bin/central-interface-controller.py \
+            dev-hub/bin/conversation-channel-router.py \
+            dev-hub/bin/domain-factory-runner.py \
+            dev-hub/bin/domain-toolchain-readiness.py \
+            dev-hub/bin/domain-readiness-auto-remediator.py \
+            dev-hub/bin/runtime-adapter-registry.py \
+            dev-hub/adapters/architecture-specialist-adapter.py \
+            dev-hub/adapters/context7-mcp-adapter.py \
+            dev-hub/adapters/platform-command-adapter.py
+          for f in \
+            dev-hub/config/adapter-promotion.v1.json \
+            dev-hub/config/adapter-provisioning.v1.json \
+            dev-hub/config/adapter-rollbacks.v1.json \
+            dev-hub/config/provider-adapters.v1.json \
+            dev-hub/config/adapter-auto-remediation.v1.json \
+            dev-hub/config/domain-capability-permissions.v1.json; do
+            python3 -m json.tool "$f" >/dev/null
+          done
+      - name: Governed remediation and lifecycle regressions
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_governed_readiness_auto_remediation.py | tee /tmp/v821-governed.out
+          python3 dev-hub/tests/test_v822_adapter_lifecycle_reconciliation.py | tee /tmp/v822.out
+          python3 dev-hub/tests/test_v824_collector_knowledge_adapter_version.py | tee /tmp/v824.out
+          python3 dev-hub/tests/test_v827_collector_port_isolation.py | tee /tmp/v827.out
+          grep -Fq 'CHACHA_DEV_GOVERNED_AUTO_REMEDIATION_POLICY=PASS' /tmp/v821-governed.out
+          grep -Fq 'CHACHA_DEV_BASE_ADAPTER_EXECUTABLE_DRIFT_QUARANTINE=PASS' /tmp/v821-governed.out
+          grep -Fq 'CHACHA_DEV_V824_COLLECTOR_ADAPTER_VERSION_102=PASS' /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V827_COLLECTOR_PORT_8793=PASS' /tmp/v827.out
+      - name: Execution and platform regressions
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v818_domain_factory_handoff.py
+          python3 dev-hub/tests/test_v828_domain_execution_continuation.py
+          python3 dev-hub/tests/test_v720_human_interface_gateway.py
+          python3 dev-hub/tests/test_v813_dual_channel.py
+          python3 dev-hub/tests/test_v813_dual_channel_advisory.py
+          python3 dev-hub/tests/test_v829_external_dependency_conversation.py
+          python3 dev-hub/tests/test_v820_operator_directives_compliance.py
+          python3 dev-hub/tests/test_collector_knowledge_adapter_contract.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v823_collector_knowledge_bootstrap_trust.py
+      - name: Qualification receipt
+        run: |
+          set -euo pipefail
+          echo 'CHACHA_DEV_V821_GOVERNED_READINESS_AUTO_REMEDIATION=PASS'
+          echo 'CHACHA_DEV_V821_GUARDIAN_BYPASS=NO'
+          echo 'CHACHA_DEV_V821_SENTINEL_BYPASS=NO'
+          echo 'CHACHA_DEV_V821_AUTOMATIC_EXTERNAL_SPEND_EUR=0'

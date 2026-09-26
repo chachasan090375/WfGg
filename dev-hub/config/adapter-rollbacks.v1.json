@@ -144,6 +144,102 @@
         "previous deployment and rollback receipts remain readable",
         "no automatic provider fallback performs production mutation"
       ]
+    },
+    "platform-command-adapter": {
+      "enabled": true,
+      "from_status": "ENABLED",
+      "target_status": "DISABLED",
+      "owner_role": "platform-cloud-engineer",
+      "triggers": [
+        "repeatable-runtime-failure",
+        "provider-health-unavailable",
+        "policy-or-security-block"
+      ],
+      "executable_strategy": "retain-for-forensics",
+      "steps": [
+        "stop scheduling new platform command tasks to platform-command-adapter",
+        "apply ENABLED->DISABLED through adapter-promotion with policy-or-security-block evidence",
+        "record rollback receipt and triggering evidence",
+        "return unresolved capability to scheduler failover policy"
+      ],
+      "verification": [
+        "adapter registry status is DISABLED",
+        "scheduler no longer selects platform-command-adapter",
+        "previous promotion and rollback receipts remain readable"
+      ]
+    },
+    "context7-mcp-adapter": {
+      "enabled": true,
+      "from_status": "ENABLED",
+      "target_status": "DISABLED",
+      "owner_role": "platform-cloud-engineer",
+      "triggers": [
+        "repeatable-runtime-failure",
+        "provider-health-unavailable",
+        "policy-or-security-block"
+      ],
+      "executable_strategy": "retain-for-forensics",
+      "steps": [
+        "stop scheduling new library documentation tasks to context7-mcp-adapter",
+        "apply ENABLED->DISABLED through adapter-promotion with policy-or-security-block evidence",
+        "record rollback receipt and triggering evidence",
+        "return unresolved capability to scheduler failover policy"
+      ],
+      "verification": [
+        "adapter registry status is DISABLED",
+        "scheduler no longer selects context7-mcp-adapter",
+        "previous promotion and rollback receipts remain readable"
+      ]
+    },
+    "architecture-specialist-adapter": {
+      "enabled": true,
+      "from_status": "ENABLED",
+      "target_status": "DISABLED",
+      "owner_role": "platform-cloud-engineer",
+      "triggers": [
+        "repeatable-runtime-failure",
+        "provider-health-unavailable",
+        "policy-or-security-block"
+      ],
+      "executable_strategy": "retain-for-forensics",
+      "steps": [
+        "stop scheduling new architecture specialist tasks to architecture-specialist-adapter",
+        "apply ENABLED->DISABLED through adapter-promotion with policy-or-security-block evidence",
+        "record rollback receipt and triggering evidence",
+        "return unresolved capability to scheduler failover policy"
+      ],
+      "verification": [
+        "adapter registry status is DISABLED",
+        "scheduler no longer selects architecture-specialist-adapter",
+        "previous promotion and rollback receipts remain readable"
+      ]
+    },
+    "collector-knowledge-adapter": {
+      "enabled": true,
+      "from_status": "ENABLED",
+      "target_status": "DISABLED",
+      "owner_role": "platform-cloud-engineer",
+      "triggers": [
+        "repeatable-runtime-failure",
+        "provider-health-unavailable",
+        "collector-knowledge-runtime-unavailable",
+        "policy-or-security-block"
+      ],
+      "executable_strategy": "retain-for-forensics",
+      "steps": [
+        "stop scheduling new Collector Knowledge tasks to collector-knowledge-adapter",
+        "apply ENABLED->DISABLED through adapter-promotion with policy-or-security-block evidence",
+        "record the rollback receipt and triggering evidence",
+        "retain the provisioned executable and prior immutable versions for forensics",
+        "leave Collector Knowledge capability fail-closed until a qualified adapter is available"
+      ],
+      "verification": [
+        "adapter runtime state is DISABLED",
+        "scheduler no longer selects collector-knowledge-adapter",
+        "previous provisioning and promotion receipts remain readable",
+        "central learning ingress on 127.0.0.1:8791 remains unchanged",
+        "no automatic provider fallback performs mutation"
+      ]
     }
   }
 }

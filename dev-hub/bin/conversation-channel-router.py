@@ -27,7 +27,14 @@ RESEARCH_PATTERNS=[
 ]
 ADVISORY_PATTERNS=[
  r"\btu te souviens\b",r"\brappelle[- ]moi\b",r"\bm[ée]moire\b",
- r"\barchitecture\b",r"\bcentre humain\b",r"\bpersona\b",r"\bavis technique\b"
+ r"\barchitecture\b",r"\bcentre humain\b",r"\bpersona\b",r"\bavis technique\b",
+ r"\b[ée]tat (?:actuel|courant)\b",r"\b(?:statut|status)\b",r"\bop[ée]rationnel(?:le)?\b"
+]
+READ_ONLY_PATTERNS=[
+ r"\bsans\s+(?:rien\s+)?(?:modifier|changer|cr[ée]er|d[ée]ployer|installer|[ée]crire|agir)\b",
+ r"\bne\b.{0,48}\b(?:modifier|modifie|changer|change|cr[ée]er|cr[ée]e|d[ée]ployer|d[ée]ploie|installer|installe)\b.{0,24}\b(?:pas|rien)\b",
+ r"\baucune?\s+(?:modification|mutation|cr[ée]ation|action)\b",
+ r"\ben\s+lecture\s+seule\b",r"\bread[- ]only\b",r"\bsans\s+mutation\b"
 ]
 
 def any_match(text:str,patterns:list[str])->bool:
@@ -41,7 +48,7 @@ def route(channel:str,text:str,project_id:str)->dict[str,Any]:
     if not text:raise ValueError("TEXT_REQUIRED")
     if ch=="BUILD":
         sub="BUILD_PIPELINE";reason="MANUAL_BUILD_CHANNEL"
-    elif any_match(text,BUILD_PATTERNS):
+    elif any_match(text,BUILD_PATTERNS) and not any_match(text,READ_ONLY_PATTERNS):
         sub="BUILD_HANDOFF_REQUIRED";reason="CONVERSATION_MUTATION_GUARD"
     elif any_match(text,RESEARCH_PATTERNS):
         sub="RESEARCH";reason="INFORMATION_RESEARCH_REQUEST"

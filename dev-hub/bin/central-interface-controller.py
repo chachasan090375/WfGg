@@ -271,30 +271,52 @@ def handle_instruction(a)->dict[str,Any]:
 def domain_scheduler_run_controller(a,project:str,prior:dict[str,Any],df:dict[str,Any],readiness:dict[str,Any])->dict[str,Any]:
     graph=Path(str(df.get("domain_execution_graph") or ""))
     health=Path(str(readiness.get("provider_health_snapshot") or ""))
-    ledger=a.runtime_root/"evidence"/project/"ledger.json"
     refs=list(prior.get("evidence_refs") or [])
     if not graph.is_file():
         return make_receipt("CONTINUE",project,"BRAIN_RECEIPT_INVALID","AWAIT_NEW_INSTRUCTION",refs,{"reason":"DOMAIN_EXECUTION_GRAPH_MISSING"})
+    graph_payload=load(graph)
+    execution_project=str(graph_payload.get("project") or project)
+    ledger=a.runtime_root/"evidence"/execution_project/"ledger.json"
     if not health.is_file():
         return make_receipt("CONTINUE",project,"BLOCKED","PROVIDER_HEALTH_PROBE_REQUIRED",refs,
                             {"reason":"PROVIDER_HEALTH_SNAPSHOT_MISSING","domain_factories":df,
                              "domain_toolchain_readiness":readiness,
                              "continuation_mode":"DOMAIN_EXECUTION_HANDOFF"})
     if not ledger.is_file():
-        return make_receipt("CONTINUE",project,"BLOCKED","EVIDENCE_LEDGER_REQUIRED",refs,
-                            {"reason":"EVIDENCE_LEDGER_MISSING","ledger":str(ledger),
-                             "continuation_mode":"DOMAIN_EXECUTION_HANDOFF"})
+        bootstrap=subprocess.run([sys.executable,str(a.project_control),"--repo-root",str(a.repo_root),"--json",
+                                  "bootstrap-control-plane","--project",execution_project,
+                                  "--actor","central-orchestrator","--profile","project"],
+                                 stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=120)
+        if bootstrap.returncode!=0 or not ledger.is_file():
+            return make_receipt("CONTINUE",project,"BLOCKED","EVIDENCE_LEDGER_REQUIRED",refs,
+                                {"reason":"EXECUTION_PROJECT_CONTROL_BOOTSTRAP_FAILED","ledger":str(ledger),
+                                 "execution_project_id":execution_project,"stdout":bootstrap.stdout[-1600:],
+                                 "stderr":bootstrap.stderr[-1600:],"continuation_mode":"DOMAIN_EXECUTION_HANDOFF"})
+        refs.append(str(ledger)+"#"+file_digest(ledger))
 
     handoff=a.output_dir/"domain-execution-handoff"
     handoff.mkdir(parents=True,exist_ok=True)
     plan_path=handoff/"execution-plan.json"
     scheduler=a.repo_root/"dev-hub/bin/execution-scheduler.py"
+    agent_contracts=Path(str((df.get("agent_contracts") or (Path(str(df.get("planning_dir") or ""))/"agent-role-contracts.json"))))
+    component_contracts=Path(str((df.get("component_contracts") or (Path(str(df.get("planning_dir") or ""))/"component-role-contracts.json"))))
+    role_contracts=a.repo_root/"dev-hub/config/guardian-role-contracts.v1.json"
+    bound_graph=handoff/"bound-domain-execution-graph.json"
+    if not agent_contracts.is_file() or not component_contracts.is_file() or not role_contracts.is_file():
+        return make_receipt("CONTINUE",project,"BLOCKED","TASK_GUARDIAN_BINDING_REQUIRED",refs,
+                            {"reason":"TASK_CONTRACT_BINDING_INPUTS_MISSING","agent_contracts":str(agent_contracts),
+                             "component_contracts":str(component_contracts),"role_contracts":str(role_contracts),
+                             "guardian_bypass":False})
     sched=subprocess.run([
         sys.executable,str(scheduler),
         "--graph",str(graph),
         "--registry",str(a.repo_root/"dev-hub/config/capability-registry.v1.json"),
         "--health",str(health),
         "--policy",str(a.repo_root/"dev-hub/config/execution-scheduler.v1.json"),
+        "--agent-contracts",str(agent_contracts),
+        "--component-contracts",str(component_contracts),
+        "--role-contracts",str(role_contracts),
+        "--bound-graph-output",str(bound_graph),
         "--require-guardian-binding",
         "--output",str(plan_path)
     ],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=120)
@@ -312,16 +334,21 @@ def domain_scheduler_run_controller(a,project:str,prior:dict[str,Any],df:dict[st
                              "continuation_mode":"DOMAIN_EXECUTION_HANDOFF",
                              "run_controller_started":False})
 
+    adapter_registry=Path(str(readiness.get("provider_adapter_registry") or (a.repo_root/"dev-hub/config/provider-adapters.v1.json")))
+    if not adapter_registry.is_file():
+        return make_receipt("CONTINUE",project,"BLOCKED","ADAPTER_REGISTRY_UNAVAILABLE",refs,
+                            {"reason":"EFFECTIVE_ADAPTER_REGISTRY_MISSING","adapter_registry":str(adapter_registry),
+                             "continuation_mode":"DOMAIN_EXECUTION_HANDOFF"})
     run_root=handoff/"runs"
     before=set(run_root.glob("run-*/run-record.json")) if run_root.exists() else set()
     controller=a.repo_root/"dev-hub/bin/run-controller.py"
     run=subprocess.run([
         sys.executable,str(controller),
         "--plan",str(plan_path),
-        "--graph",str(graph),
+        "--graph",str(bound_graph),
         "--ledger",str(ledger),
         "--policy",str(a.repo_root/"dev-hub/config/run-controller.v1.json"),
-        "--adapters",str(a.repo_root/"dev-hub/config/provider-adapters.v1.json"),
+        "--adapters",str(adapter_registry),
         "--output-dir",str(run_root),
         "--execute"
     ],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=3700)
@@ -360,6 +387,7 @@ def domain_scheduler_run_controller(a,project:str,prior:dict[str,Any],df:dict[st
         "scheduler_started":True,
         "run_controller_started":True,
         "run_controller_execute_requested":True,
+        "execution_project_id":execution_project,
         "production_approval_bypass":False
     })
     receipt["continuation_of_request_id"]=prior.get("request_id")
@@ -368,6 +396,23 @@ def domain_scheduler_run_controller(a,project:str,prior:dict[str,Any],df:dict[st
 
 def continue_domain_readiness(a,project:str,prior:dict[str,Any],df:dict[str,Any])->dict[str,Any]:
     planning=Path(str(df.get("planning_dir") or ""))
+    if not planning.is_dir():
+        return make_receipt("CONTINUE",project,"BRAIN_RECEIPT_INVALID","AWAIT_NEW_INSTRUCTION",
+                            list(prior.get("evidence_refs") or []),{"reason":"DOMAIN_FACTORY_PLANNING_CONTEXT_MISSING"})
+    factory_runner=a.repo_root/"dev-hub/bin/domain-factory-runner.py"
+    reconciled_factory_dir=a.output_dir/"domain-factories-reconciled"
+    reconciled_result=reconciled_factory_dir/"domain-factory-result.json"
+    fproc=subprocess.run([sys.executable,str(factory_runner),"--repo-root",str(a.repo_root),
+                          "--planning-dir",str(planning),"--output-dir",str(reconciled_factory_dir)],
+                         stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=90)
+    if not reconciled_result.is_file():
+        return make_receipt("CONTINUE",project,"BLOCKED","DOMAIN_FACTORY_RECONCILIATION_REQUIRED",
+                            list(prior.get("evidence_refs") or []),{"reason":"DOMAIN_FACTORY_RECONCILIATION_RESULT_MISSING"})
+    reconciled=load(reconciled_result)
+    if reconciled.get("status")!="READY":
+        return make_receipt("CONTINUE",project,"BLOCKED",str(reconciled.get("next_stage") or "DOMAIN_FACTORY_RECONCILIATION_REQUIRED"),
+                            [str(reconciled_result)+"#"+file_digest(reconciled_result)],{"domain_factories":reconciled,"continuation_mode":"DOMAIN_FACTORY_RECONCILIATION"})
+    df=dict(df);df.update(reconciled)
     graph=Path(str(df.get("domain_execution_graph") or ""))
     factory_dir=graph.parent if graph.is_file() else Path("")
     if not planning.is_dir() or not graph.is_file() or not factory_dir.is_dir():
@@ -378,9 +423,23 @@ def continue_domain_readiness(a,project:str,prior:dict[str,Any],df:dict[str,Any]
     readiness_path=readiness_dir/"domain-toolchain-readiness.json"
     readiness_dir.mkdir(parents=True,exist_ok=True)
     health=a.runtime_root/"health"/project/"providers.json"
+    effective_adapters=readiness_dir/"effective-provider-adapters.v1.json"
+    adapter_reconciliation=readiness_dir/"runtime-adapter-reconciliation.json"
+    adapter_state=a.runtime_root/"registries/provider-adapter-runtime-state.v1.json"
+    registry_tool=a.repo_root/"dev-hub/bin/runtime-adapter-registry.py"
+    regproc=subprocess.run([sys.executable,str(registry_tool),"effective",
+                            "--base",str(a.repo_root/"dev-hub/config/provider-adapters.v1.json"),
+                            "--state",str(adapter_state),"--output",str(effective_adapters),
+                            "--report",str(adapter_reconciliation)],
+                           stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=60)
+    if regproc.returncode!=0 or not effective_adapters.is_file():
+        return make_receipt("CONTINUE",project,"BLOCKED","ADAPTER_RUNTIME_RECONCILIATION_REQUIRED",
+                            list(prior.get("evidence_refs") or []),
+                            {"reason":"EFFECTIVE_ADAPTER_REGISTRY_BUILD_FAILED","stdout":regproc.stdout[-1200:],
+                             "stderr":regproc.stderr[-1200:],"adapter_state":str(adapter_state)})
     argv=[sys.executable,str(runner),"--repo-root",str(a.repo_root),
           "--planning-dir",str(planning),"--factory-dir",str(factory_dir),
-          "--output",str(readiness_path)]
+          "--adapters",str(effective_adapters),"--output",str(readiness_path)]
     if health.is_file():
         argv += ["--health",str(health)]
     proc=subprocess.run(argv,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=90)
@@ -390,15 +449,43 @@ def continue_domain_readiness(a,project:str,prior:dict[str,Any],df:dict[str,Any]
                             {"reason":"DOMAIN_TOOLCHAIN_RESULT_MISSING",
                              "stdout":proc.stdout[-1600:],"stderr":proc.stderr[-1600:]})
     readiness=load(readiness_path)
+    readiness["provider_adapter_registry"]=str(effective_adapters)
+    save(readiness_path,readiness)
     refs=list(prior.get("evidence_refs") or [])
     refs.append(str(readiness_path)+"#"+file_digest(readiness_path))
+    if adapter_reconciliation.is_file():refs.append(str(adapter_reconciliation)+"#"+file_digest(adapter_reconciliation))
     if readiness.get("status")=="READY":
         chained_prior=dict(prior);chained_prior["evidence_refs"]=refs
         return domain_scheduler_run_controller(a,project,chained_prior,df,readiness)
+
+    remediation=None
+    if readiness.get("next_stage") in {"ADAPTER_ENABLEMENT_REQUIRED","PROVIDER_HEALTH_PROBE_REQUIRED"}:
+        remediation_path=readiness_dir/"governed-auto-remediation.json"
+        remediator=a.repo_root/"dev-hub/bin/domain-readiness-auto-remediator.py"
+        remproc=subprocess.run([sys.executable,str(remediator),"--repo-root",str(a.repo_root),
+                                "--runtime-root",str(a.runtime_root),"--readiness",str(readiness_path),
+                                "--output",str(remediation_path)],
+                               stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=420)
+        if remediation_path.is_file():
+            remediation=load(remediation_path);refs.append(str(remediation_path)+"#"+file_digest(remediation_path))
+        if isinstance(remediation,dict) and remediation.get("changed") is True:
+            regproc=subprocess.run([sys.executable,str(registry_tool),"effective",
+                                    "--base",str(a.repo_root/"dev-hub/config/provider-adapters.v1.json"),
+                                    "--state",str(adapter_state),"--output",str(effective_adapters),
+                                    "--report",str(adapter_reconciliation)],
+                                   stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=60)
+            proc=subprocess.run(argv,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=90)
+            if readiness_path.is_file():
+                readiness=load(readiness_path);readiness["provider_adapter_registry"]=str(effective_adapters);save(readiness_path,readiness);refs.append(str(readiness_path)+"#"+file_digest(readiness_path))
+                if readiness.get("status")=="READY":
+                    chained_prior=dict(prior);chained_prior["evidence_refs"]=refs
+                    return domain_scheduler_run_controller(a,project,chained_prior,df,readiness)
+
     receipt=make_receipt("CONTINUE",project,"BLOCKED",
                          str(readiness.get("next_stage") or "DOMAIN_TOOLCHAIN_READINESS_FAILED"),
                          refs,{"domain_toolchain_readiness":readiness,
                                "domain_factories":df,
+                               "governed_auto_remediation":remediation,
                                "continuation_mode":"DOMAIN_TOOLCHAIN_READINESS",
                                "provider_execution_started":False,
                                "adapter_invocation_started":False})

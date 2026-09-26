@@ -1,7 +1,6 @@
 {
   "schema": "chacha.dev/adapter-promotion/v1",
   "principles": {
-    "promotion_never_automatic": true,
     "explicit_apply_required": true,
     "current_status_is_a_precondition": true,
     "evidence_precedes_state_change": true,
@@ -15,7 +14,9 @@
     "private_secrets_are_never_part_of_promotion_evidence": true,
     "adapter_cannot_self_promote": true,
     "execution_kind_controls_local_executable_requirement": true,
-    "external_only_adapters_do_not_invent_local_executables": true
+    "external_only_adapters_do_not_invent_local_executables": true,
+    "blanket_automatic_promotion_forbidden": true,
+    "governed_zero_spend_nonproduction_auto_remediation_allowed": true
   },
   "schemas": {
     "registry": "chacha.dev/provider-adapters/v1",
@@ -28,7 +29,11 @@
     "max_age_seconds": 604800,
     "maximum_future_skew_seconds": 60,
     "pass_state": "PASS",
-    "accepted_states": ["PASS", "FAIL", "UNKNOWN"]
+    "accepted_states": [
+      "PASS",
+      "FAIL",
+      "UNKNOWN"
+    ]
   },
   "production_capable_permissions": [
     "production-deploy",
@@ -37,8 +42,14 @@
     "destructive-operation",
     "technology-replacement"
   ],
-  "runtime_statuses_require_executable": ["PILOT", "ENABLED", "DEGRADED"],
-  "executable_required_execution_kinds": ["vps"],
+  "runtime_statuses_require_executable": [
+    "PILOT",
+    "ENABLED",
+    "DEGRADED"
+  ],
+  "executable_required_execution_kinds": [
+    "vps"
+  ],
   "external_only_executable_must_be_null": true,
   "approval": {
     "type": "adapter-production-enable",
@@ -49,7 +60,10 @@
   },
   "mutation": {
     "strategy": "temp-file-fsync-rename",
-    "allowed_fields": ["status", "executable"],
+    "allowed_fields": [
+      "status",
+      "executable"
+    ],
     "receipt_required": true,
     "default_receipt_root": "/opt/chacha-dev/runtime/adapter-promotions"
   }

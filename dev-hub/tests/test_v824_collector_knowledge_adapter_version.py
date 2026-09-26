@@ -7,7 +7,7 @@ ROOT=Path(__file__).resolve().parents[2]
 policy=ROOT/"dev-hub/config/adapter-provisioning.v1.json"
 cfg=json.loads(policy.read_text(encoding="utf-8"))
 item=cfg["adapters"]["collector-knowledge-adapter"]
-assert item["version"]=="1.0.1",item
+assert item["version"]=="1.0.2",item
 assert item["namespace"]=="collector-knowledge"
 assert item["executable_name"]=="collector-knowledge-adapter"
 
@@ -23,11 +23,11 @@ with tempfile.TemporaryDirectory(prefix="v824-provision-") as td:
     ],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False)
     assert p.returncode==0,(p.stdout,p.stderr)
     plan=json.loads(p.stdout)
-    assert plan["version"]=="1.0.1",plan
-    assert "/collector-knowledge/1.0.1/collector-knowledge-adapter" in plan["installed_path"],plan
+    assert plan["version"]=="1.0.2",plan
+    assert "/collector-knowledge/1.0.2/collector-knowledge-adapter" in plan["installed_path"],plan
     assert plan["executable_path"].endswith("/collector-knowledge/current/collector-knowledge-adapter"),plan
 
-print("CHACHA_DEV_V824_COLLECTOR_ADAPTER_VERSION_101=PASS")
+print("CHACHA_DEV_V824_COLLECTOR_ADAPTER_VERSION_102=PASS")
 print("CHACHA_DEV_V824_IMMUTABLE_VERSION_PATH=PASS")
 print("CHACHA_DEV_V824_BOOTSTRAP_TRUST_CODE_PRESERVED=PASS")
 print("CHACHA_DEV_V824_AUTOMATIC_EXTERNAL_SPEND_EUR=0")

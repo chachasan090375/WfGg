@@ -108,7 +108,7 @@
     "architecture-specialist-adapter": {
       "source": "dev-hub/adapters/architecture-specialist-adapter.py",
       "namespace": "architecture-specialist",
-      "version": "1.0.4",
+      "version": "1.0.6",
       "executable_name": "architecture-specialist-adapter",
       "mode": "0755",
       "current_link_name": "current",
@@ -173,7 +173,7 @@
     "collector-knowledge-adapter": {
       "source": "dev-hub/adapters/collector-knowledge-adapter.py",
       "namespace": "collector-knowledge",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "executable_name": "collector-knowledge-adapter",
       "mode": "0755",
       "current_link_name": "current",
@@ -309,6 +309,82 @@
         "expected_schema": "chacha.dev/platform-component-source-integration-adapter-result/v1",
         "expected_status": "BLOCKED",
         "expected_reason": "APPLY_SCHEMA_INVALID"
+      }
+    },
+    "platform-command-adapter": {
+      "source": "dev-hub/adapters/platform-command-adapter.py",
+      "namespace": "platform-command",
+      "version": "1.0.1",
+      "executable_name": "platform-command-adapter",
+      "mode": "0755",
+      "current_link_name": "current",
+      "probe": {
+        "input": {
+          "schema": "chacha.dev/dispatch-envelope/v1",
+          "project": "adapter-provisioning-probe",
+          "task": {
+            "id": "technology-watch:status",
+            "permission": "read",
+            "capabilities": [
+              "technology-radar"
+            ],
+            "outputs": []
+          },
+          "bindings": [
+            {
+              "capability": "technology-radar",
+              "provider": "chacha-tech-watch",
+              "adapter": "platform-command-adapter",
+              "health_state": "HEALTHY"
+            }
+          ],
+          "metadata": {},
+          "policy_context": {
+            "timeout_seconds": 30
+          }
+        },
+        "expected_schema": "chacha.dev/task-result/v1",
+        "expected_status": "OK",
+        "expected_producer": "platform-command-adapter",
+        "expected_verification_status": "UNVERIFIED"
+      }
+    },
+    "context7-mcp-adapter": {
+      "source": "dev-hub/adapters/context7-mcp-adapter.py",
+      "namespace": "context7-mcp",
+      "version": "1.0.0",
+      "executable_name": "context7-mcp-adapter",
+      "mode": "0755",
+      "current_link_name": "current",
+      "probe": {
+        "input": {
+          "schema": "chacha.dev/dispatch-envelope/v1",
+          "project": "adapter-provisioning-probe",
+          "task": {
+            "id": "context7:tools-list",
+            "permission": "read",
+            "capabilities": [
+              "library-docs"
+            ],
+            "outputs": []
+          },
+          "bindings": [
+            {
+              "capability": "library-docs",
+              "provider": "context7-mcp",
+              "adapter": "context7-mcp-adapter",
+              "health_state": "HEALTHY"
+            }
+          ],
+          "metadata": {},
+          "policy_context": {
+            "timeout_seconds": 30
+          }
+        },
+        "expected_schema": "chacha.dev/task-result/v1",
+        "expected_status": "OK",
+        "expected_producer": "context7-mcp-adapter",
+        "expected_verification_status": "UNVERIFIED"
       }
     }
   }

@@ -276,12 +276,18 @@ def validate_request(request: dict[str, Any]) -> tuple[str | None, dict[str, Any
 
     context = metadata.get("technical_design_context")
     role = str(metadata.get("specialist_role") or task.get("owner_role") or "")
-    if not isinstance(context, dict):
-        return None, None, "TECHNICAL_DESIGN_CONTEXT_MISSING"
     if task.get("permission") != "plan":
         return None, None, "ARCHITECT_DESIGN_PERMISSION_REQUIRED:plan"
     if not role:
         return None, None, "SPECIALIST_ROLE_MISSING"
+    if not isinstance(context, dict):
+        caps=[str(x) for x in task.get("capabilities") or []]
+        generic_allowed={"requirements-analysis","domain-modeling","acceptance-criteria","architecture-optimization"}
+        intent=str(metadata.get("intent_excerpt") or "").strip()
+        if len(caps)==1 and caps[0] in generic_allowed and intent:
+            return "design", {"context": None, "role": role, "metadata": metadata,
+                              "generic_domain": {"capability": caps[0], "intent": intent}}, None
+        return None, None, "TECHNICAL_DESIGN_CONTEXT_MISSING"
     return "design", {"context": context, "role": role, "metadata": metadata}, None
 
 
@@ -606,15 +612,121 @@ def classify_backend_failure(stdout: bytes, stderr: bytes) -> str:
     return "unknown"
 
 
+def build_generic_domain_model_context(request: dict[str, Any], design: dict[str, Any]) -> tuple[dict[str, Any], Path]:
+    generic=design.get("generic_domain") if isinstance(design.get("generic_domain"),dict) else {}
+    metadata=design.get("metadata") if isinstance(design.get("metadata"),dict) else {}
+    task=request.get("task") if isinstance(request.get("task"),dict) else {}
+    project=str(request.get("project") or "")
+    task_id=str(task.get("id") or "")
+    role=str(design.get("role") or task.get("owner_role") or "")
+    capability=str(generic.get("capability") or "")
+    intent=str(generic.get("intent") or "").strip()
+    if not project or not task_id or not role or not capability or not intent:
+        raise ValueError("GENERIC_DOMAIN_CONTEXT_INCOMPLETE")
+    requirement_id="domain-"+hashlib.sha256((project+"\n"+intent).encode("utf-8")).hexdigest()[:20]
+    run_id=safe_name(str(request.get("run_id") or "run"))
+    run_dir=RESULT_ROOT/safe_name(project)/safe_name(requirement_id)/run_id
+    model_context={
+      "project":project,
+      "requirement_id":requirement_id,
+      "task_id":task_id,
+      "role":role,
+      "artifact_kind":"design-fragment",
+      "requirement":{
+        "schema":"chacha.dev/generic-domain-requirement/v1",
+        "project":project,
+        "id":requirement_id,
+        "functional_intent":intent,
+        "domain":metadata.get("domain"),
+        "capability":capability,
+        "read_only_user_intent":bool(metadata.get("read_only_user_intent",False)),
+      },
+      "manifest":{
+        "schema":"chacha.dev/generic-domain-manifest/v1",
+        "identity":{"project":project,"package_id":metadata.get("package_id")},
+        "ownership":{"role":role},
+        "components":[],"dependencies":[],"security":{},"data":{},"observability":{},"recovery":{},
+        "technology_policy":{"automatic_external_spend_eur":0},
+      },
+      "technical_design":{
+        "affected_components":[],
+        "assignment":{"role":role,"capability":capability,"task_description":task.get("description")},
+        "owned_architecture_decisions":[],
+        "cross_reviews":[],
+        "implementation_gate":{"planning_only":True,"production_change_allowed":False},
+      },
+      "task_metadata":{
+        "domain":metadata.get("domain"),
+        "package_id":metadata.get("package_id"),
+        "capability_id":capability,
+        "execution_mode":metadata.get("execution_mode"),
+        "generic_domain_context":True,
+      },
+      "prior_specialist_artifacts":[],
+    }
+    return model_context,run_dir
+
+
+def execute_generic_domain(request: dict[str, Any], design: dict[str, Any]) -> int:
+    generic=design.get("generic_domain") if isinstance(design.get("generic_domain"),dict) else {}
+    metadata=design.get("metadata") if isinstance(design.get("metadata"),dict) else {}
+    task=request.get("task") if isinstance(request.get("task"),dict) else {}
+    capability=str(generic.get("capability") or "")
+    intent=str(generic.get("intent") or "").strip()
+    project=str(request.get("project") or "")
+    role=str(design.get("role") or task.get("owner_role") or "")
+    if not project or not capability or not intent or not role:
+        return blocked(request,"GENERIC_DOMAIN_CONTEXT_INCOMPLETE")
+    read_only=any(token in intent.casefold() for token in ("sans modifier","ne modifie","lecture seule","read-only","sans mutation"))
+    artifact={
+      "schema":"chacha.dev/domain-capability-artifact/v1",
+      "project":project,
+      "task_id":str(task.get("id") or ""),
+      "capability":capability,
+      "domain":metadata.get("domain"),
+      "role":role,
+      "functional_intent":intent,
+      "status":"PROPOSED",
+      "constraints":{
+        "read_only_user_intent":read_only,
+        "production_change_allowed":False,
+        "automatic_external_spend_eur":0,
+      },
+      "observations":[
+        "The functional intent is preserved verbatim for downstream specialist work.",
+        "This capability result is planning evidence and requires independent verification.",
+      ],
+      "acceptance_obligations":[
+        "Preserve the declared functional intent.",
+        "Do not infer production mutation authority from a planning capability.",
+        "Keep automatic external spend at zero unless separately approved.",
+      ],
+    }
+    raw=json.dumps(artifact,ensure_ascii=False,sort_keys=True,separators=(",",":")).encode("utf-8")
+    run_id=safe_name(str(request.get("run_id") or "run"))
+    out_dir=RESULT_ROOT/safe_name(project)/"domain-capabilities"/run_id
+    out_dir.mkdir(parents=True,exist_ok=True)
+    out=out_dir/(safe_name(str(task.get("id") or capability))+".json")
+    tmp=out.with_suffix(".json.tmp");tmp.write_text(json.dumps(artifact,indent=2,ensure_ascii=False)+"\n",encoding="utf-8");os.chmod(tmp,0o640);os.replace(tmp,out)
+    ev=[{"kind":"report","source":str(out),"digest":sha256_file(out),"details":{"capability":capability,"domain":metadata.get("domain"),"role":role,"read_only_user_intent":read_only,"implementation_execution":False,"model_invoked":False,"automatic_external_spend_eur":0}}]
+    outputs=[{"type":x.get("type"),"id":x.get("id"),"status":"UNVERIFIED","reason":"Planning artifact produced; independent verification required."} for x in task.get("outputs") or [] if isinstance(x,dict)]
+    return emit(result(request,"OK","GENERIC_DOMAIN_CAPABILITY_PRODUCED",ev,outputs),0)
+
+
 def execute_design(request: dict[str, Any], design: dict[str, Any]) -> int:
+    if isinstance(design.get("generic_domain"),dict):
+        return execute_generic_domain(request,design)
     status, status_error = backend_status()
     if status_error:
         return blocked(request, status_error)
 
     role = str(design["role"])
-    context = design["context"]
+    context = design.get("context")
     try:
-        model_context, run_dir = build_model_context(request, role, context)
+        if isinstance(design.get("generic_domain"),dict):
+            model_context, run_dir = build_generic_domain_model_context(request, design)
+        else:
+            model_context, run_dir = build_model_context(request, role, context)
         prompt = prompt_for(model_context)
     except ValueError as exc:
         return blocked(request, str(exc))

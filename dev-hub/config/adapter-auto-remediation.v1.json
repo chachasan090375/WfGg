@@ -1,0 +1,70 @@
+{
+  "schema": "chacha.dev/adapter-auto-remediation/v1",
+  "principles": {
+    "blanket_automatic_enablement_forbidden": true,
+    "governed_zero_spend_auto_remediation_allowed": true,
+    "canonical_component_registry_required": true,
+    "universal_materialization_gate_required": true,
+    "capability_foundry_ownership_required": true,
+    "production_capable_automatic_enablement_forbidden": true,
+    "external_only_automatic_enablement_forbidden": true,
+    "non_destructive_probe_required": true,
+    "exact_digest_chain_required": true,
+    "provider_health_required": true,
+    "rollback_required": true,
+    "guardian_bypass_forbidden": true,
+    "sentinel_bypass_forbidden": true,
+    "automatic_external_spend_eur": 0
+  },
+  "production_permissions": [
+    "production-deploy",
+    "production-data-write",
+    "secret-change",
+    "destructive-operation",
+    "technology-replacement"
+  ],
+  "profiles": {
+    "platform-command-adapter": {
+      "enabled": true,
+      "provider_allowlist": [
+        "chacha-tech-watch"
+      ],
+      "non_destructive_probe": true,
+      "external_network": "none",
+      "cost_basis": "existing-local-technology-watch-snapshot",
+      "automatic_external_spend_eur": 0
+    },
+    "context7-mcp-adapter": {
+      "enabled": true,
+      "provider_allowlist": [
+        "context7-mcp"
+      ],
+      "non_destructive_probe": true,
+      "external_network": "read-only-unauthenticated-public-mcp",
+      "authentication_required": false,
+      "billing_credentials_used": false,
+      "cost_basis": "no-billing-credentials-and-zero-spend-probe",
+      "automatic_external_spend_eur": 0
+    },
+    "architecture-specialist-adapter": {
+      "enabled": true,
+      "provider_allowlist": [
+        "chacha-dev-architect"
+      ],
+      "non_destructive_probe": true,
+      "external_network": "existing-zero-spend-architecture-runtime-status-only-during-promotion",
+      "cost_basis": "existing-local-architecture-runtime",
+      "automatic_external_spend_eur": 0
+    },
+    "collector-knowledge-adapter": {
+      "enabled": true,
+      "provider_allowlist": [
+        "collector-knowledge-runtime"
+      ],
+      "non_destructive_probe": true,
+      "external_network": "none-for-status-probe",
+      "cost_basis": "existing-local-collector-knowledge-runtime",
+      "automatic_external_spend_eur": 0
+    }
+  }
+}

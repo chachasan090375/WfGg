@@ -1,0 +1,40 @@
+{
+  "schema": "chacha.dev/domain-capability-permissions/v1",
+  "default_by_class": {
+    "governance": "plan",
+    "knowledge": "plan",
+    "execution": "workspace-write",
+    "data": "workspace-write",
+    "delivery": "workspace-write",
+    "verification": "read"
+  },
+  "overrides": {
+    "technology-radar": "read",
+    "library-docs": "read",
+    "collector-knowledge-inspect": "read",
+    "browser-diagnostics": "read",
+    "smoke-test-web": "read",
+    "performance-test-web": "read",
+    "unit-test-js": "read",
+    "e2e-test-web": "read",
+    "security-scan-js": "read",
+    "digital-signature-verification": "read",
+    "translation": "workspace-write",
+    "terminology-management": "workspace-write",
+    "translation-quality-review": "workspace-write",
+    "publication-writing": "workspace-write",
+    "style-transformation": "workspace-write",
+    "channel-formatting": "workspace-write",
+    "code-edit": "workspace-write",
+    "database-migrate": "workspace-write",
+    "browser-automation": "workspace-write",
+    "ci": "workspace-write",
+    "cloud-deploy-edge": "workspace-write"
+  },
+  "guardrails": {
+    "production_permission_never_inferred": true,
+    "least_privilege_required": true,
+    "fallback_permission": "plan"
+  },
+  "automatic_external_spend_eur": 0
+}
