@@ -1,0 +1,113 @@
+name: ChaCha DEV platform qualification
+
+on:
+  push:
+    branches:
+      - 'dev-hub-v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Static platform validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile \
+            dev-hub/bin/autonomous-project-orchestrator.py \
+            dev-hub/bin/central-interface-controller.py \
+            dev-hub/bin/direct-operator-service.py \
+            dev-hub/bin/operator_directive_registry.py \
+            dev-hub/bin/operator_directive_intake.py \
+            dev-hub/bin/directive_impact_analyzer.py \
+            dev-hub/bin/policy_propagation_engine.py \
+            dev-hub/bin/version_coupling_audit.py \
+            dev-hub/bin/canonical_component_registry.py \
+            dev-hub/bin/universal-materialization-gate.py \
+            dev-hub/bin/component_registry_reconciler.py \
+            dev-hub/bin/intendant-platform-consolidator.py \
+            dev-hub/bin/intendant-hygiene-cycle.py \
+            dev-hub/bin/central-platform-hygiene-executor.py \
+            dev-hub/bin/architecture-council-platform-consolidation.py
+          node --check dev-hub/guardian/worker.js
+          python3 -m json.tool dev-hub/config/operator-directives.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/canonical-component-registry.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/platform-consolidation.v1.json >/dev/null
+
+      - name: Operator constitution and materialization
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v820_operator_directives_compliance.py
+
+      - name: Operator directive intake before downstream
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v820_operator_directive_intake.py
+
+      - name: Foundry birth-contract regressions
+        run: |
+          set -euo pipefail
+          for t in \
+            dev-hub/tests/test_v617_dynamic_agent_role_contracts.py \
+            dev-hub/tests/test_v629_memory_guided_foundry_planning.py \
+            dev-hub/tests/test_v640_capability_foundry_auto_closure.py \
+            dev-hub/tests/test_v641_capability_build_loop.py \
+            dev-hub/tests/test_v642_durable_capability_adoption.py \
+            dev-hub/tests/test_v770_object_factory.py \
+            dev-hub/tests/test_v811_capability_semantics_separation.py; do
+            PYTHONPATH=dev-hub/bin python3 "$t"
+          done
+      - name: Version-agnostic runtime invariant
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/bin/version_coupling_audit.py \
+            --repo-root . --output /tmp/version-coupling.json --strict
+          grep -Fq '"blocking_count": 0' /tmp/version-coupling.json
+
+      - name: Guardian terminal-hold invariant
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v820_guardian_terminal_hold.py
+
+      - name: Modern conversation regressions
+        run: |
+          set -euo pipefail
+          for t in \
+            dev-hub/tests/test_v810_human_conversation_foundation.py \
+            dev-hub/tests/test_v811_dialogue_orchestrator.py \
+            dev-hub/tests/test_v812_human_behavior_persona_center.py \
+            dev-hub/tests/test_v813_dual_channel.py \
+            dev-hub/tests/test_v814_voice_gateway.py; do
+            PYTHONPATH=dev-hub/bin python3 "$t"
+          done
+
+      - name: Core direct-path regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v805_direct_operator_network_resilience.py
+      - name: Stable platform qualification receipt
+        run: |
+          echo CHACHA_DEV_PLATFORM_QUALIFICATION=PASS
+          echo CANONICAL_COMPONENT_REGISTRY=REQUIRED
+          echo UNIVERSAL_MATERIALIZATION_GATE=REQUIRED
+          echo OPERATOR_DIRECTIVE_REGISTRY=REQUIRED
+          echo VERSION_MAJOR_COUPLING=FORBIDDEN
+          echo PHYSICAL_HYGIENE_EXECUTOR=platform-hygiene-executor
+          echo ROLLBACK_SLOTS=2
+          echo GUARDIAN_PRESERVED=YES
+          echo SENTINEL_PRESERVED=YES
+          echo REMOTE_BRANCH_AUTO_DELETE=NO
+          echo SOURCE_CODE_AUTO_DELETE=NO
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0

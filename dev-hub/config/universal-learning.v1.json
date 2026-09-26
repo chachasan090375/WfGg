@@ -76,5 +76,13 @@
     "direct_application_mutation": false,
     "verified_success_increases_confidence": true,
     "verified_failure_decreases_confidence": true
-  }
+  },
+  "canonical_registry_discovery": true,
+  "canonical_registry": "dev-hub/runtime/canonical-component-registry.json",
+  "learning_agent_classes": [
+    "FULL_AGENT",
+    "LIGHTWEIGHT_PROJECT_AGENT",
+    "LIGHTWEIGHT_EMBEDDED_AGENT"
+  ],
+  "manual_source_kinds_are_additive_not_authoritative": true
 }

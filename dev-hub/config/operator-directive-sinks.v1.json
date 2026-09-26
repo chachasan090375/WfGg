@@ -1,0 +1,25 @@
+{
+  "schema": "chacha.dev/operator-directive-sink-catalog/v1",
+  "version": "1.0.0",
+  "sinks": {
+    "canonical-component-registry": ["dev-hub/bin/canonical_component_registry.py", "dev-hub/config/canonical-component-registry.v1.json"],
+    "universal-materialization-gate": ["dev-hub/bin/universal-materialization-gate.py"],
+    "all-foundries": ["dev-hub/config/agent-foundry.v1.json", "dev-hub/config/branch-foundry.v1.json", "dev-hub/config/capability-foundry.v1.json", "dev-hub/config/object-factory.v1.json"],
+    "component-registry-reconciler": ["dev-hub/bin/component_registry_reconciler.py"],
+    "fleet-observatory": ["dev-hub/bin/agent_fleet_observatory.py"],
+    "guardian": ["dev-hub/config/guardian-role-contracts.v1.json"],
+    "sentinel": ["dev-hub/config/sentinel-technical-policy.v1.json"],
+    "assurance": ["dev-hub/config/assurance-agent-instrumentation.v1.json"],
+    "intendant": ["dev-hub/bin/intendant-hygiene-cycle.py", "dev-hub/config/intendant-hygiene-cycle.v1.json"],
+    "platform-hygiene-executor": ["dev-hub/bin/central-platform-hygiene-executor.py"],
+    "guardian-state-reconciliation": ["dev-hub/bin/component_registry_reconciler.py"],
+    "architecture-governance": ["dev-hub/bin/component_evolution_governance.py"],
+    "release-qualification": [".github/workflows"],
+    "provider-economics": ["dev-hub/config/provider-economics.v1.json"],
+    "materialization-gate": ["dev-hub/bin/universal-materialization-gate.py"],
+    "run-controller": ["dev-hub/bin/run-controller.py"],
+    "direct-operator": ["dev-hub/bin/direct-operator-service.py"],
+    "conversation-channel": ["dev-hub/bin/conversation-channel-router.py"]
+  },
+  "automatic_external_spend_eur": 0
+}

@@ -1,0 +1,180 @@
+{
+  "schema": "chacha.dev/canonical-component-registry-policy/v1",
+  "version": "8.2.0",
+  "purpose": "Make every materialized ChaCha DEV component discoverable, governed, observable and retireable from one canonical registry.",
+  "principles": {
+    "single_canonical_inventory": true,
+    "materialization_without_birth_contract_forbidden": true,
+    "promotion_with_registry_drift_forbidden": true,
+    "foundry_output_is_not_materialized_until_registered": true,
+    "direct_release_component_creation_must_backfill_before_promotion": true,
+    "unknown_component_fails_closed": true,
+    "no_automatic_authority_expansion": true,
+    "automatic_external_spend_eur": 0,
+    "operator_directive_registry_required": true,
+    "active_global_directives_inherited_at_birth": true
+  },
+  "source_catalogs": [
+    "agent-routing",
+    "project-agent-registry",
+    "project-embedded-assurance",
+    "technology-core-watch",
+    "guardian-coverage-manifest",
+    "guardian-role-contracts",
+    "provider-adapters",
+    "mcp-provider-catalog",
+    "assurance-agent-instrumentation"
+  ],
+  "materializers": [
+    "agent-foundry",
+    "branch-foundry",
+    "capability-foundry",
+    "object-factory"
+  ],
+  "birth_contract": {
+    "required_common": [
+      "identity",
+      "governance_class",
+      "owner_foundry",
+      "version_or_fingerprint",
+      "purpose",
+      "scope",
+      "permissions",
+      "budget_policy",
+      "health_contract",
+      "observability",
+      "lifecycle",
+      "termination_policy",
+      "retention_policy",
+      "purge_policy",
+      "rollback_policy",
+      "provenance",
+      "compatibility",
+      "automatic_external_spend_eur",
+      "operator_directives"
+    ],
+    "class_required_controls": {
+      "FULL_AGENT": [
+        "guardian",
+        "sentinel",
+        "fleet_observatory",
+        "assurance",
+        "observation_bus",
+        "learning_uplink"
+      ],
+      "LIGHTWEIGHT_PROJECT_AGENT": [
+        "guardian",
+        "sentinel",
+        "fleet_observatory",
+        "observation_bus",
+        "learning_uplink"
+      ],
+      "LIGHTWEIGHT_EMBEDDED_AGENT": [
+        "guardian",
+        "sentinel",
+        "embedded_assurance",
+        "observation_bus",
+        "learning_uplink"
+      ],
+      "CORE_PLATFORM_COMPONENT": [
+        "guardian",
+        "sentinel",
+        "component_governance",
+        "regression",
+        "pilot",
+        "rollback"
+      ],
+      "CONNECTOR_ADAPTER": [
+        "sentinel",
+        "health_probe",
+        "compatibility_test",
+        "canary",
+        "rollback"
+      ],
+      "RUNTIME_INFRASTRUCTURE": [
+        "sentinel",
+        "health_probe",
+        "security",
+        "resource_budget",
+        "cost_budget",
+        "compatibility_test",
+        "rollback"
+      ],
+      "OWNED_ARTIFACT": [
+        "owner",
+        "schema_validation",
+        "regression_test",
+        "compatibility_check"
+      ],
+      "DOMAIN_OBJECT": [
+        "owner",
+        "schema_validation",
+        "sensitive_field_policy",
+        "persistence_policy",
+        "lifecycle",
+        "retention_policy",
+        "purge_policy"
+      ]
+    }
+  },
+  "class_owners": {
+    "FULL_AGENT": "agent-foundry",
+    "LIGHTWEIGHT_PROJECT_AGENT": "agent-foundry",
+    "LIGHTWEIGHT_EMBEDDED_AGENT": "agent-foundry",
+    "CORE_PLATFORM_COMPONENT": "branch-foundry",
+    "CONNECTOR_ADAPTER": "capability-foundry",
+    "RUNTIME_INFRASTRUCTURE": "branch-foundry",
+    "OWNED_ARTIFACT": "INHERIT_OWNER",
+    "DOMAIN_OBJECT": "object-factory"
+  },
+  "classification_overrides": {
+    "human-behavior-center": "FULL_AGENT",
+    "conversation-reasoner": "FULL_AGENT",
+    "conversation-channel-router": "CORE_PLATFORM_COMPONENT",
+    "conversation-advisory-bus": "CORE_PLATFORM_COMPONENT",
+    "research-broker": "CORE_PLATFORM_COMPONENT",
+    "voice-gateway": "RUNTIME_INFRASTRUCTURE",
+    "platform-hygiene-executor": "CORE_PLATFORM_COMPONENT",
+    "reusable-memory": "CORE_PLATFORM_COMPONENT"
+  },
+  "fleet_classes": [
+    "FULL_AGENT",
+    "LIGHTWEIGHT_PROJECT_AGENT"
+  ],
+  "hygiene": {
+    "unregistered_runtime_object": "BLOCK_AND_RECONCILE",
+    "registered_but_missing_runtime": "GHOST_COMPONENT",
+    "terminal_component_retention_days": 30,
+    "active_component_requires_purge_policy": true,
+    "release_physical_maximum": 3,
+    "active_release_protected": true,
+    "rollback_release_count": 2,
+    "guardian_terminal_state_reconciliation": true,
+    "applied_remediation_hold_must_be_inactive": true
+  },
+  "promotion_gate": {
+    "required": true,
+    "registry_drift_allowed": false,
+    "birth_contract_incomplete_allowed": false,
+    "orphan_component_allowed": false,
+    "automatic_external_spend_eur": 0
+  },
+  "automatic_external_spend_eur": 0,
+  "abstract_guardian_roles": [
+    "orchestrator"
+  ],
+  "runtime_registry": {
+    "canonical_snapshot": "/opt/chacha-dev/runtime/canonical-registry/canonical-component-registry.json",
+    "dynamic_registrations": "/opt/chacha-dev/runtime/canonical-registry/dynamic-components.json",
+    "reconciliation_report": "/opt/chacha-dev/runtime/canonical-registry/reconciliation-latest.json",
+    "atomic_writes": true,
+    "append_only_registration_history": true
+  },
+  "operator_directives": {
+    "policy": "dev-hub/config/operator-directives.v1.json",
+    "snapshot": "/opt/chacha-dev/runtime/governance/operator-directives/active-directives.json",
+    "inherit_active_global_ids": true,
+    "inherit_active_global_digest": true,
+    "drift_is_blocking": true
+  }
+}

@@ -1,7 +1,7 @@
 {
   "schema": "chacha.dev/platform-consolidation-policy/v1",
-  "version": "1.1.0",
-  "target_platform_version": "7.x",
+  "version": "2.0.0",
+  "target_platform_version": "CURRENT_ACTIVE_RELEASE",
   "owner_agent": "intendant",
   "purpose": [
     "compile a single canonical runtime baseline",
@@ -51,41 +51,43 @@
       "dev-hub/evidence/**"
     ],
     "compiled_release_must_pass_import_scan": true,
-    "compiled_release_must_pass_v7_qualification": true
+    "compiled_release_must_pass_exact_revision_qualification": true
   },
   "physical_release_retention": {
     "keep_active_release": true,
     "rollback_slots": 2,
-    "rollback_selection_strategy": "MOST_RECENT_VERIFIED_PRIOR_RELEASES",
+    "rollback_selection_strategy": "MOST_RECENT_STRONGLY_VERIFIED_DISTINCT_REVISIONS",
     "verification_evidence_root": "/opt/chacha-dev/evidence",
     "fallback_verified_rollback_revisions": [
-      "b061f1405fc758ff22be241c5c791a3ecb58c9ec",
-      "a3803180a64f1ea95d94466b7b10529a7a4af92f"
+      "4a9f6c98db44debcd938c596b86272eab7d01ab1"
     ],
     "max_physical_releases_after_consolidation": 3,
     "archive_manifest_before_delete": true,
-    "archive_sha256_before_delete": true
+    "archive_sha256_before_delete": true,
+    "runtime_evidence_root": "/opt/chacha-dev/runtime",
+    "strong_install_gate_glob": "release-gates/*-install-pass.json",
+    "legacy_active_execution_glob": "intendant/work/*/release-execution.json"
   },
   "source_retirement": {
-    "delete_from_v7_head_only_after_reference_scan": true,
     "historical_v6_tests_and_docs_not_required_in_runtime_release": true,
     "branch_retirement_requires_separate_review": true,
-    "no_automatic_remote_branch_deletion": true
+    "no_automatic_remote_branch_deletion": true,
+    "delete_from_active_head_only_after_reference_scan": true
   },
   "execution": {
     "default_mode": "DRY_RUN",
     "apply_requires": [
       "guardian PASS",
-      "sentinel PASS on exact V7 revision",
+      "sentinel PASS on exact active revision",
       "architecture council consolidation approval",
-      "V7 active runtime health PASS",
-      "rollback release verified"
+      "active runtime health PASS",
+      "two strongly verified distinct rollback revisions"
     ],
     "destructive_apply_requires_explicit_flag": true,
     "standing_operator_approval_allowed_for_safe_release_retirement": true,
     "source_code_retirement_requires_fresh_explicit_review": true,
     "planner_owner": "intendant",
-    "physical_retirement_executor": "central-orchestrator",
+    "physical_retirement_executor": "platform-hygiene-executor",
     "intendant_direct_mutation": false,
     "architecture_council_plan_digest_binding_required": true,
     "standing_operator_approval_scope": "SAFE_SUPERSEDED_PHYSICAL_RELEASES_ONLY",
@@ -96,7 +98,7 @@
       "benchmark-evidence",
       "acquisition-evidence"
     ],
-    "exact_revision_qualification_workflow": "ChaCha DEV V7 platform qualification",
+    "exact_revision_qualification_workflow": "ChaCha DEV platform qualification",
     "sentinel_workflow": "ChaCha DEV Sentinel technical assurance",
     "guardian_realtime_verdict_required_for_council": false,
     "guardian_realtime_verdict_required_for_executor": true

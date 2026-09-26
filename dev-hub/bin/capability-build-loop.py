@@ -447,6 +447,20 @@ def build_pilot(req:dict[str,Any],policy:dict[str,Any],repo_root:Path,workspace:
     save(output,result)
     return result
 
+def materialization_gate(repo_root:Path,workspace:Path,dynamic_registry:Path,mode:str,
+                         manifest:dict[str,Any]|None=None,component_id:str|None=None)->dict[str,Any]:
+    gate=repo_root/"dev-hub/bin/universal-materialization-gate.py"
+    policy=repo_root/"dev-hub/config/canonical-component-registry.v1.json"
+    out=workspace/("materialization-"+mode+".json")
+    cmd=[sys.executable,gate,"--mode",mode,"--policy",policy,"--dynamic-registry",dynamic_registry,"--output",out]
+    if manifest is not None:
+        mp=workspace/"materialization-manifest.json";save(mp,manifest);cmd.extend(["--manifest",mp])
+    if component_id:cmd.extend(["--component-id",component_id])
+    run(cmd)
+    receipt=load(out)
+    if receipt.get("status")!="PASS":raise SystemExit("UNIVERSAL_MATERIALIZATION_GATE_NOT_PASS")
+    return receipt
+
 def main()->int:
     ap=argparse.ArgumentParser()
     ap.add_argument("--policy",type=Path,required=True)
@@ -454,6 +468,7 @@ def main()->int:
     ap.add_argument("--repo-root",type=Path,required=True)
     ap.add_argument("--base-registry",type=Path,required=True)
     ap.add_argument("--workspace",type=Path,required=True)
+    ap.add_argument("--dynamic-registry",type=Path,default=Path("/opt/chacha-dev/runtime/canonical-registry/dynamic-components.json"))
     sub=ap.add_subparsers(dest="command",required=True)
     sub.add_parser("plan")
     build=sub.add_parser("build-pilot")
@@ -479,9 +494,32 @@ def main()->int:
     if not a.apply:
         print("EXPLICIT_APPLY_FLAG_REQUIRED")
         return 2
-    result=build_pilot(req,policy,a.repo_root.resolve(),a.workspace.resolve(),
-                       a.runtime_root.resolve(),a.base_registry.resolve(),
-                       a.output.resolve(),a.overlay.resolve())
+    workspace=a.workspace.resolve();workspace.mkdir(parents=True,exist_ok=True)
+    materialization_manifest={
+      "schema":"chacha.dev/component-materialization-manifest/v1",
+      "component_id":str(v["adapter_id"]),"purpose":"Capability Foundry generated adapter for "+str(v["capability"]),
+      "governance_class":"CONNECTOR_ADAPTER","owner_foundry":"capability-foundry",
+      "scope":"PROJECT","project_id":str(req.get("project_id") or "unknown"),
+      "permissions":["read"],"budget_policy":"ZERO_INCREMENTAL_COST_DEFAULT",
+      "health_contract":"ADAPTER_HEALTH_PROBE","observability":"CANONICAL_REGISTRY_AND_ADAPTER_TELEMETRY",
+      "lifecycle":"MATERIALIZING","termination_policy":"RETIRE_VIA_INTENDANT",
+      "retention_policy":"ADAPTER_CLASS_DEFAULT_RETENTION","purge_policy":"UNIVERSAL_HYGIENE",
+      "rollback_policy":"ROLLBACK_REQUIRED","compatibility":"ADAPTER_CONTRACT_AND_PILOT_REQUIRED",
+      "materialization_gate_required":True,
+      "birth_contract":{"schema":"chacha.dev/component-birth-contract/v1","status":"PENDING_CANONICAL_REGISTRATION",
+                        "owner_foundry":"capability-foundry","automatic_external_spend_eur":0},
+      "automatic_external_spend_eur":0
+    }
+    gate=materialization_gate(a.repo_root.resolve(),workspace,a.dynamic_registry.resolve(),"register",materialization_manifest)
+    cid=str(gate.get("component_id") or "")
+    try:
+        result=build_pilot(req,policy,a.repo_root.resolve(),workspace,
+                           a.runtime_root.resolve(),a.base_registry.resolve(),
+                           a.output.resolve(),a.overlay.resolve())
+    except BaseException:
+        if cid:materialization_gate(a.repo_root.resolve(),workspace,a.dynamic_registry.resolve(),"retire",component_id=cid)
+        raise
+    materialization_gate(a.repo_root.resolve(),workspace,a.dynamic_registry.resolve(),"activate",component_id=cid)
     print("CHACHA_DEV_V641_SAFE_ADAPTER_BUILD=PASS")
     print("CHACHA_DEV_V641_CONTRACT_OK=PASS")
     print("CHACHA_DEV_V641_SANDBOX_PILOT=PASS")

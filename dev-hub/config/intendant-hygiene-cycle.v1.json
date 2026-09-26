@@ -38,10 +38,10 @@
           }
         ],
         "require_no_open_file_descriptors": true,
-        "central_orchestrator_executes_delete": true,
-        "central_orchestrator_executor": "dev-hub/bin/central-platform-hygiene-executor.py",
         "standing_operator_approval": true,
-        "standing_operator_approval_scope": "SAFE_TEMP_ONLY"
+        "standing_operator_approval_scope": "SAFE_TEMP_ONLY",
+        "physical_executor": "platform-hygiene-executor",
+        "executor": "dev-hub/bin/central-platform-hygiene-executor.py"
       }
     },
     "WEEKLY_DRY_RUN": {
@@ -61,8 +61,9 @@
         "auto_apply_when_fully_governed": true,
         "standing_operator_approval": true,
         "reason_must_equal": "SUPERSEDED_PHYSICAL_RELEASE",
-        "central_orchestrator_executor": "dev-hub/bin/central-platform-hygiene-executor.py",
-        "standing_operator_approval_scope": "SAFE_SUPERSEDED_PHYSICAL_RELEASES_ONLY"
+        "standing_operator_approval_scope": "SAFE_SUPERSEDED_PHYSICAL_RELEASES_ONLY",
+        "physical_executor": "platform-hygiene-executor",
+        "executor": "dev-hub/bin/central-platform-hygiene-executor.py"
       }
     },
     "MONTHLY_CONSOLIDATION": {

@@ -606,8 +606,18 @@ def risk_for(agent:dict[str,Any],routing:dict[str,Any],policy:dict[str,Any])->st
     return "medium"
 
 def build_report(repo_root:Path,runtime_root:Path,policy:dict[str,Any],evolution_policy:dict[str,Any],
-                 routing:dict[str,Any],seven:dict[str,Any],project_regs:list[dict[str,Any]])->dict[str,Any]:
-    inventory=aec.build_inventory(routing,seven,project_regs)
+                 routing:dict[str,Any],seven:dict[str,Any],project_regs:list[dict[str,Any]],
+                 canonical_registry:dict[str,Any]|None=None)->dict[str,Any]:
+    if canonical_registry and canonical_registry.get("schema")=="chacha.dev/canonical-component-registry/v1":
+        agents=[]
+        for row in canonical_registry.get("components") or []:
+            projection=row.get("fleet_projection") if isinstance(row,dict) else None
+            if isinstance(projection,dict):agents.append(dict(projection))
+        inventory={"schema":"chacha.dev/agent-evolution-inventory/v1","agents":agents,
+                   "agent_count":len(agents),"source":"canonical-component-registry",
+                   "automatic_external_spend_eur":0}
+    else:
+        inventory=aec.build_inventory(routing,seven,project_regs)
     metrics=build_metrics(inventory,runtime_root,policy)
     rows=[]
     for agent in inventory.get("agents") or []:
@@ -660,9 +670,12 @@ def main()->int:
     ap.add_argument("--routing",type=Path,required=True)
     ap.add_argument("--seven",type=Path,required=True)
     ap.add_argument("--project-registry",type=Path,action="append",default=[])
+    ap.add_argument("--canonical-registry",type=Path)
     ap.add_argument("--output",type=Path,required=True)
     a=ap.parse_args()
-    report=build_report(a.repo_root,a.runtime_root,load(a.policy),load(a.evolution_policy),load(a.routing),load(a.seven),[load(p) for p in a.project_registry])
+    canonical=load(a.canonical_registry) if a.canonical_registry else None
+    report=build_report(a.repo_root,a.runtime_root,load(a.policy),load(a.evolution_policy),load(a.routing),load(a.seven),
+                        [load(p) for p in a.project_registry],canonical)
     save(a.output,report)
     print("CHACHA_DEV_V647_AGENT_FLEET_OBSERVATORY=PASS")
     print("AGENT_COUNT="+str(report["agent_count"]))

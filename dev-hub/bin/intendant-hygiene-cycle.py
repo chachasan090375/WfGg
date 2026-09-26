@@ -75,11 +75,15 @@ def current_revision(platform:Path)->str:
     cur=(platform/"current").resolve();p=cur/".revision"
     return p.read_text().strip() if p.is_file() else ""
 def current_version(platform:Path)->str:
-    cur=(platform/"current").resolve();p=cur/"dev-hub/bin/autonomous-project-orchestrator.py"
-    if not p.is_file():return ""
-    import re
-    m=re.search(r'"version"\s*:\s*"([^"]+)"',p.read_text(errors="ignore"))
-    return m.group(1) if m else ""
+    cur=(platform/"current").resolve()
+    for name in (".release-preparation.json","release-manifest.json"):
+        p=cur/name
+        if not p.is_file():continue
+        try:
+            v=str(load(p).get("version") or "").strip()
+            if v:return v
+        except Exception:continue
+    return "UNKNOWN"
 def release_count(platform:Path)->int:
     root=platform/"releases";return sum(1 for p in root.iterdir() if p.is_dir()) if root.is_dir() else 0
 def disk_used_pct(path:Path)->float:
@@ -116,7 +120,7 @@ def guardian_check(client:Path,policy:Path,event_path:Path,result_path:Path,even
 def governance_event(action_id:str,phase:str,action:str,evidence:dict[str,Any],revision:str)->dict[str,Any]:
     return {
       "schema":"chacha.dev/governance-action/v1","event_id":action_id+"-"+phase.lower(),"action_id":action_id,
-      "phase":phase,"actor":"central-orchestrator","subject_role":"platform-hygiene-executor",
+      "phase":phase,"actor":"platform-hygiene-executor","subject_role":"platform-hygiene-executor",
       "action":action,"permission":"destructive-operation","project_id":"chacha-dev-platform","revision":revision,
       "evidence":evidence,"context":{"resource_class":"normal","deadline_seconds":900},
       "capabilities":["platform-hygiene"],"automatic_external_spend_eur":0
@@ -136,6 +140,8 @@ def main()->int:
     ap.add_argument("--guardian-coverage",type=Path,required=True);ap.add_argument("--council",type=Path,required=True)
     ap.add_argument("--consolidator",type=Path,required=True);ap.add_argument("--hygiene-executor",type=Path,required=True)
     ap.add_argument("--github-runs-json",type=Path)
+    ap.add_argument("--qualification-gate",type=Path)
+    ap.add_argument("--sentinel-gate",type=Path)
     ap.add_argument("--force-cycle",choices=["LIGHT_DAILY","WEEKLY_DRY_RUN","MONTHLY_CONSOLIDATION"])
     ap.add_argument("--now");ap.add_argument("--dry-run",action="store_true")
     a=ap.parse_args();now=dt(a.now) if a.now else datetime.now(timezone.utc)
@@ -206,11 +212,11 @@ def main()->int:
                   "--hygiene-config",str(a.policy),"--guardian-event",str(work/"guardian-temp-pre-event.json"),
                   "--guardian-result",str(work/"guardian-temp-pre-result.json"),"--output",str(out)],120)
                 if e.returncode!=0:
-                    row.update({"status":"BLOCKED","reason":"CENTRAL_HYGIENE_EXECUTOR_FAILED","stderr":e.stderr[-1200:]});results.append(row);continue
+                    row.update({"status":"BLOCKED","reason":"PLATFORM_HYGIENE_EXECUTOR_FAILED","stderr":e.stderr[-1200:]});results.append(row);continue
                 ex=load(out);post_evidence={**evidence,"execution_receipt":file_digest(out)}
                 post_ok=post_guardian(a.guardian_client,a.guardian_policy,work,action_id,"EXECUTE_SAFE_TEMP_CLEANUP",post_evidence,revision)
                 row["actions"].append({"action":"SAFE_TEMP_CLEANUP","deleted":ex.get("deleted_candidate_count"),"freed_bytes":ex.get("freed_bytes"),
-                  "executor":"central-orchestrator","guardian_post_action":post_ok})
+                  "executor":"platform-hygiene-executor","guardian_post_action":post_ok})
                 if not post_ok:row["status"]="WARNING"
             else:
                 row["actions"].append({"action":"SAFE_TEMP_SCAN","candidates":len(deletable),"dry_run":True})
@@ -230,6 +236,8 @@ def main()->int:
                 council_cmd=[sys.executable,str(a.council),"--plan",str(plan),"--policy",str(a.consolidation_policy),
                   "--guardian-coverage",str(a.guardian_coverage),"--revision",revision,"--operator-explicit-purge-approval","--output",str(approval)]
                 if a.github_runs_json:council_cmd += ["--github-runs-json",str(a.github_runs_json)]
+                if a.qualification_gate:council_cmd += ["--qualification-gate",str(a.qualification_gate)]
+                if a.sentinel_gate:council_cmd += ["--sentinel-gate",str(a.sentinel_gate)]
                 q=run(council_cmd,60)
                 if q.returncode!=0:
                     row.update({"status":"BLOCKED","reason":"ARCHITECTURE_COUNCIL_BLOCK","stderr":(q.stderr+q.stdout)[-1600:]});results.append(row);continue
@@ -245,10 +253,10 @@ def main()->int:
                   "--plan",str(plan),"--approval",str(approval),"--guardian-event",str(work/"guardian-release-pre-event.json"),
                   "--guardian-result",str(work/"guardian-release-pre-result.json"),"--archive-manifest",str(archive),"--output",str(out)],180)
                 if e.returncode!=0:
-                    row.update({"status":"BLOCKED","reason":"CENTRAL_HYGIENE_EXECUTOR_FAILED","stderr":e.stderr[-1600:]});results.append(row);continue
+                    row.update({"status":"BLOCKED","reason":"PLATFORM_HYGIENE_EXECUTOR_FAILED","stderr":e.stderr[-1600:]});results.append(row);continue
                 ex=load(out);post_evidence={**evidence,"execution_receipt":file_digest(out)}
                 post_ok=post_guardian(a.guardian_client,a.guardian_policy,work,action_id,"EXECUTE_PLATFORM_RETIREMENT",post_evidence,revision)
-                row["actions"].append({"action":"SAFE_RELEASE_RETIREMENT_APPLY","executor":"central-orchestrator",
+                row["actions"].append({"action":"SAFE_RELEASE_RETIREMENT_APPLY","executor":"platform-hygiene-executor",
                   "deleted_release_count":ex.get("deleted_release_count"),"freed_bytes":ex.get("freed_bytes"),"guardian_post_action":post_ok})
                 if not post_ok:row["status"]="WARNING"
         elif name=="MONTHLY_CONSOLIDATION":
@@ -258,19 +266,29 @@ def main()->int:
               "next_action":"REVIEW_ONLY"})
         if row["status"] in {"PASS","WARNING"}:last[name]=iso(now)
         results.append(row)
-    state.update({"schema":STATE_SCHEMA,"updated_at":iso(now),"last_success":last,"last_metrics":metrics,
-      "last_threshold_reasons":threshold_reasons});save(state_path,state)
-    report={"schema":REPORT_SCHEMA,"generated_at":iso(now),"owner_agent":"intendant","physical_executor":"central-orchestrator",
+    post_metrics=dict(metrics)
+    post_metrics["disk_used_pct"]=disk_used_pct(a.platform_root)
+    post_metrics["release_count"]=release_count(a.platform_root)
+    post_metrics["hygiene_debt_score"]=hygiene_debt(post_metrics,policy)
+    post_threshold_reasons=[]
+    if post_metrics["disk_used_pct"]>=float(trig.get("filesystem_used_pct_gte") or 75):post_threshold_reasons.append("FILESYSTEM_PRESSURE")
+    if post_metrics["release_count"]>int(trig.get("physical_release_count_gt") or 3):post_threshold_reasons.append("RELEASE_OVERAGE")
+    if post_metrics["temp_bytes"]>=int(trig.get("runtime_temp_bytes_gte") or 1073741824):post_threshold_reasons.append("TEMP_PRESSURE")
+    if post_metrics["hygiene_debt_score"]>=int(trig.get("hygiene_debt_score_gte") or 60):post_threshold_reasons.append("HYGIENE_DEBT")
+    state.update({"schema":STATE_SCHEMA,"updated_at":iso(now),"last_success":last,"last_metrics":post_metrics,
+      "last_threshold_reasons":post_threshold_reasons});save(state_path,state)
+    report={"schema":REPORT_SCHEMA,"generated_at":iso(now),"owner_agent":"intendant","physical_executor":"platform-hygiene-executor",
       "platform_revision":revision,"platform_version":current_version(a.platform_root),"cycles_requested":cycles,"results":results,
-      "metrics":metrics,"threshold_reasons":threshold_reasons,"git_history_preserved":True,"remote_branch_deletion":False,
+      "metrics_before":metrics,"metrics":post_metrics,"threshold_reasons_before":threshold_reasons,
+      "threshold_reasons":post_threshold_reasons,"git_history_preserved":True,"remote_branch_deletion":False,
       "source_code_deletion":False,"canonical_observation_bus_rewrite":False,"benchmark_evidence_mutation":False,
       "intendant_direct_mutation":False,"architecture_council_final_authority":True,"automatic_external_spend_eur":0}
     report_path=report_dir/("hygiene-"+stamp+".json");save(report_path,report);save(latest_path,report)
-    print("CHACHA_DEV_V710_INTENDANT_HYGIENE_CYCLE=PASS")
-    print("CYCLES="+(",".join(cycles) if cycles else "NONE"));print("HYGIENE_DEBT_SCORE="+str(metrics["hygiene_debt_score"]))
-    print("DISK_USED_PCT="+str(metrics["disk_used_pct"]));print("RELEASE_COUNT="+str(metrics["release_count"]))
-    print("THRESHOLD_REASONS="+(",".join(threshold_reasons) if threshold_reasons else "NONE"));print("REPORT="+str(report_path))
-    print("INTENDANT_DIRECT_MUTATION=NO");print("PHYSICAL_HYGIENE_EXECUTOR=central-orchestrator")
+    print("CHACHA_DEV_INTENDANT_HYGIENE_CYCLE=PASS")
+    print("CYCLES="+(",".join(cycles) if cycles else "NONE"));print("HYGIENE_DEBT_SCORE="+str(post_metrics["hygiene_debt_score"]))
+    print("DISK_USED_PCT="+str(post_metrics["disk_used_pct"]));print("RELEASE_COUNT="+str(post_metrics["release_count"]))
+    print("THRESHOLD_REASONS="+(",".join(post_threshold_reasons) if post_threshold_reasons else "NONE"));print("REPORT="+str(report_path))
+    print("INTENDANT_DIRECT_MUTATION=NO");print("PHYSICAL_HYGIENE_EXECUTOR=platform-hygiene-executor")
     return 0 if all(x.get("status") in {"PASS","WARNING"} for x in results) else 20
 
 if __name__=="__main__":raise SystemExit(main())

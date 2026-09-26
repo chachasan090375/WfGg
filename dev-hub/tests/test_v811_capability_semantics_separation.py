@@ -36,8 +36,9 @@ with tempfile.TemporaryDirectory(prefix="v811-cap-semantics-") as td:
     fm={r["id"]:r for r in x["domain_feature_requirements"]}
     assert fm["human-conversation-rendering"]["classification"]=="REUSABLE",fm
     assert fm["human-conversation-rendering"]["evidence_complete"] is True,fm
-    assert fm["locale-localization"]["classification"]=="BUILD_REQUIRED",fm
+    assert fm["locale-localization"]["classification"]=="REUSABLE",fm
     assert fm["locale-localization"]["provider_registration_required"] is False,fm
+    assert fm["locale-localization"]["evidence_complete"] is True,fm
     assert x["summary"]["runtime_provider_gap_count"]==1
     assert x["domain_features_do_not_grant_provider_authority"] is True
 
@@ -65,6 +66,6 @@ assert '"runtime_provider_gap_count"' in src
 print("CHACHA_DEV_V811_DOMAIN_FEATURE_NOT_PROVIDER_GAP=PASS")
 print("CHACHA_DEV_V811_RUNTIME_PROVIDER_FAIL_CLOSED=PASS")
 print("CHACHA_DEV_V811_REUSABLE_FEATURE_EVIDENCE=PASS")
-print("CHACHA_DEV_V811_TRANSLATION_FEATURE_BUILD_REQUIRED=PASS")
+print("CHACHA_DEV_V811_TRANSLATION_FEATURE_REUSABLE_EVIDENCE=PASS")
 print("CHACHA_DEV_V811_EXPLICIT_RUNTIME_HINT_PRESERVED=PASS")
 print("CHACHA_DEV_V811_AUTOMATIC_EXTERNAL_SPEND_EUR=0")

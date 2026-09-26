@@ -64,7 +64,7 @@ for marker in [
   "/v1/dynamic-contracts/register",
   "dynamic_role_contracts",
   "DYNAMIC_AGENT_CONTRACT_REQUIRED",
-  "DYNAMIC_AGENT_CONTRACT_NOT_FOUND",
+  "DYNAMIC_SUBJECT_CONTRACT_NOT_FOUND",
   "CAPABILITY_OUTSIDE_AGENT_MISSION",
   "DYNAMIC_AGENT_PROJECT_SCOPE_MISMATCH",
   "dynamic_contract_permission_escalation",
@@ -73,8 +73,8 @@ for marker in [
     assert marker in worker,marker
 
 runctl=(BIN/"run-controller.py").read_text(encoding="utf-8")
-assert '"subject_contract_id": task.get("guardian_contract_id")' in runctl
-assert '"subject_contract_version": task.get("guardian_contract_version")' in runctl
+assert '"subject_contract_id": task_guardian.get("dynamic_contract_id")' in runctl
+assert '"subject_contract_version": task_guardian.get("dynamic_contract_version")' in runctl
 assert '"capabilities": [str(x) for x in (task.get("capabilities") or [])]' in runctl
 
 orch=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")

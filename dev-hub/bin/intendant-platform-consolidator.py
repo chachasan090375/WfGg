@@ -48,6 +48,18 @@ def revision_of(release:Path)->str:
     return parts[-1] if len(parts)==2 and len(parts[-1])==40 else ""
 
 def version_of(release:Path)->str:
+    prep=release/".release-preparation.json"
+    if prep.is_file():
+        try:
+            x=load(prep);v=str(x.get("version") or "").strip()
+            if v:return v
+        except Exception:pass
+    manifest=release/"release-manifest.json"
+    if manifest.is_file():
+        try:
+            x=load(manifest);v=str(x.get("version") or "").strip()
+            if v:return v
+        except Exception:pass
     p=release/"dev-hub/bin/autonomous-project-orchestrator.py"
     if not p.is_file():return ""
     txt=p.read_text(encoding="utf-8",errors="ignore")
@@ -91,17 +103,45 @@ def verified_revision_ranks(evidence_root:Path)->dict[str,float]:
         if rank>out.get(rev,0.0):out[rev]=rank
     return out
 
+def strong_installed_revision_ranks(runtime_root:Path)->dict[str,float]:
+    out={}
+    gates=runtime_root/"release-gates"
+    if gates.is_dir():
+        for p in gates.glob("*-install-pass.json"):
+            try:x=load(p)
+            except Exception:continue
+            rev=str(x.get("revision") or "").lower()
+            if len(rev)!=40 or x.get("status")!="PASS":continue
+            if str(x.get("direct_operator_health") or "")!="PASS":continue
+            if str(x.get("guardian_realtime") or "")!="PASS":continue
+            rank=_evidence_epoch(x,p)
+            out[rev]=max(out.get(rev,0.0),rank)
+    reports=runtime_root/"intendant/work"
+    if reports.is_dir():
+        for p in reports.glob("*/release-execution.json"):
+            try:x=load(p)
+            except Exception:continue
+            if x.get("schema")!="chacha.dev/platform-hygiene-execution/v1" or x.get("mode")!="RELEASE_RETIREMENT":continue
+            if x.get("active_release_preserved") is not True:continue
+            rev=str(x.get("revision") or "").lower()
+            if len(rev)!=40:continue
+            rank=_evidence_epoch(x,p)
+            out[rev]=max(out.get(rev,0.0),rank)
+    return out
+
 def approval_ok(path:Path|None,active_revision:str)->tuple[bool,list[str]]:
     if path is None or not path.is_file():return False,["APPROVAL_RECEIPT_MISSING"]
     x=load(path);errors=[]
     if x.get("schema")!=APPROVAL_SCHEMA:errors.append("APPROVAL_SCHEMA_INVALID")
     if str(x.get("revision") or "")!=active_revision:errors.append("APPROVAL_REVISION_MISMATCH")
     checks=x.get("checks") or {}
-    for key in (
-      "guardian_pass","sentinel_exact_revision_pass","architecture_council_approval",
-      "v7_runtime_health_pass","rollback_release_verified"
-    ):
+    for key in ("guardian_pass","sentinel_exact_revision_pass","exact_revision_qualification_pass",
+                "architecture_council_approval","rollback_release_verified"):
         if checks.get(key) is not True:errors.append("APPROVAL_"+key.upper()+"_MISSING")
+    runtime_health=checks.get("runtime_health_pass")
+    if runtime_health is None:
+        runtime_health=checks.get("v7_runtime_health_pass")  # legacy evidence compatibility only
+    if runtime_health is not True:errors.append("APPROVAL_RUNTIME_HEALTH_PASS_MISSING")
     if x.get("destructive_apply_authorized") is not True:errors.append("DESTRUCTIVE_APPLY_NOT_AUTHORIZED")
     return not errors,errors
 
@@ -113,7 +153,8 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
         for p in sorted(x for x in releases_root.iterdir() if x.is_dir()):
             rows.append({
               "name":p.name,"path":str(p.resolve()),"revision":revision_of(p),
-              "version":version_of(p),"size_bytes":tree_size(p)
+              "version":version_of(p),"size_bytes":tree_size(p),
+              "acquired_epoch":p.stat().st_mtime
             })
     active_path=str(active) if active else ""
     active_revision=revision_of(active) if active and active.is_dir() else ""
@@ -125,34 +166,28 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
     slots=int(retention.get("rollback_slots") or 2)
     strategy=str(retention.get("rollback_selection_strategy") or "MOST_RECENT_VERIFIED_PRIOR_RELEASES")
     evidence_root=evidence_root or Path(str(retention.get("verification_evidence_root") or "/opt/chacha-dev/evidence"))
-    verified_ranks=verified_revision_ranks(evidence_root)
+    runtime_root=Path(str(retention.get("runtime_evidence_root") or "/opt/chacha-dev/runtime"))
+    strong_ranks=strong_installed_revision_ranks(runtime_root)
+    legacy_ranks=verified_revision_ranks(evidence_root)
+    verified_ranks=dict(strong_ranks)
     verified=set(verified_ranks)
-    selected=[];seen=set();selected_versions=set();all_candidates=[]
-    if strategy=="MOST_RECENT_VERIFIED_PRIOR_RELEASES":
-        for rev,rank in verified_ranks.items():
+    selected=[];seen=set();all_candidates=[]
+    if strategy in {"MOST_RECENT_VERIFIED_PRIOR_RELEASES","MOST_RECENT_STRONGLY_VERIFIED_DISTINCT_REVISIONS"}:
+        for rev,rank in strong_ranks.items():
             if rev==str(active_revision or "").lower():continue
             hit=latest_for_revision(rows,rev)
             if hit is not None:
-                all_candidates.append((version_rank(str(hit.get("version") or "")),rank,rev,hit))
-        # First pass: preserve rollback generation diversity. Keep only the newest
-        # acquired revision for each platform version, then prefer the newest
-        # platform versions.
-        best_by_version={}
-        for vrank,rank,rev,row in all_candidates:
-            version=str(row.get("version") or "")
-            current=best_by_version.get(version)
-            if current is None or (rank,rev)>(current[1],current[2]):
-                best_by_version[version]=(vrank,rank,rev,row)
-        for vrank,rank,rev,row in sorted(best_by_version.values(),key=lambda x:(x[0],x[1],x[2]),reverse=True):
+                all_candidates.append((float(hit.get("acquired_epoch") or 0),rank,rev,hit))
+        for acquired,rank,rev,row in sorted(all_candidates,key=lambda x:(x[0],x[1],x[2]),reverse=True):
             if rev in seen:continue
-            selected.append(row);seen.add(rev);selected_versions.add(str(row.get("version") or ""))
+            selected.append(row);seen.add(rev)
             if len(selected)>=slots:break
-        # Second pass: if fewer distinct platform generations exist physically,
-        # fill remaining slots with the next newest verified revisions.
         if len(selected)<slots:
-            for vrank,rank,rev,row in sorted(all_candidates,key=lambda x:(x[0],x[1],x[2]),reverse=True):
-                if rev in seen:continue
-                selected.append(row);seen.add(rev)
+            for rev,rank in legacy_ranks.items():
+                if rev==str(active_revision or "").lower() or rev in seen:continue
+                hit=latest_for_revision(rows,rev)
+                if hit is None:continue
+                selected.append(hit);seen.add(rev);verified_ranks[rev]=rank
                 if len(selected)>=slots:break
     for rev in retention.get("fallback_verified_rollback_revisions") or []:
         if len(selected)>=slots:break
@@ -185,7 +220,7 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
       "selected_rollback_revisions":[str(x.get("revision") or "") for x in selected[:slots]],
       "selected_rollback_evidence_epochs":[verified_ranks.get(str(x.get("revision") or "").lower(),0.0) for x in selected[:slots]],
       "selected_rollback_versions":[str(x.get("version") or "") for x in selected[:slots]],
-      "rollback_selection_basis":"PLATFORM_VERSION_THEN_ACQUISITION_EVIDENCE_TIME",
+      "rollback_selection_basis":"RECENCY_DISTINCT_REVISION_WITH_STRONG_INSTALL_OR_ACTIVE_HISTORY_EVIDENCE",
       "verified_revision_count":len(verified),
       "missing_verified_rollback_count":missing_rollbacks,
       "rows":rows,
@@ -198,7 +233,7 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
 def apply_plan(plan:dict[str,Any],policy:dict[str,Any],approval:Path|None,archive:Path,explicit:bool)->dict[str,Any]:
     if not explicit:raise SystemExit("EXPLICIT_APPLY_FLAG_REQUIRED")
     active_version=str(plan.get("active_version") or "")
-    if not active_version.startswith("7."):raise SystemExit("V7_ACTIVE_RUNTIME_REQUIRED")
+    if not active_version.strip():raise SystemExit("ACTIVE_RUNTIME_VERSION_REQUIRED")
     if int(plan.get("missing_verified_rollback_count") or 0)>0:raise SystemExit("VERIFIED_ROLLBACK_RELEASE_MISSING")
     ok,errors=approval_ok(approval,str(plan.get("active_revision") or ""))
     if not ok:raise SystemExit("APPROVAL_BLOCK:"+",".join(errors))
@@ -250,7 +285,7 @@ def main()->int:
         raise SystemExit("INTENDANT_DIRECT_MUTATION_FORBIDDEN_USE_CENTRAL_ORCHESTRATOR")
     save(a.output.resolve(),plan)
     mib=lambda n:round(float(n or 0)/1024/1024,1)
-    print("CHACHA_DEV_V7_CONSOLIDATION_PLAN=PASS")
+    print("CHACHA_DEV_PLATFORM_CONSOLIDATION_PLAN=PASS")
     print("MODE="+plan["mode"])
     print("OWNER_AGENT=intendant")
     print("ACTIVE_VERSION="+str(plan.get("active_version") or ""))

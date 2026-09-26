@@ -14,7 +14,9 @@ policy=mod.load(ROOT/"dev-hub/config/direct-operator.v1.json")
 
 with tempfile.TemporaryDirectory(prefix="v805-idempotency-") as raw:
     runtime=Path(raw)
-    st=mod.State(ROOT,runtime,policy)
+    isolated_policy=dict(policy)
+    isolated_policy["runtime_root"]=str(runtime/"direct-operator")
+    st=mod.State(ROOT,runtime,isolated_policy)
     jid1,created1=st.accept_intent("Test réseau","chacha-dev-platform","operator@example.test","req-12345678")
     jid2,created2=st.accept_intent("Test réseau","chacha-dev-platform","operator@example.test","req-12345678")
     assert created1 is True

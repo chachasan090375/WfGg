@@ -175,6 +175,19 @@ def build(preplan:dict[str,Any],cfg:dict[str,Any],project_id:str,
                 "temporary-workspace","ephemeral-agent-processes","scratch-files","preview-runtime"
             ] if runtime else [],
             "fast_path":chosen.get("branch_mode")=="MEMORY_ONLY",
+            "universal_materialization":{
+                "required":runtime,
+                "governance_class":"RUNTIME_INFRASTRUCTURE" if runtime else "OWNED_ARTIFACT",
+                "owner_foundry":"branch-foundry",
+                "status":"PENDING_CANONICAL_REGISTRATION" if runtime else "NOT_MATERIALIZED",
+                "retention_policy":"TTL_AND_CLASS_DEFAULT_RETENTION",
+                "purge_policy":"UNIVERSAL_HYGIENE",
+                "materialization_gate_required":runtime,
+                "birth_contract":{"schema":"chacha.dev/component-birth-contract/v1",
+                  "status":"PENDING_CANONICAL_REGISTRATION" if runtime else "NOT_MATERIALIZED",
+                  "owner_foundry":"branch-foundry","automatic_external_spend_eur":0},
+                "automatic_external_spend_eur":0
+            },
             "optimization_strategy":opt.get("strategy"),
             "reason":"minimum-total-cost-valid-blueprint"
         })

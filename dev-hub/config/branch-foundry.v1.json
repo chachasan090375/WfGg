@@ -41,7 +41,11 @@
     "central_memory_guides_hard_valid_blueprint_order": true,
     "negative_component_confidence_blocks_fast_reuse_candidate": true,
     "memory_never_overrides_hard_constraints": true,
-    "memory_never_skips_technology_watch": true
+    "memory_never_skips_technology_watch": true,
+    "canonical_component_registry_required": true,
+    "universal_materialization_gate_required": true,
+    "birth_contract_required": true,
+    "retention_and_purge_contract_required": true
   },
   "fast_path": {
     "enabled": true,
@@ -249,6 +253,14 @@
     "guardian_required": true,
     "sentinel_required": true,
     "architecture_council_final_authority": true,
+    "automatic_external_spend_eur": 0
+  },
+  "universal_materialization": {
+    "policy": "dev-hub/config/canonical-component-registry.v1.json",
+    "gate": "dev-hub/bin/universal-materialization-gate.py",
+    "registry_builder": "dev-hub/bin/canonical_component_registry.py",
+    "pre_registration_status": "PENDING_CANONICAL_REGISTRATION",
+    "active_only_after_gate_pass": true,
     "automatic_external_spend_eur": 0
   }
 }

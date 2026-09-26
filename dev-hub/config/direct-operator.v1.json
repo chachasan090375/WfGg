@@ -54,7 +54,8 @@
     "dialogue_model_may_only_rephrase_human_message": true,
     "dialogue_provider_requires_zero_cost_attestation": true,
     "voice_gateway_has_no_execution_authority": true,
-    "voice_gateway_has_no_build_auto_switch": true
+    "voice_gateway_has_no_build_auto_switch": true,
+    "operator_structural_directive_capture_before_downstream": true
   },
   "progress_policy": "dev-hub/config/progress-reporting.v1.json",
   "android_live_shell_config": "dev-hub/config/android-live-shell.v1.json",
@@ -74,7 +75,11 @@
   "auto_continue": {
     "enabled": true,
     "max_steps": 24,
-    "non_terminal_statuses": ["PLAN_READY", "CONTINUED", "READY"],
+    "non_terminal_statuses": [
+      "PLAN_READY",
+      "CONTINUED",
+      "READY"
+    ],
     "stop_on_human_approval": true,
     "stop_on_await_user_action": true
   },
@@ -134,6 +139,13 @@
     "conversation_channel_only": true,
     "build_auto_switch": false,
     "raw_audio_persistence": false,
+    "automatic_external_spend_eur": 0
+  },
+  "operator_directives": {
+    "policy": "dev-hub/config/operator-directives.v1.json",
+    "intake": "/opt/chacha-dev/runtime/governance/operator-directives/intake.jsonl",
+    "capture_before_downstream_execution": true,
+    "structural_candidate_not_active_until_verified": true,
     "automatic_external_spend_eur": 0
   }
 }

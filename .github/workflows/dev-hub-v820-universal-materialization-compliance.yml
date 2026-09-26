@@ -1,0 +1,127 @@
+name: ChaCha DEV V8.2.0 Universal Materialization Compliance
+
+on:
+  push:
+    branches:
+      - dev-hub-v820-universal-materialization-compliance
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: V8.2.0 syntax
+        run: |
+          set -euo pipefail
+          python3 -m py_compile \
+            dev-hub/bin/operator_directive_registry.py \
+            dev-hub/bin/operator_directive_intake.py \
+            dev-hub/bin/directive_impact_analyzer.py \
+            dev-hub/bin/policy_propagation_engine.py \
+            dev-hub/bin/version_coupling_audit.py \
+            dev-hub/bin/canonical_component_registry.py \
+            dev-hub/bin/universal-materialization-gate.py \
+            dev-hub/bin/component_registry_reconciler.py \
+            dev-hub/bin/release_state_reconciler.py \
+            dev-hub/bin/intendant-platform-consolidator.py \
+            dev-hub/bin/intendant-hygiene-cycle.py \
+            dev-hub/bin/architecture-council-platform-consolidation.py \
+            dev-hub/tests/test_v820_operator_directives_compliance.py \
+            dev-hub/tests/test_v820_operator_directive_intake.py \
+            dev-hub/tests/test_v820_version_agnostic_hygiene.py \
+            dev-hub/tests/test_v820_guardian_terminal_hold.py
+          node --check dev-hub/guardian/worker.js
+          python3 -m json.tool dev-hub/config/operator-directives.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/operator-directive-sinks.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/canonical-component-registry.v1.json >/dev/null
+
+      - name: Operator directives and materialization
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v820_operator_directives_compliance.py
+
+      - name: Operator directive intake before downstream
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v820_operator_directive_intake.py
+
+      - name: Foundry birth-contract regressions
+        run: |
+          set -euo pipefail
+          for t in \
+            dev-hub/tests/test_v617_dynamic_agent_role_contracts.py \
+            dev-hub/tests/test_v629_memory_guided_foundry_planning.py \
+            dev-hub/tests/test_v640_capability_foundry_auto_closure.py \
+            dev-hub/tests/test_v641_capability_build_loop.py \
+            dev-hub/tests/test_v642_durable_capability_adoption.py \
+            dev-hub/tests/test_v770_object_factory.py \
+            dev-hub/tests/test_v811_capability_semantics_separation.py; do
+            PYTHONPATH=dev-hub/bin python3 "$t"
+          done
+      - name: Future-version hygiene
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v820_version_agnostic_hygiene.py
+
+      - name: Guardian terminal hold regression
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v820_guardian_terminal_hold.py
+
+      - name: Canonical registry and Fleet projection
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/chacha-runtime /tmp/chacha-platform/releases
+          PYTHONPATH=dev-hub/bin python3 dev-hub/bin/canonical_component_registry.py \
+            --repo-root . --policy dev-hub/config/canonical-component-registry.v1.json \
+            --output /tmp/canonical-registry.json
+          PYTHONPATH=dev-hub/bin python3 dev-hub/bin/agent_fleet_observatory.py \
+            --repo-root . --runtime-root /tmp/chacha-runtime \
+            --policy dev-hub/config/agent-fleet-observatory.v1.json \
+            --evolution-policy dev-hub/config/universal-evolution-governance.v1.json \
+            --routing dev-hub/config/agent-routing.v1.json \
+            --seven dev-hub/config/seven-agent-final-compromise.v1.json \
+            --canonical-registry /tmp/canonical-registry.json --output /tmp/fleet.json
+          PYTHONPATH=dev-hub/bin python3 dev-hub/bin/component_registry_reconciler.py \
+            --repo-root . --registry /tmp/canonical-registry.json \
+            --policy dev-hub/config/canonical-component-registry.v1.json \
+            --fleet /tmp/fleet.json --platform-root /tmp/chacha-platform \
+            --output /tmp/reconciliation.json --strict
+          python3 - <<'PY'
+          import json
+          r=json.load(open('/tmp/canonical-registry.json'))
+          f=json.load(open('/tmp/fleet.json'))
+          q=json.load(open('/tmp/reconciliation.json'))
+          assert r['component_count']>=190,r
+          assert r['birth_contract_complete'] is True,r
+          assert f['agent_count']==39,f
+          assert q['status']=='PASS' and q['issue_count']==0,q
+          PY
+
+      - name: V8.2.0 qualification receipt
+        run: |
+          echo CHACHA_DEV_V820_UNIVERSAL_MATERIALIZATION_COMPLIANCE=PASS
+          echo CHACHA_DEV_OPERATOR_DIRECTIVE_REGISTRY=PASS
+          echo CHACHA_DEV_OPERATOR_DIRECTIVE_INTAKE=PASS
+          echo CHACHA_DEV_ALL_FOUNDRIES_USE_BIRTH_CONTRACT=PASS
+          echo CHACHA_DEV_GLOBAL_POLICY_PROPAGATION=PASS
+          echo CHACHA_DEV_CANONICAL_COMPONENT_REGISTRY=PASS
+          echo CHACHA_DEV_UNIVERSAL_MATERIALIZATION_GATE=PASS
+          echo CHACHA_DEV_UNIVERSAL_RECONCILER=PASS
+          echo CHACHA_DEV_DYNAMIC_RELEASE_RETENTION=PASS
+          echo CHACHA_DEV_HYGIENE_EXECUTOR_INDEPENDENT=PASS
+          echo CHACHA_DEV_GUARDIAN_TERMINAL_HOLD_FILTER=PASS
+          echo CHACHA_DEV_NO_ACTIVE_VERSION_MAJOR_COUPLING=PASS
+          echo CHACHA_DEV_AUTOMATIC_EXTERNAL_SPEND_EUR=0

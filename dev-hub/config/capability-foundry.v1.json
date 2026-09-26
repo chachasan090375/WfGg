@@ -46,7 +46,11 @@
     "negative_component_confidence_excludes_fast_candidate_reuse": true,
     "memory_cannot_register_missing_capability_by_itself": true,
     "memory_never_skips_technology_watch": true,
-    "architecture_council_remains_final_authority": true
+    "architecture_council_remains_final_authority": true,
+    "canonical_component_registry_required": true,
+    "universal_materialization_gate_required": true,
+    "birth_contract_required": true,
+    "retention_and_purge_contract_required": true
   },
   "human_approval_only_for": [
     "new_external_spend",
@@ -74,6 +78,14 @@
     "guardian_required": true,
     "sentinel_required": true,
     "architecture_council_final_authority": true,
+    "automatic_external_spend_eur": 0
+  },
+  "universal_materialization": {
+    "policy": "dev-hub/config/canonical-component-registry.v1.json",
+    "gate": "dev-hub/bin/universal-materialization-gate.py",
+    "registry_builder": "dev-hub/bin/canonical_component_registry.py",
+    "pre_registration_status": "PENDING_CANONICAL_REGISTRATION",
+    "active_only_after_gate_pass": true,
     "automatic_external_spend_eur": 0
   }
 }

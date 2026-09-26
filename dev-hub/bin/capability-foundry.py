@@ -179,6 +179,19 @@ def main():
           "project_domain_collector":f"project-domain-collector:{project}:{owner}",
           "contracts_required":["component","integration"],
           "fixtures_required":True,"rollback_required":True,
+          "universal_materialization":{
+            "required":not already,
+            "governance_class":"OWNED_ARTIFACT",
+            "owner_foundry":"capability-foundry",
+            "status":"REUSED" if already else "PENDING_CANONICAL_REGISTRATION",
+            "retention_policy":"OWNER_LIFECYCLE",
+            "purge_policy":"UNIVERSAL_HYGIENE",
+            "materialization_gate_required":not already,
+            "birth_contract":{"schema":"chacha.dev/component-birth-contract/v1",
+              "status":"REUSED" if already else "PENDING_CANONICAL_REGISTRATION",
+              "owner_foundry":"capability-foundry","automatic_external_spend_eur":0},
+            "automatic_external_spend_eur":0
+          },
           "state":"REUSE" if already else "PROJECT_LOCAL_PILOT"
         })
     result={

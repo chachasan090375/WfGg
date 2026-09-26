@@ -238,7 +238,7 @@ with tempfile.TemporaryDirectory(prefix="v642-e2e-") as td_raw:
     gaps=td/"project-two-gaps.json"
     save(preplan,{"packages":[{"domain":"product","capabilities":[capability]}]})
     save(contract,{"capability_hints":[{"id":capability,"domain":"product"}]})
-    orch.capability_gaps(preplan,contract,merged_caps,"v642-project-two",gaps)
+    orch.capability_gaps(preplan,contract,merged_caps,ROOT/"dev-hub/config/capability-semantics.v1.json","v642-project-two",gaps)
     assert load(gaps)["missing_capabilities"]==[],load(gaps)
 
     health=td/"health.json"
@@ -382,7 +382,7 @@ with tempfile.TemporaryDirectory(prefix="v642-human-boundary-") as td_raw:
 # Static integration invariants in the central brain.
 orch_text=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
 assert '"durable-capability-registry.py"' in orch_text
-assert 'capability_gaps(pre,contract,durable_caps,pid,gapreq)' in orch_text
+assert 'capability_gaps(pre,contract,durable_caps,cfg/"capability-semantics.v1.json",pid,gapreq)' in orch_text
 assert '"--capabilities",durable_caps' in orch_text
 assert '"--provider-adapters",durable_providers' in orch_text
 assert '"schema":"chacha.dev/capability-adoption-candidates/v1"' in orch_text

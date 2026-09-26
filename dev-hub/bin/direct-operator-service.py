@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs,urlparse
 from progress_state_controller import ProgressStore
+import operator_directive_intake as odi
 
 HUMAN_RESPONSE_SCHEMA="chacha.dev/human-interface-response/v1"
 CENTRAL_RECEIPT_SCHEMA="chacha.dev/central-interface-receipt/v1"
@@ -140,6 +141,12 @@ class State:
         self.native_update_policy=load(native_policy_path)
         self.native_update_manifest=Path(str(policy.get("native_update_manifest") or "/opt/chacha-dev/runtime/native-update/current/manifest.json"))
         self.native_update_packages_root=Path(str(policy.get("native_update_packages_root") or "/opt/chacha-dev/runtime/native-update/current/packages"))
+        directive_cfg=policy.get("operator_directives") if isinstance(policy.get("operator_directives"),dict) else {}
+        directive_policy=Path(str(directive_cfg.get("policy") or "dev-hub/config/operator-directives.v1.json"))
+        self.operator_directive_policy_path=directive_policy if directive_policy.is_absolute() else repo/directive_policy
+        self.operator_directive_policy=load(self.operator_directive_policy_path)
+        directive_runtime=self.operator_directive_policy.get("runtime") if isinstance(self.operator_directive_policy.get("runtime"),dict) else {}
+        self.operator_directive_intake=Path(str(directive_cfg.get("intake") or directive_runtime.get("intake") or "/opt/chacha-dev/runtime/governance/operator-directives/intake.jsonl"))
     def effective_ui_root(self):
         live=self.live_ui_root
         if (live/"index.html").is_file():return live
@@ -316,6 +323,18 @@ class State:
                     "decision":{"stderr":p.stderr[-1200:]}}
         return load(out)
 
+    def capture_operator_directive(self,text:str,project:str,operator:str,request_id:str,work:Path)->dict[str,Any]:
+        try:
+            receipt=odi.capture(text,project,operator,request_id,self.operator_directive_policy,self.operator_directive_intake)
+            atomic(work/"operator-directive-intake.json",receipt)
+            return receipt
+        except Exception as exc:
+            receipt={"schema":"chacha.dev/operator-directive-intake-receipt/v1","status":"INTAKE_FAILED",
+                     "request_id":request_id,"project_id":project,"structural_candidate":None,
+                     "error":type(exc).__name__,"automatic_external_spend_eur":0}
+            atomic(work/"operator-directive-intake.json",receipt)
+            raise RuntimeError("OPERATOR_DIRECTIVE_INTAKE_FAILED") from exc
+
     def idempotency_key(self,operator:str,project:str,client_request_id:str,channel:str="BUILD")->str:
         raw=(operator+"\n"+project+"\n"+str(channel).upper()+"\n"+client_request_id).encode("utf-8")
         return hashlib.sha256(raw).hexdigest()
@@ -349,6 +368,7 @@ class State:
         project=stable_project(project,str(self.policy.get("default_project") or "chacha-dev-platform"))
         request_id="dor-"+uuid.uuid4().hex
         work=self.root/"requests"/request_id;work.mkdir(parents=True,exist_ok=True)
+        directive_intake=self.capture_operator_directive(text,project,operator,request_id,work)
         self.set_job(jid,state="CONVERSATION_ROUTING",request_id=request_id,command="CONVERSATION",
                      project_id=project,channel="CONVERSATION")
         self.progress.begin(request_id,"ChaCha te répond ✨",project)
@@ -440,6 +460,7 @@ class State:
               "evidence_refs":[],"interface_direct_technical_decision":False,"interface_direct_mutation":False,
               "heavy_build_pipeline_called":False,"scheduler_called":False,"run_controller_called":False,
               "foundry_called":False,"conversation":conversation,"message":conversation.get("message"),
+              "operator_directive_intake":directive_intake,
               "submitted_user_message":text,"submitted_at":now_iso(),"session_project_id":project,
               "automatic_external_spend_eur":0
             }
@@ -471,6 +492,7 @@ class State:
         request_id="dor-"+uuid.uuid4().hex
         command=normalize(text)
         work=self.root/"requests"/request_id;work.mkdir(parents=True,exist_ok=True)
+        directive_intake=self.capture_operator_directive(text,project,operator,request_id,work) if command=="INSTRUCTION" else {"schema":"chacha.dev/operator-directive-intake-receipt/v1","status":"NOT_APPLICABLE","request_id":request_id,"project_id":project,"automatic_external_spend_eur":0}
         intent={"schema":"chacha.dev/human-interface-intent/v1","request_id":request_id,"received_at":now_iso(),
           "source":"direct-operator","route":"CHACHA_DEV","command":command,"user_text":text,
           "project_id":project,"target_scope":"PLATFORM" if project=="chacha-dev-platform" else "PROJECT",
@@ -616,6 +638,7 @@ class State:
             response["submitted_user_message"]=text
             response["submitted_at"]=intent.get("received_at")
             response["session_project_id"]=project
+            response["operator_directive_intake"]=directive_intake
             response["continuation_steps"]=continuation_steps
             response_path=self.responses/(safe_id(request_id)+".json");atomic(response_path,response)
             turn=self.append_turn(operator,response)

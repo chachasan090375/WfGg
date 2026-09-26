@@ -68,7 +68,7 @@ def platform_status(repo_root:Path,runtime_root:Path)->dict[str,Any]:
         ext=load(repo_root/"dev-hub/config/platform-extension.v1.json")
         out["platform_extension"]={
           "version":ext.get("version"),"name":ext.get("name"),
-          "core_platform_version":ext.get("core_platform_version"),
+          "core_platform_compatibility":ext.get("core_platform_compatibility"),
           "components":ext.get("components") or []
         }
     except Exception:out["platform_extension"]=None

@@ -1,7 +1,6 @@
 {
   "schema": "chacha.dev/human-interface-gateway-policy/v1",
   "version": "1.1.0",
-  "platform_version": "7.2.0",
   "component_id": "human-interface-gateway",
   "component_type": "interface-adapter",
   "is_agent": false,
@@ -88,5 +87,6 @@
     "interface_may_copy_prior_brain_action_as_new_decision": false,
     "chacha_route_requires_fresh_central_controller_call": true
   },
-  "central_controller": "dev-hub/bin/central-interface-controller.py"
+  "central_controller": "dev-hub/bin/central-interface-controller.py",
+  "platform_compatibility": "CANONICAL_ACTIVE_RELEASE"
 }

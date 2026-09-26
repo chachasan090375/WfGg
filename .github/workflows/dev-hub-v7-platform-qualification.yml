@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'dev-hub-v7*'
-      - 'dev-hub-v8*'
   workflow_dispatch:
 
 permissions:

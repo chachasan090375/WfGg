@@ -1,0 +1,198 @@
+{
+  "schema": "chacha.dev/operator-directive-registry-policy/v1",
+  "version": "1.0.0",
+  "purpose": "Persist operator structural rules independently of any conversation and propagate them into ChaCha DEV governance.",
+  "principles": {
+    "operator_structural_rules_are_persistent": true,
+    "global_directive_requires_verified_propagation": true,
+    "prompt_sent_is_not_proof_of_application": true,
+    "existing_components_require_backfill": true,
+    "future_components_inherit_active_global_directives": true,
+    "automatic_external_spend_eur": 0
+  },
+  "directives": [
+    {
+      "directive_id": "opdir-universal-materialization",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "ARCHITECTURE",
+      "status": "ACTIVE",
+      "normalized_requirement": "Every materialized component must have a canonical birth contract and pass the Universal Materialization Gate before ACTIVE.",
+      "required_sinks": [
+        "canonical-component-registry",
+        "universal-materialization-gate",
+        "all-foundries",
+        "component-registry-reconciler"
+      ],
+      "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-canonical-inventory",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "ARCHITECTURE",
+      "status": "ACTIVE",
+      "normalized_requirement": "Fleet, Guardian, Assurance, lifecycle and hygiene must derive their governed inventory from one canonical component registry.",
+      "required_sinks": [
+        "canonical-component-registry",
+        "fleet-observatory",
+        "guardian",
+        "assurance",
+        "intendant"
+      ],
+      "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-version-agnostic-runtime",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "ARCHITECTURE",
+      "status": "ACTIVE",
+      "normalized_requirement": "Active platform logic must decide by capabilities, contracts, schemas or metadata rather than V7/V8/V9 major-version literals when a generic mechanism exists.",
+      "required_sinks": [
+        "all-foundries",
+        "release-qualification",
+        "component-registry-reconciler"
+      ],
+      "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-universal-hygiene",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "ARCHITECTURE",
+      "status": "ACTIVE",
+      "normalized_requirement": "Lifecycle, retention and purge must cover releases, agents, objects, adapters, runtimes, temporaries and terminal Guardian state without circular dependency on the component being repaired.",
+      "required_sinks": [
+        "intendant",
+        "platform-hygiene-executor",
+        "guardian-state-reconciliation",
+        "component-registry-reconciler"
+      ],
+      "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-root-cause-to-invariant",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "ARCHITECTURE",
+      "status": "ACTIVE",
+      "normalized_requirement": "When an incident reveals a missing general rule, repair the root cause and promote the correction into a permanent invariant that prevents recurrence.",
+      "required_sinks": [
+        "architecture-governance",
+        "component-registry-reconciler",
+        "release-qualification"
+      ],
+      "backfill_required": false
+    },
+    {
+      "directive_id": "opdir-guardian-sentinel-no-bypass",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "SAFETY_GOVERNANCE",
+      "status": "ACTIVE",
+      "normalized_requirement": "Guardian and Sentinel must never be bypassed; blocked paths require root-cause repair rather than synthetic PASS or authority escalation.",
+      "required_sinks": [
+        "guardian",
+        "sentinel",
+        "release-qualification"
+      ],
+      "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-zero-auto-external-spend",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "SAFETY_GOVERNANCE",
+      "status": "ACTIVE",
+      "normalized_requirement": "Automatic external spend is zero unless the operator explicitly authorizes a paid action.",
+      "required_sinks": [
+        "all-foundries",
+        "provider-economics",
+        "materialization-gate",
+        "release-qualification"
+      ],
+      "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-preserve-valid-qualification",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "ARCHITECTURE",
+      "status": "ACTIVE",
+      "normalized_requirement": "Do not replay previously acquired PASS qualifications when the exact HEAD and affected scope have not changed.",
+      "required_sinks": [
+        "release-qualification",
+        "run-controller"
+      ],
+      "backfill_required": false
+    },
+    {
+      "directive_id": "opdir-autonomous-nonblocking-continuation",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "USER_EXPERIENCE",
+      "status": "ACTIVE",
+      "normalized_requirement": "Continue automatically across authorized non-blocking internal steps and stop only at real human boundaries or unresolved external conditions.",
+      "required_sinks": [
+        "direct-operator",
+        "run-controller",
+        "conversation-channel"
+      ],
+      "backfill_required": false
+    },
+    {
+      "directive_id": "opdir-structural-instruction-intake",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "ARCHITECTURE",
+      "status": "ACTIVE",
+      "normalized_requirement": "Structural operator instructions must be durably captured before downstream execution and must not be considered applied until architecture propagation is VERIFIED and ACTIVE.",
+      "required_sinks": [
+        "direct-operator",
+        "architecture-governance",
+        "release-qualification"
+      ],
+      "backfill_required": false
+    }
+  ],
+  "runtime": {
+    "snapshot": "/opt/chacha-dev/runtime/governance/operator-directives/active-directives.json",
+    "impact_report": "/opt/chacha-dev/runtime/governance/operator-directives/impact-latest.json",
+    "propagation_receipt": "/opt/chacha-dev/runtime/governance/operator-directives/propagation-latest.json",
+    "intake": "/opt/chacha-dev/runtime/governance/operator-directives/intake.jsonl"
+  },
+  "automatic_external_spend_eur": 0,
+  "intake_classification": {
+    "high_confidence_phrases": [
+      "à partir de maintenant",
+      "désormais",
+      "tous les agents",
+      "toutes les applications",
+      "tous les composants",
+      "les futurs agents",
+      "les futurs composants",
+      "aucun composant",
+      "je veux que le système"
+    ],
+    "structural_terms": [
+      "architecture",
+      "agent",
+      "agents",
+      "application",
+      "applications",
+      "composant",
+      "composants",
+      "fonderie",
+      "foundry",
+      "purge",
+      "guardian",
+      "sentinel",
+      "plateforme",
+      "système",
+      "systeme"
+    ],
+    "global_quantifiers": [
+      "tous",
+      "toutes",
+      "aucun",
+      "aucune",
+      "toujours",
+      "futurs",
+      "futures"
+    ],
+    "default_candidate_scope": "PLATFORM_GLOBAL",
+    "candidate_status": "RECEIVED",
+    "activation_requires": "APPLIED+VERIFIED+ACTIVE"
+  }
+}

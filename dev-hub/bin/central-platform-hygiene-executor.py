@@ -27,7 +27,7 @@ def guardian_bound(event:dict[str,Any],result:dict[str,Any],action:str,digest_ke
     return (
       event.get("schema")=="chacha.dev/governance-action/v1" and
       event.get("phase")=="PRE_ACTION" and
-      event.get("actor")=="central-orchestrator" and
+      event.get("actor")=="platform-hygiene-executor" and
       event.get("subject_role")=="platform-hygiene-executor" and
       event.get("action")==action and event.get("permission")=="destructive-operation" and
       evidence.get("human_approval") is True and
@@ -67,7 +67,7 @@ def release_retirement(a)->dict[str,Any]:
     revision=(active/".revision").read_text(encoding="utf-8").strip()
     if str(plan.get("active_revision") or "")!=revision or str(approval.get("revision") or "")!=revision:
         raise SystemExit("ACTIVE_REVISION_DRIFT")
-    if not str(plan.get("active_version") or "").startswith("7."):raise SystemExit("V7_RUNTIME_REQUIRED")
+    if not str(plan.get("active_version") or "").strip():raise SystemExit("ACTIVE_VERSION_REQUIRED")
     if int(plan.get("missing_verified_rollback_count") or 0)>0:raise SystemExit("ROLLBACK_PROTECTION_INCOMPLETE")
     retiring=[]
     for row in plan.get("rows") or []:
@@ -79,7 +79,7 @@ def release_retirement(a)->dict[str,Any]:
         if p==active:raise SystemExit("REFUSE_DELETE_ACTIVE_RELEASE")
         item=dict(row);item["tree_sha256"]=tree_digest(p) if p.is_dir() else "MISSING";retiring.append((item,p))
     archive={"schema":"chacha.dev/platform-retirement-archive/v3","generated_at":now_iso(),"revision":revision,
-      "planner_owner":"intendant","executor_component":"central-orchestrator","plan_digest":pd,
+      "planner_owner":"intendant","executor_component":"platform-hygiene-executor","plan_digest":pd,
       "guardian_action_id":guardian.get("action_id"),"retiring":[x for x,_ in retiring],
       "git_history_preserved":True,"remote_branch_deletion":False,"source_code_deletion":False,
       "canonical_observation_bus_rewrite":False,"benchmark_evidence_mutation":False,"automatic_external_spend_eur":0}
@@ -89,7 +89,7 @@ def release_retirement(a)->dict[str,Any]:
         if not p.is_dir():continue
         freed+=int(row.get("size_bytes") or tree_size(p));shutil.rmtree(p);deleted+=1
     return {"schema":"chacha.dev/platform-hygiene-execution/v1","mode":"RELEASE_RETIREMENT","executed_at":now_iso(),
-      "revision":revision,"planner_owner":"intendant","executor_component":"central-orchestrator",
+      "revision":revision,"planner_owner":"intendant","executor_component":"platform-hygiene-executor",
       "deleted_release_count":deleted,"freed_bytes":freed,
       "release_count_after":sum(1 for p in releases.iterdir() if p.is_dir()),
       "active_release_preserved":active.is_dir(),"guardian_action_id":guardian.get("action_id"),
@@ -121,7 +121,7 @@ def safe_temp_cleanup(a)->dict[str,Any]:
         else:rp.unlink()
         freed+=size;deleted+=1
     return {"schema":"chacha.dev/platform-hygiene-execution/v1","mode":"SAFE_TEMP_CLEANUP","executed_at":now_iso(),
-      "planner_owner":"intendant","executor_component":"central-orchestrator",
+      "planner_owner":"intendant","executor_component":"platform-hygiene-executor",
       "deleted_candidate_count":deleted,"freed_bytes":freed,"skipped":skipped,
       "guardian_action_id":guardian.get("action_id"),"git_history_preserved":True,
       "remote_branch_deletion":False,"source_code_deletion":False,
