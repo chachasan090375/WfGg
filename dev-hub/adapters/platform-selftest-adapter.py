@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import hashlib,json,sys
+import hashlib,json,os,sys
 from datetime import datetime,timezone
 from pathlib import Path
 
@@ -8,7 +8,7 @@ INPUT_SCHEMA="chacha.dev/dispatch-envelope/v1"
 OUTPUT_SCHEMA="chacha.dev/task-result/v1"
 ADAPTER_ID="platform-selftest-adapter"
 PROVIDER_ID="platform-selftest-runtime"
-REVISION=Path("/opt/chacha-dev/platform/current/.revision")
+REVISION=Path(os.environ.get("CHACHA_DEV_PLATFORM_REVISION_FILE","/opt/chacha-dev/platform/current/.revision"))
 
 def now_iso():return datetime.now(timezone.utc).isoformat()
 
