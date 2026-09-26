@@ -1,0 +1,13 @@
+{
+  "schema": "chacha.dev/production-approval/v1",
+  "scope": "guardian-worker-production",
+  "approved": true,
+  "approved_by": "operator",
+  "revision": "778ce660a0472b0c472094848a5898fb2aaff644",
+  "tree": "579e41510daf52687b7d6b38d2ec8cd63ab0f504",
+  "rollback_revision": "089b041179c099f5b42636b377acbfc4bac51e7e",
+  "automatic_external_spend_eur": 0,
+  "guardian_bypass": false,
+  "sentinel_bypass": false,
+  "operator_approval_context": "Explicit production approval for ChaCha DEV V8.2.0 and associated Guardian worker, exact candidate SHA."
+}
