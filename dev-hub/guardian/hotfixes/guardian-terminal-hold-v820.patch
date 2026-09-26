@@ -1,0 +1,33 @@
+diff --git a/dev-hub/guardian/worker.js b/dev-hub/guardian/worker.js
+index 6d513d19..0be80445 100644
+--- a/dev-hub/guardian/worker.js
++++ b/dev-hub/guardian/worker.js
+@@ -444,7 +444,8 @@ async function activeRemediationHold(event,env){
+     return env.DB.prepare(
+       `SELECT h.* FROM remediation_holds h
+         JOIN remediation_directives d ON d.directive_id=h.directive_id
+-        WHERE h.active=1 AND (h.target_actor=?1 OR h.target_role=?2)
++        WHERE h.active=1 AND d.status IN ('OPEN','DELIVERED')
++          AND (h.target_actor=?1 OR h.target_role=?2)
+           AND (h.project_id IS NULL OR h.project_id='' OR h.project_id=?3)
+           AND (
+             h.run_id=?4 OR
+@@ -454,11 +455,13 @@ async function activeRemediationHold(event,env){
+     ).bind(actor,subject,project,run).first();
+   }
+   return env.DB.prepare(
+-    `SELECT * FROM remediation_holds
+-      WHERE active=1 AND (target_actor=?1 OR target_role=?2)
+-        AND (project_id IS NULL OR project_id='' OR project_id=?3)
+-        AND (run_id IS NULL OR run_id='')
+-      ORDER BY created_at ASC LIMIT 1`
++    `SELECT h.* FROM remediation_holds h
++      JOIN remediation_directives d ON d.directive_id=h.directive_id
++      WHERE h.active=1 AND d.status IN ('OPEN','DELIVERED')
++        AND (h.target_actor=?1 OR h.target_role=?2)
++        AND (h.project_id IS NULL OR h.project_id='' OR h.project_id=?3)
++        AND (h.run_id IS NULL OR h.run_id='')
++      ORDER BY h.created_at ASC LIMIT 1`
+   ).bind(actor,subject,project).first();
+ }
+ 
