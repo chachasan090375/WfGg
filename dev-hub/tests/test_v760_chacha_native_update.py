@@ -110,7 +110,7 @@ assert "NativeUpdateManager.checkForUpdate" in activity
 assert "REQUEST_INSTALL_PACKAGES" in manifest
 assert 'android:name=".NativeUpdateReceiver"' in manifest and 'android:exported="false"' in manifest
 assert pinned in strings
-assert 'versionCode = 6' in gradle and 'versionName = "0.6.0"' in gradle
+assert 'versionCode = 7' in gradle and 'versionName = "0.7.0"' in gradle
 
 guardian=json.loads((ROOT/"dev-hub/config/guardian-coverage-manifest.v1.json").read_text(encoding="utf-8"))
 ids={x["component_id"] for x in guardian["expected_components"]}
