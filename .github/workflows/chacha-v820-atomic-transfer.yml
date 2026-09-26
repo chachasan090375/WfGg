@@ -22,6 +22,7 @@ jobs:
         run: |
           set -euo pipefail
           test "$(sha256sum .chacha-transfer/v820-sentinel-fix.patch | awk '{print $1}')" = "5f0fc108c84c1944be8bebc5e16a38337386b9c7f5e6a8c3ad8457f3d6eefa79"
+          cp .chacha-transfer/v820-sentinel-fix.patch /tmp/v820-sentinel-fix.patch
           echo CHACHA_DEV_V820_SENTINEL_PATCH_SHA=PASS
 
       - name: Recreate exact Sentinel remediation commit
@@ -33,7 +34,7 @@ jobs:
         run: |
           set -euo pipefail
           git checkout --detach "$PARENT"
-          git apply --index .chacha-transfer/v820-sentinel-fix.patch
+          git apply --index /tmp/v820-sentinel-fix.patch
           TREE="$(git write-tree)"
           test "$TREE" = "$EXPECTED_TREE"
           echo CHACHA_DEV_V820_SENTINEL_TREE_SHA=PASS
