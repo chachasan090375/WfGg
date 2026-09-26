@@ -50,6 +50,39 @@ def stable_project(value:Any,default_project:str="chacha-dev-platform")->str:
     v=str(value or "").strip()
     return default_project if not v or transient_project(v) else v
 
+TARGET_REQUEST_RX=re.compile(r"\bdor-[0-9a-f]{32}\b",re.I)
+RECOVERY_CUES=(
+    "reprise","reprendre","repris","resume","recover","recovery",
+    "répar","repair","blocage","blocked","continuation","continue",
+    "adapter_enablement_required","provider_health_probe_required",
+    "provider_probe_definition_required","provider_binding_required",
+    "task_graph_decomposition_required"
+)
+
+def targeted_platform_recovery(text:str,project:str,direct_operator_root:Path,operator:str|None=None)->str|None:
+    if project!="chacha-dev-platform":return None
+    folded=str(text or "").casefold()
+    if not any(cue in folded for cue in RECOVERY_CUES):return None
+    seen=set()
+    for match in TARGET_REQUEST_RX.finditer(str(text or "")):
+        request_id=match.group(0).lower()
+        if request_id in seen:continue
+        seen.add(request_id)
+        prior=direct_operator_root/"responses"/(safe_id(request_id)+".json")
+        if not prior.is_file():continue
+        try:payload=load(prior)
+        except Exception:continue
+        if payload.get("schema")!="chacha.dev/human-interface-response/v1":continue
+        if stable_project(payload.get("project_id"))!="chacha-dev-platform":continue
+        if operator:
+            source_intent=direct_operator_root/"requests"/request_id/"intent.json"
+            if not source_intent.is_file():continue
+            try:owner=str(load(source_intent).get("operator_identity") or "").casefold()
+            except Exception:continue
+            if not owner or owner!=str(operator).casefold():continue
+        return request_id
+    return None
+
 def should_auto_continue(receipt:dict[str,Any])->bool:
     status=str(receipt.get("status") or "").upper()
     next_action=str(receipt.get("next_action") or "").upper()
@@ -491,15 +524,18 @@ class State:
         project=stable_project(project,str(self.policy.get("default_project") or "chacha-dev-platform"))
         request_id="dor-"+uuid.uuid4().hex
         command=normalize(text)
+        recovery_target=targeted_platform_recovery(text,project,self.root,operator) if command=="INSTRUCTION" else None
         work=self.root/"requests"/request_id;work.mkdir(parents=True,exist_ok=True)
         directive_intake=self.capture_operator_directive(text,project,operator,request_id,work) if command=="INSTRUCTION" else {"schema":"chacha.dev/operator-directive-intake-receipt/v1","status":"NOT_APPLICABLE","request_id":request_id,"project_id":project,"automatic_external_spend_eur":0}
         intent={"schema":"chacha.dev/human-interface-intent/v1","request_id":request_id,"received_at":now_iso(),
           "source":"direct-operator","route":"CHACHA_DEV","command":command,"user_text":text,
           "project_id":project,"target_scope":"PLATFORM" if project=="chacha-dev-platform" else "PROJECT",
           "interface_decision_authority":False,"operator_identity":operator}
+        if recovery_target:intent["recovery_target_request_id"]=recovery_target
         atomic(work/"intent.json",intent)
-        self.set_job(jid,state="TRANSLATING" if command=="INSTRUCTION" else "CENTRAL_ORCHESTRATION",
-                     request_id=request_id,command=command,project_id=project)
+        initial_state="CENTRAL_ORCHESTRATION" if recovery_target or command!="INSTRUCTION" else "TRANSLATING"
+        self.set_job(jid,state=initial_state,request_id=request_id,command=command,project_id=project,
+                     recovery_target_request_id=recovery_target)
         self.progress.begin(request_id,"ChaCha s’occupe de ta demande ✨",project)
         self.progress.update("direct-operator-service",100,"COMPLETE","Demande reçue",10,"Demande reçue")
         try:
@@ -528,6 +564,18 @@ class State:
                 else:
                     receipt=self.central(["continue","--project",project,"--prior-response",str(prior),
                       "--expected-response-digest",expected,"--output-dir",str(work/"brain")],work/"brain-receipt.json")
+            elif command=="INSTRUCTION" and recovery_target:
+                self.progress.update("central-interface-controller",55,"RUNNING","Reprise ciblée de la demande existante",55,"ChaCha reprend la demande bloquée")
+                prior=self.responses/(safe_id(recovery_target)+".json")
+                receipt=self.central(["continue","--project",project,"--prior-response",str(prior),
+                  "--expected-response-digest",fd(prior),"--output-dir",str(work/"brain-recovery")],
+                  work/"brain-receipt.json")
+                receipt.setdefault("decision",{})["targeted_platform_recovery"]={
+                  "target_request_id":recovery_target,
+                  "generic_bootstrap_replayed":False,
+                  "functional_translator_replayed":False,
+                  "automatic_external_spend_eur":0
+                }
             else:
                 self.set_job(jid,state="TRANSLATING",request_id=request_id,command=command,project_id=project)
                 self.progress.update("functional-translator-satellite",20,"RUNNING","Traduction de ta demande",28,"ChaCha comprend ta demande")
@@ -640,6 +688,9 @@ class State:
             response["session_project_id"]=project
             response["operator_directive_intake"]=directive_intake
             response["continuation_steps"]=continuation_steps
+            if recovery_target:
+                response["recovery_target_request_id"]=recovery_target
+                response["recovery_mode"]="TARGETED_PLATFORM_RECOVERY"
             response_path=self.responses/(safe_id(request_id)+".json");atomic(response_path,response)
             turn=self.append_turn(operator,response)
             response["conversation_turn_id"]=turn["turn_id"]

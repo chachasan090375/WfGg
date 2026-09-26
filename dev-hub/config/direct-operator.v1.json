@@ -56,7 +56,8 @@
     "voice_gateway_has_no_execution_authority": true,
     "voice_gateway_has_no_build_auto_switch": true,
     "operator_structural_directive_capture_before_downstream": true,
-    "verified_existing_candidate_bypasses_new_domain_factory_bootstrap": true
+    "verified_existing_candidate_bypasses_new_domain_factory_bootstrap": true,
+    "platform_recovery_instruction_never_bootstraps_new_project": true
   },
   "progress_policy": "dev-hub/config/progress-reporting.v1.json",
   "android_live_shell_config": "dev-hub/config/android-live-shell.v1.json",
@@ -147,6 +148,16 @@
     "intake": "/opt/chacha-dev/runtime/governance/operator-directives/intake.jsonl",
     "capture_before_downstream_execution": true,
     "structural_candidate_not_active_until_verified": true,
+    "automatic_external_spend_eur": 0
+  },
+  "platform_recovery": {
+    "enabled": true,
+    "scope": "PLATFORM_EXISTING_REQUEST_ONLY",
+    "existing_request_reference_required": true,
+    "canonical_resume_command": "CONTINUE",
+    "functional_translator_replayed": false,
+    "generic_bootstrap_replayed": false,
+    "guardian_and_platform_governance_preserved": true,
     "automatic_external_spend_eur": 0
   }
 }

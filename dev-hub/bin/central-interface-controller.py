@@ -36,6 +36,52 @@ def runtime_version(repo_root:Path)->str:
     m=re.search(r'"version"\s*:\s*"([^"]+)"',p.read_text(encoding="utf-8",errors="ignore"))
     return m.group(1) if m else "UNKNOWN"
 
+TARGET_REQUEST_RX=re.compile(r"\bdor-[0-9a-f]{32}\b",re.I)
+RECOVERY_CUES=(
+    "reprise","reprendre","repris","resume","recover","recovery",
+    "répar","repair","blocage","blocked","continuation","continue",
+    "adapter_enablement_required","provider_health_probe_required",
+    "provider_probe_definition_required","provider_binding_required",
+    "task_graph_decomposition_required"
+)
+
+def targeted_recovery_request_id(intent:dict[str,Any],runtime_root:Path)->str|None:
+    if str(intent.get("project_id") or "")!="chacha-dev-platform":return None
+    if str(intent.get("target_scope") or "PLATFORM").upper()!="PLATFORM":return None
+    text=str(intent.get("user_text") or "")
+    folded=text.casefold()
+    if not any(cue in folded for cue in RECOVERY_CUES):return None
+    for match in TARGET_REQUEST_RX.finditer(text):
+        request_id=match.group(0).lower()
+        prior=runtime_root/"direct-operator"/"responses"/(request_id+".json")
+        if not prior.is_file():continue
+        try:payload=load(prior)
+        except Exception:continue
+        if payload.get("schema")!=HUMAN_RESPONSE_SCHEMA:continue
+        if str(payload.get("project_id") or "")!="chacha-dev-platform":continue
+        return request_id
+    return None
+
+def handle_targeted_recovery(a,target_request_id:str)->dict[str,Any]:
+    prior=a.runtime_root/"direct-operator"/"responses"/(target_request_id+".json")
+    if not prior.is_file():
+        return make_receipt("CONTINUE","chacha-dev-platform","BRAIN_RECEIPT_INVALID","AWAIT_NEW_INSTRUCTION",[],
+          {"reason":"TARGET_RECOVERY_PRIOR_RESPONSE_MISSING","target_request_id":target_request_id})
+    resume=argparse.Namespace(**vars(a))
+    resume.project="chacha-dev-platform"
+    resume.prior_response=prior
+    resume.expected_response_digest=file_digest(prior)
+    receipt=handle_continue(resume)
+    receipt.setdefault("decision",{})["targeted_platform_recovery"]={
+      "target_request_id":target_request_id,
+      "generic_bootstrap_replayed":False,
+      "functional_translator_replayed":False,
+      "guardian_bypass":False,
+      "automatic_external_spend_eur":0
+    }
+    return receipt
+
+
 def run_json(cmd:list[str],timeout:int=300)->tuple[int,dict[str,Any]|None,str,str]:
     try:
         p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=timeout)
@@ -216,6 +262,9 @@ def handle_status(a)->dict[str,Any]:
 def handle_instruction(a)->dict[str,Any]:
     hi=load(a.intent)
     if hi.get("schema")!=HUMAN_INTENT_SCHEMA:raise SystemExit("HUMAN_INTENT_SCHEMA_INVALID")
+    recovery_target=targeted_recovery_request_id(hi,a.runtime_root)
+    if recovery_target:
+        return handle_targeted_recovery(a,recovery_target)
     return orchestrate(a.repo_root,a.orchestrator,hi,a.output_dir)
 
 
