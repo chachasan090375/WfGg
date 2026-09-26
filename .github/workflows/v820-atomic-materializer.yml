@@ -22,10 +22,13 @@ jobs:
       - name: Reassemble exact local patch
         run: |
           set -euo pipefail
-          cat transfer/v820-patch-part-1.txt \
+          cat transfer/v820-patch-part-11.txt \
+              transfer/v820-patch-part-12.txt \
+              transfer/v820-patch-part-13.txt \
               transfer/v820-patch-part-2.txt \
               transfer/v820-patch-part-3.txt \
               transfer/v820-patch-part-4.txt > /tmp/v820.patch.gz.b64
+          test "$(wc -c < /tmp/v820.patch.gz.b64)" -eq 57000
           base64 -d /tmp/v820.patch.gz.b64 | gzip -d > /tmp/v820.patch
           test "$(wc -c < /tmp/v820.patch)" -eq 196632
 
