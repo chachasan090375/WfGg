@@ -1,0 +1,36 @@
+name: ChaCha DEV V8.2.4 Atomic Tree Transport V2
+
+on:
+  push:
+    branches:
+      - dev-hub-v824-governed-build-runtime-roots
+    paths:
+      - '.chacha-transport/v824-lineage-fix.patch.gz'
+      - '.github/workflows/v824-atomic-tree-transport-v2.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply exact governed compressed patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^^)" = "290e4ba9087cd3d91d04fcfa33abb81cefeeb5fb"
+          echo 'eb030d0e95a8f033aa27891590bc56116babaf9867658e20de0bf5d183deb684  .chacha-transport/v824-lineage-fix.patch.gz' | sha256sum -c -
+          gzip -dc .chacha-transport/v824-lineage-fix.patch.gz > /tmp/v824-lineage-fix.patch
+          echo 'd2b329e7dac4e8d237acd550cd4bc7bc9133d14f8a6178b13faaecec53b33195  /tmp/v824-lineage-fix.patch' | sha256sum -c -
+          git apply --index /tmp/v824-lineage-fix.patch
+          git rm .chacha-transport/v824-lineage-fix.patch .chacha-transport/v824-lineage-fix.patch.gz .github/workflows/v824-atomic-tree-transport.yml .github/workflows/v824-atomic-tree-transport-v2.yml
+          test "$(git write-tree)" = "c0c25e3edfd73a81adcd271c351b3e170e07c5a7"
+          git config user.name "ChaCha DEV Governed Transport"
+          git config user.email "actions@users.noreply.github.com"
+          git commit -m "fix(v824): preserve effective adapter lineage verification"
+          test "$(git rev-parse 'HEAD^{tree}')" = "c0c25e3edfd73a81adcd271c351b3e170e07c5a7"
+          git push origin HEAD:dev-hub-v824-governed-build-runtime-roots
