@@ -1,0 +1,19 @@
+{
+  "schema": "chacha.dev/production-approval/v1",
+  "scope": "guardian-worker-production",
+  "revision": "8e97385d167c3dde9c3a68d54e47cbf88ffbc8bc",
+  "approved": true,
+  "approved_by": "operator",
+  "purpose": "Restore Guardian SENTINEL_URL and SENTINEL_SERVICE for ChaCha DEV V8.2.4 production promotion",
+  "constraints": {
+    "exact_revision_only": true,
+    "sentinel_url_required": true,
+    "sentinel_service_binding_required": true,
+    "post_deploy_healthcheck_required": true,
+    "automatic_rollback_on_failure": true,
+    "guardian_bypass_forbidden": true,
+    "sentinel_bypass_forbidden": true,
+    "automatic_external_spend_eur": 0
+  },
+  "approved_at": "2026-09-27T16:49:00+02:00"
+}
