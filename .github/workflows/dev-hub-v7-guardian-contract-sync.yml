@@ -14,7 +14,18 @@ on:
       - '.github/workflows/dev-hub-v720-human-interface-gateway-qualification.yml'
       - '.github/workflows/dev-hub-v7-platform-qualification.yml'
       - '.github/workflows/dev-hub-v7-guardian-contract-sync.yml'
+      - '.chacha-approvals/guardian-contracts/*.json'
   workflow_dispatch:
+    inputs:
+      revision:
+        description: Exact approved platform revision whose contracts must become authoritative
+        required: true
+        type: string
+      confirm_production:
+        description: Explicit human production approval for Guardian contract mutation
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -28,6 +39,44 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+
+      - name: Resolve explicit production contract-sync approval
+        id: approval
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            test "${{ inputs.confirm_production }}" = "true"
+            REV='${{ inputs.revision }}'
+          else
+            BEFORE='${{ github.event.before }}'
+            FILE="$(git diff --name-only "$BEFORE" "$GITHUB_SHA" -- '.chacha-approvals/guardian-contracts/*.json' | tail -1)"
+            test -n "$FILE"
+            REV="$(python3 - "$FILE" <<'PY2'
+          import json,re,sys
+          x=json.load(open(sys.argv[1],encoding='utf-8'))
+          assert x.get('schema')=='chacha.dev/production-approval/v1',x
+          assert x.get('scope')=='guardian-contracts-production',x
+          assert x.get('approved') is True,x
+          assert x.get('approved_by')=='operator',x
+          r=str(x.get('revision') or '')
+          assert re.fullmatch(r'[0-9a-f]{40}',r),x
+          print(r)
+          PY2
+            )"
+          fi
+          echo "revision=$REV" >> "$GITHUB_OUTPUT"
+          echo CHACHA_DEV_GUARDIAN_CONTRACT_SYNC_EXPLICIT_PRODUCTION_APPROVAL=PASS
+
+      - name: Checkout exact approved contract source revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          REV='${{ steps.approval.outputs.revision }}'
+          git fetch --depth=1 origin "$REV"
+          git checkout --detach "$REV"
+          test "$(git rev-parse HEAD)" = "$REV"
+          echo CHACHA_DEV_GUARDIAN_CONTRACT_SYNC_EXACT_APPROVED_REVISION=PASS
 
       - name: Validate Guardian contracts
         run: |
@@ -115,31 +164,25 @@ jobs:
               dig=hashlib.sha256(j(c).encode()).hexdigest()
               lines.append(
                 "INSERT INTO role_contracts(contract_id,kind,allowed_actions_json,forbidden_actions_json,allowed_permissions_json,required_evidence_json,unknown_role,source_digest,updated_at) VALUES("
-                +q(c['contract_id'])+","+q(c.get('kind','role'))+","+q(j(c.get('allowed_actions',[])))+","
-                +q(j(c.get('forbidden_actions',[])))+","+q(j(c.get('allowed_permissions',[])))+","
-                +q(j(c.get('required_evidence',[])))+","+str(1 if c.get('unknown_role') else 0)+","+q(dig)+",datetime('now')) "
-                "ON CONFLICT(contract_id) DO UPDATE SET kind=excluded.kind,allowed_actions_json=excluded.allowed_actions_json,"
-                "forbidden_actions_json=excluded.forbidden_actions_json,allowed_permissions_json=excluded.allowed_permissions_json,"
-                "required_evidence_json=excluded.required_evidence_json,unknown_role=excluded.unknown_role,"
-                "source_digest=excluded.source_digest,updated_at=datetime('now') "
-                "WHERE role_contracts.source_digest<>excluded.source_digest;"
+                +q(c['contract_id'])+","+q(c.get('kind','role'))+","+q(j(c.get('allowed_actions',[])))+","+q(j(c.get('forbidden_actions',[])))+","+q(j(c.get('allowed_permissions',[])))+","+q(j(c.get('required_evidence',[])))+","+str(1 if c.get('unknown_role') else 0)+","+q(dig)+",datetime('now')) "
+                "ON CONFLICT(contract_id) DO UPDATE SET kind=excluded.kind,allowed_actions_json=excluded.allowed_actions_json,forbidden_actions_json=excluded.forbidden_actions_json,allowed_permissions_json=excluded.allowed_permissions_json,required_evidence_json=excluded.required_evidence_json,unknown_role=excluded.unknown_role,source_digest=excluded.source_digest,updated_at=datetime('now') WHERE role_contracts.source_digest<>excluded.source_digest;"
               )
           for adapter_id,a in (adapters.get('adapters') or {}).items():
-              c={'contract_id':'adapter:'+adapter_id,'kind':'adapter','allowed_actions':['EXECUTE_ADAPTER'],
-                 'forbidden_actions':['FINAL_ARCHITECTURE_DECISION','MODIFY_GUARDIAN_CONTRACTS'],
-                 'allowed_permissions':a.get('supports') or [],'required_evidence':[]}
+              c={'contract_id':'adapter:'+adapter_id,'kind':'adapter','allowed_actions':['EXECUTE_ADAPTER'],'forbidden_actions':['FINAL_ARCHITECTURE_DECISION','MODIFY_GUARDIAN_CONTRACTS'],'allowed_permissions':a.get('supports') or [],'required_evidence':[]}
               dig=hashlib.sha256(j(c).encode()).hexdigest()
               lines.append(
                 "INSERT INTO role_contracts(contract_id,kind,allowed_actions_json,forbidden_actions_json,allowed_permissions_json,required_evidence_json,unknown_role,source_digest,updated_at) VALUES("
-                +q(c['contract_id'])+","+q(c['kind'])+","+q(j(c['allowed_actions']))+","+q(j(c['forbidden_actions']))+","
-                +q(j(c['allowed_permissions']))+","+q('[]')+",0,"+q(dig)+",datetime('now')) "
-                "ON CONFLICT(contract_id) DO UPDATE SET kind=excluded.kind,allowed_actions_json=excluded.allowed_actions_json,"
-                "forbidden_actions_json=excluded.forbidden_actions_json,allowed_permissions_json=excluded.allowed_permissions_json,"
-                "required_evidence_json=excluded.required_evidence_json,source_digest=excluded.source_digest,updated_at=datetime('now') "
-                "WHERE role_contracts.source_digest<>excluded.source_digest;"
+                +q(c['contract_id'])+","+q(c['kind'])+","+q(j(c['allowed_actions']))+","+q(j(c['forbidden_actions']))+","+q(j(c['allowed_permissions']))+","+q('[]')+",0,"+q(dig)+",datetime('now')) "
+                "ON CONFLICT(contract_id) DO UPDATE SET kind=excluded.kind,allowed_actions_json=excluded.allowed_actions_json,forbidden_actions_json=excluded.forbidden_actions_json,allowed_permissions_json=excluded.allowed_permissions_json,required_evidence_json=excluded.required_evidence_json,source_digest=excluded.source_digest,updated_at=datetime('now') WHERE role_contracts.source_digest<>excluded.source_digest;"
               )
+          adapter_ids=sorted('adapter:'+str(k) for k in (adapters.get('adapters') or {}))
+          if adapter_ids:
+              lines.append("DELETE FROM role_contracts WHERE kind='adapter' AND contract_id NOT IN ("+','.join(q(x) for x in adapter_ids)+");")
+          else:
+              lines.append("DELETE FROM role_contracts WHERE kind='adapter';")
           open('.guardian-v7-contract-seed.sql','w').write('\n'.join(lines)+'\n')
           print('CHACHA_DEV_GUARDIAN_CONTRACT_SEED=PASS')
+          print('CHACHA_DEV_GUARDIAN_ADAPTER_CONTRACT_SET_RECONCILIATION=PASS')
           print('ROLE_CONTRACTS='+str(len(roles['contracts'])))
           print('ADAPTER_CONTRACTS='+str(len(adapters.get('adapters') or {})))
           PY
@@ -150,8 +193,38 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
         run: |
           set -euo pipefail
-          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote             --file=.guardian-v7-contract-seed.sql --config=.wrangler-guardian-contract-sync.jsonc
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --file=.guardian-v7-contract-seed.sql --config=.wrangler-guardian-contract-sync.jsonc
           echo CHACHA_DEV_GUARDIAN_CONTRACT_SYNC=PASS
           echo CHACHA_DEV_GUARDIAN_ADAPTER_CONTRACT_SYNC=PASS
           echo D1_SYNC_MODE=DIGEST_AWARE_DELTA
           echo FULL_TABLE_REWRITE=NO
+
+      - name: Verify exact Guardian adapter contract set after sync
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote \
+            --command="SELECT contract_id,allowed_permissions_json FROM role_contracts WHERE kind='adapter' ORDER BY contract_id;" \
+            --config=.wrangler-guardian-contract-sync.jsonc --json > /tmp/guardian-adapter-contracts-after.json
+          python3 - <<'PY'
+          import json
+          source=json.load(open('dev-hub/config/provider-adapters.v1.json',encoding='utf-8'))
+          raw=json.load(open('/tmp/guardian-adapter-contracts-after.json',encoding='utf-8'))
+          rows=[]
+          if isinstance(raw,list):
+              for block in raw:
+                  if isinstance(block,dict): rows.extend(block.get('results') or [])
+          elif isinstance(raw,dict):
+              for block in raw.get('result') or []:
+                  if isinstance(block,dict): rows.extend(block.get('results') or [])
+          actual={str(r.get('contract_id')):json.loads(r.get('allowed_permissions_json') or '[]') for r in rows}
+          expected={'adapter:'+str(k):list((v or {}).get('supports') or []) for k,v in (source.get('adapters') or {}).items()}
+          assert set(actual)==set(expected),(sorted(set(expected)-set(actual)),sorted(set(actual)-set(expected)))
+          for cid,permissions in expected.items():
+              assert actual[cid]==permissions,(cid,actual[cid],permissions)
+          print('CHACHA_DEV_GUARDIAN_ADAPTER_CONTRACT_READBACK=PASS')
+          print('ADAPTER_CONTRACTS='+str(len(actual)))
+          PY
+          echo CHACHA_DEV_AUTOMATIC_EXTERNAL_SPEND_EUR=0
