@@ -34,6 +34,9 @@ META_PATTERNS=[
 ]
 META_RE=[re.compile(x,re.I) for x in META_PATTERNS]
 HEADING_RE=re.compile(r"^\s*([A-ZÀ-ÖØ-Þ0-9][A-ZÀ-ÖØ-Þ0-9 ÉÈÊËÀÂÄÎÏÔÖÙÛÜÇ'’/\-]{2,})\s*:?[ \t]*$")
+ARTIFACT_ACTION_RE=re.compile(r"\b(crée|cree|créer|creer|écris|ecris|écrire|ecrire|génère|genere|générer|generer)\b",re.I)
+NON_ARTIFACT_ACTION_RE=re.compile(r"\b(traduis|traduire|translate|localise|localiser|déploie|deploie|déployer|deployer|deploy|installe|installer|supprime|supprimer|modifie|modifier)\b",re.I)
+FILENAME_RE=re.compile(r"\b([A-Za-z0-9][A-Za-z0-9._/-]{0,239}\.[A-Za-z0-9][A-Za-z0-9_-]{0,15})\b")
 
 def now_iso()->str:return time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())
 def save(p:Path,x:dict[str,Any])->None:
@@ -66,6 +69,42 @@ def looks_meta(text:str)->bool:
         return False
     return any(rx.search(text) for rx in META_RE)
 
+def exact_text_artifact_spec(text:str)->dict[str,str]|None:
+    if not ARTIFACT_ACTION_RE.search(text):return None
+    if not re.search(r"\b(fichier|file|artefact|artifact)\b",text,re.I):return None
+    if NON_ARTIFACT_ACTION_RE.search(text):return None
+    pm=FILENAME_RE.search(text)
+    if not pm:return None
+    path=pm.group(1).strip().rstrip(".,;:")
+    content=None
+    patterns=(
+      r"(?:contenu(?:\s+final)?(?:\s+doit\s+être|\s+doit\s+etre)?(?:\s+exactement)?|content(?:\s+must\s+be)?(?:\s+exactly)?)\s*:\s*\n\s*([^\n]+)",
+      r"(?:contenu(?:\s+final)?(?:\s+doit\s+être|\s+doit\s+etre)?(?:\s+exactement)?|content(?:\s+must\s+be)?(?:\s+exactly)?)\s*:\s*[\"']([^\"']+)[\"']",
+      r"(?:contenant(?:\s+uniquement)?|containing(?:\s+only)?)\s+[\"']([^\"']+)[\"']",
+      r"(?:contenant(?:\s+uniquement)?|containing(?:\s+only)?)\s+([A-Za-z0-9_.:+/@= -]{1,512})"
+    )
+    for rx in patterns:
+        m=re.search(rx,text,re.I)
+        if m:
+            content=m.group(1).strip()
+            if rx==patterns[-1]:content=content.rstrip(".,;:")
+            break
+    if not content:return None
+    if '\n' in content or len(content.encode('utf-8'))>64*1024:return None
+    if '..' in Path(path).parts or path.startswith('/'):return None
+    return {'action':'write-text','path':path,'content':content}
+
+def normalize_functional_prompt(text:str)->tuple[str,dict[str,Any]]:
+    spec=exact_text_artifact_spec(text)
+    if spec is None:
+        return text,{'applied':False,'kind':'NONE','reason':'NO_UNAMBIGUOUS_CANONICALIZATION'}
+    content=spec['content']
+    quote='"' if '"' not in content else "'" if "'" not in content else ''
+    if not quote:
+        return text,{'applied':False,'kind':'NONE','reason':'CONTENT_QUOTING_AMBIGUOUS'}
+    canonical=f"Crée un fichier {spec['path']} contenant uniquement {quote}{content}{quote}."
+    return canonical,{'applied':True,'kind':'EXACT_TEXT_ARTIFACT','workspace_file':spec,'source':'contextual-functional-translator'}
+
 def semantic_partition(text:str)->dict[str,Any]:
     lines=text.replace("\r\n","\n").replace("\r","\n").split("\n")
     explicit_functional_header=any(heading_kind(x.strip())=="FUNCTIONAL" for x in lines if x.strip())
@@ -93,13 +132,15 @@ def semantic_partition(text:str)->dict[str,Any]:
     if saw_functional_header and not functional:
         # Fail closed toward preserved meaning: never erase the request entirely.
         functional=[x for x in lines if x.strip() and heading_kind(x.strip()) is None and not looks_meta(x)]
-    routing_text="\n".join(functional).strip() or text.strip()
+    functional_core="\n".join(functional).strip() or text.strip()
+    routing_text,normalization=normalize_functional_prompt(functional_core)
     return {
       "schema":SEMANTIC_SCHEMA,
-      "strategy":"CONTEXTUAL_SECTION_AND_CLAUSE_PARTITION_V1",
+      "strategy":"CONTEXTUAL_SECTION_AND_CLAUSE_PARTITION_V2",
       "raw_text_preserved":True,
-      "functional_core":routing_text,
+      "functional_core":functional_core,
       "routing_text":routing_text,
+      "normalization":normalization,
       "governance_and_process_constraints":meta,
       "contextual_references":context,
       "functional_header_detected":saw_functional_header,
