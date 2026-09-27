@@ -38,7 +38,10 @@ def keyword_matches(text:str,keyword:str)->bool:
     if not needle:return False
     n=len(needle)
     for i in range(0,len(tokens)-n+1):
-        if tokens[i:i+n]!=needle:continue
+        segment=tokens[i:i+n]
+        exact=segment==needle
+        enclitic=(n==1 and len(segment)==1 and segment[0].startswith(needle[0]+"-"))
+        if not exact and not enclitic:continue
         before=tokens[max(0,i-4):i]
         # A negative constraint must never activate the domain it explicitly forbids.
         if any(x in NEGATION_WORDS for x in before):continue

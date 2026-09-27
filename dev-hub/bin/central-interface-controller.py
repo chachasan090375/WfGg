@@ -230,6 +230,7 @@ def orchestrate(repo_root:Path,orchestrator:Path,human_intent:dict[str,Any],out_
       "request_id":request_id,
       "target_scope":human_intent.get("target_scope") or "PLATFORM",
       "requested_project_id":human_intent.get("project_id") or "chacha-dev-platform",
+      "domains":list(human_intent.get("domains") or []),
       "constraints":{
         "automatic_external_spend_eur":0,
         "interface_has_no_technical_decision_authority":True,
@@ -700,6 +701,7 @@ def handle_continue(a)->dict[str,Any]:
       "source":"central-interface-controller-continuation",
       "route":"CHACHA_DEV","command":"CONTINUE",
       "user_text":str(ci.get("text") or ""),
+      "domains":list(ci.get("domains") or []),
       "project_id":project,
       "target_scope":ci.get("target_scope") or "PLATFORM",
       "interface_decision_authority":False,

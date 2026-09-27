@@ -195,7 +195,47 @@
       "reviews": [
         "cybersecurity",
         "recovery"
-      ]
+      ],
+      "capability_routing": {
+        "default": [
+          "data-model-review"
+        ],
+        "review_default": [
+          "data-model-review"
+        ],
+        "triggers": {
+          "database-migrate": [
+            "migration",
+            "migrate",
+            "migre",
+            "migrer",
+            "schema migration",
+            "database migration"
+          ],
+          "data-model-review": [
+            "database",
+            "d1",
+            "sqlite",
+            "schema",
+            "index",
+            "persistence",
+            "data",
+            "collector"
+          ],
+          "backup-design": [
+            "backup",
+            "sauvegarde",
+            "restore",
+            "recovery"
+          ],
+          "api-contract-review": [
+            "api",
+            "endpoint",
+            "contrat api",
+            "api contract"
+          ]
+        }
+      }
     },
     "documentation": {
       "orchestrator": "domain-documentation-orchestrator",
@@ -553,7 +593,6 @@
       ],
       "keywords": [
         "deploy",
-        "production",
         "cloudflare",
         "ci",
         "runtime",
@@ -591,8 +630,7 @@
             "déployer",
             "déploiement",
             "cloudflare",
-            "preview",
-            "production"
+            "preview"
           ],
           "storage-governance": [
             "storage",

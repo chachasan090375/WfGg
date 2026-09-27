@@ -37,6 +37,9 @@ HEADING_RE=re.compile(r"^\s*([A-ZÀ-ÖØ-Þ0-9][A-ZÀ-ÖØ-Þ0-9 ÉÈÊËÀÂÄ�
 ARTIFACT_ACTION_RE=re.compile(r"\b(crée|cree|créer|creer|écris|ecris|écrire|ecrire|génère|genere|générer|generer)\b",re.I)
 NON_ARTIFACT_ACTION_RE=re.compile(r"\b(traduis|traduire|translate|localise|localiser|déploie|deploie|déployer|deployer|deploy|installe|installer|supprime|supprimer|modifie|modifier)\b",re.I)
 FILENAME_RE=re.compile(r"\b([A-Za-z0-9][A-Za-z0-9._/-]{0,239}\.[A-Za-z0-9][A-Za-z0-9_-]{0,15})\b")
+SELF_DEV_TARGET_RE=re.compile(r"\b(chacha\s*dev|chachadev)\b",re.I)
+SELF_DEV_ACTION_RE=re.compile(r"\b(reprends?|évolu(?:e|er|tion)|evolu(?:e|er|tion)|améliore|amelior(?:e|er)|corrige|corriger|répare|repare|audite|auditer|autonomie|résilien(?:ce|t)|resilien(?:ce|t)|fais\s+progresser)\b",re.I)
+DIRECT_EXTERNAL_OPERATION_RE=re.compile(r"\b(déploie|deploie|déployer|deployer|deploy|migration|migre|migrer|publie|publier|mise\s+en\s+production|mettre\s+en\s+production)\b",re.I)
 
 def now_iso()->str:return time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())
 def save(p:Path,x:dict[str,Any])->None:
@@ -94,6 +97,18 @@ def exact_text_artifact_spec(text:str)->dict[str,str]|None:
     if '..' in Path(path).parts or path.startswith('/'):return None
     return {'action':'write-text','path':path,'content':content}
 
+def semantic_domain_hints(text:str)->dict[str,Any]:
+    raw=str(text or "").strip()
+    if not raw:
+        return {"applied":False,"domains":[],"confidence":"NONE","reason":"EMPTY"}
+    if SELF_DEV_TARGET_RE.search(raw) and SELF_DEV_ACTION_RE.search(raw) and not DIRECT_EXTERNAL_OPERATION_RE.search(raw):
+        return {
+          "applied":True,"domains":["development"],"confidence":"HIGH",
+          "reason":"CHACHA_DEV_SELF_DEVELOPMENT_CONTEXT",
+          "operational_mentions_are_context_only":True
+        }
+    return {"applied":False,"domains":[],"confidence":"NONE","reason":"NO_HIGH_CONFIDENCE_DOMAIN_HINT"}
+
 def normalize_functional_prompt(text:str)->tuple[str,dict[str,Any]]:
     spec=exact_text_artifact_spec(text)
     if spec is None:
@@ -134,13 +149,15 @@ def semantic_partition(text:str)->dict[str,Any]:
         functional=[x for x in lines if x.strip() and heading_kind(x.strip()) is None and not looks_meta(x)]
     functional_core="\n".join(functional).strip() or text.strip()
     routing_text,normalization=normalize_functional_prompt(functional_core)
+    domain_hints=semantic_domain_hints(functional_core)
     return {
       "schema":SEMANTIC_SCHEMA,
-      "strategy":"CONTEXTUAL_SECTION_AND_CLAUSE_PARTITION_V2",
+      "strategy":"CONTEXTUAL_SECTION_AND_CLAUSE_PARTITION_V3",
       "raw_text_preserved":True,
       "functional_core":functional_core,
       "routing_text":routing_text,
       "normalization":normalization,
+      "domain_hints":domain_hints,
       "governance_and_process_constraints":meta,
       "contextual_references":context,
       "functional_header_detected":saw_functional_header,
@@ -164,6 +181,7 @@ def main()->int:
     semantic_path=out/"semantic-intent.json";save(semantic_path,semantic)
     raw={
       "name":"Direct Operator Request "+request_id[:12],"text":functional_text,"objective":functional_text,
+      "domains":list((semantic.get("domain_hints") or {}).get("domains") or []),
       "raw_user_text":original,"semantic_intent":semantic,"project":a.project,"source":a.source,
       "operator_identity":a.operator,"constraints":{"automatic_external_spend_eur":0,
         "functional_requirement_has_priority_over_user_technical_suggestion":True,
@@ -180,6 +198,7 @@ def main()->int:
       "schema":HUMAN_INTENT_SCHEMA,"request_id":request_id,"received_at":now_iso(),
       "source":"functional-translator-satellite","route":"CHACHA_DEV","command":"INSTRUCTION",
       "user_text":functional_text,"raw_user_text":original,"functional_text":functional_text,"semantic_intent":semantic,
+      "domains":list((semantic.get("domain_hints") or {}).get("domains") or []),
       "semantic_intent_path":str(semantic_path),"semantic_intent_digest":fd(semantic_path),
       "project_id":a.project,"target_scope":"PLATFORM" if a.project=="chacha-dev-platform" else "PROJECT",
       "interface_decision_authority":False,"functional_contract":str(contract),
@@ -196,6 +215,7 @@ def main()->int:
       "functional_preplan":str(preplan),"functional_preplan_digest":fd(preplan),
       "interface_intent":str(interface_path),"interface_intent_digest":fd(interface_path),
       "primary_domains":pv.get("primary_domains") or [],"review_domains":pv.get("review_domains") or [],
+      "semantic_domain_hints":semantic.get("domain_hints") or {},
       "criteria_count":len(cv.get("criteria") or []),"translator_execution_authority":False,
       "translator_architecture_authority":False,"central_orchestrator_required":True,
       "contextual_semantic_partition_applied":True,"automatic_external_spend_eur":0

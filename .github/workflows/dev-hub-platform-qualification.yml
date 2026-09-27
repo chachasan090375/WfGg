@@ -101,7 +101,8 @@ jobs:
             dev-hub/tests/test_v812_human_behavior_persona_center.py \
             dev-hub/tests/test_v813_dual_channel.py \
             dev-hub/tests/test_v814_voice_gateway.py \
-            dev-hub/tests/test_v826_contextual_conversation_intent.py; do
+            dev-hub/tests/test_v826_contextual_conversation_intent.py \
+            dev-hub/tests/test_v828_contextual_operation_routing.py; do
             PYTHONPATH=dev-hub/bin python3 "$t"
           done
 
