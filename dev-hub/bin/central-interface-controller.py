@@ -99,7 +99,7 @@ def run_json(cmd:list[str],timeout:int=300)->tuple[int,dict[str,Any]|None,str,st
 def project_control(repo_root:Path,tool:Path,project:str,operation:str,*extra:str)->tuple[int,dict[str,Any]|None,str,str]:
     return run_json([sys.executable,str(tool),"--repo-root",str(repo_root),"--json",operation,"--project",project,*extra],3700)
 
-def verify_domain_run_results(a,execution_project:str,record:dict[str,Any],bound_graph:Path)->dict[str,Any]:
+def verify_domain_run_results(a,execution_project:str,record:dict[str,Any],bound_graph:Path,adapter_registry:Path)->dict[str,Any]:
     if not bound_graph.is_file():
         return {"status":"BLOCKED","blockers":["BOUND_TASK_GRAPH_MISSING"],"rows":[],"evidence_refs":[]}
     graph=load(bound_graph)
@@ -118,8 +118,11 @@ def verify_domain_run_results(a,execution_project:str,record:dict[str,Any],bound
                 blockers.append("HUMAN_VERIFICATION_REQUIRED:"+task_id);rows.append({"task_id":task_id,"status":"BLOCKED","reason":"HUMAN_VERIFICATION_REQUIRED"});continue
             method="independent-agent" if mode=="independent-agent" else "machine"
             rc,payload,stdout,stderr=project_control(a.repo_root,a.project_control,execution_project,"verify-result",
-                "--result",str(result_path),"--graph",str(bound_graph),"--method",method,"--verifier","verification-broker","--ingest")
-            ok=bool(rc==0 and isinstance(payload,dict) and payload.get("status")=="OK" and str((payload.get("details") or {}).get("verification_status") or "")=="VERIFIED")
+                "--result",str(result_path),"--graph",str(bound_graph),"--adapters",str(adapter_registry),
+                "--method",method,"--verifier","verification-broker","--ingest")
+            details=(payload.get("details") or {}) if isinstance(payload,dict) else {}
+            lineage_ok=bool(details.get("trusted_learning_context") is True and details.get("learning_context_status")=="TRUSTED_DISPATCH_CONTEXT")
+            ok=bool(rc==0 and isinstance(payload,dict) and payload.get("status")=="OK" and str(details.get("verification_status") or "")=="VERIFIED" and lineage_ok)
             row={"task_id":task_id,"status":"VERIFIED" if ok else "BLOCKED","method":method,"project_control":payload,"returncode":rc}
             if not ok:
                 row["stdout"]=stdout[-1200:];row["stderr"]=stderr[-1200:];blockers.append("TASK_VERIFICATION_FAILED:"+task_id)
@@ -412,7 +415,7 @@ def domain_scheduler_run_controller(a,project:str,prior:dict[str,Any],df:dict[st
     elif run_blocked:
         status="BLOCKED";next_action="RUN_CONTROLLER_BLOCKED"
     elif succeeded==scheduled:
-        verification=verify_domain_run_results(a,execution_project,record,bound_graph)
+        verification=verify_domain_run_results(a,execution_project,record,bound_graph,adapter_registry)
         refs.extend(verification.get("evidence_refs") or [])
         if verification.get("status")=="PASS":
             status="COMPLETE";next_action="AWAIT_NEW_INSTRUCTION"
@@ -433,6 +436,7 @@ def domain_scheduler_run_controller(a,project:str,prior:dict[str,Any],df:dict[st
         "run_controller_started":True,
         "run_controller_execute_requested":True,
         "execution_project_id":execution_project,
+        "provider_adapter_registry":str(adapter_registry),
         "production_approval_bypass":False
     })
     receipt["continuation_of_request_id"]=prior.get("request_id")
@@ -630,14 +634,16 @@ def handle_continue(a)->dict[str,Any]:
         plan_path=Path(str(brain_decision.get("execution_plan") or ""))
         bound_graph=plan_path.parent/"bound-domain-execution-graph.json" if plan_path.is_file() else Path("")
         execution_project=str(brain_decision.get("execution_project_id") or "")
-        if not run_record.is_file() or not bound_graph.is_file() or not execution_project:
+        adapter_registry=Path(str(brain_decision.get("provider_adapter_registry") or ""))
+        if not run_record.is_file() or not bound_graph.is_file() or not execution_project or not adapter_registry.is_file():
             return make_receipt("CONTINUE",project,"BRAIN_RECEIPT_INVALID","AWAIT_NEW_INSTRUCTION",list(prior.get("evidence_refs") or []),
                                 {"reason":"DOMAIN_EXECUTION_VERIFICATION_CONTEXT_MISSING"})
-        record=load(run_record);verification=verify_domain_run_results(a,execution_project,record,bound_graph)
+        record=load(run_record);verification=verify_domain_run_results(a,execution_project,record,bound_graph,adapter_registry)
         refs=list(prior.get("evidence_refs") or []);refs.extend(verification.get("evidence_refs") or [])
         receipt=make_receipt("CONTINUE",project,"COMPLETE" if verification.get("status")=="PASS" else "BLOCKED",
                              "AWAIT_NEW_INSTRUCTION" if verification.get("status")=="PASS" else "DOMAIN_EXECUTION_VERIFICATION_REQUIRED",refs,{
                                "run_record":str(run_record),"execution_plan":str(plan_path),"execution_project_id":execution_project,
+                               "provider_adapter_registry":str(adapter_registry),
                                "independent_verification":verification,"domain_execution_verified":verification.get("status")=="PASS",
                                "continuation_mode":"DOMAIN_EXECUTION_VERIFICATION_RESUME"})
         receipt["continuation_of_request_id"]=prior.get("request_id")

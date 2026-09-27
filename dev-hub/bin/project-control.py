@@ -1614,12 +1614,22 @@ def record_control_event(project: str, event_type: str, actor: str, payload: Pat
 
 
 def verify_result_operation(project: str, result_path: Path, graph: Path, method: str, verifier: str,
-                            ingest: bool, policy: dict[str, Any], repo_root: Path) -> dict[str, Any]:
+                            ingest: bool, policy: dict[str, Any], repo_root: Path,
+                            adapters_path: Path | None = None) -> dict[str, Any]:
     p = project_paths(policy, project)
     refs, tools = policy.get("repository_paths") or {}, policy.get("engine_paths") or {}
     source_result = load(result_path)
     if source_result.get("project") != project:
         return response(project, "verify-result", "BLOCKED", "Task result belongs to a different project.", blockers=["PROJECT_MISMATCH"])
+    source_adapters_path = resolve_repo(repo_root, refs["provider_adapters"])
+    effective_adapters_path = adapters_path.resolve() if adapters_path is not None else source_adapters_path
+    if not effective_adapters_path.is_file():
+        return response(project, "verify-result", "BLOCKED", "Effective provider adapter registry is unavailable.",
+                        {"adapter_registry": str(effective_adapters_path)}, ["EFFECTIVE_ADAPTER_REGISTRY_MISSING"])
+    adapters_value = load(effective_adapters_path)
+    if adapters_value.get("schema") != "chacha.dev/provider-adapters/v1":
+        return response(project, "verify-result", "BLOCKED", "Effective provider adapter registry schema is invalid.",
+                        {"adapter_registry": str(effective_adapters_path)}, ["EFFECTIVE_ADAPTER_REGISTRY_SCHEMA_INVALID"])
     txid = "ctx-" + uuid.uuid4().hex
     txdir = p["transactions"] / txid
     txdir.mkdir(parents=True, exist_ok=False)
@@ -1645,8 +1655,6 @@ def verify_result_operation(project: str, result_path: Path, graph: Path, method
                         artifacts=[{"type": "verification-report", "path": str(report)}])
 
     graph_value = load(graph)
-    adapters_path = resolve_repo(repo_root, refs["provider_adapters"])
-    adapters_value = load(adapters_path)
     verified_value = load(verified)
     verified_value, learning_context_status, dispatch_envelope = tdl.enrich_verified_result(
         verified=verified_value,
@@ -1731,7 +1739,7 @@ def verify_result_operation(project: str, result_path: Path, graph: Path, method
             "ingest", "--graph", str(graph), "--result", str(verified), "--ledger", str(staged),
         ]
         if trusted_learning_context and dispatch_envelope is not None:
-            ingest_args += ["--dispatch-envelope", str(dispatch_envelope), "--adapters", str(adapters_path)]
+            ingest_args += ["--dispatch-envelope", str(dispatch_envelope), "--adapters", str(effective_adapters_path)]
         rc_ing, out_ing, err_ing = run_tool(resolve_repo(repo_root, tools["evidence_collector"]), ingest_args)
         if rc_ing != 0:
             write_receipt(receipt, {
@@ -1862,6 +1870,7 @@ def main() -> int:
     verify.add_argument("--project", required=True)
     verify.add_argument("--result", required=True, type=Path)
     verify.add_argument("--graph", required=True, type=Path)
+    verify.add_argument("--adapters", type=Path)
     verify.add_argument("--method", choices=["machine", "independent-agent", "human"], default="machine")
     verify.add_argument("--verifier", default="verification-broker")
     verify.add_argument("--ingest", action="store_true")
@@ -1931,7 +1940,7 @@ def main() -> int:
             result = prepare_or_dispatch(args.project, True, args.plan, args.graph, args.workspace, policy, args.repo_root)
     elif args.command == "verify-result":
         result = verify_result_operation(args.project, args.result, args.graph, args.method, args.verifier,
-                                         args.ingest, policy, args.repo_root)
+                                         args.ingest, policy, args.repo_root, args.adapters)
     elif args.command == "bootstrap-control-plane":
         result = bootstrap_control_plane_operation(args.project,args.actor,args.profile,policy,args.repo_root)
     elif args.command == "issue-platform-component-adapter-registration":
