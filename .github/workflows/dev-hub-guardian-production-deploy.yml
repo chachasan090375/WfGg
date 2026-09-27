@@ -142,7 +142,11 @@ jobs:
           PY2
 
       - name: Prepare generic Wrangler contract
+        env:
+          SUBDOMAIN: ${{ steps.cf.outputs.workers_subdomain }}
         run: |
+          set -euo pipefail
+          SENTINEL_URL="https://chacha-dev-sentinel.$SUBDOMAIN.workers.dev"
           cat > .wrangler-guardian-production.jsonc <<EOF
           {
             "name": "chacha-dev-guardian",
@@ -150,6 +154,8 @@ jobs:
             "compatibility_date": "2026-09-24",
             "workers_dev": true,
             "triggers": {"crons": ["* * * * *"]},
+            "vars": {"SENTINEL_URL": "$SENTINEL_URL"},
+            "services": [{"binding": "SENTINEL_SERVICE", "service": "chacha-dev-sentinel"}],
             "d1_databases": [{
               "binding": "DB",
               "database_name": "chacha-dev-guardian",
@@ -157,6 +163,9 @@ jobs:
             }]
           }
           EOF
+          grep -Fq '"SENTINEL_URL":' .wrangler-guardian-production.jsonc
+          grep -Fq '"binding": "SENTINEL_SERVICE"' .wrangler-guardian-production.jsonc
+          echo CHACHA_DEV_GUARDIAN_SENTINEL_ROUTE_CONTRACT=PASS
 
       - name: Deploy with automatic rollback and capability healthcheck
         env:
@@ -182,7 +191,9 @@ jobs:
             if curl -fsS "$URL/healthz" -o /tmp/guardian-health.json &&
                grep -Fq '"external_governance_plane":true' /tmp/guardian-health.json &&
                grep -Fq '"coverage_watch":true' /tmp/guardian-health.json &&
-               grep -Fq '"guardian_runtime_contract":"chacha.dev/guardian-runtime/v1"' /tmp/guardian-health.json; then
+               grep -Fq '"guardian_runtime_contract":"chacha.dev/guardian-runtime/v1"' /tmp/guardian-health.json &&
+               grep -Fq '"sentinel_external_url_configured":true' /tmp/guardian-health.json &&
+               grep -Fq '"sentinel_service_binding":true' /tmp/guardian-health.json; then
               ok=1; break
             fi
             sleep 2
@@ -191,4 +202,5 @@ jobs:
           trap - ERR
           echo CHACHA_DEV_GUARDIAN_PRODUCTION_DEPLOY=PASS
           echo CHACHA_DEV_GUARDIAN_CAPABILITY_HEALTH=PASS
+          echo CHACHA_DEV_GUARDIAN_SENTINEL_ROUTE_ACTIVE=PASS
           echo CHACHA_DEV_AUTOMATIC_EXTERNAL_SPEND_EUR=0
