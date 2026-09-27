@@ -1,0 +1,43 @@
+name: ChaCha DEV V8.3.1 Exact Object Import
+
+on:
+  push:
+    branches:
+      - dev-hub-v831-object-transport
+    paths:
+      - '.github/workflows/v831-exact-object-import.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  import-exact-objects:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Import exact governed Git bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL='https://labor-wrap-signals-lucy.trycloudflare.com/v831-exact.bundle'
+          BUNDLE=/tmp/v831-exact.bundle
+          curl -fsSL --retry 5 --retry-delay 2 --max-time 60 "$URL" -o "$BUNDLE"
+          echo '7753836f64fe9aee6e62f66cc8b5b3966188cab8c8687f4f6191a77afc66ee9c  /tmp/v831-exact.bundle' | sha256sum -c -
+          git bundle verify "$BUNDLE"
+          git fetch "$BUNDLE" refs/heads/dev-hub-v831-safe-autonomous-resilience-and-continuation:refs/remotes/v831/exact
+          test "$(git rev-parse refs/remotes/v831/exact)" = 'c6a5e89adf7d5a2d3efdb6110fc4ea10f91f72fc'
+          test "$(git rev-parse refs/remotes/v831/exact^{tree})" = '0ffea921ffb47bcf2c0b749d98566bc5fac51a69'
+          test "$(git rev-parse refs/remotes/v831/exact^)" = 'a9d2c76b41c87811b399745e2c8c6c1d4ab471b1'
+          test "$(git rev-parse refs/remotes/v831/exact^^)" = 'e686331a21dc5195172cce6ad597737c9805c0f8'
+          test "$(git ls-remote origin refs/heads/dev-hub-v831-object-staging | awk '{print $1}')" = 'e686331a21dc5195172cce6ad597737c9805c0f8'
+          git push origin c6a5e89adf7d5a2d3efdb6110fc4ea10f91f72fc:refs/heads/dev-hub-v831-object-staging
+          test "$(git ls-remote origin refs/heads/dev-hub-v831-object-staging | awk '{print $1}')" = 'c6a5e89adf7d5a2d3efdb6110fc4ea10f91f72fc'
+          echo CHACHA_DEV_V831_EXACT_BUNDLE_SHA256=PASS
+          echo CHACHA_DEV_V831_EXACT_COMMIT=PASS
+          echo CHACHA_DEV_V831_EXACT_TREE=PASS
+          echo CHACHA_DEV_V831_OBJECT_STAGING=PASS
+          echo CHACHA_DEV_AUTOMATIC_EXTERNAL_SPEND_EUR=0
