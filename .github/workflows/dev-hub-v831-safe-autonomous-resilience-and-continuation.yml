@@ -1,0 +1,57 @@
+name: ChaCha DEV V8.3.1 Safe Autonomous Resilience and Continuation
+
+on:
+  push:
+    branches:
+      - dev-hub-v831-safe-autonomous-resilience-and-continuation
+    paths:
+      - 'dev-hub/bin/central-interface-controller.py'
+      - 'dev-hub/bin/conversation-interface-agent.py'
+      - 'dev-hub/bin/direct-operator-service.py'
+      - 'dev-hub/bin/run-controller.py'
+      - 'dev-hub/bin/provider_quota_circuit.py'
+      - 'dev-hub/adapters/antigravity-adapter.py'
+      - 'dev-hub/tests/test_v831_safe_autonomous_resilience_and_continuation.py'
+      - '.github/workflows/dev-hub-v831-safe-autonomous-resilience-and-continuation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Syntax and compile
+        run: |
+          set -euo pipefail
+          python3 -m py_compile \
+            dev-hub/bin/central-interface-controller.py \
+            dev-hub/bin/conversation-interface-agent.py \
+            dev-hub/bin/direct-operator-service.py \
+            dev-hub/bin/run-controller.py \
+            dev-hub/bin/provider_quota_circuit.py \
+            dev-hub/adapters/antigravity-adapter.py \
+            dev-hub/tests/test_v831_safe_autonomous_resilience_and_continuation.py
+
+      - name: V8.3.1 qualification
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v831_safe_autonomous_resilience_and_continuation.py | tee /tmp/v831.out
+          grep -Fq 'CHACHA_DEV_V831_D1_NO_FALSE_BRAIN_UNAVAILABLE=PASS' /tmp/v831.out
+          grep -Fq 'CHACHA_DEV_V831_D1_CONVERSATIONAL_EXPLANATION=PASS' /tmp/v831.out
+          grep -Fq 'CHACHA_DEV_V831_D1_FAIL_CLOSED_NO_LOOP=PASS' /tmp/v831.out
+          grep -Fq 'CHACHA_DEV_V831_RUN_CONTROLLER_COMPLETE_CONTINUATION=PASS' /tmp/v831.out
+          grep -Fq 'CHACHA_DEV_V831_PROVIDER_MODEL_QUOTA_CIRCUIT=PASS' /tmp/v831.out
+          grep -Fq 'CHACHA_DEV_V831_PROVIDER_QUOTA_NO_LOOP=PASS' /tmp/v831.out
+          grep -Fq 'CHACHA_DEV_V831_SEMANTIC_BLOCK_PRESERVED=PASS' /tmp/v831.out
+          grep -Fq 'CHACHA_DEV_V831_PROVIDER_QUOTA_CONVERSATION=PASS' /tmp/v831.out
+          grep -Fq 'CHACHA_DEV_V831_PROVIDER_QUOTA_PRE_DISPATCH_BLOCK=PASS' /tmp/v831.out
+          grep -Fq 'CHACHA_DEV_V831_AUTOMATIC_PAID_UPGRADE=FALSE' /tmp/v831.out
+          grep -Fq 'CHACHA_DEV_V831_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v831.out

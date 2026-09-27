@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import argparse, hashlib, json, re, subprocess, sys, time, uuid
+import argparse, hashlib, json, re, shutil, subprocess, sys, time, uuid
 from pathlib import Path
 from typing import Any
 
@@ -35,6 +35,54 @@ def runtime_version(repo_root:Path)->str:
     if not p.is_file():return "UNKNOWN"
     m=re.search(r'"version"\s*:\s*"([^"]+)"',p.read_text(encoding="utf-8",errors="ignore"))
     return m.group(1) if m else "UNKNOWN"
+
+def workspace_tree_digest(root:Path)->str:
+    h=hashlib.sha256()
+    if not root.is_dir():return "sha256:"+h.hexdigest()
+    for q in sorted((x for x in root.rglob("*") if x.is_file() and ".git" not in x.parts),key=lambda x:x.as_posix()):
+        rel=q.relative_to(root).as_posix().encode();data=q.read_bytes();h.update(len(rel).to_bytes(8,"big"));h.update(rel);h.update(len(data).to_bytes(8,"big"));h.update(data)
+    return "sha256:"+h.hexdigest()
+
+def materialize_development_workspaces(repo_root:Path,runtime_root:Path,session_project:str,graph:dict[str,Any],receipt:Path)->dict[str,Any]:
+    rows=[];project_root=(runtime_root/"projects").resolve()
+    if session_project!="chacha-dev-platform":
+        out={"schema":"chacha.dev/development-workspace-materialization/v1","status":"NOT_APPLICABLE","session_project":session_project,"rows":[],"automatic_external_spend_eur":0};save(receipt,out);return out
+    ignore=shutil.ignore_patterns('.git','__pycache__','*.pyc','.revision','.tree','.release-preparation.json','.env','.env.*')
+    for task in graph.get("tasks") or []:
+        if not isinstance(task,dict):continue
+        caps={str(x) for x in task.get("capabilities") or []};meta=task.get("metadata") if isinstance(task.get("metadata"),dict) else {}
+        if "code-edit" not in caps or str(task.get("permission") or "")!="workspace-write":continue
+        raw=str(meta.get("branch_workspace") or "").strip()
+        if not raw:
+            rows.append({"task_id":task.get("id"),"status":"BLOCKED","reason":"BRANCH_WORKSPACE_MISSING"});continue
+        ws=Path(raw).resolve(strict=False)
+        try:ws.relative_to(project_root)
+        except Exception:
+            rows.append({"task_id":task.get("id"),"status":"BLOCKED","reason":"BRANCH_WORKSPACE_OUTSIDE_GOVERNED_ROOT","workspace":str(ws)});continue
+        if ws.exists() and any(ws.iterdir()):
+            rows.append({"task_id":task.get("id"),"status":"REUSED_EXISTING","workspace":str(ws),"tree_digest":workspace_tree_digest(ws)});continue
+        ws.mkdir(parents=True,exist_ok=True)
+        for src in repo_root.iterdir():
+            if src.name in {'.git','__pycache__','.revision','.tree','.release-preparation.json'} or src.name=='.env' or src.name.startswith('.env.'):continue
+            dst=ws/src.name
+            if src.is_dir():shutil.copytree(src,dst,dirs_exist_ok=True,ignore=ignore)
+            elif src.is_file():shutil.copy2(src,dst)
+        git_info={"initialized":False,"baseline_commit":None,"remote_count":0}
+        try:
+            init=subprocess.run(["git","-C",str(ws),"init","-q"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=30)
+            add=subprocess.run(["git","-C",str(ws),"add","-A"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=60) if init.returncode==0 else init
+            commit=subprocess.run(["git","-C",str(ws),"-c","user.name=ChaCha DEV","-c","user.email=chacha-dev@local.invalid","commit","-qm","ChaCha DEV governed baseline"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=60) if add.returncode==0 else add
+            if commit.returncode!=0:raise RuntimeError("WORKSPACE_BASELINE_GIT_COMMIT_FAILED:"+(commit.stderr or commit.stdout)[-300:])
+            rev=subprocess.run(["git","-C",str(ws),"rev-parse","HEAD"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=15)
+            rem=subprocess.run(["git","-C",str(ws),"remote"],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=15)
+            if rev.returncode!=0 or rem.returncode!=0:raise RuntimeError("WORKSPACE_BASELINE_GIT_VERIFY_FAILED")
+            git_info={"initialized":True,"baseline_commit":rev.stdout.strip(),"remote_count":len([x for x in rem.stdout.splitlines() if x.strip()])}
+            if git_info["remote_count"]!=0:raise RuntimeError("WORKSPACE_BASELINE_REMOTE_FORBIDDEN")
+        except Exception as exc:
+            rows.append({"task_id":task.get("id"),"status":"BLOCKED","reason":str(exc)[:500],"workspace":str(ws)});continue
+        rows.append({"task_id":task.get("id"),"status":"MATERIALIZED","workspace":str(ws),"source_revision":runtime_revision(repo_root),"source_tree_digest":workspace_tree_digest(repo_root),"workspace_tree_digest":workspace_tree_digest(ws),"isolated_git":git_info})
+    blocked=[r for r in rows if r.get("status")=="BLOCKED"]
+    out={"schema":"chacha.dev/development-workspace-materialization/v1","status":"BLOCKED" if blocked else "PASS","session_project":session_project,"rows":rows,"automatic_external_spend_eur":0};save(receipt,out);return out
 
 TARGET_REQUEST_RX=re.compile(r"\bdor-[0-9a-f]{32}\b",re.I)
 RECOVERY_CUES=(
@@ -200,6 +248,21 @@ def make_receipt(command:str,project:str,status:str,next_action:str,evidence_ref
 def classify_orchestrator_failure(stdout:str,stderr:str)->tuple[str,str,dict[str,Any]]:
     text=(str(stdout or "")+"\n"+str(stderr or ""))
     upper=text.upper()
+    if "D1_ACCOUNT_QUOTA_CIRCUIT_OPEN" in upper or "D1_READ_QUOTA_EXHAUSTED" in upper or "D1_WRITE_QUOTA_EXHAUSTED" in upper or "DAILY ROW READ LIMIT" in upper:
+        return (
+          "AWAITING_EXTERNAL_CONDITION",
+          "RETRY_WHEN_D1_AVAILABLE",
+          {
+            "human_message":"Le cerveau central a bien reçu la demande, mais le quota quotidien de la base D1 est temporairement atteint. J’ai arrêté l’exécution sans dépense externe.",
+            "reason":"D1_ACCOUNT_QUOTA_CIRCUIT_OPEN",
+            "external_dependency":"D1_DATABASE",
+            "external_condition":"D1_QUOTA_RESET",
+            "retryable":True,
+            "authority_bypass":False,
+            "stdout":str(stdout or "")[-1200:],
+            "stderr":str(stderr or "")[-1200:]
+          }
+        )
     if "GUARDIAN_STAGE_UNAVAILABLE" in upper or "GUARDIAN_UNAVAILABLE_FAIL_CLOSED" in upper:
         return (
           "AWAITING_EXTERNAL_CONDITION",
@@ -309,6 +372,36 @@ def handle_instruction(a)->dict[str,Any]:
     return orchestrate(a.repo_root,a.orchestrator,hi,a.output_dir)
 
 
+def external_condition_from_run(record:dict[str,Any])->dict[str,Any]|None:
+    for wave in record.get("waves") or []:
+        if not isinstance(wave,dict):continue
+        for task in wave.get("tasks") or []:
+            if not isinstance(task,dict):continue
+            raw=str(task.get("task_result") or "")
+            if not raw:continue
+            path=Path(raw)
+            if not path.is_file():continue
+            try:result=load(path)
+            except Exception:continue
+            if str(result.get("summary") or "")!="PROVIDER_MODEL_QUOTA_EXHAUSTED":continue
+            details={}
+            for ev in result.get("evidence") or []:
+                if isinstance(ev,dict) and isinstance(ev.get("details"),dict):details.update(ev["details"])
+            return {
+              "reason":"PROVIDER_MODEL_QUOTA_EXHAUSTED",
+              "external_dependency":"AI_PROVIDER_MODEL",
+              "external_condition":"PROVIDER_MODEL_QUOTA_RESET",
+              "provider":details.get("provider") or "antigravity",
+              "model":details.get("model") or "gemini-3.8-flash-medium",
+              "resume_at":details.get("resume_at"),
+              "retryable":True,
+              "automatic_paid_upgrade":False,
+              "automatic_external_spend_eur":0,
+              "task_result":str(path),
+              "human_message":("Le cerveau central a bien reçu la demande, mais le quota gratuit du modèle IA requis est temporairement épuisé. J’ai arrêté l’exécution sans achat ni dépense externe."+(" Reprise possible après le reset annoncé : "+str(details.get("resume_at"))+"." if details.get("resume_at") else ""))
+            }
+    return None
+
 def domain_scheduler_run_controller(a,project:str,prior:dict[str,Any],df:dict[str,Any],readiness:dict[str,Any])->dict[str,Any]:
     graph=Path(str(df.get("domain_execution_graph") or ""))
     health=Path(str(readiness.get("provider_health_snapshot") or ""))
@@ -317,6 +410,12 @@ def domain_scheduler_run_controller(a,project:str,prior:dict[str,Any],df:dict[st
         return make_receipt("CONTINUE",project,"BRAIN_RECEIPT_INVALID","AWAIT_NEW_INSTRUCTION",refs,{"reason":"DOMAIN_EXECUTION_GRAPH_MISSING"})
     graph_payload=load(graph)
     execution_project=str(graph_payload.get("project") or project)
+    handoff=a.output_dir/"domain-execution-handoff";handoff.mkdir(parents=True,exist_ok=True)
+    materialization_path=handoff/"workspace-materialization.json"
+    materialization=materialize_development_workspaces(a.repo_root,a.runtime_root,project,graph_payload,materialization_path)
+    refs.append(str(materialization_path)+"#"+file_digest(materialization_path))
+    if materialization.get("status")=="BLOCKED":
+        return make_receipt("CONTINUE",project,"BLOCKED","DEVELOPMENT_WORKSPACE_MATERIALIZATION_REQUIRED",refs,{"workspace_materialization":materialization,"execution_project_id":execution_project})
     ledger=a.runtime_root/"evidence"/execution_project/"ledger.json"
     if not health.is_file():
         return make_receipt("CONTINUE",project,"BLOCKED","PROVIDER_HEALTH_PROBE_REQUIRED",refs,
@@ -335,8 +434,6 @@ def domain_scheduler_run_controller(a,project:str,prior:dict[str,Any],df:dict[st
                                  "stderr":bootstrap.stderr[-1600:],"continuation_mode":"DOMAIN_EXECUTION_HANDOFF"})
         refs.append(str(ledger)+"#"+file_digest(ledger))
 
-    handoff=a.output_dir/"domain-execution-handoff"
-    handoff.mkdir(parents=True,exist_ok=True)
     plan_path=handoff/"execution-plan.json"
     scheduler=a.repo_root/"dev-hub/bin/execution-scheduler.py"
     agent_contracts=Path(str((df.get("agent_contracts") or (Path(str(df.get("planning_dir") or ""))/"agent-role-contracts.json"))))
@@ -411,7 +508,10 @@ def domain_scheduler_run_controller(a,project:str,prior:dict[str,Any],df:dict[st
     scheduled=int(((plan.get("summary") or {}).get("scheduled_count") or 0))
     succeeded=int(summary.get("succeeded") or 0)
     verification=None
-    if failed:
+    external_condition=external_condition_from_run(record)
+    if external_condition is not None:
+        status="AWAITING_EXTERNAL_CONDITION";next_action="RETRY_WHEN_PROVIDER_QUOTA_AVAILABLE"
+    elif failed:
         status="BLOCKED";next_action="RUN_CONTROLLER_TASK_FAILED"
     elif run_blocked:
         status="BLOCKED";next_action="RUN_CONTROLLER_BLOCKED"
@@ -438,11 +538,36 @@ def domain_scheduler_run_controller(a,project:str,prior:dict[str,Any],df:dict[st
         "run_controller_execute_requested":True,
         "execution_project_id":execution_project,
         "provider_adapter_registry":str(adapter_registry),
-        "production_approval_bypass":False
+        "production_approval_bypass":False,
+        **(external_condition or {})
     })
     receipt["continuation_of_request_id"]=prior.get("request_id")
     return receipt
 
+
+def provider_quota_condition_from_remediation(remediation:dict[str,Any]|None)->dict[str,Any]|None:
+    if not isinstance(remediation,dict):return None
+    for row in remediation.get("remediations") or []:
+        if not isinstance(row,dict):continue
+        refresh=row.get("economics_attestation_refresh") if isinstance(row.get("economics_attestation_refresh"),dict) else {}
+        blockers={str(x) for x in row.get("blockers") or []}
+        reasons={str(x) for x in refresh.get("reason_codes") or []}
+        if "PROVIDER_MODEL_QUOTA_EXHAUSTED" not in blockers|reasons:continue
+        return {
+          "reason":"PROVIDER_MODEL_QUOTA_EXHAUSTED",
+          "external_dependency":"AI_PROVIDER_MODEL",
+          "external_condition":"PROVIDER_MODEL_QUOTA_RESET",
+          "provider":row.get("provider") or "antigravity",
+          "model":refresh.get("model") or "gemini-3.8-flash-medium",
+          "resume_at":refresh.get("resume_at"),
+          "retryable":True,
+          "provider_execution_started":False,
+          "adapter_invocation_started":False,
+          "automatic_paid_upgrade":False,
+          "automatic_external_spend_eur":0,
+          "human_message":("Le cerveau central a bien reçu la demande, mais le quota gratuit du modèle IA requis est temporairement épuisé. J’ai arrêté l’exécution sans achat ni dépense externe."+(" Reprise possible après le reset annoncé : "+str(refresh.get("resume_at"))+"." if refresh.get("resume_at") else ""))
+        }
+    return None
 
 def continue_domain_readiness(a,project:str,prior:dict[str,Any],df:dict[str,Any])->dict[str,Any]:
     planning=Path(str(df.get("planning_dir") or ""))
@@ -531,14 +656,17 @@ def continue_domain_readiness(a,project:str,prior:dict[str,Any],df:dict[str,Any]
                     chained_prior=dict(prior);chained_prior["evidence_refs"]=refs
                     return domain_scheduler_run_controller(a,project,chained_prior,df,readiness)
 
-    receipt=make_receipt("CONTINUE",project,"BLOCKED",
-                         str(readiness.get("next_stage") or "DOMAIN_TOOLCHAIN_READINESS_FAILED"),
+    provider_quota=provider_quota_condition_from_remediation(remediation)
+    receipt=make_receipt("CONTINUE",project,
+                         "AWAITING_EXTERNAL_CONDITION" if provider_quota is not None else "BLOCKED",
+                         "RETRY_WHEN_PROVIDER_QUOTA_AVAILABLE" if provider_quota is not None else str(readiness.get("next_stage") or "DOMAIN_TOOLCHAIN_READINESS_FAILED"),
                          refs,{"domain_toolchain_readiness":readiness,
                                "domain_factories":df,
                                "governed_auto_remediation":remediation,
                                "continuation_mode":"DOMAIN_TOOLCHAIN_READINESS",
                                "provider_execution_started":False,
-                               "adapter_invocation_started":False})
+                               "adapter_invocation_started":False,
+                               **(provider_quota or {})})
     receipt["continuation_of_request_id"]=prior.get("request_id")
     return receipt
 
@@ -650,7 +778,7 @@ def handle_continue(a)->dict[str,Any]:
         receipt["continuation_of_request_id"]=prior.get("request_id")
         return receipt
 
-    if project=="chacha-dev-platform" and prior_next=="SCHEDULER_READY":
+    if project=="chacha-dev-platform" and prior_next in {"SCHEDULER_READY","RUN_CONTROLLER_COMPLETE"}:
         df=brain_decision.get("domain_factories") if isinstance(brain_decision.get("domain_factories"),dict) else {}
         readiness=brain_decision.get("domain_toolchain_readiness") if isinstance(brain_decision.get("domain_toolchain_readiness"),dict) else {}
         if readiness.get("status")!="READY":

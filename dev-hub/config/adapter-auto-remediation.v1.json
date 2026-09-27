@@ -82,8 +82,8 @@
         "antigravity"
       ],
       "non_destructive_probe": true,
-      "external_network": "provider-status-only-during-promotion",
-      "cost_basis": "quota-provider-requires-current-zero-cost-attestation",
+      "external_network": "account-quota-status-and-provider-execution-only",
+      "cost_basis": "account-baseline-quota-with-overage-disabled",
       "zero_cost_attestation_required": true,
       "zero_cost_attestation": "/opt/chacha-dev/runtime/provider-economics/antigravity-zero-cost.json",
       "allowed_zero_cost_classes": [
@@ -93,7 +93,30 @@
         "local",
         "quota"
       ],
-      "automatic_external_spend_eur": 0
+      "automatic_external_spend_eur": 0,
+      "zero_cost_attestation_probe": {
+        "enabled": true,
+        "tool": "dev-hub/bin/provider-zero-cost-attestor.py",
+        "non_generative": true,
+        "auth_mode": "account-oauth",
+        "baseline_quota_only": true,
+        "overage_must_be_disabled": true,
+        "valid_seconds": 1200,
+        "minimum_remaining_fraction": 0.01,
+        "automatic_external_spend_eur": 0
+      },
+      "repeatability_probe": {
+        "required_successes": 3,
+        "transient_retries_per_success": 2,
+        "retry_delay_seconds": 1.0,
+        "success_spacing_seconds": 0.5,
+        "transient_summaries": [
+          "ACCOUNT_PROBE_FAILED",
+          "ACCOUNT_MODELS_PROBE_FAILED",
+          "ACCOUNT_MODELS_PROBE_ERROR",
+          "ANTIGRAVITY_PROVIDER_STATUS_ERROR"
+        ]
+      }
     },
     "workspace-file-adapter": {
       "enabled": true,

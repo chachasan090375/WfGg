@@ -25,6 +25,18 @@ def compose(receipt:dict[str,Any],intent:dict[str,Any]|None=None,human_context:d
     status=str(receipt.get("status") or "UNKNOWN");next_action=str(receipt.get("next_action") or "AWAIT_USER_DIRECTIVE")
     decision=receipt.get("decision") if isinstance(receipt.get("decision"),dict) else {}
     message=first_text(decision,["human_message","message","summary","result","reason","detail"])
+    dependency=str(decision.get("external_dependency") or "").strip().upper()
+    if status=="AWAITING_EXTERNAL_CONDITION" and dependency=="GUARDIAN":
+        message=("Le cerveau central a bien reçu la demande, mais le contrôle de sécurité Guardian est temporairement indisponible. "
+                 "J’ai arrêté l’exécution sans contourner ce contrôle.")
+    elif status=="AWAITING_EXTERNAL_CONDITION" and dependency in {"D1_DATABASE","D1"}:
+        message=("Le cerveau central a bien reçu la demande, mais le quota quotidien de la base D1 est temporairement atteint. "
+                 "J’ai arrêté l’exécution sans dépense externe.")
+    elif status=="AWAITING_EXTERNAL_CONDITION" and dependency in {"AI_PROVIDER_MODEL","AI_PROVIDER"}:
+        reset=str(decision.get("resume_at") or "").strip();provider=str(decision.get("provider") or "provider IA").strip();model=str(decision.get("model") or "modèle").strip()
+        message=(f"Le cerveau central a bien reçu la demande, mais le quota gratuit de {provider} pour {model} est temporairement épuisé. "
+                 "J’ai arrêté l’exécution sans achat ni dépense externe.")
+        if reset:message+=f" Reprise possible après le reset annoncé : {reset}."
     passive_waits={"AWAIT_USER_DIRECTIVE","AWAIT_NEW_INSTRUCTION"}
     needs=bool(
       decision.get("requires_user_response") is True
@@ -89,6 +101,20 @@ def compose(receipt:dict[str,Any],intent:dict[str,Any]|None=None,human_context:d
                   "Le cerveau central a bien reçu la demande, mais le contrôle de sécurité Guardian est temporairement indisponible. "
                   "J’ai arrêté l’exécution sans contourner ce contrôle."
                 )
+            elif status=="AWAITING_EXTERNAL_CONDITION" and dependency in {"D1_DATABASE","D1"}:
+                message=(
+                  "Le cerveau central a bien reçu la demande, mais le quota quotidien de la base D1 est temporairement atteint. "
+                  "J’ai arrêté l’exécution sans dépense externe."
+                )
+            elif status=="AWAITING_EXTERNAL_CONDITION" and dependency in {"AI_PROVIDER_MODEL","AI_PROVIDER"}:
+                reset=str(decision.get("resume_at") or "").strip()
+                provider=str(decision.get("provider") or "provider IA").strip()
+                model=str(decision.get("model") or "modèle").strip()
+                message=(
+                  f"Le cerveau central a bien reçu la demande, mais le quota gratuit de {provider} pour {model} est temporairement épuisé. "
+                  "J’ai arrêté l’exécution sans achat ni dépense externe."
+                )
+                if reset: message+=f" Reprise possible après le reset annoncé : {reset}."
             if status in {"BLOCKED","FAILED","PARTIAL","AWAITING_APPROVAL","AWAITING_EXTERNAL_CONDITION","PLAN_READY","CONTINUED"} and human_next:
                 message+=("\n\nÉtape suivante : "+human_next+".")
     human=human_context if isinstance(human_context,dict) else {}
@@ -115,6 +141,8 @@ def compose(receipt:dict[str,Any],intent:dict[str,Any]|None=None,human_context:d
       "AWAIT_NEW_INSTRUCTION":"Donne-moi une nouvelle instruction.",
       "RETRY_WHEN_BRAIN_AVAILABLE":"Tu peux me demander de réessayer.",
       "RETRY_WHEN_GUARDIAN_AVAILABLE":"L’exécution pourra reprendre dès que Guardian sera de nouveau disponible.",
+      "RETRY_WHEN_D1_AVAILABLE":"L’exécution pourra reprendre dès que le quota D1 sera réinitialisé.",
+      "RETRY_WHEN_PROVIDER_QUOTA_AVAILABLE":"L’exécution pourra reprendre dès que le quota du modèle sera réinitialisé.",
       "AWAIT_EXPLICIT_RESET_AND_HEALTH_CHECK":"Il faut une confirmation explicite avant de réactiver le système."
     }.get(next_action)
     if action_text and action_text.casefold() not in message.casefold(): message=message.rstrip()+("\n\n"+action_text)

@@ -271,7 +271,7 @@ def install(adapter: str, actor: str, policy: dict[str, Any], item: dict[str, An
     if executable_digest != source_digest:
         raise SystemExit("CURRENT_EXECUTABLE_DIGEST_MISMATCH")
 
-    probe_result = probe(executable, item, int(policy.get("probe_timeout_seconds") or 10))
+    probe_result = probe(executable, item, max(1,min(120,int(item.get("probe_timeout_seconds") or policy.get("probe_timeout_seconds") or 10))))
     if probe_result.get("status") != "PASS":
         raise SystemExit(f"PROVISIONING_PROBE_FAILED:{probe_result.get('failure')}")
 
@@ -312,7 +312,7 @@ def verify_receipt(receipt: dict[str, Any], policy: dict[str, Any], item: dict[s
     if not current_link.is_symlink() or os.readlink(current_link) != receipt.get("current_target"):
         blockers.append("CURRENT_LINK_INVALID")
     if not blockers:
-        probe_result = probe(executable, item, int(policy.get("probe_timeout_seconds") or 10))
+        probe_result = probe(executable, item, max(1,min(120,int(item.get("probe_timeout_seconds") or policy.get("probe_timeout_seconds") or 10))))
         if probe_result.get("status") != "PASS":
             blockers.append("PROVISIONING_PROBE_FAILED")
     return blockers

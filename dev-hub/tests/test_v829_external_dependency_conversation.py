@@ -41,6 +41,27 @@ assert "n’arrive pas à joindre correctement le cerveau central" not in reply[
 assert reply["requires_user_response"] is False,reply
 assert direct.should_auto_continue(receipt) is False,receipt
 
+ai_decision={
+    "reason":"PROVIDER_MODEL_QUOTA_EXHAUSTED",
+    "external_dependency":"AI_PROVIDER_MODEL",
+    "external_condition":"PROVIDER_MODEL_QUOTA_RESET",
+    "provider":"antigravity",
+    "model":"all-zero-cost-models",
+    "resume_at":"2026-10-04T17:53:18Z",
+    "retryable":True,
+    "authority_bypass":False,
+    "automatic_paid_upgrade":False,
+    "automatic_external_spend_eur":0,
+}
+ai_receipt=central.make_receipt("CONTINUE","chacha-dev-platform","AWAITING_EXTERNAL_CONDITION","RETRY_WHEN_PROVIDER_QUOTA_AVAILABLE",[],ai_decision)
+ai_reply=conversation.compose(ai_receipt,{"request_id":"v829-ai-quota"})
+assert ai_reply["kind"]=="WARNING",ai_reply
+assert "quota gratuit" in ai_reply["message"].casefold(),ai_reply
+assert "sans achat ni dépense externe" in ai_reply["message"].casefold(),ai_reply
+assert "2026-10-04t17:53:18z" in ai_reply["message"].casefold(),ai_reply
+assert ai_reply["requires_user_response"] is False,ai_reply
+assert direct.should_auto_continue(ai_receipt) is False,ai_receipt
+
 status2,next2,decision2=central.classify_orchestrator_failure("","network timeout")
 assert status2=="BRAIN_UNAVAILABLE",(status2,next2,decision2)
 assert next2=="RETRY_WHEN_BRAIN_AVAILABLE",(status2,next2,decision2)
@@ -49,5 +70,7 @@ print("CHACHA_DEV_V829_GUARDIAN_UNAVAILABLE_CLASSIFICATION=PASS")
 print("CHACHA_DEV_V829_EXTERNAL_CONDITION_TERMINAL=PASS")
 print("CHACHA_DEV_V829_CONVERSATION_EXPLAINS_GUARDIAN=PASS")
 print("CHACHA_DEV_V829_NO_GUARDIAN_BYPASS=PASS")
+print("CHACHA_DEV_V829_AI_PROVIDER_QUOTA_CONVERSATION=PASS")
+print("CHACHA_DEV_V829_AI_PROVIDER_QUOTA_NO_AUTO_LOOP=PASS")
 print("CHACHA_DEV_V829_GENERIC_BRAIN_UNAVAILABLE_PRESERVED=PASS")
 print("CHACHA_DEV_V829_AUTOMATIC_EXTERNAL_SPEND_EUR=0")

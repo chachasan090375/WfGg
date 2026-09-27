@@ -40,7 +40,9 @@ jobs:
             dev-hub/bin/intendant-platform-consolidator.py \
             dev-hub/bin/intendant-hygiene-cycle.py \
             dev-hub/bin/central-platform-hygiene-executor.py \
-            dev-hub/bin/architecture-council-platform-consolidation.py
+            dev-hub/bin/architecture-council-platform-consolidation.py \
+            dev-hub/bin/provider-zero-cost-attestor.py \
+            dev-hub/bin/provider_quota_circuit.py
           node --check dev-hub/guardian/worker.js
           python3 -m json.tool dev-hub/config/operator-directives.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/canonical-component-registry.v1.json >/dev/null
@@ -102,7 +104,9 @@ jobs:
             dev-hub/tests/test_v813_dual_channel.py \
             dev-hub/tests/test_v814_voice_gateway.py \
             dev-hub/tests/test_v826_contextual_conversation_intent.py \
-            dev-hub/tests/test_v828_contextual_operation_routing.py; do
+            dev-hub/tests/test_v828_contextual_operation_routing.py \
+            dev-hub/tests/test_v829_antigravity_zero_spend_account.py \
+            dev-hub/tests/test_v831_safe_autonomous_resilience_and_continuation.py; do
             PYTHONPATH=dev-hub/bin python3 "$t"
           done
 

@@ -285,8 +285,13 @@ def prepare_envelope(
     explicit = set(((policy.get("approvals") or {}).get("explicit_human_permissions") or []))
     approval_map = dict(DEFAULT_APPROVALS)
     approval_map.update((policy.get("approvals") or {}).get("permission_to_approval") or {})
-    timeout = int(((policy.get("dispatch") or {}).get("default_timeout_seconds") or 300))
-    timeout = min(timeout, int(((policy.get("dispatch") or {}).get("max_timeout_seconds") or 3600)))
+    dispatch_policy = policy.get("dispatch") or {}
+    timeout = int(dispatch_policy.get("default_timeout_seconds") or 300)
+    capabilities = [str(x) for x in (source_task.get("capabilities") or [])]
+    capability_timeouts = dispatch_policy.get("capability_timeout_seconds") if isinstance(dispatch_policy.get("capability_timeout_seconds"),dict) else {}
+    if len(capabilities)==1 and capabilities[0] in capability_timeouts:
+        timeout = int(capability_timeouts[capabilities[0]])
+    timeout = max(30,min(timeout, int(dispatch_policy.get("max_timeout_seconds") or 3600)))
     metadata = dict(source_task.get("metadata") or {})
     metadata.update(scheduled.get("metadata") or {})
     metadata.update({"prepared_at": now_iso(), "controller": "run-controller-v1.2"})
@@ -906,14 +911,15 @@ def main() -> None:
 
                 parsed: dict[str, Any] | None = None
                 protocol_error: str | None = None
-                if failure_class is None and exit_code == 0:
+                if failure_class is None:
                     parsed, protocol_error = parse_adapter_result(stdout, envelope, expected_adapter)
-                if protocol_error:
-                    failure_class = protocol_error
+                    if parsed is None:
+                        failure_class = protocol_error if exit_code == 0 else f"adapter-exit:{exit_code}"
 
                 if parsed is not None and failure_class is None:
                     result_status = str(parsed.get("status"))
                     semantic_success = result_status == "OK"
+                    semantic_blocked = result_status == "BLOCKED"
                     result_path = results_dir / f"{basename}.task-result.json"
                     save(result_path, parsed)
                     task_rec["task_result"] = str(result_path)
@@ -928,10 +934,13 @@ def main() -> None:
                         task_rec["failure_class"] = "guardian-post-block"
                     else:
                         task_rec["failure_class"] = None if semantic_success else f"adapter-result:{result_status}"
-                    task_rec["status"] = "SUCCEEDED" if semantic_success else "FAILED"
+                    task_rec["status"] = "SUCCEEDED" if semantic_success else "BLOCKED" if semantic_blocked and not post_blockers else "FAILED"
                     task_rec["finished_at"] = now_iso()
                     if semantic_success:
                         record["summary"]["succeeded"] += 1
+                    elif semantic_blocked and not post_blockers:
+                        record["summary"]["blocked"] += 1
+                        abort_remaining = True
                     else:
                         record["summary"]["failed"] += 1
                         abort_remaining = True

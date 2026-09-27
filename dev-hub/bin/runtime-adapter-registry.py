@@ -9,6 +9,7 @@ BASE_SCHEMA='chacha.dev/provider-adapters/v1'
 STATE_SCHEMA='chacha.dev/runtime-adapter-state/v1'
 REPORT_SCHEMA='chacha.dev/runtime-adapter-registry-reconciliation/v1'
 RUNTIME_STATES={'CONTRACT_OK','PILOT','ENABLED','DEGRADED','DISABLED'}
+MATURITY_RANK={'CONTRACT_OK':1,'PILOT':2,'ENABLED':3}
 
 def now_iso()->str:return datetime.now(timezone.utc).isoformat()
 def load(path:Path)->dict[str,Any]:
@@ -30,6 +31,27 @@ def digest_file(path:Path)->str:
         for b in iter(lambda:f.read(1024*1024),b''):h.update(b)
     return 'sha256:'+h.hexdigest()
 def empty_state()->dict[str,Any]:return {'schema':STATE_SCHEMA,'version':'1.0.0','adapters':{},'history':[],'updated_at':now_iso(),'automatic_external_spend_eur':0}
+def version_key(value:Any)->tuple[int,...]|None:
+    raw=str(value or '').strip()
+    parts=raw.split('.')
+    if not parts or any(not p.isdigit() for p in parts):return None
+    return tuple(int(p) for p in parts)
+def executable_row_valid(row:dict[str,Any])->bool:
+    status=str(row.get('status') or '')
+    if status not in {'PILOT','ENABLED'}:return False
+    p=Path(str(row.get('executable') or ''))
+    if not p.is_absolute() or not p.is_file() or not os.access(p,os.X_OK):return False
+    ed=row.get('executable_digest')
+    return isinstance(ed,str) and ed==digest_file(p)
+def protected_positive_state(current:dict[str,Any],requested_status:str,new_contract:str,new_version:str|None,new_digest:str|None)->str|None:
+    cur_status=str(current.get('status') or '')
+    if cur_status not in MATURITY_RANK or requested_status not in MATURITY_RANK:return None
+    if current.get('contract_digest')!=new_contract:return None
+    cur_v=version_key(current.get('source_version'));new_v=version_key(new_version)
+    if cur_v is not None and new_v is not None and cur_v>new_v and executable_row_valid(current):return 'STALE_SOURCE_VERSION_REGRESSION'
+    same_source=(current.get('source_digest')==new_digest and current.get('source_version')==new_version)
+    if same_source and MATURITY_RANK[cur_status]>MATURITY_RANK[requested_status] and executable_row_valid(current):return 'MATURITY_REGRESSION'
+    return None
 def read_state(path:Path)->dict[str,Any]:
     if not path.is_file():return empty_state()
     x=load(path)
@@ -93,7 +115,13 @@ def persist(base_path:Path,state_path:Path,adapter:str,status:str,executable:str
         if executable_digest and executable_digest!=actual:raise ValueError('EXECUTABLE_DIGEST_MISMATCH')
         executable_digest=actual
     source_version,source_digest=desired_source(base_path,adapter)
-    row={'adapter':adapter,'status':status,'executable':executable,'executable_digest':executable_digest,'contract_digest':contract_digest(base,adapter),'source_version':source_version,'source_digest':source_digest,'evidence_refs':list(evidence_refs),'updated_at':now_iso(),'automatic_external_spend_eur':0}
+    cd=contract_digest(base,adapter);current=(state.get('adapters') or {}).get(adapter)
+    if isinstance(current,dict):
+        reason=protected_positive_state(current,status,cd,source_version,source_digest)
+        if reason:
+            state.setdefault('history',[]).append({'event':'STATE_REGRESSION_IGNORED','adapter':adapter,'requested_status':status,'preserved_status':current.get('status'),'reason':reason,'requested_source_version':source_version,'preserved_source_version':current.get('source_version'),'at':now_iso(),'contract_digest':cd})
+            state['updated_at']=now_iso();atomic(state_path,state);return current
+    row={'adapter':adapter,'status':status,'executable':executable,'executable_digest':executable_digest,'contract_digest':cd,'source_version':source_version,'source_digest':source_digest,'evidence_refs':list(evidence_refs),'updated_at':now_iso(),'automatic_external_spend_eur':0}
     state['adapters'][adapter]=row;state.setdefault('history',[]).append({'event':'STATE_SET','adapter':adapter,'status':status,'at':now_iso(),'contract_digest':row['contract_digest']});state['updated_at']=now_iso();atomic(state_path,state);return row
 
 def main()->int:

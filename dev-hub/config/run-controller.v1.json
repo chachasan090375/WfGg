@@ -58,7 +58,10 @@
       "adapter-missing"
     ],
     "work_root": "/opt/chacha-dev/runtime/runs",
-    "result_format": "chacha.dev/task-result/v1"
+    "result_format": "chacha.dev/task-result/v1",
+    "capability_timeout_seconds": {
+      "code-edit": 900
+    }
   },
   "approvals": {
     "explicit_human_permissions": [

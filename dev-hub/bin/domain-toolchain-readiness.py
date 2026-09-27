@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 import argparse,json
+from datetime import datetime,timezone
 from pathlib import Path
 from typing import Any
 
@@ -32,9 +33,31 @@ def evidence_state(repo_root:Path,spec:dict[str,Any])->tuple[list[dict[str,Any]]
         ok=p.is_file();evidence.append({"path":str(raw),"exists":ok});complete=complete and ok
     return evidence,complete
 
+def economics_attestation(profile:dict[str,Any],provider:str)->tuple[bool,str,dict[str,Any]]:
+    if profile.get("zero_cost_attestation_required") is not True:return True,"NOT_REQUIRED",{}
+    raw=str(profile.get("zero_cost_attestation") or "").strip()
+    if not raw:return False,"ZERO_COST_ATTESTATION_PATH_MISSING",{}
+    path=Path(raw)
+    if not path.is_file():return False,"ZERO_COST_ATTESTATION_MISSING",{"path":raw}
+    try:x=load(path)
+    except Exception:return False,"ZERO_COST_ATTESTATION_INVALID",{"path":raw}
+    if x.get("schema")!="chacha.dev/provider-zero-cost-attestation/v1" or x.get("provider_id")!=provider or x.get("status")!="PASS":return False,"ZERO_COST_ATTESTATION_INVALID",{"path":raw}
+    try:spend=float(x.get("automatic_external_spend_eur"))
+    except Exception:spend=-1
+    if spend!=0:return False,"ZERO_COST_ATTESTATION_NONZERO_SPEND",{"path":raw}
+    cost=str(x.get("cost_class") or "").lower();allowed={str(v).lower() for v in (profile.get("allowed_zero_cost_classes") or ["free","owned","included","local"])}
+    if cost not in allowed:return False,"COST_CLASS_NOT_AUTOMATIC_ZERO",{"path":raw,"cost_class":cost}
+    if cost=="quota":
+        if x.get("quota_available") is not True:return False,"FREE_QUOTA_NOT_CONFIRMED",{"path":raw}
+        try:expiry=datetime.fromisoformat(str(x.get("valid_until") or "").replace("Z","+00:00"))
+        except Exception:return False,"ZERO_COST_ATTESTATION_EXPIRED",{"path":raw}
+        if expiry<=datetime.now(timezone.utc):return False,"ZERO_COST_ATTESTATION_EXPIRED",{"path":raw,"valid_until":x.get("valid_until")}
+    return True,"PASS",{"path":raw,"cost_class":cost,"valid_until":x.get("valid_until"),"quota_available":x.get("quota_available"),"automatic_external_spend_eur":0}
+
 def provider_candidate(repo_root:Path,provider:dict[str,Any],bindings:dict[str,Any],adapter_defs:dict[str,Any],
                        probe_defs:dict[str,Any],encapsulated_defs:dict[str,Any],
-                       health_defs:dict[str,Any])->dict[str,Any]:
+                       health_defs:dict[str,Any],economics_profiles:dict[str,Any]|None=None)->dict[str,Any]:
+    economics_profiles=economics_profiles or {}
     pid=str(provider.get("id") or "")
     status=str(provider.get("status") or "DISCOVER")
     encap=encapsulated_defs.get(pid) if isinstance(encapsulated_defs,dict) else None
@@ -84,8 +107,16 @@ def provider_candidate(repo_root:Path,provider:dict[str,Any],bindings:dict[str,A
             row["health_source"]=(health or {}).get("source")
             row["health_checked_at"]=(health or {}).get("checked_at")
             if state in {"HEALTHY","DEGRADED"}:
-                row["gate"]="READY"
-                row["reason"]="provider-health-evidence-available"
+                profile=economics_profiles.get(adapter_id) if isinstance(economics_profiles,dict) else None
+                eco_ok,eco_reason,eco_details=economics_attestation(profile if isinstance(profile,dict) else {},pid)
+                row["economics_attestation_status"]="PASS" if eco_ok else eco_reason
+                row["economics_attestation"]=eco_details
+                if eco_ok:
+                    row["gate"]="READY"
+                    row["reason"]="provider-health-and-economics-evidence-available"
+                else:
+                    row["gate"]="PROVIDER_HEALTH_PROBE_REQUIRED"
+                    row["reason"]="provider-economics-revalidation-required:"+eco_reason
             else:
                 row["gate"]="PROVIDER_HEALTH_PROBE_REQUIRED"
                 row["reason"]="provider-health-missing-or-unacceptable"
@@ -115,6 +146,9 @@ def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path,healt
     adapters=load(adapter_source)
     probes=load(repo_root/"dev-hub/config/provider-health-probes.v1.json")
     registry=load(repo_root/"dev-hub/config/capability-registry.v1.json")
+    economics_policy_path=repo_root/"dev-hub/config/adapter-auto-remediation.v1.json"
+    economics_policy=load(economics_policy_path) if economics_policy_path.is_file() else {"profiles":{}}
+    economics_profiles=economics_policy.get("profiles") or {}
     semantics_path=repo_root/"dev-hub/config/domain-toolchain-semantics.v1.json"
     semantics=load(semantics_path) if semantics_path.is_file() else {"encapsulated_provider_tools":{}}
     health={}
@@ -188,7 +222,7 @@ def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path,healt
             task_rows.append(row)
             continue
 
-        candidates=[provider_candidate(repo_root,p,bindings,adapter_defs,probe_defs,encapsulated_defs,health_defs) for p in providers]
+        candidates=[provider_candidate(repo_root,p,bindings,adapter_defs,probe_defs,encapsulated_defs,health_defs,economics_profiles) for p in providers]
         row["provider_candidates"]=candidates
         chosen=choose_candidate(candidates)
         row["selected_provider"]=chosen.get("provider") if chosen else None

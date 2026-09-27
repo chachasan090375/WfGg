@@ -40,7 +40,11 @@ def economics_blockers(profile:dict[str,Any],provider:str)->list[str]:
     if not path.is_file():return ['ZERO_COST_ATTESTATION_MISSING']
     try:x=load(path)
     except Exception:return ['ZERO_COST_ATTESTATION_INVALID']
-    if x.get('schema')!=ATTEST_SCHEMA or x.get('provider_id')!=provider or x.get('status')!='PASS':return ['ZERO_COST_ATTESTATION_INVALID']
+    if x.get('schema')!=ATTEST_SCHEMA or x.get('provider_id')!=provider:return ['ZERO_COST_ATTESTATION_INVALID']
+    if x.get('status')!='PASS':
+        reasons=[str(v) for v in (x.get('reason_codes') or [])]
+        if 'PROVIDER_MODEL_QUOTA_EXHAUSTED' in reasons:return ['PROVIDER_MODEL_QUOTA_EXHAUSTED']
+        return ['ZERO_COST_ATTESTATION_INVALID']
     try:spend=float(x.get('automatic_external_spend_eur'))
     except Exception:spend=-1
     if spend!=0:return ['ZERO_COST_ATTESTATION_NONZERO_SPEND']
@@ -52,6 +56,20 @@ def economics_blockers(profile:dict[str,Any],provider:str)->list[str]:
         except Exception:return ['ZERO_COST_ATTESTATION_EXPIRED']
         if expiry<=datetime.now(timezone.utc):return ['ZERO_COST_ATTESTATION_EXPIRED']
     return []
+
+def refresh_zero_cost_attestation(repo:Path,runtime:Path,profile:dict[str,Any],provider:str,work:Path)->dict[str,Any]:
+    probe=profile.get('zero_cost_attestation_probe') if isinstance(profile.get('zero_cost_attestation_probe'),dict) else {}
+    if probe.get('enabled') is not True:return {'status':'NOT_CONFIGURED'}
+    if probe.get('non_generative') is not True or float(probe.get('automatic_external_spend_eur') or 0)!=0:return {'status':'BLOCKED','reason':'ECONOMICS_PROBE_NOT_ZERO_SPEND'}
+    tool=repo/str(probe.get('tool') or '')
+    output=Path(str(profile.get('zero_cost_attestation') or ''))
+    if not tool.is_file() or not str(output):return {'status':'BLOCKED','reason':'ECONOMICS_PROBE_CONTRACT_INVALID'}
+    cmd=[sys.executable,str(tool),'--provider',provider,'--runtime-root',str(runtime),'--output',str(output),'--valid-seconds',str(int(probe.get('valid_seconds') or 300)),'--minimum-remaining-fraction',str(float(probe.get('minimum_remaining_fraction') or 0.01))]
+    proc=run(cmd,repo,90)
+    att=load(output) if output.is_file() else None
+    row={'status':'PASS' if proc.returncode==0 and isinstance(att,dict) and att.get('status')=='PASS' else 'BLOCK','returncode':proc.returncode,'attestation':str(output),'stdout_digest':'sha256:'+hashlib.sha256(proc.stdout.encode()).hexdigest(),'stderr_digest':'sha256:'+hashlib.sha256(proc.stderr.encode()).hexdigest(),'automatic_external_spend_eur':0}
+    if isinstance(att,dict):row.update({'quota_available':att.get('quota_available'),'quota_remaining_fraction':att.get('quota_remaining_fraction'),'valid_until':att.get('valid_until'),'auth_mode':att.get('auth_mode'),'overage_enabled':att.get('overage_enabled'),'reason_codes':att.get('reason_codes') or [],'resume_at':att.get('resume_at'),'model':att.get('model')})
+    save(work/(provider+'.zero-cost-attestation-refresh.json'),row);return row
 
 def selected_targets(readiness:dict[str,Any])->list[tuple[str,str,str]]:
     out=[];seen=set();actionable={'ADAPTER_ENABLEMENT_REQUIRED','PROVIDER_HEALTH_PROBE_REQUIRED'}
@@ -165,13 +183,28 @@ def ensure_pilot(repo:Path,registry:Path,adapter:str,provider:str,profile:dict[s
 
 def repeatable_results(repo:Path,adapter:str,provider:str,exe:str,work:Path,global_health:Path|None=None)->tuple[list[Path],Path]:
     fixture=runtime_probe_fixture(repo,adapter,provider)
+    policy=load(repo/'dev-hub/config/adapter-auto-remediation.v1.json')
+    profile=((policy.get('profiles') or {}).get(adapter) or {})
+    rp=profile.get('repeatability_probe') if isinstance(profile.get('repeatability_probe'),dict) else {}
+    required=max(1,min(5,int(rp.get('required_successes') or 3)))
+    transient_retries=max(0,min(3,int(rp.get('transient_retries_per_success') or 0)))
+    retry_delay=max(0.0,min(5.0,float(rp.get('retry_delay_seconds') or 0.0)))
+    success_spacing=max(0.0,min(5.0,float(rp.get('success_spacing_seconds') or 0.03)))
+    transient_summaries={str(x) for x in rp.get('transient_summaries') or [] if str(x)}
     paths=[];last=None
-    for i in range(3):
-        proc=subprocess.run([exe],input=json.dumps(fixture,ensure_ascii=False),stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,shell=False,timeout=30)
-        try:x=json.loads(proc.stdout.strip())
-        except Exception:raise RuntimeError('REPEATABILITY_RESULT_INVALID:'+adapter)
-        if proc.returncode!=0 or x.get('schema')!=RESULT_SCHEMA or x.get('status')!='OK' or x.get('producer')!=adapter:raise RuntimeError('REPEATABILITY_RESULT_FAILED:'+adapter+':'+str(x.get('summary') or proc.returncode))
-        p=work/(adapter+f'.repeat-{i+1}.json');save(p,x);paths.append(p);last=x;time.sleep(0.03)
+    for i in range(required):
+        x=None;failure_summary='UNKNOWN'
+        for retry in range(transient_retries+1):
+            proc=subprocess.run([exe],input=json.dumps(fixture,ensure_ascii=False),stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,shell=False,timeout=30)
+            try:x=json.loads(proc.stdout.strip())
+            except Exception:raise RuntimeError('REPEATABILITY_RESULT_INVALID:'+adapter)
+            valid=proc.returncode==0 and x.get('schema')==RESULT_SCHEMA and x.get('status')=='OK' and x.get('producer')==adapter
+            if valid:break
+            failure_summary=str(x.get('summary') or proc.returncode)
+            transient=any(failure_summary==v or failure_summary.startswith(v+':') for v in transient_summaries)
+            if not transient or retry>=transient_retries:raise RuntimeError('REPEATABILITY_RESULT_FAILED:'+adapter+':'+failure_summary)
+            time.sleep(retry_delay*(retry+1))
+        p=work/(adapter+f'.repeat-{i+1}.json');save(p,x);paths.append(p);last=x;time.sleep(success_spacing)
     health_row={'state':'HEALTHY','checked_at':str(last.get('observed_at') or now_iso()),'source':'governed-auto-remediation:'+adapter+':repeatable-runtime-probe','automatic_external_spend_eur':0}
     hp=work/(adapter+'.health.json');save(hp,{'schema':HEALTH_SCHEMA,'observed_at':now_iso(),'providers':{provider:health_row}})
     if global_health is not None:
@@ -202,15 +235,19 @@ def remediate(repo:Path,runtime:Path,readiness_path:Path,policy_path:Path,output
     root=runtime/'adapter-auto-remediation'/('run-'+datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'-'+os.urandom(3).hex());root.mkdir(parents=True,exist_ok=True);registry=materialize_effective(repo,runtime,root);global_health=Path(str(readiness.get('provider_health_snapshot') or '')) if readiness.get('provider_health_snapshot') else None
     rows=[];changed=False
     for adapter,provider,requested_gate in selected_targets(readiness):
-        entry=((load(registry).get('adapters') or {}).get(adapter) or {});ok,blockers,profile=eligibility(adapter,provider,load(registry),provisioning,policy);row={'adapter':adapter,'provider':provider,'requested_gate':requested_gate,'initial_status':entry.get('status'),'eligible':ok,'blockers':blockers,'automatic_external_spend_eur':0}
+        entry=((load(registry).get('adapters') or {}).get(adapter) or {});profile=((policy.get('profiles') or {}).get(adapter) or {})
+        probe=profile.get('zero_cost_attestation_probe') if isinstance(profile.get('zero_cost_attestation_probe'),dict) else {}
+        refresh=refresh_zero_cost_attestation(repo,runtime,profile,provider,root) if probe.get('enabled') is True else None
+        ok,blockers,profile=eligibility(adapter,provider,load(registry),provisioning,policy);row={'adapter':adapter,'provider':provider,'requested_gate':requested_gate,'initial_status':entry.get('status'),'eligible':ok,'blockers':blockers,'economics_attestation_refresh':refresh,'automatic_external_spend_eur':0}
         if not ok:row['status']='DEFERRED';rows.append(row);continue
         refs=[]
         try:
-            row['umg_registration']=ensure_umg(repo,runtime,adapter,entry,root);refs+=ensure_contract_ok(repo,registry,adapter,root);prov=provision(repo,adapter,root);refs.append(str(root/(adapter+'.provisioning-receipt.json')));exe,pilot_refs=ensure_pilot(repo,registry,adapter,provider,profile,root,prov);refs+=pilot_refs;refs+=ensure_enabled(repo,registry,adapter,provider,exe,root,global_health)
-            final=((load(registry).get('adapters') or {}).get(adapter) or {}).get('status')
+            row['umg_registration']=ensure_umg(repo,runtime,adapter,entry,root);refs+=ensure_contract_ok(repo,registry,adapter,root)
+            if requested_gate=='PROVIDER_HEALTH_PROBE_REQUIRED' and str(entry.get('status'))=='ENABLED' and isinstance(entry.get('executable'),str) and Path(str(entry.get('executable'))).is_file():
+                exe=str(entry.get('executable'));health_results,health_path=repeatable_results(repo,adapter,provider,exe,root,global_health);refs += [*(str(p) for p in health_results),str(health_path)];final='ENABLED';row['lifecycle_action']='REFRESH_EXISTING_ENABLED_PROVIDER'
+            else:
+                prov=provision(repo,adapter,root);refs.append(str(root/(adapter+'.provisioning-receipt.json')));exe,pilot_refs=ensure_pilot(repo,registry,adapter,provider,profile,root,prov);refs+=pilot_refs;refs+=ensure_enabled(repo,registry,adapter,provider,exe,root,global_health);final=((load(registry).get('adapters') or {}).get(adapter) or {}).get('status');row['lifecycle_action']='MATERIALIZE_OR_PROMOTE'
             if final!='ENABLED':raise RuntimeError('FINAL_ADAPTER_STATUS_NOT_ENABLED:'+str(final))
-            if requested_gate=='PROVIDER_HEALTH_PROBE_REQUIRED' and str(entry.get('status'))=='ENABLED':
-                health_results,health_path=repeatable_results(repo,adapter,provider,exe,root,global_health);refs += [*(str(p) for p in health_results),str(health_path)]
             persist_state(repo,runtime,registry,adapter,root,refs);row['umg_activation']=activate_umg(repo,runtime,adapter,root);row['status']='REMEDIATED';row['final_status']=final;row['executable']=exe;changed=changed or str(entry.get('status'))!=final or requested_gate=='PROVIDER_HEALTH_PROBE_REQUIRED'
         except Exception as exc:
             try:persist_state(repo,runtime,registry,adapter,root,refs)
