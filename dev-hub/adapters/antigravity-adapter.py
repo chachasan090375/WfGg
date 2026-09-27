@@ -110,6 +110,25 @@ def live_zero_cost_gate():
         return False,'PROVIDER_MODEL_QUOTA_EXHAUSTED',{'provider':PROVIDER_ID,'model':'all-zero-cost-models','resume_at':sorted(resets)[0] if resets else None,'quota_groups':groups,'blocked_models':blocked_models,'automatic_paid_upgrade':False,'automatic_external_spend_eur':0}
     return False,'PROVIDER_ZERO_COST_MODEL_UNAVAILABLE',{'quota_groups':groups,'blocked_models':blocked_models,'automatic_external_spend_eur':0}
 
+def post_failure_quota_condition(model_id:str):
+    usage,err=slash_probe('/usage')
+    if err:return None
+    group_name=next((g for m,g in MODEL_PREFERENCES if m==model_id),None)
+    if not group_name:return None
+    group=next((g for g in ((((usage.get('command') or {}).get('data') or {}).get('groups')) or []) if str(g.get('name') or '').strip().casefold()==group_name),None)
+    if not isinstance(group,dict):return None
+    values=[];reset=None
+    for bucket in group.get('buckets') or []:
+        try:values.append(float(bucket.get('remaining_fraction')))
+        except Exception:continue
+        if reset is None and bucket.get('reset_time'):reset=str(bucket.get('reset_time'))
+    if not values or min(values)>0:return None
+    circuit=None
+    if pqc is not None:
+        marker='RESOURCE_EXHAUSTED quotaResetTimeStamp:'+str(reset or '')
+        circuit=pqc.open_circuit(PROVIDER_ID,model_id,marker,'antigravity-post-failure-usage')
+    return {'provider':PROVIDER_ID,'model':model_id,'quota_group':group_name,'remaining_fraction':min(values),'resume_at':(circuit or {}).get('resume_at') or reset,'usage_probe_zero_tokens':usage.get('num_turns')==0 and ((usage.get('usage') or {}).get('total_tokens') in {0,None}),'automatic_paid_upgrade':False,'automatic_external_spend_eur':0}
+
 def file_sha(path:Path)->str:
     h=hashlib.sha256()
     with path.open('rb') as f:
@@ -123,12 +142,12 @@ def tree_snapshot(root:Path)->dict[str,str]:
 def snapshot_digest(snapshot:dict[str,str])->str:
     return sha(json.dumps(snapshot,sort_keys=True,separators=(',',':')).encode())
 def tree_digest(root:Path)->str:return snapshot_digest(tree_snapshot(root))
-def local_execution_receipt(req:dict,workspace:Path,before:dict[str,str],after:dict[str,str],provider_stdout:bytes,provider_stderr:bytes,quota:dict|None)->Path:
+def local_execution_receipt(req:dict,workspace:Path,before:dict[str,str],after:dict[str,str],provider_stdout:bytes,provider_stderr:bytes,quota:dict|None,provider_exit_code:int=0,execution_status:str='COMPLETED')->Path:
     task=req.get('task') if isinstance(req.get('task'),dict) else {};project=str(req.get('project') or 'unknown');run_id=str(req.get('run_id') or 'run');tid=str(task.get('id') or 'task')
     safe=lambda v:re.sub(r'[^A-Za-z0-9._-]+','_',v)[:160]
     added=sorted(set(after)-set(before));deleted=sorted(set(before)-set(after));modified=sorted(k for k in set(before)&set(after) if before[k]!=after[k])
     root=EVIDENCE_ROOT/safe(project)/safe(run_id);root.mkdir(parents=True,exist_ok=True);path=root/(safe(tid)+'.json')
-    payload={'schema':'chacha.dev/provider-workspace-execution-receipt/v1','provider':PROVIDER_ID,'adapter':ADAPTER_ID,'project':project,'run_id':run_id,'task_id':tid,'observed_at':now_iso(),'workspace':str(workspace),'workspace_before':snapshot_digest(before),'workspace_after':snapshot_digest(after),'added':added,'modified':modified,'deleted':deleted,'changed_file_digests':{k:after[k] for k in added+modified},'provider_stdout_digest':sha(provider_stdout),'provider_stderr_digest':sha(provider_stderr),'auth_mode':'account-oauth','quota_remaining_fraction':(quota or {}).get('remaining_fraction'),'model':(quota or {}).get('selected_model'),'quota_group':(quota or {}).get('selected_quota_group'),'automatic_external_spend_eur':0}
+    payload={'schema':'chacha.dev/provider-workspace-execution-receipt/v1','provider':PROVIDER_ID,'adapter':ADAPTER_ID,'project':project,'run_id':run_id,'task_id':tid,'observed_at':now_iso(),'workspace':str(workspace),'workspace_before':snapshot_digest(before),'workspace_after':snapshot_digest(after),'added':added,'modified':modified,'deleted':deleted,'changed_file_digests':{k:after[k] for k in added+modified},'provider_stdout_digest':sha(provider_stdout),'provider_stderr_digest':sha(provider_stderr),'provider_exit_code':int(provider_exit_code),'execution_status':str(execution_status),'auth_mode':'account-oauth','quota_remaining_fraction':(quota or {}).get('remaining_fraction'),'model':(quota or {}).get('selected_model'),'quota_group':(quota or {}).get('selected_quota_group'),'automatic_external_spend_eur':0}
     tmp=path.with_suffix('.tmp');tmp.write_text(json.dumps(payload,indent=2,ensure_ascii=False)+'\n',encoding='utf-8');os.chmod(tmp,0o640);os.replace(tmp,path);return path
 def provider_status(req):
     ok,reason,att=economics()
@@ -186,13 +205,24 @@ def execute_capability(req,task,capability,permission):
     if permission in {'read','plan'} and before is not None and after!=before:
         return emit(req,'FAILED','READ_ONLY_PROVIDER_MUTATION_DETECTED',[{'kind':'workspace','source':str(workspace),'details':{'before':before,'after':after}}],[],1)
     if p.returncode!=0:
+        failure_receipt=local_execution_receipt(req,workspace,before_snapshot,after_snapshot,p.stdout.encode('utf-8','replace'),p.stderr.encode('utf-8','replace'),quota,p.returncode,'FAILED') if workspace else None
+        failure_evidence=[]
+        if failure_receipt is not None:
+            failure_evidence.append({'kind':'provider-execution-receipt','source':str(failure_receipt),'digest':file_sha(failure_receipt),'details':{'workspace':str(workspace),'model':model_id,'quota_group':(quota or {}).get('selected_quota_group'),'provider_exit_code':p.returncode,'execution_status':'FAILED','automatic_external_spend_eur':0}})
         combined=(str(p.stdout or '')+'\n'+str(p.stderr or ''))
         circuit=pqc.observe_text(PROVIDER_ID,model_id,combined,'antigravity-adapter') if pqc is not None else None
-        if circuit is not None:
-            cp=pqc.state_path();ev=[]
-            if cp.is_file():ev.append({'kind':'provider-quota-circuit','source':str(cp),'digest':file_sha(cp),'details':{'provider':PROVIDER_ID,'model':model_id,'resume_at':circuit.get('resume_at'),'provider_invocation_started':True,'automatic_paid_upgrade':False,'automatic_external_spend_eur':0}})
+        quota_details=None
+        if circuit is None:
+            quota_details=post_failure_quota_condition(model_id)
+            if quota_details is not None and pqc is not None:circuit=pqc.blocked(PROVIDER_ID,model_id)
+        if circuit is not None or quota_details is not None:
+            details={'provider':PROVIDER_ID,'model':model_id,'resume_at':(circuit or {}).get('resume_at'),'provider_invocation_started':True,'automatic_paid_upgrade':False,'automatic_external_spend_eur':0}
+            if quota_details is not None:details.update(quota_details)
+            cp=pqc.state_path() if pqc is not None else None;ev=list(failure_evidence)
+            if cp is not None and cp.is_file():ev.append({'kind':'provider-quota-circuit','source':str(cp),'digest':file_sha(cp),'details':details})
+            else:ev.append({'kind':'provider-quota-post-failure-probe','source':'antigravity-account-/usage','details':details})
             return emit(req,'BLOCKED','PROVIDER_MODEL_QUOTA_EXHAUSTED',ev,[],2)
-        return emit(req,'FAILED','ANTIGRAVITY_PROVIDER_EXECUTION_FAILED',[],[],1)
+        return emit(req,'FAILED','ANTIGRAVITY_PROVIDER_EXECUTION_FAILED',failure_evidence,[],1)
     if permission=='workspace-write' and before_snapshot==after_snapshot:
         return emit(req,'BLOCKED','WORKSPACE_WRITE_NO_MUTATION',[],[],2)
     receipt=local_execution_receipt(req,workspace,before_snapshot,after_snapshot,p.stdout.encode('utf-8','replace'),p.stderr.encode('utf-8','replace'),quota) if workspace else None

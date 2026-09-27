@@ -111,11 +111,39 @@ remediation={"remediations":[{"provider":"antigravity","blockers":["PROVIDER_MOD
 pre=central.provider_quota_condition_from_remediation(remediation)
 assert pre and pre["provider_execution_started"] is False and pre["adapter_invocation_started"] is False,pre
 assert pre["external_dependency"]=="AI_PROVIDER_MODEL",pre
+# Exact pre-dispatch attestor wording when every zero-cost pool is exhausted must map to the same external condition.
+all_pools_remediation={"remediations":[{"provider":"antigravity","blockers":["ZERO_COST_ATTESTATION_INVALID"],"economics_attestation_refresh":{"status":"BLOCK","reason_codes":["ACCOUNT_BASELINE_QUOTA_INSUFFICIENT"],"resume_at":"2026-10-04T17:53:18Z","model":None,"automatic_external_spend_eur":0}}]}
+pre_all=central.provider_quota_condition_from_remediation(all_pools_remediation)
+assert pre_all and pre_all["external_dependency"]=="AI_PROVIDER_MODEL",pre_all
+assert pre_all["model"]=="all-zero-cost-models" and pre_all["resume_at"]=="2026-10-04T17:53:18Z",pre_all
+assert pre_all["provider_execution_started"] is False and pre_all["automatic_paid_upgrade"] is False,pre_all
 
 print("CHACHA_DEV_V831_PROVIDER_MODEL_QUOTA_CIRCUIT=PASS")
 print("CHACHA_DEV_V831_PROVIDER_QUOTA_NO_LOOP=PASS")
 print("CHACHA_DEV_V831_SEMANTIC_BLOCK_PRESERVED=PASS")
 print("CHACHA_DEV_V831_PROVIDER_QUOTA_CONVERSATION=PASS")
+
+# 9. Dynamic Guardian contracts are usable only after cross-request readback, and
+# Run Controller Guardian dependencies must remain release-local.
+guardian_worker=(ROOT/"dev-hub/guardian/worker.js").read_text(encoding="utf-8")
+assert '/v1/dynamic-contracts/readback' in guardian_worker
+assert '/v1/dynamic-components/readback' in guardian_worker
+assert 'dynamic-agent-role-contract-readback-request/v1' in guardian_worker
+assert 'dynamic-component-role-contract-readback-request/v1' in guardian_worker
+agent_manager=(ROOT/"dev-hub/bin/agent-role-contract-manager.py").read_text(encoding="utf-8")
+component_manager=(ROOT/"dev-hub/bin/component-role-contract-manager.py").read_text(encoding="utf-8")
+assert 'readback-contract' in agent_manager and 'readback_verified' in agent_manager
+assert 'readback-component-contract' in component_manager and 'readback_verified' in component_manager
+run_policy=json.loads((ROOT/"dev-hub/config/run-controller.v1.json").read_text(encoding="utf-8"))
+assert run_policy["guardian"]["client"]=="dev-hub/bin/guardian-client.py",run_policy["guardian"]
+assert run_policy["guardian"]["policy"]=="dev-hub/config/guardian-runtime-policy.v1.json",run_policy["guardian"]
+assert '/opt/chacha-dev/platform/current' not in run_policy["guardian"]["client"]
+assert '/opt/chacha-dev/platform/current' not in run_policy["guardian"]["policy"]
+assert runctl.release_local_path(run_policy["guardian"]["client"],"x")==ROOT/"dev-hub/bin/guardian-client.py"
+assert runctl.release_local_path(run_policy["guardian"]["policy"],"x")==ROOT/"dev-hub/config/guardian-runtime-policy.v1.json"
+
+print("CHACHA_DEV_V831_GUARDIAN_DYNAMIC_CONTRACT_READBACK=PASS")
+print("CHACHA_DEV_V831_GUARDIAN_RELEASE_LOCAL_LINEAGE=PASS")
 
 # 8. Dedicated V8.3.1 workflow must exist and identify the release consistently.
 workflow=ROOT/".github/workflows/dev-hub-v831-safe-autonomous-resilience-and-continuation.yml"

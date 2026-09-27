@@ -552,13 +552,14 @@ def provider_quota_condition_from_remediation(remediation:dict[str,Any]|None)->d
         refresh=row.get("economics_attestation_refresh") if isinstance(row.get("economics_attestation_refresh"),dict) else {}
         blockers={str(x) for x in row.get("blockers") or []}
         reasons={str(x) for x in refresh.get("reason_codes") or []}
-        if "PROVIDER_MODEL_QUOTA_EXHAUSTED" not in blockers|reasons:continue
+        quota_signals={"PROVIDER_MODEL_QUOTA_EXHAUSTED","ACCOUNT_BASELINE_QUOTA_INSUFFICIENT","GEMINI_BASELINE_QUOTA_INSUFFICIENT"}
+        if not (blockers|reasons)&quota_signals:continue
         return {
           "reason":"PROVIDER_MODEL_QUOTA_EXHAUSTED",
           "external_dependency":"AI_PROVIDER_MODEL",
           "external_condition":"PROVIDER_MODEL_QUOTA_RESET",
           "provider":row.get("provider") or "antigravity",
-          "model":refresh.get("model") or "gemini-3.8-flash-medium",
+          "model":refresh.get("model") or "all-zero-cost-models",
           "resume_at":refresh.get("resume_at"),
           "retryable":True,
           "provider_execution_started":False,

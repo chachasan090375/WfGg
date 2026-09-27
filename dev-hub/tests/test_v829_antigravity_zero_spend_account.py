@@ -86,7 +86,7 @@ assert "economics_attestation_fresh':True" in adapter_src
 assert "live_economics_recheck_required_before_generation':True" in adapter_src
 run_policy=json.loads((ROOT/'dev-hub/config/run-controller.v1.json').read_text());assert run_policy['dispatch']['capability_timeout_seconds']['code-edit']==900
 assert probe['valid_seconds']==1200
-prov=json.loads((ROOT/'dev-hub/config/adapter-provisioning.v1.json').read_text());assert prov['adapters']['antigravity-adapter']['version']=='1.1.5';assert prov['adapters']['antigravity-adapter']['probe_timeout_seconds']==45
+prov=json.loads((ROOT/'dev-hub/config/adapter-provisioning.v1.json').read_text());assert prov['adapters']['antigravity-adapter']['version']=='1.1.7';assert prov['adapters']['antigravity-adapter']['probe_timeout_seconds']==45
 run_controller=loadmod('v829_run_controller',BIN/'run-controller.py')
 env=run_controller.prepare_envelope('r',1,{'project':'p','transition':'X','permission':'workspace-write'},{'id':'t','kind':'domain-capability','capabilities':['code-edit'],'permission':'workspace-write'},[],run_policy,None)
 assert env['policy_context']['timeout_seconds']==900,env['policy_context']
@@ -124,6 +124,35 @@ with tempfile.TemporaryDirectory(prefix='v829-code-edit-') as raw:
     buf=io.StringIO()
     with contextlib.redirect_stdout(buf):rc=ag.execute_capability(req,req['task'],'code-edit','workspace-write')
     nores=json.loads(buf.getvalue());assert rc==2 and nores['status']=='BLOCKED' and nores['summary']=='WORKSPACE_WRITE_NO_MUTATION',nores
+# A provider may return exit 1 without surfacing its 429 in stdout/stderr. A zero-token
+# post-failure /usage probe must still classify an exhausted selected pool semantically.
+with tempfile.TemporaryDirectory(prefix='v829-post-failure-quota-') as raw:
+    td=Path(raw);backend=td/'agy';backend.write_text('#!/bin/sh\nexit 1\n');backend.chmod(0o755)
+    att=td/'att.json';att.write_text(json.dumps({'schema':'chacha.dev/provider-zero-cost-attestation/v1','provider_id':'antigravity','status':'PASS','cost_class':'quota','quota_available':True,'auth_mode':'account-oauth','baseline_quota_only':True,'overage_enabled':False,'valid_until':'2099-01-01T00:00:00Z','automatic_external_spend_eur':0,'minimum_remaining_fraction':0.01,'selected_model':'claude-sonnet-4-6','selected_quota_group':'claude and gpt models'}))
+    agq=loadmod('v829_ag_post_failure',AD/'antigravity-adapter.py');agq.BACKEND=backend;agq.ATTESTATION=att;agq.ACCOUNT_HOME=td/'home';agq.GOVERNED_WORKSPACE_ROOT=td;agq.EVIDENCE_ROOT=td/'evidence'
+    agq.live_zero_cost_gate=lambda:(True,'ACCOUNT_BASELINE_QUOTA_AVAILABLE',{'selected_model':'claude-sonnet-4-6','selected_quota_group':'claude and gpt models','remaining_fraction':1.0,'reset_time':'2099-01-01T00:00:00Z'})
+    usage={'status':'SUCCESS','num_turns':0,'usage':{'total_tokens':0},'command':{'name':'usage','data':{'groups':[{'name':'Claude and GPT models','buckets':[{'remaining_fraction':0.0,'reset_time':'2099-01-08T00:00:00Z'}]}]}}}
+    agq.slash_probe=lambda command:(usage,None) if command=='/usage' else (None,'UNEXPECTED_PROBE')
+    if agq.pqc is not None:os.environ['CHACHA_PROVIDER_QUOTA_CIRCUIT_STATE']=str(td/'provider-circuit.json')
+    ws=td/'workspace';ws.mkdir();(ws/'source.py').write_text('before\n');subprocess.run(['git','-C',str(ws),'init','-q'],check=True);subprocess.run(['git','-C',str(ws),'add','-A'],check=True);subprocess.run(['git','-C',str(ws),'-c','user.name=Test','-c','user.email=test@local.invalid','commit','-qm','baseline'],check=True)
+    req={'schema':'chacha.dev/dispatch-envelope/v1','project':'p','run_id':'r-quota','workspace':str(ws),'task':{'id':'t-quota','capabilities':['code-edit'],'permission':'workspace-write','outputs':[]},'metadata':{'intent_excerpt':'change safely'},'policy_context':{'timeout_seconds':120}}
+    buf=io.StringIO()
+    with contextlib.redirect_stdout(buf):rc=agq.execute_capability(req,req['task'],'code-edit','workspace-write')
+    qres=json.loads(buf.getvalue());assert rc==2 and qres['status']=='BLOCKED' and qres['summary']=='PROVIDER_MODEL_QUOTA_EXHAUSTED',qres
+    details={}
+    for ev in qres['evidence']:
+        if isinstance(ev.get('details'),dict):details.update(ev['details'])
+    assert details['model']=='claude-sonnet-4-6' and details['remaining_fraction']==0.0,details
+    assert details['usage_probe_zero_tokens'] is True and details['automatic_paid_upgrade'] is False and details['automatic_external_spend_eur']==0,details
+    assert details['resume_at']=='2099-01-08T00:00:05Z',details
+    receipts=[e for e in qres['evidence'] if e.get('kind')=='provider-execution-receipt']
+    assert len(receipts)==1,qres
+    re=receipts[0];rp=Path(re['source']);assert rp.is_file() and agq.file_sha(rp)==re['digest'],re
+    rx=json.load(open(rp));assert rx['provider_exit_code']==1 and rx['execution_status']=='FAILED',rx
+    assert rx['automatic_external_spend_eur']==0 and rx['provider_stdout_digest'].startswith('sha256:') and rx['provider_stderr_digest'].startswith('sha256:'),rx
+    assert rx['workspace_before'].startswith('sha256:') and rx['workspace_after'].startswith('sha256:'),rx
+    assert rx['added']==[] and rx['modified']==[] and rx['deleted']==[],rx
+
 print('CHACHA_DEV_V829_ANTIGRAVITY_ACCOUNT_OAUTH=PASS')
 print('CHACHA_DEV_V829_BASELINE_QUOTA_GATE=PASS')
 print('CHACHA_DEV_V829_MULTI_POOL_ZERO_COST_FALLBACK=PASS')
@@ -146,4 +175,6 @@ print('CHACHA_DEV_V829_ADAPTER_SPECIFIC_PROBE_TIMEOUT=PASS')
 print('CHACHA_DEV_V829_LONG_RUN_ECONOMICS_WINDOW=PASS')
 print('CHACHA_DEV_V829_REPEATABILITY_USES_FRESH_ATTESTATION=PASS')
 print('CHACHA_DEV_V829_GENERATION_LIVE_ECONOMICS_GATE_PRESERVED=PASS')
+print('CHACHA_DEV_V829_POST_FAILURE_ZERO_TOKEN_QUOTA_CLASSIFICATION=PASS')
+print('CHACHA_DEV_V829_PROVIDER_FAILURE_LOCAL_EVIDENCE=PASS')
 print('CHACHA_DEV_V829_AUTOMATIC_EXTERNAL_SPEND_EUR=0')

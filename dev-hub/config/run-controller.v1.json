@@ -114,8 +114,8 @@
   "guardian": {
     "enabled": true,
     "runtime_root": "/opt/chacha-dev/runtime",
-    "client": "/opt/chacha-dev/platform/current/dev-hub/bin/guardian-client.py",
-    "policy": "/opt/chacha-dev/platform/current/dev-hub/config/guardian-runtime-policy.v1.json",
+    "client": "dev-hub/bin/guardian-client.py",
+    "policy": "dev-hub/config/guardian-runtime-policy.v1.json",
     "timeout_seconds": 20,
     "fail_closed_permissions": [
       "repository-write",

@@ -41,6 +41,13 @@ ENVELOPE_SCHEMA = "chacha.dev/dispatch-envelope/v1"
 RUN_SCHEMA = "chacha.dev/run-record/v1"
 RESULT_SCHEMA = "chacha.dev/task-result/v1"
 
+RUN_CONTROLLER_REPO_ROOT = Path(__file__).resolve().parents[2]
+
+def release_local_path(value:Any,default_relative:str)->Path:
+    raw=str(value or default_relative).strip()
+    p=Path(raw)
+    return p if p.is_absolute() else (RUN_CONTROLLER_REPO_ROOT/p).resolve()
+
 DEFAULT_APPROVALS = {
     "production-deploy": "production-release",
     "production-data-write": "production-data-write",
@@ -463,8 +470,8 @@ def guardian_gate(
     if not runtime_root.exists():
         return [], {"status": "NON_RUNTIME_TEST_BYPASS"}
 
-    client = Path(str(cfg.get("client") or "/opt/chacha-dev/platform/current/dev-hub/bin/guardian-client.py"))
-    guardian_policy = Path(str(cfg.get("policy") or "/opt/chacha-dev/platform/current/dev-hub/config/guardian-runtime-policy.v1.json"))
+    client = release_local_path(cfg.get("client"), "dev-hub/bin/guardian-client.py")
+    guardian_policy = release_local_path(cfg.get("policy"), "dev-hub/config/guardian-runtime-policy.v1.json")
     permission = str(((envelope.get("task") or {}).get("permission")) or "read")
     fail_closed = set(str(x) for x in (cfg.get("fail_closed_permissions") or []))
     context = envelope.get("policy_context") if isinstance(envelope.get("policy_context"), dict) else {}

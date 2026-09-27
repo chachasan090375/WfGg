@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,json,subprocess,tempfile
+import argparse,json,subprocess,tempfile,time
 from pathlib import Path
 from typing import Any
 import dynamic_component_contracts as dcc
@@ -49,11 +49,27 @@ def register(contract:dict[str,Any],client:Path,policy:Path)->dict[str,Any]:
           ["/usr/bin/python3",str(client),"--policy",str(policy),"register-component-contract","--contract",str(p)],
           stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=30
         )
-    try:result=json.loads(q.stdout.strip())
-    except Exception:result={"status":"UNAVAILABLE","stdout":q.stdout[-500:],"stderr":q.stderr[-500:]}
-    if q.returncode!=0 or result.get("status")!="PASS":
-        raise RuntimeError("GUARDIAN_DYNAMIC_COMPONENT_CONTRACT_REGISTRATION_FAILED:"+str(result))
-    return result
+        try:result=json.loads(q.stdout.strip())
+        except Exception:result={"status":"UNAVAILABLE","stdout":q.stdout[-500:],"stderr":q.stderr[-500:]}
+        if q.returncode!=0 or result.get("status")!="PASS":
+            raise RuntimeError("GUARDIAN_DYNAMIC_COMPONENT_CONTRACT_REGISTRATION_FAILED:"+str(result))
+        attempts=[]
+        for attempt in range(1,4):
+            rb=subprocess.run(
+              ["/usr/bin/python3",str(client),"--policy",str(policy),"readback-component-contract","--contract",str(p)],
+              stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=30
+            )
+            try:readback=json.loads(rb.stdout.strip())
+            except Exception:readback={"status":"UNAVAILABLE","stdout":rb.stdout[-500:],"stderr":rb.stderr[-500:]}
+            attempts.append({"attempt":attempt,"returncode":rb.returncode,"status":readback.get("status")})
+            exact=(readback.get("contract_id")==contract.get("contract_id") and readback.get("version")==contract.get("version"))
+            if rb.returncode==0 and readback.get("status")=="PASS" and exact:
+                result["readback"]=readback;result["readback_attempts"]=attempts;result["readback_verified"]=True
+                return result
+            if readback.get("status") not in {"NOT_VISIBLE","UNAVAILABLE"}:
+                raise RuntimeError("GUARDIAN_DYNAMIC_COMPONENT_CONTRACT_READBACK_FAILED:"+str(readback))
+            if attempt<3:time.sleep(0.25*attempt)
+        raise RuntimeError("GUARDIAN_DYNAMIC_COMPONENT_CONTRACT_READBACK_NOT_VISIBLE:"+str(attempts))
 
 def main():
     ap=argparse.ArgumentParser()

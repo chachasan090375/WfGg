@@ -838,6 +838,31 @@ async function dualReleaseGate(req,env){
   },verdict==="PASS"?200:409);
 }
 
+async function readbackDynamicContract(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let x;try{x=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(!x||x.schema!=="chacha.dev/dynamic-agent-role-contract-readback-request/v1")
+    return json({error:"dynamic_contract_readback_schema_invalid"},400);
+  const contractId=String(x.contract_id||""),version=String(x.version||"");
+  if(!contractId||!version)return json({error:"dynamic_contract_readback_identity_incomplete"},400);
+  const row=await dynamicContract(env,contractId,version);
+  if(!row)return json({schema:"chacha.dev/dynamic-agent-role-contract-readback/v1",status:"NOT_VISIBLE",contract_id:contractId,version},404);
+  return json({schema:"chacha.dev/dynamic-agent-role-contract-readback/v1",status:"PASS",contract_id:String(row.contract_id),version:String(row.version),agent_id:String(row.agent_id),project_id:String(row.project_id),source_digest:String(row.source_digest),readback_at:new Date().toISOString()});
+}
+async function readbackDynamicComponentContract(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let x;try{x=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(!x||x.schema!=="chacha.dev/dynamic-component-role-contract-readback-request/v1")
+    return json({error:"dynamic_component_contract_readback_schema_invalid"},400);
+  const contractId=String(x.contract_id||""),version=String(x.version||"");
+  if(!contractId||!version)return json({error:"dynamic_component_contract_readback_identity_incomplete"},400);
+  const row=await dynamicComponentContract(env,contractId,version);
+  if(!row)return json({schema:"chacha.dev/dynamic-component-role-contract-readback/v1",status:"NOT_VISIBLE",contract_id:contractId,version},404);
+  return json({schema:"chacha.dev/dynamic-component-role-contract-readback/v1",status:"PASS",contract_id:String(row.contract_id),version:String(row.version),component_kind:String(row.component_kind),component_id:String(row.component_id),project_id:String(row.project_id),source_digest:String(row.source_digest),readback_at:new Date().toISOString()});
+}
+
 async function registerProjectAssuranceIdentity(req,env){
   const body=await req.text();
   const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
@@ -1244,6 +1269,8 @@ export default {
     if(req.method==="POST"&&u.pathname==="/v1/learning-anomalies/report")return await reportLearningAnomaly(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/dynamic-contracts/register")return await registerDynamicContract(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/dynamic-components/register")return await registerDynamicComponentContract(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/dynamic-contracts/readback")return await readbackDynamicContract(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/dynamic-components/readback")return await readbackDynamicComponentContract(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/coverage")return await coverage(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/watchdog/sweep")return await watchdogSweep(req,env);
     if(req.method==="GET"&&u.pathname==="/v1/remediations")return await remediations(req,env);
