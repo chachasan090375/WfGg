@@ -47,11 +47,7 @@ for required in project_roots:
     assert covered(required,roots),(required,sorted(roots))
 print('CHACHA_DEV_V824_PROJECT_CONTROL_RUNTIME_ROOTS_SCOPED=PASS')
 
-run_roots={
- str(run['locking']['root']),
- str(run['dispatch']['work_root']),
- str(run['workspace']['root']),
-}
+run_roots={str(run['locking']['root']),str(run['dispatch']['work_root']),str(run['workspace']['root'])}
 for required in run_roots:
     assert required.startswith('/opt/chacha-dev/runtime/'),required
     assert covered(required,roots),(required,sorted(roots))
@@ -95,7 +91,6 @@ wrong_mode=json.loads(json.dumps(request));wrong_mode['metadata']['execution_mod
 _,_,error=arch.validate_request(wrong_mode);assert error=='TECHNICAL_DESIGN_CONTEXT_MISSING',error
 print('CHACHA_DEV_V824_GENERIC_DOMAIN_PLAN_CAPABILITY=PASS')
 
-# Deterministic workspace artifact requests route to a local workspace-write capability.
 ORCH=ROOT/'dev-hub/bin/functional-intent-orchestrator.py'
 FACTORY=ROOT/'dev-hub/bin/domain-factory-runner.py'
 AUTO=ROOT/'dev-hub/bin/domain-readiness-auto-remediator.py'
@@ -123,7 +118,6 @@ print('CHACHA_DEV_V824_WORKSPACE_ARTIFACT_ROUTING=PASS')
 print('CHACHA_DEV_V824_WORKSPACE_FILE_AUTO_REMEDIATION_ELIGIBLE=PASS')
 print('CHACHA_DEV_V824_ARCHITECTURE_ADAPTER_SOURCE_VERSION_107=PASS')
 
-# Guardian adapter contracts are source-backed, but remote D1 mutation is production-gated.
 sync=(ROOT/'.github/workflows/dev-hub-v7-guardian-contract-sync.yml').read_text()
 assert "name: ChaCha DEV Guardian contract sync" in sync
 assert "- 'production-guardian-contract-sync-v*'" in sync
@@ -136,16 +130,24 @@ assert "CHACHA_DEV_GUARDIAN_ADAPTER_CONTRACT_SYNC=PASS" in sync
 print('CHACHA_DEV_V824_GUARDIAN_ADAPTER_CONTRACT_SYNC=PASS')
 print('CHACHA_DEV_V824_GUARDIAN_D1_DEV_BRANCH_MUTATION=FORBIDDEN')
 
-# A successful provider dispatch is not final until canonical independent verification passes.
 central=(ROOT/'dev-hub/bin/central-interface-controller.py').read_text()
-for marker in [
-    'def verify_domain_run_results',
-    '"verify-result"',
-    'DOMAIN_EXECUTION_VERIFICATION_REQUIRED',
-    '"domain_execution_verified"',
-    'status="COMPLETE";next_action="AWAIT_NEW_INSTRUCTION"',
-    'continuation_mode":"DOMAIN_EXECUTION_VERIFICATION_RESUME"',
-]:
+for marker in ['def verify_domain_run_results','"verify-result"','DOMAIN_EXECUTION_VERIFICATION_REQUIRED','"domain_execution_verified"','status="COMPLETE";next_action="AWAIT_NEW_INSTRUCTION"','continuation_mode":"DOMAIN_EXECUTION_VERIFICATION_RESUME"']:
     assert marker in central,marker
 print('CHACHA_DEV_V824_INDEPENDENT_RESULT_VERIFICATION_GATE=PASS')
 print('CHACHA_DEV_V824_VERIFIED_EXECUTION_TERMINATES=PASS')
+
+sync=(ROOT/'.github/workflows/dev-hub-v7-guardian-contract-sync.yml').read_text()
+for marker in [
+    'confirm_production:',
+    'guardian-contracts-production',
+    'approved_by',
+    'Checkout exact approved contract source revision',
+    'git checkout --detach',
+    "DELETE FROM role_contracts WHERE kind='adapter'",
+    'CHACHA_DEV_GUARDIAN_ADAPTER_CONTRACT_SET_RECONCILIATION=PASS',
+    'CHACHA_DEV_GUARDIAN_ADAPTER_CONTRACT_READBACK=PASS',
+]:
+    assert marker in sync,marker
+print('CHACHA_DEV_V824_GUARDIAN_CONTRACT_SYNC_HUMAN_BOUNDARY=PASS')
+print('CHACHA_DEV_V824_GUARDIAN_CONTRACT_SYNC_EXACT_REVISION=PASS')
+print('CHACHA_DEV_V824_GUARDIAN_CONTRACT_ROLLBACK_RECONCILIATION=PASS')
