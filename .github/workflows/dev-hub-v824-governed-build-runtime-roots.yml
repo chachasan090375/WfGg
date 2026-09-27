@@ -58,6 +58,9 @@ jobs:
         run: |
           set -euo pipefail
           python3 dev-hub/tests/test_v824_persistent_progress_visibility.py
+          python3 dev-hub/tests/test_v824_effective_adapter_lineage.py | tee /tmp/v824-lineage.out
+          grep -Fq 'CHACHA_DEV_V824_EFFECTIVE_ADAPTER_LINEAGE=PASS' /tmp/v824-lineage.out
+          grep -Fq 'CHACHA_DEV_V824_TRUSTED_DISPATCH_CONTEXT_GATE=PASS' /tmp/v824-lineage.out
           python3 dev-hub/tests/test_workspace_file_adapter_contract.py
           python3 dev-hub/tests/test_architecture_specialist_adapter_contract.py
           python3 dev-hub/tests/test_v823_governed_runtime_write_roots_and_rollback_retention.py
