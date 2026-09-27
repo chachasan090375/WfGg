@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/edge-satellite-agent/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "agent_id": "functional-translator-satellite",
   "scope": "PLATFORM_EDGE_SATELLITE",
   "attached_to": "chacha-dev-central-brain",
@@ -12,7 +12,10 @@
     "preserve raw functional request",
     "normalize functional intent",
     "compile advisory functional contract",
-    "prepare central-brain intent envelope"
+    "prepare central-brain intent envelope",
+    "partition business intent from governance/process context",
+    "normalize unambiguous functional requests into canonical central-brain prompts",
+    "preserve raw request separately from normalized central prompt"
   ],
   "prohibited": [
     "technical architecture decision",
@@ -36,8 +39,19 @@
   "handoff": {
     "destination": "central-interface-controller",
     "central_orchestrator_recompiles_independently": true,
-    "translation_is_advisory": true
+    "translation_is_advisory": true,
+    "semantic_intent_required": true,
+    "business_domain_routing_uses_normalized_functional_text": true,
+    "raw_text_not_used_for_business_keyword_routing": true,
+    "contextual_word_meaning_required": true
   },
   "fleet_membership": "EXCLUDED_EDGE_SATELLITE",
-  "automatic_external_spend_eur": 0
+  "automatic_external_spend_eur": 0,
+  "invariants": {
+    "single_keyword_must_not_activate_business_domain_without_context": true,
+    "governance_process_terms_do_not_become_deliverable_capabilities": true,
+    "explicit_business_action_remains_authoritative": true,
+    "raw_operator_text_remains_audit_trace": true,
+    "automatic_external_spend_eur": 0
+  }
 }

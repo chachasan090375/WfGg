@@ -9,6 +9,7 @@ def loadmod(name:str,path:Path):
     spec.loader.exec_module(mod);return mod
 translator=loadmod('v826_translator',BIN/'functional-translator-agent.py')
 intent_router=loadmod('v826_router',BIN/'functional-intent-orchestrator.py')
+factory=loadmod('v826_factory',BIN/'domain-factory-runner.py')
 cfg=json.loads((ROOT/'dev-hub/config/domain-orchestration.v1.json').read_text())
 SELFTEST='''TEST FONCTIONNEL RÉEL CHACHA DEV — AUTO-VALIDATION DE BOUT EN BOUT
 Je veux que tu traites cette demande directement comme une demande fonctionnelle utilisateur normale, en utilisant ChaCha DEV lui-même et son chemin de production actif.
@@ -29,6 +30,11 @@ chacha-dev-selftest.txt
 Son contenu final doit être exactement :
 CHACHA_DEV_SELFTEST_OK'''
 assert sem['functional_core']==expected,sem
+canonical='Crée un fichier chacha-dev-selftest.txt contenant uniquement "CHACHA_DEV_SELFTEST_OK".'
+assert sem['routing_text']==canonical,sem
+assert sem['normalization']['applied'] is True,sem
+assert sem['normalization']['kind']=='EXACT_TEXT_ARTIFACT',sem
+assert factory.workspace_file_spec(sem['routing_text'])=={'action':'write-text','path':'chacha-dev-selftest.txt','content':'CHACHA_DEV_SELFTEST_OK'}
 plan=intent_router._preplan({'text':sem['routing_text']},cfg)
 assert plan['primary_domains']==['workspace-artifact'],plan['primary_domains']
 assert 'translation' not in plan['primary_domains'] and 'platform-release' not in plan['primary_domains']
@@ -48,9 +54,10 @@ with tempfile.TemporaryDirectory(prefix='v826-translator-') as td:
     assert p.returncode==0,p.stderr
     interface=json.loads((Path(td)/'interface-intent.json').read_text())
     translation=json.loads((Path(td)/'translation.json').read_text())
-    assert interface['user_text']==expected,interface
+    assert interface['user_text']==canonical,interface
     assert interface['raw_user_text']==SELFTEST.strip(),interface
-    assert interface['semantic_intent']['routing_text']==expected
+    assert interface['semantic_intent']['routing_text']==canonical
+    assert factory.workspace_file_spec(interface['user_text'])=={'action':'write-text','path':'chacha-dev-selftest.txt','content':'CHACHA_DEV_SELFTEST_OK'}
     assert translation['primary_domains']==['workspace-artifact'],translation
 central_source=(BIN/'central-interface-controller.py').read_text()
 assert '"text":str(human_intent.get("user_text") or "")' in central_source
