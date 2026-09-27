@@ -62,8 +62,8 @@ assert "👤 Ta demande" in ui
 assert "💨 ChaCha répond" in ui
 assert "Détails techniques" in ui
 assert "if(fromEditor)q.value=''" in ui
-assert "if(fromEditor&&!accepted&&!q.value.trim())q.value=original" in ui
-assert "execution_project:z.execution_project_id" in ui
+assert "if(fromEditor&&!q.value.trim())q.value=original" in ui  # inside the accepted==False branch
+assert "execution_project:z?.execution_project_id" in ui
 
 policy=json.loads((ROOT/"dev-hub/config/direct-operator.v1.json").read_text(encoding="utf-8"))
 assert policy["auto_continue"]["enabled"] is True
