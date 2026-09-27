@@ -42,7 +42,7 @@ RECOVERY_CUES=(
     "répar","repair","blocage","blocked","continuation","continue",
     "adapter_enablement_required","provider_health_probe_required",
     "provider_probe_definition_required","provider_binding_required",
-    "task_graph_decomposition_required"
+    "task_graph_decomposition_required","domain_execution_verification_required"
 )
 
 def targeted_recovery_request_id(intent:dict[str,Any],runtime_root:Path)->str|None:
@@ -98,6 +98,43 @@ def run_json(cmd:list[str],timeout:int=300)->tuple[int,dict[str,Any]|None,str,st
 
 def project_control(repo_root:Path,tool:Path,project:str,operation:str,*extra:str)->tuple[int,dict[str,Any]|None,str,str]:
     return run_json([sys.executable,str(tool),"--repo-root",str(repo_root),"--json",operation,"--project",project,*extra],3700)
+
+def verify_domain_run_results(a,execution_project:str,record:dict[str,Any],bound_graph:Path)->dict[str,Any]:
+    if not bound_graph.is_file():
+        return {"status":"BLOCKED","blockers":["BOUND_TASK_GRAPH_MISSING"],"rows":[],"evidence_refs":[]}
+    graph=load(bound_graph)
+    tasks={str(t.get("id") or ""):t for t in (graph.get("tasks") or []) if isinstance(t,dict)}
+    rows=[];blockers=[];refs=[]
+    for wave in record.get("waves") or []:
+        for task_rec in (wave.get("tasks") or [] if isinstance(wave,dict) else []):
+            if not isinstance(task_rec,dict) or task_rec.get("status")!="SUCCEEDED":continue
+            task_id=str(task_rec.get("task_id") or "")
+            source=tasks.get(task_id) or {}
+            mode=str(((source.get("verification") or {}).get("mode")) or "machine")
+            result_path=Path(str(task_rec.get("task_result") or ""))
+            if not result_path.is_file():
+                blockers.append("TASK_RESULT_MISSING:"+task_id);rows.append({"task_id":task_id,"status":"BLOCKED","reason":"TASK_RESULT_MISSING"});continue
+            if mode=="human":
+                blockers.append("HUMAN_VERIFICATION_REQUIRED:"+task_id);rows.append({"task_id":task_id,"status":"BLOCKED","reason":"HUMAN_VERIFICATION_REQUIRED"});continue
+            method="independent-agent" if mode=="independent-agent" else "machine"
+            rc,payload,stdout,stderr=project_control(a.repo_root,a.project_control,execution_project,"verify-result",
+                "--result",str(result_path),"--graph",str(bound_graph),"--method",method,"--verifier","verification-broker","--ingest")
+            ok=bool(rc==0 and isinstance(payload,dict) and payload.get("status")=="OK" and str((payload.get("details") or {}).get("verification_status") or "")=="VERIFIED")
+            row={"task_id":task_id,"status":"VERIFIED" if ok else "BLOCKED","method":method,"project_control":payload,"returncode":rc}
+            if not ok:
+                row["stdout"]=stdout[-1200:];row["stderr"]=stderr[-1200:];blockers.append("TASK_VERIFICATION_FAILED:"+task_id)
+            else:
+                for art in payload.get("artifacts") or []:
+                    ap=Path(str((art or {}).get("path") or ""))
+                    if ap.is_file():refs.append(str(ap)+"#"+file_digest(ap))
+            rows.append(row)
+    expected=sum(
+        1
+        for wave in (record.get("waves") or []) if isinstance(wave,dict)
+        for task in (wave.get("tasks") or []) if isinstance(task,dict) and task.get("status")=="SUCCEEDED"
+    )
+    verified=sum(1 for r in rows if r.get("status")=="VERIFIED")
+    return {"status":"PASS" if not blockers and verified==expected else "BLOCKED","verified_count":verified,"expected_count":expected,"blockers":sorted(set(blockers)),"rows":rows,"evidence_refs":refs,"automatic_external_spend_eur":0}
 
 def platform_status(repo_root:Path,runtime_root:Path)->dict[str,Any]:
     out={
@@ -369,12 +406,18 @@ def domain_scheduler_run_controller(a,project:str,prior:dict[str,Any],df:dict[st
     run_blocked=int(summary.get("blocked") or 0)
     scheduled=int(((plan.get("summary") or {}).get("scheduled_count") or 0))
     succeeded=int(summary.get("succeeded") or 0)
+    verification=None
     if failed:
         status="BLOCKED";next_action="RUN_CONTROLLER_TASK_FAILED"
     elif run_blocked:
         status="BLOCKED";next_action="RUN_CONTROLLER_BLOCKED"
     elif succeeded==scheduled:
-        status="CONTINUED";next_action="DOMAIN_EXECUTION_COMPLETE"
+        verification=verify_domain_run_results(a,execution_project,record,bound_graph)
+        refs.extend(verification.get("evidence_refs") or [])
+        if verification.get("status")=="PASS":
+            status="COMPLETE";next_action="AWAIT_NEW_INSTRUCTION"
+        else:
+            status="BLOCKED";next_action="DOMAIN_EXECUTION_VERIFICATION_REQUIRED"
     else:
         status="CONTINUED";next_action="RUN_CONTROLLER_COMPLETE"
     receipt=make_receipt("CONTINUE",project,status,next_action,refs,{
@@ -383,6 +426,8 @@ def domain_scheduler_run_controller(a,project:str,prior:dict[str,Any],df:dict[st
         "execution_plan":str(plan_path),
         "run_record":str(run_record),
         "run_summary":summary,
+        "independent_verification":verification,
+        "domain_execution_verified":bool(isinstance(verification,dict) and verification.get("status")=="PASS"),
         "continuation_mode":"DOMAIN_EXECUTION_HANDOFF",
         "scheduler_started":True,
         "run_controller_started":True,
@@ -579,6 +624,24 @@ def handle_continue(a)->dict[str,Any]:
     }:
         df=brain_decision.get("domain_factories") if isinstance(brain_decision.get("domain_factories"),dict) else {}
         return continue_domain_readiness(a,project,prior,df)
+
+    if project=="chacha-dev-platform" and prior_next=="DOMAIN_EXECUTION_VERIFICATION_REQUIRED":
+        run_record=Path(str(brain_decision.get("run_record") or ""))
+        plan_path=Path(str(brain_decision.get("execution_plan") or ""))
+        bound_graph=plan_path.parent/"bound-domain-execution-graph.json" if plan_path.is_file() else Path("")
+        execution_project=str(brain_decision.get("execution_project_id") or "")
+        if not run_record.is_file() or not bound_graph.is_file() or not execution_project:
+            return make_receipt("CONTINUE",project,"BRAIN_RECEIPT_INVALID","AWAIT_NEW_INSTRUCTION",list(prior.get("evidence_refs") or []),
+                                {"reason":"DOMAIN_EXECUTION_VERIFICATION_CONTEXT_MISSING"})
+        record=load(run_record);verification=verify_domain_run_results(a,execution_project,record,bound_graph)
+        refs=list(prior.get("evidence_refs") or []);refs.extend(verification.get("evidence_refs") or [])
+        receipt=make_receipt("CONTINUE",project,"COMPLETE" if verification.get("status")=="PASS" else "BLOCKED",
+                             "AWAIT_NEW_INSTRUCTION" if verification.get("status")=="PASS" else "DOMAIN_EXECUTION_VERIFICATION_REQUIRED",refs,{
+                               "run_record":str(run_record),"execution_plan":str(plan_path),"execution_project_id":execution_project,
+                               "independent_verification":verification,"domain_execution_verified":verification.get("status")=="PASS",
+                               "continuation_mode":"DOMAIN_EXECUTION_VERIFICATION_RESUME"})
+        receipt["continuation_of_request_id"]=prior.get("request_id")
+        return receipt
 
     if project=="chacha-dev-platform" and prior_next=="SCHEDULER_READY":
         df=brain_decision.get("domain_factories") if isinstance(brain_decision.get("domain_factories"),dict) else {}

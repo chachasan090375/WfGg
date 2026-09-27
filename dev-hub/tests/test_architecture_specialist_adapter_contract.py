@@ -168,11 +168,17 @@ class ArchitectureSpecialistAdapterContract(unittest.TestCase):
         _action, _data, err = mod.validate_request(req)
         self.assertEqual(err, "ARCHITECT_INFERENCE_PROBE_PERMISSION_REQUIRED:plan")
 
-    def test_binding_must_be_healthy(self):
+    def test_status_probe_can_observe_degraded_but_design_requires_healthy(self):
         req = status_envelope()
         req["bindings"][0]["health_state"] = "DEGRADED"
-        _action, _data, err = mod.validate_request(req)
-        self.assertEqual(err, "ARCHITECT_PROVIDER_NOT_HEALTHY")
+        action, _data, err = mod.validate_request(req)
+        self.assertIsNone(err)
+        self.assertEqual(action, "status")
+        with tempfile.TemporaryDirectory() as td:
+            design = design_envelope(pathlib.Path(td))
+            design["bindings"][0]["health_state"] = "DEGRADED"
+            _action, _data, err = mod.validate_request(design)
+            self.assertEqual(err, "ARCHITECT_PROVIDER_NOT_HEALTHY")
 
     def test_design_requires_plan_permission_and_context(self):
         with tempfile.TemporaryDirectory() as td:

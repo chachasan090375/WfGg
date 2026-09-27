@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/operator-directive-registry-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "purpose": "Persist operator structural rules independently of any conversation and propagate them into ChaCha DEV governance.",
   "principles": {
     "operator_structural_rules_are_persistent": true,
@@ -157,6 +157,21 @@
         "release-qualification"
       ],
       "backfill_required": false
+    },
+    {
+      "directive_id": "opdir-permanent-progress-visibility",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "USER_EXPERIENCE",
+      "status": "ACTIVE",
+      "normalized_requirement": "Whenever work is performed through ChaCha DEV, global progress and per-module progress bars remain persistently available across supported operator surfaces, reconnects and sessions; future user-visible long-running components inherit the progress reporting contract.",
+      "required_sinks": [
+        "progress-reporting",
+        "direct-operator",
+        "all-foundries",
+        "universal-materialization-gate",
+        "release-qualification"
+      ],
+      "backfill_required": true
     }
   ],
   "runtime": {

@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/direct-operator-policy/v1",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "component": "direct-operator-service",
   "bind": "127.0.0.1",
   "port": 8792,
@@ -59,7 +59,13 @@
     "verified_existing_candidate_bypasses_new_domain_factory_bootstrap": true,
     "platform_recovery_instruction_never_bootstraps_new_project": true,
     "governed_child_runtime_writes_are_explicitly_scoped": true,
-    "broad_runtime_write_root_forbidden": true
+    "broad_runtime_write_root_forbidden": true,
+    "governed_build_runtime_roots_derive_from_child_runtime_contracts": true,
+    "project_control_runtime_roots_must_be_systemd_write_scoped": true,
+    "run_controller_runtime_roots_must_be_systemd_write_scoped": true,
+    "operator_directive_runtime_root_must_be_systemd_write_scoped": true,
+    "downstream_child_runtime_write_contract_required": true,
+    "downstream_child_processes_inherit_service_sandbox": true
   },
   "progress_policy": "dev-hub/config/progress-reporting.v1.json",
   "android_live_shell_config": "dev-hub/config/android-live-shell.v1.json",
@@ -161,5 +167,6 @@
     "generic_bootstrap_replayed": false,
     "guardian_and_platform_governance_preserved": true,
     "automatic_external_spend_eur": 0
-  }
+  },
+  "downstream_runtime_write_contract": "dev-hub/config/direct-operator-downstream-runtime-writes.v1.json"
 }

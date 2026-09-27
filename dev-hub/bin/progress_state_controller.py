@@ -45,6 +45,7 @@ class ProgressStore:
                 "platform_maturity_label":str(maturity.get("label") or "ChaCha DEV global"),
                 "active_work_percent":0,"headline":"ChaCha est prêt ✨",
                 "active_operation":None,"project_id":"chacha-dev-platform","modules":modules,
+                "display":dict(self.policy.get("display") or {}),
                 "updated_at":now_iso(),"persistent":True,"execution_authority":False,
                 "automatic_external_spend_eur":0}
     def snapshot(self)->dict[str,Any]:
@@ -53,6 +54,7 @@ class ProgressStore:
         return x
     def write(self,x:dict[str,Any])->dict[str,Any]:
         x["schema"]=SCHEMA;x["updated_at"]=now_iso();x["persistent"]=True
+        x["display"]=dict(self.policy.get("display") or {})
         x["execution_authority"]=False;x["automatic_external_spend_eur"]=0
         atomic(self.path,x);return x
     def begin(self,operation_id:str,title:str,project_id:str)->dict[str,Any]:

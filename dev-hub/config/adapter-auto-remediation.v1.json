@@ -94,6 +94,16 @@
         "quota"
       ],
       "automatic_external_spend_eur": 0
+    },
+    "workspace-file-adapter": {
+      "enabled": true,
+      "provider_allowlist": [
+        "workspace-file-runtime"
+      ],
+      "non_destructive_probe": true,
+      "external_network": "none",
+      "cost_basis": "local-filesystem-project-workspace-only",
+      "automatic_external_spend_eur": 0
     }
   }
 }

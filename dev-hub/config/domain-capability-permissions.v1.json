@@ -30,7 +30,8 @@
     "browser-automation": "workspace-write",
     "ci": "workspace-write",
     "cloud-deploy-edge": "workspace-write",
-    "platform-selftest": "read"
+    "platform-selftest": "read",
+    "workspace-file-write": "workspace-write"
   },
   "guardrails": {
     "production_permission_never_inferred": true,

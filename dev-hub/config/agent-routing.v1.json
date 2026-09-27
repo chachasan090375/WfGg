@@ -300,6 +300,12 @@
         "independent-source-research"
       ],
       "default_risk": "high"
+    },
+    "workspace-artifact-engineer": {
+      "capabilities": [
+        "workspace-file-write"
+      ],
+      "default_risk": "low"
     }
   },
   "routing_rules": [

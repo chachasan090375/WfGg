@@ -143,6 +143,11 @@
       "scope": "platform",
       "probe": "runtime-command",
       "functional_check": "platform-revision-proof"
+    },
+    "workspace-file-runtime": {
+      "scope": "platform",
+      "probe": "runtime-command",
+      "functional_check": "workspace-file-status"
     }
   }
 }

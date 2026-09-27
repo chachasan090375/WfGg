@@ -1,0 +1,22 @@
+{
+  "schema": "chacha.dev/direct-operator-downstream-runtime-writes/v1",
+  "version": "1.0.0",
+  "principles": {
+    "child_processes_inherit_direct_operator_filesystem_sandbox": true,
+    "every_downstream_runtime_write_root_must_be_declared": true,
+    "broad_runtime_write_root_forbidden": true,
+    "least_privilege_child_roots_only": true,
+    "automatic_external_spend_eur": 0
+  },
+  "roots": {
+    "run-controller": [
+      "/opt/chacha-dev/runtime/learning",
+      "/opt/chacha-dev/runtime/agent-observation",
+      "/opt/chacha-dev/runtime/agent-evolution"
+    ],
+    "architecture-specialist-adapter": [
+      "/opt/chacha-dev/runtime/technical-design-results"
+    ]
+  },
+  "automatic_external_spend_eur": 0
+}

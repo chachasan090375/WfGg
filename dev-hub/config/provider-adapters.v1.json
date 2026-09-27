@@ -170,6 +170,11 @@
       "adapter": "collector-knowledge-adapter",
       "kind": "local-runtime-bootstrap",
       "execution": "vps"
+    },
+    "workspace-file-runtime": {
+      "adapter": "workspace-file-adapter",
+      "kind": "local-workspace-runtime",
+      "execution": "vps"
     }
   },
   "adapters": {
@@ -361,6 +366,14 @@
       "supports": [
         "read",
         "production-deploy"
+      ]
+    },
+    "workspace-file-adapter": {
+      "status": "DESIGNED",
+      "executable": null,
+      "supports": [
+        "read",
+        "workspace-write"
       ]
     }
   }

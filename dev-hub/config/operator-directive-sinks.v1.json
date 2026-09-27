@@ -65,6 +65,12 @@
       "dev-hub/bin/existing-candidate-resume.py",
       "dev-hub/bin/autonomous-project-orchestrator.py",
       "dev-hub/bin/central-interface-controller.py"
+    ],
+    "progress-reporting": [
+      "dev-hub/config/progress-reporting.v1.json",
+      "dev-hub/bin/progress_state_controller.py",
+      "dev-hub/bin/direct-operator-service.py",
+      "dev-hub/direct-operator-ui/index.html"
     ]
   },
   "automatic_external_spend_eur": 0

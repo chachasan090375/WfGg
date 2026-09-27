@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/progress-reporting-policy/v1",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "scope": "PLATFORM_GLOBAL",
   "runtime_state": "/opt/chacha-dev/runtime/progress/progress.json",
   "stale_after_seconds": 1800,
@@ -26,6 +26,41 @@
       "icon": "🧠"
     },
     {
+      "id": "domain-factory",
+      "label": "Domain Factory",
+      "icon": "🏭"
+    },
+    {
+      "id": "domain-readiness",
+      "label": "Readiness fournisseurs",
+      "icon": "🔎"
+    },
+    {
+      "id": "execution-scheduler",
+      "label": "Scheduler",
+      "icon": "🗓️"
+    },
+    {
+      "id": "guardian",
+      "label": "Guardian",
+      "icon": "🛡️"
+    },
+    {
+      "id": "run-controller",
+      "label": "Run Controller",
+      "icon": "⚙️"
+    },
+    {
+      "id": "independent-verification",
+      "label": "Vérification indépendante",
+      "icon": "✅"
+    },
+    {
+      "id": "release-lifecycle",
+      "label": "Release / Rollback",
+      "icon": "🚀"
+    },
+    {
       "id": "conversation-interface-agent",
       "label": "Réponse conversationnelle",
       "icon": "💬"
@@ -39,12 +74,30 @@
     "progress_has_no_execution_authority": true,
     "progress_has_no_mutation_authority": true,
     "automatic_external_spend_eur": 0,
-    "global_maturity_and_active_work_are_distinct": true
+    "global_maturity_and_active_work_are_distinct": true,
+    "progress_bars_are_permanent_for_chacha_dev_work": true,
+    "global_and_per_module_bars_must_remain_available_during_active_work": true,
+    "all_future_user_visible_long_running_components_inherit_progress_reporting": true,
+    "progress_state_must_be_exposed_to_clients_not_only_rendered_in_one_ui": true,
+    "missing_progress_must_not_grant_or_block_execution_authority": true,
+    "progress_may_never_fabricate_completion": true,
+    "progress_may_never_replace_guardian_sentinel_or_independent_verification": true
   },
   "platform_maturity": {
     "percent": 86,
     "label": "ChaCha DEV global",
     "update_mode": "EXPLICIT_GOVERNED_UPDATE",
     "active_work_must_never_overwrite": true
+  },
+  "display": {
+    "always_visible_when_scope_is_chacha_dev": true,
+    "global_platform_bar_required": true,
+    "active_work_bar_required": true,
+    "per_module_bars_required": true,
+    "include_in_session_view": true,
+    "include_in_job_view": true,
+    "shared_across_web_android_and_operator_surfaces": true,
+    "refresh_interval_seconds": 2,
+    "must_survive_reconnect_and_session_resume": true
   }
 }

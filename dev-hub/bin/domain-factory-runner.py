@@ -23,6 +23,24 @@ def digest(value:Any)->str:
 def safe(value:str)->str:
     return re.sub(r"[^A-Za-z0-9_.-]+","-",value).strip("-") or "package"
 
+def workspace_file_spec(intent:str)->dict[str,str]|None:
+    text=str(intent or "").strip()
+    if not text:return None
+    # Deterministic exact-text artifact requests only. Free-form code edits remain on the code-edit lane.
+    path_rx=r"(?:fichier|file)\s+([A-Za-z0-9._/-]{1,240})"
+    pm=re.search(path_rx,text,re.IGNORECASE)
+    if not pm:return None
+    rel=pm.group(1).strip().rstrip(".,;:")
+    tail=text[pm.end():]
+    quoted=re.search(r"(?:contenant(?:\s+uniquement)?|containing(?:\s+only)?)\s+[\"']([^\"']+)[\"']",tail,re.IGNORECASE)
+    if quoted:content=quoted.group(1)
+    else:
+        token=re.search(r"(?:contenant(?:\s+uniquement)?|containing(?:\s+only)?)\s+([A-Za-z0-9_.:+/@=-]{1,512})",tail,re.IGNORECASE)
+        if not token:return None
+        content=token.group(1).rstrip(".,;:")
+    if not content:return None
+    return {"action":"write-text","path":rel,"content":content}
+
 def load_contract_registry(repo_root:Path):
     path=repo_root/"dev-hub/bin/contract-registry.py"
     spec=importlib.util.spec_from_file_location("domain_factory_contract_registry",path)
@@ -210,7 +228,8 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
                     "intent_excerpt":str(pkg.get("intent_excerpt") or plan.get("intent") or "")[:4000],
                     "branch_workspace":pkg.get("workspace"),
                     **({"collector_knowledge":{"action":"status"}} if cap=="collector-knowledge-inspect" else {}),
-                    **({"platform_selftest":{"action":"revision-proof"}} if cap=="platform-selftest" else {})
+                    **({"platform_selftest":{"action":"revision-proof"}} if cap=="platform-selftest" else {}),
+                    **({"workspace_file":workspace_file_spec(str(pkg.get("intent_excerpt") or plan.get("intent") or ""))} if cap=="workspace-file-write" and workspace_file_spec(str(pkg.get("intent_excerpt") or plan.get("intent") or "")) else {})
                   }
                 })
             for item in internal_caps:

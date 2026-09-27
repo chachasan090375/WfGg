@@ -50,6 +50,9 @@
     "registry_builder": "dev-hub/bin/canonical_component_registry.py",
     "pre_registration_status": "PENDING_CANONICAL_REGISTRATION",
     "active_only_after_gate_pass": true,
-    "automatic_external_spend_eur": 0
+    "automatic_external_spend_eur": 0,
+    "progress_reporting_policy": "dev-hub/config/progress-reporting.v1.json",
+    "progress_visibility_contract_required": true,
+    "future_user_visible_long_running_components_inherit_progress_reporting": true
   }
 }

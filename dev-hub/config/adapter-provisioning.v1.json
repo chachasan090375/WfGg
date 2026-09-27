@@ -108,7 +108,7 @@
     "architecture-specialist-adapter": {
       "source": "dev-hub/adapters/architecture-specialist-adapter.py",
       "namespace": "architecture-specialist",
-      "version": "1.0.6",
+      "version": "1.0.7",
       "executable_name": "architecture-specialist-adapter",
       "mode": "0755",
       "current_link_name": "current",
@@ -515,6 +515,74 @@
         "expected_schema": "chacha.dev/task-result/v1",
         "expected_status": "OK",
         "expected_producer": "antigravity-adapter",
+        "expected_verification_status": "UNVERIFIED"
+      }
+    },
+    "workspace-file-adapter": {
+      "source": "dev-hub/adapters/workspace-file-adapter.py",
+      "namespace": "workspace-file",
+      "version": "1.0.0",
+      "executable_name": "workspace-file-adapter",
+      "mode": "0755",
+      "current_link_name": "current",
+      "probe": {
+        "input": {
+          "schema": "chacha.dev/dispatch-envelope/v1",
+          "project": "workspace-file-provisioning-probe",
+          "transition": "READY->READY",
+          "run_id": "workspace-file-provisioning-probe",
+          "wave": 1,
+          "task": {
+            "id": "workspace-file:status",
+            "kind": "runtime-status",
+            "description": "Provisioning status probe for the local governed workspace file adapter.",
+            "owner_role": "sre-observability-engineer",
+            "permission": "read",
+            "capabilities": [
+              "workspace-file-write"
+            ],
+            "outputs": [
+              {
+                "type": "artifact",
+                "id": "workspace-file-runtime-status"
+              }
+            ],
+            "verification": {
+              "mode": "machine",
+              "self_certification_allowed": false,
+              "required_evidence": [
+                "source",
+                "timestamp",
+                "digest"
+              ]
+            }
+          },
+          "bindings": [
+            {
+              "capability": "workspace-file-write",
+              "provider": "workspace-file-runtime",
+              "adapter": "workspace-file-adapter",
+              "fallback_used": false,
+              "health_state": "HEALTHY"
+            }
+          ],
+          "policy_context": {
+            "resource_class": "light",
+            "requires_storage_preflight": false,
+            "human_approval_required": false,
+            "approval_id": null,
+            "timeout_seconds": 20
+          },
+          "workspace": null,
+          "metadata": {
+            "workspace_file": {
+              "action": "status"
+            }
+          }
+        },
+        "expected_schema": "chacha.dev/task-result/v1",
+        "expected_status": "OK",
+        "expected_producer": "workspace-file-adapter",
         "expected_verification_status": "UNVERIFIED"
       }
     }

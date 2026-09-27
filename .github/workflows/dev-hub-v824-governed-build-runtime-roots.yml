@@ -1,0 +1,77 @@
+name: ChaCha DEV V8.2.4 Governed Build Runtime Roots
+
+on:
+  push:
+    branches:
+      - dev-hub-v824-governed-build-runtime-roots
+    paths:
+      - 'dev-hub/**'
+      - '.github/workflows/dev-hub-v824-governed-build-runtime-roots.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Static validation
+        run: |
+          set -euo pipefail
+          python3 -m py_compile dev-hub/bin/project-control.py dev-hub/bin/run-controller.py dev-hub/bin/central-interface-controller.py dev-hub/bin/direct-operator-service.py dev-hub/bin/domain-factory-runner.py dev-hub/adapters/architecture-specialist-adapter.py dev-hub/adapters/workspace-file-adapter.py
+          python3 -m json.tool dev-hub/config/direct-operator.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/project-control.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/run-controller.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/direct-operator-downstream-runtime-writes.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/capability-registry.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/provider-adapters.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/adapter-provisioning.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/adapter-auto-remediation.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/adapter-rollbacks.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/domain-orchestration.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/domain-capability-permissions.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/provider-health-probes.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/agent-routing.v1.json >/dev/null
+      - name: V8.2.4 cross-contract runtime root invariants
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v824_governed_build_runtime_roots.py | tee /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V824_PROJECT_CONTROL_RUNTIME_ROOTS_SCOPED=PASS' /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V824_RUN_CONTROLLER_RUNTIME_ROOTS_SCOPED=PASS' /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V824_STRUCTURAL_OPERATOR_DIRECTIVE_ROOT_SCOPED=PASS' /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V824_BROAD_RUNTIME_WRITE_ROOT=FORBIDDEN' /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V824_DOWNSTREAM_CHILD_RUNTIME_ROOTS_SCOPED=PASS' /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V824_GENERIC_DOMAIN_PLAN_CAPABILITY=PASS' /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V824_AUTOMATIC_EXTERNAL_SPEND_EUR=0' /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V824_WORKSPACE_ARTIFACT_ROUTING=PASS' /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V824_WORKSPACE_FILE_AUTO_REMEDIATION_ELIGIBLE=PASS' /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V824_GUARDIAN_ADAPTER_CONTRACT_SYNC=PASS' /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V824_GUARDIAN_D1_DEV_BRANCH_MUTATION=FORBIDDEN' /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V824_INDEPENDENT_RESULT_VERIFICATION_GATE=PASS' /tmp/v824.out
+          grep -Fq 'CHACHA_DEV_V824_VERIFIED_EXECUTION_TERMINATES=PASS' /tmp/v824.out
+      - name: Relevant regressions
+        run: |
+          set -euo pipefail
+          python3 dev-hub/tests/test_v824_persistent_progress_visibility.py
+          python3 dev-hub/tests/test_workspace_file_adapter_contract.py
+          python3 dev-hub/tests/test_architecture_specialist_adapter_contract.py
+          python3 dev-hub/tests/test_v823_governed_runtime_write_roots_and_rollback_retention.py
+          python3 dev-hub/tests/test_v822_build_path_capability_minimization.py
+          python3 dev-hub/tests/test_governed_readiness_auto_remediation.py
+          python3 dev-hub/tests/test_targeted_platform_recovery.py
+          python3 dev-hub/tests/test_v828_domain_execution_continuation.py
+          python3 dev-hub/tests/test_v829_external_dependency_conversation.py
+          python3 dev-hub/tests/test_v820_operator_directives_compliance.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v730_direct_operator.py
+          python3 dev-hub/tests/test_v648_agent_observation_bus.py
+      - name: Qualification receipt
+        run: |
+          echo CHACHA_DEV_V824_GOVERNED_BUILD_RUNTIME_ROOTS=PASS
+          echo CHACHA_DEV_V824_GUARDIAN_BYPASS=NO
+          echo CHACHA_DEV_V824_SENTINEL_BYPASS=NO
+          echo CHACHA_DEV_V824_AUTOMATIC_EXTERNAL_SPEND_EUR=0

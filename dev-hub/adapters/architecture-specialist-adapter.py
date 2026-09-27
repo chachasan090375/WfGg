@@ -282,9 +282,9 @@ def validate_request(request: dict[str, Any]) -> tuple[str | None, dict[str, Any
         return None, None, "SPECIALIST_ROLE_MISSING"
     if not isinstance(context, dict):
         caps=[str(x) for x in task.get("capabilities") or []]
-        generic_allowed={"requirements-analysis","domain-modeling","acceptance-criteria","architecture-optimization"}
         intent=str(metadata.get("intent_excerpt") or "").strip()
-        if len(caps)==1 and caps[0] in generic_allowed and intent:
+        execution_mode=str(metadata.get("execution_mode") or "").upper()
+        if len(caps)==1 and intent and execution_mode=="DIRECT_PROVIDER":
             return "design", {"context": None, "role": role, "metadata": metadata,
                               "generic_domain": {"capability": caps[0], "intent": intent}}, None
         return None, None, "TECHNICAL_DESIGN_CONTEXT_MISSING"

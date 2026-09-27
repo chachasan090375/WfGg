@@ -90,6 +90,21 @@ def should_auto_continue(receipt:dict[str,Any])->bool:
     if not non_terminal: return False
     if next_action.startswith("AWAIT_") or "APPROVAL" in next_action: return False
     return True
+
+def progress_stage(next_action:Any)->tuple[str,int,int,str]:
+    action=str(next_action or "").upper()
+    rules=(
+      (("DOMAIN_FACTORIES","DOMAIN_FACTORY"),"domain-factory",58,52,"Construction des domaines"),
+      (("PROVIDER_HEALTH","ADAPTER_ENABLEMENT","PROVIDER_BINDING","PROBE_DEFINITION","READINESS"),"domain-readiness",68,60,"Vérification de la readiness"),
+      (("SCHEDULER",),"execution-scheduler",76,68,"Planification des tâches"),
+      (("GUARDIAN",),"guardian",82,74,"Contrôle Guardian"),
+      (("RUN_CONTROLLER",),"run-controller",88,82,"Exécution gouvernée"),
+      (("VERIFICATION",),"independent-verification",94,90,"Vérification indépendante"),
+      (("CANDIDATE","RELEASE","PUBLICATION","QUALIFICATION","PROMOTION","ROLLBACK","APPROVAL"),"release-lifecycle",96,94,"Cycle de release"),
+    )
+    for needles,module,pct,overall,detail in rules:
+        if any(n in action for n in needles):return module,pct,overall,detail
+    return "central-orchestrator",72,64,"Orchestration centrale"
 def decode_identity(v:str)->str:
     try:
         out=[]
@@ -212,6 +227,7 @@ class State:
     def session_view(self)->dict[str,Any]:
         s=self.session()
         out={"status":"OK","active_project":s.get("active_project"),"active_channel":s.get("active_channel"),
+             "progress":self.progress.snapshot(),
              "last_command":s.get("last_command"),"last_request_id":s.get("last_request_id"),
              "last_conversation_request_id":s.get("last_conversation_request_id"),
              "has_build_continuation":bool(s.get("last_response_path") and s.get("last_response_digest")),
@@ -608,9 +624,10 @@ class State:
                                  execution_project_id=prior_response["execution_project_id"],
                                  next_action=receipt.get("next_action"))
                     pct=min(92,64+(step+1)*4)
-                    self.progress.update("central-orchestrator",pct,"RUNNING",
-                      "Exécution : "+str(receipt.get("next_action") or "étape suivante"),
-                      pct,"ChaCha poursuit l’exécution")
+                    module,module_pct,overall,detail=progress_stage(receipt.get("next_action"))
+                    self.progress.update(module,max(module_pct,pct),"RUNNING",
+                      detail+" : "+str(receipt.get("next_action") or "étape suivante"),
+                      max(overall,pct),"ChaCha poursuit l’exécution")
                     receipt=self.central(["continue","--project",project,"--prior-response",str(prior_path),
                       "--expected-response-digest",fd(prior_path),"--output-dir",str(work/("brain-cont-%02d"%step))],
                       work/("brain-receipt-cont-%02d.json"%step))
@@ -688,6 +705,7 @@ class State:
             response["session_project_id"]=project
             response["operator_directive_intake"]=directive_intake
             response["continuation_steps"]=continuation_steps
+            response["progress"]=self.progress.snapshot()
             if recovery_target:
                 response["recovery_target_request_id"]=recovery_target
                 response["recovery_mode"]="TARGETED_PLATFORM_RECOVERY"
@@ -750,7 +768,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.json(200,self.st.effective_native_update_manifest())
         if path.startswith("/api/v1/jobs/"):
             jid=path.rsplit("/",1)[-1];p=self.st.job_path(jid)
-            return self.json(200,load(p)) if p.is_file() else self.json(404,{"status":"NOT_FOUND"})
+            if not p.is_file():return self.json(404,{"status":"NOT_FOUND"})
+            job=load(p);job["progress"]=self.st.progress.snapshot();return self.json(200,job)
         if path.startswith("/native-updates/"):
             rel_apk=path[len("/native-updates/"):]
             if not rel_apk or "/" in rel_apk or "\\" in rel_apk or not rel_apk.endswith(".apk"):

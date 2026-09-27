@@ -1,11 +1,12 @@
-name: ChaCha DEV V7 Guardian contract sync
+name: ChaCha DEV Guardian contract sync
 
 on:
   push:
     branches:
-      - 'dev-hub-v7*'
+      - 'production-guardian-contract-sync-v*'
     paths:
       - 'dev-hub/config/guardian-role-contracts.v1.json'
+      - 'dev-hub/config/provider-adapters.v1.json'
       - 'dev-hub/bin/install-v720-human-interface-gateway.sh'
       - 'dev-hub/bin/human-interface-gateway.py'
       - 'dev-hub/bin/central-interface-controller.py'
@@ -106,6 +107,7 @@ jobs:
           python3 - <<'PY'
           import hashlib,json
           roles=json.load(open('dev-hub/config/guardian-role-contracts.v1.json',encoding='utf-8'))
+          adapters=json.load(open('dev-hub/config/provider-adapters.v1.json',encoding='utf-8'))
           q=lambda s:"'"+str(s).replace("'","''")+"'"
           j=lambda v:json.dumps(v,separators=(',',':'),sort_keys=True)
           lines=[]
@@ -122,9 +124,24 @@ jobs:
                 "source_digest=excluded.source_digest,updated_at=datetime('now') "
                 "WHERE role_contracts.source_digest<>excluded.source_digest;"
               )
+          for adapter_id,a in (adapters.get('adapters') or {}).items():
+              c={'contract_id':'adapter:'+adapter_id,'kind':'adapter','allowed_actions':['EXECUTE_ADAPTER'],
+                 'forbidden_actions':['FINAL_ARCHITECTURE_DECISION','MODIFY_GUARDIAN_CONTRACTS'],
+                 'allowed_permissions':a.get('supports') or [],'required_evidence':[]}
+              dig=hashlib.sha256(j(c).encode()).hexdigest()
+              lines.append(
+                "INSERT INTO role_contracts(contract_id,kind,allowed_actions_json,forbidden_actions_json,allowed_permissions_json,required_evidence_json,unknown_role,source_digest,updated_at) VALUES("
+                +q(c['contract_id'])+","+q(c['kind'])+","+q(j(c['allowed_actions']))+","+q(j(c['forbidden_actions']))+","
+                +q(j(c['allowed_permissions']))+","+q('[]')+",0,"+q(dig)+",datetime('now')) "
+                "ON CONFLICT(contract_id) DO UPDATE SET kind=excluded.kind,allowed_actions_json=excluded.allowed_actions_json,"
+                "forbidden_actions_json=excluded.forbidden_actions_json,allowed_permissions_json=excluded.allowed_permissions_json,"
+                "required_evidence_json=excluded.required_evidence_json,source_digest=excluded.source_digest,updated_at=datetime('now') "
+                "WHERE role_contracts.source_digest<>excluded.source_digest;"
+              )
           open('.guardian-v7-contract-seed.sql','w').write('\n'.join(lines)+'\n')
-          print('CHACHA_DEV_V7_GUARDIAN_CONTRACT_SEED=PASS')
+          print('CHACHA_DEV_GUARDIAN_CONTRACT_SEED=PASS')
           print('ROLE_CONTRACTS='+str(len(roles['contracts'])))
+          print('ADAPTER_CONTRACTS='+str(len(adapters.get('adapters') or {})))
           PY
 
       - name: Sync Guardian role contracts
@@ -134,6 +151,7 @@ jobs:
         run: |
           set -euo pipefail
           npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote             --file=.guardian-v7-contract-seed.sql --config=.wrangler-guardian-contract-sync.jsonc
-          echo CHACHA_DEV_V7_GUARDIAN_CONTRACT_SYNC=PASS
+          echo CHACHA_DEV_GUARDIAN_CONTRACT_SYNC=PASS
+          echo CHACHA_DEV_GUARDIAN_ADAPTER_CONTRACT_SYNC=PASS
           echo D1_SYNC_MODE=DIGEST_AWARE_DELTA
           echo FULL_TABLE_REWRITE=NO

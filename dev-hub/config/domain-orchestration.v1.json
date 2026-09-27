@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/domain-orchestration/v1",
-  "version": "6.4.0",
+  "version": "6.4.1",
   "core_orchestrator": "chacha-core-orchestrator",
   "principles": {
     "functional_intent_is_source_of_truth": true,
@@ -28,7 +28,8 @@
     "simple_question_fast_path_memory_only": true,
     "no_project_runtime_for_memory_only_question": true,
     "branch_blueprint_optimization_required": true,
-    "minimum_total_cost_subject_to_acceptance": true
+    "minimum_total_cost_subject_to_acceptance": true,
+    "deterministic_workspace_artifact_writes_use_local_least_privilege_adapter": true
   },
   "request_modes": {
     "simple_question": {
@@ -66,6 +67,37 @@
       "reviews": [
         "documentation"
       ]
+    },
+    "workspace-artifact": {
+      "orchestrator": "domain-workspace-artifact-orchestrator",
+      "roles": [
+        "workspace-artifact-engineer"
+      ],
+      "capabilities": [
+        "workspace-file-write"
+      ],
+      "keywords": [
+        "fichier",
+        "file",
+        "artefact",
+        "artifact"
+      ],
+      "toolchain": [],
+      "reviews": [],
+      "capability_routing": {
+        "default": [
+          "workspace-file-write"
+        ],
+        "review_default": [],
+        "triggers": {
+          "workspace-file-write": [
+            "fichier",
+            "file",
+            "artefact",
+            "artifact"
+          ]
+        }
+      }
     },
     "development": {
       "orchestrator": "domain-development-orchestrator",

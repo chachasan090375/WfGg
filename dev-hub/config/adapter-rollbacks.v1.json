@@ -286,6 +286,29 @@
         "previous receipts remain readable",
         "automatic external spend remains 0"
       ]
+    },
+    "workspace-file-adapter": {
+      "enabled": true,
+      "from_status": "ENABLED",
+      "target_status": "DISABLED",
+      "owner_role": "platform-cloud-engineer",
+      "triggers": [
+        "repeatable-runtime-failure",
+        "provider-health-unavailable",
+        "policy-or-security-block"
+      ],
+      "executable_strategy": "retain-for-forensics",
+      "steps": [
+        "stop scheduling workspace-file-write tasks to workspace-file-adapter",
+        "apply ENABLED->DISABLED through adapter-promotion with policy-or-security-block evidence",
+        "record rollback receipt and triggering evidence",
+        "return unresolved capability to scheduler failover policy"
+      ],
+      "verification": [
+        "adapter runtime state is DISABLED",
+        "scheduler no longer selects workspace-file-adapter",
+        "previous promotion and rollback receipts remain readable"
+      ]
     }
   }
 }

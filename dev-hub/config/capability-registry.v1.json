@@ -1468,6 +1468,19 @@
           "fallback": []
         }
       ]
+    },
+    "workspace-file-write": {
+      "class": "execution",
+      "providers": [
+        {
+          "id": "workspace-file-runtime",
+          "status": "ADOPT",
+          "health": "platform-health",
+          "cost_class": "local",
+          "scope": "workspace",
+          "fallback": []
+        }
+      ]
     }
   }
 }
