@@ -86,6 +86,16 @@ def wait_ready(url:str,attempts:int,delay:float,timeout:float,receipt:Path)->dic
         if i<attempts:time.sleep(delay)
     raise ValueError('READINESS_RETRIES_EXHAUSTED:'+','.join(errors[-5:]))
 
+def canonical_emergency_state(release_root:Path)->tuple[Path,Path]:
+    config_path=release_root/'dev-hub/config/emergency-stop.v1.json'
+    cfg=load(config_path)
+    if cfg.get('schema')!='chacha.dev/emergency-stop/v1':raise ValueError('EMERGENCY_STOP_CONFIG_SCHEMA_INVALID')
+    raw=str(cfg.get('state_file') or '').strip()
+    state=Path(raw)
+    if not raw or not state.is_absolute():raise ValueError('EMERGENCY_STATE_PATH_MUST_BE_ABSOLUTE')
+    if not state.is_file():raise ValueError('EMERGENCY_STATE_FILE_MISSING:'+str(state))
+    return state,config_path
+
 def require_run(path:Path,label:str)->dict[str,Any]:
     x=load(path)
     if x.get('status')!='CONVERGED' or x.get('next_state')!='RESUME':raise ValueError(label+'_NOT_CONVERGED_RESUME')
@@ -94,7 +104,7 @@ def require_run(path:Path,label:str)->dict[str,Any]:
     return x
 
 def finalize(release_root:Path,current:Path,guardian_post:Path,sentinel_post:Path,readiness:Path,
-             controlled_run:Path,timer_run:Path,emergency:Path,release_count:int,
+             controlled_run:Path,timer_run:Path,release_count:int,
              controlled_before:int,controlled_after:int,timer_before:int,timer_after:int)->dict[str,Any]:
     release_root=release_root.resolve()
     if current.resolve()!=release_root:raise ValueError('ACTIVE_CURRENT_EXACT_REQUIRED')
@@ -107,6 +117,7 @@ def finalize(release_root:Path,current:Path,guardian_post:Path,sentinel_post:Pat
     rd=load(readiness)
     if rd.get('status')!='PASS' or rd.get('phase')!='READINESS':raise ValueError('READINESS_PASS_REQUIRED')
     cr=require_run(controlled_run,'CONTROLLED_RUN');tr=require_run(timer_run,'TIMER_RUN')
+    emergency,emergency_config=canonical_emergency_state(release_root)
     stop=load(emergency)
     if stop.get('active') is not False:raise ValueError('EMERGENCY_STOP_MUST_BE_CLEAR')
     if release_count>3:raise ValueError('RELEASE_RETENTION_OVERAGE')
@@ -122,6 +133,7 @@ def finalize(release_root:Path,current:Path,guardian_post:Path,sentinel_post:Pat
       'autonomy_timer_status':'ACTIVE','autonomy_timer_enabled':True,
       'first_automatic_timer_cycle_before':timer_before,'first_automatic_timer_cycle_after':timer_after,
       'first_automatic_timer_cycle_status':'CONVERGED','first_automatic_timer_cycle_next_state':'RESUME',
+      'emergency_stop_config':str(emergency_config),'emergency_stop_state':str(emergency),
       'first_automatic_timer_run_id':tr.get('run_id'),'stop_available':True,
       'promotion_final_verification':'PASS','promotion_final_verified_at':now,
       'automatic_external_spend_eur':0})
@@ -133,12 +145,12 @@ def main()->int:
     ap=argparse.ArgumentParser();sub=ap.add_subparsers(dest='cmd',required=True)
     p=sub.add_parser('prepare');p.add_argument('--candidate-root',type=Path,required=True);p.add_argument('--runtime-root',type=Path,required=True);p.add_argument('--receipt',type=Path,required=True)
     p=sub.add_parser('wait-ready');p.add_argument('--url',required=True);p.add_argument('--attempts',type=int,default=15);p.add_argument('--delay',type=float,default=1);p.add_argument('--timeout',type=float,default=2);p.add_argument('--receipt',type=Path,required=True)
-    p=sub.add_parser('finalize');p.add_argument('--release-root',type=Path,required=True);p.add_argument('--current',type=Path,required=True);p.add_argument('--guardian-post',type=Path,required=True);p.add_argument('--sentinel-post',type=Path,required=True);p.add_argument('--readiness',type=Path,required=True);p.add_argument('--controlled-run',type=Path,required=True);p.add_argument('--timer-run',type=Path,required=True);p.add_argument('--emergency-state',type=Path,required=True);p.add_argument('--release-count',type=int,required=True);p.add_argument('--controlled-before',type=int,required=True);p.add_argument('--controlled-after',type=int,required=True);p.add_argument('--timer-before',type=int,required=True);p.add_argument('--timer-after',type=int,required=True)
+    p=sub.add_parser('finalize');p.add_argument('--release-root',type=Path,required=True);p.add_argument('--current',type=Path,required=True);p.add_argument('--guardian-post',type=Path,required=True);p.add_argument('--sentinel-post',type=Path,required=True);p.add_argument('--readiness',type=Path,required=True);p.add_argument('--controlled-run',type=Path,required=True);p.add_argument('--timer-run',type=Path,required=True);p.add_argument('--release-count',type=int,required=True);p.add_argument('--controlled-before',type=int,required=True);p.add_argument('--controlled-after',type=int,required=True);p.add_argument('--timer-before',type=int,required=True);p.add_argument('--timer-after',type=int,required=True)
     a=ap.parse_args()
     try:
         if a.cmd=='prepare':out=prepare(a.candidate_root,a.runtime_root,a.receipt)
         elif a.cmd=='wait-ready':out=wait_ready(a.url,a.attempts,a.delay,a.timeout,a.receipt)
-        else:out=finalize(a.release_root,a.current,a.guardian_post,a.sentinel_post,a.readiness,a.controlled_run,a.timer_run,a.emergency_state,a.release_count,a.controlled_before,a.controlled_after,a.timer_before,a.timer_after)
+        else:out=finalize(a.release_root,a.current,a.guardian_post,a.sentinel_post,a.readiness,a.controlled_run,a.timer_run,a.release_count,a.controlled_before,a.controlled_after,a.timer_before,a.timer_after)
         print(json.dumps(out,ensure_ascii=False));return 0
     except Exception as e:
         print(json.dumps({'schema':SCHEMA,'status':'BLOCK','reason':str(e),'automatic_external_spend_eur':0},ensure_ascii=False));return 20
