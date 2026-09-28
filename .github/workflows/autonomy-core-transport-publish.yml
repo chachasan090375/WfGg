@@ -1,0 +1,38 @@
+name: ChaCha DEV Autonomy Core transport publish
+
+on:
+  push:
+    branches:
+      - transport-autonomy-core-guardian-fix-20260928
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply exact local patch and qualify
+        run: |
+          set -euo pipefail
+          git apply --index .chacha-transport/autonomy-core-guardian-fix.patch
+          node --check dev-hub/guardian/worker.js
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_remediation_hold_reactivation.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v620_guardian_corrective_enforcement.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_autonomy_runtime_contract.py
+
+      - name: Publish clean candidate tree
+        run: |
+          set -euo pipefail
+          git config user.name chachasan090375
+          git config user.email chachasan090375@gmail.com
+          git rm -f .chacha-transport/autonomy-core-guardian-fix.patch
+          git rm -f .github/workflows/autonomy-core-transport-publish.yml
+          git add -A
+          git commit -m 'fix(autonomy): requeue orphan Guardian remediation holds'
+          git push origin HEAD:refs/heads/dev-hub-autonomy-core-self-model
