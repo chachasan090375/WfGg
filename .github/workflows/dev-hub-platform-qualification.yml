@@ -42,11 +42,19 @@ jobs:
             dev-hub/bin/central-platform-hygiene-executor.py \
             dev-hub/bin/architecture-council-platform-consolidation.py \
             dev-hub/bin/provider-zero-cost-attestor.py \
-            dev-hub/bin/provider_quota_circuit.py
+            dev-hub/bin/provider_quota_circuit.py \
+            dev-hub/bin/autonomy-self-model.py \
+            dev-hub/bin/autonomy-supervision-controller.py \
+            dev-hub/bin/autonomy-loop-state.py \
+            dev-hub/bin/autonomy-loop-runner.py \
+            dev-hub/bin/cockpit-state.py
           node --check dev-hub/guardian/worker.js
           python3 -m json.tool dev-hub/config/operator-directives.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/canonical-component-registry.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/platform-consolidation.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/autonomy-self-model.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/autonomy-supervision.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/autonomy-gap-roadmap.v1.json >/dev/null
 
       - name: Operator constitution and materialization
         run: |
@@ -114,6 +122,21 @@ jobs:
         run: |
           set -euo pipefail
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_v805_direct_operator_network_resilience.py
+      - name: Autonomy Core invariants
+        run: |
+          set -euo pipefail
+          for t in \
+            dev-hub/tests/test_autonomy_self_model.py \
+            dev-hub/tests/test_autonomy_canonical_fleet_projection.py \
+            dev-hub/tests/test_autonomy_supervision_controller.py \
+            dev-hub/tests/test_autonomy_loop_state.py \
+            dev-hub/tests/test_autonomy_loop_runner.py \
+            dev-hub/tests/test_autonomy_runtime_contract.py \
+            dev-hub/tests/test_autonomy_cockpit_ui.py \
+            dev-hub/tests/test_v647_agent_fleet_observatory.py; do
+            PYTHONPATH=dev-hub/bin python3 "$t"
+          done
+
       - name: Stable platform qualification receipt
         run: |
           echo CHACHA_DEV_PLATFORM_QUALIFICATION=PASS

@@ -1,0 +1,107 @@
+{
+  "schema": "chacha.dev/autonomy-gap-roadmap/v1",
+  "scope": "chacha-dev-only",
+  "updated_at": "2026-09-28T06:04:46.050271Z",
+  "score_percent": 64,
+  "score_label": "Couverture de la feuille de route autonomie",
+  "counts": {
+    "GREEN": 1,
+    "ORANGE": 8,
+    "RED": 2
+  },
+  "legend": {
+    "GREEN": "Terminé et actif",
+    "ORANGE": "Partiel / qualifié / à généraliser",
+    "RED": "Manque important non couvert"
+  },
+  "gaps": [
+    {
+      "id": "cockpit",
+      "label": "Cockpit & observabilité utilisateur",
+      "status": "GREEN",
+      "progress": 100,
+      "state": "ACTIF_ET_VALIDÉ",
+      "evidence": "Cockpit live actif, rafraîchi en temps réel et validé visuellement par l’utilisateur."
+    },
+    {
+      "id": "self-model",
+      "label": "Modèle de soi / inventaire canonique",
+      "status": "ORANGE",
+      "progress": 90,
+      "state": "QUALIFIÉ_NON_ACTIF",
+      "evidence": "195 composants et 40 agents attendus observés ; modèle de soi qualifié, activation production encore à faire."
+    },
+    {
+      "id": "universal-loop",
+      "label": "Boucle autonome universelle",
+      "status": "ORANGE",
+      "progress": 90,
+      "state": "PROUVÉE_EN_SANDBOX",
+      "evidence": "Observer → déléguer → réobserver → vérifier → persister → RESUME prouvé ; service/timer pas encore actifs en production."
+    },
+    {
+      "id": "incident-remediation",
+      "label": "Auto-diagnostic & auto-réparation",
+      "status": "ORANGE",
+      "progress": 60,
+      "state": "PARTIEL",
+      "evidence": "Fleet et Intendant prouvés ; toutes les classes d’incidents ne sont pas encore reliées à un propriétaire autonome."
+    },
+    {
+      "id": "foundries",
+      "label": "Foundries autonomes à la demande",
+      "status": "ORANGE",
+      "progress": 60,
+      "state": "PARTIEL",
+      "evidence": "Agent/Branch/Capability Foundry existent et sont gouvernées ; déclenchement autonome universel depuis toute lacune encore à généraliser."
+    },
+    {
+      "id": "learning",
+      "label": "Apprentissage opérationnel systématique",
+      "status": "ORANGE",
+      "progress": 55,
+      "state": "PARTIEL",
+      "evidence": "Observation Bus, collecteurs et Knowledge Compiler existent ; transformer chaque incident résolu en invariant automatique reste à généraliser."
+    },
+    {
+      "id": "provider-independence",
+      "label": "Indépendance cognitive / fournisseurs IA",
+      "status": "RED",
+      "progress": 35,
+      "state": "MANQUE_IMPORTANT",
+      "evidence": "Fallback multi-provider partiel ; absence de fallback local durable capable de maintenir l’intelligence quand tous les quotas externes sont épuisés."
+    },
+    {
+      "id": "persistent-missions",
+      "label": "Missions persistantes longues",
+      "status": "ORANGE",
+      "progress": 65,
+      "state": "PARTIEL",
+      "evidence": "Scheduler, Task Graph et état de boucle persistent ; missions autonomes multi-jours orientées objectif encore à généraliser."
+    },
+    {
+      "id": "self-evolution",
+      "label": "Auto-maintenance & auto-évolution",
+      "status": "ORANGE",
+      "progress": 50,
+      "state": "PARTIEL",
+      "evidence": "ChaCha DEV sait construire et qualifier des candidats ; boucle universelle d’auto-évolution pas encore active de bout en bout."
+    },
+    {
+      "id": "constitution",
+      "label": "Constitution d’autonomie & frontières",
+      "status": "ORANGE",
+      "progress": 75,
+      "state": "AVANCÉ_MAIS_DISTRIBUÉ",
+      "evidence": "Guardian, Sentinelle, STOP, budget 0 €, limites humaines et permissions existent ; constitution unifiée à consolider."
+    },
+    {
+      "id": "resilience-ha",
+      "label": "Résilience infrastructure / HA",
+      "status": "RED",
+      "progress": 25,
+      "state": "NON_PROUVÉ",
+      "evidence": "Rollback et STOP existent ; haute disponibilité actif/passif et reprise complète d’infrastructure ne sont pas encore prouvées."
+    }
+  ]
+}

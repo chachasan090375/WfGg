@@ -1,0 +1,22 @@
+[Unit]
+Description=ChaCha DEV user cockpit state publisher
+After=network-online.target chacha-dev-direct-operator.service
+Wants=network-online.target
+ConditionPathExists=/opt/chacha-dev/platform/current/dev-hub/bin/cockpit-state.py
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/cockpit-state.py
+Restart=always
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/chacha-dev/runtime/live-ui/current/ui /opt/chacha-dev/runtime/cockpit
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=multi-user.target
