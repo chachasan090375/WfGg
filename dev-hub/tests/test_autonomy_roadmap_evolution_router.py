@@ -40,6 +40,16 @@ with tempfile.TemporaryDirectory(prefix="roadmap-evolution-router-") as td:
     bad=copy.deepcopy(policy);bad["rules"]["learning"]={"mode":"AUTO_REASSESS","component_id":"core:not-real"}
     blocked=router.build_plan(road,bad,canonical)
     assert blocked["routing_complete"] is False and any(x.get("blocker")=="CANONICAL_COMPONENT_NOT_FOUND" for x in blocked["blocked"]),blocked
+guardian=load(ROOT/"dev-hub/config/guardian-coverage-manifest.v1.json")
+expected={x["component_id"] for x in guardian.get("expected_components") or []}
+assert "autonomy-roadmap-evolution-router" in expected,expected
+assert guardian["d1_write_budget"]["expected_max_component_heartbeat_writes_per_day"]==len(expected)*12*24,guardian["d1_write_budget"]
+import importlib.util
+spec=importlib.util.spec_from_file_location("guardian_coverage_heartbeat",ROOT/"dev-hub/bin/guardian-coverage-heartbeat.py")
+gch=importlib.util.module_from_spec(spec);spec.loader.exec_module(gch)
+snapshot=gch.build(ROOT,ROOT/"dev-hub/config/guardian-coverage-manifest.v1.json")
+snapshot_ids={x.get("component_id") for x in snapshot.get("components") or []}
+assert "autonomy-roadmap-evolution-router" in snapshot_ids,snapshot_ids
 source=(ROOT/"dev-hub/bin/agent_evolution_daily_cycle.py").read_text(encoding="utf-8")
 assert "autonomy_roadmap_evolution_router as arer" in source,source
 assert "arer.route(root,runtime,canonical)" in source,source

@@ -620,24 +620,7 @@
         "file": "dev-hub/bin/governed-platform-promotion.py",
         "marker": "HUMAN_PRODUCTION_APPROVAL_REQUIRED"
       }
-    }
-  ],
-  "safety_exemptions": [
-    {
-      "component_id": "emergency-control-bridge",
-      "reason": "OUT_OF_BAND_STOP_PATH_MUST_NOT_DEPEND_ON_GUARDIAN_AVAILABILITY"
-    }
-  ],
-  "automatic_external_spend_eur": 0,
-  "d1_write_budget": {
-    "coverage_heartbeat_interval_seconds": 300,
-    "expected_max_component_heartbeat_writes_per_day": 15840,
-    "calculation": "55 components * 12 heartbeats/hour * 24 hours",
-    "ci_sync_mode": "DIGEST_AWARE_DELTA",
-    "automatic_paid_upgrade": false,
-    "automatic_external_spend_eur": 0
-  },
-  "components": [
+    },
     {
       "component_id": "autonomy-roadmap-evolution-router",
       "role": "autonomy-roadmap-evolution-router",
@@ -649,5 +632,20 @@
         "marker": "HUMAN_BOUNDARY"
       }
     }
-  ]
+  ],
+  "safety_exemptions": [
+    {
+      "component_id": "emergency-control-bridge",
+      "reason": "OUT_OF_BAND_STOP_PATH_MUST_NOT_DEPEND_ON_GUARDIAN_AVAILABILITY"
+    }
+  ],
+  "automatic_external_spend_eur": 0,
+  "d1_write_budget": {
+    "coverage_heartbeat_interval_seconds": 300,
+    "expected_max_component_heartbeat_writes_per_day": 16416,
+    "calculation": "57 components * 12 heartbeats/hour * 24 hours",
+    "ci_sync_mode": "DIGEST_AWARE_DELTA",
+    "automatic_paid_upgrade": false,
+    "automatic_external_spend_eur": 0
+  }
 }
