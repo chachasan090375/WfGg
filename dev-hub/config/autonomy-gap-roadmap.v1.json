@@ -1,8 +1,8 @@
 {
   "schema": "chacha.dev/autonomy-gap-roadmap/v1",
   "scope": "chacha-dev-only",
-  "updated_at": "2026-09-28T16:35:00Z",
-  "score_percent": 70,
+  "updated_at": "2026-09-28T18:22:00Z",
+  "score_percent": 71,
   "score_label": "Couverture de la feuille de route autonomie",
   "counts": {
     "GREEN": 3,
@@ -59,9 +59,9 @@
       "id": "learning",
       "label": "Apprentissage opérationnel systématique",
       "status": "ORANGE",
-      "progress": 65,
-      "state": "PARTIEL_EN_GENERALISATION",
-      "evidence": "Observation Bus/Knowledge Compiler existent. Les incidents timer et cockpit stale sont convertis en invariants testables ; la généralisation automatique à chaque incident reste incomplète."
+      "progress": 70,
+      "state": "INCIDENTS_CONVERTIS_EN_INVARIANTS_DE_PROMOTION",
+      "evidence": "Les incidents de promotion runtime-root absent, readiness instantanée et transport Guardian shallow sont convertis en invariants testables et obligatoires."
     },
     {
       "id": "provider-independence",
@@ -83,9 +83,9 @@
       "id": "self-evolution",
       "label": "Auto-maintenance & auto-évolution",
       "status": "ORANGE",
-      "progress": 50,
-      "state": "PARTIEL",
-      "evidence": "ChaCha DEV sait construire et qualifier des candidats ; boucle universelle d’auto-évolution pas encore active de bout en bout."
+      "progress": 60,
+      "state": "PROMOTION_GOUVERNEE_EN_GENERALISATION",
+      "evidence": "Un contrôleur générique de promotion gouvernée prépare les runtime roots, vérifie readiness/rollback/gates/cycles/timer et terminalise le reçu sans pouvoir décider ni effectuer lui-même la bascule current."
     },
     {
       "id": "constitution",
