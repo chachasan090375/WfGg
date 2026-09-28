@@ -47,6 +47,8 @@ jobs:
             dev-hub/bin/autonomy-supervision-controller.py \
             dev-hub/bin/autonomy-loop-state.py \
             dev-hub/bin/autonomy-loop-runner.py \
+            dev-hub/bin/autonomous-recovery-agent.py \
+            dev-hub/bin/ephemeral_branch_lifecycle.py \
             dev-hub/bin/cockpit-state.py
           node --check dev-hub/guardian/worker.js
           python3 -m json.tool dev-hub/config/operator-directives.v1.json >/dev/null
@@ -54,6 +56,10 @@ jobs:
           python3 -m json.tool dev-hub/config/platform-consolidation.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/autonomy-self-model.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/autonomy-supervision.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/recovery-orchestrator.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
+          bash -n dev-hub/bin/install-autonomous-recovery-agent.sh
+          bash -n dev-hub/bin/install-branch-foundry-lifecycle.sh
           python3 -m json.tool dev-hub/config/autonomy-gap-roadmap.v1.json >/dev/null
 
       - name: Operator constitution and materialization
@@ -133,6 +139,8 @@ jobs:
             dev-hub/tests/test_autonomy_loop_runner.py \
             dev-hub/tests/test_autonomy_runtime_contract.py \
             dev-hub/tests/test_autonomy_cockpit_ui.py \
+            dev-hub/tests/test_autonomy_incident_remediation.py \
+            dev-hub/tests/test_ephemeral_branch_lifecycle.py \
             dev-hub/tests/test_v647_agent_fleet_observatory.py; do
             PYTHONPATH=dev-hub/bin python3 "$t"
           done

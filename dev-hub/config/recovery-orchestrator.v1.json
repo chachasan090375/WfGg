@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/recovery-orchestrator/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "inputs": [
     "health",
     "logs",
@@ -36,5 +36,34 @@
     "generic_domain_collectors": true,
     "knowledge_compiler": true,
     "technology_watch": true
+  },
+  "service_health": {
+    "safe_restart": [
+      {
+        "unit": "chacha-dev-direct-operator.service",
+        "component": "direct-operator",
+        "criticality": "HIGH"
+      },
+      {
+        "unit": "chacha-dev-cockpit-state.service",
+        "component": "cockpit-state-publisher",
+        "criticality": "MEDIUM"
+      }
+    ],
+    "human_boundary": [
+      {
+        "unit": "chacha-dev-emergency-stop-surface.service",
+        "component": "emergency-stop-surface",
+        "criticality": "CRITICAL"
+      },
+      {
+        "unit": "chacha-dev-emergency-control-bridge.service",
+        "component": "emergency-control-bridge",
+        "criticality": "CRITICAL"
+      }
+    ],
+    "restart_verification": "SYSTEMD_ACTIVE_AFTER_RESTART",
+    "arbitrary_unit_input": false,
+    "automatic_external_spend_eur": 0
   }
 }

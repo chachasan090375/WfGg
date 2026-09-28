@@ -23,6 +23,7 @@ with tempfile.TemporaryDirectory(prefix='autonomy-runner-') as raw:
  calls=td/'systemctl-calls.txt';fake=td/'systemctl'
  fake.write_text(f'''#!/bin/sh
 set -eu
+if [ "$1" = is-active ]; then echo active; exit 0; fi
 echo "$2" >> "{calls}"
 [ "$1" = start ]
 if [ "$2" = chacha-dev-agent-fleet-observatory.service ]; then
@@ -71,7 +72,7 @@ with tempfile.TemporaryDirectory(prefix='autonomy-budget-') as raw:
  (platform/'current').symlink_to(active);save(runtime/'control/emergency-stop.json',{'active':False})
  routing=load(CFG/'agent-routing.v1.json');seven=load(CFG/'seven-agent-final-compromise.v1.json');project=load(ROOT/'dev-hub/projects/wfgg-radar/project-agent-registry.v1.json')
  old=afo.build_report(ROOT,runtime,load(CFG/'agent-fleet-observatory.v1.json'),load(CFG/'agent-evolution.v1.json'),routing,seven,[project]);save(runtime/'agent-evolution/fleet-observatory-latest.json',old)
- calls=td/'calls';fake=td/'systemctl';fake.write_text(f'#!/bin/sh\necho "$2" >> "{calls}"\nexit 0\n');fake.chmod(0o755)
+ calls=td/'calls';fake=td/'systemctl';fake.write_text(f'#!/bin/sh\nif [ "$1" = is-active ]; then echo active; exit 0; fi\necho "$2" >> "{calls}"\nexit 0\n');fake.chmod(0o755)
  pv=load(CFG/'autonomy-supervision.v1.json');pv['runtime']['retry_cooldown_seconds']=0;pv['runtime']['max_attempts_per_issue']=2;policy=td/'policy.json';save(policy,pv)
  cmd=[sys.executable,str(BIN/'autonomy-loop-runner.py'),'--repo-root',str(ROOT),'--runtime-root',str(runtime),'--platform-root',str(platform),'--policy',str(policy),'--systemctl-bin',str(fake),'--test-mode']
  p1=run(cmd);assert 'NEXT_STATE=RETRY_LATER' in p1.stdout,p1.stdout

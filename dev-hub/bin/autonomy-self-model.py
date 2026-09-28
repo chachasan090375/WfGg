@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,datetime,json,os,sqlite3
+import argparse,datetime,json,os,sqlite3,subprocess
 from pathlib import Path
 from typing import Any
 import canonical_component_registry as ccr
 import component_registry_reconciler as reconciler
+import ephemeral_branch_lifecycle as ebl
 
 SCHEMA="chacha.dev/autonomy-self-model/v1"
 
@@ -28,6 +29,26 @@ def observation_count(db:Path)->int|None:
         try:return int(con.execute('select count(*) from observations').fetchone()[0])
         finally:con.close()
     except Exception:return None
+def unit_active(systemctl:Path,unit:str)->tuple[bool,bool,str]:
+    try:
+        p=subprocess.run([str(systemctl),"is-active",unit],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=5)
+        state=(p.stdout.strip() or p.stderr.strip() or "unknown")[:120]
+        return p.returncode==0 and state=="active",True,state
+    except Exception as exc:
+        return False,False,(type(exc).__name__+":"+str(exc))[:120]
+def service_health_issues(repo:Path,systemctl:Path)->list[dict[str,Any]]:
+    policy=load(repo/"dev-hub/config/recovery-orchestrator.v1.json",{})
+    cfg=policy.get("service_health") if isinstance(policy.get("service_health"),dict) else {}
+    out=[]
+    for group,code in (("safe_restart","SERVICE_UNHEALTHY_SAFE_RESTART"),("human_boundary","SERVICE_UNHEALTHY_HUMAN")):
+        for row in cfg.get(group) or []:
+            if not isinstance(row,dict) or not row.get("unit"):continue
+            active,observed,state=unit_active(systemctl,str(row["unit"]))
+            if not observed:
+                out.append({"code":"SERVICE_HEALTH_OBSERVATION_FAILED","severity":"HIGH","subject":str(row["unit"]),"details":{"component":row.get("component"),"state":state}});continue
+            if not active:
+                out.append({"code":code,"severity":row.get("criticality") or "HIGH","subject":str(row["unit"]),"details":{"component":row.get("component"),"state":state,"safe_restart":group=="safe_restart"}})
+    return out
 def active_release(platform:Path)->dict[str,Any]:
     current=platform/"current"
     try: release=current.resolve(strict=True)
@@ -45,12 +66,16 @@ def issue_view(issue:dict[str,Any],policy:dict[str,Any])->dict[str,Any]:
       "recommended_action":mapping.get("action") or issue.get("recommended_action") or "HUMAN_CLASSIFICATION_REQUIRED",
       "details":issue.get("details") or {},"mutation_authorized":False
     }
-def build(repo:Path,runtime:Path,platform:Path,policy:dict[str,Any])->dict[str,Any]:
+def build(repo:Path,runtime:Path,platform:Path,policy:dict[str,Any],systemctl:Path=Path("/usr/bin/systemctl"))->dict[str,Any]:
     reg_policy=load(repo/"dev-hub/config/canonical-component-registry.v1.json")
     canonical=ccr.build_registry(repo,reg_policy)
     fleet=load(runtime/"agent-evolution/fleet-observatory-latest.json",{})
     recon=reconciler.reconcile(repo,canonical,reg_policy,fleet if fleet else None,platform)
-    issues=[issue_view(x,policy) for x in recon.get("issues") or [] if isinstance(x,dict)]
+    branch_lifecycle=ebl.observe(runtime,load(repo/"dev-hub/config/branch-foundry.v1.json",{}),systemctl)
+    raw_issues=([x for x in recon.get("issues") or [] if isinstance(x,dict)]
+      +service_health_issues(repo,systemctl)
+      +[x for x in branch_lifecycle.get("issues") or [] if isinstance(x,dict)])
+    issues=[issue_view(x,policy) for x in raw_issues]
     blocking=sum(1 for x in issues if str(x.get("severity") or "").upper() in {"HIGH","CRITICAL"})
     fleet_expected=sum(1 for x in canonical.get("components") or [] if isinstance(x,dict) and x.get("fleet_required") is True)
     fleet_observed=len(fleet.get("agents") or []) if isinstance(fleet,dict) else 0
@@ -67,14 +92,19 @@ def build(repo:Path,runtime:Path,platform:Path,policy:dict[str,Any])->dict[str,A
         "source":"agent-fleet-observatory"},
       "observations":{"count":observation_count(runtime/"agent-observation/observations.db"),"source":"agent-observation-bus"},
       "dynamic_components":{"registration_count":len(dynamic.get("registrations") or []),"source":"universal-materialization-gate"},
-      "reconciliation":{"status":recon.get("status"),"issue_count":len(issues),"blocking_issue_count":blocking,"issues":issues},
+      "ephemeral_branches":{"observed_count":branch_lifecycle.get("capsule_count",0),
+        "active_runtime_count":branch_lifecycle.get("active_runtime_count",0),
+        "issue_count":branch_lifecycle.get("issue_count",0),
+        "orphan_workspace_residue_count":branch_lifecycle.get("orphan_workspace_residue_count",0),
+        "source":"branch-foundry-runtime-capsule-registry"},
+      "reconciliation":{"status":"PASS" if not issues else ("BLOCKED" if blocking else "DEGRADED"),"issue_count":len(issues),"blocking_issue_count":blocking,"issues":issues},
       "authority":{"read_only":True,"mutation_authority":False,"source_policy":policy.get("authorities") or {}},
       "automatic_external_spend_eur":0
     }
 def main()->int:
-    ap=argparse.ArgumentParser();ap.add_argument("--repo-root",type=Path,required=True);ap.add_argument("--runtime-root",type=Path,default=Path("/opt/chacha-dev/runtime"));ap.add_argument("--platform-root",type=Path,default=Path("/opt/chacha-dev/platform"));ap.add_argument("--policy",type=Path);ap.add_argument("--output",type=Path,required=True);a=ap.parse_args()
+    ap=argparse.ArgumentParser();ap.add_argument("--repo-root",type=Path,required=True);ap.add_argument("--runtime-root",type=Path,default=Path("/opt/chacha-dev/runtime"));ap.add_argument("--platform-root",type=Path,default=Path("/opt/chacha-dev/platform"));ap.add_argument("--policy",type=Path);ap.add_argument("--systemctl-bin",type=Path,default=Path("/usr/bin/systemctl"));ap.add_argument("--output",type=Path,required=True);a=ap.parse_args()
     repo=a.repo_root.resolve(); policy=load(a.policy or repo/"dev-hub/config/autonomy-self-model.v1.json")
-    out=build(repo,a.runtime_root.resolve(),a.platform_root.resolve(),policy);save(a.output,out)
+    out=build(repo,a.runtime_root.resolve(),a.platform_root.resolve(),policy,a.systemctl_bin);save(a.output,out)
     print("CHACHA_DEV_AUTONOMY_SELF_MODEL="+str(out["status"]))
     print("COMPONENT_COUNT="+str(out["inventory"]["component_count"]))
     print("FLEET="+str(out["fleet"]["observed_count"])+"/"+str(out["fleet"]["expected_count"]))

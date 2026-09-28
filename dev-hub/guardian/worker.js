@@ -1,7 +1,11 @@
 const enc = new TextEncoder();
 const SENSITIVE = new Set([
   "production-deploy","production-data-write","secret-change",
-  "destructive-operation","technology-replacement"
+  "destructive-operation","technology-replacement","service-restart","ephemeral-runtime-retire"
+]);
+const SAFE_RESTART_UNITS = new Set([
+  "chacha-dev-direct-operator.service",
+  "chacha-dev-cockpit-state.service"
 ]);
 
 function json(data,status=200){
@@ -160,6 +164,22 @@ async function evaluate(event,env){
   if(!actor)addReason(state,"BLOCK","ACTOR_MISSING");
   if(!subjectRole)addReason(state,"BLOCK","SUBJECT_ROLE_MISSING");
   if(!action)addReason(state,"BLOCK","ACTION_MISSING");
+
+  if(action==="RESTART_SAFE_SERVICE"){
+    const unit=String(context.service_unit||"");
+    if(permission!=="service-restart")addReason(state,"BLOCK","SAFE_RESTART_PERMISSION_REQUIRED");
+    if(!SAFE_RESTART_UNITS.has(unit))addReason(state,"CRITICAL","SAFE_RESTART_UNIT_NOT_ALLOWLISTED");
+    for(const key of ["service_allowlisted","health_failed","emergency_stop_inactive"])
+      if(!truthyEvidence(evidence,key))addReason(state,"BLOCK","SAFE_RESTART_EVIDENCE_MISSING:"+key);
+  }
+
+  if(action==="RETIRE_EPHEMERAL_BRANCH"){
+    if(permission!=="ephemeral-runtime-retire")addReason(state,"BLOCK","EPHEMERAL_RETIRE_PERMISSION_REQUIRED");
+    for(const key of ["ephemeral_runtime","ttl_expired","runtime_inactive","persistent_state_preserved","emergency_stop_inactive"])
+      if(!truthyEvidence(evidence,key))addReason(state,"BLOCK","EPHEMERAL_RETIRE_EVIDENCE_MISSING:"+key);
+    if(evidence.workspace_deleted!==false)addReason(state,"CRITICAL","EPHEMERAL_RETIRE_WORKSPACE_DELETE_FORBIDDEN");
+    if(!String(context.branch_id||""))addReason(state,"BLOCK","EPHEMERAL_RETIRE_BRANCH_ID_MISSING");
+  }
 
   const actorContract=await contractById(env,"component:"+actor)||await resolveRoleContract(env,actor);
   const subjectContractId=String(event.subject_contract_id||"");

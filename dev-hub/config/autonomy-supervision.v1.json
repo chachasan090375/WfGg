@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/autonomy-supervision-policy/v1",
-  "version": "1.1.0",
+  "version": "1.3.0",
   "purpose": "Close the observe-classify-delegate-verify-resume loop without giving the supervisor direct mutation authority.",
   "states": [
     "OBSERVE",
@@ -40,6 +40,24 @@
         "type": "systemd-unit",
         "unit": "chacha-dev-intendant-hygiene.service"
       }
+    },
+    "RECOVER_SAFE_SERVICES": {
+      "owner": "autonomous-recovery-agent",
+      "mode": "OWNER_GOVERNED",
+      "requires_human": false,
+      "dispatch": {
+        "type": "systemd-unit",
+        "unit": "chacha-dev-autonomous-recovery-agent.service"
+      }
+    },
+    "RETIRE_STALE_EPHEMERAL_BRANCH": {
+      "owner": "branch-foundry-lifecycle",
+      "mode": "OWNER_GOVERNED",
+      "requires_human": false,
+      "dispatch": {
+        "type": "systemd-unit",
+        "unit": "chacha-dev-branch-foundry-lifecycle.service"
+      }
     }
   },
   "human_boundaries": [
@@ -67,7 +85,9 @@
     "owner_timeout_seconds": 1200,
     "allowed_systemd_units": [
       "chacha-dev-agent-fleet-observatory.service",
-      "chacha-dev-intendant-hygiene.service"
+      "chacha-dev-intendant-hygiene.service",
+      "chacha-dev-autonomous-recovery-agent.service",
+      "chacha-dev-branch-foundry-lifecycle.service"
     ],
     "max_attempts_per_issue": 3,
     "retry_cooldown_seconds": 600

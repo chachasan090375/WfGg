@@ -1,0 +1,21 @@
+[Unit]
+Description=ChaCha DEV governed autonomous recovery owner
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/opt/chacha-dev/platform/current/dev-hub/bin/autonomous-recovery-agent.py
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/opt/chacha-dev/platform/current
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/autonomous-recovery-agent.py --repo-root /opt/chacha-dev/platform/current --runtime-root /opt/chacha-dev/runtime
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/chacha-dev/runtime/autonomous-recovery /opt/chacha-dev/runtime/agent-observation
+ReadOnlyPaths=/opt/chacha-dev/runtime/secrets
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=128M
+TasksMax=32

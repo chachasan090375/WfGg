@@ -44,7 +44,7 @@ def main()->int:
     history=[]
     for cycle in range(1,max_cycles+1):
         before=run_root/f"cycle-{cycle}-self-model.json";planp=run_root/f"cycle-{cycle}-plan.json"
-        model=cli(repo,"autonomy-self-model.py","--repo-root",str(repo),"--runtime-root",str(runtime),"--platform-root",str(platform),"--policy",str(self_policy),"--output",str(before))
+        model=cli(repo,"autonomy-self-model.py","--repo-root",str(repo),"--runtime-root",str(runtime),"--platform-root",str(platform),"--policy",str(self_policy),"--systemctl-bin",str(a.systemctl_bin),"--output",str(before))
         plan=cli(repo,"autonomy-supervision-controller.py","--mode","plan","--policy",str(a.policy or repo/"dev-hub/config/autonomy-supervision.v1.json"),"--self-model",str(before),"--output",str(planp))
         state_out=run_root/f"cycle-{cycle}-state.out.json";pstate=run([sys.executable,str(repo/"dev-hub/bin/autonomy-loop-state.py"),"--state",str(state_path),"--self-model",str(before),"--plan",str(planp)],60)
         if plan.get("next_state") in {"RESUME","WAIT_EXTERNAL","AWAIT_HUMAN","BLOCKED"}:
@@ -88,7 +88,7 @@ def main()->int:
         execution={"schema":"chacha.dev/autonomy-owner-execution/v1","run_id":run_id,"cycle":cycle,"actions":dispatched,"supervisor_direct_mutation":False,"automatic_external_spend_eur":0};execp=run_root/f"cycle-{cycle}-execution.json";save(execp,execution)
         if any(x.get("status")!="DISPATCHED" for x in dispatched):
             result={"schema":"chacha.dev/autonomy-loop-run/v1","run_id":run_id,"status":"BLOCKED","next_state":"BLOCKED","reason":"OWNER_DISPATCH_FAILED","cycles":cycle,"history":history,"execution":execution,"direct_mutation_by_supervisor":False,"automatic_external_spend_eur":0};save(run_root/"run.json",result);print("CHACHA_DEV_AUTONOMY_LOOP=BLOCKED");return 2
-        after=run_root/f"cycle-{cycle}-after.json";fresh=cli(repo,"autonomy-self-model.py","--repo-root",str(repo),"--runtime-root",str(runtime),"--platform-root",str(platform),"--policy",str(self_policy),"--output",str(after))
+        after=run_root/f"cycle-{cycle}-after.json";fresh=cli(repo,"autonomy-self-model.py","--repo-root",str(repo),"--runtime-root",str(runtime),"--platform-root",str(platform),"--policy",str(self_policy),"--systemctl-bin",str(a.systemctl_bin),"--output",str(after))
         # A dispatched owner is not claimed successful: only disappeared issues are verified on the fresh model.
         before_keys={(x.get("code"),x.get("subject")) for x in (model.get("reconciliation") or {}).get("issues") or [] if isinstance(x,dict)};after_keys={(x.get("code"),x.get("subject")) for x in (fresh.get("reconciliation") or {}).get("issues") or [] if isinstance(x,dict)}
         for row in execution["actions"]:

@@ -1,0 +1,21 @@
+[Unit]
+Description=ChaCha DEV Branch Foundry ephemeral lifecycle reconciler
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/opt/chacha-dev/runtime/capsules/registry.json
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/opt/chacha-dev/platform/current
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/ephemeral_branch_lifecycle.py --mode reconcile --repo-root /opt/chacha-dev/platform/current --runtime-root /opt/chacha-dev/runtime
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/chacha-dev/runtime/secrets/central-learning-key.pem
+ReadWritePaths=/opt/chacha-dev/runtime/capsules /opt/chacha-dev/runtime/canonical-registry /opt/chacha-dev/runtime/branch-foundry-lifecycle
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=128M
+TasksMax=24

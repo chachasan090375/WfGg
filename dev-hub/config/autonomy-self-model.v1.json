@@ -1,13 +1,14 @@
 {
   "schema": "chacha.dev/autonomy-self-model-policy/v1",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "purpose": "Federate existing authoritative ChaCha DEV state into one read-only self model without creating a competing source of truth.",
   "authorities": {
     "components": "canonical-component-registry",
     "fleet": "agent-fleet-observatory",
     "observations": "agent-observation-bus",
     "releases": "platform-release-runtime",
-    "dynamic_components": "universal-materialization-gate"
+    "dynamic_components": "universal-materialization-gate",
+    "ephemeral_branches": "branch-foundry-runtime-capsule-registry"
   },
   "issue_owners": {
     "FLEET_MISSING": {
@@ -29,6 +30,41 @@
       "owner": "canonical-component-registry",
       "action": "REBUILD_CANONICAL_REGISTRY_FROM_ACTIVE_DIRECTIVES",
       "class": "GOVERNANCE_DRIFT"
+    },
+    "SERVICE_UNHEALTHY_SAFE_RESTART": {
+      "owner": "autonomous-recovery-agent",
+      "action": "RECOVER_SAFE_SERVICES",
+      "class": "RUNTIME_HEALTH"
+    },
+    "SERVICE_UNHEALTHY_HUMAN": {
+      "owner": "human-operator",
+      "action": "REVIEW_UNSAFE_SERVICE_FAILURE",
+      "class": "HUMAN_BOUNDARY"
+    },
+    "SERVICE_HEALTH_OBSERVATION_FAILED": {
+      "owner": "human-operator",
+      "action": "REVIEW_SERVICE_HEALTH_OBSERVATION",
+      "class": "HUMAN_BOUNDARY"
+    },
+    "EPHEMERAL_BRANCH_STALE": {
+      "owner": "branch-foundry-lifecycle",
+      "action": "RETIRE_STALE_EPHEMERAL_BRANCH",
+      "class": "INTERNAL_DRIFT"
+    },
+    "EPHEMERAL_BRANCH_TTL_EXCEEDED_ACTIVE": {
+      "owner": "human-operator",
+      "action": "REVIEW_STUCK_EPHEMERAL_BRANCH",
+      "class": "HUMAN_BOUNDARY"
+    },
+    "EPHEMERAL_BRANCH_WORKSPACE_MISSING": {
+      "owner": "human-operator",
+      "action": "REVIEW_BROKEN_EPHEMERAL_BRANCH",
+      "class": "HUMAN_BOUNDARY"
+    },
+    "EPHEMERAL_BRANCH_UNIT_MISMATCH": {
+      "owner": "human-operator",
+      "action": "REVIEW_EPHEMERAL_BRANCH_UNIT_IDENTITY",
+      "class": "HUMAN_BOUNDARY"
     }
   },
   "invariants": {
