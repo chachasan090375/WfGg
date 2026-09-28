@@ -46,6 +46,7 @@ jobs:
             dev-hub/bin/autonomy-self-model.py \
             dev-hub/bin/guardian-governed-release-state-reconciler.py \
             dev-hub/bin/governed-platform-promotion.py \
+            dev-hub/bin/autonomy_roadmap_evolution_router.py \
             dev-hub/bin/autonomy-supervision-controller.py \
             dev-hub/bin/autonomy-loop-state.py \
             dev-hub/bin/autonomy-loop-runner.py \
@@ -57,6 +58,7 @@ jobs:
           python3 -m json.tool dev-hub/config/autonomy-self-model.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/autonomy-supervision.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/autonomy-gap-roadmap.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/autonomy-roadmap-evolution-routing.v1.json >/dev/null
 
       - name: Operator constitution and materialization
         run: |
@@ -134,6 +136,7 @@ jobs:
             dev-hub/tests/test_autonomy_incident_owner_coverage.py \
             dev-hub/tests/test_autonomy_release_state_autorepair.py \
             dev-hub/tests/test_autonomy_governed_platform_promotion.py \
+            dev-hub/tests/test_autonomy_roadmap_evolution_router.py \
             dev-hub/tests/test_autonomy_loop_state.py \
             dev-hub/tests/test_autonomy_loop_runner.py \
             dev-hub/tests/test_autonomy_runtime_contract.py \

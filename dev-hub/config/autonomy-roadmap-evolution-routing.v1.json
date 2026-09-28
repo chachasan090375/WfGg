@@ -1,0 +1,76 @@
+{
+  "schema": "chacha.dev/autonomy-roadmap-evolution-routing/v1",
+  "version": "1.0.0",
+  "purpose": "Convert every ChaCha DEV autonomy roadmap gap into either a canonical platform reassessment request or an explicit human boundary without direct mutation or self-promotion.",
+  "source_roadmap": "dev-hub/config/autonomy-gap-roadmap.v1.json",
+  "queue_root": "platform-evolution/reassessment-queue",
+  "managed_file_prefix": "roadmap-gap-",
+  "eligible_statuses": [
+    "ORANGE",
+    "RED"
+  ],
+  "principles": {
+    "canonical_component_registry_is_authoritative": true,
+    "evolution_owner_is_derived_not_hardcoded": true,
+    "green_gap_emits_no_request": true,
+    "stale_router_requests_are_removed": true,
+    "human_boundaries_emit_no_request": true,
+    "technology_watch_revalidation_required": true,
+    "logician_falsification_required": true,
+    "shadow_required": true,
+    "pilot_required": true,
+    "guardian_required": true,
+    "sentinel_required": true,
+    "architecture_council_final_authority": true,
+    "direct_component_mutation": false,
+    "self_promotion": false,
+    "permission_expansion": false,
+    "automatic_external_spend_eur": 0
+  },
+  "rules": {
+    "cockpit": {
+      "mode": "AUTO_REASSESS",
+      "component_id": "core:direct-operator-service"
+    },
+    "self-model": {
+      "mode": "AUTO_REASSESS",
+      "component_id": "core:autonomy-core-supervisor"
+    },
+    "universal-loop": {
+      "mode": "AUTO_REASSESS",
+      "component_id": "core:autonomy-core-supervisor"
+    },
+    "incident-remediation": {
+      "mode": "AUTO_REASSESS",
+      "component_id": "core:autonomy-core-supervisor"
+    },
+    "foundries": {
+      "mode": "AUTO_REASSESS",
+      "component_id": "core:agent-foundry"
+    },
+    "learning": {
+      "mode": "AUTO_REASSESS",
+      "component_id": "core:learning-fabric"
+    },
+    "provider-independence": {
+      "mode": "AUTO_REASSESS",
+      "component_id": "core:provider-adapters"
+    },
+    "persistent-missions": {
+      "mode": "AUTO_REASSESS",
+      "component_id": "core:run-controller"
+    },
+    "self-evolution": {
+      "mode": "AUTO_REASSESS",
+      "component_id": "core:agent-observation-bus"
+    },
+    "constitution": {
+      "mode": "GOVERNED_REASSESS",
+      "component_id": "core:guardian"
+    },
+    "resilience-ha": {
+      "mode": "HUMAN_BOUNDARY",
+      "reason": "NO_CANONICAL_HA_RUNTIME_COMPONENT_REGISTERED"
+    }
+  }
+}

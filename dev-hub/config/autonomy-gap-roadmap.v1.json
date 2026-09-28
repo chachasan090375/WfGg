@@ -1,8 +1,8 @@
 {
   "schema": "chacha.dev/autonomy-gap-roadmap/v1",
   "scope": "chacha-dev-only",
-  "updated_at": "2026-09-28T18:22:00Z",
-  "score_percent": 71,
+  "updated_at": "2026-09-28T20:12:50Z",
+  "score_percent": 73,
   "score_label": "Couverture de la feuille de route autonomie",
   "counts": {
     "GREEN": 3,
@@ -51,17 +51,17 @@
       "id": "foundries",
       "label": "Foundries autonomes à la demande",
       "status": "ORANGE",
-      "progress": 80,
-      "state": "ACTIVE_PARTIEL_AVANCE",
-      "evidence": "Agent/Branch/Capability Foundry gouvernées ; PROJECT_EPHEMERAL, scope PROJECT et teardown isolé sont désormais actifs en production. Le déclenchement universel depuis toute lacune reste à généraliser."
+      "progress": 85,
+      "state": "ROADMAP_DRIVEN_REASSESSMENT_ACTIVE",
+      "evidence": "Agent/Branch/Capability Foundry gouvernées ; PROJECT_EPHEMERAL actif. Le bridge de roadmap route désormais automatiquement les gaps éligibles vers l’owner canonique : preuve isolée 7 demandes → 7 dispatchs Foundry → 7 shadow assessments, 0 blocage. Matérialisation et pilot restent soumis aux preuves indépendantes."
     },
     {
       "id": "learning",
       "label": "Apprentissage opérationnel systématique",
       "status": "ORANGE",
-      "progress": 70,
-      "state": "INCIDENTS_CONVERTIS_EN_INVARIANTS_DE_PROMOTION",
-      "evidence": "Les incidents de promotion runtime-root absent, readiness instantanée et transport Guardian shallow sont convertis en invariants testables et obligatoires."
+      "progress": 75,
+      "state": "ROADMAP_FEEDBACK_TO_EVOLUTION_ACTIVE",
+      "evidence": "Les incidents sont convertis en invariants et la roadmap alimente désormais directement la queue d’évolution de façon idempotente ; les demandes obsolètes gérées par le routeur sont supprimées et les frontières humaines restent explicites."
     },
     {
       "id": "provider-independence",
@@ -83,9 +83,9 @@
       "id": "self-evolution",
       "label": "Auto-maintenance & auto-évolution",
       "status": "ORANGE",
-      "progress": 60,
-      "state": "PROMOTION_GOUVERNEE_EN_GENERALISATION",
-      "evidence": "Un contrôleur générique de promotion gouvernée prépare les runtime roots, vérifie readiness/rollback/gates/cycles/timer et terminalise le reçu sans pouvoir décider ni effectuer lui-même la bascule current."
+      "progress": 70,
+      "state": "GAP_TO_FOUNDRY_SHADOW_AUTOMATED",
+      "evidence": "La boucle gap roadmap → reassessment queue → owner canonique → Foundry shadow est automatisée. Preuve isolée : 7/7 gaps routables, 0 bloqué, aucun self-promotion ni mutation directe ; pilot et promotion restent fail-closed sur preuves et approbation."
     },
     {
       "id": "constitution",

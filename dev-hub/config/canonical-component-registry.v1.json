@@ -178,5 +178,8 @@
     "inherit_active_global_ids": true,
     "inherit_active_global_digest": true,
     "drift_is_blocking": true
+  },
+  "core_class_overrides": {
+    "autonomy-roadmap-evolution-router": "CORE_PLATFORM_COMPONENT"
   }
 }

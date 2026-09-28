@@ -636,5 +636,18 @@
     "ci_sync_mode": "DIGEST_AWARE_DELTA",
     "automatic_paid_upgrade": false,
     "automatic_external_spend_eur": 0
-  }
+  },
+  "components": [
+    {
+      "component_id": "autonomy-roadmap-evolution-router",
+      "role": "autonomy-roadmap-evolution-router",
+      "kind": "controller",
+      "enforcement_point": "agent-evolution-daily-cycle:roadmap-gap-routing",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomy_roadmap_evolution_router.py",
+        "marker": "HUMAN_BOUNDARY"
+      }
+    }
+  ]
 }

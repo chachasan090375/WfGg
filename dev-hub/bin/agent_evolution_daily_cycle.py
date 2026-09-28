@@ -13,6 +13,7 @@ import component_evolution_governance as ceg
 import platform_component_evolution_controller as pcec
 import agent_verified_evidence_backfill as aveb
 import canonical_component_registry as ccr
+import autonomy_roadmap_evolution_router as arer
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding="utf-8"))
     if not isinstance(x,dict):raise ValueError("JSON_ROOT_NOT_OBJECT:"+str(p))
@@ -70,6 +71,8 @@ def main()->int:
     canonical=ccr.build_registry(root,canonical_policy)
     canonical_path=runtime/"canonical-registry/canonical-component-registry.json"
     save(canonical_path,canonical)
+    roadmap_routing=arer.route(root,runtime,canonical)
+    save(runtime/"platform-evolution/roadmap-routing-latest.json",roadmap_routing)
     backfill=aveb.run(runtime,fp,load(cfg/"agent-observation-bus.v1.json"),routing,seven,[project],False)
     save(ae/"verified-evidence-backfill-latest.json",backfill)
     report=afo.build_report(root,runtime,fp,ep,routing,seven,[project],canonical);save(ae/"fleet-observatory-latest.json",report)
@@ -153,6 +156,8 @@ def main()->int:
     receipt={"schema":"chacha.dev/agent-evolution-daily-cycle/v1","generated_at":iso(stamp),"agent_count":report.get("agent_count"),
       "optimization_count":len(report.get("optimization_queue") or []),"measurement_count":len(report.get("measurement_queue") or []),
       "event_request_count":len(requests),"scheduled_action_count":len(scheduled),
+      "roadmap_evolution_request_count":roadmap_routing.get("request_count"),"roadmap_evolution_human_boundary_count":roadmap_routing.get("human_boundary_count"),
+      "roadmap_evolution_blocked_count":roadmap_routing.get("blocked_count"),"roadmap_evolution_routing_complete":roadmap_routing.get("routing_complete"),
       "platform_event_request_count":len(platform_requests),"platform_routed_action_count":len(platform_actions),
       "platform_blocked_request_count":len(platform_blocked),
       "platform_reassessment_routing_complete":platform_idx["routing_complete"],
@@ -188,6 +193,8 @@ def main()->int:
     save(ae/"daily-cycle-latest.json",receipt)
     print("CHACHA_DEV_V648_AGENT_EVOLUTION_DAILY_CYCLE=PASS");print("AGENT_COUNT="+str(receipt["agent_count"]))
     print("EVENT_REQUESTS="+str(len(requests)));print("SCHEDULED_ACTIONS="+str(len(scheduled)))
+    print("ROADMAP_EVOLUTION_REQUESTS="+str(roadmap_routing.get("request_count")));print("ROADMAP_EVOLUTION_BOUNDARIES="+str(roadmap_routing.get("human_boundary_count")))
+    print("ROADMAP_EVOLUTION_ROUTING="+("PASS" if roadmap_routing.get("routing_complete") else "BLOCKED"))
     print("PLATFORM_EVENT_REQUESTS="+str(len(platform_requests)));print("PLATFORM_ROUTED_ACTIONS="+str(len(platform_actions)))
     print("PLATFORM_REASSESSMENT_ROUTING="+("PASS" if platform_idx["routing_complete"] else "BLOCKED"))
     print("PLATFORM_FOUNDRY_DISPATCH="+("PASS" if platform_dispatch["dispatch_complete"] else "BLOCKED"))
