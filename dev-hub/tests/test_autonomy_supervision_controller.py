@@ -29,3 +29,8 @@ human={'reconciliation':{'issue_count':1,'issues':[{'code':'PRODUCTION_PROMOTION
 hp=sup.plan(human,policy);assert hp['status']=='AWAITING_HUMAN' and hp['next_state']=='AWAIT_HUMAN' and len(hp['human_boundaries'])==1,hp
 print('CHACHA_DEV_AUTONOMY_EXTERNAL_WAIT=PASS')
 print('CHACHA_DEV_AUTONOMY_HUMAN_BOUNDARY=PASS')
+
+release_human={'reconciliation':{'issue_count':1,'issues':[{'code':'ACTIVE_RELEASE_METADATA_DRIFT','subject':'release','class':'HUMAN_BOUNDARY','owner':'release-engineer','recommended_action':'RECONCILE_RUNTIME_RELEASE_STATE'}]}}
+rhp=sup.plan(release_human,policy);assert rhp['status']=='AWAITING_HUMAN' and rhp['next_state']=='AWAIT_HUMAN',rhp
+assert rhp['human_boundaries'][0]['owner']=='release-engineer',rhp
+print('CHACHA_DEV_AUTONOMY_RELEASE_METADATA_HUMAN_BOUNDARY=PASS')

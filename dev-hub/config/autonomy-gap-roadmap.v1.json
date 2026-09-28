@@ -2,7 +2,7 @@
   "schema": "chacha.dev/autonomy-gap-roadmap/v1",
   "scope": "chacha-dev-only",
   "updated_at": "2026-09-28T13:08:00Z",
-  "score_percent": 69,
+  "score_percent": 70,
   "score_label": "Couverture de la feuille de route autonomie",
   "counts": {
     "GREEN": 3,
@@ -43,9 +43,9 @@
       "id": "incident-remediation",
       "label": "Auto-diagnostic & auto-réparation",
       "status": "ORANGE",
-      "progress": 60,
-      "state": "PARTIEL",
-      "evidence": "Fleet et Intendant prouvés ; toutes les classes d’incidents ne sont pas encore reliées à un propriétaire autonome."
+      "progress": 70,
+      "state": "OWNER_COVERAGE_COMPLETE_SAFE_AUTOREPAIR_PARTIAL",
+      "evidence": "Toutes les classes/actions d’incidents détectées sont reliées à un propriétaire explicite. FLEET_MISSING et RELEASE_OVERAGE restent auto-remédiables via owners gouvernés ; les réparations destructives, architecturales ou ambiguës deviennent des HUMAN_BOUNDARY explicites. Un test interdit désormais toute nouvelle classe sans owner et tout auto-owner sans dispatch exécutable."
     },
     {
       "id": "foundries",

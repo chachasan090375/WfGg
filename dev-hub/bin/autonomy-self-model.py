@@ -38,11 +38,17 @@ def active_release(platform:Path)->dict[str,Any]:
     return {"status":"ACTIVE","path":str(release),"revision":rev}
 def issue_view(issue:dict[str,Any],policy:dict[str,Any])->dict[str,Any]:
     code=str(issue.get("code") or "UNKNOWN")
-    mapping=((policy.get("issue_owners") or {}).get(code) or {})
+    source_action=str(issue.get("recommended_action") or "")
+    action_map=((policy.get("issue_action_owners") or {}).get(code) or {})
+    action_specific=action_map.get(source_action) if isinstance(action_map,dict) else None
+    fallback=((policy.get("issue_owners") or {}).get(code) or {})
+    mapping=action_specific if isinstance(action_specific,dict) else fallback
     return {
       "code":code,"severity":issue.get("severity"),"subject":issue.get("subject"),
       "class":mapping.get("class","UNKNOWN_DRIFT"),"owner":mapping.get("owner","UNRESOLVED"),
-      "recommended_action":mapping.get("action") or issue.get("recommended_action") or "HUMAN_CLASSIFICATION_REQUIRED",
+      "recommended_action":mapping.get("action") or source_action or "HUMAN_CLASSIFICATION_REQUIRED",
+      "source_recommended_action":source_action or None,
+      "ownership_resolution":"ACTION_SPECIFIC" if isinstance(action_specific,dict) else ("CODE_FALLBACK" if mapping else "UNRESOLVED"),
       "details":issue.get("details") or {},"mutation_authorized":False
     }
 def build(repo:Path,runtime:Path,platform:Path,policy:dict[str,Any])->dict[str,Any]:

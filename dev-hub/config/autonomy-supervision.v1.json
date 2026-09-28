@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/autonomy-supervision-policy/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "purpose": "Close the observe-classify-delegate-verify-resume loop without giving the supervisor direct mutation authority.",
   "states": [
     "OBSERVE",
@@ -21,16 +21,6 @@
         "type": "systemd-unit",
         "unit": "chacha-dev-agent-fleet-observatory.service"
       }
-    },
-    "REBUILD_CANONICAL_REGISTRY_FROM_ACTIVE_DIRECTIVES": {
-      "owner": "canonical-component-registry",
-      "mode": "SAFE_REBUILD_CANONICAL_VIEW",
-      "requires_human": false
-    },
-    "CLASSIFY_OR_RETIRE_AGENT": {
-      "owner": "agent-foundry",
-      "mode": "REVIEW_ONLY",
-      "requires_human": false
     },
     "RECONCILE_RELEASE_RETENTION": {
       "owner": "intendant",
@@ -57,7 +47,9 @@
     "guardian_and_sentinel_preserved": true,
     "automatic_external_spend_eur": 0,
     "supervisor_writes_owner_state": false,
-    "owner_dispatch_allowlist_required": true
+    "owner_dispatch_allowlist_required": true,
+    "every_non_human_owner_action_requires_runnable_dispatch": true,
+    "human_boundary_actions_are_never_owner_dispatched": true
   },
   "runtime": {
     "state_file": "/opt/chacha-dev/runtime/autonomy-core/loop-state.json",

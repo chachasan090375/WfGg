@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/autonomy-self-model-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "purpose": "Federate existing authoritative ChaCha DEV state into one read-only self model without creating a competing source of truth.",
   "authorities": {
     "components": "canonical-component-registry",
@@ -18,17 +18,62 @@
     "FLEET_NONCANONICAL": {
       "owner": "agent-foundry",
       "action": "CLASSIFY_OR_RETIRE_AGENT",
-      "class": "INTERNAL_DRIFT"
+      "class": "HUMAN_BOUNDARY"
     },
     "RELEASE_OVERAGE": {
       "owner": "intendant",
       "action": "RECONCILE_RELEASE_RETENTION",
       "class": "HYGIENE_DRIFT"
     },
-    "DIRECTIVE_PROPAGATION_DRIFT": {
+    "ACTIVE_RELEASE_METADATA_DRIFT": {
+      "owner": "release-engineer",
+      "action": "RECONCILE_RUNTIME_RELEASE_STATE",
+      "class": "HUMAN_BOUNDARY"
+    },
+    "ASSURANCE_TARGET_UNREGISTERED": {
       "owner": "canonical-component-registry",
-      "action": "REBUILD_CANONICAL_REGISTRY_FROM_ACTIVE_DIRECTIVES",
-      "class": "GOVERNANCE_DRIFT"
+      "action": "BACKFILL_CANONICAL_REGISTRY",
+      "class": "HUMAN_BOUNDARY"
+    },
+    "GUARDIAN_ROLE_UNREGISTERED": {
+      "owner": "canonical-component-registry",
+      "action": "BACKFILL_CANONICAL_REGISTRY",
+      "class": "HUMAN_BOUNDARY"
+    },
+    "BIRTH_CONTRACT_INCOMPLETE": {
+      "owner": "universal-materialization-gate",
+      "action": "BACKFILL_OR_RETIRE_COMPONENT",
+      "class": "HUMAN_BOUNDARY"
+    },
+    "BIRTH_CONTROL_INCOMPLETE": {
+      "owner": "universal-materialization-gate",
+      "action": "BACKFILL_OR_RETIRE_COMPONENT",
+      "class": "HUMAN_BOUNDARY"
+    },
+    "MATERIALIZER_DEFAULT_GAP": {
+      "owner": "architecture-council",
+      "action": "UPDATE_FOUNDRY_DEFAULTS",
+      "class": "HUMAN_BOUNDARY"
+    },
+    "LEARNING_DISCOVERY_NOT_CANONICAL": {
+      "owner": "learning-fabric",
+      "action": "ENABLE_CANONICAL_REGISTRY_DISCOVERY",
+      "class": "HUMAN_BOUNDARY"
+    },
+    "DIRECTIVE_PROPAGATION_DRIFT": {
+      "owner": "operator-directive-registry",
+      "action": "HUMAN_CLASSIFICATION_REQUIRED",
+      "class": "HUMAN_BOUNDARY"
+    },
+    "DIRECTIVE_SINK_MISSING": {
+      "owner": "operator-directive-registry",
+      "action": "RESTORE_DIRECTIVE_PROPAGATION_SINK",
+      "class": "HUMAN_BOUNDARY"
+    },
+    "VERSION_COUPLED_ACTIVE_LOGIC": {
+      "owner": "architecture-council",
+      "action": "REPLACE_PLATFORM_MAJOR_BRANCH_WITH_CAPABILITY_OR_CONTRACT",
+      "class": "HUMAN_BOUNDARY"
     }
   },
   "invariants": {
@@ -37,6 +82,23 @@
     "canonical_sources_are_not_overwritten": true,
     "unknown_issue_fails_closed": true,
     "guardian_and_sentinel_preserved": true,
-    "automatic_external_spend_eur": 0
+    "automatic_external_spend_eur": 0,
+    "every_detected_issue_has_explicit_owner": true,
+    "action_specific_owner_precedes_code_fallback": true,
+    "unsafe_or_destructive_remediation_requires_human_boundary": true
+  },
+  "issue_action_owners": {
+    "DIRECTIVE_PROPAGATION_DRIFT": {
+      "REBUILD_CANONICAL_REGISTRY_FROM_ACTIVE_DIRECTIVES": {
+        "owner": "canonical-component-registry",
+        "action": "REBUILD_CANONICAL_REGISTRY_FROM_ACTIVE_DIRECTIVES",
+        "class": "HUMAN_BOUNDARY"
+      },
+      "BACKFILL_COMPONENT_DIRECTIVES": {
+        "owner": "operator-directive-registry",
+        "action": "BACKFILL_COMPONENT_DIRECTIVES",
+        "class": "HUMAN_BOUNDARY"
+      }
+    }
   }
 }

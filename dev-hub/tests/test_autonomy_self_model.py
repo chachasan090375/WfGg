@@ -12,6 +12,12 @@ row=asm.issue_view({"code":"FLEET_MISSING","severity":"HIGH","subject":"x"},poli
 assert row["owner"]=="agent-fleet-observatory",row
 assert row["recommended_action"]=="BACKFILL_FLEET_FROM_CANONICAL_REGISTRY",row
 assert row["mutation_authorized"] is False,row
+specific=asm.issue_view({"code":"DIRECTIVE_PROPAGATION_DRIFT","severity":"CRITICAL","subject":"component:x","recommended_action":"BACKFILL_COMPONENT_DIRECTIVES"},policy)
+assert specific["owner"]=="operator-directive-registry",specific
+assert specific["recommended_action"]=="BACKFILL_COMPONENT_DIRECTIVES",specific
+assert specific["class"]=="HUMAN_BOUNDARY" and specific["ownership_resolution"]=="ACTION_SPECIFIC",specific
+release=asm.issue_view({"code":"ACTIVE_RELEASE_METADATA_DRIFT","severity":"MEDIUM","subject":"release","recommended_action":"RECONCILE_RUNTIME_RELEASE_STATE"},policy)
+assert release["owner"]=="release-engineer" and release["class"]=="HUMAN_BOUNDARY",release
 unknown=asm.issue_view({"code":"NEW_UNKNOWN","severity":"HIGH","subject":"x"},policy)
 assert unknown["owner"]=="UNRESOLVED",unknown
 assert unknown["recommended_action"]=="HUMAN_CLASSIFICATION_REQUIRED",unknown
