@@ -54,67 +54,14 @@
       "operator_directives"
     ],
     "class_required_controls": {
-      "FULL_AGENT": [
-        "guardian",
-        "sentinel",
-        "fleet_observatory",
-        "assurance",
-        "observation_bus",
-        "learning_uplink"
-      ],
-      "LIGHTWEIGHT_PROJECT_AGENT": [
-        "guardian",
-        "sentinel",
-        "fleet_observatory",
-        "observation_bus",
-        "learning_uplink"
-      ],
-      "LIGHTWEIGHT_EMBEDDED_AGENT": [
-        "guardian",
-        "sentinel",
-        "embedded_assurance",
-        "observation_bus",
-        "learning_uplink"
-      ],
-      "CORE_PLATFORM_COMPONENT": [
-        "guardian",
-        "sentinel",
-        "component_governance",
-        "regression",
-        "pilot",
-        "rollback"
-      ],
-      "CONNECTOR_ADAPTER": [
-        "sentinel",
-        "health_probe",
-        "compatibility_test",
-        "canary",
-        "rollback"
-      ],
-      "RUNTIME_INFRASTRUCTURE": [
-        "sentinel",
-        "health_probe",
-        "security",
-        "resource_budget",
-        "cost_budget",
-        "compatibility_test",
-        "rollback"
-      ],
-      "OWNED_ARTIFACT": [
-        "owner",
-        "schema_validation",
-        "regression_test",
-        "compatibility_check"
-      ],
-      "DOMAIN_OBJECT": [
-        "owner",
-        "schema_validation",
-        "sensitive_field_policy",
-        "persistence_policy",
-        "lifecycle",
-        "retention_policy",
-        "purge_policy"
-      ]
+      "FULL_AGENT": ["guardian","sentinel","fleet_observatory","assurance","observation_bus","learning_uplink"],
+      "LIGHTWEIGHT_PROJECT_AGENT": ["guardian","sentinel","fleet_observatory","observation_bus","learning_uplink"],
+      "LIGHTWEIGHT_EMBEDDED_AGENT": ["guardian","sentinel","embedded_assurance","observation_bus","learning_uplink"],
+      "CORE_PLATFORM_COMPONENT": ["guardian","sentinel","component_governance","regression","pilot","rollback"],
+      "CONNECTOR_ADAPTER": ["sentinel","health_probe","compatibility_test","canary","rollback"],
+      "RUNTIME_INFRASTRUCTURE": ["sentinel","health_probe","security","resource_budget","cost_budget","compatibility_test","rollback"],
+      "OWNED_ARTIFACT": ["owner","schema_validation","regression_test","compatibility_check"],
+      "DOMAIN_OBJECT": ["owner","schema_validation","sensitive_field_policy","persistence_policy","lifecycle","retention_policy","purge_policy"]
     }
   },
   "class_owners": {
@@ -136,12 +83,10 @@
     "voice-gateway": "RUNTIME_INFRASTRUCTURE",
     "platform-hygiene-executor": "CORE_PLATFORM_COMPONENT",
     "reusable-memory": "CORE_PLATFORM_COMPONENT",
-    "release-state-reconciler": "CORE_PLATFORM_COMPONENT"
+    "release-state-reconciler": "CORE_PLATFORM_COMPONENT",
+    "governed-platform-promotion": "CORE_PLATFORM_COMPONENT"
   },
-  "fleet_classes": [
-    "FULL_AGENT",
-    "LIGHTWEIGHT_PROJECT_AGENT"
-  ],
+  "fleet_classes": ["FULL_AGENT","LIGHTWEIGHT_PROJECT_AGENT"],
   "hygiene": {
     "unregistered_runtime_object": "BLOCK_AND_RECONCILE",
     "registered_but_missing_runtime": "GHOST_COMPONENT",
@@ -153,29 +98,9 @@
     "guardian_terminal_state_reconciliation": true,
     "applied_remediation_hold_must_be_inactive": true
   },
-  "promotion_gate": {
-    "required": true,
-    "registry_drift_allowed": false,
-    "birth_contract_incomplete_allowed": false,
-    "orphan_component_allowed": false,
-    "automatic_external_spend_eur": 0
-  },
+  "promotion_gate": {"required":true,"registry_drift_allowed":false,"birth_contract_incomplete_allowed":false,"orphan_component_allowed":false,"automatic_external_spend_eur":0},
   "automatic_external_spend_eur": 0,
-  "abstract_guardian_roles": [
-    "orchestrator"
-  ],
-  "runtime_registry": {
-    "canonical_snapshot": "/opt/chacha-dev/runtime/canonical-registry/canonical-component-registry.json",
-    "dynamic_registrations": "/opt/chacha-dev/runtime/canonical-registry/dynamic-components.json",
-    "reconciliation_report": "/opt/chacha-dev/runtime/canonical-registry/reconciliation-latest.json",
-    "atomic_writes": true,
-    "append_only_registration_history": true
-  },
-  "operator_directives": {
-    "policy": "dev-hub/config/operator-directives.v1.json",
-    "snapshot": "/opt/chacha-dev/runtime/governance/operator-directives/active-directives.json",
-    "inherit_active_global_ids": true,
-    "inherit_active_global_digest": true,
-    "drift_is_blocking": true
-  }
+  "abstract_guardian_roles": ["orchestrator"],
+  "runtime_registry": {"canonical_snapshot":"/opt/chacha-dev/runtime/canonical-registry/canonical-component-registry.json","dynamic_registrations":"/opt/chacha-dev/runtime/canonical-registry/dynamic-components.json","reconciliation_report":"/opt/chacha-dev/runtime/canonical-registry/reconciliation-latest.json","atomic_writes":true,"append_only_registration_history":true},
+  "operator_directives": {"policy":"dev-hub/config/operator-directives.v1.json","snapshot":"/opt/chacha-dev/runtime/governance/operator-directives/active-directives.json","inherit_active_global_ids":true,"inherit_active_global_digest":true,"drift_is_blocking":true}
 }
