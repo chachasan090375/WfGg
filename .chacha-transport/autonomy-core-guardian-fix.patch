@@ -1,0 +1,175 @@
+diff --git a/.github/workflows/dev-hub-platform-qualification.yml b/.github/workflows/dev-hub-platform-qualification.yml
+index 3e0654f9..e4c3ed21 100644
+--- a/.github/workflows/dev-hub-platform-qualification.yml
++++ b/.github/workflows/dev-hub-platform-qualification.yml
+@@ -132,6 +132,7 @@ jobs:
+             dev-hub/tests/test_autonomy_loop_state.py \
+             dev-hub/tests/test_autonomy_loop_runner.py \
+             dev-hub/tests/test_autonomy_runtime_contract.py \
++            dev-hub/tests/test_guardian_remediation_hold_reactivation.py \
+             dev-hub/tests/test_autonomy_cockpit_ui.py \
+             dev-hub/tests/test_v647_agent_fleet_observatory.py; do
+             PYTHONPATH=dev-hub/bin python3 "$t"
+diff --git a/.github/workflows/dev-hub-v620-guardian-corrective-enforcement-qualification.yml b/.github/workflows/dev-hub-v620-guardian-corrective-enforcement-qualification.yml
+index f178c176..93f5fd28 100644
+--- a/.github/workflows/dev-hub-v620-guardian-corrective-enforcement-qualification.yml
++++ b/.github/workflows/dev-hub-v620-guardian-corrective-enforcement-qualification.yml
+@@ -30,6 +30,7 @@ on:
+       - 'dev-hub/systemd/chacha-dev-guardian-remediation.service'
+       - 'dev-hub/systemd/chacha-dev-guardian-remediation.timer'
+       - 'dev-hub/tests/test_v620_guardian_corrective_enforcement.py'
++      - 'dev-hub/tests/test_guardian_remediation_hold_reactivation.py'
+       - 'dev-hub/bin/install-v620-guardian-corrective-enforcement.sh'
+       - '.github/workflows/dev-hub-v620-guardian-corrective-enforcement-qualification.yml'
+   workflow_dispatch:
+@@ -79,6 +80,7 @@ jobs:
+         run: |
+           set -euo pipefail
+           python3 dev-hub/tests/test_v620_guardian_corrective_enforcement.py
++          python3 dev-hub/tests/test_guardian_remediation_hold_reactivation.py
+ 
+       - name: Governance invariants
+         run: |
+diff --git a/dev-hub/guardian/worker.js b/dev-hub/guardian/worker.js
+index d5d3faba..f50e201a 100644
+--- a/dev-hub/guardian/worker.js
++++ b/dev-hub/guardian/worker.js
+@@ -396,9 +396,14 @@ async function createRemediation(env,{alertId,eventId,severity,reasons,payload})
+   if(["BLOCK","CRITICAL"].includes(String(severity))){
+     const holdKey=[plan.target_actor,plan.project_id||"*",plan.run_id||"*"].join("|");
+     await env.DB.prepare(
+-      `INSERT OR IGNORE INTO remediation_holds
+-        (hold_key,directive_id,target_actor,target_role,project_id,run_id,severity,active,created_at)
+-        VALUES(?1,?2,?3,?4,?5,?6,?7,1,datetime('now'))`
++      `INSERT INTO remediation_holds
++        (hold_key,directive_id,target_actor,target_role,project_id,run_id,severity,active,created_at,cleared_at)
++        VALUES(?1,?2,?3,?4,?5,?6,?7,1,datetime('now'),NULL)
++       ON CONFLICT(hold_key) DO UPDATE SET
++         directive_id=excluded.directive_id,target_actor=excluded.target_actor,target_role=excluded.target_role,
++         project_id=excluded.project_id,run_id=excluded.run_id,severity=excluded.severity,
++         active=1,created_at=datetime('now'),cleared_at=NULL
++       WHERE remediation_holds.active=0`
+     ).bind(holdKey,directiveId,plan.target_actor,plan.target_role,plan.project_id,plan.run_id,String(severity)).run();
+   }
+   return directiveId;
+@@ -440,9 +445,8 @@ async function resolveSatisfiedRemediationDependencies(env){
+ async function activeRemediationHold(event,env){
+   const actor=String(event.actor||""),subject=String(event.subject_role||""),project=String(event.project_id||"");
+   const run=String(event.run_id||"");
+-  if(run){
+-    return env.DB.prepare(
+-      `SELECT h.* FROM remediation_holds h
++  const activeQuery=run
++    ?`SELECT h.* FROM remediation_holds h
+         JOIN remediation_directives d ON d.directive_id=h.directive_id
+         WHERE h.active=1 AND d.status IN ('OPEN','DELIVERED')
+           AND (h.target_actor=?1 OR h.target_role=?2)
+@@ -452,17 +456,53 @@ async function activeRemediationHold(event,env){
+             ((h.run_id IS NULL OR h.run_id='') AND d.source_alert_id NOT LIKE 'lease-expired-%')
+           )
+         ORDER BY h.created_at ASC LIMIT 1`
+-    ).bind(actor,subject,project,run).first();
+-  }
+-  return env.DB.prepare(
+-    `SELECT h.* FROM remediation_holds h
+-      JOIN remediation_directives d ON d.directive_id=h.directive_id
+-      WHERE h.active=1 AND d.status IN ('OPEN','DELIVERED')
+-        AND (h.target_actor=?1 OR h.target_role=?2)
+-        AND (h.project_id IS NULL OR h.project_id='' OR h.project_id=?3)
+-        AND (h.run_id IS NULL OR h.run_id='')
+-      ORDER BY h.created_at ASC LIMIT 1`
+-  ).bind(actor,subject,project).first();
++    :`SELECT h.* FROM remediation_holds h
++        JOIN remediation_directives d ON d.directive_id=h.directive_id
++        WHERE h.active=1 AND d.status IN ('OPEN','DELIVERED')
++          AND (h.target_actor=?1 OR h.target_role=?2)
++          AND (h.project_id IS NULL OR h.project_id='' OR h.project_id=?3)
++          AND (h.run_id IS NULL OR h.run_id='')
++        ORDER BY h.created_at ASC LIMIT 1`;
++  const bindActive=q=>run?q.bind(actor,subject,project,run):q.bind(actor,subject,project);
++  let hold=await bindActive(env.DB.prepare(activeQuery)).first();
++  if(hold)return hold;
++
++  // CHACHA_DEV_REMEDIATION_HOLD_REACTIVATION_V1:
++  // a pending directive must never remain OPEN/DELIVERED merely because an older
++  // hold row with the same actor/project/run key was already cleared.
++  const pendingQuery=run
++    ?`SELECT * FROM remediation_directives
++        WHERE status IN ('OPEN','DELIVERED')
++          AND (target_actor=?1 OR target_role=?2)
++          AND (project_id IS NULL OR project_id='' OR project_id=?3)
++          AND (
++            run_id=?4 OR
++            ((run_id IS NULL OR run_id='') AND source_alert_id NOT LIKE 'lease-expired-%')
++          )
++        ORDER BY CASE severity WHEN 'CRITICAL' THEN 3 WHEN 'BLOCK' THEN 2 ELSE 1 END DESC,created_at ASC LIMIT 1`
++    :`SELECT * FROM remediation_directives
++        WHERE status IN ('OPEN','DELIVERED')
++          AND (target_actor=?1 OR target_role=?2)
++          AND (project_id IS NULL OR project_id='' OR project_id=?3)
++          AND (run_id IS NULL OR run_id='')
++        ORDER BY CASE severity WHEN 'CRITICAL' THEN 3 WHEN 'BLOCK' THEN 2 ELSE 1 END DESC,created_at ASC LIMIT 1`;
++  const bindPending=q=>run?q.bind(actor,subject,project,run):q.bind(actor,subject,project);
++  const pending=await bindPending(env.DB.prepare(pendingQuery)).first();
++  if(!pending)return null;
++  const holdKey=[String(pending.target_actor||pending.target_role||actor),String(pending.project_id||"*"),String(pending.run_id||"*")].join("|");
++  await env.DB.prepare(
++    `INSERT INTO remediation_holds
++      (hold_key,directive_id,target_actor,target_role,project_id,run_id,severity,active,created_at,cleared_at)
++      VALUES(?1,?2,?3,?4,?5,?6,?7,1,datetime('now'),NULL)
++     ON CONFLICT(hold_key) DO UPDATE SET
++       directive_id=excluded.directive_id,target_actor=excluded.target_actor,target_role=excluded.target_role,
++       project_id=excluded.project_id,run_id=excluded.run_id,severity=excluded.severity,
++       active=1,created_at=datetime('now'),cleared_at=NULL
++     WHERE remediation_holds.active=0`
++  ).bind(holdKey,String(pending.directive_id),String(pending.target_actor||actor),String(pending.target_role||subject),
++         pending.project_id?String(pending.project_id):null,pending.run_id?String(pending.run_id):null,String(pending.severity||"BLOCK")).run();
++  hold=await bindActive(env.DB.prepare(activeQuery)).first();
++  return hold||null;
+ }
+ 
+ async function applyRemediationProgress(event,env,evaluation,hold){
+diff --git a/dev-hub/tests/test_guardian_remediation_hold_reactivation.py b/dev-hub/tests/test_guardian_remediation_hold_reactivation.py
+new file mode 100755
+index 00000000..f4519194
+--- /dev/null
++++ b/dev-hub/tests/test_guardian_remediation_hold_reactivation.py
+@@ -0,0 +1,38 @@
++#!/usr/bin/env python3
++from pathlib import Path
++import sqlite3
++
++ROOT=Path(__file__).resolve().parents[2]
++worker=(ROOT/'dev-hub/guardian/worker.js').read_text(encoding='utf-8')
++assert 'CHACHA_DEV_REMEDIATION_HOLD_REACTIVATION_V1' in worker
++assert 'ON CONFLICT(hold_key) DO UPDATE SET' in worker
++assert 'WHERE remediation_holds.active=0' in worker
++assert "status IN ('OPEN','DELIVERED')" in worker
++
++con=sqlite3.connect(':memory:')
++con.execute("""CREATE TABLE remediation_holds(
++ hold_key TEXT PRIMARY KEY,directive_id TEXT NOT NULL,target_actor TEXT NOT NULL,
++ target_role TEXT NOT NULL,project_id TEXT,run_id TEXT,severity TEXT NOT NULL,
++ active INTEGER NOT NULL DEFAULT 1,created_at TEXT NOT NULL,cleared_at TEXT)""")
++sql="""INSERT INTO remediation_holds
++ (hold_key,directive_id,target_actor,target_role,project_id,run_id,severity,active,created_at,cleared_at)
++ VALUES(?,?,?,?,?,?,?,1,datetime('now'),NULL)
++ ON CONFLICT(hold_key) DO UPDATE SET
++ directive_id=excluded.directive_id,target_actor=excluded.target_actor,target_role=excluded.target_role,
++ project_id=excluded.project_id,run_id=excluded.run_id,severity=excluded.severity,
++ active=1,created_at=datetime('now'),cleared_at=NULL
++ WHERE remediation_holds.active=0"""
++args=('executor|project|run','remed-old','executor','executor','project','run','BLOCK')
++con.execute(sql,args)
++con.execute(sql,('executor|project|run','remed-new','executor','executor','project','run','CRITICAL'))
++row=con.execute('select directive_id,active from remediation_holds').fetchone()
++assert row==('remed-old',1),row
++
++con.execute("update remediation_holds set active=0,cleared_at=datetime('now')")
++con.execute(sql,('executor|project|run','remed-new','executor','executor','project','run','CRITICAL'))
++row=con.execute('select directive_id,active,cleared_at,severity from remediation_holds').fetchone()
++assert row==('remed-new',1,None,'CRITICAL'),row
++
++print('CHACHA_DEV_GUARDIAN_INACTIVE_HOLD_REACTIVATION=PASS')
++print('CHACHA_DEV_GUARDIAN_ACTIVE_HOLD_NOT_OVERWRITTEN=PASS')
++print('CHACHA_DEV_GUARDIAN_PENDING_DIRECTIVE_REQUEUE=PASS')
