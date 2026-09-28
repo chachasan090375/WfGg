@@ -16,7 +16,7 @@ assert 'technology-core-watch' in row.get('sources',[]),row
 policy=load(ROOT/'dev-hub/config/autonomy-supervision.v1.json')
 assert policy['invariants']['no_direct_mutation'] is True
 assert policy['invariants']['supervisor_writes_owner_state'] is False
-assert set(policy['runtime']['allowed_systemd_units'])=={'chacha-dev-agent-fleet-observatory.service','chacha-dev-intendant-hygiene.service'}
+assert set(policy['runtime']['allowed_systemd_units'])=={'chacha-dev-agent-fleet-observatory.service','chacha-dev-intendant-hygiene.service','chacha-dev-release-state-reconciler.service'}
 service=(ROOT/'dev-hub/systemd/chacha-dev-autonomy-core.service').read_text()
 timer=(ROOT/'dev-hub/systemd/chacha-dev-autonomy-core.timer').read_text()
 assert 'autonomy-loop-runner.py' in service

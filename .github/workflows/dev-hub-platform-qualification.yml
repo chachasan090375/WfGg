@@ -44,6 +44,7 @@ jobs:
             dev-hub/bin/provider-zero-cost-attestor.py \
             dev-hub/bin/provider_quota_circuit.py \
             dev-hub/bin/autonomy-self-model.py \
+            dev-hub/bin/guardian-governed-release-state-reconciler.py \
             dev-hub/bin/autonomy-supervision-controller.py \
             dev-hub/bin/autonomy-loop-state.py \
             dev-hub/bin/autonomy-loop-runner.py \
@@ -130,6 +131,7 @@ jobs:
             dev-hub/tests/test_autonomy_canonical_fleet_projection.py \
             dev-hub/tests/test_autonomy_supervision_controller.py \
             dev-hub/tests/test_autonomy_incident_owner_coverage.py \
+            dev-hub/tests/test_autonomy_release_state_autorepair.py \
             dev-hub/tests/test_autonomy_loop_state.py \
             dev-hub/tests/test_autonomy_loop_runner.py \
             dev-hub/tests/test_autonomy_runtime_contract.py \

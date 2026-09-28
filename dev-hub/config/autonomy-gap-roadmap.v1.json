@@ -1,7 +1,7 @@
 {
   "schema": "chacha.dev/autonomy-gap-roadmap/v1",
   "scope": "chacha-dev-only",
-  "updated_at": "2026-09-28T13:08:00Z",
+  "updated_at": "2026-09-28T16:35:00Z",
   "score_percent": 70,
   "score_label": "Couverture de la feuille de route autonomie",
   "counts": {
@@ -43,9 +43,9 @@
       "id": "incident-remediation",
       "label": "Auto-diagnostic & auto-réparation",
       "status": "ORANGE",
-      "progress": 70,
-      "state": "OWNER_COVERAGE_COMPLETE_SAFE_AUTOREPAIR_PARTIAL",
-      "evidence": "Toutes les classes/actions d’incidents détectées sont reliées à un propriétaire explicite. FLEET_MISSING et RELEASE_OVERAGE restent auto-remédiables via owners gouvernés ; les réparations destructives, architecturales ou ambiguës deviennent des HUMAN_BOUNDARY explicites. Un test interdit désormais toute nouvelle classe sans owner et tout auto-owner sans dispatch exécutable."
+      "progress": 75,
+      "state": "OWNER_COVERAGE_COMPLETE_SAFE_AUTOREPAIR_EXPANDED",
+      "evidence": "Toutes les classes/actions ont un owner explicite. FLEET_MISSING, RELEASE_OVERAGE et ACTIVE_RELEASE_METADATA_DRIFT disposent désormais d’un chemin auto-remédiable gouverné. La réconciliation de release ne peut agir que sur la métadonnée de la release déjà active, exige approbation production + Guardian PRE + Sentinelle exact-SHA + santé Direct Operator + STOP clair, produit une preuve install-pass exacte et interdit toute mutation de current ou suppression de release. Les autres réparations sensibles restent HUMAN_BOUNDARY."
     },
     {
       "id": "foundries",

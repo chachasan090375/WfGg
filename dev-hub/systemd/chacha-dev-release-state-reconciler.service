@@ -1,0 +1,20 @@
+[Unit]
+Description=ChaCha DEV governed active release metadata reconciler
+After=network-online.target chacha-dev-direct-operator.service
+Wants=network-online.target
+ConditionPathExists=/opt/chacha-dev/platform/current/dev-hub/bin/guardian-governed-release-state-reconciler.py
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/opt/chacha-dev/platform/current
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/guardian-governed-release-state-reconciler.py
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/chacha-dev/platform/releases /opt/chacha-dev/runtime/release-gates /opt/chacha-dev/runtime/release-state-reconciliation
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=96M
+TasksMax=24

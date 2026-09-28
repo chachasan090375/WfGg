@@ -31,7 +31,7 @@ for code,action in sorted(pairs):
  auto.append((code,row['recommended_action'],spec.get('owner')))
 assert ('FLEET_MISSING','BACKFILL_FLEET_FROM_CANONICAL_REGISTRY','agent-fleet-observatory') in auto,auto
 assert ('RELEASE_OVERAGE','RECONCILE_RELEASE_RETENTION','intendant') in auto,auto
-assert any(x[0]=='ACTIVE_RELEASE_METADATA_DRIFT' and x[2]=='release-engineer' for x in human),human
+assert ('ACTIVE_RELEASE_METADATA_DRIFT','RECONCILE_RUNTIME_RELEASE_STATE','release-state-reconciler') in auto,auto
 assert any(x[0]=='VERSION_COUPLED_ACTIVE_LOGIC' and x[2]=='architecture-council' for x in human),human
 print('CHACHA_DEV_AUTONOMY_INCIDENT_OWNER_COVERAGE=PASS')
 print('DETECTED_ACTION_PAIRS='+str(len(pairs)))

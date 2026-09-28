@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/autonomy-self-model-policy/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "purpose": "Federate existing authoritative ChaCha DEV state into one read-only self model without creating a competing source of truth.",
   "authorities": {
     "components": "canonical-component-registry",
@@ -26,9 +26,9 @@
       "class": "HYGIENE_DRIFT"
     },
     "ACTIVE_RELEASE_METADATA_DRIFT": {
-      "owner": "release-engineer",
+      "owner": "release-state-reconciler",
       "action": "RECONCILE_RUNTIME_RELEASE_STATE",
-      "class": "HUMAN_BOUNDARY"
+      "class": "INTERNAL_DRIFT"
     },
     "ASSURANCE_TARGET_UNREGISTERED": {
       "owner": "canonical-component-registry",
