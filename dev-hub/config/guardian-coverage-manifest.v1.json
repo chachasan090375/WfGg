@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/guardian-coverage-manifest/v1",
-  "version": "3.7.0",
+  "version": "3.8.0",
   "scope": "PLATFORM_GLOBAL",
   "heartbeat_max_age_seconds": 900,
   "action_lease_default_seconds": 300,
@@ -608,6 +608,17 @@
       "proof": {
         "file": "dev-hub/bin/object-factory.py",
         "marker": "SCHEMA=\"chacha.dev/object-factory-plan/v1\""
+      }
+    },
+    {
+      "component_id": "governed-platform-promotion",
+      "role": "governed-platform-promotion",
+      "kind": "controller",
+      "enforcement_point": "approved-platform-promotion-preparation-and-finalization",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/governed-platform-promotion.py",
+        "marker": "HUMAN_PRODUCTION_APPROVAL_REQUIRED"
       }
     }
   ],
