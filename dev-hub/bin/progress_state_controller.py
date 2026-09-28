@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,json,os,time
+import argparse,datetime,json,os,time
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +21,13 @@ def atomic(p:Path,x:dict[str,Any])->None:
     tmp=p.with_name(p.name+".tmp-"+str(os.getpid()))
     tmp.write_text(json.dumps(x,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
     os.replace(tmp,p)
+def parse_iso(value:Any):
+    try:return datetime.datetime.fromisoformat(str(value).replace("Z","+00:00"))
+    except Exception:return None
+def age_seconds(value:Any)->float:
+    stamp=parse_iso(value)
+    if stamp is None:return float("inf")
+    return max(0.0,(datetime.datetime.now(datetime.timezone.utc)-stamp).total_seconds())
 def clamp(v:Any)->int:
     try:n=int(v)
     except Exception:n=0
@@ -51,7 +58,20 @@ class ProgressStore:
     def snapshot(self)->dict[str,Any]:
         x=load(self.path,self.blank())
         if x.get("schema")!=SCHEMA:return self.blank()
-        return x
+        status=str(x.get("status") or "IDLE")
+        age=age_seconds(x.get("updated_at"))
+        stale_after=float(self.policy.get("stale_after_seconds") or 300)
+        terminal_after=float(self.policy.get("terminal_display_seconds") or 120)
+        threshold=terminal_after if status in {"COMPLETE","BLOCKED","ERROR"} else stale_after
+        x["freshness"]={"state":"FRESH" if age<=threshold else "STALE","age_seconds":round(age,1),"threshold_seconds":threshold}
+        if status in {"IDLE","WAITING"} or age<=threshold:return x
+        z=self.blank()
+        z["platform_maturity_percent"]=clamp(x.get("platform_maturity_percent",z["platform_maturity_percent"]))
+        z["platform_maturity_label"]=str(x.get("platform_maturity_label") or z["platform_maturity_label"])
+        z["headline"]="Aucune opération active — dernier état archivé"
+        z["last_operation"]={"id":x.get("active_operation"),"status":status,"percent":clamp(x.get("active_work_percent")),"headline":x.get("headline"),"updated_at":x.get("updated_at")}
+        z["freshness"]={"state":"STALE_FALLBACK","age_seconds":round(age,1),"threshold_seconds":threshold,"source_status":status}
+        return z
     def write(self,x:dict[str,Any])->dict[str,Any]:
         x["schema"]=SCHEMA;x["updated_at"]=now_iso();x["persistent"]=True
         x["display"]=dict(self.policy.get("display") or {})

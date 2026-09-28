@@ -1,12 +1,12 @@
 {
   "schema": "chacha.dev/autonomy-gap-roadmap/v1",
   "scope": "chacha-dev-only",
-  "updated_at": "2026-09-28T06:04:46.050271Z",
-  "score_percent": 64,
+  "updated_at": "2026-09-28T13:08:00Z",
+  "score_percent": 69,
   "score_label": "Couverture de la feuille de route autonomie",
   "counts": {
-    "GREEN": 1,
-    "ORANGE": 8,
+    "GREEN": 3,
+    "ORANGE": 6,
     "RED": 2
   },
   "legend": {
@@ -26,18 +26,18 @@
     {
       "id": "self-model",
       "label": "Modèle de soi / inventaire canonique",
-      "status": "ORANGE",
-      "progress": 90,
-      "state": "QUALIFIÉ_NON_ACTIF",
-      "evidence": "195 composants et 40 agents attendus observés ; modèle de soi qualifié, activation production encore à faire."
+      "status": "GREEN",
+      "progress": 100,
+      "state": "ACTIF_ET_PROUVE_EN_PRODUCTION",
+      "evidence": "Le modèle de soi est actif en production ; inventaire canonique, Fleet et réconciliation sont relus à chaque cycle runtime."
     },
     {
       "id": "universal-loop",
       "label": "Boucle autonome universelle",
-      "status": "ORANGE",
-      "progress": 90,
-      "state": "PROUVÉE_EN_SANDBOX",
-      "evidence": "Observer → déléguer → réobserver → vérifier → persister → RESUME prouvé ; service/timer pas encore actifs en production."
+      "status": "GREEN",
+      "progress": 100,
+      "state": "ACTIVE_ET_PROUVEE_EN_PRODUCTION",
+      "evidence": "La boucle autonome et son timer sont actifs en production ; le cockpit dérive désormais cycle et convergence depuis loop-state.json."
     },
     {
       "id": "incident-remediation",
@@ -51,17 +51,17 @@
       "id": "foundries",
       "label": "Foundries autonomes à la demande",
       "status": "ORANGE",
-      "progress": 60,
-      "state": "PARTIEL",
-      "evidence": "Agent/Branch/Capability Foundry existent et sont gouvernées ; déclenchement autonome universel depuis toute lacune encore à généraliser."
+      "progress": 80,
+      "state": "ACTIVE_PARTIEL_AVANCE",
+      "evidence": "Agent/Branch/Capability Foundry gouvernées ; PROJECT_EPHEMERAL, scope PROJECT et teardown isolé sont désormais actifs en production. Le déclenchement universel depuis toute lacune reste à généraliser."
     },
     {
       "id": "learning",
       "label": "Apprentissage opérationnel systématique",
       "status": "ORANGE",
-      "progress": 55,
-      "state": "PARTIEL",
-      "evidence": "Observation Bus, collecteurs et Knowledge Compiler existent ; transformer chaque incident résolu en invariant automatique reste à généraliser."
+      "progress": 65,
+      "state": "PARTIEL_EN_GENERALISATION",
+      "evidence": "Observation Bus/Knowledge Compiler existent. Les incidents timer et cockpit stale sont convertis en invariants testables ; la généralisation automatique à chaque incident reste incomplète."
     },
     {
       "id": "provider-independence",
