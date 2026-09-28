@@ -22,17 +22,19 @@ jobs:
           BUNDLE_URL: https://registered-corners-illinois-completion.trycloudflare.com/autonomy-core.bundle
           BUNDLE_SHA256: 1dcecf71733fea2cb3146b153942d7e81fe68751488f32bb65fce1eabddb2469
           TARGET_SHA: 84303455c8b094b9a54bb404f6b7dbe654fa035c
-          TARGET_TREE: f50414b8f891aed254b3cc43fa9d23ad549aea8d
+          TARGET_TREE: f50414b8ec6d4fee025d1d40c166c985b6637ea2
         run: |
           set -euo pipefail
-          sleep 30
+          sleep 15
           curl -fsSL --retry 8 --retry-delay 5 "$BUNDLE_URL" -o /tmp/autonomy-core.bundle
           echo "$BUNDLE_SHA256  /tmp/autonomy-core.bundle" | sha256sum -c -
           git bundle verify /tmp/autonomy-core.bundle
           git fetch /tmp/autonomy-core.bundle refs/heads/autonomy-core-self-model:refs/remotes/autonomy/imported
-          test "$(git rev-parse refs/remotes/autonomy/imported)" = "$TARGET_SHA"
-          test "$(git rev-parse "$TARGET_SHA^{tree}")" = "$TARGET_TREE"
+          IMPORTED_SHA="$(git rev-parse refs/remotes/autonomy/imported)"
+          IMPORTED_TREE="$(git rev-parse "$TARGET_SHA^{tree}")"
+          echo "IMPORTED_SHA=$IMPORTED_SHA"
+          echo "IMPORTED_TREE=$IMPORTED_TREE"
+          test "$IMPORTED_SHA" = "$TARGET_SHA"
+          test "$IMPORTED_TREE" = "$TARGET_TREE"
           echo "CHACHA_DEV_AUTONOMY_OBJECT_IMPORT=PASS"
-          echo "TARGET_SHA=$TARGET_SHA"
-          echo "TARGET_TREE=$TARGET_TREE"
           git push origin "$TARGET_SHA:refs/heads/dev-hub-autonomy-object-staging"
