@@ -21,7 +21,10 @@ policy=load(CFG/"agent-fleet-observatory.v1.json")
 assert evo["measurement"]["unknown_dimension_default_score"] is None
 assert evo["measurement"]["minimum_scored_dimension_coverage_pct"]==40
 inv=aec.build_inventory(routing,seven,[project])
-assert inv["agent_count"]==35,inv
+expected_ids=set((routing.get("roles") or {}).keys()) | set(seven.get("required_agents") or []) | {str(x.get("agent_id")) for x in (project.get("agents") or []) if isinstance(x,dict) and x.get("agent_id")}
+observed_ids={str(x.get("agent_id")) for x in inv.get("agents") or [] if isinstance(x,dict) and x.get("agent_id")}
+assert observed_ids==expected_ids,(sorted(expected_ids-observed_ids),sorted(observed_ids-expected_ids))
+assert inv["agent_count"]==len(expected_ids),inv
 assert not any(a["agent_id"]=="technology-radar-agent" and a["scope"]=="PLATFORM" for a in inv["agents"])
 
 # Missing evidence must never become an invented 50/100.
@@ -69,7 +72,7 @@ with tempfile.TemporaryDirectory(prefix="v647-observatory-") as td:
     save(runtime/"knowledge/component-confidence.json",conf)
 
     report=afo.build_report(ROOT,runtime,policy,evo,routing,seven,[project])
-    assert report["agent_count"]==35,report["agent_count"]
+    assert report["agent_count"]==len(expected_ids),report["agent_count"]
     testrow=next(x for x in report["agents"] if x["agent_id"]=="test-engineer")
     sc=testrow["scorecard"]
     assert sc["dimensions"]["accuracy"]==50.0,sc
@@ -90,7 +93,7 @@ with tempfile.TemporaryDirectory(prefix="v647-observatory-") as td:
     assert report["agent_self_scoring_authority"] is False
     assert report["automatic_external_spend_eur"]==0
 
-print("CHACHA_DEV_V647_AGENT_INVENTORY_35=PASS")
+print("CHACHA_DEV_V647_AGENT_INVENTORY_FROM_AUTHORITATIVE_SOURCES=PASS")
 print("CHACHA_DEV_V647_UNKNOWN_DIMENSION_DEFAULT=NONE")
 print("CHACHA_DEV_V647_MEASURE_FIRST_WITHOUT_EVIDENCE=PASS")
 print("CHACHA_DEV_V647_TASK_ROLE_ATTRIBUTION=PASS")

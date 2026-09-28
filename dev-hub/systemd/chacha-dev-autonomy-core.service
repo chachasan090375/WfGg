@@ -1,0 +1,20 @@
+[Unit]
+Description=ChaCha DEV Autonomy Core supervision loop
+After=network-online.target chacha-dev-direct-operator.service
+Wants=network-online.target
+ConditionPathExists=/opt/chacha-dev/platform/current/dev-hub/bin/autonomy-loop-runner.py
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/opt/chacha-dev/platform/current
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/autonomy-loop-runner.py --repo-root /opt/chacha-dev/platform/current --runtime-root /opt/chacha-dev/runtime --platform-root /opt/chacha-dev/platform
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/chacha-dev/runtime/autonomy-core
+RestrictAddressFamilies=AF_UNIX
+MemoryMax=128M
+TasksMax=32

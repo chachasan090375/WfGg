@@ -12,6 +12,7 @@ import agent_evolution_profile as aep
 import component_evolution_governance as ceg
 import platform_component_evolution_controller as pcec
 import agent_verified_evidence_backfill as aveb
+import canonical_component_registry as ccr
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding="utf-8"))
     if not isinstance(x,dict):raise ValueError("JSON_ROOT_NOT_OBJECT:"+str(p))
@@ -65,9 +66,13 @@ def main()->int:
     root=a.repo_root.resolve();runtime=a.runtime_root.resolve();cfg=root/"dev-hub/config";ae=runtime/"agent-evolution";ae.mkdir(parents=True,exist_ok=True)
     routing=load(cfg/"agent-routing.v1.json");seven=load(cfg/"seven-agent-final-compromise.v1.json");project=load(root/"dev-hub/projects/wfgg-radar/project-agent-registry.v1.json")
     fp=load(cfg/"agent-fleet-observatory.v1.json");ep=load(cfg/"agent-evolution.v1.json")
+    canonical_policy=load(cfg/"canonical-component-registry.v1.json")
+    canonical=ccr.build_registry(root,canonical_policy)
+    canonical_path=runtime/"canonical-registry/canonical-component-registry.json"
+    save(canonical_path,canonical)
     backfill=aveb.run(runtime,fp,load(cfg/"agent-observation-bus.v1.json"),routing,seven,[project],False)
     save(ae/"verified-evidence-backfill-latest.json",backfill)
-    report=afo.build_report(root,runtime,fp,ep,routing,seven,[project]);save(ae/"fleet-observatory-latest.json",report)
+    report=afo.build_report(root,runtime,fp,ep,routing,seven,[project],canonical);save(ae/"fleet-observatory-latest.json",report)
     requests,platform_requests,platform_actions,platform_blocked=collect_reassessment_requests(runtime)
     stamp=now();statep=ae/"cadence-state.json";state=safe(statep);cad=ep.get("cadence") or {}
     ld=parse(state.get("last_deep_audit_at"));lb=parse(state.get("last_ecosystem_benchmark_at"))
@@ -108,7 +113,8 @@ def main()->int:
         benchmark_run=abcr.execute(benchmark_campaign,root,runtime,revision,adapter_cfg)
         save(ae/"benchmark-run-latest.json",benchmark_run)
         # Rebuild Fleet Observatory immediately so newly promoted benchmark evidence can fill UNKNOWN dimensions.
-        report=afo.build_report(root,runtime,fp,ep,routing,seven,[project]);save(ae/"fleet-observatory-latest.json",report)
+        # Canonical inventory remains authoritative during the whole cycle.
+        report=afo.build_report(root,runtime,fp,ep,routing,seven,[project],canonical);save(ae/"fleet-observatory-latest.json",report)
     profile_policy=load(cfg/"agent-evolution-profile.v1.json")
     adapter_cfg=load(cfg/"agent-benchmark-adapters.v1.json")
     profile_index=aep.build_index(report,routing,seven,[project],adapter_cfg,ep,profile_policy)

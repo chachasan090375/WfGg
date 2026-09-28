@@ -1,0 +1,75 @@
+{
+  "schema": "chacha.dev/autonomy-supervision-policy/v1",
+  "version": "1.1.0",
+  "purpose": "Close the observe-classify-delegate-verify-resume loop without giving the supervisor direct mutation authority.",
+  "states": [
+    "OBSERVE",
+    "CLASSIFY",
+    "DELEGATE",
+    "VERIFY",
+    "RESUME",
+    "WAIT_EXTERNAL",
+    "AWAIT_HUMAN",
+    "BLOCKED"
+  ],
+  "owner_actions": {
+    "BACKFILL_FLEET_FROM_CANONICAL_REGISTRY": {
+      "owner": "agent-fleet-observatory",
+      "mode": "OWNER_GOVERNED",
+      "requires_human": false,
+      "dispatch": {
+        "type": "systemd-unit",
+        "unit": "chacha-dev-agent-fleet-observatory.service"
+      }
+    },
+    "REBUILD_CANONICAL_REGISTRY_FROM_ACTIVE_DIRECTIVES": {
+      "owner": "canonical-component-registry",
+      "mode": "SAFE_REBUILD_CANONICAL_VIEW",
+      "requires_human": false
+    },
+    "CLASSIFY_OR_RETIRE_AGENT": {
+      "owner": "agent-foundry",
+      "mode": "REVIEW_ONLY",
+      "requires_human": false
+    },
+    "RECONCILE_RELEASE_RETENTION": {
+      "owner": "intendant",
+      "mode": "OWNER_GOVERNED",
+      "requires_human": false,
+      "dispatch": {
+        "type": "systemd-unit",
+        "unit": "chacha-dev-intendant-hygiene.service"
+      }
+    }
+  },
+  "human_boundaries": [
+    "destructive-restore",
+    "data-loss-possible",
+    "security-boundary-change",
+    "credential-rotation-with-external-impact",
+    "production-promotion"
+  ],
+  "invariants": {
+    "no_direct_mutation": true,
+    "owner_executes_remediation": true,
+    "verification_required_after_every_action": true,
+    "unknown_issue_fails_closed": true,
+    "guardian_and_sentinel_preserved": true,
+    "automatic_external_spend_eur": 0,
+    "supervisor_writes_owner_state": false,
+    "owner_dispatch_allowlist_required": true
+  },
+  "runtime": {
+    "state_file": "/opt/chacha-dev/runtime/autonomy-core/loop-state.json",
+    "work_root": "/opt/chacha-dev/runtime/autonomy-core/work",
+    "emergency_stop": "/opt/chacha-dev/runtime/control/emergency-stop.json",
+    "max_cycles_per_run": 1,
+    "owner_timeout_seconds": 1200,
+    "allowed_systemd_units": [
+      "chacha-dev-agent-fleet-observatory.service",
+      "chacha-dev-intendant-hygiene.service"
+    ],
+    "max_attempts_per_issue": 3,
+    "retry_cooldown_seconds": 600
+  }
+}

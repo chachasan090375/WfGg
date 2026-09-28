@@ -1,0 +1,42 @@
+{
+  "schema": "chacha.dev/autonomy-self-model-policy/v1",
+  "version": "1.0.0",
+  "purpose": "Federate existing authoritative ChaCha DEV state into one read-only self model without creating a competing source of truth.",
+  "authorities": {
+    "components": "canonical-component-registry",
+    "fleet": "agent-fleet-observatory",
+    "observations": "agent-observation-bus",
+    "releases": "platform-release-runtime",
+    "dynamic_components": "universal-materialization-gate"
+  },
+  "issue_owners": {
+    "FLEET_MISSING": {
+      "owner": "agent-fleet-observatory",
+      "action": "BACKFILL_FLEET_FROM_CANONICAL_REGISTRY",
+      "class": "INTERNAL_DRIFT"
+    },
+    "FLEET_NONCANONICAL": {
+      "owner": "agent-foundry",
+      "action": "CLASSIFY_OR_RETIRE_AGENT",
+      "class": "INTERNAL_DRIFT"
+    },
+    "RELEASE_OVERAGE": {
+      "owner": "intendant",
+      "action": "RECONCILE_RELEASE_RETENTION",
+      "class": "HYGIENE_DRIFT"
+    },
+    "DIRECTIVE_PROPAGATION_DRIFT": {
+      "owner": "canonical-component-registry",
+      "action": "REBUILD_CANONICAL_REGISTRY_FROM_ACTIVE_DIRECTIVES",
+      "class": "GOVERNANCE_DRIFT"
+    }
+  },
+  "invariants": {
+    "read_only": true,
+    "no_mutation_authority": true,
+    "canonical_sources_are_not_overwritten": true,
+    "unknown_issue_fails_closed": true,
+    "guardian_and_sentinel_preserved": true,
+    "automatic_external_spend_eur": 0
+  }
+}
