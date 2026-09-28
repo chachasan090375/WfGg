@@ -1,254 +1,54 @@
 {
   "schema": "chacha.dev/technology-core-watch/v1",
-  "version": "1.12.0",
+  "version": "1.13.0",
   "purpose": "Continuously monitor the technology health and debt of ChaCha DEV itself.",
   "components": [
-    {
-      "id": "central-brain",
-      "class": "orchestration",
-      "criticality": "critical"
-    },
-    {
-      "id": "central-orchestrator",
-      "class": "orchestration",
-      "criticality": "critical"
-    },
-    {
-      "id": "architecture-council",
-      "class": "governance",
-      "criticality": "critical"
-    },
-    {
-      "id": "logician",
-      "class": "reasoning",
-      "criticality": "high"
-    },
-    {
-      "id": "ergonomist",
-      "class": "reasoning",
-      "criticality": "high"
-    },
-    {
-      "id": "agent-foundry",
-      "class": "foundry",
-      "criticality": "critical"
-    },
-    {
-      "id": "branch-foundry",
-      "class": "foundry",
-      "criticality": "critical"
-    },
-    {
-      "id": "capability-foundry",
-      "class": "foundry",
-      "criticality": "critical"
-    },
-    {
-      "id": "specialist-agents",
-      "class": "agents",
-      "criticality": "high"
-    },
-    {
-      "id": "dynamic-agents",
-      "class": "agents",
-      "criticality": "high"
-    },
-    {
-      "id": "guardian",
-      "class": "assurance",
-      "criticality": "critical"
-    },
-    {
-      "id": "sentinel",
-      "class": "assurance",
-      "criticality": "critical"
-    },
-    {
-      "id": "bastion",
-      "class": "security",
-      "criticality": "critical"
-    },
-    {
-      "id": "intendant",
-      "class": "operations",
-      "criticality": "high"
-    },
-    {
-      "id": "external-assurance-agents",
-      "class": "assurance",
-      "criticality": "high"
-    },
-    {
-      "id": "project-control",
-      "class": "verification",
-      "criticality": "critical"
-    },
-    {
-      "id": "verification-broker",
-      "class": "verification",
-      "criticality": "critical"
-    },
-    {
-      "id": "run-controller",
-      "class": "execution",
-      "criticality": "critical"
-    },
-    {
-      "id": "scheduler",
-      "class": "execution",
-      "criticality": "high"
-    },
-    {
-      "id": "learning-fabric",
-      "class": "knowledge",
-      "criticality": "critical"
-    },
-    {
-      "id": "central-memory",
-      "class": "knowledge",
-      "criticality": "critical"
-    },
-    {
-      "id": "reusable-registries",
-      "class": "knowledge",
-      "criticality": "high"
-    },
-    {
-      "id": "mcp-connectors",
-      "class": "integration",
-      "criticality": "high"
-    },
-    {
-      "id": "provider-adapters",
-      "class": "integration",
-      "criticality": "high"
-    },
-    {
-      "id": "vps-runtime",
-      "class": "surface",
-      "criticality": "critical"
-    },
-    {
-      "id": "nas-runtime",
-      "class": "surface",
-      "criticality": "high"
-    },
-    {
-      "id": "cloudflare-runtime",
-      "class": "surface",
-      "criticality": "high"
-    },
-    {
-      "id": "python-runtime",
-      "class": "language-runtime",
-      "criticality": "high"
-    },
-    {
-      "id": "node-runtime",
-      "class": "language-runtime",
-      "criticality": "high"
-    },
-    {
-      "id": "agent-observation-bus",
-      "class": "observability-evolution",
-      "criticality": "critical"
-    },
-    {
-      "id": "agent-fleet-observatory",
-      "class": "observability-evolution",
-      "criticality": "high"
-    },
-    {
-      "id": "platform-component-pilot-runner",
-      "class": "verification",
-      "criticality": "critical"
-    },
-    {
-      "id": "platform-component-promotion-gate",
-      "class": "verification",
-      "criticality": "critical"
-    },
-    {
-      "id": "platform-component-controlled-apply-planner",
-      "class": "verification",
-      "criticality": "critical"
-    },
-    {
-      "id": "platform-component-source-integration-executor",
-      "class": "execution",
-      "criticality": "critical"
-    },
-    {
-      "id": "platform-component-adapter-binding-gate",
-      "class": "verification",
-      "criticality": "critical"
-    },
-    {
-      "id": "platform-component-adapter-registry-writer",
-      "class": "execution",
-      "criticality": "critical"
-    },
-    {
-      "id": "progress-state-controller",
-      "class": "verification",
-      "criticality": "high"
-    },
-    {
-      "id": "live-ui-publisher",
-      "class": "verification",
-      "criticality": "high"
-    },
-    {
-      "id": "native-update-publisher",
-      "class": "verification",
-      "criticality": "critical"
-    },
-    {
-      "id": "android-release-signer",
-      "class": "security",
-      "criticality": "critical"
-    },
-    {
-      "id": "object-factory",
-      "class": "factory",
-      "criticality": "high"
-    },
-    {
-      "id": "autonomy-core-supervisor",
-      "class": "orchestration",
-      "criticality": "critical"
-    }
+    {"id":"central-brain","class":"orchestration","criticality":"critical"},
+    {"id":"central-orchestrator","class":"orchestration","criticality":"critical"},
+    {"id":"architecture-council","class":"governance","criticality":"critical"},
+    {"id":"logician","class":"reasoning","criticality":"high"},
+    {"id":"ergonomist","class":"reasoning","criticality":"high"},
+    {"id":"agent-foundry","class":"foundry","criticality":"critical"},
+    {"id":"branch-foundry","class":"foundry","criticality":"critical"},
+    {"id":"capability-foundry","class":"foundry","criticality":"critical"},
+    {"id":"specialist-agents","class":"agents","criticality":"high"},
+    {"id":"dynamic-agents","class":"agents","criticality":"high"},
+    {"id":"guardian","class":"assurance","criticality":"critical"},
+    {"id":"sentinel","class":"assurance","criticality":"critical"},
+    {"id":"bastion","class":"security","criticality":"critical"},
+    {"id":"intendant","class":"operations","criticality":"high"},
+    {"id":"external-assurance-agents","class":"assurance","criticality":"high"},
+    {"id":"project-control","class":"verification","criticality":"critical"},
+    {"id":"verification-broker","class":"verification","criticality":"critical"},
+    {"id":"run-controller","class":"execution","criticality":"critical"},
+    {"id":"scheduler","class":"execution","criticality":"high"},
+    {"id":"learning-fabric","class":"knowledge","criticality":"critical"},
+    {"id":"central-memory","class":"knowledge","criticality":"critical"},
+    {"id":"reusable-registries","class":"knowledge","criticality":"high"},
+    {"id":"mcp-connectors","class":"integration","criticality":"high"},
+    {"id":"provider-adapters","class":"integration","criticality":"high"},
+    {"id":"vps-runtime","class":"surface","criticality":"critical"},
+    {"id":"nas-runtime","class":"surface","criticality":"high"},
+    {"id":"cloudflare-runtime","class":"surface","criticality":"high"},
+    {"id":"python-runtime","class":"language-runtime","criticality":"high"},
+    {"id":"node-runtime","class":"language-runtime","criticality":"high"},
+    {"id":"agent-observation-bus","class":"observability-evolution","criticality":"critical"},
+    {"id":"agent-fleet-observatory","class":"observability-evolution","criticality":"high"},
+    {"id":"platform-component-pilot-runner","class":"verification","criticality":"critical"},
+    {"id":"platform-component-promotion-gate","class":"verification","criticality":"critical"},
+    {"id":"platform-component-controlled-apply-planner","class":"verification","criticality":"critical"},
+    {"id":"platform-component-source-integration-executor","class":"execution","criticality":"critical"},
+    {"id":"platform-component-adapter-binding-gate","class":"verification","criticality":"critical"},
+    {"id":"platform-component-adapter-registry-writer","class":"execution","criticality":"critical"},
+    {"id":"progress-state-controller","class":"verification","criticality":"high"},
+    {"id":"live-ui-publisher","class":"verification","criticality":"high"},
+    {"id":"native-update-publisher","class":"verification","criticality":"critical"},
+    {"id":"android-release-signer","class":"security","criticality":"critical"},
+    {"id":"object-factory","class":"factory","criticality":"high"},
+    {"id":"autonomy-core-supervisor","class":"orchestration","criticality":"critical"},
+    {"id":"governed-platform-promotion","class":"execution-governance","criticality":"critical"}
   ],
-  "watch_dimensions": [
-    "security",
-    "eol",
-    "deprecation",
-    "breaking-api",
-    "maintenance-health",
-    "performance",
-    "resource-efficiency",
-    "pricing",
-    "quota",
-    "better-verified-alternative",
-    "architecture-debt",
-    "schema-compatibility",
-    "observation-integrity",
-    "instrumentation-drift",
-    "event-delivery-latency"
-  ],
-  "debt_thresholds": {
-    "watch": 20,
-    "pilot": 40,
-    "act": 60
-  },
-  "governance": {
-    "recommendations_only": true,
-    "uncontrolled_upgrade": false,
-    "rollback_required": true,
-    "regression_evidence_required_for_core_change": true,
-    "architecture_council_final_authority": true,
-    "guardian_authority_preserved": true,
-    "sentinel_authority_preserved": true,
-    "automatic_external_spend_eur": 0
-  }
+  "watch_dimensions": ["security","eol","deprecation","breaking-api","maintenance-health","performance","resource-efficiency","pricing","quota","better-verified-alternative","architecture-debt","schema-compatibility","observation-integrity","instrumentation-drift","event-delivery-latency"],
+  "debt_thresholds": {"watch":20,"pilot":40,"act":60},
+  "governance": {"recommendations_only":true,"uncontrolled_upgrade":false,"rollback_required":true,"regression_evidence_required_for_core_change":true,"architecture_council_final_authority":true,"guardian_authority_preserved":true,"sentinel_authority_preserved":true,"automatic_external_spend_eur":0}
 }
