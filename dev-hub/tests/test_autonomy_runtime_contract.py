@@ -25,7 +25,7 @@ assert '/opt/chacha-dev/platform/releases' not in next(x for x in service.splitl
 assert '/opt/chacha-dev/runtime/agent-evolution' not in next(x for x in service.splitlines() if x.startswith('ReadWritePaths='))
 assert 'RestrictAddressFamilies=AF_UNIX' in service
 assert 'NoNewPrivileges=true' in service
-assert 'OnUnitActiveSec=10min' in timer and 'Persistent=true' in timer
+assert 'OnActiveSec=1min' in timer and 'OnUnitActiveSec=10min' in timer and 'Persistent=true' in timer
 print('CHACHA_DEV_AUTONOMY_CANONICAL_BIRTH=PASS')
 print('CHACHA_DEV_AUTONOMY_LEAST_PRIVILEGE_RUNTIME=PASS')
 print('CHACHA_DEV_AUTONOMY_OWNER_UNIT_ALLOWLIST=PASS')

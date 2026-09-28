@@ -6,10 +6,15 @@ ROOT=Path(__file__).resolve().parents[2]
 BIN=ROOT/"dev-hub/bin"; CFG=ROOT/"dev-hub/config"
 with tempfile.TemporaryDirectory(prefix="capsule-contract-") as td:
     td=Path(td)
-    topo={"decisions":[
-      {"branch_id":"a","runtime_required":True,"resource_budget":{"memory_hard_limit_mb":192,"disk_soft_limit_mb":256,"cpu_weight":35,"processes_max":1}},
-      {"branch_id":"b","runtime_required":True,"resource_budget":{"memory_hard_limit_mb":128,"disk_soft_limit_mb":128,"cpu_weight":25,"processes_max":1}}
-    ]}
+    project="capsule-contract-project"
+    def branch(domain,mem,disk,cpu):
+        return {"branch_id":f"{project}:{domain}:primary","project_id":project,"scope":"PROJECT","runtime_required":True,
+          "ttl_seconds":60,"resource_budget":{"memory_hard_limit_mb":mem,"disk_soft_limit_mb":disk,"cpu_weight":cpu,"processes_max":1},
+          "universal_materialization":{"required":True,"governance_class":"RUNTIME_INFRASTRUCTURE","owner_foundry":"branch-foundry",
+            "status":"PENDING_CANONICAL_REGISTRATION","retention_policy":"TTL_AND_CLASS_DEFAULT_RETENTION","purge_policy":"UNIVERSAL_HYGIENE",
+            "materialization_gate_required":True,"birth_contract":{"owner_foundry":"branch-foundry"},"automatic_external_spend_eur":0},
+          "automatic_external_spend_eur":0}
+    topo={"project_id":project,"decisions":[branch("a",192,256,35),branch("b",128,128,25)]}
     (td/"topo.json").write_text(json.dumps(topo))
     p=subprocess.run([sys.executable,str(BIN/"capsule-scheduler.py"),"--topology",str(td/"topo.json"),"--policy",str(CFG/"branch-foundry.v1.json"),"--output",str(td/"waves.json")],check=True)
     p=subprocess.run([sys.executable,str(BIN/"capsule-runtime-controller.py"),"--runtime-root",str(td/"runtime"),"--emergency-state",str(td/"stop.json"),
@@ -19,6 +24,8 @@ with tempfile.TemporaryDirectory(prefix="capsule-contract-") as td:
     assert len(x["capsules"])==2,x
     assert all(c["unit"].startswith("chacha-dev-branch@") for c in x["capsules"]),x
     assert all(c["state"]=="DRY_RUN" for c in x["capsules"]),x
+    assert all(c["project_id"]==project and c["scope"]=="PROJECT" for c in x["capsules"]),x
+    assert (td/"runtime"/project/"registry.json").is_file()
     assert sum(c["resource_budget"]["memory_hard_limit_mb"] for c in x["capsules"])<=1024,x
 surface=(BIN/"emergency-stop-surface.py").read_text(encoding="utf-8")
 assert 'DEFAULT_BIND="127.0.0.1"' in surface

@@ -3,6 +3,7 @@ Description=Run ChaCha DEV Autonomy Core supervision loop
 
 [Timer]
 OnBootSec=3min
+OnActiveSec=1min
 OnUnitActiveSec=10min
 RandomizedDelaySec=30s
 AccuracySec=30s

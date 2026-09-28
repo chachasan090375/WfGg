@@ -32,6 +32,8 @@
     "core_replan_required_after_foundry": true,
     "branch_foundry_parallel_with_agent_foundry": true,
     "lazy_branch_materialization": true,
+    "project_ephemeral_capsules_teardown_before_operate": true,
+    "capsule_ttl_is_safety_net_not_primary_cleanup": true,
     "central_memory_survives_branch_teardown": true,
     "verified_evidence_learning_is_asynchronous": true,
     "verified_success_requires_exact_lineage_for_confidence": true,
@@ -115,7 +117,8 @@
     "health_root": "/opt/chacha-dev/runtime/health",
     "runs_root": "/opt/chacha-dev/runtime/runs",
     "transactions_root": "/opt/chacha-dev/runtime/transactions",
-    "locks_root": "/opt/chacha-dev/runtime/locks/control"
+    "locks_root": "/opt/chacha-dev/runtime/locks/control",
+    "capsules_root": "/opt/chacha-dev/runtime/capsules"
   },
   "repository_paths": {
     "lifecycle": "dev-hub/config/lifecycle.v1.json",
@@ -201,6 +204,7 @@
     "recovery_orchestrator": "dev-hub/bin/recovery-orchestrator.py",
     "autonomy_audit": "dev-hub/bin/autonomy-audit.py",
     "branch_foundry_planner": "dev-hub/bin/branch-foundry-planner.py",
+    "capsule_runtime_controller": "dev-hub/bin/capsule-runtime-controller.py",
     "branch_blueprint_optimizer": "dev-hub/bin/branch-blueprint-optimizer.py",
     "verified_evidence_learning": "dev-hub/bin/verified-evidence-learning.py",
     "trusted_dispatch_learning": "dev-hub/bin/trusted_dispatch_learning.py",

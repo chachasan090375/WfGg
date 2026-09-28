@@ -54,7 +54,7 @@ def inherited_value(key:str,view:dict[str,Any],manifest:dict[str,Any],directives
     defaults={
       "identity":view["name"],"governance_class":view["governance_class"],"owner_foundry":view["owner_foundry"],
       "version_or_fingerprint":digest(manifest),"purpose":manifest.get("purpose") or "Materialized ChaCha DEV component: "+view["name"],
-      "scope":manifest.get("scope") or ("PROJECT" if manifest.get("project_id") else "PLATFORM"),
+      "scope":manifest.get("scope") or view["nested"].get("scope") or ("PROJECT" if (manifest.get("project_id") or view["nested"].get("project_id")) else "PLATFORM"),
       "permissions":manifest.get("permissions") or "CLASS_DEFAULT_LEAST_PRIVILEGE",
       "budget_policy":manifest.get("budget_policy") or "ZERO_INCREMENTAL_COST_DEFAULT",
       "health_contract":manifest.get("health_contract") or "CLASS_DEFAULT_HEALTH",
@@ -100,6 +100,13 @@ def validate(view:dict[str,Any],manifest:dict[str,Any],policy:dict[str,Any],dire
         raise ValueError("MATERIALIZATION_OWNER_MISMATCH:"+owner+":"+expected)
     if float(manifest.get("automatic_external_spend_eur",0) or 0)!=0:
         raise ValueError("MATERIALIZATION_EXTERNAL_SPEND_NONZERO")
+    project_id=str(manifest.get("project_id") or view["nested"].get("project_id") or "").strip()
+    scope=str(manifest.get("scope") or view["nested"].get("scope") or ("PROJECT" if project_id else "PLATFORM")).strip().upper()
+    if owner=="branch-foundry" and gclass=="RUNTIME_INFRASTRUCTURE":
+        if not project_id: raise ValueError("PROJECT_CAPSULE_PROJECT_ID_REQUIRED")
+        if scope!="PROJECT": raise ValueError("PROJECT_CAPSULE_SCOPE_MUST_BE_PROJECT")
+        if int(manifest.get("ttl_seconds") or view["nested"].get("ttl_seconds") or 0)<=0:
+            raise ValueError("PROJECT_CAPSULE_TTL_REQUIRED")
     birth=complete_birth_contract(view,manifest,policy,directives)
     return {"required":True,"status":"PASS","birth_contract":birth}
 
@@ -115,8 +122,16 @@ def register(manifest:dict[str,Any],policy:dict[str,Any],dynamic_path:Path,direc
     prior=next((x for x in regs if x.get("component_id")==cid),None)
     if prior and (prior.get("governance_class")!=view["governance_class"] or prior.get("owner_foundry")!=view["owner_foundry"]):
         raise ValueError("DYNAMIC_REGISTRY_IDENTITY_CONFLICT:"+cid)
+    project_id=str(manifest.get("project_id") or view["nested"].get("project_id") or "").strip()
+    scope=str(manifest.get("scope") or view["nested"].get("scope") or ("PROJECT" if project_id else "PLATFORM")).strip().upper()
     row={"component_id":cid,"name":view["name"],"governance_class":view["governance_class"],
          "owner_foundry":view["owner_foundry"],"status":"REGISTERED_PENDING_ACTIVATION",
+         "project_id":project_id or None,"scope":scope,
+         "ttl_seconds":int(manifest.get("ttl_seconds") or view["nested"].get("ttl_seconds") or 0),
+         "lifecycle":manifest.get("lifecycle") or view["nested"].get("lifecycle"),
+         "termination_policy":manifest.get("termination_policy") or view["nested"].get("termination_policy"),
+         "retention_policy":manifest.get("retention_policy") or view["nested"].get("retention_policy"),
+         "purge_policy":manifest.get("purge_policy") or view["nested"].get("purge_policy"),
          "manifest_digest":digest(manifest),"birth_contract":verdict["birth_contract"],
          "registered_at":now_iso(),"automatic_external_spend_eur":0}
     regs=[x for x in regs if x.get("component_id")!=cid]+[row]
@@ -137,7 +152,11 @@ def transition(dynamic_path:Path,cid:str,state_name:str)->dict[str,Any]:
         raise ValueError("DYNAMIC_COMPONENT_INVALID_TRANSITION:"+current+":"+state_name)
     row["status"]=state_name
     row[state_name.casefold()+"_at"]=now_iso()
-    state.setdefault("history",[]).append({"event":state_name,"component_id":cid,"at":now_iso()})
+    history_row={"event":state_name,"component_id":cid,"at":now_iso(),"scope":row.get("scope"),"project_id":row.get("project_id")}
+    state.setdefault("history",[]).append(history_row)
+    if state_name=="RETIRED" and str(row.get("scope") or "").upper()=="PROJECT":
+        regs=[x for x in regs if x.get("component_id")!=cid]
+    state["registrations"]=sorted(regs,key=lambda x:str(x.get("component_id")))
     save(dynamic_path,state)
     return {"schema":RECEIPT_SCHEMA,"status":"PASS","component_id":cid,"component_state":state_name,
             "automatic_external_spend_eur":0}

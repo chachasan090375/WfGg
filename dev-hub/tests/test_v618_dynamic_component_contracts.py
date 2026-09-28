@@ -90,9 +90,9 @@ client=(BIN/"guardian-client.py").read_text(encoding="utf-8")
 assert "register-component-contract" in client
 
 runctl=(BIN/"run-controller.py").read_text(encoding="utf-8")
-assert 'task.get("component_id")' in runctl
-assert 'task.get("guardian_component_contract_id")' in runctl
-assert 'task.get("guardian_component_contract_version")' in runctl
+assert 'task.get("guardian_binding")' in runctl
+assert 'task_guardian.get("dynamic_contract_id")' in runctl
+assert 'task_guardian.get("dynamic_contract_version")' in runctl
 
 orchsrc=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
 assert '"component-role-contract-manager.py":"component-contract-registry"' in orchsrc

@@ -172,6 +172,45 @@ def parse_kv(text: str) -> tuple[dict[str, str], list[str]]:
     return values, blockers
 
 
+def teardown_project_ephemeral_capsules(project: str, policy: dict[str, Any], repo_root: Path) -> dict[str, Any]:
+    tools=policy.get("engine_paths") or {}
+    controller_ref=tools.get("capsule_runtime_controller")
+    if not controller_ref:
+        return {"status":"BLOCKED","reason":"CAPSULE_RUNTIME_CONTROLLER_NOT_CONFIGURED"}
+    runtime_root=Path(str((policy.get("runtime") or {}).get("capsules_root") or "/opt/chacha-dev/runtime/capsules"))
+    controller=resolve_repo(repo_root,str(controller_ref))
+    rc,stdout,stderr=run_tool(controller,["--runtime-root",str(runtime_root),"teardown","--project-id",project],timeout=120)
+    payload:dict[str,Any]={}
+    try:
+        payload,_=json.JSONDecoder().raw_decode(stdout.lstrip())
+    except Exception:
+        payload={}
+    passed=(
+        rc==0 and
+        "CHACHA_CAPSULE_RUNTIME_TEARDOWN=PASS" in stdout and
+        payload.get("teardown_complete") is True and
+        payload.get("runtime_root_removed") is True
+    )
+    return {
+        "status":"PASS" if passed else "BLOCKED",
+        "project_id":project,
+        "runtime_root":str(runtime_root),
+        "teardown_complete":payload.get("teardown_complete"),
+        "runtime_root_removed":payload.get("runtime_root_removed"),
+        "result_count":len(payload.get("results") or []) if isinstance(payload,dict) else 0,
+        "returncode":rc,
+        "stderr":stderr[-1000:] if stderr else "",
+    }
+
+def project_delivery_capsule_teardown_gate(current: str, target: str, project: str, policy: dict[str, Any], repo_root: Path) -> dict[str, Any]:
+    if current!="RELEASE" or target!="OPERATE":
+        return {"status":"NOT_REQUIRED","project_id":project}
+    result=teardown_project_ephemeral_capsules(project,policy,repo_root)
+    if result.get("status")!="PASS":
+        return {**result,"reason":"PROJECT_EPHEMERAL_CAPSULE_TEARDOWN_REQUIRED_BEFORE_OPERATE"}
+    return result
+
+
 def next_stage(lifecycle: dict[str, Any], current: str) -> str | None:
     stages = list(lifecycle.get("stages") or [])
     if current not in stages:
@@ -705,6 +744,16 @@ def advance_operation(project: str, target: str | None, actor: str, policy: dict
             if automatic_finalization is not None:details["automatic_finalization"]=automatic_finalization
             return response(project, "advance", classify_blockers(blockers), "Lifecycle transition requirements are not satisfied.",
                             details, blockers or ["LIFECYCLE_CHECK_FAILED"])
+        capsule_teardown=project_delivery_capsule_teardown_gate(current,target,project,policy,repo_root)
+        if capsule_teardown.get("status") not in {"PASS","NOT_REQUIRED"}:
+            return response(
+                project,"advance","BLOCKED",
+                "Project delivery cannot finalize until project-ephemeral Foundry capsules are torn down.",
+                {"transition":f"{current}->{target}","project_ephemeral_capsule_teardown":capsule_teardown},
+                ["PROJECT_EPHEMERAL_CAPSULE_TEARDOWN_PENDING"],
+                ["retry the governed transition after capsule teardown succeeds"]
+            )
+
         txid = "ctx-" + uuid.uuid4().hex
         txdir = p["transactions"] / txid
         txdir.mkdir(parents=True, exist_ok=False)
@@ -729,6 +778,7 @@ def advance_operation(project: str, target: str | None, actor: str, policy: dict
             "precondition": {"version": pre_version, "journal_head_digest": pre_head},
             "lifecycle_check": {"allowed": True, "engine_values": values},
             "automatic_seven_agent_finalization": automatic_finalization,
+            "project_ephemeral_capsule_teardown": capsule_teardown,
         }
         patch = {
             "lifecycle": {
@@ -790,14 +840,15 @@ def advance_operation(project: str, target: str | None, actor: str, policy: dict
             "post_version": post.get("version"), "pre_head_digest": pre_head,
             "post_head_digest": post.get("last_event_digest"), "evidence_ledger_digest": ledger_digest,
             "event_sequence": event_values.get("EVENT_SEQUENCE"), "event_digest": event_values.get("EVENT_DIGEST"),
-            "integrity": verify_values,
+            "integrity": verify_values, "project_ephemeral_capsule_teardown": capsule_teardown,
         })
         return response(project, "advance", "OK", f"Lifecycle advanced transactionally from {current} to {target}.",
                         {"transaction_id": txid, "transition": f"{current}->{target}",
                          "event_sequence": event_values.get("EVENT_SEQUENCE"),
                          "event_digest": event_values.get("EVENT_DIGEST"),
                          "post_version": post.get("version"), "receipt": str(receipt),
-                         "automatic_seven_agent_finalization": automatic_finalization},
+                         "automatic_seven_agent_finalization": automatic_finalization,
+                         "project_ephemeral_capsule_teardown": capsule_teardown},
                         artifacts=[{"type": "control-transaction-receipt", "path": str(receipt)}])
 
 
