@@ -1,0 +1,37 @@
+name: ChaCha DEV Autonomy exact object transport
+
+on:
+  push:
+    branches:
+      - dev-hub-autonomy-object-transport
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-exact-object:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Import exact Autonomy Core Git objects
+        env:
+          BUNDLE_URL: https://filme-listed-themed-blog.trycloudflare.com/autonomy-core.bundle
+          BUNDLE_SHA256: 1dcecf7100812981a398d40c5eb3c95f8624f72371873c4695a9e4a394cd2469
+          TARGET_SHA: 84303455c8b094b9a54bb404f6b7dbe654fa035c
+          TARGET_TREE: f50414b8f891aed254b3cc43fa9d23ad549aea8d
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 4 --retry-delay 2 "$BUNDLE_URL" -o /tmp/autonomy-core.bundle
+          echo "$BUNDLE_SHA256  /tmp/autonomy-core.bundle" | sha256sum -c -
+          git bundle verify /tmp/autonomy-core.bundle
+          git fetch /tmp/autonomy-core.bundle refs/heads/autonomy-core-self-model:refs/remotes/autonomy/imported
+          test "$(git rev-parse refs/remotes/autonomy/imported)" = "$TARGET_SHA"
+          test "$(git rev-parse "$TARGET_SHA^{tree}")" = "$TARGET_TREE"
+          echo "CHACHA_DEV_AUTONOMY_OBJECT_IMPORT=PASS"
+          echo "TARGET_SHA=$TARGET_SHA"
+          echo "TARGET_TREE=$TARGET_TREE"
+          git push origin "$TARGET_SHA:refs/heads/dev-hub-autonomy-object-staging"
