@@ -36,6 +36,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -50,6 +52,9 @@ jobs:
             REV='${{ inputs.revision }}'
           else
             BEFORE='${{ github.event.before }}'
+            if [[ "$BEFORE" == "0000000000000000000000000000000000000000" ]] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+              BEFORE="$(git rev-parse HEAD^)"
+            fi
             FILE="$(git diff --name-only "$BEFORE" "$GITHUB_SHA" -- '.chacha-approvals/guardian-contracts/*.json' | tail -1)"
             test -n "$FILE"
             REV="$(python3 - "$FILE" <<'PY2'

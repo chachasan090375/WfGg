@@ -136,7 +136,8 @@
     "voice-gateway": "RUNTIME_INFRASTRUCTURE",
     "platform-hygiene-executor": "CORE_PLATFORM_COMPONENT",
     "reusable-memory": "CORE_PLATFORM_COMPONENT",
-    "release-state-reconciler": "CORE_PLATFORM_COMPONENT"
+    "release-state-reconciler": "CORE_PLATFORM_COMPONENT",
+    "governed-platform-promotion": "CORE_PLATFORM_COMPONENT"
   },
   "fleet_classes": [
     "FULL_AGENT",

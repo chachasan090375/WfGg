@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/technology-core-watch/v1",
-  "version": "1.12.0",
+  "version": "1.13.0",
   "purpose": "Continuously monitor the technology health and debt of ChaCha DEV itself.",
   "components": [
     {
@@ -216,6 +216,11 @@
     {
       "id": "autonomy-core-supervisor",
       "class": "orchestration",
+      "criticality": "critical"
+    },
+    {
+      "id": "governed-platform-promotion",
+      "class": "execution-governance",
       "criticality": "critical"
     }
   ],
