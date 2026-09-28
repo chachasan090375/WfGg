@@ -71,6 +71,16 @@ def temp_candidates(cfg:dict[str,Any],now:datetime)->list[dict[str,Any]]:
             seen.add(str(rp))
             out.append({"path":str(rp),"root":str(rr),"size_bytes":tree_bytes(rp),"mtime":iso(mtime),"open_fd":has_open_fd(rp)})
     return sorted(out,key=lambda x:x["path"])
+def promotion_transaction(runtime_root:Path)->dict[str,Any]:
+    p=runtime_root/'platform-promotion/lease.json'
+    x=load(p,{})
+    state=str(x.get('status') or 'NONE')
+    if state=='ACTIVE':
+        try:
+            if float(x.get('expires_epoch') or 0)<=datetime.now(timezone.utc).timestamp():state='EXPIRED'
+        except Exception:state='EXPIRED'
+    return {'state':state,'promotion_id':x.get('promotion_id'),'lease_id':x.get('lease_id'),'candidate_revision':x.get('candidate_revision')}
+
 def current_revision(platform:Path)->str:
     cur=(platform/"current").resolve();p=cur/".revision"
     return p.read_text().strip() if p.is_file() else ""
@@ -146,7 +156,7 @@ def main()->int:
     ap.add_argument("--now");ap.add_argument("--dry-run",action="store_true")
     a=ap.parse_args();now=dt(a.now) if a.now else datetime.now(timezone.utc)
     if now is None:raise SystemExit("INVALID_NOW")
-    policy=load(a.policy);consolidation=load(a.consolidation_policy)
+    policy=load(a.policy);consolidation=load(a.consolidation_policy);promotion_tx=promotion_transaction(a.runtime_root)
     sched=policy.get("scheduler") or {}
     state_path=Path(str(sched.get("state_file") or a.runtime_root/"intendant/hygiene-state.json"))
     report_dir=Path(str(sched.get("report_dir") or a.runtime_root/"intendant/hygiene-reports"))
@@ -230,8 +240,10 @@ def main()->int:
               "selected_rollback_evidence_epochs":px.get("selected_rollback_evidence_epochs"),
               "rollback_selection_basis":px.get("rollback_selection_basis")})
             safe=((cycle_cfg.get("WEEKLY_DRY_RUN") or {}).get("safe_release_retirement") or {})
+            promotion_blocks_retirement=promotion_tx.get('state') in {'ACTIVE','EXPIRED'}
+            if promotion_blocks_retirement:row['actions'].append({'action':'PROMOTION_TRANSACTION_PROTECTION','state':promotion_tx.get('state'),'promotion_id':promotion_tx.get('promotion_id'),'release_retirement_apply':False})
             standing=bool(sched.get("standing_operator_approval_authorized")) and bool(safe.get("standing_operator_approval"))
-            if int(px.get("retire_count") or 0)>0 and safe.get("auto_apply_when_fully_governed") is True and standing and not a.dry_run:
+            if int(px.get("retire_count") or 0)>0 and safe.get("auto_apply_when_fully_governed") is True and standing and not a.dry_run and not promotion_blocks_retirement:
                 approval=work/"consolidation-approval.json"
                 council_cmd=[sys.executable,str(a.council),"--plan",str(plan),"--policy",str(a.consolidation_policy),
                   "--guardian-coverage",str(a.guardian_coverage),"--revision",revision,"--operator-explicit-purge-approval","--output",str(approval)]
@@ -250,7 +262,7 @@ def main()->int:
                     row.update({"status":"BLOCKED","reason":"GUARDIAN_REALTIME_BLOCK"});results.append(row);continue
                 out=work/"release-execution.json";archive=report_dir/("retirement-archive-"+stamp+".json")
                 e=run([sys.executable,str(a.hygiene_executor),"release-retirement","--platform-root",str(a.platform_root),
-                  "--plan",str(plan),"--approval",str(approval),"--guardian-event",str(work/"guardian-release-pre-event.json"),
+                  "--runtime-root",str(a.runtime_root),"--plan",str(plan),"--approval",str(approval),"--guardian-event",str(work/"guardian-release-pre-event.json"),
                   "--guardian-result",str(work/"guardian-release-pre-result.json"),"--archive-manifest",str(archive),"--output",str(out)],180)
                 if e.returncode!=0:
                     row.update({"status":"BLOCKED","reason":"PLATFORM_HYGIENE_EXECUTOR_FAILED","stderr":e.stderr[-1600:]});results.append(row);continue
@@ -282,7 +294,7 @@ def main()->int:
       "metrics_before":metrics,"metrics":post_metrics,"threshold_reasons_before":threshold_reasons,
       "threshold_reasons":post_threshold_reasons,"git_history_preserved":True,"remote_branch_deletion":False,
       "source_code_deletion":False,"canonical_observation_bus_rewrite":False,"benchmark_evidence_mutation":False,
-      "intendant_direct_mutation":False,"architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+      "intendant_direct_mutation":False,"architecture_council_final_authority":True,"promotion_transaction":promotion_tx,"automatic_external_spend_eur":0}
     report_path=report_dir/("hygiene-"+stamp+".json");save(report_path,report);save(latest_path,report)
     print("CHACHA_DEV_INTENDANT_HYGIENE_CYCLE=PASS")
     print("CYCLES="+(",".join(cycles) if cycles else "NONE"));print("HYGIENE_DEBT_SCORE="+str(post_metrics["hygiene_debt_score"]))

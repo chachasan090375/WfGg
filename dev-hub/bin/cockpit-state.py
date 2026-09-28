@@ -10,6 +10,7 @@ OP=Path('/opt/chacha-dev/runtime/cockpit/current-operation.json')
 SOURCE_GAPS=Path('/opt/chacha-dev/platform/current/dev-hub/config/autonomy-gap-roadmap.v1.json')
 LOOP_STATE=Path('/opt/chacha-dev/runtime/autonomy-core/loop-state.json')
 AUTONOMY_WORK=Path('/opt/chacha-dev/runtime/autonomy-core/work')
+PROMOTION_LEASE=Path('/opt/chacha-dev/runtime/platform-promotion/lease.json')
 OP_STALE_SECONDS=300
 
 def iso(): return datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00','Z')
@@ -51,6 +52,17 @@ def latest_artifact(name):
         try:rows.append((p.stat().st_mtime,p))
         except Exception:pass
     return max(rows,key=lambda x:x[0])[1] if rows else None
+def promotion_transaction():
+    x=load(PROMOTION_LEASE,{})
+    if not x:return {'state':'NONE'}
+    state=str(x.get('status') or 'UNKNOWN')
+    if state=='ACTIVE':
+        try:
+            if float(x.get('expires_epoch') or 0)<=time.time():state='EXPIRED'
+        except Exception:state='EXPIRED'
+    return {'state':state,'lease_id':x.get('lease_id'),'promotion_id':x.get('promotion_id'),'owner':x.get('owner'),
+            'candidate_revision':x.get('candidate_revision'),'expires_at':x.get('expires_at'),'recovered_from_lease_id':x.get('recovered_from_lease_id')}
+
 def runtime_facts():
     loop=load(LOOP_STATE,{})
     run_path=latest_artifact('run.json'); run=load(run_path,{}) if run_path else {}
@@ -86,12 +98,13 @@ def snapshot():
     release=Path(os.path.realpath(CURRENT)); rev=text(release/'.revision','unknown')
     raw_op=load(OP,{}) ; op_fresh=fresh(OP,raw_op) if raw_op else False
     op=raw_op if op_fresh else {}
-    pr=load(PROGRESS,{}) ; stop=load(STOP,{}) ; loop,run,self_model=runtime_facts(); gaps=live_gaps(loop,run,self_model)
+    pr=load(PROGRESS,{}) ; stop=load(STOP,{}) ; loop,run,self_model=runtime_facts(); gaps=live_gaps(loop,run,self_model); tx=promotion_transaction()
     ds=unit('chacha-dev-direct-operator.service'); es=unit('chacha-dev-emergency-stop-surface.service'); eb=unit('chacha-dev-emergency-control-bridge.service')
     if bool(stop.get('active')): stop_state='ACTIVE'
     elif es and eb: stop_state='READY'
     else: stop_state='FAIL'
     cand=op.get('candidate') if isinstance(op.get('candidate'),dict) else {}
+    if not cand and tx.get('state') in {'ACTIVE','EXPIRED'}:cand={'revision':tx.get('candidate_revision',''),'state':'PROMOTION_'+tx.get('state','UNKNOWN')}
     cstate=str(cand.get('state') or cand.get('status') or 'NONE') if cand else 'NONE'
     cycle=int(loop.get('cycle') or 0); loop_state=str(loop.get('current_state') or 'UNKNOWN'); loop_at=str(loop.get('updated_at') or '')
     op_label=op.get('name') or f'Boucle autonome — cycle {cycle} {loop_state}'
@@ -105,7 +118,7 @@ def snapshot():
       'operation':{'label':op_label,'platform_percent':pr.get('platform_maturity_percent',86),'active_work_percent':op.get('percent',0),'runtime_status':runtime_status},
       'health':{'guardian':health('https://chacha-dev-guardian.chachasan090375.workers.dev/healthz'),'sentinel':health('https://chacha-dev-sentinel.chachasan090375.workers.dev/healthz'),'direct_operator':'PASS' if ds else 'FAIL','emergency_stop':stop_state},
       'truth':{'decided':op.get('decided') or 'Maintenir l’autonomie active et n’afficher comme live que des preuves runtime fraîches.','executed':executed,'verified':verified},
-      'autonomy':gaps,
+      'autonomy':gaps,'promotion_transaction':tx,
       'next_human_boundary':op.get('human_boundary') or 'Aucune frontière humaine en attente',
       'next_step':op.get('next_step') or f'Poursuivre automatiquement ; prochain cycle après le cycle {cycle}.',
       'autonomy_gaps':list(gaps.get('gaps') or []),

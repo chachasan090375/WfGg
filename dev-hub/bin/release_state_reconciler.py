@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,json,os,time
+import argparse,json,os,time,sys
 from pathlib import Path
 from typing import Any
 
 SCHEMA="chacha.dev/release-state-reconciliation/v1"
+HERE=Path(__file__).resolve().parent
+if str(HERE) not in sys.path:sys.path.insert(0,str(HERE))
+import promotion_transaction as ptx
 
 def load(path:Path)->dict[str,Any]:
     x=json.loads(path.read_text(encoding="utf-8"))
@@ -31,7 +34,7 @@ def install_proof(gates:Path,revision:str,active:Path)->tuple[Path|None,dict[str
         return p,x
     return None,None
 
-def reconcile(platform_root:Path,gates:Path,apply:bool)->dict[str,Any]:
+def reconcile(platform_root:Path,gates:Path,apply:bool,runtime_root:Path=Path("/opt/chacha-dev/runtime"))->dict[str,Any]:
     current=platform_root/'current'
     if not current.exists():raise ValueError('CURRENT_RELEASE_MISSING')
     active=current.resolve();revision=(active/'.revision').read_text().strip()
@@ -41,6 +44,9 @@ def reconcile(platform_root:Path,gates:Path,apply:bool)->dict[str,Any]:
     declared=str(prep.get('activation_status') or '')
     required=declared not in {'ACTIVE','ACTIVATED'}
     if required and proof is None:raise ValueError('ACTIVE_RELEASE_INSTALL_PROOF_MISSING')
+    tx=ptx.public_status(runtime_root)
+    if required and apply and tx.get('status') in {'ACTIVE','EXPIRED'}:
+        raise ValueError('PROMOTION_TRANSACTION_BLOCKS_RECONCILIATION:'+str(tx.get('promotion_id') or 'unknown'))
     changed=False
     if required and apply:
         prep['activation_status']='ACTIVE'
@@ -49,14 +55,15 @@ def reconcile(platform_root:Path,gates:Path,apply:bool)->dict[str,Any]:
         save(prep_path,prep);changed=True
     return {'schema':SCHEMA,'status':'PASS','active_release':str(active),'revision':revision,
             'declared_before':declared,'reconciliation_required':required,'applied':changed,
-            'install_proof':str(proof_path) if proof_path else None,'automatic_external_spend_eur':0}
+            'install_proof':str(proof_path) if proof_path else None,'promotion_transaction_state':tx.get('status'),'automatic_external_spend_eur':0}
 def main()->int:
     ap=argparse.ArgumentParser()
     ap.add_argument('--platform-root',type=Path,default=Path('/opt/chacha-dev/platform'))
     ap.add_argument('--release-gates',type=Path,default=Path('/opt/chacha-dev/runtime/release-gates'))
+    ap.add_argument('--runtime-root',type=Path,default=Path('/opt/chacha-dev/runtime'))
     ap.add_argument('--output',type=Path,required=True)
     ap.add_argument('--apply',action='store_true')
-    a=ap.parse_args();out=reconcile(a.platform_root,a.release_gates,a.apply);save(a.output,out)
+    a=ap.parse_args();out=reconcile(a.platform_root,a.release_gates,a.apply,a.runtime_root);save(a.output,out)
     print('CHACHA_DEV_RELEASE_STATE_RECONCILIATION=PASS')
     print('RECONCILIATION_REQUIRED='+('YES' if out['reconciliation_required'] else 'NO'))
     print('APPLIED='+('YES' if out['applied'] else 'NO'))

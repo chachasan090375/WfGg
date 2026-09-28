@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/operator-directive-sink-catalog/v1",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "sinks": {
     "canonical-component-registry": [
       "dev-hub/bin/canonical_component_registry.py",
@@ -71,6 +71,20 @@
       "dev-hub/bin/progress_state_controller.py",
       "dev-hub/bin/direct-operator-service.py",
       "dev-hub/direct-operator-ui/index.html"
+    ],
+    "platform-promotion-transaction": [
+      "dev-hub/config/platform-promotion-transaction.v1.json",
+      "dev-hub/bin/promotion_transaction.py",
+      "dev-hub/bin/governed-platform-promotion.py",
+      "dev-hub/bin/release_state_reconciler.py",
+      "dev-hub/bin/guardian-governed-release-state-reconciler.py",
+      "dev-hub/bin/cockpit-state.py",
+      "dev-hub/bin/intendant-hygiene-cycle.py",
+      "dev-hub/bin/central-platform-hygiene-executor.py"
+    ],
+    "lifecycle": [
+      "dev-hub/config/lifecycle.v1.json",
+      "dev-hub/bin/lifecycle-engine.py"
     ]
   },
   "automatic_external_spend_eur": 0

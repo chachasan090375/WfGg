@@ -10,7 +10,8 @@
     "release_boundary_requires_signed_checkpoint": true,
     "retirement_boundary_requires_signed_checkpoint": true,
     "compromise_release_precedes_delivery": true,
-    "final_delivery_requires_seven_agent_receipt": true
+    "final_delivery_requires_seven_agent_receipt": true,
+    "platform_promotion_single_writer": true
   },
   "stages": [
     "IDEA",
@@ -183,5 +184,21 @@
     "requires_production_approval": true,
     "post_hoc_evidence_deadline_hours": 24,
     "signed_checkpoint_still_required": true
+  },
+  "platform_promotion_transaction": {
+    "required_for_platform_release": true,
+    "policy": "dev-hub/config/platform-promotion-transaction.v1.json",
+    "required_states": [
+      "LEASED",
+      "PREPARED",
+      "ACTIVATED",
+      "READY",
+      "ASSURANCE_BOUND",
+      "FINALIZED"
+    ],
+    "rollback_terminal_state": "ROLLED_BACK",
+    "receipt_mutability": "WRITE_ONCE",
+    "ledger": "APPEND_ONLY",
+    "human_production_approval_required": true
   }
 }

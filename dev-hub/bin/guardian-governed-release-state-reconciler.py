@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,hashlib,json,subprocess,tempfile,time,urllib.request
+import argparse,hashlib,json,subprocess,tempfile,time,urllib.request,sys
 from pathlib import Path
 from typing import Any
 
 CURRENT=Path('/opt/chacha-dev/platform/current')
 PLATFORM=Path('/opt/chacha-dev/platform')
 RUNTIME=Path('/opt/chacha-dev/runtime')
+HERE=Path(__file__).resolve().parent
+if str(HERE) not in sys.path:sys.path.insert(0,str(HERE))
+import promotion_transaction as ptx
 
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding='utf-8'))
@@ -72,6 +75,9 @@ def main()->int:
     a=ap.parse_args(); platform=a.platform_root.resolve();runtime=a.runtime_root.resolve()
     att=active_attestation(platform,runtime,a.health_url)
     declared=str(att['prep'].get('activation_status') or '')
+    tx=ptx.public_status(runtime)
+    if declared not in {'ACTIVE','ACTIVATED'} and tx.get('status') in {'ACTIVE','EXPIRED'}:
+        raise RuntimeError('PROMOTION_TRANSACTION_BLOCKS_RECONCILIATION:'+str(tx.get('promotion_id') or 'unknown'))
     if declared in {'ACTIVE','ACTIVATED'}:
         out={'schema':'chacha.dev/governed-release-state-reconciliation/v1','status':'PASS','mode':'NOOP_ALREADY_ACTIVE',
              'revision':att['revision'],'tree':att['tree'],'active_release':str(att['active']),'applied':False,'automatic_external_spend_eur':0}
@@ -79,7 +85,7 @@ def main()->int:
     stamp=time.strftime('%Y%m%dT%H%M%SZ',time.gmtime()); aid='release-state-reconciliation-'+stamp
     evidence={'active_current_exact':True,'active_release':str(att['active']),'revision':att['revision'],'tree':att['tree'],
               'qualified_release_metadata':True,'human_production_approval_present':True,'guardian_pre_action':'PASS',
-              'sentinel_exact_revision':'PASS','direct_operator_health':'PASS','emergency_stop_clear':True,
+              'sentinel_exact_revision':'PASS','direct_operator_health':'PASS','emergency_stop_clear':True,'promotion_transaction_state':tx.get('status'),
               'current_symlink_mutation':False,'release_deletion':False,'automatic_external_spend_eur':0}
     base={'schema':'chacha.dev/governance-action/v1','action_id':aid,'actor':'release-state-reconciler','subject_role':'release-state-reconciler',
           'action':'RECONCILE_ACTIVE_RELEASE_METADATA','task_kind':'release-state-reconciliation','permission':'workspace-write',
@@ -95,7 +101,7 @@ def main()->int:
     save(proof_path,proof)
     rec_out=runtime/'release-state-reconciliation'/('reconcile-'+stamp+'.json')
     p=subprocess.run(['python3',str(a.core_reconciler),'--platform-root',str(platform),'--release-gates',str(gates),
-                      '--output',str(rec_out),'--apply'],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=30,check=False)
+                      '--runtime-root',str(runtime),'--output',str(rec_out),'--apply'],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=30,check=False)
     if p.returncode!=0: raise RuntimeError('CORE_RECONCILER_FAILED:'+(p.stderr or p.stdout)[-1400:])
     rec=load(rec_out)
     after_active=(platform/'current').resolve(strict=True)

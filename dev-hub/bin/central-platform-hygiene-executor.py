@@ -53,8 +53,18 @@ def open_under(target:Path)->bool:
             except Exception:continue
     return False
 
+def promotion_state(runtime_root:Path)->str:
+    p=runtime_root/'platform-promotion/lease.json'
+    if not p.is_file():return 'NONE'
+    try:x=load(p);state=str(x.get('status') or 'NONE');exp=float(x.get('expires_epoch') or 0)
+    except Exception:return 'INVALID'
+    if state=='ACTIVE' and exp<=time.time():return 'EXPIRED'
+    return state
+
 def release_retirement(a)->dict[str,Any]:
     platform=a.platform_root.resolve();releases=(platform/"releases").resolve();active=(platform/"current").resolve()
+    tx=promotion_state(a.runtime_root.resolve())
+    if tx in {'ACTIVE','EXPIRED'}:raise SystemExit('PROMOTION_TRANSACTION_PROTECTS_RELEASES:'+tx)
     plan=load(a.plan.resolve());approval=load(a.approval.resolve());event=load(a.guardian_event.resolve());guardian=load(a.guardian_result.resolve())
     pd=file_digest(a.plan.resolve())
     if plan.get("schema")!="chacha.dev/platform-consolidation-plan/v1":raise SystemExit("PLAN_SCHEMA_INVALID")
@@ -130,7 +140,7 @@ def safe_temp_cleanup(a)->dict[str,Any]:
 
 def main()->int:
     ap=argparse.ArgumentParser();sub=ap.add_subparsers(dest="mode",required=True)
-    r=sub.add_parser("release-retirement");r.add_argument("--platform-root",type=Path,default=Path("/opt/chacha-dev/platform"))
+    r=sub.add_parser("release-retirement");r.add_argument("--platform-root",type=Path,default=Path("/opt/chacha-dev/platform"));r.add_argument("--runtime-root",type=Path,default=Path("/opt/chacha-dev/runtime"))
     r.add_argument("--plan",type=Path,required=True);r.add_argument("--approval",type=Path,required=True)
     r.add_argument("--guardian-event",type=Path,required=True);r.add_argument("--guardian-result",type=Path,required=True)
     r.add_argument("--archive-manifest",type=Path,required=True);r.add_argument("--output",type=Path,required=True)

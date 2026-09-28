@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/canonical-component-registry-policy/v1",
-  "version": "8.2.0",
+  "version": "8.2.1",
   "purpose": "Make every materialized ChaCha DEV component discoverable, governed, observable and retireable from one canonical registry.",
   "principles": {
     "single_canonical_inventory": true,
@@ -12,7 +12,8 @@
     "no_automatic_authority_expansion": true,
     "automatic_external_spend_eur": 0,
     "operator_directive_registry_required": true,
-    "active_global_directives_inherited_at_birth": true
+    "active_global_directives_inherited_at_birth": true,
+    "platform_promotion_single_writer_required": true
   },
   "source_catalogs": [
     "agent-routing",
@@ -159,7 +160,12 @@
     "registry_drift_allowed": false,
     "birth_contract_incomplete_allowed": false,
     "orphan_component_allowed": false,
-    "automatic_external_spend_eur": 0
+    "automatic_external_spend_eur": 0,
+    "single_writer_lease_required": true,
+    "immutable_receipts_required": true,
+    "append_only_promotion_ledger_required": true,
+    "exclusive_current_writer": "governed-platform-promotion",
+    "transaction_policy": "dev-hub/config/platform-promotion-transaction.v1.json"
   },
   "automatic_external_spend_eur": 0,
   "abstract_guardian_roles": [

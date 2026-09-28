@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/intendant-hygiene-cycle/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "owner_agent": "intendant",
   "platform_scope": "GLOBAL",
   "scheduler": {
@@ -128,6 +128,8 @@
     "architecture_council_final_authority": true,
     "automatic_external_spend_eur": 0,
     "intendant_direct_mutation": false,
-    "physical_mutation_executor": "platform-hygiene-executor"
+    "physical_mutation_executor": "platform-hygiene-executor",
+    "promotion_transaction_protected": true,
+    "promotion_lease_blocks_release_retirement": true
   }
 }

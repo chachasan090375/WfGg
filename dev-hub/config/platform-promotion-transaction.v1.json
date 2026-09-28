@@ -1,0 +1,60 @@
+{
+  "schema": "chacha.dev/platform-promotion-transaction-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "purpose": "Make platform promotion single-writer, lease-bound, crash-recoverable and receipt-immutable.",
+  "invariants": {
+    "single_active_promotion_writer": true,
+    "lease_required_for_prepare_activate_assurance_finalize_rollback": true,
+    "current_release_switch_only_via_governed_platform_promotion": true,
+    "receipt_write_once": true,
+    "ledger_append_only": true,
+    "expired_lease_requires_controlled_recovery": true,
+    "reconciler_mutation_blocked_during_active_or_expired_lease": true,
+    "release_retirement_blocked_during_active_or_expired_lease": true,
+    "guardian_post_must_be_lease_bound": true,
+    "sentinel_post_must_be_lease_bound": true,
+    "human_production_approval_still_required": true,
+    "guardian_bypass": false,
+    "sentinel_bypass": false,
+    "automatic_external_spend_eur": 0
+  },
+  "runtime": {
+    "root": "/opt/chacha-dev/runtime/platform-promotion",
+    "lease": "/opt/chacha-dev/runtime/platform-promotion/lease.json",
+    "lock": "/opt/chacha-dev/runtime/platform-promotion/transaction.lock",
+    "ledger": "/opt/chacha-dev/runtime/platform-promotion/ledger.jsonl",
+    "default_lease_ttl_seconds": 1800,
+    "maximum_lease_ttl_seconds": 7200
+  },
+  "exclusive_writer": {
+    "component_id": "governed-platform-promotion",
+    "implementation": "dev-hub/bin/governed-platform-promotion.py",
+    "transaction_module": "dev-hub/bin/promotion_transaction.py"
+  },
+  "existing_writer_audit": {
+    "COMPLIANT": [
+      "dev-hub/bin/governed-platform-promotion.py",
+      "dev-hub/bin/release_state_reconciler.py",
+      "dev-hub/bin/guardian-governed-release-state-reconciler.py"
+    ],
+    "UPDATABLE": [],
+    "SUPERSEDED_PATTERNS": [
+      "dev-hub/bin/install-*.sh",
+      "dev-hub/bin/run-v64-runtime-pilot-via-chacha-dev.sh"
+    ],
+    "ORPHAN": [],
+    "INCOMPATIBLE": [],
+    "rule": "Any new platform/current writer outside governed-platform-promotion is INCOMPATIBLE and blocks qualification."
+  },
+  "future_component_contract": {
+    "inherit_via_operator_directives": true,
+    "direct_current_mutation_forbidden": true,
+    "promotion_receipt_overwrite_forbidden": true,
+    "required_inherited_directive_id": "opdir-platform-promotion-single-writer",
+    "universal_materialization_gate_required": true,
+    "foundry_birth_contract_required": true,
+    "fleet_observatory_inventory_source": "canonical-component-registry",
+    "assurance_inventory_source": "canonical-component-registry"
+  }
+}

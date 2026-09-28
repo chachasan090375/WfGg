@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/operator-directive-registry-policy/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "purpose": "Persist operator structural rules independently of any conversation and propagate them into ChaCha DEV governance.",
   "principles": {
     "operator_structural_rules_are_persistent": true,
@@ -170,6 +170,31 @@
         "all-foundries",
         "universal-materialization-gate",
         "release-qualification"
+      ],
+      "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-platform-promotion-single-writer",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "SAFETY_GOVERNANCE",
+      "status": "ACTIVE",
+      "normalized_requirement": "Every ChaCha DEV platform promotion is owned by exactly one lease-bound writer; current switching and terminalization use governed-platform-promotion, promotion receipts are immutable/write-once, transaction history is append-only, expired ownership requires controlled recovery, and Reconciler/Intendant cannot mutate protected state concurrently.",
+      "required_sinks": [
+        "platform-promotion-transaction",
+        "canonical-component-registry",
+        "universal-materialization-gate",
+        "all-foundries",
+        "guardian",
+        "sentinel",
+        "fleet-observatory",
+        "assurance",
+        "component-registry-reconciler",
+        "guardian-state-reconciliation",
+        "intendant",
+        "platform-hygiene-executor",
+        "lifecycle",
+        "release-qualification",
+        "progress-reporting"
       ],
       "backfill_required": true
     }

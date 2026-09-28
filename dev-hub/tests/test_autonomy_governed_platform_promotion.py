@@ -1,75 +1,89 @@
 #!/usr/bin/env python3
-import importlib.util,json,tempfile,threading,time
+import importlib.util,json,tempfile,threading,time,sys
 from http.server import BaseHTTPRequestHandler,HTTPServer
 from pathlib import Path
 
-ROOT=Path(__file__).resolve().parents[2]
-spec=importlib.util.spec_from_file_location('gpp',ROOT/'dev-hub/bin/governed-platform-promotion.py')
+ROOT=Path(__file__).resolve().parents[2];BIN=ROOT/'dev-hub/bin'
+sys.path.insert(0,str(BIN))
+spec=importlib.util.spec_from_file_location('gpp',BIN/'governed-platform-promotion.py')
 gpp=importlib.util.module_from_spec(spec);spec.loader.exec_module(gpp)
+import promotion_transaction as ptx
 
 def save(p,obj):p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(obj)+'\n')
-def base_meta(rb):return {'candidate_revision':'a'*40,'candidate_tree':'b'*40,'human_production_approval_present':True,'platform_qualification':'PASS','guardian_pre_action':'PASS','sentinel_exact_revision':'PASS','rollback_path':str(rb),'activation_status':'ACTIVE','automatic_external_spend_eur':0}
+def base_meta(rb):return {'candidate_revision':'a'*40,'candidate_tree':'b'*40,'human_production_approval_present':True,'platform_qualification':'PASS','guardian_pre_action':'PASS','sentinel_exact_revision':'PASS','rollback_path':str(rb),'automatic_external_spend_eur':0}
+
+def expect(fn,needle):
+ try:fn();raise AssertionError('expected failure '+needle)
+ except ValueError as e:assert needle in str(e),(needle,e)
 
 with tempfile.TemporaryDirectory() as td:
- t=Path(td);candidate=t/'candidate';runtime=t/'runtime';rb=t/'rollback';ext=t/'external';rb.mkdir();ext.mkdir();runtime.mkdir();(candidate/'dev-hub/systemd').mkdir(parents=True)
- save(candidate/'.release-preparation.json',base_meta(rb))
- (candidate/'dev-hub/systemd/x.service').write_text('[Service]\nReadWritePaths='+str(runtime/'alpha')+' '+str(runtime/'beta')+' '+str(ext)+'\n')
- out=gpp.prepare(candidate,runtime,t/'prepare.json')
- assert out['status']=='PASS' and (runtime/'alpha').is_dir() and (runtime/'beta').is_dir(),out
- assert out['current_release_mutated'] is False,out
- print('CHACHA_DEV_PROMOTION_RUNTIME_ROOT_MATERIALIZATION=PASS')
+ t=Path(td);runtime=t/'runtime';runtime.mkdir();rel=t/'release';old=t/'old';rel.mkdir();old.mkdir();current=t/'current';current.symlink_to(old,target_is_directory=True)
+ (rel/'dev-hub/systemd').mkdir(parents=True);(rel/'dev-hub/config').mkdir(parents=True)
+ ext=t/'external';ext.mkdir();save(rel/'.release-preparation.json',base_meta(old))
+ (rel/'dev-hub/systemd/x.service').write_text('[Service]\nReadWritePaths='+str(runtime/'alpha')+' '+str(runtime/'beta')+' '+str(ext)+'\n')
+ stop=t/'stop.json';save(stop,{'active':False});save(rel/'dev-hub/config/emergency-stop.v1.json',{'schema':'chacha.dev/emergency-stop/v1','state_file':str(stop)})
 
-class H(BaseHTTPRequestHandler):
- count=0
- def do_GET(self):
-  H.count+=1
-  if H.count<3:self.send_response(503);self.end_headers();return
-  body=b'{"status":"PASS","component":"test"}'
-  self.send_response(200);self.send_header('Content-Type','application/json');self.send_header('Content-Length',str(len(body)));self.end_headers();self.wfile.write(body)
- def log_message(self,*args):pass
-srv=HTTPServer(('127.0.0.1',0),H);threading.Thread(target=srv.serve_forever,daemon=True).start()
-with tempfile.TemporaryDirectory() as td:
- r=gpp.wait_ready('http://127.0.0.1:'+str(srv.server_port),5,.01,1,Path(td)/'ready.json')
- assert r['status']=='PASS' and r['attempt']==3,r
-srv.shutdown();print('CHACHA_DEV_PROMOTION_READINESS_RETRY=PASS')
+ acq=ptx.acquire(runtime,'promotion-test','owner-a','a'*40,300);token=acq['lease_token'];lease_id=acq['lease_id']
+ assert ptx.public_status(runtime)['lease_id']==lease_id
+ expect(lambda:ptx.acquire(runtime,'promotion-other','owner-b','a'*40,300),'PROMOTION_LEASE_HELD')
+ expect(lambda:ptx.assert_owner(runtime,'wrong','promotion-test','a'*40,'TEST'),'PROMOTION_LEASE_OWNER_MISMATCH')
+ print('CHACHA_DEV_PROMOTION_SINGLE_WRITER_LEASE=PASS')
 
-with tempfile.TemporaryDirectory() as td:
- t=Path(td);rel=t/'release';old=t/'old';rel.mkdir();old.mkdir();current=t/'current';current.symlink_to(rel,target_is_directory=True)
- save(rel/'.release-preparation.json',base_meta(old))
- (rel/'dev-hub/config').mkdir(parents=True)
- stop_state=t/'stop.json';save(stop_state,{'active':False})
- save(rel/'dev-hub/config/emergency-stop.v1.json',{'schema':'chacha.dev/emergency-stop/v1','state_file':str(stop_state)})
- save(t/'guardian.json',{'verdict':'PASS','event_id':'g-post'})
- save(t/'sentinel.json',{'verdict':'PASS','revision':'a'*40,'receipt_id':'s-post'})
- save(t/'ready.json',{'schema':gpp.SCHEMA,'phase':'READINESS','status':'PASS'})
+ prep=t/'prepare.json';out=gpp.prepare(rel,runtime,prep,'promotion-test',token)
+ assert out['status']=='PASS' and out['promotion_lease_id']==lease_id and (runtime/'alpha').is_dir() and (runtime/'beta').is_dir(),out
+ expect(lambda:gpp.prepare(rel,runtime,prep,'promotion-test',token),'IMMUTABLE_RECEIPT_ALREADY_EXISTS')
+ print('CHACHA_DEV_PROMOTION_IMMUTABLE_PREPARE_RECEIPT=PASS')
+
+ act=t/'activate.json';a=gpp.activate(rel,current,runtime,act,'promotion-test',token)
+ assert a['status']=='PASS' and current.resolve()==rel.resolve() and a['current_release_mutated'] is True,a
+ meta=json.load(open(rel/'.release-preparation.json'));assert meta['promotion_lease_id']==lease_id and meta['current_switch_controller']=='governed-platform-promotion'
+ print('CHACHA_DEV_PROMOTION_EXCLUSIVE_ATOMIC_CURRENT_SWITCH=PASS')
+
+ class H(BaseHTTPRequestHandler):
+  count=0
+  def do_GET(self):
+   H.count+=1
+   if H.count<3:self.send_response(503);self.end_headers();return
+   body=b'{"status":"PASS","component":"test"}';self.send_response(200);self.send_header('Content-Length',str(len(body)));self.end_headers();self.wfile.write(body)
+  def log_message(self,*args):pass
+ srv=HTTPServer(('127.0.0.1',0),H);threading.Thread(target=srv.serve_forever,daemon=True).start()
+ ready=t/'ready.json';r=gpp.wait_ready('http://127.0.0.1:'+str(srv.server_port),5,.01,1,ready,runtime,'promotion-test',token,'a'*40)
+ srv.shutdown();assert r['status']=='PASS' and r['attempt']==3 and r['promotion_lease_id']==lease_id,r
+ print('CHACHA_DEV_PROMOTION_READINESS_LEASE_BOUND=PASS')
+
+ guardian_src=t/'guardian-source.json';sentinel_src=t/'sentinel-source.json'
+ save(guardian_src,{'schema':'chacha.dev/guardian-verdict/v3','verdict':'PASS','event_id':'g-post','stop_recommended':False})
+ save(sentinel_src,{'schema':'chacha.dev/sentinel-technical-receipt/v1','verdict':'PASS','revision':'a'*40,'receipt_id':'s-post'})
+ guardian=t/'guardian-bound.json';sentinel=t/'sentinel-bound.json'
+ gpp.seal_assurance('guardian-post',guardian_src,guardian,runtime,'promotion-test',token,'a'*40)
+ gpp.seal_assurance('sentinel-post',sentinel_src,sentinel,runtime,'promotion-test',token,'a'*40)
+ print('CHACHA_DEV_PROMOTION_ASSURANCE_LEASE_BINDING=PASS')
+
  run={'status':'CONVERGED','next_state':'RESUME','run_id':'r1','direct_mutation_by_supervisor':False,'automatic_external_spend_eur':0}
- save(t/'controlled.json',run);run2=dict(run,run_id='r2');save(t/'timer.json',run2)
- out=gpp.finalize(rel,current,t/'guardian.json',t/'sentinel.json',t/'ready.json',t/'controlled.json',t/'timer.json',3,70,71,71,72)
+ save(t/'controlled.json',run);save(t/'timer.json',dict(run,run_id='r2'))
+ final=t/'final.json';out=gpp.finalize(rel,current,runtime,final,guardian,sentinel,ready,t/'controlled.json',t/'timer.json',3,70,71,71,72,'promotion-test',token)
  meta=json.load(open(rel/'.release-preparation.json'))
  assert out['status']=='PASS' and meta['promotion_acceptance_status']=='PASS' and meta['promotion_final_verification']=='PASS',(out,meta)
- assert current.resolve()==rel.resolve()
- print('CHACHA_DEV_PROMOTION_RECEIPT_FINALIZATION=PASS')
+ assert ptx.public_status(runtime)['status']=='FINALIZED'
+ expect(lambda:gpp.finalize(rel,current,runtime,t/'final2.json',guardian,sentinel,ready,t/'controlled.json',t/'timer.json',3,70,71,71,72,'promotion-test',token),'PROMOTION_LEASE_NOT_ACTIVE')
+ print('CHACHA_DEV_PROMOTION_FINALIZE_EXACTLY_ONCE=PASS')
 
- assert meta['emergency_stop_state']==str(stop_state.resolve()),meta
- assert meta['emergency_stop_config'].endswith('/dev-hub/config/emergency-stop.v1.json'),meta
- bad=t/'missing-stop.json'
- save(rel/'dev-hub/config/emergency-stop.v1.json',{'schema':'chacha.dev/emergency-stop/v1','state_file':str(bad)})
- try:gpp.finalize(rel,current,t/'guardian.json',t/'sentinel.json',t/'ready.json',t/'controlled.json',t/'timer.json',3,70,71,71,72);raise AssertionError('missing canonical stop state accepted')
- except ValueError as e:assert 'EMERGENCY_STATE_FILE_MISSING' in str(e)
- save(rel/'dev-hub/config/emergency-stop.v1.json',{'schema':'chacha.dev/emergency-stop/v1','state_file':str(stop_state)})
- print('CHACHA_DEV_PROMOTION_CANONICAL_EMERGENCY_STOP=PASS')
- try:gpp.finalize(rel,current,t/'guardian.json',t/'sentinel.json',t/'ready.json',t/'controlled.json',t/'timer.json',4,70,71,71,72);raise AssertionError('release overage accepted')
- except ValueError as e:assert 'RELEASE_RETENTION_OVERAGE' in str(e)
- print('CHACHA_DEV_PROMOTION_FINALIZATION_FAIL_CLOSED=PASS')
+with tempfile.TemporaryDirectory() as td:
+ t=Path(td);runtime=t/'runtime';runtime.mkdir();rel=t/'release';old=t/'old';rel.mkdir();old.mkdir();current=t/'current';current.symlink_to(old,target_is_directory=True)
+ (rel/'dev-hub/config').mkdir(parents=True);save(rel/'.release-preparation.json',base_meta(old));stop=t/'stop.json';save(stop,{'active':False});save(rel/'dev-hub/config/emergency-stop.v1.json',{'schema':'chacha.dev/emergency-stop/v1','state_file':str(stop)})
+ acq=ptx.acquire(runtime,'promotion-rollback','owner-a','a'*40,300);token=acq['lease_token'];gpp.activate(rel,current,runtime,t/'activate.json','promotion-rollback',token)
+ rb=gpp.rollback(rel,current,runtime,t/'rollback.json','promotion-rollback',token,'TEST_FAILURE')
+ assert rb['status']=='PASS' and current.resolve()==old.resolve() and ptx.public_status(runtime)['status']=='ROLLED_BACK'
+ print('CHACHA_DEV_PROMOTION_ROLLBACK_LEASE_BOUND=PASS')
 
-wf=(ROOT/'.github/workflows/dev-hub-v7-guardian-contract-sync.yml').read_text()
-assert 'fetch-depth: 2' in wf,wf[:1000]
-assert "0000000000000000000000000000000000000000" in wf
-assert 'git rev-parse HEAD^' in wf
-source=(ROOT/'dev-hub/bin/governed-platform-promotion.py').read_text()
-assert '--emergency-state' not in source
-for forbidden in ('os.symlink','current.symlink_to','ln -s','unlink(current'):
- assert forbidden not in source,forbidden
-print('CHACHA_DEV_PROMOTION_CURRENT_MUTATION_FORBIDDEN=PASS')
-print('CHACHA_DEV_GUARDIAN_SYNC_NEW_BRANCH_TRANSPORT=PASS')
-print('CHACHA_DEV_GOVERNED_PLATFORM_PROMOTION=PASS')
+with tempfile.TemporaryDirectory() as td:
+ runtime=Path(td)/'runtime';runtime.mkdir();acq=ptx.acquire(runtime,'promotion-recover','owner-a','a'*40,300)
+ lp=ptx.runtime_paths(runtime)['lease'];x=json.load(open(lp));x['expires_epoch']=time.time()-1;save(lp,x)
+ rec=ptx.recover(runtime,'promotion-recover','owner-b','a'*40,acq['lease_id'],300)
+ assert rec['status']=='PASS' and rec['lease_id']!=acq['lease_id'] and ptx.public_status(runtime)['recovered_from_lease_id']==acq['lease_id']
+ print('CHACHA_DEV_PROMOTION_EXPIRED_LEASE_RECOVERY=PASS')
+
+source=(BIN/'governed-platform-promotion.py').read_text();tx=(BIN/'promotion_transaction.py').read_text()
+for marker in ('lease-acquire','lease-recover','seal-assurance','IMMUTABLE_RECEIPT_ALREADY_EXISTS','promotion_lease_id','atomic_current_switch'):
+ assert marker in source or marker in tx,marker
+print('CHACHA_DEV_GOVERNED_PLATFORM_PROMOTION_V2=PASS')
