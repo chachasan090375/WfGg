@@ -36,17 +36,29 @@ srv.shutdown();print('CHACHA_DEV_PROMOTION_READINESS_RETRY=PASS')
 with tempfile.TemporaryDirectory() as td:
  t=Path(td);rel=t/'release';old=t/'old';rel.mkdir();old.mkdir();current=t/'current';current.symlink_to(rel,target_is_directory=True)
  save(rel/'.release-preparation.json',base_meta(old))
+ (rel/'dev-hub/config').mkdir(parents=True)
+ stop_state=t/'stop.json';save(stop_state,{'active':False})
+ save(rel/'dev-hub/config/emergency-stop.v1.json',{'schema':'chacha.dev/emergency-stop/v1','state_file':str(stop_state)})
  save(t/'guardian.json',{'verdict':'PASS','event_id':'g-post'})
  save(t/'sentinel.json',{'verdict':'PASS','revision':'a'*40,'receipt_id':'s-post'})
  save(t/'ready.json',{'schema':gpp.SCHEMA,'phase':'READINESS','status':'PASS'})
  run={'status':'CONVERGED','next_state':'RESUME','run_id':'r1','direct_mutation_by_supervisor':False,'automatic_external_spend_eur':0}
- save(t/'controlled.json',run);run2=dict(run,run_id='r2');save(t/'timer.json',run2);save(t/'stop.json',{'active':False})
- out=gpp.finalize(rel,current,t/'guardian.json',t/'sentinel.json',t/'ready.json',t/'controlled.json',t/'timer.json',t/'stop.json',3,70,71,71,72)
+ save(t/'controlled.json',run);run2=dict(run,run_id='r2');save(t/'timer.json',run2)
+ out=gpp.finalize(rel,current,t/'guardian.json',t/'sentinel.json',t/'ready.json',t/'controlled.json',t/'timer.json',3,70,71,71,72)
  meta=json.load(open(rel/'.release-preparation.json'))
  assert out['status']=='PASS' and meta['promotion_acceptance_status']=='PASS' and meta['promotion_final_verification']=='PASS',(out,meta)
  assert current.resolve()==rel.resolve()
  print('CHACHA_DEV_PROMOTION_RECEIPT_FINALIZATION=PASS')
- try:gpp.finalize(rel,current,t/'guardian.json',t/'sentinel.json',t/'ready.json',t/'controlled.json',t/'timer.json',t/'stop.json',4,70,71,71,72);raise AssertionError('release overage accepted')
+
+ assert meta['emergency_stop_state']==str(stop_state.resolve()),meta
+ assert meta['emergency_stop_config'].endswith('/dev-hub/config/emergency-stop.v1.json'),meta
+ bad=t/'missing-stop.json'
+ save(rel/'dev-hub/config/emergency-stop.v1.json',{'schema':'chacha.dev/emergency-stop/v1','state_file':str(bad)})
+ try:gpp.finalize(rel,current,t/'guardian.json',t/'sentinel.json',t/'ready.json',t/'controlled.json',t/'timer.json',3,70,71,71,72);raise AssertionError('missing canonical stop state accepted')
+ except ValueError as e:assert 'EMERGENCY_STATE_FILE_MISSING' in str(e)
+ save(rel/'dev-hub/config/emergency-stop.v1.json',{'schema':'chacha.dev/emergency-stop/v1','state_file':str(stop_state)})
+ print('CHACHA_DEV_PROMOTION_CANONICAL_EMERGENCY_STOP=PASS')
+ try:gpp.finalize(rel,current,t/'guardian.json',t/'sentinel.json',t/'ready.json',t/'controlled.json',t/'timer.json',4,70,71,71,72);raise AssertionError('release overage accepted')
  except ValueError as e:assert 'RELEASE_RETENTION_OVERAGE' in str(e)
  print('CHACHA_DEV_PROMOTION_FINALIZATION_FAIL_CLOSED=PASS')
 
@@ -55,6 +67,7 @@ assert 'fetch-depth: 2' in wf,wf[:1000]
 assert "0000000000000000000000000000000000000000" in wf
 assert 'git rev-parse HEAD^' in wf
 source=(ROOT/'dev-hub/bin/governed-platform-promotion.py').read_text()
+assert '--emergency-state' not in source
 for forbidden in ('os.symlink','current.symlink_to','ln -s','unlink(current'):
  assert forbidden not in source,forbidden
 print('CHACHA_DEV_PROMOTION_CURRENT_MUTATION_FORBIDDEN=PASS')
