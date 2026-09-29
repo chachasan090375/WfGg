@@ -6,6 +6,7 @@ on:
       - project-control-plane-diagnostics
     paths:
       - 'dev-hub/bin/direct-operator-control-plane-gateway.py'
+      - 'dev-hub/bin/platform-control-plane-candidate-pilot.py'
       - 'dev-hub/config/platform-control-plane.v1.json'
       - 'dev-hub/systemd/chacha-dev-direct-operator.service'
       - 'dev-hub/tests/test_platform_control_plane.py'
@@ -30,9 +31,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Compile gateway and preserved Direct Operator core
+      - name: Compile gateway, pilot and preserved Direct Operator core
         run: |
           python -m py_compile dev-hub/bin/direct-operator-control-plane-gateway.py
+          python -m py_compile dev-hub/bin/platform-control-plane-candidate-pilot.py
           python -m py_compile dev-hub/bin/direct-operator-service.py
 
       - name: Run targeted deterministic tests
@@ -72,6 +74,21 @@ jobs:
           assert 'core_policy["bind"] = "127.0.0.1"' in text
           assert 'core_policy["port"] = self.core_port' in text
           assert 'control-plane-core-policy.json' in text
+          PY
+
+      - name: Verify candidate pilot is read-only and provider-free
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text=Path('dev-hub/bin/platform-control-plane-candidate-pilot.py').read_text()
+          assert 'control.report()' in text
+          assert 'provider_invoked' in text
+          assert 'technology_watch_not_invoked' in text
+          assert 'central_orchestrator_not_invoked' in text
+          assert 'automatic_external_spend_eur' in text
+          forbidden=['subprocess.run(', 'subprocess.Popen(', 'requests.', 'urllib.request', 'socket.']
+          for token in forbidden:
+              assert token not in text, token
           PY
 
       - name: Verify systemd gateway wiring and fail-closed write scope
