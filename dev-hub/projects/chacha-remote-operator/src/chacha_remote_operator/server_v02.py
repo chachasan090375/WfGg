@@ -1,22 +1,83 @@
 from __future__ import annotations
 
+import os
+from pathlib import Path
 from typing import Any
 
+from mcp.server import MCPServer
+
 from .operations import run_governed_operation
-from .server import POLICY, mcp
+from .policy import V02_OPERATION_IDS, OperatorPolicy, load_policy
+
+
+V02_TOOL_NAMES = V02_OPERATION_IDS
+
+
+def _v02_policy_path() -> Path:
+    configured = os.environ.get("CHACHA_REMOTE_OPERATOR_POLICY", "").strip()
+    if configured:
+        return Path(configured)
+    return Path(__file__).resolve().parents[2] / "config" / "policy.v2.json"
+
+
+POLICY: OperatorPolicy = load_policy(_v02_policy_path())
+mcp = MCPServer("ChaCha Remote Operator V0.2")
 
 
 @mcp.tool()
-def governed_operation(operation_id: str, cwd: str | None = None, service: str | None = None) -> dict[str, Any]:
-    """Execute one fixed read-only operation behind STOP, single-writer lease and Guardian PRE/POST."""
-    return run_governed_operation(POLICY, operation_id, cwd=cwd, service=service)
+def git_status(repository: str) -> dict[str, Any]:
+    """Return git status for an allowlisted repository using a server-constructed argv."""
+    return run_governed_operation(POLICY, "git_status", cwd=repository)
+
+
+@mcp.tool()
+def git_head(repository: str) -> dict[str, Any]:
+    """Return HEAD for an allowlisted repository using a server-constructed argv."""
+    return run_governed_operation(POLICY, "git_head", cwd=repository)
+
+
+@mcp.tool()
+def git_tree(repository: str) -> dict[str, Any]:
+    """Return HEAD tree for an allowlisted repository using a server-constructed argv."""
+    return run_governed_operation(POLICY, "git_tree", cwd=repository)
+
+
+@mcp.tool()
+def service_is_active(service: str) -> dict[str, Any]:
+    """Return systemd active state for an allowlisted service."""
+    return run_governed_operation(POLICY, "service_is_active", service=service)
+
+
+@mcp.tool()
+def service_is_enabled(service: str) -> dict[str, Any]:
+    """Return systemd enabled state for an allowlisted service."""
+    return run_governed_operation(POLICY, "service_is_enabled", service=service)
+
+
+@mcp.tool()
+def uptime() -> dict[str, Any]:
+    """Return host uptime using the fixed server-side uptime command."""
+    return run_governed_operation(POLICY, "uptime")
+
+
+@mcp.tool()
+def free_bytes() -> dict[str, Any]:
+    """Return memory figures in bytes using the fixed server-side free -b command."""
+    return run_governed_operation(POLICY, "free_bytes")
+
+
+@mcp.tool()
+def uname() -> dict[str, Any]:
+    """Return kernel/system identity using the fixed server-side uname -a command."""
+    return run_governed_operation(POLICY, "uname")
 
 
 def main() -> None:
+    # V0.2 policy loading already enforces localhost-only binding and fail-closed invariants.
     mcp.run(
         transport="streamable-http",
-        host=str(POLICY.raw.get("bind_host", "127.0.0.1")),
-        port=int(POLICY.raw.get("port", 8765)),
+        host=str(POLICY.raw["bind_host"]),
+        port=int(POLICY.raw.get("port", 8766)),
         streamable_http_path=str(POLICY.raw.get("mcp_path", "/mcp")),
         json_response=True,
         stateless_http=True,
