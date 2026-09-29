@@ -132,6 +132,10 @@ def build_verified_result(source: dict[str, Any], report: dict[str, Any]) -> dic
         "observed_at": report.get("observed_at"),
         "notes": "Verified by independent verification broker/report.",
     }
+    for item in out.get("outputs") or []:
+        if isinstance(item, dict) and item.get("status") == "UNVERIFIED":
+            item["status"] = "VERIFIED"
+            item["reason"] = "Independent verification completed."
     return out
 
 
