@@ -219,12 +219,12 @@ def do_query(request,knowledge):
         data=get_json("/knowledge/ask?"+urllib.parse.urlencode({"q":query,"limit":limit}),timeout=15)
     except Exception as exc:
         return emit(result(request,"FAILED",f"COLLECTOR_KNOWLEDGE_QUERY_FAILED:{type(exc).__name__}"))
-    raw=json.dumps(data,sort_keys=True,separators=(",",":")).encode()
+    raw=(json.dumps(data,sort_keys=True,separators=(",",":"))+"\n").encode()
+    source_path,source_digest=materialize_evidence(request,"collector-knowledge-query",raw)
     return emit(result(request,"OK","COLLECTOR_KNOWLEDGE_QUERY_OK",[{
-        "kind":"report","source":"vps://localhost/collector-knowledge/query",
-        "digest":sha256_bytes(raw),"details":{"query":query,"resultCount":len(data.get("results") or [])}
-    }],[{"type":"artifact","id":"collector-knowledge-query-result","status":"UNVERIFIED",
-         "reason":json.dumps(data,ensure_ascii=False)[:6000]}]))
+        "kind":"report","source":source_path,
+        "digest":source_digest,"details":{"origin":"vps://localhost/collector-knowledge/query","query":query,"resultCount":len(data.get("results") or []),"materialized_local_evidence":True}
+    }],declared_outputs(request,json.dumps(data,ensure_ascii=False)[:6000])))
 
 def do_install(request,knowledge):
     revision=str(knowledge.get("revision") or "").strip().lower()
@@ -239,32 +239,36 @@ def do_install(request,knowledge):
         env=os.environ.copy();env["WFGG_COLLECTOR_KNOWLEDGE_REV"]=revision
         proc=run(["/usr/bin/bash",str(script)],timeout=timeout,env=env)
     if proc.returncode!=0:
-        digest=sha256_bytes(proc.stdout[:65536]+proc.stderr[:65536])
+        raw=proc.stdout[:65536]+proc.stderr[:65536]
+        source_path,source_digest=materialize_evidence(request,"collector-knowledge-installer-failed",raw)
         return emit(result(request,"FAILED","COLLECTOR_KNOWLEDGE_PILOT_INSTALL_FAILED",[{
-            "kind":"command","source":"local://collector-knowledge-installer","digest":digest,
-            "details":{"returncode":proc.returncode,
+            "kind":"command","source":source_path,"digest":source_digest,
+            "details":{"origin":"local://collector-knowledge-installer","returncode":proc.returncode,
                        "stdoutTail":proc.stdout.decode("utf-8","replace")[-1200:],
-                       "stderrTail":proc.stderr.decode("utf-8","replace")[-1200:]}
+                       "stderrTail":proc.stderr.decode("utf-8","replace")[-1200:],"materialized_local_evidence":True}
         }]))
     after=production_snapshot()
     if not production_unchanged(before,after):
+        before_raw=(json.dumps(before,sort_keys=True,separators=(",",":"))+"\n").encode()
+        after_raw=(json.dumps(after,sort_keys=True,separators=(",",":"))+"\n").encode()
+        before_path,before_digest=materialize_evidence(request,"collector-knowledge-production-before",before_raw)
+        after_path,after_digest=materialize_evidence(request,"collector-knowledge-production-after",after_raw)
         return emit(result(request,"FAILED","COLLECTOR_KNOWLEDGE_PRODUCTION_RUNTIME_CHANGED",[{
-            "kind":"metric","source":"vps://localhost/collector-knowledge/production-before",
-            "digest":sha256_bytes(json.dumps(before,sort_keys=True).encode()),"details":before
+            "kind":"metric","source":before_path,"digest":before_digest,"details":{**before,"origin":"vps://localhost/collector-knowledge/production-before","materialized_local_evidence":True}
         },{
-            "kind":"metric","source":"vps://localhost/collector-knowledge/production-after",
-            "digest":sha256_bytes(json.dumps(after,sort_keys=True).encode()),"details":after
+            "kind":"metric","source":after_path,"digest":after_digest,"details":{**after,"origin":"vps://localhost/collector-knowledge/production-after","materialized_local_evidence":True}
         }]))
     snap=knowledge_snapshot()
     if snap["worker_state"]!="active" or snap["api_state"]!="active":
         return emit(result(request,"FAILED","COLLECTOR_KNOWLEDGE_RUNTIME_NOT_ACTIVE"))
     details={**snap,"production_runtime_unchanged":True,"lastwar_game_connection":"NONE",
              "lastwar_mutation":False,"token_persisted":False}
+    raw=(json.dumps(details,sort_keys=True,separators=(",",":"))+"\n").encode()
+    source_path,source_digest=materialize_evidence(request,"collector-knowledge-install",raw)
     return emit(result(request,"OK","COLLECTOR_KNOWLEDGE_PILOT_INSTALL_OK",[{
-        "kind":"artifact","source":"vps://localhost/collector-knowledge/install",
-        "digest":sha256_bytes(json.dumps(details,sort_keys=True).encode()),"details":details
-    }],[{"type":"artifact","id":"collector-knowledge-engine-v1-pilot","status":"UNVERIFIED",
-         "reason":"Knowledge Engine installed as isolated background services; probe required."}]))
+        "kind":"artifact","source":source_path,
+        "digest":source_digest,"details":{**details,"origin":"vps://localhost/collector-knowledge/install","materialized_local_evidence":True}
+    }],declared_outputs(request,"Knowledge Engine installed as isolated background services; probe required.")))
 
 def do_probe(request,knowledge):
     revision=str(knowledge.get("revision") or "").strip().lower()
@@ -276,13 +280,14 @@ def do_probe(request,knowledge):
         try:download(revision,PROBE_PATH,script,min(timeout,60))
         except Exception as exc:return emit(result(request,"FAILED",f"COLLECTOR_KNOWLEDGE_PROBE_DOWNLOAD_FAILED:{type(exc).__name__}"))
         proc=run(["/usr/bin/bash",str(script)],timeout=timeout)
-    digest=sha256_bytes(proc.stdout[:65536]+proc.stderr[:65536])
+    raw=proc.stdout[:65536]+proc.stderr[:65536]
+    source_path,source_digest=materialize_evidence(request,"collector-knowledge-probe",raw)
     if proc.returncode!=0 or b"COLLECTOR_KNOWLEDGE_RUNTIME_PROBE=PASS" not in proc.stdout:
         return emit(result(request,"FAILED","COLLECTOR_KNOWLEDGE_PILOT_PROBE_FAILED",[{
-            "kind":"command","source":"local://collector-knowledge-probe","digest":digest,
-            "details":{"returncode":proc.returncode,
+            "kind":"command","source":source_path,"digest":source_digest,
+            "details":{"origin":"local://collector-knowledge-probe","returncode":proc.returncode,
                        "stdoutTail":proc.stdout.decode("utf-8","replace")[-1600:],
-                       "stderrTail":proc.stderr.decode("utf-8","replace")[-1600:]}
+                       "stderrTail":proc.stderr.decode("utf-8","replace")[-1600:],"materialized_local_evidence":True}
         }]))
     after=production_snapshot()
     if not production_unchanged(before,after):
@@ -293,9 +298,8 @@ def do_probe(request,knowledge):
     details={"production_runtime_unchanged":True,"lastwar_game_connection":"NONE",
              "lastwar_mutation":False,"token_persisted":False,"stats":stats.get("stats",{})}
     return emit(result(request,"OK","COLLECTOR_KNOWLEDGE_PILOT_PROBE_OK",[{
-        "kind":"command","source":"local://collector-knowledge-probe","digest":digest,"details":details
-    }],[{"type":"gate","id":"collector-knowledge-v1-runtime-pilot","status":"UNVERIFIED",
-         "reason":"Background worker and localhost read-only API probe passed."}]))
+        "kind":"command","source":source_path,"digest":source_digest,"details":{**details,"origin":"local://collector-knowledge-probe","materialized_local_evidence":True}
+    }],declared_outputs(request,"Background worker and localhost read-only API probe passed.")))
 
 def main():
     try:request=json.load(sys.stdin)
