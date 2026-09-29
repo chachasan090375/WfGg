@@ -14,28 +14,33 @@
   "non_goals": [
     "Do not expose an unrestricted root shell over the network.",
     "Do not expose credentials, SSH private keys, tokens or secret stores through MCP tools.",
-    "Do not enable destructive filesystem, service, package-manager or production deployment operations in V0.1.",
+    "Do not enable destructive filesystem, service, package-manager or production deployment operations in V0.2.",
+    "Do not permit client-supplied argv execution in V0.2.",
     "Do not bypass Guardian, Sentinelle, Bastion or canonical STOP.",
     "Do not auto-purchase hosting, identity, tunnel or SaaS services.",
     "Do not build graphical remote desktop control before terminal/filesystem operations are proven insufficient."
   ],
   "current_change": {
-    "id": "chacha-remote-operator-mcp-v0.1",
-    "purpose": "Create the read-first Streamable HTTP MCP foundation with bounded tools, path allowlisting, STOP enforcement and append-only audit.",
+    "id": "chacha-remote-operator-mcp-v0.2",
+    "purpose": "Add fixed named read operations guarded by canonical STOP, a single-writer command lease and Guardian PRE/POST, while keeping the raw argv command surface disabled.",
     "discovery_mode": "self-hosted-governed-mcp",
     "pilot_only": true,
     "rollback_required": true
   },
   "acceptance_criteria": [
-    "The server binds to localhost by default and exposes MCP Streamable HTTP at /mcp.",
-    "Health, system status, process list, file read, directory list, bounded search and service status tools work without shell interpolation.",
-    "Every path is resolved and rejected unless it is under an allowlisted root.",
-    "Canonical STOP blocks all operational tools when active.",
-    "Every tool call creates an append-only audit record without recording credentials or secret values.",
-    "Arbitrary command execution is disabled by the default V0.1 policy.",
-    "Destructive operations and production mutations are absent from the V0.1 tool surface.",
+    "The V0.1 read-only MCP remains functional and localhost-only.",
+    "V0.2 binds separately on localhost and adds one governed_operation tool.",
+    "The client can request only named operations from an explicit allowlist; the server constructs every executable argv itself.",
+    "Raw command_run remains disabled under the V0.2 policy.",
+    "Every governed operation checks canonical STOP before execution and again after Guardian PRE.",
+    "At most one governed operation executes at a time through an exclusive command lease.",
+    "Guardian PRE and POST are required for each governed operation.",
+    "Git operations are read-only status/revision queries and require an allowlisted cwd.",
+    "Systemd operations are limited to is-active/is-enabled for explicitly allowlisted ChaCha DEV units.",
+    "No V0.2 tool writes files, mutates Git, changes services or performs destructive operations.",
+    "Audit records include action, lease, operation and return-code metadata but never secret values.",
     "Automatic external spend remains 0 EUR.",
-    "A later write-enabled profile requires a separate qualification and explicit production approval."
+    "Network exposure, authentication and write-enabled profiles remain separate future qualifications."
   ],
   "architecture_invariants": [
     "GitHub remains the source-code and CI authority.",
