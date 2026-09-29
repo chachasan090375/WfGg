@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/intendant-hygiene-cycle/v1",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "owner_agent": "intendant",
   "platform_scope": "GLOBAL",
   "scheduler": {
@@ -130,6 +130,10 @@
     "intendant_direct_mutation": false,
     "physical_mutation_executor": "platform-hygiene-executor",
     "promotion_transaction_protected": true,
-    "promotion_lease_blocks_release_retirement": true
+    "promotion_lease_blocks_release_retirement": true,
+    "promotion_staging_slot_reservation_before_candidate_materialization": true,
+    "promotion_staging_effective_rollback_slots_minimum": 1,
+    "promotion_staging_requires_exact_operator_candidate_approval": true,
+    "promotion_staging_candidate_must_not_be_materialized": true
   }
 }

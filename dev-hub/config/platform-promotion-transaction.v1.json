@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/platform-promotion-transaction-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scope": "PLATFORM_GLOBAL",
   "purpose": "Make platform promotion single-writer, lease-bound, crash-recoverable and receipt-immutable.",
   "invariants": {
@@ -17,7 +17,12 @@
     "human_production_approval_still_required": true,
     "guardian_bypass": false,
     "sentinel_bypass": false,
-    "automatic_external_spend_eur": 0
+    "automatic_external_spend_eur": 0,
+    "pre_materialization_release_slot_reservation_required_when_release_count_at_limit": true,
+    "candidate_materialization_must_not_raise_physical_release_count_above_limit": true,
+    "activation_fails_closed_on_release_retention_overage": true,
+    "guardian_pre_mode": "CANONICAL_ORCHESTRATOR_PROMOTION_PRE",
+    "direct_guardian_production_deploy_probe_is_not_canonical_promotion_pre": true
   },
   "runtime": {
     "root": "/opt/chacha-dev/runtime/platform-promotion",
@@ -56,5 +61,28 @@
     "foundry_birth_contract_required": true,
     "fleet_observatory_inventory_source": "canonical-component-registry",
     "assurance_inventory_source": "canonical-component-registry"
+  },
+  "pre_materialization_retention": {
+    "owner": "intendant",
+    "trigger": "physical_release_count_at_limit_before_candidate_materialization",
+    "normal_rollback_slots": 2,
+    "staging_effective_rollback_slots": 1,
+    "required_operator_approval_scope": "platform-promotion-release-slot-reservation",
+    "candidate_must_not_be_materialized_yet": true,
+    "active_release_must_be_preserved": true,
+    "candidate_declared_rollback_becomes_active_release_after_activation": true,
+    "architecture_council_required": true,
+    "guardian_required": true,
+    "promotion_lease_must_not_yet_be_active": true,
+    "automatic_external_spend_eur": 0
+  },
+  "guardian_pre_contract": {
+    "canonical_actor": "central-orchestrator",
+    "canonical_subject_role": "orchestrator",
+    "canonical_action": "FINALIZE_PROJECT_PLAN",
+    "canonical_permission": "workspace-write",
+    "activation_authority": "lease-bound-governed-platform-promotion",
+    "direct_production_deploy_probe_is_diagnostic_only": true,
+    "reason": "Guardian production-deploy dual assurance requires post-activation functional evidence and is not the canonical pre-activation promotion gate."
   }
 }

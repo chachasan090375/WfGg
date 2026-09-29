@@ -145,7 +145,7 @@ def approval_ok(path:Path|None,active_revision:str)->tuple[bool,list[str]]:
     if x.get("destructive_apply_authorized") is not True:errors.append("DESTRUCTIVE_APPLY_NOT_AUTHORIZED")
     return not errors,errors
 
-def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=None)->dict[str,Any]:
+def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=None,promotion_staging_candidate_revision:str="",promotion_staging_approval_digest:str="")->dict[str,Any]:
     releases_root=platform_root/"releases";current=platform_root/"current"
     active=current.resolve() if current.is_symlink() else None
     rows=[]
@@ -174,6 +174,15 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
         protected_paths.add(active_path);reasons[active_path]="ACTIVE_RELEASE"
     retention=policy.get("physical_release_retention") or {}
     slots=int(retention.get("rollback_slots") or 2)
+    staging_rev=str(promotion_staging_candidate_revision or "").lower().strip()
+    staging=bool(staging_rev)
+    if staging:
+        if len(staging_rev)!=40 or not all(ch in "0123456789abcdef" for ch in staging_rev):raise ValueError("PROMOTION_STAGING_CANDIDATE_REVISION_INVALID")
+        if staging_rev==str(active_revision or "").lower():raise ValueError("PROMOTION_STAGING_CANDIDATE_ALREADY_ACTIVE")
+        if any(str(row.get("revision") or "").lower()==staging_rev for row in rows):raise ValueError("PROMOTION_STAGING_CANDIDATE_ALREADY_MATERIALIZED")
+        if not promotion_staging_approval_digest.startswith("sha256:"):raise ValueError("PROMOTION_STAGING_APPROVAL_DIGEST_REQUIRED")
+        if slots<2:raise ValueError("PROMOTION_STAGING_REQUIRES_TWO_NORMAL_ROLLBACK_SLOTS")
+    effective_slots=slots-1 if staging else slots
     strategy=str(retention.get("rollback_selection_strategy") or "MOST_RECENT_VERIFIED_PRIOR_RELEASES")
     evidence_root=evidence_root or Path(str(retention.get("verification_evidence_root") or "/opt/chacha-dev/evidence"))
     runtime_root=Path(str(retention.get("runtime_evidence_root") or "/opt/chacha-dev/runtime"))
@@ -198,25 +207,25 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
         for acquired,rank,rev,row in sorted(all_candidates,key=lambda x:(x[0],x[1],x[2]),reverse=True):
             if rev in seen:continue
             selected.append(row);seen.add(rev)
-            if len(selected)>=slots:break
+            if len(selected)>=effective_slots:break
         if len(selected)<slots:
             for rev,rank in legacy_ranks.items():
                 if rev==str(active_revision or "").lower() or rev in seen:continue
                 hit=latest_for_revision(rows,rev)
                 if hit is None:continue
                 selected.append(hit);seen.add(rev);verified_ranks[rev]=rank
-                if len(selected)>=slots:break
+                if len(selected)>=effective_slots:break
     for rev in retention.get("fallback_verified_rollback_revisions") or []:
-        if len(selected)>=slots:break
+        if len(selected)>=effective_slots:break
         rev=str(rev).lower()
         if rev==str(active_revision or "").lower() or rev in seen:continue
         hit=latest_for_revision(rows,rev)
         if hit and hit["path"]!=active_path:
             selected.append(hit);seen.add(rev)
-    for hit in selected[:slots]:
+    for hit in selected[:effective_slots]:
         protected_paths.add(hit["path"])
         reasons.setdefault(hit["path"],"VERIFIED_ROLLBACK")
-    missing_rollbacks=max(0,slots-len(selected))
+    missing_rollbacks=max(0,effective_slots-len(selected))
     for row in rows:
         if row["path"] in protected_paths:
             row["action"]="KEEP";row["reason"]=reasons[row["path"]]
@@ -232,13 +241,18 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
       "bytes_before":sum(x["size_bytes"] for x in rows),
       "bytes_retirable":sum(x["size_bytes"] for x in retire),
       "estimated_bytes_after":sum(x["size_bytes"] for x in keep),
-      "rollback_slots":slots,
+      "rollback_slots":slots,"effective_rollback_slots":effective_slots,
+      "promotion_staging_slot_reserved":staging,
+      "promotion_staging_candidate_revision":staging_rev if staging else None,
+      "promotion_staging_approval_digest":promotion_staging_approval_digest if staging else None,
+      "promotion_staging_candidate_materialized":False if staging else None,
+      "promotion_staging_target_release_count_before_materialization":max(1,int(retention.get("max_physical_releases_after_consolidation") or 3)-1) if staging else None,
       "rollback_revision_must_differ_from_active":True,
       "declared_rollback_revision":declared_rollback_revision,
       "declared_rollback_protected":declared_rollback_protected,
-      "selected_rollback_revisions":[str(x.get("revision") or "") for x in selected[:slots]],
-      "selected_rollback_evidence_epochs":[verified_ranks.get(str(x.get("revision") or "").lower(),0.0) for x in selected[:slots]],
-      "selected_rollback_versions":[str(x.get("version") or "") for x in selected[:slots]],
+      "selected_rollback_revisions":[str(x.get("revision") or "") for x in selected[:effective_slots]],
+      "selected_rollback_evidence_epochs":[verified_ranks.get(str(x.get("revision") or "").lower(),0.0) for x in selected[:effective_slots]],
+      "selected_rollback_versions":[str(x.get("version") or "") for x in selected[:effective_slots]],
       "rollback_selection_basis":"DECLARED_ACTIVE_RELEASE_ROLLBACK_THEN_RECENCY_DISTINCT_REVISION_WITH_STRONG_INSTALL_OR_ACTIVE_HISTORY_EVIDENCE",
       "verified_revision_count":len(verified),
       "missing_verified_rollback_count":missing_rollbacks,
@@ -286,6 +300,18 @@ def apply_plan(plan:dict[str,Any],policy:dict[str,Any],approval:Path|None,archiv
     })
     return out
 
+def promotion_staging_approval(path:Path|None)->tuple[str,str]:
+    if path is None:return "",""
+    x=load(path.resolve())
+    rev=str(x.get("revision") or "").lower().strip()
+    if x.get("schema")!="chacha.dev/production-approval/v1":raise ValueError("PROMOTION_STAGING_APPROVAL_SCHEMA_INVALID")
+    if x.get("scope")!="platform-promotion-release-slot-reservation":raise ValueError("PROMOTION_STAGING_APPROVAL_SCOPE_INVALID")
+    if x.get("approved") is not True or x.get("approved_by")!="operator":raise ValueError("PROMOTION_STAGING_OPERATOR_APPROVAL_REQUIRED")
+    if len(rev)!=40 or not all(ch in "0123456789abcdef" for ch in rev):raise ValueError("PROMOTION_STAGING_APPROVAL_REVISION_INVALID")
+    tree=str(x.get("tree") or "").lower().strip()
+    if len(tree)!=40 or not all(ch in "0123456789abcdef" for ch in tree):raise ValueError("PROMOTION_STAGING_APPROVAL_TREE_INVALID")
+    return rev,"sha256:"+hashlib.sha256(path.resolve().read_bytes()).hexdigest()
+
 def main()->int:
     ap=argparse.ArgumentParser()
     ap.add_argument("--platform-root",type=Path,default=Path("/opt/chacha-dev/platform"))
@@ -295,11 +321,13 @@ def main()->int:
     ap.add_argument("--approval",type=Path)
     ap.add_argument("--apply",action="store_true")
     ap.add_argument("--explicit-destructive-apply",action="store_true")
+    ap.add_argument("--promotion-staging-approval",type=Path)
     a=ap.parse_args()
     policy=load(a.policy.resolve())
     retention=policy.get("physical_release_retention") or {}
     evidence_root=Path(str(retention.get("verification_evidence_root") or "/opt/chacha-dev/evidence"))
-    plan=build_plan(a.platform_root.resolve(),policy,evidence_root)
+    staging_rev,staging_digest=promotion_staging_approval(a.promotion_staging_approval)
+    plan=build_plan(a.platform_root.resolve(),policy,evidence_root,staging_rev,staging_digest)
     if a.apply:
         raise SystemExit("INTENDANT_DIRECT_MUTATION_FORBIDDEN_USE_CENTRAL_ORCHESTRATOR")
     save(a.output.resolve(),plan)
@@ -310,6 +338,8 @@ def main()->int:
     print("ACTIVE_VERSION="+str(plan.get("active_version") or ""))
     print("RELEASES_BEFORE="+str(plan.get("release_count_before")))
     print("RELEASES_RETIRE="+str(plan.get("retire_count")))
+    print("PROMOTION_STAGING_SLOT_RESERVED="+("YES" if plan.get("promotion_staging_slot_reserved") else "NO"))
+    if plan.get("promotion_staging_slot_reserved"):print("PROMOTION_STAGING_CANDIDATE="+str(plan.get("promotion_staging_candidate_revision")))
     print("ROLLBACK_SELECTION_BASIS="+str(plan.get("rollback_selection_basis") or ""))
     print("SELECTED_ROLLBACK_REVISIONS="+",".join(plan.get("selected_rollback_revisions") or []))
     print("ESTIMATED_SAVINGS_MIB="+str(mib(plan.get("bytes_retirable"))))

@@ -199,6 +199,10 @@
     "rollback_terminal_state": "ROLLED_BACK",
     "receipt_mutability": "WRITE_ONCE",
     "ledger": "APPEND_ONLY",
-    "human_production_approval_required": true
+    "human_production_approval_required": true,
+    "pre_materialization_retention_reservation": "REQUIRED_WHEN_PHYSICAL_RELEASE_COUNT_AT_LIMIT",
+    "pre_materialization_retention_owner": "intendant",
+    "activation_release_count_maximum": 3,
+    "guardian_pre_mode": "CANONICAL_ORCHESTRATOR_PROMOTION_PRE"
   }
 }

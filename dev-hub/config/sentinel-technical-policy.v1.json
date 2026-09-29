@@ -19,7 +19,8 @@
     "mandatory-tests",
     "test-plan-execution",
     "release-revision-match",
-    "promotion-single-writer-immutable-receipts"
+    "promotion-single-writer-immutable-receipts",
+    "promotion-prestage-release-slot-reservation"
   ],
   "advisory_checks": [
     "long-lines",
@@ -92,6 +93,11 @@
     {
       "path": "dev-hub/tests/test_autonomy_governed_platform_promotion.py",
       "env": {}
+    },
+    {
+      "path": "dev-hub/tests/test_promotion_prestage_release_slot.py",
+      "blocking": true,
+      "scope": "platform-promotion"
     }
   ],
   "test_environment": {

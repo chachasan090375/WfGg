@@ -114,6 +114,8 @@ def activate(release_root:Path,current:Path,runtime_root:Path,receipt:Path,promo
     emergency,_=canonical_emergency_state(release_root)
     if load(emergency).get('active') is not False:raise ValueError('EMERGENCY_STOP_MUST_BE_CLEAR')
     rollback=Path(meta['rollback_path']).resolve();before=current.resolve(strict=True)
+    release_count=sum(1 for p in release_root.parent.iterdir() if p.is_dir() and (p/'.revision').is_file())
+    if release_count>3:raise ValueError('RELEASE_RETENTION_OVERAGE_PRE_ACTIVATION')
     if before not in {rollback,release_root}:raise ValueError('ACTIVE_CURRENT_NOT_ROLLBACK_OR_CANDIDATE')
     mutated=before!=release_root
     if mutated:atomic_current_switch(current,release_root,str(lx['lease_id']))
