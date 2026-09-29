@@ -41,6 +41,7 @@ KNOWLEDGE_DB=RADAR_ROOT/"data/collector-knowledge/knowledge.db"
 WORKER_UNIT="wfgg-collector-knowledge-worker.service"
 API_UNIT="wfgg-collector-knowledge-api.service"
 API_BASE="http://127.0.0.1:8793"
+EVIDENCE_ROOT=Path(os.environ.get("CHACHA_DEV_EVIDENCE_ROOT","/opt/chacha-dev/runtime/evidence"))
 
 def now_iso():
     return datetime.now(timezone.utc).isoformat()
@@ -55,6 +56,30 @@ def sha256_file(path: Path) -> str|None:
         for chunk in iter(lambda:f.read(1024*1024),b""):
             h.update(chunk)
     return h.hexdigest()
+
+def safe_name(value: str) -> str:
+    value=re.sub(r"[^A-Za-z0-9._-]+","-",str(value)).strip(".-")
+    return value[:120] or "unknown"
+
+def materialize_evidence(request: dict[str,Any],label: str,payload: bytes) -> tuple[str,str]:
+    task=request.get("task") if isinstance(request.get("task"),dict) else {}
+    path=(EVIDENCE_ROOT/safe_name(request.get("project") or "unknown")/
+          safe_name(request.get("run_id") or "no-run")/
+          safe_name(task.get("id") or "unknown")/(safe_name(label)+".evidence.json"))
+    path.parent.mkdir(parents=True,exist_ok=True)
+    tmp=path.with_name(path.name+".tmp-"+str(os.getpid()))
+    with tmp.open("wb") as f:
+        f.write(payload);f.flush();os.fsync(f.fileno())
+    os.chmod(tmp,0o640);os.replace(tmp,path)
+    return str(path),sha256_bytes(payload)
+
+def declared_outputs(request: dict[str,Any],reason: str) -> list[dict[str,Any]]:
+    task=request.get("task") if isinstance(request.get("task"),dict) else {}
+    return [
+        {"type":o.get("type"),"id":o.get("id"),"status":"UNVERIFIED","reason":reason}
+        for o in task.get("outputs") or []
+        if isinstance(o,dict) and o.get("type") and o.get("id")
+    ]
 
 def run(argv: list[str],timeout=30,env=None):
     return subprocess.run(argv,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,
@@ -176,13 +201,13 @@ def do_status(request,knowledge):
             details["stats"]=get_json("/knowledge/stats")
         except Exception as exc:
             healthy=False;details["api_error"]=type(exc).__name__
-    raw=json.dumps(details,sort_keys=True,separators=(",",":")).encode()
+    raw=(json.dumps(details,sort_keys=True,separators=(",",":"))+"\n").encode()
+    source_path,source_digest=materialize_evidence(request,"collector-knowledge-status",raw)
     return emit(result(request,"OK" if healthy else "BLOCKED",
         "COLLECTOR_KNOWLEDGE_STATUS_OK" if healthy else "COLLECTOR_KNOWLEDGE_STATUS_NOT_READY",
-        [{"kind":"metric","source":"vps://localhost/collector-knowledge/status",
-          "digest":sha256_bytes(raw),"details":details}],
-        [{"type":"artifact","id":"collector-knowledge-status","status":"UNVERIFIED",
-          "reason":"Local Knowledge Engine runtime snapshot."}]),0 if healthy else 2)
+        [{"kind":"metric","source":source_path,
+          "digest":source_digest,"details":{**details,"origin":"vps://localhost/collector-knowledge/status","materialized_local_evidence":True}}],
+        declared_outputs(request,"Local Knowledge Engine runtime snapshot.")),0 if healthy else 2)
 
 def do_query(request,knowledge):
     query=str(knowledge.get("q") or "").strip()
