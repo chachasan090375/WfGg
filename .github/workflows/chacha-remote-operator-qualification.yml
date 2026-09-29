@@ -27,7 +27,7 @@ jobs:
         run: python -m compileall -q dev-hub/projects/chacha-remote-operator/src
       - name: Policy tests
         run: pytest -q dev-hub/projects/chacha-remote-operator/tests
-      - name: Security invariants
+      - name: V01 security invariants
         run: |
           python - <<'PY'
           import json
@@ -44,4 +44,37 @@ jobs:
           assert x['credential_export_enabled'] is False
           assert float(x['automatic_external_spend_eur'])==0
           print('CHACHA_REMOTE_OPERATOR_V01_SECURITY_INVARIANTS=PASS')
+          PY
+      - name: V02 governed operation invariants
+        run: |
+          python - <<'PY'
+          import json
+          p='dev-hub/projects/chacha-remote-operator/config/policy.v2.json'
+          x=json.load(open(p,encoding='utf-8'))
+          assert x['mode']=='PILOT_GOVERNED_READ_OPERATIONS'
+          assert x['bind_host']=='127.0.0.1'
+          assert x['command_execution_enabled'] is False
+          assert x['governed_operations_enabled'] is True
+          assert x['single_writer_command_lease'] is True
+          assert x['guardian_required_for_governed_operations'] is True
+          assert len(x['governed_operation_allowlist'])==8
+          assert x['file_write_enabled'] is False
+          assert x['service_mutation_enabled'] is False
+          assert x['git_mutation_enabled'] is False
+          assert x['destructive_operations_enabled'] is False
+          assert x['external_network_access_enabled'] is False
+          assert x['credential_export_enabled'] is False
+          assert float(x['automatic_external_spend_eur'])==0
+          print('CHACHA_REMOTE_OPERATOR_V02_SECURITY_INVARIANTS=PASS')
+          PY
+      - name: V02 MCP import smoke
+        env:
+          CHACHA_REMOTE_OPERATOR_POLICY: ${{ github.workspace }}/dev-hub/projects/chacha-remote-operator/config/policy.v2.json
+        run: |
+          python - <<'PY'
+          import chacha_remote_operator.server_v02 as s
+          assert s.POLICY.raw['mode']=='PILOT_GOVERNED_READ_OPERATIONS'
+          assert s.POLICY.raw['command_execution_enabled'] is False
+          assert s.POLICY.raw['governed_operations_enabled'] is True
+          print('CHACHA_REMOTE_OPERATOR_V02_MCP_IMPORT=PASS')
           PY
