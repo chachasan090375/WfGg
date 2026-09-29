@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import hashlib,json,os,subprocess,sys
+import hashlib,json,os,subprocess,sys,re
 from datetime import datetime,timezone
 from pathlib import Path
 from typing import Any
@@ -8,9 +8,22 @@ from typing import Any
 SCHEMA_IN="chacha.dev/dispatch-envelope/v1";SCHEMA_OUT="chacha.dev/task-result/v1"
 ADAPTER="platform-command-adapter";PROVIDER="chacha-tech-watch"
 ROOT=Path(os.environ.get("CHACHA_DEV_PLATFORM_ROOT","/opt/chacha-dev/platform/current")).resolve();WATCH=ROOT/"dev-hub/bin/technology-watch-service.py"
+EVIDENCE_ROOT=Path(os.environ.get("CHACHA_DEV_EVIDENCE_ROOT","/opt/chacha-dev/runtime/evidence"))
 SUPPORTED={"technology-radar":"read","architecture-optimization":"plan"}
 def now():return datetime.now(timezone.utc).isoformat()
 def digest(b:bytes):return "sha256:"+hashlib.sha256(b).hexdigest()
+def safe(v:str):
+ v=re.sub(r"[^A-Za-z0-9._-]+","-",str(v)).strip(".-")
+ return v[:120] or "unknown"
+def materialize(req:dict[str,Any],label:str,payload:bytes):
+ t=req.get("task") if isinstance(req.get("task"),dict) else {}
+ p=EVIDENCE_ROOT/safe(req.get("project") or "unknown")/safe(req.get("run_id") or "no-run")/safe(t.get("id") or "unknown")/(safe(label)+".evidence.json")
+ p.parent.mkdir(parents=True,exist_ok=True)
+ tmp=p.with_name(p.name+".tmp-"+str(os.getpid()))
+ with tmp.open("wb") as f:
+  f.write(payload);f.flush();os.fsync(f.fileno())
+ os.chmod(tmp,0o640);os.replace(tmp,p)
+ return str(p),digest(payload)
 def emit(req:dict[str,Any],status:str,summary:str,evidence=None,code=0):
  t=req.get("task") if isinstance(req.get("task"),dict) else {}
  outputs=[{"type":o.get("type"),"id":o.get("id"),"status":"UNVERIFIED"} for o in t.get("outputs") or [] if isinstance(o,dict)]
@@ -39,6 +52,8 @@ def main():
  try:feed=parse_json_prefix(p.stdout)
  except Exception:return emit(req,"FAILED","TECHNOLOGY_WATCH_CONSULT_INVALID",[{"kind":"command","source":str(WATCH),"digest":digest(raw),"details":{"capability":cap}}],1)
  fresh=feed.get("snapshot_freshness")=="FRESH";zero=float(feed.get("automatic_external_spend_eur") or 0)==0
- ev=[{"kind":"report","source":"local://technology-watch/consult","digest":digest(json.dumps(feed,sort_keys=True).encode()),"details":{"capability":cap,"domain":domain,"snapshot_freshness":feed.get("snapshot_freshness"),"source_snapshot_digest":feed.get("source_snapshot_digest"),"eligible_provider_candidates":len(feed.get("eligible_provider_candidates") or []),"automatic_external_spend_eur":feed.get("automatic_external_spend_eur")}}]
+ payload=(json.dumps(feed,sort_keys=True,ensure_ascii=False,separators=(",",":"))+"\n").encode("utf-8")
+ source_path,source_digest=materialize(req,"technology-watch-consult",payload)
+ ev=[{"kind":"report","source":source_path,"digest":source_digest,"details":{"origin":"local://technology-watch/consult","capability":cap,"domain":domain,"snapshot_freshness":feed.get("snapshot_freshness"),"source_snapshot_digest":feed.get("source_snapshot_digest"),"eligible_provider_candidates":len(feed.get("eligible_provider_candidates") or []),"automatic_external_spend_eur":feed.get("automatic_external_spend_eur"),"materialized_local_evidence":True}}]
  return emit(req,"OK" if fresh and zero else "FAILED","TECHNOLOGY_WATCH_CONSULT_OK" if fresh and zero else "TECHNOLOGY_WATCH_CONSULT_NOT_READY",ev,0 if fresh and zero else 1)
 if __name__=="__main__":raise SystemExit(main())
