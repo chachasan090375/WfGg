@@ -11,6 +11,19 @@ class PolicyError(RuntimeError):
     pass
 
 
+V02_SCHEMA = "chacha.dev/chacha-remote-operator-policy/v2"
+V02_OPERATION_IDS = (
+    "git_status",
+    "git_head",
+    "git_tree",
+    "service_is_active",
+    "service_is_enabled",
+    "uptime",
+    "free_bytes",
+    "uname",
+)
+
+
 @dataclass(frozen=True)
 class OperatorPolicy:
     raw: dict[str, Any]
@@ -33,12 +46,22 @@ class OperatorPolicy:
     def allowed_roots(self) -> tuple[Path, ...]:
         return tuple(Path(str(x)).resolve(strict=False) for x in self.raw.get("allowed_roots", []))
 
+    @property
+    def is_v02(self) -> bool:
+        return self.raw.get("schema") == V02_SCHEMA
+
     def stop_active(self) -> bool:
         try:
             data = json.loads(self.stop_state.read_text(encoding="utf-8"))
-            return bool(data.get("active"))
-        except FileNotFoundError:
+            if not isinstance(data, dict) or "active" not in data or not isinstance(data["active"], bool):
+                raise PolicyError("STOP_STATE_INVALID")
+            return data["active"]
+        except FileNotFoundError as exc:
+            if self.is_v02:
+                raise PolicyError("STOP_STATE_MISSING") from exc
             return False
+        except PolicyError:
+            raise
         except Exception as exc:
             raise PolicyError("STOP_STATE_UNREADABLE") from exc
 
@@ -105,7 +128,7 @@ def load_policy(path: Path | None = None) -> OperatorPolicy:
     data = json.loads(source.read_text(encoding="utf-8"))
     if data.get("schema") not in {
         "chacha.dev/chacha-remote-operator-policy/v1",
-        "chacha.dev/chacha-remote-operator-policy/v2",
+        V02_SCHEMA,
     }:
         raise PolicyError("POLICY_SCHEMA_INVALID")
     if float(data.get("automatic_external_spend_eur", -1)) != 0:
@@ -118,13 +141,25 @@ def load_policy(path: Path | None = None) -> OperatorPolicy:
         raise PolicyError("SERVICE_MUTATION_FORBIDDEN")
     if data.get("git_mutation_enabled") is not False:
         raise PolicyError("GIT_MUTATION_FORBIDDEN")
-    if data.get("schema") == "chacha.dev/chacha-remote-operator-policy/v2":
+    if data.get("schema") == V02_SCHEMA:
+        if data.get("fail_closed") is not True:
+            raise PolicyError("V02_FAIL_CLOSED_REQUIRED")
+        if data.get("bind_host") != "127.0.0.1":
+            raise PolicyError("V02_LOCALHOST_ONLY_REQUIRED")
+        if data.get("external_network_access_enabled") is not False:
+            raise PolicyError("V02_EXTERNAL_NETWORK_MUST_STAY_DISABLED")
         if data.get("guardian_required_for_governed_operations") is not True:
             raise PolicyError("V02_GUARDIAN_REQUIRED")
         if data.get("single_writer_command_lease") is not True:
             raise PolicyError("V02_SINGLE_WRITER_LEASE_REQUIRED")
         if data.get("command_execution_enabled") is not False:
             raise PolicyError("V02_RAW_COMMAND_EXECUTION_MUST_STAY_DISABLED")
-        if data.get("governed_operations_enabled") is True and not data.get("governed_operation_allowlist"):
-            raise PolicyError("V02_OPERATION_ALLOWLIST_REQUIRED")
+        operations = [str(x) for x in data.get("governed_operation_allowlist", [])]
+        if len(operations) != len(V02_OPERATION_IDS) or set(operations) != set(V02_OPERATION_IDS):
+            raise PolicyError("V02_OPERATION_ALLOWLIST_MUST_BE_EXACT")
+        if data.get("governed_operations_enabled") is not True:
+            raise PolicyError("V02_GOVERNED_OPERATIONS_REQUIRED")
+        stop_path = Path(str(data.get("canonical_stop_state") or ""))
+        if not stop_path.is_absolute():
+            raise PolicyError("V02_CANONICAL_STOP_PATH_INVALID")
     return OperatorPolicy(data, source)
