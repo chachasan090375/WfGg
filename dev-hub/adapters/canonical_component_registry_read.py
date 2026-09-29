@@ -1,30 +1,112 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
+POLICY_SCHEMA = "chacha.dev/canonical-component-registry-policy/v1"
+INLINE_SCHEMA = "chacha.dev/canonical-component-registry/v1"
+
 
 class JsonCanonicalComponentRegistry:
-    """Read-only adapter over the unique Canonical Component Registry."""
+    """Read-only adapter over the unique Canonical Component Registry.
 
-    def __init__(self, path: Path) -> None:
+    The repository JSON is policy, not component truth. In production this
+    adapter follows runtime_registry.canonical_snapshot and reads the runtime
+    snapshot only. A direct inline registry is accepted only as an explicit
+    test/fixture form.
+    """
+
+    def __init__(self, path: Path, snapshot_override: Path | None = None) -> None:
         self.path = Path(path)
+        self.snapshot_override = Path(snapshot_override) if snapshot_override else None
 
-    def _document(self) -> Mapping[str, Any]:
-        raw = json.loads(self.path.read_text(encoding="utf-8"))
+    @staticmethod
+    def _read(path: Path) -> Mapping[str, Any]:
+        raw = json.loads(path.read_text(encoding="utf-8"))
         if not isinstance(raw, dict):
-            raise ValueError("CCR_ROOT_NOT_OBJECT")
-        if raw.get("schema") != "chacha.dev/canonical-component-registry/v1":
-            raise ValueError("CCR_SCHEMA_INVALID")
-        components = raw.get("components")
-        if not isinstance(components, dict):
-            raise ValueError("CCR_COMPONENTS_INVALID")
+            raise ValueError(f"CCR_ROOT_NOT_OBJECT:{path}")
         return raw
 
+    def _snapshot(self) -> Mapping[str, Any]:
+        root = self._read(self.path)
+        schema = root.get("schema")
+        if schema == INLINE_SCHEMA:
+            return root
+        if schema != POLICY_SCHEMA:
+            raise ValueError(f"CCR_POLICY_SCHEMA_INVALID:{schema}")
+
+        runtime_registry = root.get("runtime_registry")
+        if not isinstance(runtime_registry, dict):
+            raise ValueError("CCR_RUNTIME_REGISTRY_POLICY_MISSING")
+        configured = runtime_registry.get("canonical_snapshot")
+        override = os.environ.get("CHACHA_CANONICAL_COMPONENT_SNAPSHOT")
+        snapshot_path = self.snapshot_override or (Path(override) if override else None)
+        if snapshot_path is None:
+            if not isinstance(configured, str) or not configured.startswith("/"):
+                raise ValueError("CCR_CANONICAL_SNAPSHOT_PATH_INVALID")
+            snapshot_path = Path(configured)
+        if not snapshot_path.is_file():
+            raise FileNotFoundError(f"CCR_CANONICAL_SNAPSHOT_MISSING:{snapshot_path}")
+        return self._read(snapshot_path)
+
+    @staticmethod
+    def _component_map(snapshot: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
+        containers: list[Mapping[str, Any]] = [snapshot]
+        nested = snapshot.get("registry")
+        if isinstance(nested, dict):
+            containers.append(nested)
+
+        for container in containers:
+            raw = container.get("components")
+            if isinstance(raw, dict):
+                return {
+                    str(component_id): value
+                    for component_id, value in raw.items()
+                    if isinstance(value, dict)
+                }
+            if isinstance(raw, list):
+                out: dict[str, Mapping[str, Any]] = {}
+                for value in raw:
+                    if not isinstance(value, dict):
+                        continue
+                    identity = value.get("identity") if isinstance(value.get("identity"), dict) else {}
+                    component_id = str(
+                        value.get("component_id")
+                        or value.get("id")
+                        or identity.get("component_id")
+                        or identity.get("id")
+                        or ""
+                    ).strip()
+                    if component_id:
+                        out[component_id] = value
+                if out:
+                    return out
+        raise ValueError("CCR_SNAPSHOT_COMPONENTS_INVALID")
+
+    @staticmethod
+    def _project_paths(component: Mapping[str, Any]) -> Mapping[str, Any]:
+        paths = component.get("paths")
+        if isinstance(paths, dict):
+            return paths
+        canonical_paths = component.get("canonical_paths")
+        if isinstance(canonical_paths, dict):
+            return canonical_paths
+        return {}
+
     def get_component(self, component_id: str) -> Mapping[str, Any] | None:
-        component = (self._document().get("components") or {}).get(component_id)
-        return component if isinstance(component, dict) else None
+        component = self._component_map(self._snapshot()).get(component_id)
+        if component is None:
+            return None
+        if isinstance(component.get("paths"), dict):
+            return component
+        projected = dict(component)
+        projected["paths"] = dict(self._project_paths(component))
+        return projected
+
+    def component_ids(self) -> Sequence[str]:
+        return tuple(sorted(self._component_map(self._snapshot())))
 
 
 class FilesystemRuntimePathObserver:
