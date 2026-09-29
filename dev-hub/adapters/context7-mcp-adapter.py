@@ -1,12 +1,26 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import hashlib,json,sys,urllib.request,urllib.error
+import hashlib,json,sys,urllib.request,urllib.error,os,re
 from datetime import datetime,timezone
+from pathlib import Path
 from typing import Any
 
 SCHEMA_IN='chacha.dev/dispatch-envelope/v1';SCHEMA_OUT='chacha.dev/task-result/v1';ADAPTER='context7-mcp-adapter';PROVIDER='context7-mcp';URL='https://mcp.context7.com/mcp'
+EVIDENCE_ROOT=Path(os.environ.get('CHACHA_DEV_EVIDENCE_ROOT','/opt/chacha-dev/runtime/evidence'))
 def now():return datetime.now(timezone.utc).isoformat()
 def digest(b:bytes):return 'sha256:'+hashlib.sha256(b).hexdigest()
+def safe(v:str):
+ v=re.sub(r'[^A-Za-z0-9._-]+','-',str(v)).strip('.-')
+ return v[:120] or 'unknown'
+def materialize(req:dict[str,Any],label:str,payload:bytes):
+ t=req.get('task') if isinstance(req.get('task'),dict) else {}
+ p=EVIDENCE_ROOT/safe(req.get('project') or 'unknown')/safe(req.get('run_id') or 'no-run')/safe(t.get('id') or 'unknown')/(safe(label)+'.evidence')
+ p.parent.mkdir(parents=True,exist_ok=True)
+ tmp=p.with_name(p.name+'.tmp-'+str(os.getpid()))
+ with tmp.open('wb') as f:
+  f.write(payload);f.flush();os.fsync(f.fileno())
+ os.chmod(tmp,0o640);os.replace(tmp,p)
+ return str(p),digest(payload)
 def emit(req:dict[str,Any],status:str,summary:str,evidence=None,code=0):
  t=req.get('task') if isinstance(req.get('task'),dict) else {}
  x={'schema':SCHEMA_OUT,'project':str(req.get('project') or 'unknown'),'task_id':str(t.get('id') or 'unknown'),'status':status,'producer':ADAPTER,'observed_at':now(),'summary':summary,'evidence':evidence or [],'verification':{'status':'UNVERIFIED','method':'none','verifier':'none','observed_at':now(),'notes':'External documentation evidence requires independent verification.'},'outputs':[{'type':o.get('type'),'id':o.get('id'),'status':'UNVERIFIED'} for o in t.get('outputs') or [] if isinstance(o,dict)]}
@@ -37,6 +51,7 @@ def main():
  names=sorted(str(i.get('name')) for i in tools if isinstance(i,dict) and i.get('name'))
  required={'resolve-library-id','query-docs'}
  ok=required.issubset(set(names))
- ev=[{'kind':'url','source':URL,'digest':digest(raw),'details':{'tool_names':names,'read_only_probe':True,'credentials_sent':False}}]
+ source_path,source_digest=materialize(req,'context7-tools-list',raw)
+ ev=[{'kind':'url-snapshot','source':source_path,'digest':source_digest,'details':{'origin':URL,'tool_names':names,'read_only_probe':True,'credentials_sent':False,'materialized_local_evidence':True}}]
  return emit(req,'OK' if ok else 'FAILED','CONTEXT7_MCP_READY' if ok else 'CONTEXT7_REQUIRED_TOOLS_MISSING',ev,0 if ok else 1)
 if __name__=='__main__':raise SystemExit(main())
