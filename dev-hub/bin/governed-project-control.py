@@ -7,6 +7,8 @@ fallback or automatic recovery execution occurs here.
 """
 from __future__ import annotations
 
+import contextlib
+import fcntl
 import hashlib
 import json
 import os
@@ -15,7 +17,7 @@ import sys
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
 
 GATED_COMMANDS = frozenset({"schedule", "prepare-run", "dispatch"})
 RESPONSE_SCHEMA = "chacha.dev/project-control-response/v1"
@@ -213,6 +215,19 @@ def _load_ledger(path: Path) -> dict[str, Any]:
     return value
 
 
+@contextlib.contextmanager
+def _ledger_lock(path: Path) -> Iterator[None]:
+    """Serialize anti-loop decisions and ledger updates across processes."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = path.with_name(path.name + ".lock")
+    with lock_path.open("a+", encoding="utf-8") as lock_file:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
+
 def _snapshot_to_dict(snapshot: Any) -> dict[str, Any]:
     return {
         "action": snapshot.action,
@@ -240,8 +255,9 @@ def _snapshot_from_dict(cls: Any, value: Any) -> Any | None:
         return None
 
 
-def _record_attempt(path: Path, run_key: str, snapshot: Any, *,
-                    decision: str, reason: str, outcome: dict[str, Any] | None = None) -> None:
+def _record_attempt_unlocked(path: Path, run_key: str, snapshot: Any, *,
+                             decision: str, reason: str,
+                             outcome: dict[str, Any] | None = None) -> None:
     ledger = _load_ledger(path)
     ledger["entries"][run_key] = {
         "snapshot": _snapshot_to_dict(snapshot),
@@ -251,6 +267,20 @@ def _record_attempt(path: Path, run_key: str, snapshot: Any, *,
         "outcome": outcome or {},
     }
     _atomic_json(path, ledger)
+
+
+def _record_attempt(path: Path, run_key: str, snapshot: Any, *,
+                    decision: str, reason: str,
+                    outcome: dict[str, Any] | None = None) -> None:
+    with _ledger_lock(path):
+        _record_attempt_unlocked(
+            path,
+            run_key,
+            snapshot,
+            decision=decision,
+            reason=reason,
+            outcome=outcome,
+        )
 
 
 def _preflight(argv: list[str]) -> tuple[dict[str, Any], Any | None]:
@@ -370,32 +400,46 @@ def _preflight(argv: list[str]) -> tuple[dict[str, Any], Any | None]:
         hypothesis_id=hypothesis_id,
     )
     run_key = current.action_fingerprint
-    ledger = _load_ledger(ledger_path)
-    previous_record = ledger["entries"].get(run_key) or {}
-    previous = _snapshot_from_dict(AttemptSnapshot, previous_record.get("snapshot"))
 
     gate = GovernedRunGate(
         NonProgressDetector(),
         MultiAgentRecoveryRouter(catalogue),
     )
-    decision = gate.decide(
-        previous=previous,
-        current=current,
-        incident_id=f"{project}:{operation}:{run_key[:16]}",
-        required_capabilities=("technical-assurance",),
-        optional_capabilities=(),
-        require_architecture_arbitration=False,
-    )
-    recovery = None
-    if decision.recovery_plan is not None:
-        recovery = {
-            "status": decision.recovery_plan.status,
-            "coordinator": decision.recovery_plan.coordinator,
-            "participants": list(decision.recovery_plan.participants),
-            "capability_assignments": dict(decision.recovery_plan.capability_assignments),
-            "missing_capabilities": list(decision.recovery_plan.missing_capabilities),
-            "reason": decision.recovery_plan.reason,
-        }
+
+    with _ledger_lock(ledger_path):
+        ledger = _load_ledger(ledger_path)
+        previous_record = ledger["entries"].get(run_key) or {}
+        previous = _snapshot_from_dict(AttemptSnapshot, previous_record.get("snapshot"))
+
+        decision = gate.decide(
+            previous=previous,
+            current=current,
+            incident_id=f"{project}:{operation}:{run_key[:16]}",
+            required_capabilities=("technical-assurance",),
+            optional_capabilities=(),
+            require_architecture_arbitration=False,
+        )
+
+        recovery = None
+        if decision.recovery_plan is not None:
+            recovery = {
+                "status": decision.recovery_plan.status,
+                "coordinator": decision.recovery_plan.coordinator,
+                "participants": list(decision.recovery_plan.participants),
+                "capability_assignments": dict(decision.recovery_plan.capability_assignments),
+                "missing_capabilities": list(decision.recovery_plan.missing_capabilities),
+                "reason": decision.recovery_plan.reason,
+            }
+
+        if decision.action == "EXECUTE":
+            _record_attempt_unlocked(
+                ledger_path,
+                run_key,
+                current,
+                decision="EXECUTE",
+                reason=str(decision.reason),
+                outcome={"status": "STARTED", "downstream_invoked": False},
+            )
 
     return {
         "action": decision.action,
@@ -479,14 +523,6 @@ def main() -> int:
 
     ledger_path = Path(gate["ledger_path"])
     run_key = str(gate["run_key"])
-    _record_attempt(
-        ledger_path,
-        run_key,
-        current,
-        decision="EXECUTE",
-        reason=str(gate["reason"]),
-        outcome={"status": "STARTED", "downstream_invoked": True},
-    )
 
     try:
         proc = _delegate(core, argv)
