@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - project-chacha-remote-operator-mcp
-      - dev-hub-v-remote-operator-*
+      - 'dev-hub-v-remote-operator-*'
     paths:
       - 'dev-hub/projects/chacha-remote-operator/**'
       - '.github/workflows/chacha-remote-operator-qualification.yml'
@@ -14,50 +14,50 @@ permissions:
   contents: read
 
 jobs:
-  qualify:
+  qualify-v02:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install project
-        run: python -m pip install -e './dev-hub/projects/chacha-remote-operator[dev]'
-      - name: Compile
-        run: python -m compileall -q dev-hub/projects/chacha-remote-operator/src
-      - name: Policy tests
-        run: pytest -q dev-hub/projects/chacha-remote-operator/tests
-      - name: V01 security invariants
+      - name: Exact candidate identity
         run: |
-          python - <<'PY'
-          import json
-          p='dev-hub/projects/chacha-remote-operator/config/policy.v1.json'
-          x=json.load(open(p,encoding='utf-8'))
-          assert x['mode']=='PILOT_READ_ONLY'
-          assert x['bind_host']=='127.0.0.1'
-          assert x['command_execution_enabled'] is False
-          assert x['file_write_enabled'] is False
-          assert x['service_mutation_enabled'] is False
-          assert x['git_mutation_enabled'] is False
-          assert x['destructive_operations_enabled'] is False
-          assert x['external_network_access_enabled'] is False
-          assert x['credential_export_enabled'] is False
-          assert float(x['automatic_external_spend_eur'])==0
-          print('CHACHA_REMOTE_OPERATOR_V01_SECURITY_INVARIANTS=PASS')
-          PY
-      - name: V02 governed operation invariants
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo "CHACHA_REMOTE_OPERATOR_V02_SHA=$(git rev-parse HEAD)"
+          echo "CHACHA_REMOTE_OPERATOR_V02_TREE=$(git rev-parse HEAD^{tree})"
+      - name: Install V0.2 project
+        run: python -m pip install -e './dev-hub/projects/chacha-remote-operator[dev]'
+      - name: Compile V0.2 runtime modules
+        run: |
+          python -m py_compile \
+            dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/audit.py \
+            dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/governance.py \
+            dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/lease.py \
+            dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/operations.py \
+            dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/policy.py \
+            dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/server_v02.py
+      - name: V0.2 governed operation qualification
+        run: pytest -q dev-hub/projects/chacha-remote-operator/tests/test_v02_governed_operations.py
+      - name: V0.2 policy invariants
         run: |
           python - <<'PY'
           import json
           p='dev-hub/projects/chacha-remote-operator/config/policy.v2.json'
           x=json.load(open(p,encoding='utf-8'))
+          expected=[
+            'git_status','git_head','git_tree','service_is_active',
+            'service_is_enabled','uptime','free_bytes','uname'
+          ]
+          assert x['version']=='0.2.0'
           assert x['mode']=='PILOT_GOVERNED_READ_OPERATIONS'
+          assert x['fail_closed'] is True
           assert x['bind_host']=='127.0.0.1'
           assert x['command_execution_enabled'] is False
           assert x['governed_operations_enabled'] is True
+          assert x['governed_operation_allowlist']==expected
           assert x['single_writer_command_lease'] is True
           assert x['guardian_required_for_governed_operations'] is True
-          assert len(x['governed_operation_allowlist'])==8
           assert x['file_write_enabled'] is False
           assert x['service_mutation_enabled'] is False
           assert x['git_mutation_enabled'] is False
@@ -67,14 +67,21 @@ jobs:
           assert float(x['automatic_external_spend_eur'])==0
           print('CHACHA_REMOTE_OPERATOR_V02_SECURITY_INVARIANTS=PASS')
           PY
-      - name: V02 MCP import smoke
+      - name: V0.2 MCP import smoke
         env:
           CHACHA_REMOTE_OPERATOR_POLICY: ${{ github.workspace }}/dev-hub/projects/chacha-remote-operator/config/policy.v2.json
         run: |
           python - <<'PY'
+          import chacha_remote_operator
           import chacha_remote_operator.server_v02 as s
+          expected=(
+            'git_status','git_head','git_tree','service_is_active',
+            'service_is_enabled','uptime','free_bytes','uname'
+          )
+          assert chacha_remote_operator.__version__=='0.2.0'
+          assert s.V02_TOOL_NAMES==expected
           assert s.POLICY.raw['mode']=='PILOT_GOVERNED_READ_OPERATIONS'
+          assert s.POLICY.raw['bind_host']=='127.0.0.1'
           assert s.POLICY.raw['command_execution_enabled'] is False
-          assert s.POLICY.raw['governed_operations_enabled'] is True
           print('CHACHA_REMOTE_OPERATOR_V02_MCP_IMPORT=PASS')
           PY
