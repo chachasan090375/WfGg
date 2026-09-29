@@ -3,13 +3,13 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
-import hashlib
 import http.client
 import json
 import os
 import signal
 import subprocess
 import sys
+import threading
 import time
 import uuid
 from http import HTTPStatus
@@ -25,20 +25,20 @@ JOB_SCHEMA = "chacha.dev/direct-operator-job/v1"
 RESPONSE_SCHEMA = "chacha.dev/human-interface-response/v1"
 CONTROL_PREFIX = "CONTROL_PLANE_ONLY"
 HOP_HEADERS = {"connection", "keep-alive", "proxy-authenticate", "proxy-authorization", "te", "trailers", "transfer-encoding", "upgrade"}
+_MISSING = object()
 
 
 def now_iso() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
 
-def load(path: Path, default: Any = None) -> Any:
+def load(path: Path, default: Any = _MISSING) -> Any:
     try:
-        value = json.loads(path.read_text(encoding="utf-8"))
+        return json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
-        if default is not None:
+        if default is not _MISSING:
             return default
         raise
-    return value
 
 
 def atomic(path: Path, value: dict[str, Any]) -> None:
@@ -254,7 +254,11 @@ class ControlPlane:
             }
         evidence_path = Path(evidence_raw)
         evidence = load(evidence_path, None)
-        if not isinstance(evidence, dict) or evidence.get("verified") is not True or float(evidence.get("automatic_external_spend_eur", -1)) != 0:
+        try:
+            spend = float(evidence.get("automatic_external_spend_eur")) if isinstance(evidence, dict) else -1.0
+        except Exception:
+            spend = -1.0
+        if not isinstance(evidence, dict) or evidence.get("verified") is not True or spend != 0:
             return {
                 "schema": "chacha.dev/zero-cost-attestation-refresh/v1",
                 "status": "BLOCKED",
@@ -474,7 +478,7 @@ class Gateway:
         server.app = self  # type: ignore[attr-defined]
 
         def shutdown(_signum: int, _frame: Any) -> None:
-            server.shutdown()
+            threading.Thread(target=server.shutdown, daemon=True).start()
 
         signal.signal(signal.SIGTERM, shutdown)
         signal.signal(signal.SIGINT, shutdown)
