@@ -1,0 +1,56 @@
+{
+  "schema": "chacha.dev/chacha-remote-operator-policy/v1",
+  "version": "0.1.0",
+  "mode": "PILOT_READ_ONLY",
+  "bind_host": "127.0.0.1",
+  "port": 8765,
+  "mcp_path": "/mcp",
+  "canonical_stop_state": "/opt/chacha-dev/runtime/control/emergency-stop.json",
+  "audit_log": "/opt/chacha-dev/runtime/remote-operator/audit.jsonl",
+  "max_read_bytes": 262144,
+  "max_search_results": 100,
+  "max_command_seconds": 20,
+  "max_command_output_bytes": 131072,
+  "allowed_roots": [
+    "/opt/chacha-dev/runtime",
+    "/opt/chacha-dev/platform"
+  ],
+  "blocked_path_fragments": [
+    "/.ssh/",
+    "/.gnupg/",
+    "/secrets/",
+    "/credentials/",
+    "/tokens/",
+    "/.env"
+  ],
+  "service_status_allowlist": [
+    "chacha-dev-autonomy-core.timer",
+    "chacha-dev-autonomy-core.service",
+    "chacha-dev-direct-operator.service",
+    "chacha-dev-intendant-hygiene.timer",
+    "chacha-dev-intendant-hygiene.service"
+  ],
+  "command_execution_enabled": false,
+  "command_allowlist": [
+    ["git", "status"],
+    ["git", "rev-parse"],
+    ["systemctl", "is-active"],
+    ["systemctl", "is-enabled"],
+    ["ps"],
+    ["df"],
+    ["du"],
+    ["free"],
+    ["uname"],
+    ["uptime"]
+  ],
+  "file_write_enabled": false,
+  "service_mutation_enabled": false,
+  "git_mutation_enabled": false,
+  "destructive_operations_enabled": false,
+  "external_network_access_enabled": false,
+  "credential_export_enabled": false,
+  "guardian_required_for_future_write_profile": true,
+  "bastion_required_for_network_exposure": true,
+  "sentinel_required_before_production": true,
+  "automatic_external_spend_eur": 0
+}

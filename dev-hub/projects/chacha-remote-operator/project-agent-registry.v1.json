@@ -1,0 +1,32 @@
+{
+  "schema": "chacha.dev/project-agent-registry/v1",
+  "version": "1.0.0",
+  "project_id": "chacha-remote-operator",
+  "platform_global": false,
+  "agents": [
+    {
+      "agent_id": "remote-operator-gateway-agent",
+      "role": "remote-operator-gateway-agent",
+      "scope": "PROJECT_ONLY",
+      "project_id": "chacha-remote-operator",
+      "embedded_in": "ChaCha Remote Operator MCP",
+      "purpose": "Expose bounded remote operations to ChaCha DEV while enforcing STOP, policy, audit and later Guardian/Bastion governance.",
+      "capabilities": [
+        "remote-health-read",
+        "remote-system-read",
+        "remote-filesystem-read",
+        "remote-process-read",
+        "remote-service-status-read",
+        "remote-command-policy-evaluate"
+      ],
+      "permissions": [
+        "read",
+        "plan"
+      ],
+      "production_permission": false,
+      "central_brain_role": false,
+      "technology_watch_platform_role": false,
+      "automatic_external_spend_eur": 0
+    }
+  ]
+}

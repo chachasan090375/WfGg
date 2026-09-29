@@ -1,0 +1,48 @@
+{
+  "schema": "chacha.dev/project-intent/v1",
+  "project": "chacha-remote-operator",
+  "title": "ChaCha Remote Operator MCP — self-hosted governed remote operations",
+  "problem": "ChaCha DEV currently depends on a third-party remote terminal/filesystem connector whose commercial monthly call quota can halt otherwise authorized platform work even though the user's own VPS remains available.",
+  "goals": [
+    "Provide a self-hosted MCP remote-operations endpoint controlled by ChaCha DEV.",
+    "Replace quota-dependent remote terminal, file, process, service and Git inspection workflows with a zero-license-cost capability.",
+    "Preserve Guardian, Sentinelle, Bastion, canonical STOP, append-only evidence and zero automatic external spend.",
+    "Start read-only and fail closed; add writes and destructive operations only through separately qualified governed profiles.",
+    "Support future multi-target operation across ChaChaVPS, ChaChaNas and ChaChaTel.",
+    "Use an open MCP transport so the backend is not tied to one conversational client."
+  ],
+  "non_goals": [
+    "Do not expose an unrestricted root shell over the network.",
+    "Do not expose credentials, SSH private keys, tokens or secret stores through MCP tools.",
+    "Do not enable destructive filesystem, service, package-manager or production deployment operations in V0.1.",
+    "Do not bypass Guardian, Sentinelle, Bastion or canonical STOP.",
+    "Do not auto-purchase hosting, identity, tunnel or SaaS services.",
+    "Do not build graphical remote desktop control before terminal/filesystem operations are proven insufficient."
+  ],
+  "current_change": {
+    "id": "chacha-remote-operator-mcp-v0.1",
+    "purpose": "Create the read-first Streamable HTTP MCP foundation with bounded tools, path allowlisting, STOP enforcement and append-only audit.",
+    "discovery_mode": "self-hosted-governed-mcp",
+    "pilot_only": true,
+    "rollback_required": true
+  },
+  "acceptance_criteria": [
+    "The server binds to localhost by default and exposes MCP Streamable HTTP at /mcp.",
+    "Health, system status, process list, file read, directory list, bounded search and service status tools work without shell interpolation.",
+    "Every path is resolved and rejected unless it is under an allowlisted root.",
+    "Canonical STOP blocks all operational tools when active.",
+    "Every tool call creates an append-only audit record without recording credentials or secret values.",
+    "Arbitrary command execution is disabled by the default V0.1 policy.",
+    "Destructive operations and production mutations are absent from the V0.1 tool surface.",
+    "Automatic external spend remains 0 EUR.",
+    "A later write-enabled profile requires a separate qualification and explicit production approval."
+  ],
+  "architecture_invariants": [
+    "GitHub remains the source-code and CI authority.",
+    "ChaCha DEV on ChaChaVPS remains the runtime orchestrator.",
+    "ChaChaNas remains the preferred durable persistence target when available.",
+    "MCP transport and machine-operation policy remain separate layers.",
+    "Producer and verifier responsibilities remain separated.",
+    "No network exposure is permitted before authentication and Bastion review are qualified."
+  ]
+}
