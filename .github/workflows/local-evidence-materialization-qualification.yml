@@ -1,0 +1,42 @@
+name: Local Evidence Materialization Qualification
+
+on:
+  push:
+    branches:
+      - fix-domain-local-evidence-materialization
+    paths:
+      - 'dev-hub/adapters/context7-mcp-adapter.py'
+      - 'dev-hub/adapters/platform-command-adapter.py'
+      - 'dev-hub/adapters/collector-knowledge-adapter.py'
+      - 'dev-hub/bin/verification-broker.py'
+      - 'dev-hub/config/verification-broker.v1.json'
+      - 'dev-hub/tests/test_local_evidence_materialization.py'
+      - '.github/workflows/local-evidence-materialization-qualification.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile changed Python
+        run: |
+          python3 -m py_compile \
+            dev-hub/adapters/context7-mcp-adapter.py \
+            dev-hub/adapters/platform-command-adapter.py \
+            dev-hub/adapters/collector-knowledge-adapter.py \
+            dev-hub/bin/verification-broker.py \
+            dev-hub/tests/test_local_evidence_materialization.py
+      - name: Run local evidence qualification
+        run: python3 dev-hub/tests/test_local_evidence_materialization.py
+      - name: Assert verification broker remains fail-closed
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('dev-hub/config/verification-broker.v1.json').read_text())
+          assert p['evidence']['unreadable_external_source']=='NEEDS_INDEPENDENT_CHECK'
+          print('BROKER_EXTERNAL_EVIDENCE_FAIL_CLOSED=PASS')
+          PY
