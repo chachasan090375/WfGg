@@ -65,6 +65,13 @@ class OperatorPolicy:
     def service_allowed(self, name: str) -> bool:
         return name in set(str(x) for x in self.raw.get("service_status_allowlist", []))
 
+    def governed_operation_allowed(self, operation_id: str) -> bool:
+        if self.raw.get("governed_operations_enabled") is not True:
+            return False
+        return operation_id in set(str(x) for x in self.raw.get("governed_operation_allowlist", []))
+
+    # Legacy V0.1 raw command surface remains disabled in V0.2. This method exists only
+    # for compatibility with the published V0.1 command_run tool.
     def command_profile(self, argv: list[str], cwd: str | None = None) -> dict[str, Any]:
         if self.raw.get("command_execution_enabled") is not True:
             raise PolicyError("COMMAND_EXECUTION_DISABLED")
@@ -72,35 +79,6 @@ class OperatorPolicy:
             raise PolicyError("COMMAND_ARGV_INVALID")
         if cwd is not None:
             self.resolve_read_path(cwd)
-        profiles = self.raw.get("command_profiles") or []
-        if profiles:
-            executable = argv[0]
-            args = argv[1:]
-            for raw_profile in profiles:
-                profile = dict(raw_profile)
-                if executable != str(profile.get("executable") or ""):
-                    continue
-                if profile.get("cwd_required") is True and cwd is None:
-                    continue
-                exact = profile.get("exact_args")
-                if exact is not None:
-                    if args == [str(x) for x in exact]:
-                        return profile
-                    continue
-                prefix = [str(x) for x in (profile.get("prefix_args") or [])]
-                if args[: len(prefix)] != prefix:
-                    continue
-                tail = args[len(prefix):]
-                if profile.get("service_argument_after_prefix") is True:
-                    if len(tail) == 1 and self.service_allowed(tail[0]):
-                        return profile
-                    continue
-                allowed_tail = set(str(x) for x in (profile.get("allowed_trailing_args") or []))
-                if all(x in allowed_tail for x in tail):
-                    return profile
-            raise PolicyError("COMMAND_NOT_ALLOWLISTED")
-
-        # V0.1 compatibility only. V0.2 policies must use command_profiles.
         for prefix in self.raw.get("command_allowlist", []):
             p = [str(x) for x in prefix]
             if argv[: len(p)] == p:
@@ -141,8 +119,12 @@ def load_policy(path: Path | None = None) -> OperatorPolicy:
     if data.get("git_mutation_enabled") is not False:
         raise PolicyError("GIT_MUTATION_FORBIDDEN")
     if data.get("schema") == "chacha.dev/chacha-remote-operator-policy/v2":
-        if data.get("guardian_required_for_command_execution") is not True:
+        if data.get("guardian_required_for_governed_operations") is not True:
             raise PolicyError("V02_GUARDIAN_REQUIRED")
-        if not data.get("command_profiles"):
-            raise PolicyError("V02_COMMAND_PROFILES_REQUIRED")
+        if data.get("single_writer_command_lease") is not True:
+            raise PolicyError("V02_SINGLE_WRITER_LEASE_REQUIRED")
+        if data.get("command_execution_enabled") is not False:
+            raise PolicyError("V02_RAW_COMMAND_EXECUTION_MUST_STAY_DISABLED")
+        if data.get("governed_operations_enabled") is True and not data.get("governed_operation_allowlist"):
+            raise PolicyError("V02_OPERATION_ALLOWLIST_REQUIRED")
     return OperatorPolicy(data, source)
