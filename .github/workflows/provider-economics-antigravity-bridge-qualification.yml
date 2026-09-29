@@ -1,0 +1,50 @@
+name: Provider Economics Antigravity Bridge Qualification
+
+on:
+  push:
+    branches:
+      - project-control-plane-diagnostics
+    paths:
+      - 'dev-hub/bin/provider-economics-antigravity-bridge.py'
+      - 'dev-hub/tests/test_provider_economics_antigravity_bridge.py'
+      - '.github/workflows/provider-economics-antigravity-bridge-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile bridge
+        run: python -m py_compile dev-hub/bin/provider-economics-antigravity-bridge.py
+
+      - name: Run targeted bridge tests
+        run: python dev-hub/tests/test_provider_economics_antigravity_bridge.py
+
+      - name: Verify fail-closed invariants
+        run: |
+          grep -F 'SOURCE_ATTESTATION_STALE' dev-hub/bin/provider-economics-antigravity-bridge.py
+          grep -F 'SOURCE_ATTESTATION_NONZERO_SPEND' dev-hub/bin/provider-economics-antigravity-bridge.py
+          grep -F 'automatic_external_spend_eur' dev-hub/bin/provider-economics-antigravity-bridge.py
+          if grep -Eq 'requests\.|urllib\.request|socket\.' dev-hub/bin/provider-economics-antigravity-bridge.py; then
+            echo 'unexpected outbound-network client detected' >&2
+            exit 1
+          fi
+
+      - name: Prove bridge does not write provider runtime by default
+        run: |
+          if grep -Fq '/opt/chacha-dev/runtime/provider-economics' dev-hub/bin/provider-economics-antigravity-bridge.py; then
+            echo 'bridge must not hard-code provider runtime write paths' >&2
+            exit 1
+          fi
