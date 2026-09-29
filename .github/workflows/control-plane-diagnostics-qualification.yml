@@ -1,0 +1,80 @@
+name: Control Plane Diagnostics Qualification
+
+on:
+  push:
+    branches:
+      - project-control-plane-diagnostics
+    paths:
+      - 'dev-hub/bin/direct-operator-control-plane-gateway.py'
+      - 'dev-hub/config/platform-control-plane.v1.json'
+      - 'dev-hub/systemd/chacha-dev-direct-operator.service'
+      - 'dev-hub/tests/test_platform_control_plane.py'
+      - '.github/workflows/control-plane-diagnostics-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile gateway and preserved Direct Operator core
+        run: |
+          python -m py_compile dev-hub/bin/direct-operator-control-plane-gateway.py
+          python -m py_compile dev-hub/bin/direct-operator-service.py
+
+      - name: Run targeted deterministic tests
+        run: python dev-hub/tests/test_platform_control_plane.py
+
+      - name: Validate control-plane policy invariants
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('dev-hub/config/platform-control-plane.v1.json').read_text())
+          assert p['schema']=='chacha.dev/platform-control-plane-policy/v1'
+          inv=p['invariants']
+          assert inv['runs_before_dialogue_provider'] is True
+          assert inv['runs_before_central_orchestrator'] is True
+          assert inv['runs_without_llm'] is True
+          assert inv['runs_without_external_adapter'] is True
+          assert inv['runs_without_network_research'] is True
+          assert inv['tailscale_identity_required'] is True
+          assert inv['read_only_by_default'] is True
+          assert inv['zero_cost_refresh_requires_verified_local_evidence'] is True
+          assert inv['automatic_external_spend_eur']==0
+          assert p['zero_cost_refresh']['local_evidence_path'] is None
+          PY
+
+      - name: Prove Direct Operator core is unchanged from qualified base
+        run: git diff --exit-code c9003fec6124962a949ccec3ce943092b3c340d8 -- dev-hub/bin/direct-operator-service.py
+
+      - name: Verify systemd gateway wiring and fail-closed write scope
+        run: |
+          grep -F 'direct-operator-control-plane-gateway.py' dev-hub/systemd/chacha-dev-direct-operator.service
+          grep -F 'platform-control-plane.v1.json' dev-hub/systemd/chacha-dev-direct-operator.service
+          grep -F 'KillMode=mixed' dev-hub/systemd/chacha-dev-direct-operator.service
+          if grep -Fq '/opt/chacha-dev/runtime/provider-economics' dev-hub/systemd/chacha-dev-direct-operator.service; then
+            echo 'provider-economics must remain non-writable until local evidence refresh is separately qualified' >&2
+            exit 1
+          fi
+
+      - name: Verify zero external spend and no network research implementation
+        run: |
+          grep -F 'automatic_external_spend_eur' dev-hub/bin/direct-operator-control-plane-gateway.py
+          if grep -Eq 'requests\.|urllib\.request|socket\.' dev-hub/bin/direct-operator-control-plane-gateway.py; then
+            echo 'unexpected outbound-network client detected in control plane' >&2
+            exit 1
+          fi
