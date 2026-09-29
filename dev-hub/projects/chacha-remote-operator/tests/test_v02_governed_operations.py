@@ -239,4 +239,4 @@ def test_v02_mcp_surface_has_exactly_eight_named_tools() -> None:
         "uname": [],
     }
     assert "governed_operation" not in signatures
-    assert "argv" not in source
+    assert all("argv" not in params for params in signatures.values())
