@@ -19,7 +19,7 @@ def _safe(value: str, fallback: str) -> str:
 
 
 def _canonical_bytes(payload: Any) -> bytes:
-    return json.dumps(payload, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    return json.dumps(payload, sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode("utf-8") + b"\n"
 
 
 def materialize(
@@ -43,7 +43,7 @@ def materialize(
     if not target.exists():
         tmp = target.with_name(target.name + f".tmp-{os.getpid()}-{uuid.uuid4().hex[:8]}")
         with tmp.open("wb") as fh:
-            fh.write(body + b"\n")
+            fh.write(body)
             fh.flush()
             os.fsync(fh.fileno())
         os.chmod(tmp, 0o640)
