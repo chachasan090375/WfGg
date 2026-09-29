@@ -35,10 +35,10 @@ def _last_json(stdout: str) -> dict[str, Any]:
     raise GuardianError("GUARDIAN_RESULT_JSON_MISSING")
 
 
-def guardian_gate(policy: Any, phase: str, action_id: str, profile_id: str,
+def guardian_gate(policy: Any, phase: str, action_id: str, operation_id: str,
                   lease_id: str, details: dict[str, Any] | None = None) -> dict[str, Any]:
-    if policy.raw.get("guardian_required_for_command_execution") is not True:
-        raise GuardianError("GUARDIAN_REQUIRED_FOR_COMMAND_EXECUTION")
+    if policy.raw.get("guardian_required_for_governed_operations") is not True:
+        raise GuardianError("GUARDIAN_REQUIRED_FOR_GOVERNED_OPERATIONS")
     client = Path(str(policy.raw.get("guardian_client_path") or ""))
     guardian_policy = Path(str(policy.raw.get("guardian_policy_path") or ""))
     if not client.is_file() or not guardian_policy.is_file():
@@ -54,17 +54,17 @@ def guardian_gate(policy: Any, phase: str, action_id: str, profile_id: str,
         "phase": phase,
         "actor": "remote-operator-gateway-agent",
         "subject_role": "remote-operator-gateway-agent",
-        "action": "EXECUTE_ALLOWLISTED_REMOTE_COMMAND",
-        "task_kind": "remote-operator-command",
+        "action": "EXECUTE_GOVERNED_REMOTE_READ_OPERATION",
+        "task_kind": "remote-operator-read-operation",
         "permission": "read",
         "project_id": "chacha-remote-operator",
         "run_id": action_id,
         "adapters": [],
         "evidence": {
             "human_approval": False,
-            "profile_id": profile_id,
+            "operation_id": operation_id,
             "lease_id": lease_id,
-            "argv_only": True,
+            "argv_user_supplied": False,
             "shell": False,
             "destructive_operation": False,
             "automatic_external_spend_eur": 0,
@@ -94,5 +94,5 @@ def guardian_gate(policy: Any, phase: str, action_id: str, profile_id: str,
     return result
 
 
-def new_action_id(profile_id: str) -> str:
-    return "cro-" + profile_id + "-" + str(int(time.time())) + "-" + uuid.uuid4().hex[:12]
+def new_action_id(operation_id: str) -> str:
+    return "cro-" + operation_id + "-" + str(int(time.time())) + "-" + uuid.uuid4().hex[:12]
