@@ -1,0 +1,47 @@
+name: Dev Hub Canonical Path Runtime Wiring Qualification
+
+on:
+  push:
+    branches:
+      - project-canonical-path-resolution-multi-agent
+    paths:
+      - dev-hub/adapters/canonical_component_registry_read.py
+      - dev-hub/bin/central-interface-controller.py
+      - dev-hub/bin/central-interface-controller-core.py
+      - dev-hub/bin/governed-project-control.py
+      - dev-hub/projects/canonical-path-resolution/src/**
+      - dev-hub/projects/canonical-path-resolution/tests/test_runtime_wiring.py
+      - .github/workflows/dev-hub-canonical-path-runtime-wiring-qualification.yml
+
+permissions:
+  contents: read
+
+jobs:
+  targeted-runtime-wiring:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pytest
+        run: python -m pip install --disable-pip-version-check pytest
+
+      - name: Compile targeted runtime wiring
+        run: |
+          python -m py_compile \
+            dev-hub/adapters/canonical_component_registry_read.py \
+            dev-hub/bin/central-interface-controller.py \
+            dev-hub/bin/central-interface-controller-core.py \
+            dev-hub/bin/governed-project-control.py \
+            dev-hub/projects/canonical-path-resolution/src/canonical_path_resolution/*.py
+
+      - name: Run only new runtime wiring tests
+        run: >-
+          python -m pytest -q
+          dev-hub/projects/canonical-path-resolution/tests/test_runtime_wiring.py
