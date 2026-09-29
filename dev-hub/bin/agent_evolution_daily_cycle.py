@@ -150,6 +150,13 @@ def main()->int:
     shadow_evidence=safe(pe/"shadow-evidence.json")
     pilot_readiness=pcec.build_pilot_readiness(shadow_ledger,shadow_evidence)
     save(pe/"pilot-readiness-latest.json",pilot_readiness)
+    shadow_continuations={"schema":"chacha.dev/platform-component-shadow-continuation-index/v1",
+      "generated_at":iso(stamp),"continuation_count":pilot_readiness.get("continuation_count",0),
+      "continuations":list(pilot_readiness.get("continuations") or []),
+      "automatic_execution_authorized":False,"direct_component_mutation":False,
+      "production_change_authorized":False,"promotion_authorized":False,
+      "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+    save(pe/"shadow-continuations-latest.json",shadow_continuations)
     pilot_harness_registry=load(cfg/"platform-component-pilot-harness-registry.v1.json")
     pilot_contracts=pcec.build_pilot_contracts(pilot_readiness,pilot_harness_registry)
     save(pe/"pilot-contracts-latest.json",pilot_contracts)
@@ -171,6 +178,7 @@ def main()->int:
       "platform_foundry_shadow_execution_complete":platform_shadow.get("shadow_execution_complete"),
       "platform_pilot_ready_count":pilot_readiness.get("pilot_ready_count"),
       "platform_hold_shadow_count":pilot_readiness.get("hold_shadow_count"),
+      "platform_shadow_continuation_count":pilot_readiness.get("continuation_count"),
       "platform_pilot_execution_authorized":pilot_readiness.get("pilot_execution_authorized"),
       "platform_pilot_contract_count":pilot_contracts.get("contract_count"),
       "platform_pilot_contract_blocked_count":pilot_contracts.get("blocked_count"),
@@ -201,6 +209,7 @@ def main()->int:
     print("PLATFORM_FOUNDRY_SHADOW="+("PASS" if platform_shadow["shadow_execution_complete"] else ("IDLE" if platform_shadow["input_dispatch_count"]==0 else "BLOCKED")))
     print("PLATFORM_PILOT_READY="+str(pilot_readiness["pilot_ready_count"]))
     print("PLATFORM_HOLD_SHADOW="+str(pilot_readiness["hold_shadow_count"]))
+    print("PLATFORM_SHADOW_CONTINUATIONS="+str(pilot_readiness.get("continuation_count",0)))
     print("PLATFORM_PILOT_CONTRACTS="+str(pilot_contracts["contract_count"]))
     print("CHACHA_DEV_V648_AUTOMATIC_EXTERNAL_SPEND_EUR=0");return 0
 if __name__=="__main__":raise SystemExit(main())

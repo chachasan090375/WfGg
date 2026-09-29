@@ -22,15 +22,38 @@ assert none["pilot_ready_count"]==0,none
 assert none["hold_shadow_count"]==1,none
 r=none["rows"][0]
 assert r["state"]=="HOLD_SHADOW",r
+assert r["continuation_state"]=="SHADOW_EVIDENCE_REQUIRED",r
+assert r["continuation_action"]=="COLLECT_EXACT_CANDIDATE_INCUMBENT_EVIDENCE",r
 assert r["pilot_execution_authorized"] is False,r
 assert "independent_verification" in r["missing_evidence"],r
 assert none["candidate_presence_alone_never_authorizes_pilot"] is True
+
+
+no_signal_result=dict(shadow_result,dispatch_id="d0",shadow_candidate_signals=[])
+no_signal_ledger={"completed":{"d0":{"component_id":"central-orchestrator","candidate_owner":"branch-foundry","shadow_result":no_signal_result}}}
+no_signal=ctrl.build_pilot_readiness(no_signal_ledger,{"evidence":[]})
+ns=no_signal["rows"][0]
+assert ns["state"]=="HOLD_SHADOW",ns
+assert ns["continuation_state"]=="CANDIDATE_BUILD_REQUIRED",ns
+assert ns["continuation_action"]=="BUILD_PROVISIONAL_PLATFORM_COMPONENT_CANDIDATE",ns
+assert ns["continuation_owner"]=="branch-foundry",ns
+assert no_signal["continuation_count"]==1,no_signal
 
 partial={"evidence":[{"dispatch_id":"d1","evidence_refs":["e:1"],
  "independent_verification":True,"measurable_gain":True}]}
 p=ctrl.build_pilot_readiness(ledger,partial)
 assert p["pilot_ready_count"]==0 and p["hold_shadow_count"]==1,p
 assert "rollback_ready" in p["rows"][0]["missing_evidence"],p
+
+harness_missing={"evidence":[{"dispatch_id":"d1","evidence_refs":["e:1","e:2"],
+ "independent_verification":True,"measurable_gain":True,"no_material_regression":True,
+ "permission_non_escalation":True,"rollback_ready":True,"exact_revision_evidence":True,
+ "logician_falsification_pass":True,"technology_watch_revalidation_pass":True,
+ "real_harness_available":False,"candidate_artifact_ref":"git:candidate@abc",
+ "incumbent_artifact_ref":"git:incumbent@def","candidate_revision":"abc","incumbent_revision":"def"}]}
+hm=ctrl.build_pilot_readiness(ledger,harness_missing)
+assert hm["rows"][0]["continuation_state"]=="PILOT_HARNESS_BUILD_REQUIRED",hm
+assert hm["rows"][0]["continuation_action"]=="BUILD_REAL_ISOLATED_PILOT_HARNESS",hm
 
 complete={"evidence":[{"dispatch_id":"d1","evidence_refs":["e:1","e:2"],
  "independent_verification":True,"measurable_gain":True,"no_material_regression":True,
@@ -56,6 +79,7 @@ assert nr["rows"][0]["state"]=="NOT_REQUIRED",nr
 print("CHACHA_DEV_PLATFORM_PILOT_GATE=PASS")
 print("CHACHA_DEV_PLATFORM_CANDIDATE_ALONE_PILOT=NO")
 print("CHACHA_DEV_PLATFORM_INDEPENDENT_EVIDENCE_REQUIRED=YES")
+print("CHACHA_DEV_PLATFORM_SHADOW_CONTINUATION_CONTRACT=PASS")
 print("CHACHA_DEV_PLATFORM_REAL_HARNESS_REQUIRED=YES")
 print("CHACHA_DEV_PLATFORM_PILOT_EXECUTION_AUTHORIZED=NO")
 print("CHACHA_DEV_PLATFORM_PRODUCTION_CHANGE_AUTHORIZED=NO")

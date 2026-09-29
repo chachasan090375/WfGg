@@ -117,7 +117,7 @@ def build_pilot_readiness(shadow_ledger:dict[str,Any],evidence_index:dict[str,An
     for row in evidence_index.get("evidence") or []:
         if isinstance(row,dict) and str(row.get("dispatch_id") or ""):
             evidence_by[str(row.get("dispatch_id"))]=row
-    rows=[];ready=[];blocked=[]
+    rows=[];ready=[];blocked=[];continuations=[]
     required=[
       "independent_verification","measurable_gain","no_material_regression",
       "permission_non_escalation","rollback_ready","exact_revision_evidence",
@@ -143,6 +143,24 @@ def build_pilot_readiness(shadow_ledger:dict[str,Any],evidence_index:dict[str,An
         if not incumbent_ref:missing.append("incumbent_artifact_ref")
         if not candidate_revision:missing.append("candidate_revision")
         if not incumbent_revision:missing.append("incumbent_revision")
+        continuation_state=None;continuation_action=None;continuation_owner=None
+        if pilot_required and missing:
+            if not signals:
+                continuation_state="CANDIDATE_BUILD_REQUIRED"
+                continuation_action="BUILD_PROVISIONAL_PLATFORM_COMPONENT_CANDIDATE"
+                continuation_owner=str(entry.get("candidate_owner") or result.get("candidate_owner") or "")
+            elif not candidate_ref or not incumbent_ref or not candidate_revision or not incumbent_revision:
+                continuation_state="SHADOW_EVIDENCE_REQUIRED"
+                continuation_action="COLLECT_EXACT_CANDIDATE_INCUMBENT_EVIDENCE"
+                continuation_owner="central-orchestrator"
+            elif pre_pilot_checks.get("real_harness_available") is not True:
+                continuation_state="PILOT_HARNESS_BUILD_REQUIRED"
+                continuation_action="BUILD_REAL_ISOLATED_PILOT_HARNESS"
+                continuation_owner="central-orchestrator"
+            else:
+                continuation_state="SHADOW_EVIDENCE_REQUIRED"
+                continuation_action="COMPLETE_SHADOW_ASSURANCE_EVIDENCE"
+                continuation_owner="central-orchestrator"
         state="NOT_REQUIRED" if not pilot_required else ("PILOT_READY" if not missing else "HOLD_SHADOW")
         row={"dispatch_id":did,"component_id":cid,"candidate_owner":entry.get("candidate_owner"),
           "state":state,"pilot_required":pilot_required,"shadow_candidate_signal_count":len(signals),
@@ -150,6 +168,8 @@ def build_pilot_readiness(shadow_ledger:dict[str,Any],evidence_index:dict[str,An
           "candidate_revision":candidate_revision,"incumbent_revision":incumbent_revision,
           "pre_pilot_checks":pre_pilot_checks,
           "missing_evidence":sorted(set(missing)),
+          "continuation_state":continuation_state,"continuation_action":continuation_action,
+          "continuation_owner":continuation_owner,
           "pilot_execution_authorized":False,"production_change_authorized":False,
           "active_component_mutation":False,"promotion_authorized":False,
           "permission_expansion":False,"real_harness_required":True,
@@ -157,9 +177,22 @@ def build_pilot_readiness(shadow_ledger:dict[str,Any],evidence_index:dict[str,An
           "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
         rows.append(row)
         if state=="PILOT_READY":ready.append(row)
-        elif state=="HOLD_SHADOW":blocked.append(row)
+        elif state=="HOLD_SHADOW":
+            blocked.append(row)
+            continuation={"schema":"chacha.dev/platform-component-shadow-continuation/v1",
+              "continuation_id":"psc-"+digest({"dispatch_id":did,"state":continuation_state,"missing":sorted(set(missing))})[:24],
+              "dispatch_id":did,"component_id":cid,"candidate_owner":entry.get("candidate_owner"),
+              "state":continuation_state,"action":continuation_action,"owner":continuation_owner,
+              "missing_evidence":sorted(set(missing)),"candidate_signal_count":len(signals),
+              "direct_component_mutation":False,"production_change_authorized":False,
+              "promotion_authorized":False,"permission_expansion":False,
+              "technology_watch_revalidation_required":True,"logician_falsification_required":True,
+              "guardian_required":True,"sentinel_required":True,
+              "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+            continuations.append(continuation)
     return {"schema":"chacha.dev/platform-component-pilot-readiness-index/v1",
       "evaluated_count":len(rows),"pilot_ready_count":len(ready),"hold_shadow_count":len(blocked),
+      "continuation_count":len(continuations),"continuations":continuations,
       "rows":rows,"pilot_ready":ready,"hold_shadow":blocked,
       "candidate_presence_alone_never_authorizes_pilot":True,
       "pilot_execution_authorized":False,"production_change_authorized":False,
