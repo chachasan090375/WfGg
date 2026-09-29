@@ -1,0 +1,29 @@
+{
+  "schema": "chacha.dev/platform-control-plane-policy/v1",
+  "version": "1.0.0",
+  "component": "platform-control-plane-diagnostics",
+  "core_script": "dev-hub/bin/direct-operator-service.py",
+  "core_port": 8793,
+  "jobs_root": "/opt/chacha-dev/runtime/direct-operator/control-plane-jobs",
+  "session_path": "/opt/chacha-dev/runtime/direct-operator/session.json",
+  "allowed_response_root": "/opt/chacha-dev/runtime/direct-operator",
+  "emergency_stop_path": "/opt/chacha-dev/runtime/control/emergency-stop.json",
+  "zero_cost_refresh": {
+    "local_evidence_path": null,
+    "fail_closed_without_verified_local_evidence": true
+  },
+  "invariants": {
+    "runs_before_dialogue_provider": true,
+    "runs_before_central_orchestrator": true,
+    "runs_without_llm": true,
+    "runs_without_external_adapter": true,
+    "runs_without_network_research": true,
+    "tailscale_identity_required": true,
+    "read_only_by_default": true,
+    "zero_cost_refresh_requires_verified_local_evidence": true,
+    "automatic_external_spend_eur": 0,
+    "guardian_authority_preserved": true,
+    "sentinel_authority_preserved": true,
+    "emergency_stop_authority_preserved": true
+  }
+}
