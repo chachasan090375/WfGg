@@ -5,6 +5,7 @@ import argparse
 import importlib.util
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 
@@ -45,8 +46,13 @@ def main() -> int:
     if control_policy.get("schema") != module.POLICY_SCHEMA:
         raise SystemExit("CONTROL_PLANE_POLICY_SCHEMA_INVALID")
 
-    control = module.ControlPlane(repo, runtime, direct_policy, control_policy)
-    report = control.report()
+    with tempfile.TemporaryDirectory(prefix="chacha-control-plane-pilot-") as td:
+        pilot_policy = dict(control_policy)
+        pilot_policy["jobs_root"] = str(Path(td) / "jobs")
+        # All observed platform state remains the real runtime. The only constructor-created
+        # working directory is redirected outside /opt/chacha-dev/runtime for a true read-only pilot.
+        control = module.ControlPlane(repo, runtime, direct_policy, pilot_policy)
+        report = control.report()
 
     invariants = {
         "mode_local_deterministic": report.get("mode") == "LOCAL_DETERMINISTIC_NO_PROVIDER",
@@ -66,6 +72,7 @@ def main() -> int:
         "repo_root": str(repo),
         "runtime_root": str(runtime),
         "read_only": True,
+        "runtime_mutation_performed": False,
         "provider_invoked": False,
         "automatic_external_spend_eur": 0,
         "invariants": invariants,
