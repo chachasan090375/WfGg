@@ -10,7 +10,9 @@ on:
       - dev-hub/bin/central-interface-controller-core.py
       - dev-hub/bin/governed-project-control.py
       - dev-hub/projects/canonical-path-resolution/src/**
+      - dev-hub/projects/canonical-path-resolution/tools/candidate_runtime_pilot.py
       - dev-hub/projects/canonical-path-resolution/tests/test_runtime_wiring.py
+      - dev-hub/projects/canonical-path-resolution/tests/test_candidate_runtime_pilot.py
       - .github/workflows/dev-hub-canonical-path-runtime-wiring-qualification.yml
 
 permissions:
@@ -32,16 +34,18 @@ jobs:
       - name: Install pytest
         run: python -m pip install --disable-pip-version-check pytest
 
-      - name: Compile targeted runtime wiring
+      - name: Compile targeted runtime wiring and pilot harness
         run: |
           python -m py_compile \
             dev-hub/adapters/canonical_component_registry_read.py \
             dev-hub/bin/central-interface-controller.py \
             dev-hub/bin/central-interface-controller-core.py \
             dev-hub/bin/governed-project-control.py \
+            dev-hub/projects/canonical-path-resolution/tools/candidate_runtime_pilot.py \
             dev-hub/projects/canonical-path-resolution/src/canonical_path_resolution/*.py
 
-      - name: Run only new runtime wiring tests
+      - name: Run only Canonical Path runtime wiring and pilot isolation tests
         run: >-
           python -m pytest -q
           dev-hub/projects/canonical-path-resolution/tests/test_runtime_wiring.py
+          dev-hub/projects/canonical-path-resolution/tests/test_candidate_runtime_pilot.py
