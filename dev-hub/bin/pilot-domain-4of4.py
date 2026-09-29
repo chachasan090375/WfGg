@@ -80,7 +80,7 @@ def main():
   project=str(load(reports[tid]).get("project") or "chacha-dev-platform")
   envlp={"schema":"chacha.dev/dispatch-envelope/v1","project":project,"transition":"PILOT","run_id":f"pilot-four-{i}","wave":0,"task":task,"bindings":[{"capability":cap,"provider":provider,"adapter":adapter,"health_state":"HEALTHY"}],"policy_context":{"human_approval_required":False,"timeout_seconds":120},"workspace":None,"metadata":metadata}
   tdir=work/f"task-{i}"; tdir.mkdir(parents=True)
-  env=dict(os.environ); env["CHACHA_DEV_EVIDENCE_ROOT"]=str(evidence_root); env["CHACHA_DEV_PLATFORM_ROOT"]=str(CURRENT)
+  env=dict(os.environ); env["CHACHA_DEV_EVIDENCE_ROOT"]=str(evidence_root); env["CHACHA_DEV_PLATFORM_ROOT"]=str(CAND)
   pr=run(["python3",str(CAND/ADAPTERS[adapter])],input=json.dumps(envlp),env=env,timeout=120)
   if pr.returncode!=0:
    print(pr.stdout[-2500:]); print(pr.stderr[-2500:]); fail("ADAPTER_FAILED:"+tid)
