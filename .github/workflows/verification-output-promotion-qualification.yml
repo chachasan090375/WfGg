@@ -1,0 +1,42 @@
+name: Verification Output Promotion Qualification
+
+on:
+  push:
+    branches:
+      - fix-domain-verification-output-promotion
+    paths:
+      - dev-hub/bin/verification-broker.py
+      - dev-hub/tests/test_verification_broker_output_promotion.py
+      - .github/workflows/verification-output-promotion-qualification.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+
+      - name: Compile broker and test
+        run: |
+          python3 -m py_compile \
+            dev-hub/bin/verification-broker.py \
+            dev-hub/tests/test_verification_broker_output_promotion.py
+
+      - name: Run targeted regression tests
+        run: |
+          python3 dev-hub/tests/test_verification_broker_output_promotion.py
+
+      - name: Verify fail-closed promotion invariant
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('dev-hub/bin/verification-broker.py').read_text()
+          assert 'if report.get("status") != "VERIFIED":' in s
+          assert 'item.get("status") == "UNVERIFIED"' in s
+          assert 'item["status"] = "VERIFIED"' in s
+          print('PASS: terminal output promotion remains gated by independent VERIFIED report')
+          PY
