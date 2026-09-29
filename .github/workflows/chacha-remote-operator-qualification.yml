@@ -1,0 +1,47 @@
+name: ChaCha Remote Operator qualification
+
+on:
+  push:
+    branches:
+      - project-chacha-remote-operator-mcp
+      - dev-hub-v-remote-operator-*
+    paths:
+      - 'dev-hub/projects/chacha-remote-operator/**'
+      - '.github/workflows/chacha-remote-operator-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install project
+        run: python -m pip install -e './dev-hub/projects/chacha-remote-operator[dev]'
+      - name: Compile
+        run: python -m compileall -q dev-hub/projects/chacha-remote-operator/src
+      - name: Policy tests
+        run: pytest -q dev-hub/projects/chacha-remote-operator/tests
+      - name: Security invariants
+        run: |
+          python - <<'PY'
+          import json
+          p='dev-hub/projects/chacha-remote-operator/config/policy.v1.json'
+          x=json.load(open(p,encoding='utf-8'))
+          assert x['mode']=='PILOT_READ_ONLY'
+          assert x['bind_host']=='127.0.0.1'
+          assert x['command_execution_enabled'] is False
+          assert x['file_write_enabled'] is False
+          assert x['service_mutation_enabled'] is False
+          assert x['git_mutation_enabled'] is False
+          assert x['destructive_operations_enabled'] is False
+          assert x['external_network_access_enabled'] is False
+          assert x['credential_export_enabled'] is False
+          assert float(x['automatic_external_spend_eur'])==0
+          print('CHACHA_REMOTE_OPERATOR_V01_SECURITY_INVARIANTS=PASS')
+          PY
