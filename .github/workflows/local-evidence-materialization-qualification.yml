@@ -21,6 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Compile changed Python
         run: |
           python3 -m py_compile \
@@ -29,43 +30,22 @@ jobs:
             dev-hub/adapters/collector-knowledge-adapter.py \
             dev-hub/bin/verification-broker.py \
             dev-hub/tests/test_local_evidence_materialization.py
-      - name: Test Context7 local evidence
+
+      - name: Run local evidence materialization regression suite
+        run: |
+          python3 dev-hub/tests/test_local_evidence_materialization.py
+
+      - name: Assert fail-closed invariants remain explicit
         run: |
           python3 - <<'PY'
-          import runpy
-          m=runpy.run_path('dev-hub/tests/test_local_evidence_materialization.py')
-          m['test_context7_materialization']()
-          print('CONTEXT7_LOCAL_EVIDENCE=PASS')
-          PY
-      - name: Test Technology Watch local evidence
-        run: |
-          python3 - <<'PY'
-          import runpy
-          m=runpy.run_path('dev-hub/tests/test_local_evidence_materialization.py')
-          m['test_platform_materialization']()
-          print('TECHNOLOGY_WATCH_LOCAL_EVIDENCE=PASS')
-          PY
-      - name: Test Collector contract and local evidence
-        run: |
-          python3 - <<'PY'
-          import runpy
-          m=runpy.run_path('dev-hub/tests/test_local_evidence_materialization.py')
-          m['test_collector_status_honors_declared_outputs_and_local_evidence']()
-          print('COLLECTOR_LOCAL_EVIDENCE_AND_OUTPUT_CONTRACT=PASS')
-          PY
-      - name: Test success-path wiring
-        run: |
-          python3 - <<'PY'
-          import runpy
-          m=runpy.run_path('dev-hub/tests/test_local_evidence_materialization.py')
-          m['test_success_paths_use_materialized_sources']()
-          print('SUCCESS_PATH_WIRING=PASS')
-          PY
-      - name: Assert verification broker remains fail-closed
-        run: |
-          python3 - <<'PY'
-          import runpy
-          m=runpy.run_path('dev-hub/tests/test_local_evidence_materialization.py')
-          m['test_verification_broker_stays_fail_closed_for_external_sources']()
-          print('BROKER_EXTERNAL_EVIDENCE_FAIL_CLOSED=PASS')
+          import json
+          from pathlib import Path
+
+          policy=json.loads(Path('dev-hub/config/verification-broker.v1.json').read_text())
+          assert policy['evidence']['unreadable_external_source']=='NEEDS_INDEPENDENT_CHECK'
+          assert policy['principles']['declared_task_output_only'] is True
+          assert policy['principles']['original_task_result_is_immutable'] is True
+          print('VERIFICATION_BROKER_FAIL_CLOSED=PASS')
+          print('DECLARED_OUTPUT_ONLY=PASS')
+          print('ORIGINAL_RESULT_IMMUTABLE=PASS')
           PY
