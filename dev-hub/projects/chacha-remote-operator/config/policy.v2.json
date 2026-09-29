@@ -2,6 +2,7 @@
   "schema": "chacha.dev/chacha-remote-operator-policy/v2",
   "version": "0.2.0",
   "mode": "PILOT_GOVERNED_READ_OPERATIONS",
+  "fail_closed": true,
   "bind_host": "127.0.0.1",
   "port": 8766,
   "mcp_path": "/mcp",
