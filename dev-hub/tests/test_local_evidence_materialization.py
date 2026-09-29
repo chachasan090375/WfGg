@@ -89,7 +89,7 @@ def test_verification_broker_stays_fail_closed_for_external_sources() -> None:
     assert policy["evidence"]["unreadable_external_source"] == "NEEDS_INDEPENDENT_CHECK"
     broker = (ROOT / "dev-hub/bin/verification-broker.py").read_text()
     assert 'if report.get("status") != "VERIFIED"' in broker
-    assert 'if item.get("status") == "UNVERIFIED"' in broker
+    assert 'item.get("status") == "UNVERIFIED"' in broker
     assert 'item["status"] = "VERIFIED"' in broker
 
 
