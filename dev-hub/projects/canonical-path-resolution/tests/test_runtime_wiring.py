@@ -35,23 +35,32 @@ def _load_central_wrapper():
     return module
 
 
-def test_registry_adapter_resolves_declared_source_root(tmp_path):
+def test_registry_policy_redirects_to_canonical_runtime_snapshot(tmp_path):
     source = tmp_path / "source"
     source.mkdir()
-    registry_path = tmp_path / "ccr.json"
-    registry_path.write_text(json.dumps({
-        "schema": "chacha.dev/canonical-component-registry/v1",
-        "components": {
-            "p": {
+    snapshot = tmp_path / "canonical-component-registry.json"
+    snapshot.write_text(json.dumps({
+        "schema": "chacha.dev/canonical-component-registry-snapshot/v1",
+        "components": [
+            {
+                "component_id": "p",
                 "paths": {
                     "source_root": str(source),
                     "runtime_root": str(tmp_path / "runtime"),
                     "state_root": str(tmp_path / "runtime/state/p")
                 }
             }
+        ]
+    }), encoding="utf-8")
+    policy = tmp_path / "policy.json"
+    policy.write_text(json.dumps({
+        "schema": "chacha.dev/canonical-component-registry-policy/v1",
+        "runtime_registry": {
+            "canonical_snapshot": "/not-used-in-test.json"
         }
     }), encoding="utf-8")
-    registry = JsonCanonicalComponentRegistry(registry_path)
+
+    registry = JsonCanonicalComponentRegistry(policy, snapshot_override=snapshot)
     result = CanonicalPathResolver(
         registry,
         FilesystemRuntimePathObserver(registry),
@@ -59,6 +68,7 @@ def test_registry_adapter_resolves_declared_source_root(tmp_path):
     assert result.ok
     assert result.status.value == "RESOLVED"
     assert result.declared == str(source)
+    assert registry.component_ids() == ("p",)
 
 
 def test_governed_central_wrapper_forces_governed_project_control(tmp_path):
