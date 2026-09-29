@@ -1,7 +1,8 @@
 [Unit]
-Description=ChaCha DEV private Direct Operator surface
+Description=ChaCha DEV private Direct Operator surface with deterministic control plane
 After=network-online.target tailscaled.service
 Wants=network-online.target tailscaled.service
+ConditionPathExists=/opt/chacha-dev/platform/current/dev-hub/bin/direct-operator-control-plane-gateway.py
 ConditionPathExists=/opt/chacha-dev/platform/current/dev-hub/bin/direct-operator-service.py
 
 [Service]
@@ -10,9 +11,10 @@ User=root
 Group=root
 WorkingDirectory=/opt/chacha-dev/platform/current
 Environment=PYTHONUNBUFFERED=1
-ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/direct-operator-service.py --repo-root /opt/chacha-dev/platform/current --runtime-root /opt/chacha-dev/runtime --policy /opt/chacha-dev/platform/current/dev-hub/config/direct-operator.v1.json
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/direct-operator-control-plane-gateway.py --repo-root /opt/chacha-dev/platform/current --runtime-root /opt/chacha-dev/runtime --direct-policy /opt/chacha-dev/platform/current/dev-hub/config/direct-operator.v1.json --control-policy /opt/chacha-dev/platform/current/dev-hub/config/platform-control-plane.v1.json
 Restart=on-failure
 RestartSec=2
+KillMode=mixed
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
