@@ -32,7 +32,7 @@ TEXT=(
 payload={
   "text":TEXT,
   "project":"chacha-dev-platform",
-  "channel":"RESEARCH",
+  "channel":"BUILD",
   "client_request_id":"antigravity-fallback-benchmark-"+str(int(time.time())),
 }
 body=json.dumps(payload,separators=(",",":"),ensure_ascii=False).encode("utf-8")
