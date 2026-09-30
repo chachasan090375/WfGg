@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import json,sys,time,urllib.request,urllib.error
+import json,ssl,sys,time,urllib.request,urllib.error
 
-URL="http://127.0.0.1:8792/api/v1/intent"
+URL="https://100.67.99.19:8443/api/v1/intent"
 PAYLOAD={
   "text": (
     "PILOT UNIQUEMENT — full domain control plane isolé. "
@@ -24,8 +24,9 @@ PAYLOAD={
 
 body=json.dumps(PAYLOAD,separators=(",",":"),ensure_ascii=False).encode("utf-8")
 req=urllib.request.Request(URL,data=body,headers={"Content-Type":"application/json","Accept":"application/json"},method="POST")
+ctx=ssl._create_unverified_context()
 try:
-    with urllib.request.urlopen(req,timeout=30) as r:
+    with urllib.request.urlopen(req,timeout=30,context=ctx) as r:
         raw=r.read().decode("utf-8","replace")
         print("HTTP_STATUS="+str(r.status))
         print(raw)
