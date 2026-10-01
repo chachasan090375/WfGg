@@ -1,0 +1,80 @@
+{
+  "schema": "chacha.dev/local-cognitive-runtime-policy/v1",
+  "version": "1.0.0",
+  "provider_id": "native-local",
+  "runtime": "llama.cpp",
+  "runtime_version": "v0.5.0",
+  "runtime_prerelease": false,
+  "executable": "/opt/chacha-dev/runtime/local-cognitive/current/bin/llama-server",
+  "executable_digest": "sha256:7f6691989001a3bcfd7b9a022ba813437665cba87814bc626aa623722d86ad73",
+  "model_name": "Qwen3.5-0.8B-Q4_0",
+  "model_id": "native-local:qwen3.5-0.8b-q4_0",
+  "model_artifact": "/opt/chacha-dev/runtime/local-cognitive/current/model/Qwen3.5-0.8B-Q4_0.gguf",
+  "model_digest": "sha256:57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+  "endpoint": {
+    "host": "127.0.0.1",
+    "port": 18080
+  },
+  "rpc_allowed": false,
+  "reasoning": "off",
+  "inference_network_access": "none",
+  "automatic_external_spend_eur": 0,
+  "production_activation_authorized": false,
+  "promotion_authorized": false,
+  "capabilities": [
+    "requirements-analysis",
+    "architecture-optimization",
+    "uncertainty-resolution"
+  ],
+  "model_tiers": [
+    "local-private",
+    "local-light",
+    "general-fast"
+  ],
+  "limits": {
+    "context_tokens": 512,
+    "max_output_tokens": 64,
+    "threads": 2,
+    "threads_batch": 2,
+    "batch_size": 128,
+    "parallel_slots": 1,
+    "request_timeout_seconds": 30
+  },
+  "resources": {
+    "memory_required_mb": 640,
+    "disk_required_mb": 640,
+    "minimum_free_memory_after_load_mb": 256,
+    "minimum_free_disk_after_install_mb": 2048
+  },
+  "scoring": {
+    "quality_score": 48,
+    "latency_score": 35,
+    "evidence_score": 90
+  },
+  "guardrails": {
+    "chacha_dev_is_route_authority": true,
+    "gateway_is_replaceable_execution_only": true,
+    "rpc_forbidden": true,
+    "external_network_forbidden_during_inference": true,
+    "loopback_only": true,
+    "reasoning_trace_disabled": true,
+    "artifact_digest_required": true,
+    "rollback_required": true,
+    "no_ha_failover_side_effect": true
+  },
+  "system_guardrail": "You are the bounded ChaCha DEV native-local fallback. Never infer operational facts that are not supported by supplied evidence. If evidence is insufficient, explicitly say that evidence is insufficient. You are advisory only: never authorize production mutation, automatic external spend, or HA failover.",
+  "runtime_provenance": {
+    "repository": "https://github.com/ggml-org/llama.cpp.git",
+    "release_channel": "stable",
+    "tag": "v0.5.0",
+    "commit": "7fe450e19305b828c199d602c23a8337aaa1f03b",
+    "tree": "fd570ef54b10ec5fecb739e7e04c8ce44a6f415a",
+    "build_profile": {
+      "LLAMA_BUILD_IS_DEV": false,
+      "GGML_RPC": false,
+      "GGML_NATIVE": true,
+      "GGML_OPENMP": false,
+      "LLAMA_BUILD_SERVER": true
+    }
+  }
+}
