@@ -154,6 +154,7 @@ jobs:
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_stop_latch_reconciliation.py
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_critical_state_reconciliation.py
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_expired_action_lease_reconciliation.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_coverage_proof_integrity.py
 
       - name: Stable platform qualification receipt
         run: |
