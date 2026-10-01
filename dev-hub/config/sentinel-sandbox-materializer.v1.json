@@ -1,0 +1,29 @@
+{
+  "schema": "chacha.dev/component-materialization-manifest/v1",
+  "component_id": "sentinel-sandbox-materializer",
+  "governance_class": "CONNECTOR_ADAPTER",
+  "owner_foundry": "capability-foundry",
+  "materialization_gate_required": true,
+  "purpose": "Governed materializer for complete isolated Sentinel technical-assurance sandboxes from one authoritative source bundle.",
+  "scope": "PLATFORM",
+  "permissions": [
+    "read",
+    "workspace-write"
+  ],
+  "budget_policy": "ZERO_INCREMENTAL_COST_DEFAULT",
+  "health_contract": "NON_DESTRUCTIVE_RUNTIME_PROBE",
+  "observability": "CANONICAL_REGISTRY_AND_CLASS_TELEMETRY",
+  "lifecycle": "MATERIALIZING",
+  "termination_policy": "RETIRE_VIA_INTENDANT",
+  "retention_policy": "CLASS_DEFAULT_RETENTION",
+  "purge_policy": "UNIVERSAL_HYGIENE",
+  "rollback_policy": "ROLLBACK_REQUIRED_WHEN_MATERIAL",
+  "compatibility": "SENTINEL_SANDBOX_ATOMIC_RESOURCE_BUNDLE_V1",
+  "automatic_external_spend_eur": 0,
+  "universal_materialization": {
+    "required": true,
+    "scope": "PLATFORM",
+    "retention_policy": "CLASS_DEFAULT_RETENTION",
+    "purge_policy": "UNIVERSAL_HYGIENE"
+  }
+}
