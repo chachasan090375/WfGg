@@ -1,0 +1,24 @@
+{
+  "schema": "chacha.dev/autonomy-constitution/v1",
+  "version": "1.0.0",
+  "purpose": "Unified compliance index for ChaCha DEV autonomy boundaries. Operational authority remains in the referenced source policies.",
+  "authority_model": "REFERENCE_ONLY_NO_DUPLICATE_RUNTIME_AUTHORITY",
+  "automatic_external_spend_eur": 0,
+  "clauses": [
+    {"id":"guardian-sentinel-no-bypass","kind":"active-directive","source":"dev-hub/config/operator-directives.v1.json","directive_id":"opdir-guardian-sentinel-no-bypass"},
+    {"id":"zero-auto-external-spend","kind":"active-directive","source":"dev-hub/config/operator-directives.v1.json","directive_id":"opdir-zero-auto-external-spend"},
+    {"id":"preserve-valid-qualification","kind":"active-directive","source":"dev-hub/config/operator-directives.v1.json","directive_id":"opdir-preserve-valid-qualification"},
+    {"id":"version-agnostic-runtime","kind":"active-directive","source":"dev-hub/config/operator-directives.v1.json","directive_id":"opdir-version-agnostic-runtime"},
+    {"id":"permanent-progress-visibility","kind":"active-directive","source":"dev-hub/config/operator-directives.v1.json","directive_id":"opdir-permanent-progress-visibility"},
+    {"id":"universal-materialization","kind":"active-directive","source":"dev-hub/config/operator-directives.v1.json","directive_id":"opdir-universal-materialization"},
+    {"id":"canonical-inventory","kind":"equals","source":"dev-hub/config/canonical-component-registry.v1.json","path":"principles.single_canonical_inventory","expected":true},
+    {"id":"unknown-component-fails-closed","kind":"equals","source":"dev-hub/config/canonical-component-registry.v1.json","path":"principles.unknown_component_fails_closed","expected":true},
+    {"id":"single-writer-promotion","kind":"equals","source":"dev-hub/config/platform-promotion-transaction.v1.json","path":"invariants.single_active_promotion_writer","expected":true},
+    {"id":"human-production-approval","kind":"equals","source":"dev-hub/config/platform-promotion-transaction.v1.json","path":"invariants.human_production_approval_still_required","expected":true},
+    {"id":"stop-latched","kind":"equals","source":"dev-hub/config/emergency-stop.v1.json","path":"latch_persists_across_restart","expected":true},
+    {"id":"stop-reset-explicit","kind":"equals","source":"dev-hub/config/emergency-stop.v1.json","path":"reset.explicit_only","expected":true},
+    {"id":"direct-operator-no-technical-authority","kind":"equals","source":"dev-hub/config/direct-operator.v1.json","path":"invariants.direct_operator_has_no_technical_decision_authority","expected":true},
+    {"id":"guardian-action-lease","kind":"equals","source":"dev-hub/config/guardian-runtime-policy.v1.json","path":"action_lease_required","expected":true},
+    {"id":"sentinel-fail-closed","kind":"equals","source":"dev-hub/config/sentinel-runtime-policy.v1.json","path":"fail_closed_on_unavailable","expected":true}
+  ]
+}
