@@ -7,6 +7,7 @@ from typing import Any
 HERE=Path(__file__).resolve().parent
 if str(HERE) not in sys.path:sys.path.insert(0,str(HERE))
 import promotion_transaction as ptx
+import promotion_cycle_evidence as pce
 
 SCHEMA='chacha.dev/governed-platform-promotion/v2'
 ASSURANCE_SCHEMA='chacha.dev/promotion-bound-assurance/v1'
@@ -155,8 +156,7 @@ def require_run(path:Path,label:str)->dict[str,Any]:
     return x
 
 def finalize(release_root:Path,current:Path,runtime_root:Path,receipt:Path,guardian_post:Path,sentinel_post:Path,readiness:Path,
-             controlled_run:Path,timer_run:Path,release_count:int,controlled_before:int,controlled_after:int,timer_before:int,timer_after:int,
-             promotion_id:str,lease_token:str)->dict[str,Any]:
+             controlled_cycle_receipt:Path,timer_cycle_receipt:Path,release_count:int,promotion_id:str,lease_token:str)->dict[str,Any]:
     release_root=release_root.resolve();p=release_root/'.release-preparation.json';meta=load(p);validate_preparation(meta)
     lx=lease(runtime_root,lease_token,promotion_id,meta['candidate_revision'],'FINALIZE')
     if current.resolve()!=release_root:raise ValueError('ACTIVE_CURRENT_EXACT_REQUIRED')
@@ -165,19 +165,22 @@ def finalize(release_root:Path,current:Path,runtime_root:Path,receipt:Path,guard
     sp=require_bound_assurance(sentinel_post,'sentinel-post',lx,meta['candidate_revision'])
     rd=load(readiness)
     if rd.get('status')!='PASS' or rd.get('phase')!='READINESS' or rd.get('promotion_lease_id')!=lx.get('lease_id'):raise ValueError('READINESS_BOUND_PASS_REQUIRED')
-    cr=require_run(controlled_run,'CONTROLLED_RUN');tr=require_run(timer_run,'TIMER_RUN')
+    cr=pce.require(controlled_cycle_receipt,'CONTROLLED',lx,meta['candidate_revision'])
+    tr=pce.require(timer_cycle_receipt,'TIMER',lx,meta['candidate_revision'])
+    controlled_before=int(cr['counter_before']);controlled_after=int(cr['counter_after'])
+    timer_before=int(tr['counter_before']);timer_after=int(tr['counter_after'])
     emergency,emergency_config=canonical_emergency_state(release_root);stop=load(emergency)
     if stop.get('active') is not False:raise ValueError('EMERGENCY_STOP_MUST_BE_CLEAR')
     if release_count>3:raise ValueError('RELEASE_RETENTION_OVERAGE')
-    if not (controlled_after>controlled_before and timer_after>timer_before and timer_before>=controlled_after):raise ValueError('AUTONOMY_CYCLE_PROOF_INVALID')
+    if timer_before<controlled_after:raise ValueError('AUTONOMY_CYCLE_ORDER_INVALID')
     now=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime());sentinel_payload=sp['payload'];guardian_payload=gp['payload']
     meta.update({'promotion_acceptance_status':'PASS','guardian_post_action':'PASS','guardian_post_event_id':guardian_payload.get('event_id'),
       'sentinel_post_activation_verdict':'PASS','sentinel_post_activation_receipt_id':sentinel_payload.get('receipt_id'),'direct_operator_status':'PASS',
       'release_retention_count':release_count,'controlled_cycle_status':'CONVERGED','controlled_cycle_next_state':'RESUME',
-      'controlled_cycle_before':controlled_before,'controlled_cycle_after':controlled_after,'controlled_cycle_run_id':cr.get('run_id'),
+      'controlled_cycle_before':controlled_before,'controlled_cycle_after':controlled_after,'controlled_cycle_run_id':cr.get('run_id'),'controlled_cycle_evidence_digest':cr.get('binding_digest'),
       'autonomy_timer_status':'ACTIVE','autonomy_timer_enabled':True,'first_automatic_timer_cycle_before':timer_before,
       'first_automatic_timer_cycle_after':timer_after,'first_automatic_timer_cycle_status':'CONVERGED','first_automatic_timer_cycle_next_state':'RESUME',
-      'emergency_stop_config':str(emergency_config),'emergency_stop_state':str(emergency),'first_automatic_timer_run_id':tr.get('run_id'),
+      'emergency_stop_config':str(emergency_config),'emergency_stop_state':str(emergency),'first_automatic_timer_run_id':tr.get('run_id'),'first_automatic_timer_cycle_evidence_digest':tr.get('binding_digest'),
       'stop_available':True,'promotion_final_verification':'PASS','promotion_final_verified_at':now,'automatic_external_spend_eur':0})
     atomic_json(p,meta)
     out=ptx.bind_receipt(lx,{'schema':SCHEMA,'phase':'FINALIZE','status':'PASS','candidate_revision':meta['candidate_revision'],
@@ -206,7 +209,7 @@ def main()->int:
     p=sub.add_parser('wait-ready');p.add_argument('--url',required=True);p.add_argument('--attempts',type=int,default=15);p.add_argument('--delay',type=float,default=1);p.add_argument('--timeout',type=float,default=2);p.add_argument('--receipt',type=Path,required=True);p.add_argument('--runtime-root',type=Path,required=True);p.add_argument('--promotion-id',required=True);p.add_argument('--lease-token',required=True);p.add_argument('--candidate-revision',required=True)
     p=sub.add_parser('activate');p.add_argument('--release-root',type=Path,required=True);p.add_argument('--current',type=Path,required=True);p.add_argument('--runtime-root',type=Path,required=True);p.add_argument('--receipt',type=Path,required=True);p.add_argument('--promotion-id',required=True);p.add_argument('--lease-token',required=True)
     p=sub.add_parser('seal-assurance');p.add_argument('--kind',choices=['guardian-post','sentinel-post'],required=True);p.add_argument('--source',type=Path,required=True);p.add_argument('--receipt',type=Path,required=True);p.add_argument('--runtime-root',type=Path,required=True);p.add_argument('--promotion-id',required=True);p.add_argument('--lease-token',required=True);p.add_argument('--candidate-revision',required=True)
-    p=sub.add_parser('finalize');p.add_argument('--release-root',type=Path,required=True);p.add_argument('--current',type=Path,required=True);p.add_argument('--runtime-root',type=Path,required=True);p.add_argument('--receipt',type=Path,required=True);p.add_argument('--guardian-post',type=Path,required=True);p.add_argument('--sentinel-post',type=Path,required=True);p.add_argument('--readiness',type=Path,required=True);p.add_argument('--controlled-run',type=Path,required=True);p.add_argument('--timer-run',type=Path,required=True);p.add_argument('--release-count',type=int,required=True);p.add_argument('--controlled-before',type=int,required=True);p.add_argument('--controlled-after',type=int,required=True);p.add_argument('--timer-before',type=int,required=True);p.add_argument('--timer-after',type=int,required=True);p.add_argument('--promotion-id',required=True);p.add_argument('--lease-token',required=True)
+    p=sub.add_parser('finalize');p.add_argument('--release-root',type=Path,required=True);p.add_argument('--current',type=Path,required=True);p.add_argument('--runtime-root',type=Path,required=True);p.add_argument('--receipt',type=Path,required=True);p.add_argument('--guardian-post',type=Path,required=True);p.add_argument('--sentinel-post',type=Path,required=True);p.add_argument('--readiness',type=Path,required=True);p.add_argument('--controlled-cycle-receipt',type=Path,required=True);p.add_argument('--timer-cycle-receipt',type=Path,required=True);p.add_argument('--release-count',type=int,required=True);p.add_argument('--promotion-id',required=True);p.add_argument('--lease-token',required=True)
     p=sub.add_parser('rollback');p.add_argument('--release-root',type=Path,required=True);p.add_argument('--current',type=Path,required=True);p.add_argument('--runtime-root',type=Path,required=True);p.add_argument('--receipt',type=Path,required=True);p.add_argument('--promotion-id',required=True);p.add_argument('--lease-token',required=True);p.add_argument('--reason',required=True)
     a=ap.parse_args()
     try:
@@ -218,7 +221,7 @@ def main()->int:
         elif a.cmd=='activate':out=activate(a.release_root,a.current,a.runtime_root,a.receipt,a.promotion_id,a.lease_token)
         elif a.cmd=='seal-assurance':out=seal_assurance(a.kind,a.source,a.receipt,a.runtime_root,a.promotion_id,a.lease_token,a.candidate_revision)
         elif a.cmd=='rollback':out=rollback(a.release_root,a.current,a.runtime_root,a.receipt,a.promotion_id,a.lease_token,a.reason)
-        else:out=finalize(a.release_root,a.current,a.runtime_root,a.receipt,a.guardian_post,a.sentinel_post,a.readiness,a.controlled_run,a.timer_run,a.release_count,a.controlled_before,a.controlled_after,a.timer_before,a.timer_after,a.promotion_id,a.lease_token)
+        else:out=finalize(a.release_root,a.current,a.runtime_root,a.receipt,a.guardian_post,a.sentinel_post,a.readiness,a.controlled_cycle_receipt,a.timer_cycle_receipt,a.release_count,a.promotion_id,a.lease_token)
         print(json.dumps(out,ensure_ascii=False));return 0
     except Exception as e:
         print(json.dumps({'schema':SCHEMA,'status':'BLOCK','reason':str(e),'automatic_external_spend_eur':0},ensure_ascii=False));return 20

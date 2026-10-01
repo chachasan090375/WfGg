@@ -8,6 +8,7 @@ sys.path.insert(0,str(BIN))
 spec=importlib.util.spec_from_file_location('gpp',BIN/'governed-platform-promotion.py')
 gpp=importlib.util.module_from_spec(spec);spec.loader.exec_module(gpp)
 import promotion_transaction as ptx
+import promotion_cycle_evidence as pce
 
 def save(p,obj):p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(obj)+'\n')
 def base_meta(rb):return {'candidate_revision':'a'*40,'candidate_tree':'b'*40,'human_production_approval_present':True,'platform_qualification':'PASS','guardian_pre_action':'PASS','sentinel_exact_revision':'PASS','rollback_path':str(rb),'automatic_external_spend_eur':0}
@@ -61,11 +62,25 @@ with tempfile.TemporaryDirectory() as td:
 
  run={'status':'CONVERGED','next_state':'RESUME','run_id':'r1','direct_mutation_by_supervisor':False,'automatic_external_spend_eur':0}
  save(t/'controlled.json',run);save(t/'timer.json',dict(run,run_id='r2'))
- final=t/'final.json';out=gpp.finalize(rel,current,runtime,final,guardian,sentinel,ready,t/'controlled.json',t/'timer.json',3,70,71,71,72,'promotion-test',token)
+ controlled_receipt=t/'controlled-cycle.json';timer_receipt=t/'timer-cycle.json'
+ c=pce.capture(runtime,'promotion-test',token,'a'*40,'CONTROLLED',t/'controlled.json',70,71,controlled_receipt)
+ tr=pce.capture(runtime,'promotion-test',token,'a'*40,'TIMER',t/'timer.json',71,72,timer_receipt,'SYSTEMD_TIMER')
+ assert c['run_id']=='r1' and tr['run_id']=='r2' and c['counter_after']==71 and tr['counter_after']==72
+ lx=ptx.assert_owner(runtime,token,'promotion-test','a'*40,'TEST_CYCLE_BINDING')
+ save(t/'controlled.json',dict(run,run_id='tampered'))
+ expect(lambda:pce.require(controlled_receipt,'CONTROLLED',lx,'a'*40),'CYCLE_EVIDENCE_RUN_DIGEST_MISMATCH')
+ save(t/'controlled.json',run)
+ assert pce.require(controlled_receipt,'CONTROLLED',lx,'a'*40)['run_id']=='r1'
+ print('CHACHA_DEV_PROMOTION_CYCLE_EVIDENCE_TAMPER_BLOCK=PASS')
+ expect(lambda:pce.capture(runtime,'promotion-test',token,'a'*40,'CONTROLLED',t/'controlled.json',70,71,controlled_receipt),'IMMUTABLE_RECEIPT_ALREADY_EXISTS')
+ final=t/'final.json';out=gpp.finalize(rel,current,runtime,final,guardian,sentinel,ready,controlled_receipt,timer_receipt,3,'promotion-test',token)
  meta=json.load(open(rel/'.release-preparation.json'))
  assert out['status']=='PASS' and meta['promotion_acceptance_status']=='PASS' and meta['promotion_final_verification']=='PASS',(out,meta)
+ assert meta['controlled_cycle_run_id']=='r1' and meta['first_automatic_timer_run_id']=='r2'
+ assert meta['controlled_cycle_evidence_digest']==c['binding_digest'] and meta['first_automatic_timer_cycle_evidence_digest']==tr['binding_digest']
  assert ptx.public_status(runtime)['status']=='FINALIZED'
- expect(lambda:gpp.finalize(rel,current,runtime,t/'final2.json',guardian,sentinel,ready,t/'controlled.json',t/'timer.json',3,70,71,71,72,'promotion-test',token),'PROMOTION_LEASE_NOT_ACTIVE')
+ expect(lambda:gpp.finalize(rel,current,runtime,t/'final2.json',guardian,sentinel,ready,controlled_receipt,timer_receipt,3,'promotion-test',token),'PROMOTION_LEASE_NOT_ACTIVE')
+ print('CHACHA_DEV_PROMOTION_CYCLE_EVIDENCE_WRITE_ONCE=PASS')
  print('CHACHA_DEV_PROMOTION_FINALIZE_EXACTLY_ONCE=PASS')
 
 with tempfile.TemporaryDirectory() as td:
