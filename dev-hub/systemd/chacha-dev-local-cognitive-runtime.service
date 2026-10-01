@@ -2,7 +2,7 @@
 Description=ChaCha DEV governed native-local cognitive runtime
 After=network.target
 ConditionPathExists=/opt/chacha-dev/runtime/local-cognitive/current/bin/llama-server
-ConditionPathExists=/opt/chacha-dev/runtime/local-cognitive/models/Qwen3.5-0.8B-Q4_0.gguf
+ConditionPathExists=/opt/chacha-dev/runtime/local-cognitive/current/model/Qwen3.5-0.8B-Q4_0.gguf
 
 [Service]
 Type=simple

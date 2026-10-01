@@ -58,6 +58,15 @@ def artifacts(policy: dict[str, Any]) -> tuple[Path, Path]:
         raise ValueError("MODEL_DIGEST_MISMATCH")
     return exe, model
 
+def server_env(policy: dict[str, Any]) -> dict[str, str]:
+    policy = require_policy(policy)
+    exe, _ = artifacts(policy)
+    env = os.environ.copy()
+    current = env.get("LD_LIBRARY_PATH", "").strip()
+    env["LD_LIBRARY_PATH"] = str(exe.parent) + ((":" + current) if current else "")
+    return env
+
+
 def server_argv(policy: dict[str, Any]) -> list[str]:
     policy = require_policy(policy)
     exe, model = artifacts(policy)
@@ -175,7 +184,7 @@ def main() -> int:
     sub.add_parser("exec")
     a = ap.parse_args(); policy = require_policy(load(a.policy))
     if a.cmd == "exec":
-        argv = server_argv(policy); os.execv(argv[0], argv)
+        argv = server_argv(policy); os.execve(argv[0], argv, server_env(policy))
     if a.cmd == "argv":
         out = {"schema": "chacha.dev/local-cognitive-runtime-argv/v1", "argv": server_argv(policy),
                "rpc_allowed": False, "production_activation_authorized": False, "automatic_external_spend_eur": 0}

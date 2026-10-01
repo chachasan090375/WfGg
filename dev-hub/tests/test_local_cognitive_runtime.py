@@ -65,6 +65,11 @@ class LocalCognitiveRuntimeTest(unittest.TestCase):
         self.assertEqual(prov["tree"], "fd570ef54b10ec5fecb739e7e04c8ce44a6f415a")
         self.assertFalse(prov["build_profile"]["LLAMA_BUILD_IS_DEV"])
         self.assertFalse(prov["build_profile"]["GGML_RPC"])
+        self.assertEqual(cfg["model_artifact"], "/opt/chacha-dev/runtime/local-cognitive/current/model/Qwen3.5-0.8B-Q4_0.gguf")
+
+    def test_runtime_env_uses_slot_local_libraries(self):
+        env = M.server_env(self.policy)
+        self.assertEqual(env["LD_LIBRARY_PATH"].split(":")[0], str(self.exe.parent))
 
     def test_launcher_is_loopback_reasoning_off_and_never_rpc(self):
         argv = M.server_argv(self.policy)
@@ -107,6 +112,7 @@ class LocalCognitiveRuntimeTest(unittest.TestCase):
     def test_systemd_source_is_fenced_and_not_enabled_by_code(self):
         text = UNIT.read_text()
         self.assertIn("IPAddressDeny=any", text); self.assertIn("IPAddressAllow=localhost", text)
+        self.assertIn("ConditionPathExists=/opt/chacha-dev/runtime/local-cognitive/current/model/Qwen3.5-0.8B-Q4_0.gguf", text)
         self.assertIn("MemoryMax=1400M", text); self.assertIn("NoNewPrivileges=true", text)
         self.assertNotIn("--rpc", text); self.assertNotIn("WantedBy=default.target", text)
 
