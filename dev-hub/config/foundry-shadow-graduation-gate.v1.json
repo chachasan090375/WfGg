@@ -1,0 +1,13 @@
+{
+  "schema": "chacha.dev/foundry-shadow-graduation-gate-policy/v1",
+  "version": "1.0.0",
+  "required_change_set_status": "PASS",
+  "required_independent_evidence_count": 2,
+  "required_rollback": true,
+  "candidate_revision_required": true,
+  "candidate_tree_required": true,
+  "promotion_authorized": false,
+  "production_change_authorized": false,
+  "human_pilot_boundary_preserved": true,
+  "automatic_external_spend_eur": 0
+}
