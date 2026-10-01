@@ -1,0 +1,24 @@
+{
+  "schema": "chacha.dev/learning-coverage-audit/v1",
+  "version": "1.0.0",
+  "purpose": "Read-only completeness audit for verified-evidence learning coverage.",
+  "eligibility": {
+    "required_result_status": "OK",
+    "required_verification_status": "VERIFIED",
+    "require_learning_context": true,
+    "require_exact_component_lineage": true,
+    "require_sha256_result_digest": true
+  },
+  "classification": {
+    "eligible_without_marker": "GAP",
+    "eligible_with_marker": "COVERED",
+    "verified_success_missing_context": "MISSING_CONTEXT",
+    "other": "NOT_ELIGIBLE"
+  },
+  "enforcement": {
+    "block_on_eligible_gap": true,
+    "missing_context_is_advisory": true
+  },
+  "read_only": true,
+  "automatic_external_spend_eur": 0
+}
