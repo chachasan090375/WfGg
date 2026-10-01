@@ -79,6 +79,13 @@ with tempfile.TemporaryDirectory() as td:
     assert run(["git", "ls-files", "dev-hub/bin/runtime_helper.py"], sandbox).strip()
     assert (source / "dev-hub/guardian/worker.js").read_text() == "export const marker='baseline';\n"
 
+probe = json.loads(run(["python3", str(TOOL), "probe"], ROOT))
+assert probe["schema"] == "chacha.dev/task-result/v1"
+assert probe["status"] == "OK"
+assert probe["producer"] == "sentinel-sandbox-materializer"
+assert probe["verification"]["status"] == "UNVERIFIED"
+assert probe["automatic_external_spend_eur"] == 0
+
 print("CHACHA_DEV_SENTINEL_SANDBOX_MATERIALIZER_TEST=PASS")
 print("CHACHA_DEV_SENTINEL_ATOMIC_SOURCE_BUNDLE=PASS")
 print("CHACHA_DEV_SENTINEL_CANDIDATE_DELTA_ISOLATION=PASS")

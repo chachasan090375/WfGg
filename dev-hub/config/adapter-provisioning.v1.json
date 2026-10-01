@@ -586,6 +586,25 @@
         "expected_producer": "workspace-file-adapter",
         "expected_verification_status": "UNVERIFIED"
       }
+    },
+    "sentinel-sandbox-materializer": {
+      "namespace": "sentinel-sandbox-materializer",
+      "version": "1.0.0",
+      "executable_name": "sentinel-sandbox-materializer",
+      "current_link_name": "current",
+      "mode": "0755",
+      "source": "dev-hub/bin/sentinel-sandbox-materializer.py",
+      "probe": {
+        "argv": [
+          "probe"
+        ],
+        "input": {},
+        "expected_schema": "chacha.dev/task-result/v1",
+        "expected_status": "OK",
+        "expected_producer": "sentinel-sandbox-materializer",
+        "expected_verification_status": "UNVERIFIED",
+        "expected_exit_code": 0
+      }
     }
   }
 }

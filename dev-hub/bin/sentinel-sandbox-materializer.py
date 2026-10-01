@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, hashlib, json, os, shutil, subprocess, tempfile
+import argparse, hashlib, json, os, shutil, subprocess, tempfile, sys
 from pathlib import Path
 from typing import Any
 
@@ -143,6 +143,9 @@ def materialize(source: Path, sandbox: Path, overlay_manifest: Path, receipt: Pa
 
 
 def main() -> int:
+    if len(sys.argv) == 2 and sys.argv[1] == "probe":
+        print(json.dumps({"schema": "chacha.dev/task-result/v1", "status": "OK", "producer": "sentinel-sandbox-materializer", "verification": {"status": "UNVERIFIED"}, "sandbox_only": True, "automatic_external_spend_eur": 0}, ensure_ascii=False))
+        return 0
     ap = argparse.ArgumentParser(description="Materialize an atomic Sentinel sandbox from one authoritative source bundle")
     ap.add_argument("--source-root", required=True, type=Path)
     ap.add_argument("--sandbox", required=True, type=Path)
