@@ -1,0 +1,12 @@
+{
+  "schema": "chacha.dev/learning-closure-gate-policy/v1",
+  "version": "1.0.0",
+  "required_learning_coverage_percent": 100.0,
+  "required_confidence_state": "VERIFIED",
+  "minimum_verified_capabilities": 3,
+  "require_route_learning_pass": true,
+  "require_zero_learning_gaps": true,
+  "execution_authority": false,
+  "production_mutation_authorized": false,
+  "automatic_external_spend_eur": 0
+}
