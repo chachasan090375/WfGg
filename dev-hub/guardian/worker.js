@@ -578,8 +578,8 @@ async function registerDynamicComponentContract(req,env){
   let x;try{x=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
   if(!x||x.schema!=="chacha.dev/dynamic-component-role-contract/v1")return json({error:"dynamic_component_contract_schema_invalid"},400);
   const kind=String(x.component_kind||"");
-  if(!["branch","orchestrator"].includes(kind))return json({error:"dynamic_component_kind_invalid"},409);
-  const expectedTemplate=kind==="branch"?"role:__branch__":"role:__dynamic-orchestrator__";
+  if(!["branch","orchestrator","connector-adapter"].includes(kind))return json({error:"dynamic_component_kind_invalid"},409);
+  const expectedTemplate=kind==="branch"?"role:__branch__":kind==="connector-adapter"?"role:__unknown__":"role:__dynamic-orchestrator__";
   if(String(x.template_contract_id||"")!==expectedTemplate)return json({error:"dynamic_component_template_invalid"},409);
   const issuer=String(x.issued_by||"");
   if(!["branch-foundry","capability-foundry"].includes(issuer))return json({error:"dynamic_component_issuer_invalid"},409);
