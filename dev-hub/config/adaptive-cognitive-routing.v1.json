@@ -1,0 +1,85 @@
+{
+  "schema": "chacha.dev/adaptive-cognitive-routing-policy/v1",
+  "version": "1.0.0",
+  "principles": {
+    "chacha_resolver_is_authoritative": true,
+    "gateway_is_replaceable_execution_adapter": true,
+    "capability_first_routing": true,
+    "deterministic_classification_first": true,
+    "decision_must_be_explainable": true,
+    "zero_external_spend_is_default": true,
+    "paid_provider_requires_human_approval": true,
+    "local_or_owned_preferred_when_fit": true,
+    "no_secret_values_in_catalog": true,
+    "feedback_required_after_execution": true
+  },
+  "task_classes": {
+    "private-local": {
+      "priority": 100,
+      "model_tiers": ["local-private", "local-light"]
+    },
+    "multimodal": {
+      "priority": 90,
+      "model_tiers": ["multimodal", "general-balanced"]
+    },
+    "long-context": {
+      "priority": 85,
+      "minimum_context_tokens": 64000,
+      "model_tiers": ["long-context", "reasoning-strong"]
+    },
+    "code": {
+      "priority": 80,
+      "capabilities": ["code-edit", "code-review", "test-strategy", "dependency-review", "api-contract-review"],
+      "model_tiers": ["code-specialist", "reasoning-strong", "general-balanced"]
+    },
+    "architecture": {
+      "priority": 75,
+      "capabilities": ["architecture-optimization", "architecture-audit", "requirements-analysis", "domain-modeling", "integration-design"],
+      "model_tiers": ["reasoning-strong", "general-balanced"]
+    },
+    "deep-reasoning": {
+      "priority": 70,
+      "capabilities": ["uncertainty-resolution", "threat-model", "recovery-orchestration", "capability-gap-analysis"],
+      "model_tiers": ["reasoning-strong", "general-balanced"]
+    },
+    "translation": {
+      "priority": 65,
+      "capabilities": ["translation", "translation-quality-review", "professional-localization"],
+      "model_tiers": ["translation-specialist", "general-fast"]
+    },
+    "research": {
+      "priority": 60,
+      "capabilities": ["web-research", "technology-radar"],
+      "model_tiers": ["research-grounded", "reasoning-strong"]
+    },
+    "light-conversation": {
+      "priority": 10,
+      "model_tiers": ["general-fast", "local-light"]
+    }
+  },
+  "classification": {
+    "strict_local_privacy_values": ["strict", "offline", "local-only"],
+    "multimodal_values": ["image", "audio", "video"],
+    "high_complexity_values": ["high", "very-high", "critical"],
+    "default_class": "light-conversation"
+  },
+  "selection_weights": {
+    "task_fit": 35,
+    "quality": 20,
+    "cost": 20,
+    "health": 10,
+    "privacy": 7,
+    "latency": 4,
+    "evidence": 4
+  },
+  "guardrails": {
+    "paid_never_automatic": true,
+    "strict_local_never_uses_external_model": true,
+    "insufficient_context_window_blocks_candidate": true,
+    "unhealthy_candidate_is_excluded": true,
+    "quota_exhausted_candidate_is_excluded": true,
+    "gateway_cannot_override_chacha_route": true,
+    "route_execution_is_separate_from_route_decision": true,
+    "automatic_external_spend_eur": 0
+  }
+}
