@@ -1,0 +1,13 @@
+[Unit]
+Description=ChaCha DEV Guardian stop latch reconciliation schedule
+
+[Timer]
+OnBootSec=45s
+OnUnitActiveSec=180s
+AccuracySec=5s
+RandomizedDelaySec=3s
+Persistent=true
+Unit=chacha-dev-guardian-stop-latch-reconciliation.service
+
+[Install]
+WantedBy=timers.target

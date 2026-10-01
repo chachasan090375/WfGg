@@ -404,6 +404,19 @@ async function createRemediation(env,{alertId,eventId,severity,reasons,payload})
   return directiveId;
 }
 
+async function reactivateAppliedRemediation(env,directiveId){
+  if(!directiveId)return false;
+  const row=await env.DB.prepare("SELECT status FROM remediation_directives WHERE directive_id=?1").bind(String(directiveId)).first();
+  if(!row||String(row.status||"")!=="APPLIED")return false;
+  await env.DB.prepare(
+    "UPDATE remediation_directives SET status='OPEN',attempt_count=0,delivered_at=NULL,applied_at=NULL,resolution_evidence_json=NULL,created_at=datetime('now') WHERE directive_id=?1 AND status='APPLIED'"
+  ).bind(String(directiveId)).run();
+  await env.DB.prepare(
+    "UPDATE remediation_holds SET active=1,cleared_at=NULL WHERE directive_id=?1"
+  ).bind(String(directiveId)).run();
+  return true;
+}
+
 async function resolveSatisfiedRemediationDependencies(env){
   const rows=(await env.DB.prepare(
     "SELECT directive_id,source_alert_id,status,rule_codes_json FROM remediation_directives ORDER BY created_at ASC LIMIT 500"
@@ -1044,6 +1057,26 @@ async function resolveCoverageRemediations(env,activeComponentIds,snapshotId){
   return resolved;
 }
 
+async function resolveOrphanCoverageAlerts(env,activeComponentIds){
+  const active=new Set((activeComponentIds||[]).map(String));
+  if(!active.size)return 0;
+  const rows=(await env.DB.prepare(
+    `SELECT alert_id FROM guardian_alerts WHERE status='OPEN'
+      AND (alert_id LIKE 'coverage-missing-%' OR alert_id LIKE 'coverage-inactive-%' OR alert_id LIKE 'coverage-stale-%')
+      ORDER BY created_at ASC`
+  ).all()).results||[];
+  let resolved=0;
+  for(const row of rows){
+    const aid=String(row.alert_id||"");
+    const componentId=["coverage-missing-","coverage-inactive-","coverage-stale-"]
+      .reduce((v,p)=>v||(aid.startsWith(p)?aid.slice(p.length):""),"");
+    if(!componentId||!active.has(componentId))continue;
+    await env.DB.prepare("UPDATE guardian_alerts SET status='ACKED' WHERE alert_id=?1 AND status='OPEN'").bind(aid).run();
+    resolved++;
+  }
+  return resolved;
+}
+
 async function coverage(req,env){
   const body=await req.text();
   const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
@@ -1055,7 +1088,7 @@ async function coverage(req,env){
   const got=new Map(components.filter(x=>x&&x.component_id).map(x=>[String(x.component_id),x]));
   const expected=(await env.DB.prepare("SELECT * FROM expected_components ORDER BY component_id").all()).results||[];
   const missing=[],inactive=[],unknown=[];
-  let severity="INFO",resolvedRemediations=0;
+  let severity="INFO",resolvedRemediations=0,resolvedAlerts=0;
   for(const e of expected){
     const c=got.get(String(e.component_id));
     if(!c){
@@ -1086,13 +1119,14 @@ async function coverage(req,env){
   }
   const activeIds=components.filter(x=>x&&x.component_id&&x.hook_active===true).map(x=>String(x.component_id));
   resolvedRemediations=await resolveCoverageRemediations(env,activeIds,snapshotId);
+  resolvedAlerts=await resolveOrphanCoverageAlerts(env,activeIds);
   for(const id of got.keys())if(!expected.some(e=>String(e.component_id)===id))unknown.push(id);
   if(unknown.length&&order("WARNING")>order(severity))severity="WARNING";
   const verdict=verdictFromSeverity(severity);
   return json({schema:"chacha.dev/guardian-coverage-verdict/v1",snapshot_id:snapshotId,verdict,severity,
     expected_count:expected.length,reported_count:components.length,missing,inactive,unknown,
     coverage_ratio:expected.length?Number(((expected.length-missing.length-inactive.length)/expected.length).toFixed(4)):1,
-    resolved_remediations:resolvedRemediations,
+    resolved_remediations:resolvedRemediations,resolved_alerts:resolvedAlerts,
     checked_at:new Date().toISOString()},["PASS","WARNING"].includes(verdict)?200:409);
 }
 
@@ -1175,9 +1209,10 @@ async function sweep(env){
   ).all()).results||[];
   for(const row of stale){
     staleCoverageCount++;
-    await createAlert(env,{alertId:"coverage-stale-"+String(row.component_id),eventId:"coverage-sweep",
+    const directiveId=await createAlert(env,{alertId:"coverage-stale-"+String(row.component_id),eventId:"coverage-sweep",
       severity:String(row.criticality),summary:"Guardian coverage stale: "+String(row.component_id),
       reasons:["COVERAGE_HEARTBEAT_STALE"],payload:row});
+    await reactivateAppliedRemediation(env,directiveId);
   }
   return {expired_action_leases:expiredCount,stale_coverage_components:staleCoverageCount};
 }
