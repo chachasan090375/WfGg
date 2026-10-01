@@ -1,0 +1,14 @@
+{
+  "schema": "chacha.dev/roadmap-release-train-planner-policy/v1",
+  "version": "1.0.0",
+  "eligible_gap_statuses": ["RED", "ORANGE"],
+  "status_priority": {"RED": 0, "ORANGE": 1},
+  "maximum_chantiers_per_train": 6,
+  "same_baseline_required": true,
+  "file_overlap_forbidden": true,
+  "candidate_evidence_status_required": "PASS",
+  "planner_can_freeze": false,
+  "planner_can_compose": false,
+  "planner_can_promote": false,
+  "automatic_external_spend_eur": 0
+}
