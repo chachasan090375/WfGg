@@ -1,0 +1,14 @@
+{
+  "schema": "chacha.dev/ha-standby-rehearsal-policy/v1",
+  "version": "1.0.0",
+  "required_readiness_status": "PASS",
+  "required_readiness_state": "READY_FOR_GOVERNED_FAILOVER_PILOT",
+  "require_single_writer": true,
+  "require_fencing_ready": true,
+  "require_rollback_ready": true,
+  "require_bastion_reserved_inactive": true,
+  "rehearsal_may_switch_writer": false,
+  "rehearsal_may_activate_failover": false,
+  "production_activation_authorized": false,
+  "automatic_external_spend_eur": 0
+}
