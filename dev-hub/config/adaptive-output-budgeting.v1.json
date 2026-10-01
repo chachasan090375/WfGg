@@ -1,0 +1,22 @@
+{
+  "schema": "chacha.dev/adaptive-output-budget-policy/v1",
+  "minimum_tokens": 8,
+  "default_task_budget": 256,
+  "task_budgets": {
+    "private-local": 32,
+    "light-conversation": 64,
+    "architecture": 256,
+    "deep-reasoning": 512,
+    "code": 1024,
+    "research": 1024,
+    "translation": 512,
+    "multimodal": 512,
+    "long-context": 1024
+  },
+  "model_caps": {
+    "native-local-qwen35-08b-q4": 32
+  },
+  "never_expand_requested_budget": true,
+  "paid_execution_authority": false,
+  "automatic_external_spend_eur": 0
+}
