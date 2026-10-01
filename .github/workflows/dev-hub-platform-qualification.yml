@@ -148,11 +148,12 @@ jobs:
             PYTHONPATH=dev-hub/bin python3 "$t"
           done
 
-      - name: Guardian critical state reconciliation
+      - name: Guardian critical state and expired action lease reconciliation
         run: |
           set -euo pipefail
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_stop_latch_reconciliation.py
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_critical_state_reconciliation.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_expired_action_lease_reconciliation.py
 
       - name: Stable platform qualification receipt
         run: |
