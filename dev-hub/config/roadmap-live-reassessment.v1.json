@@ -2,14 +2,155 @@
   "schema": "chacha.dev/roadmap-live-reassessment/v1",
   "version": "1.0.0",
   "rules": {
-    "incident-remediation": {"stages": [{"target_progress": 85, "status": "ORANGE", "state": "HUMAN_REMEDIATION_PLAN_ACTIVE", "required_release_paths": ["dev-hub/bin/human-remediation-plan.py", "dev-hub/config/human-remediation-planning.v1.json"]}]},
-    "foundries": {"stages": [{"target_progress": 95, "status": "ORANGE", "state": "PILOT_TO_CHANGESET_ACTIVE", "required_release_paths": ["dev-hub/bin/foundry-pilot-change-set.py", "dev-hub/config/foundry-pilot-change-set.v1.json"]}]},
-    "learning": {"stages": [{"target_progress": 90, "status": "ORANGE", "state": "LEARNING_COVERAGE_AUDIT_ACTIVE", "required_release_paths": ["dev-hub/bin/learning-coverage-auditor.py", "dev-hub/config/learning-coverage-audit.v1.json"]}]},
-    "provider-independence": {"stages": [{"target_progress": 50, "status": "RED", "state": "LOCAL_FALLBACK_GATE_ACTIVE_RUNTIME_MISSING", "required_release_paths": ["dev-hub/bin/local-cognitive-fallback-gate.py", "dev-hub/config/local-cognitive-fallback.v1.json"]}, {"target_progress": 100, "status": "GREEN", "state": "LOCAL_COGNITIVE_RUNTIME_PROVED", "required_runtime_json": {"path": "local-cognitive-fallback/readiness.json", "field": "status", "equals": "PASS"}}]},
-    "persistent-missions": {"stages": [{"target_progress": 90, "status": "ORANGE", "state": "PERSISTENT_MISSION_CONTROLLER_ACTIVE", "required_release_paths": ["dev-hub/bin/persistent-mission-controller.py", "dev-hub/config/persistent-missions.v1.json"]}]},
-    "self-evolution": {"stages": [{"target_progress": 90, "status": "ORANGE", "state": "FOUNDRY_CHANGESET_GATE_ACTIVE", "required_release_paths": ["dev-hub/bin/foundry-pilot-change-set.py", "dev-hub/config/foundry-pilot-change-set.v1.json"]}]},
-    "constitution": {"stages": [{"target_progress": 95, "status": "ORANGE", "state": "CONSTITUTION_INDEX_ACTIVE", "required_release_paths": ["dev-hub/bin/autonomy_constitution.py", "dev-hub/config/autonomy-constitution.v1.json"]}]},
-    "resilience-ha": {"stages": [{"target_progress": 40, "status": "RED", "state": "HA_READINESS_GATE_ACTIVE_STANDBY_MISSING", "required_release_paths": ["dev-hub/bin/ha-readiness-gate.py", "dev-hub/config/ha-readiness.v1.json"]}, {"target_progress": 100, "status": "GREEN", "state": "STANDBY_HA_PROVED", "required_runtime_json": {"path": "ha/standby-readiness.json", "field": "status", "equals": "PASS"}}]}
+    "incident-remediation": {
+      "stages": [
+        {
+          "target_progress": 85,
+          "status": "ORANGE",
+          "state": "HUMAN_REMEDIATION_PLAN_ACTIVE",
+          "required_release_paths": [
+            "dev-hub/bin/human-remediation-plan.py",
+            "dev-hub/config/human-remediation-planning.v1.json"
+          ]
+        }
+      ]
+    },
+    "foundries": {
+      "stages": [
+        {
+          "target_progress": 95,
+          "status": "ORANGE",
+          "state": "PILOT_TO_CHANGESET_ACTIVE",
+          "required_release_paths": [
+            "dev-hub/bin/foundry-pilot-change-set.py",
+            "dev-hub/config/foundry-pilot-change-set.v1.json"
+          ]
+        }
+      ]
+    },
+    "learning": {
+      "stages": [
+        {
+          "target_progress": 90,
+          "status": "ORANGE",
+          "state": "LEARNING_COVERAGE_AUDIT_ACTIVE",
+          "required_release_paths": [
+            "dev-hub/bin/learning-coverage-auditor.py",
+            "dev-hub/config/learning-coverage-audit.v1.json"
+          ]
+        }
+      ]
+    },
+    "provider-independence": {
+      "stages": [
+        {
+          "target_progress": 50,
+          "status": "RED",
+          "state": "LOCAL_FALLBACK_GATE_ACTIVE_RUNTIME_MISSING",
+          "required_release_paths": [
+            "dev-hub/bin/local-cognitive-fallback-gate.py",
+            "dev-hub/config/local-cognitive-fallback.v1.json"
+          ]
+        },
+        {
+          "target_progress": 70,
+          "status": "ORANGE",
+          "state": "ADAPTIVE_MULTI_GATEWAY_ROUTING_ACTIVE_LOCAL_RUNTIME_MISSING",
+          "required_release_paths": [
+            "dev-hub/bin/adaptive-cognitive-router.py",
+            "dev-hub/config/adaptive-cognitive-routing.v1.json",
+            "dev-hub/config/adaptive-cognitive-gateways.v1.json"
+          ]
+        },
+        {
+          "target_progress": 100,
+          "status": "GREEN",
+          "state": "LOCAL_COGNITIVE_RUNTIME_PROVED",
+          "required_runtime_json": {
+            "path": "local-cognitive-fallback/readiness.json",
+            "field": "status",
+            "equals": "PASS"
+          }
+        }
+      ]
+    },
+    "persistent-missions": {
+      "stages": [
+        {
+          "target_progress": 90,
+          "status": "ORANGE",
+          "state": "PERSISTENT_MISSION_CONTROLLER_ACTIVE",
+          "required_release_paths": [
+            "dev-hub/bin/persistent-mission-controller.py",
+            "dev-hub/config/persistent-missions.v1.json"
+          ]
+        }
+      ]
+    },
+    "self-evolution": {
+      "stages": [
+        {
+          "target_progress": 90,
+          "status": "ORANGE",
+          "state": "FOUNDRY_CHANGESET_GATE_ACTIVE",
+          "required_release_paths": [
+            "dev-hub/bin/foundry-pilot-change-set.py",
+            "dev-hub/config/foundry-pilot-change-set.v1.json"
+          ]
+        }
+      ]
+    },
+    "constitution": {
+      "stages": [
+        {
+          "target_progress": 95,
+          "status": "ORANGE",
+          "state": "CONSTITUTION_INDEX_ACTIVE",
+          "required_release_paths": [
+            "dev-hub/bin/autonomy_constitution.py",
+            "dev-hub/config/autonomy-constitution.v1.json"
+          ]
+        }
+      ]
+    },
+    "resilience-ha": {
+      "stages": [
+        {
+          "target_progress": 40,
+          "status": "RED",
+          "state": "HA_READINESS_GATE_ACTIVE_STANDBY_MISSING",
+          "required_release_paths": [
+            "dev-hub/bin/ha-readiness-gate.py",
+            "dev-hub/config/ha-readiness.v1.json"
+          ]
+        },
+        {
+          "target_progress": 80,
+          "status": "ORANGE",
+          "state": "STANDBY_HA_READY_FOR_GOVERNED_FAILOVER_PILOT",
+          "required_release_paths": [
+            "dev-hub/config/ha-standby-chachanas.v1.json"
+          ],
+          "required_runtime_json": {
+            "path": "ha/standby-readiness.json",
+            "field": "status",
+            "equals": "PASS",
+            "release_revision_field": "platform_revision"
+          }
+        },
+        {
+          "target_progress": 100,
+          "status": "GREEN",
+          "state": "GOVERNED_FAILOVER_PILOT_PROVED",
+          "required_runtime_json": {
+            "path": "ha/failover-pilot.json",
+            "field": "status",
+            "equals": "PASS",
+            "release_revision_field": "platform_revision"
+          }
+        }
+      ]
+    }
   },
   "automatic_external_spend_eur": 0
 }

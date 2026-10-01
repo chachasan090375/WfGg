@@ -6,19 +6,44 @@ sys.path.insert(0,str(ROOT/'dev-hub/bin'))
 import roadmap_live_reassessment as rlr
 road=json.loads((ROOT/'dev-hub/config/autonomy-gap-roadmap.v1.json').read_text())
 policy=json.loads((ROOT/'dev-hub/config/roadmap-live-reassessment.v1.json').read_text())
-with tempfile.TemporaryDirectory(prefix='roadmap-live-') as td:
-    rt=Path(td)
-    out=rlr.reassess(road,policy,ROOT,rt)
-    rows={x['id']:x for x in out['gaps']}
-    expected={'incident-remediation':85,'foundries':95,'learning':90,'provider-independence':50,'persistent-missions':90,'self-evolution':90,'constitution':95,'resilience-ha':40}
-    for k,v in expected.items():assert rows[k]['progress']==v,(k,rows[k])
-    assert rows['provider-independence']['status']=='RED'
-    assert rows['resilience-ha']['status']=='RED'
-    assert out['score_percent']==85,out['score_percent']
+NEW_MARKERS={
+ 'dev-hub/bin/adaptive-cognitive-router.py',
+ 'dev-hub/config/adaptive-cognitive-routing.v1.json',
+ 'dev-hub/config/adaptive-cognitive-gateways.v1.json',
+ 'dev-hub/config/ha-standby-chachanas.v1.json',
+}
+def rows(out): return {x['id']:x for x in out['gaps']}
+def touch(root:Path,rel:str):
+    p=root/rel;p.parent.mkdir(parents=True,exist_ok=True);p.touch()
+def materialize_baseline(root:Path):
+    for rule in policy['rules'].values():
+        for stage in rule.get('stages') or []:
+            for rel in stage.get('required_release_paths') or []:
+                if rel not in NEW_MARKERS: touch(root,rel)
+    (root/'.revision').write_text('candidate-sha\n')
+def materialize_train03(root:Path):
+    for rel in NEW_MARKERS: touch(root,rel)
+with tempfile.TemporaryDirectory(prefix='roadmap-live-release-') as rd, tempfile.TemporaryDirectory(prefix='roadmap-live-runtime-') as td:
+    rel=Path(rd);rt=Path(td);materialize_baseline(rel)
+    base=rlr.reassess(road,policy,rel,rt);r=rows(base)
+    assert base['score_percent']==85,base['score_percent']
+    assert r['provider-independence']['progress']==50
+    assert r['resilience-ha']['progress']==40
+    materialize_train03(rel)
+    adaptive=rlr.reassess(road,policy,rel,rt);r=rows(adaptive)
+    assert r['provider-independence']['progress']==70,r['provider-independence']
+    assert r['resilience-ha']['progress']==40,r['resilience-ha']
+    assert adaptive['score_percent']==87,adaptive['score_percent']
+    (rt/'ha').mkdir();(rt/'ha/standby-readiness.json').write_text(json.dumps({'status':'PASS','platform_revision':'stale-sha'}))
+    stale=rlr.reassess(road,policy,rel,rt);assert rows(stale)['resilience-ha']['progress']==40
+    (rt/'ha/standby-readiness.json').write_text(json.dumps({'status':'PASS','platform_revision':'candidate-sha'}))
+    ready=rlr.reassess(road,policy,rel,rt);rr=rows(ready)
+    assert rr['resilience-ha']['progress']==80 and rr['resilience-ha']['status']=='ORANGE'
+    assert ready['score_percent']==90,ready['score_percent']
     (rt/'local-cognitive-fallback').mkdir();(rt/'local-cognitive-fallback/readiness.json').write_text('{"status":"PASS"}\n')
-    (rt/'ha').mkdir();(rt/'ha/standby-readiness.json').write_text('{"status":"PASS"}\n')
-    upgraded=rlr.reassess(road,policy,ROOT,rt);rows2={x['id']:x for x in upgraded['gaps']}
-    assert rows2['provider-independence']['progress']==100 and rows2['provider-independence']['status']=='GREEN'
-    assert rows2['resilience-ha']['progress']==100 and rows2['resilience-ha']['status']=='GREEN'
-    assert upgraded['score_percent']==95,upgraded['score_percent']
-print('CHACHA_DEV_ROADMAP_LIVE_REASSESSMENT=PASS')
+    (rt/'ha/failover-pilot.json').write_text(json.dumps({'status':'PASS','platform_revision':'candidate-sha'}))
+    full=rlr.reassess(road,policy,rel,rt);rf=rows(full)
+    assert rf['provider-independence']['progress']==100 and rf['provider-independence']['status']=='GREEN'
+    assert rf['resilience-ha']['progress']==100 and rf['resilience-ha']['status']=='GREEN'
+    assert full['score_percent']==95,full['score_percent']
+print('CHACHA_DEV_ROADMAP_LIVE_REASSESSMENT_V2=PASS')
