@@ -1,0 +1,29 @@
+{
+  "schema": "chacha.dev/local-cognitive-runtime-lifecycle-policy/v1",
+  "version": "1.0.0",
+  "runtime_root": "/opt/chacha-dev/runtime/local-cognitive",
+  "releases_root": "/opt/chacha-dev/runtime/local-cognitive/releases",
+  "current": "/opt/chacha-dev/runtime/local-cognitive/current",
+  "platform_current": "/opt/chacha-dev/platform/current",
+  "emergency_stop_file": "/opt/chacha-dev/runtime/control/emergency-stop.json",
+  "technology_watch_evaluation": "/opt/chacha-dev/runtime/technology-watch/local-cognitive-runtime-stable-v050/evaluation/evaluation.json",
+  "allowed_production_recommendations": [
+    "ADOPT"
+  ],
+  "approval_id": "native-local-production-activation",
+  "forbidden_approval_actors": [
+    "central-orchestrator",
+    "guardian",
+    "sentinel",
+    "curator",
+    "bastion",
+    "intendant",
+    "scheduler",
+    "run-controller",
+    "direct-operator"
+  ],
+  "atomic_current_switch_required": true,
+  "rollback_without_new_human_approval_allowed": true,
+  "service_activation_separate_from_current_switch": true,
+  "automatic_external_spend_eur": 0
+}
