@@ -1,0 +1,15 @@
+{
+  "schema": "chacha.dev/roadmap-live-score-reconciler-policy/v1",
+  "version": "1.0.0",
+  "allowed_statuses": ["GREEN", "ORANGE", "RED"],
+  "require_exact_evidence_digest": true,
+  "source_roadmap_is_read_only": true,
+  "allow_progress_regression_with_evidence": true,
+  "principles": {
+    "evidence_precedes_score_change": true,
+    "no_manual_score_without_materialized_evidence": true,
+    "reconciler_never_promotes_or_deploys": true,
+    "automatic_external_spend_eur": 0
+  },
+  "automatic_external_spend_eur": 0
+}
