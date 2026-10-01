@@ -1,0 +1,48 @@
+{
+  "schema": "chacha.dev/ha-readiness-policy/v1",
+  "version": "1.0.0",
+  "mode": "ACTIVE_PASSIVE",
+  "required_services": [
+    "direct-operator",
+    "guardian",
+    "sentinel",
+    "bastion",
+    "autonomy-loop"
+  ],
+  "requirements": {
+    "primary_role": "ACTIVE",
+    "standby_role": "PASSIVE",
+    "health_state": "HEALTHY",
+    "state_replication": "SIGNED_CHECKPOINT_PULL",
+    "same_platform_revision": true,
+    "distinct_failure_domains": true,
+    "single_writer_enforced": true,
+    "fencing_ready": true,
+    "rollback_ready": true,
+    "guardian_required": true,
+    "sentinel_required": true
+  },
+  "checkpoint": {
+    "schema": "chacha.dev/signed-checkpoint/v1",
+    "algorithm": "Ed25519",
+    "maximum_age_seconds": 3600
+  },
+  "accepted_restore_evidence_schemas": [
+    "chacha.dev/storage-restore-verifier-pilot-evidence/v1"
+  ],
+  "accepted_recovery_evidence_schemas": [
+    "chacha.dev/recovery-drill-report/v1"
+  ],
+  "resource_headroom": {
+    "minimum_cpu_count": 2,
+    "minimum_free_memory_after_load_mb": 512,
+    "minimum_free_disk_after_install_mb": 2048
+  },
+  "safety": {
+    "bastion_failover_remains_reserved_until_pilot": true,
+    "split_brain_forbidden": true,
+    "production_activation_authorized": false,
+    "failover_authorized": false,
+    "automatic_external_spend_eur": 0
+  }
+}
