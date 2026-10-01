@@ -19,7 +19,7 @@ def percentile95(values:list[float])->float:
 def execute_case(adapter:Path,runtime_policy:Path,case:dict[str,Any])->tuple[dict[str,Any],float]:
     with tempfile.TemporaryDirectory() as td:
         td=Path(td);req=td/'request.json';out=td/'response.json'
-        req.write_text(json.dumps({'schema':'chacha.dev/local-cognitive-request/v1','messages':[{'role':'user','content':case['prompt']}],'max_tokens':64})+'\n')
+        req.write_text(json.dumps({'schema':'chacha.dev/local-cognitive-request/v1','messages':[{'role':'user','content':case['prompt']}],'max_tokens':int(case.get('max_tokens') or 64)})+'\n')
         started=time.monotonic();p=subprocess.run(['python3',str(adapter),'--policy',str(runtime_policy),'request','--input',str(req),'--output',str(out)],capture_output=True,text=True)
         latency=time.monotonic()-started
         if p.returncode!=0:raise RuntimeError('ADAPTER_REQUEST_FAILED:'+p.stderr[-400:])

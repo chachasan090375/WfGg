@@ -12,7 +12,8 @@
         "offline",
         "zero",
         "rollback"
-      ]
+      ],
+      "max_tokens": 24
     },
     {
       "id": "architecture-optimization",
@@ -20,7 +21,8 @@
       "expected_substrings": [
         "A",
         "RPC"
-      ]
+      ],
+      "max_tokens": 32
     },
     {
       "id": "uncertainty-resolution",
@@ -28,7 +30,8 @@
       "expected_substrings": [
         "NO",
         "evidence"
-      ]
+      ],
+      "max_tokens": 32
     }
   ],
   "production_activation_authorized": false,
