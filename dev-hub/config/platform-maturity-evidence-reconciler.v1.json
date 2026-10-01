@@ -1,0 +1,16 @@
+{
+  "schema": "chacha.dev/platform-maturity-evidence-reconciler-policy/v1",
+  "version": "1.0.0",
+  "minimum_dimensions": 3,
+  "minimum_total_weight": 100,
+  "maximum_total_weight": 100,
+  "apply_requires_all_evidence_materialized": true,
+  "apply_requires_scorecard_status": "PASS",
+  "progress_controller": "dev-hub/bin/progress_state_controller.py",
+  "progress_policy": "dev-hub/config/progress-reporting.v1.json",
+  "maturity_label": "ChaCha DEV global — preuves live",
+  "score_may_decrease_when_evidence_degrades": true,
+  "score_must_not_exceed_100": true,
+  "execution_authority": false,
+  "automatic_external_spend_eur": 0
+}
