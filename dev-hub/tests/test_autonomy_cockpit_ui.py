@@ -20,6 +20,7 @@ assert any(x.get('status')=='GREEN' for x in items)
 assert any(x.get('status')=='RED' for x in items)
 assert 0<=int(road.get('score_percent'))<=100
 assert 'autonomy_gaps' in publisher and 'autonomy-gap-roadmap.v1.json' in publisher
+assert 'roadmap_live_reassessment' in publisher and 'ROADMAP_REASSESSMENT' in publisher and 'rlr.reassess' in publisher
 assert 'LOOP_STATE' in publisher and 'STALE_FALLBACK' in publisher and 'loop_state_age_seconds' in publisher
 assert 'ReadWritePaths=/opt/chacha-dev/runtime/live-ui/current/ui /opt/chacha-dev/runtime/cockpit' in service
 sys.path.insert(0,str(ROOT/'dev-hub/bin'))

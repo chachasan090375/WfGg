@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import copy,datetime,json,os,subprocess,time,urllib.request
 from pathlib import Path
+import roadmap_live_reassessment as rlr
 
 OUT=Path('/opt/chacha-dev/runtime/live-ui/current/ui/cockpit.json')
 CURRENT=Path('/opt/chacha-dev/platform/current')
@@ -8,6 +9,8 @@ PROGRESS=Path('/opt/chacha-dev/runtime/progress/progress.json')
 STOP=Path('/opt/chacha-dev/runtime/control/emergency-stop.json')
 OP=Path('/opt/chacha-dev/runtime/cockpit/current-operation.json')
 SOURCE_GAPS=Path('/opt/chacha-dev/platform/current/dev-hub/config/autonomy-gap-roadmap.v1.json')
+ROADMAP_REASSESSMENT=Path('/opt/chacha-dev/platform/current/dev-hub/config/roadmap-live-reassessment.v1.json')
+RUNTIME_ROOT=Path('/opt/chacha-dev/runtime')
 LOOP_STATE=Path('/opt/chacha-dev/runtime/autonomy-core/loop-state.json')
 AUTONOMY_WORK=Path('/opt/chacha-dev/runtime/autonomy-core/work')
 PROMOTION_LEASE=Path('/opt/chacha-dev/runtime/platform-promotion/lease.json')
@@ -70,7 +73,7 @@ def runtime_facts():
     return loop,run,self_model
 
 def live_gaps(loop,run,self_model):
-    road=copy.deepcopy(load(SOURCE_GAPS,{})); rows=road.get('gaps') or []
+    road=rlr.reassess(load(SOURCE_GAPS,{}),load(ROADMAP_REASSESSMENT,{}),CURRENT.resolve(),RUNTIME_ROOT); rows=road.get('gaps') or []
     cycle=int(loop.get('cycle') or 0); state=str(loop.get('current_state') or 'UNKNOWN')
     updated=str(loop.get('updated_at') or 'inconnu'); timer_ok=unit('chacha-dev-autonomy-core.timer')
     inv=self_model.get('inventory') or {}; fleet=self_model.get('fleet') or {}; rec=self_model.get('reconciliation') or {}
