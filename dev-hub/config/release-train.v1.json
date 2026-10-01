@@ -1,0 +1,37 @@
+{
+  "automatic_external_spend_eur": 0,
+  "composite_state": "READY_FOR_COMPOSITE_QUALIFICATION",
+  "d1_budget": {
+    "daily_write_limit_rows": 100000,
+    "hard_block_fraction": 1.0,
+    "source": "operator-policy",
+    "warning_fraction": 0.5
+  },
+  "emergency_release_exceptions": [
+    "security-critical",
+    "production-outage",
+    "blocking-dependency"
+  ],
+  "file_overlap_forbidden": true,
+  "frozen_state": "FROZEN_READY_FOR_TRAIN",
+  "history_policy": {
+    "change_set_digest_required": true,
+    "changed_files_required": true,
+    "evidence_locations_required": true,
+    "file_provenance_required_in_composite": true,
+    "rollback_locations_required": true,
+    "source_commits_required": true
+  },
+  "independent_chantiers_required": true,
+  "purpose": "Batch independently qualified frozen chantiers into one governed production release while preserving per-chantier evidence and rollback.",
+  "qualification_policy": {
+    "composite_full_qualification_required": true,
+    "composite_guardian_sentinel_required": true,
+    "external_d1_assurance_per_chantier": false,
+    "per_chantier": "LOCAL_ISOLATED_TARGETED",
+    "production_activation_per_chantier": false
+  },
+  "same_baseline_required": true,
+  "schema": "chacha.dev/release-train-policy/v1",
+  "version": "1.0.0"
+}
