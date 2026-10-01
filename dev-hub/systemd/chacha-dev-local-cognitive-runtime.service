@@ -1,0 +1,26 @@
+[Unit]
+Description=ChaCha DEV governed native-local cognitive runtime
+After=network.target
+ConditionPathExists=/opt/chacha-dev/runtime/local-cognitive/current/bin/llama-server
+ConditionPathExists=/opt/chacha-dev/runtime/local-cognitive/current/model/Qwen3.5-0.8B-Q4_0.gguf
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/local-cognitive-runtime-adapter.py --policy /opt/chacha-dev/platform/current/dev-hub/config/local-cognitive-runtime.v1.json exec
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+IPAddressDeny=any
+IPAddressAllow=localhost
+MemoryMax=1400M
+CPUQuota=180%
+TasksMax=32
+
+[Install]
+WantedBy=multi-user.target
