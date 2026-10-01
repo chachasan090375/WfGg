@@ -1,0 +1,27 @@
+{
+  "schema": "chacha.dev/local-cognitive-fallback-policy/v1",
+  "version": "1.0.0",
+  "purpose": "Admit a durable local cognitive fallback only when inference is genuinely local, healthy, zero-spend and resource-compatible.",
+  "required_capabilities": [
+    "requirements-analysis",
+    "architecture-optimization",
+    "uncertainty-resolution"
+  ],
+  "allowed_cost_classes": ["local", "owned"],
+  "requirements": {
+    "execution": "vps",
+    "inference_network_access": "none",
+    "health_state": "HEALTHY",
+    "structured_adapter_required": true,
+    "local_model_artifact_required": true,
+    "sha256_model_digest_required": true,
+    "rollback_required": true,
+    "automatic_external_spend_eur": 0
+  },
+  "resource_headroom": {
+    "minimum_free_memory_after_load_mb": 256,
+    "minimum_free_disk_after_install_mb": 2048
+  },
+  "production_activation_authorized": false,
+  "automatic_external_spend_eur": 0
+}
