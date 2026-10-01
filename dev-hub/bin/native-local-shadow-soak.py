@@ -27,22 +27,24 @@ def execute_case(adapter:Path,runtime_policy:Path,case:dict[str,Any])->tuple[dic
 
 def run(policy:dict[str,Any],adapter:Path,runtime_policy:Path)->dict[str,Any]:
     if policy.get('schema')!=SCHEMA:raise ValueError('POLICY_SCHEMA_INVALID')
-    rows=[];errors=[];latencies=[]
+    rows=[];errors=[];latencies=[];steady_latencies=[];cold_latencies=[];request_index=0
     for iteration in range(int(policy['iterations'])):
         for case in policy.get('cases') or []:
+            request_index+=1;warmup=request_index<=int(policy.get('warmup_requests') or 0)
             try:
                 response,latency=execute_case(adapter,runtime_policy,case);content=str(response.get('content') or '')
                 expected=[str(x) for x in case.get('expected_substrings') or []]
                 missing=[x for x in expected if x.lower() not in content.lower()]
                 passed=response.get('status')=='PASS' and not missing
-                rows.append({'iteration':iteration+1,'case_id':case['id'],'pass':passed,'latency_seconds':round(latency,3),'missing':missing})
-                latencies.append(latency)
+                rows.append({'iteration':iteration+1,'case_id':case['id'],'pass':passed,'latency_seconds':round(latency,3),'missing':missing,'warmup':warmup})
+                latencies.append(latency);(cold_latencies if warmup else steady_latencies).append(latency)
             except Exception as exc:
                 errors.append({'iteration':iteration+1,'case_id':case.get('id'),'error':type(exc).__name__+':'+str(exc)[:300]})
-    total=len(rows)+len(errors);passed=sum(1 for r in rows if r['pass']);rate=(passed/total) if total else 0.0;p95=percentile95(latencies)
-    ok=rate>=float(policy['minimum_pass_rate']) and len(errors)<=int(policy['maximum_error_count']) and p95<=float(policy['maximum_p95_latency_seconds'])
+    total=len(rows)+len(errors);passed=sum(1 for r in rows if r['pass']);rate=(passed/total) if total else 0.0
+    p95=percentile95(steady_latencies);cold=max(cold_latencies) if cold_latencies else 0.0
+    ok=rate>=float(policy['minimum_pass_rate']) and len(errors)<=int(policy['maximum_error_count']) and p95<=float(policy['maximum_p95_latency_seconds']) and cold<=float(policy.get('maximum_cold_start_latency_seconds') or 1e9)
     return {'schema':'chacha.dev/native-local-shadow-soak-result/v1','status':'PASS' if ok else 'BLOCK','iterations':policy['iterations'],
-            'sample_count':total,'passed':passed,'pass_rate':round(rate,4),'p95_latency_seconds':round(p95,3),'errors':errors,'samples':rows,
+            'sample_count':total,'passed':passed,'pass_rate':round(rate,4),'p95_latency_seconds':round(p95,3),'cold_start_latency_seconds':round(cold,3),'errors':errors,'samples':rows,
             'production_activation_authorized':False,'automatic_external_spend_eur':0}
 
 def main()->int:
