@@ -248,6 +248,17 @@
       }
     },
     {
+      "component_id": "guardian-critical-state-reconciler",
+      "role": "guardian-critical-state-reconciler",
+      "kind": "controller",
+      "enforcement_point": "guardian-stop-latch-reconciliation-timer+guardian-worker-coverage-reconciliation",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/guardian-stop-latch-reconciler.py",
+        "marker": "CHACHA_DEV_GUARDIAN_CRITICAL_STATE_RECONCILIATION=PASS"
+      }
+    },
+    {
       "component_id": "universal-learning-producer",
       "role": "universal-learning-producer",
       "kind": "learning-plane",
