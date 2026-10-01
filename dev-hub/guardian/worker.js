@@ -332,6 +332,8 @@ async function actionLease(event,env,current){
     await env.DB.prepare(
       "UPDATE action_leases SET post_event_id=?2,closed_at=datetime('now'),status='CLOSED',last_verdict=?3 WHERE action_id=?1"
     ).bind(actionId,String(event.event_id),current.verdict).run();
+    await env.DB.prepare("UPDATE guardian_alerts SET status='ACKED' WHERE alert_id=?1 AND status='OPEN'")
+      .bind("lease-post-due-"+actionId).run();
     if(isDispatch){
       const lease=await env.DB.prepare("SELECT * FROM task_contract_leases WHERE action_id=?1").bind(actionId).first();
       if(!lease)return {severity:"CRITICAL",reason_codes:["TASK_CONTRACT_LEASE_MISSING"]};
@@ -1299,7 +1301,19 @@ async function ackAlerts(req,env){
 }
 
 async function sweep(env){
-  let expiredCount=0, staleCoverageCount=0;
+  let dueSoonCount=0, expiredCount=0, staleCoverageCount=0;
+  const dueSoon=(await env.DB.prepare(
+    "SELECT * FROM action_leases WHERE status='OPEN' AND deadline_at >= datetime('now') AND deadline_at <= datetime('now','+60 seconds') LIMIT 100"
+  ).all()).results||[];
+  for(const row of dueSoon){
+    dueSoonCount++;
+    await env.DB.prepare(`INSERT OR IGNORE INTO guardian_alerts
+      (alert_id,event_id,created_at,severity,status,summary,reason_codes_json,payload_json)
+      VALUES(?1,?2,datetime('now'),'BLOCK','OPEN',?3,?4,?5)`)
+      .bind("lease-post-due-"+String(row.action_id),String(row.pre_event_id),
+        "Guardian POST evidence due soon: "+String(row.actor)+" / "+String(row.action),
+        JSON.stringify(["POST_ACTION_DUE_SOON"]),stable(row)).run();
+  }
   const expired=(await env.DB.prepare(
     "SELECT * FROM action_leases WHERE status='OPEN' AND deadline_at < datetime('now') LIMIT 100"
   ).all()).results||[];
@@ -1323,7 +1337,7 @@ async function sweep(env){
       reasons:["COVERAGE_HEARTBEAT_STALE"],payload:row});
     await reactivateAppliedRemediation(env,directiveId);
   }
-  return {expired_action_leases:expiredCount,stale_coverage_components:staleCoverageCount};
+  return {post_action_due_soon:dueSoonCount,expired_action_leases:expiredCount,stale_coverage_components:staleCoverageCount};
 }
 
 async function watchdogSweep(req,env){
@@ -1414,7 +1428,7 @@ export default {
       dynamic_component_policy_escalation_allowed:false,tunnel_required:false,action_lease_protocol:true,
       task_contract_binding_protocol:true,task_contract_identity_lease:true,coverage_watch:true,
       authenticated_watchdog_sweep:true,scheduled_watchdog:true,
-      expired_action_lease_reconciliation:true,action_replay_forbidden:true,
+      expired_action_lease_reconciliation:true,action_replay_forbidden:true,action_evidence_continuity:true,
       corrective_enforcement:true,remediation_holds:true,remediation_retry_limit:3,
       production_learning_anomaly_bridge:true,production_anomaly_direct_mutation:false,
       central_memory_assimilation_evidence_required:true,component_confidence_evidence_required:true,contextual_memory_recall_evidence_required:true,
