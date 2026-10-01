@@ -1,0 +1,35 @@
+{
+  "schema": "chacha.dev/ha-standby-profile/v1",
+  "version": "1.0.0",
+  "mode": "ACTIVE_PASSIVE",
+  "primary": {
+    "node_id": "chachavps",
+    "role": "ACTIVE",
+    "failure_domain": "cloud/digitalocean-ams3"
+  },
+  "standby": {
+    "node_id": "chachanas",
+    "role": "PASSIVE",
+    "failure_domain": "owned-nas/tailscale",
+    "transport": "tailscale-ssh"
+  },
+  "requirements": {
+    "state_replication": "SIGNED_CHECKPOINT_PULL",
+    "single_writer_enforced": true,
+    "fencing_ready": true,
+    "rollback_ready": true,
+    "required_services": [
+      "direct-operator",
+      "guardian",
+      "sentinel",
+      "bastion",
+      "autonomy-loop"
+    ]
+  },
+  "safety": {
+    "active_writer": false,
+    "failover_authorized": false,
+    "bastion_failover_state": "RESERVED_INACTIVE",
+    "automatic_external_spend_eur": 0
+  }
+}
