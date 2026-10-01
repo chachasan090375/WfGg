@@ -631,6 +631,17 @@
         "file": "dev-hub/bin/governed-platform-promotion.py",
         "marker": "lease-acquire"
       }
+    },
+    {
+      "component_id": "guardian-action-state-reconciler",
+      "role": "guardian-action-state-reconciler",
+      "kind": "controller",
+      "enforcement_point": "external-guardian-signed-action-lease-reconciliation",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/guardian-action-state-reconciler.py",
+        "marker": "CHACHA_DEV_GUARDIAN_ACTION_STATE_RECONCILER=PASS"
+      }
     }
   ],
   "safety_exemptions": [
