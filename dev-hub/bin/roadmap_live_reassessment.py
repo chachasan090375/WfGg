@@ -21,8 +21,11 @@ def dotted(obj:dict[str,Any],field:str):
 def stage_ok(stage:dict[str,Any],release_root:Path,runtime_root:Path)->bool:
     for rel in stage.get('required_release_paths') or []:
         if not (release_root/str(rel)).is_file():return False
-    spec=stage.get('required_runtime_json')
-    if isinstance(spec,dict):
+    specs=[]
+    legacy=stage.get('required_runtime_json')
+    if isinstance(legacy,dict):specs.append(legacy)
+    specs.extend(x for x in (stage.get('required_runtime_jsons') or []) if isinstance(x,dict))
+    for spec in specs:
         x=load(runtime_root/str(spec.get('path') or ''))
         if dotted(x,str(spec.get('field') or ''))!=spec.get('equals'):return False
         rev_field=str(spec.get('release_revision_field') or '')

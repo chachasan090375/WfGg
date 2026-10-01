@@ -12,6 +12,31 @@
             "dev-hub/bin/human-remediation-plan.py",
             "dev-hub/config/human-remediation-planning.v1.json"
           ]
+        },
+        {
+          "target_progress": 95,
+          "status": "ORANGE",
+          "state": "SAFE_NON_DESTRUCTIVE_REMEDIATION_ROUTING_ACTIVE",
+          "required_release_paths": [
+            "dev-hub/bin/incident-safe-remediation-router.py",
+            "dev-hub/bin/progress-state-recovery.py"
+          ]
+        },
+        {
+          "target_progress": 100,
+          "status": "GREEN",
+          "state": "SAFE_AUTOREMEDIATION_PROVED",
+          "required_release_paths": [
+            "dev-hub/bin/incident-safe-remediation-router.py",
+            "dev-hub/bin/progress-state-recovery.py"
+          ],
+          "required_runtime_jsons": [
+            {
+              "path": "autonomy-evidence/incident-safe-remediation.json",
+              "field": "status",
+              "equals": "PASS"
+            }
+          ]
         }
       ]
     },
@@ -25,6 +50,22 @@
             "dev-hub/bin/foundry-pilot-change-set.py",
             "dev-hub/config/foundry-pilot-change-set.v1.json"
           ]
+        },
+        {
+          "target_progress": 100,
+          "status": "GREEN",
+          "state": "FOUNDRY_SHADOW_GRADUATION_PROVED",
+          "required_release_paths": [
+            "dev-hub/bin/foundry-shadow-graduation-gate.py",
+            "dev-hub/bin/foundry-pilot-change-set.py"
+          ],
+          "required_runtime_jsons": [
+            {
+              "path": "autonomy-evidence/foundry-graduation.json",
+              "field": "status",
+              "equals": "PASS"
+            }
+          ]
         }
       ]
     },
@@ -37,6 +78,22 @@
           "required_release_paths": [
             "dev-hub/bin/learning-coverage-auditor.py",
             "dev-hub/config/learning-coverage-audit.v1.json"
+          ]
+        },
+        {
+          "target_progress": 100,
+          "status": "GREEN",
+          "state": "COGNITIVE_OUTCOME_LEARNING_PROVED",
+          "required_release_paths": [
+            "dev-hub/bin/cognitive-route-outcome-learning.py",
+            "dev-hub/bin/model-capability-confidence.py"
+          ],
+          "required_runtime_jsons": [
+            {
+              "path": "autonomy-evidence/cognitive-shadow-learning.json",
+              "field": "status",
+              "equals": "PASS"
+            }
           ]
         }
       ]
@@ -71,6 +128,23 @@
             "field": "status",
             "equals": "PASS"
           }
+        },
+        {
+          "target_progress": 85,
+          "status": "ORANGE",
+          "state": "LOCAL_COGNITIVE_SHADOW_PROVED_NOT_ACTIVE",
+          "required_release_paths": [
+            "dev-hub/bin/native-local-resource-admission.py",
+            "dev-hub/bin/adaptive-model-registry.py",
+            "dev-hub/bin/native-local-shadow-soak.py"
+          ],
+          "required_runtime_jsons": [
+            {
+              "path": "autonomy-evidence/native-local-shadow.json",
+              "field": "status",
+              "equals": "PASS"
+            }
+          ]
         }
       ]
     },
@@ -83,6 +157,31 @@
           "required_release_paths": [
             "dev-hub/bin/persistent-mission-controller.py",
             "dev-hub/config/persistent-missions.v1.json"
+          ]
+        },
+        {
+          "target_progress": 95,
+          "status": "ORANGE",
+          "state": "MISSION_GOAL_SCHEDULER_BRIDGE_ACTIVE",
+          "required_release_paths": [
+            "dev-hub/bin/persistent-mission-goal-monitor.py",
+            "dev-hub/bin/persistent-mission-scheduler-bridge.py"
+          ]
+        },
+        {
+          "target_progress": 100,
+          "status": "GREEN",
+          "state": "PERSISTENT_MISSION_E2E_RESUME_PROVED",
+          "required_release_paths": [
+            "dev-hub/bin/persistent-mission-goal-monitor.py",
+            "dev-hub/bin/persistent-mission-scheduler-bridge.py"
+          ],
+          "required_runtime_jsons": [
+            {
+              "path": "autonomy-evidence/persistent-mission-e2e.json",
+              "field": "status",
+              "equals": "PASS"
+            }
           ]
         }
       ]
@@ -97,6 +196,22 @@
             "dev-hub/bin/foundry-pilot-change-set.py",
             "dev-hub/config/foundry-pilot-change-set.v1.json"
           ]
+        },
+        {
+          "target_progress": 100,
+          "status": "GREEN",
+          "state": "ROADMAP_TRAIN_AUTONOMOUS_PLANNING_PROVED",
+          "required_release_paths": [
+            "dev-hub/bin/roadmap-release-train-planner.py",
+            "dev-hub/bin/roadmap-live-score-reconciler.py"
+          ],
+          "required_runtime_jsons": [
+            {
+              "path": "autonomy-evidence/roadmap-train-planning.json",
+              "field": "status",
+              "equals": "PASS"
+            }
+          ]
         }
       ]
     },
@@ -109,6 +224,21 @@
           "required_release_paths": [
             "dev-hub/bin/autonomy_constitution.py",
             "dev-hub/config/autonomy-constitution.v1.json"
+          ]
+        },
+        {
+          "target_progress": 100,
+          "status": "GREEN",
+          "state": "CONSTITUTION_CONTINUOUS_DRIFT_WATCH_PROVED",
+          "required_release_paths": [
+            "dev-hub/bin/autonomy-constitution-drift-watch.py"
+          ],
+          "required_runtime_jsons": [
+            {
+              "path": "autonomy-evidence/constitution-watch.json",
+              "field": "status",
+              "equals": "PASS"
+            }
           ]
         }
       ]
@@ -154,6 +284,22 @@
             "equals": "PASS",
             "release_revision_field": "platform_revision"
           }
+        },
+        {
+          "target_progress": 90,
+          "status": "ORANGE",
+          "state": "HA_STANDBY_REHEARSAL_PROVED_NO_FAILOVER",
+          "required_release_paths": [
+            "dev-hub/bin/ha-standby-rehearsal.py"
+          ],
+          "required_runtime_jsons": [
+            {
+              "path": "autonomy-evidence/ha-rehearsal.json",
+              "field": "status",
+              "equals": "PASS",
+              "release_revision_field": "platform_revision"
+            }
+          ]
         }
       ]
     }
