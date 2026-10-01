@@ -1,0 +1,11 @@
+{
+  "schema": "chacha.dev/autonomy-constitution-drift-watch-policy/v1",
+  "version": "1.0.0",
+  "verification_schema": "chacha.dev/autonomy-constitution-verification/v1",
+  "stable_status": "PASS",
+  "digest_change_requires_review": true,
+  "blocked_verification_is_critical": true,
+  "watch_mutates_constitution": false,
+  "watch_has_execution_authority": false,
+  "automatic_external_spend_eur": 0
+}
