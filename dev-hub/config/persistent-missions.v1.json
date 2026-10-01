@@ -1,0 +1,26 @@
+{
+  "schema": "chacha.dev/persistent-missions-policy/v1",
+  "version": "1.0.0",
+  "purpose": "Persist multi-day mission progress without replacing Scheduler, Task Graph or Run Controller.",
+  "principles": {
+    "execution_plan_is_authoritative": true,
+    "controller_never_executes_tasks": true,
+    "resume_is_idempotent": true,
+    "checkpoint_is_append_only": true,
+    "human_boundary_is_fail_closed": true,
+    "emergency_stop_is_fail_closed": true,
+    "automatic_external_spend_eur": 0
+  },
+  "runtime": {
+    "root": "/opt/chacha-dev/runtime/persistent-missions",
+    "state_filename": "mission.json",
+    "checkpoint_filename": "checkpoints.jsonl",
+    "resume_filename": "resume-plan.json"
+  },
+  "limits": {
+    "max_attempts_per_task": 3,
+    "max_mission_days": 30,
+    "max_checkpoint_events": 10000
+  },
+  "automatic_external_spend_eur": 0
+}
