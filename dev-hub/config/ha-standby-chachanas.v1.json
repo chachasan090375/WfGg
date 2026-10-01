@@ -1,0 +1,51 @@
+{
+  "schema": "chacha.dev/ha-standby-profile/v1",
+  "version": "1.0.0",
+  "mode": "ACTIVE_PASSIVE",
+  "primary": {
+    "node_id": "chachavps",
+    "role": "ACTIVE",
+    "failure_domain": "digitalocean/ams3"
+  },
+  "standby": {
+    "node_id": "chachanas",
+    "role": "PASSIVE",
+    "failure_domain": "on-premises/home-nas",
+    "transport": "tailscale-ssh",
+    "runtime_root": "/share/CACHEDEV1_DATA/ChaCha-DEV-Standby",
+    "execution": "qnap-linux-x86_64"
+  },
+  "requirements": {
+    "same_platform_revision": true,
+    "state_replication": "SIGNED_CHECKPOINT_PULL",
+    "single_writer_enforced": true,
+    "fencing_ready": true,
+    "rollback_ready": true,
+    "required_services": [
+      "direct-operator",
+      "guardian",
+      "sentinel",
+      "bastion",
+      "autonomy-loop"
+    ]
+  },
+  "safety": {
+    "active_writer": false,
+    "production_activation_authorized": false,
+    "failover_authorized": false,
+    "bastion_failover_state": "RESERVED_INACTIVE",
+    "automatic_external_spend_eur": 0
+  },
+  "evidence_contract": {
+    "readiness_schema": "chacha.dev/ha-readiness/v1",
+    "checkpoint_schema": "chacha.dev/signed-checkpoint/v1",
+    "restore_schema": "chacha.dev/storage-restore-verifier-pilot-evidence/v1",
+    "recovery_schema": "chacha.dev/recovery-drill-report/v1"
+  },
+  "principles": {
+    "profile_contains_no_secret_values": true,
+    "standby_is_never_active_by_configuration": true,
+    "runtime_evidence_required_before_failover_pilot": true,
+    "failover_requires_separate_governed_approval": true
+  }
+}
