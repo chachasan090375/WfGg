@@ -1,0 +1,12 @@
+{
+  "schema": "chacha.dev/progress-state-recovery-policy/v1",
+  "version": "1.0.0",
+  "terminal_statuses": ["COMPLETE", "BLOCKED", "ERROR"],
+  "recover_terminal_after_seconds": 120,
+  "recover_running_requires_external_inactive_evidence": true,
+  "preserve_last_operation": true,
+  "preserve_platform_maturity": true,
+  "canonical_runtime_state": "/opt/chacha-dev/runtime/progress/progress.json",
+  "execution_authority": false,
+  "automatic_external_spend_eur": 0
+}
