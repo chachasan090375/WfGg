@@ -1,0 +1,23 @@
+{
+  "schema": "chacha.dev/ha-standby-readiness-publisher-policy/v1",
+  "version": "1.0.0",
+  "accepted_readiness_schema": "chacha.dev/ha-readiness/v1",
+  "accepted_manifest_schema": "chacha.dev/ha-standby-manifest/v1",
+  "required_readiness_status": "PASS",
+  "required_readiness_state": "READY_FOR_GOVERNED_FAILOVER_PILOT",
+  "required_mode": "ACTIVE_PASSIVE",
+  "required_primary_role": "ACTIVE",
+  "required_standby_role": "PASSIVE",
+  "required_bastion_state": "RESERVED_INACTIVE",
+  "requirements": {
+    "same_platform_revision": true,
+    "single_writer_enforced": true,
+    "fencing_ready": true,
+    "rollback_ready": true,
+    "failover_authorized": false,
+    "production_activation_authorized": false,
+    "automatic_external_spend_eur": 0
+  },
+  "output_schema": "chacha.dev/ha-standby-runtime-readiness/v1",
+  "automatic_external_spend_eur": 0
+}
