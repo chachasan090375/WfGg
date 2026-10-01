@@ -9,5 +9,8 @@
   "qualification_replay_forbidden_when_scope_unchanged": true,
   "rollback_required": true,
   "post_activation_real_verification_required": true,
-  "automatic_external_spend_eur": 0
+  "automatic_external_spend_eur": 0,
+  "trigger_retry_reason": "Initial branch-creation push yielded github.event.before=all-zero; retry on existing branch so approval diff is resolvable.",
+  "candidate_unchanged": true,
+  "qualification_scope_unchanged": true
 }
