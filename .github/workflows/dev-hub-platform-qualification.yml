@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'dev-hub-v*'
+      - 'roadmap-train-*'
   workflow_dispatch:
 
 permissions:

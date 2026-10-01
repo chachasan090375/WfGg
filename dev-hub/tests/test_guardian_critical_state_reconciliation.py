@@ -33,6 +33,11 @@ def test_reconciler_is_guardian_coverage_component():
     assert row["proof"]["marker"] in LATCH,row
 
 
+def test_release_train_branches_trigger_platform_qualification():
+    workflow=(ROOT/".github/workflows/dev-hub-platform-qualification.yml").read_text(encoding="utf-8")
+    assert "- 'roadmap-train-*'" in workflow
+
+
 if __name__ == "__main__":
     tests=[(n,v) for n,v in sorted(globals().items()) if n.startswith("test_") and callable(v)]
     for name,fn in tests: fn(); print(name+"=PASS")
