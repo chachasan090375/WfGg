@@ -1,0 +1,21 @@
+{
+  "schema": "chacha.dev/foundry-pilot-change-set-policy/v1",
+  "version": "1.0.0",
+  "purpose": "Convert an independently verified platform Foundry pilot into an exact non-production change-set.",
+  "requirements": {
+    "pilot_status": "PASS",
+    "pipeline_status": "PASS_HOLD_INCUMBENT",
+    "council_technical_review_pass": true,
+    "technical_admissibility_required": true,
+    "exact_git_revisions_required": true,
+    "non_empty_delta_required": true,
+    "rollback_to_incumbent_required": true,
+    "explicit_human_promotion_approval_must_be_absent": true,
+    "production_change_authorized": false,
+    "promotion_authorized": false
+  },
+  "output_artifact_id": "change-set",
+  "output_state": "READY_FOR_RELEASE_TRAIN",
+  "direct_component_mutation": false,
+  "automatic_external_spend_eur": 0
+}
