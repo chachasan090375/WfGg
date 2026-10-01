@@ -3,14 +3,15 @@
   "scope": "guardian-worker-production",
   "approved": true,
   "approved_by": "operator",
-  "revision": "8fb0582205ab074790a5247c92f53ba3306b49b0",
-  "tree": "4f9522711a57e745d5261dcd2e92b3dbee323cf3",
-  "approval_context": "Activate automatic reconciliation of FUNCTIONAL_CONTRACT_DRIFT remediation after corrected Guardian functional acceptance PASS; preserve Guardian/Sentinel gates; exact candidate only; rollback on failure; zero automatic external spend.",
+  "revision": "6be82ea997249e818433c597e7dfd61bd2fd2316",
+  "tree": "d712b0d4bfc2b00a112396a76f1a4a7e248247f8",
+  "guardian_worker_sha256": "609bf92825540d5c647d291ad7ed59dddb14aff6c77daae5adcc056d4d2b0b19",
+  "approval_context": "Coupled ChaCha DEV production promotion for governed sentinel-sandbox-materializer runtime and exact Guardian worker; preserve acquired qualification, PILOT, Sentinel and UMG evidence; rollback Guardian to 8fb0582205ab074790a5247c92f53ba3306b49b0 on any coupled post-activation failure; zero automatic external spend.",
   "qualification_replay_forbidden_when_scope_unchanged": true,
+  "rollback_revision": "8fb0582205ab074790a5247c92f53ba3306b49b0",
   "rollback_required": true,
   "post_activation_real_verification_required": true,
-  "automatic_external_spend_eur": 0,
-  "trigger_retry_reason": "Initial branch-creation push yielded github.event.before=all-zero; retry on existing branch so approval diff is resolvable.",
   "candidate_unchanged": true,
-  "qualification_scope_unchanged": true
+  "qualification_scope_unchanged": true,
+  "automatic_external_spend_eur": 0
 }
