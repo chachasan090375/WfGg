@@ -1,0 +1,12 @@
+{
+  "schema": "chacha.dev/autonomy-evidence-publisher-policy/v1",
+  "version": "1.0.0",
+  "runtime_root": "/opt/chacha-dev/runtime/autonomy-evidence",
+  "source_must_be_file": true,
+  "expected_status_required": true,
+  "source_digest_required": true,
+  "target_write_atomic": true,
+  "publisher_may_execute_actions": false,
+  "publisher_may_change_production": false,
+  "automatic_external_spend_eur": 0
+}
