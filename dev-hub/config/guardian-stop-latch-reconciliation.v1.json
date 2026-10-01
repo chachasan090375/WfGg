@@ -1,0 +1,18 @@
+{
+  "schema": "chacha.dev/guardian-stop-latch-reconciliation-policy/v1",
+  "version": "1.0.0",
+  "confirmation_delay_seconds": 1.0,
+  "managed_active_reasons": [
+    "EXTERNAL_GUARDIAN_CRITICAL_ALERT",
+    "GUARDIAN_CORRECTIVE_DIRECTIVE_CRITICAL",
+    "GUARDIAN_CRITICAL_SOURCE_CONFIRMED",
+    "GUARDIAN_STATE_UNAVAILABLE_FAIL_CLOSED"
+  ],
+  "invariants": {
+    "canonical_emergency_stop_mutation_forbidden": true,
+    "remote_guardian_failure_must_fail_closed": true,
+    "two_clean_snapshots_required_before_clear": true,
+    "unknown_active_reason_must_be_preserved": true,
+    "automatic_external_spend_eur": 0
+  }
+}
