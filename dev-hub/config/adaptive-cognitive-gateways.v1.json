@@ -1,0 +1,55 @@
+{
+  "schema": "chacha.dev/cognitive-gateway-catalog/v1",
+  "version": "1.0.0",
+  "principles": {
+    "gateway_never_decides_route": true,
+    "gateway_is_replaceable": true,
+    "no_secret_values_in_catalog": true,
+    "openai_compatible_transport_preferred": true,
+    "automatic_external_spend_eur": 0
+  },
+  "gateways": {
+    "litellm": {
+      "status": "ASSESS",
+      "kind": "multi-provider-gateway",
+      "protocol": "openai-compatible",
+      "execution": "external-or-vps",
+      "decision_authority": false,
+      "endpoint_source": "runtime-config",
+      "secret_source": "environment-or-secret-store"
+    },
+    "portkey": {
+      "status": "ASSESS",
+      "kind": "multi-provider-gateway",
+      "protocol": "openai-compatible",
+      "execution": "external",
+      "decision_authority": false,
+      "endpoint_source": "runtime-config",
+      "secret_source": "environment-or-secret-store"
+    },
+    "native-local": {
+      "status": "PILOT",
+      "kind": "local-model-runtime",
+      "protocol": "openai-compatible-or-native",
+      "execution": "vps",
+      "decision_authority": false,
+      "network_scope": "loopback-or-none",
+      "endpoint_source": "runtime-config",
+      "secret_source": "none"
+    }
+  },
+  "eligibility": {
+    "allowed_statuses": ["ADOPT", "PILOT", "WATCH", "ASSESS"],
+    "unavailable_statuses": ["DISABLED", "UNAVAILABLE", "RETIRE"],
+    "external_gateway_requires_health": true,
+    "local_gateway_requires_health": true
+  },
+  "guardrails": {
+    "route_decision_must_precede_gateway_execution": true,
+    "gateway_cannot_substitute_selected_model": true,
+    "gateway_cannot_expand_permission": true,
+    "paid_execution_requires_explicit_human_approval": true,
+    "strict_local_route_forbids_external_gateway": true,
+    "automatic_external_spend_eur": 0
+  }
+}
