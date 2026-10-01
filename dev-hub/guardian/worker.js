@@ -720,6 +720,36 @@ async function verifySentinelReceipt(env,receiptId,projectId,revision){
   return {ok:true};
 }
 
+async function resolveFunctionalContractDriftRemediations(env,{projectId,revision,receiptId,contractId,contractDigest}){
+  const rows=(await env.DB.prepare(
+    `SELECT directive_id,source_alert_id,rule_codes_json FROM remediation_directives
+       WHERE project_id=?1 AND status IN ('OPEN','DELIVERED') ORDER BY created_at ASC`
+  ).bind(projectId).all()).results||[];
+  let resolved=0;
+  for(const row of rows){
+    let rules=[];
+    try{rules=JSON.parse(row.rule_codes_json||"[]");}catch{rules=[];}
+    if(!Array.isArray(rules)||!rules.includes("FUNCTIONAL_CONTRACT_DRIFT"))continue;
+    const rid=String(row.directive_id||"");
+    if(!rid)continue;
+    const evidence=stable({
+      source:"corrected-functional-acceptance",receipt_id:receiptId,project_id:projectId,revision,
+      contract_id:contractId,contract_digest:contractDigest,verdict:"PASS"
+    });
+    await env.DB.prepare(
+      "UPDATE remediation_directives SET status='APPLIED',applied_at=datetime('now'),resolution_evidence_json=?2 WHERE directive_id=?1 AND status IN ('OPEN','DELIVERED')"
+    ).bind(rid,evidence).run();
+    await env.DB.prepare(
+      "UPDATE remediation_holds SET active=0,cleared_at=datetime('now') WHERE directive_id=?1 AND active=1"
+    ).bind(rid).run();
+    if(row.source_alert_id)await env.DB.prepare(
+      "UPDATE guardian_alerts SET status='ACKED' WHERE alert_id=?1 AND status='OPEN'"
+    ).bind(String(row.source_alert_id)).run();
+    resolved++;
+  }
+  return resolved;
+}
+
 async function functionalAcceptance(req,env){
   const body=await req.text();
   const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
@@ -770,6 +800,8 @@ async function functionalAcceptance(req,env){
       (receipt_id,project_id,revision,contract_id,contract_digest,verdict,reason_codes_json,required_criteria_count,passed_required_criteria_count,created_at)
       VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,datetime('now'))`
   ).bind(receiptId,projectId,revision,contractId,contractDigest,verdict,JSON.stringify(reasons),required.length,passed).run();
+  const resolvedFunctionalDriftRemediations=verdict==="PASS"
+    ?await resolveFunctionalContractDriftRemediations(env,{projectId,revision,receiptId,contractId,contractDigest}):0;
   let directiveId=null;
   if(verdict!=="PASS"){
     directiveId=await createAlert(env,{
@@ -788,6 +820,7 @@ async function functionalAcceptance(req,env){
     original_functional_contract_pinned:true,guardian:"external-worker",
     functional_scope_only:true,direct_application_mutation:false,
     central_orchestrator_owns_remediation:true,
+    resolved_functional_contract_drift_remediations:resolvedFunctionalDriftRemediations,
     assurance_exchange_delivery:exchangeDelivery,
     checked_at:new Date().toISOString()
   },verdict==="PASS"?200:409);
