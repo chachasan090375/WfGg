@@ -6,6 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TOOL = ROOT / "dev-hub/bin/local-cognitive-runtime-adapter.py"
 UNIT = ROOT / "dev-hub/systemd/chacha-dev-local-cognitive-runtime.service"
+CONFIG = ROOT / "dev-hub/config/local-cognitive-runtime.v1.json"
 
 spec = importlib.util.spec_from_file_location("local_cognitive_runtime_adapter", TOOL)
 assert spec and spec.loader
@@ -52,6 +53,18 @@ class LocalCognitiveRuntimeTest(unittest.TestCase):
             "scoring": {"quality_score": 48, "latency_score": 35, "evidence_score": 90}}
     def tearDown(self):
         self.server.shutdown(); self.server.server_close(); self.tmp.cleanup()
+
+    def test_canonical_policy_pins_stable_runtime_provenance(self):
+        cfg = json.loads(CONFIG.read_text())
+        self.assertEqual(cfg["runtime_version"], "v0.5.0")
+        self.assertFalse(cfg["runtime_prerelease"])
+        prov = cfg["runtime_provenance"]
+        self.assertEqual(prov["release_channel"], "stable")
+        self.assertEqual(prov["tag"], "v0.5.0")
+        self.assertEqual(prov["commit"], "7fe450e19305b828c199d602c23a8337aaa1f03b")
+        self.assertEqual(prov["tree"], "fd570ef54b10ec5fecb739e7e04c8ce44a6f415a")
+        self.assertFalse(prov["build_profile"]["LLAMA_BUILD_IS_DEV"])
+        self.assertFalse(prov["build_profile"]["GGML_RPC"])
 
     def test_launcher_is_loopback_reasoning_off_and_never_rpc(self):
         argv = M.server_argv(self.policy)
