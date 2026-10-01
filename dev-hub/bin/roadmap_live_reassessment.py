@@ -25,6 +25,12 @@ def stage_ok(stage:dict[str,Any],release_root:Path,runtime_root:Path)->bool:
     if isinstance(spec,dict):
         x=load(runtime_root/str(spec.get('path') or ''))
         if dotted(x,str(spec.get('field') or ''))!=spec.get('equals'):return False
+        rev_field=str(spec.get('release_revision_field') or '')
+        if rev_field:
+            rev_path=release_root/'.revision'
+            if not rev_path.is_file():return False
+            expected=rev_path.read_text(encoding='utf-8').strip()
+            if not expected or str(dotted(x,rev_field) or '')!=expected:return False
     return True
 
 def reassess(roadmap:dict[str,Any],policy:dict[str,Any],release_root:Path,runtime_root:Path)->dict[str,Any]:
