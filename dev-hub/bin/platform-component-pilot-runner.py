@@ -83,6 +83,7 @@ def guardian_event(repo_root:Path,run_root:Path,phase:str,contract:dict[str,Any]
     event={
       "schema":"chacha.dev/governance-action/v1",
       "event_id":"gov-"+uuid.uuid4().hex,
+      "action_id":run_root.name,
       "phase":phase,
       "actor":"platform-component-pilot-runner",
       "subject_role":"platform-component-pilot-runner",

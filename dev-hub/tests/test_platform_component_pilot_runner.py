@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import importlib.util,json,sys,tempfile
+import importlib.util,json,sys,tempfile,types
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -126,6 +126,23 @@ except RuntimeError as e:
     assert "PRODUCTION_BOUNDARY_INVALID" in str(e),e
 else:
     raise AssertionError("production-enabled pilot contract accepted")
+
+# The real Guardian requires one stable action_id across PRE/POST.
+captured_events=[]
+original_run=runner.subprocess.run
+def fake_guardian_run(argv,**kwargs):
+    event_path=Path(argv[-1]);captured_events.append(json.loads(event_path.read_text(encoding="utf-8")))
+    return types.SimpleNamespace(returncode=0,stdout=json.dumps({"verdict":"PASS","reason_codes":[]}),stderr="")
+runner.subprocess.run=fake_guardian_run
+try:
+    with tempfile.TemporaryDirectory(prefix="platform-pilot-guardian-correlation-") as td:
+        rr=Path(td)/"pcp-correlation-test";rr.mkdir()
+        runner.guardian_event(ROOT,rr,"PRE_ACTION",contract)
+        runner.guardian_event(ROOT,rr,"POST_ACTION",contract,"PASS")
+finally:
+    runner.subprocess.run=original_run
+assert [x["phase"] for x in captured_events]==["PRE_ACTION","POST_ACTION"],captured_events
+assert captured_events[0]["action_id"]==captured_events[1]["action_id"]=="pcp-correlation-test",captured_events
 
 guardian=json.loads((ROOT/"dev-hub/config/guardian-coverage-manifest.v1.json").read_text(encoding="utf-8"))
 assert any(x.get("component_id")=="platform-component-pilot-runner" for x in guardian.get("expected_components") or []),guardian
