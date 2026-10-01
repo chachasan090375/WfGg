@@ -1,0 +1,22 @@
+{
+  "schema": "chacha.dev/human-remediation-planning/v1",
+  "version": "1.0.0",
+  "purpose": "Prepare complete human-boundary remediation dossiers without executing remediation.",
+  "requirements": {
+    "fresh_self_model_required": true,
+    "owner_required": true,
+    "required_action_required": true,
+    "rollback_plan_required": true,
+    "post_action_verification_required": true,
+    "guardian_and_sentinel_preserved": true,
+    "explicit_human_approval_required": true
+  },
+  "default_required_evidence": [
+    "fresh-self-model",
+    "owner-remediation-plan",
+    "rollback-plan",
+    "post-action-verification"
+  ],
+  "direct_mutation_authority": false,
+  "automatic_external_spend_eur": 0
+}

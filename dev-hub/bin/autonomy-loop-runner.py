@@ -48,7 +48,15 @@ def main()->int:
         plan=cli(repo,"autonomy-supervision-controller.py","--mode","plan","--policy",str(a.policy or repo/"dev-hub/config/autonomy-supervision.v1.json"),"--self-model",str(before),"--output",str(planp))
         state_out=run_root/f"cycle-{cycle}-state.out.json";pstate=run([sys.executable,str(repo/"dev-hub/bin/autonomy-loop-state.py"),"--state",str(state_path),"--self-model",str(before),"--plan",str(planp)],60)
         if plan.get("next_state") in {"RESUME","WAIT_EXTERNAL","AWAIT_HUMAN","BLOCKED"}:
-            result={"schema":"chacha.dev/autonomy-loop-run/v1","run_id":run_id,"status":plan.get("status"),"next_state":plan.get("next_state"),"cycles":cycle,"history":history,"direct_mutation_by_supervisor":False,"automatic_external_spend_eur":0};save(run_root/"run.json",result);print("CHACHA_DEV_AUTONOMY_LOOP="+str(result["status"]));print("NEXT_STATE="+str(result["next_state"]));return 0 if plan.get("next_state")!="BLOCKED" else 2
+            human_plan_path=None;human_plan=None
+            if plan.get("next_state")=="AWAIT_HUMAN":
+                human_plan_path=run_root/f"cycle-{cycle}-human-remediation-plan.json"
+                human_plan=cli(repo,"human-remediation-plan.py","--plan",str(planp),"--self-model",str(before),"--policy",str(repo/"dev-hub/config/human-remediation-planning.v1.json"),"--output",str(human_plan_path))
+                if human_plan.get("status")!="PASS":raise RuntimeError("HUMAN_REMEDIATION_PLAN_BLOCKED")
+            result={"schema":"chacha.dev/autonomy-loop-run/v1","run_id":run_id,"status":plan.get("status"),"next_state":plan.get("next_state"),"cycles":cycle,"history":history,"direct_mutation_by_supervisor":False,"automatic_external_spend_eur":0}
+            if human_plan_path is not None:
+                result["human_remediation_plan"]=str(human_plan_path);result["human_remediation_dossier_count"]=int((human_plan or {}).get("dossier_count") or 0)
+            save(run_root/"run.json",result);print("CHACHA_DEV_AUTONOMY_LOOP="+str(result["status"]));print("NEXT_STATE="+str(result["next_state"]));return 0 if plan.get("next_state")!="BLOCKED" else 2
         actions=[x for x in plan.get("actions") or [] if isinstance(x,dict)]
         state_now=load(state_path,{})
         issue_state=state_now.get("issues") if isinstance(state_now.get("issues"),dict) else {}
