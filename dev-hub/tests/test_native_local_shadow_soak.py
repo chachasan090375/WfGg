@@ -31,3 +31,4 @@ def test_policy_zero_spend_and_bounded_iterations():
     assert 1 <= POL['iterations'] <= 20
     assert POL['warmup_requests']==1
     assert POL['maximum_cold_start_latency_seconds']>=POL['maximum_p95_latency_seconds']
+    assert all(1 <= int(c['max_tokens']) <= 64 for c in POL['cases'])
