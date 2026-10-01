@@ -1,0 +1,15 @@
+{
+  "schema": "chacha.dev/incident-safe-remediation-router-policy/v1",
+  "version": "1.0.0",
+  "safe_routes": {
+    "PROGRESS_TERMINAL_STALE": "progress-state-recovery",
+    "GUARDIAN_STOP_LATCH_STALE": "guardian-stop-latch-reconciler",
+    "ACTIVE_RELEASE_METADATA_DRIFT": "release-state-reconciler"
+  },
+  "auto_route_requires_non_destructive": true,
+  "auto_route_requires_production_mutation_false": true,
+  "auto_route_requires_external_spend_zero": true,
+  "critical_severity_requires_human": true,
+  "router_executes_remediation": false,
+  "automatic_external_spend_eur": 0
+}
