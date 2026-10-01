@@ -16,6 +16,7 @@ def test_good_fixture_passes():
         d=Path(td);a=d/'adapter.py';rp=d/'runtime.json';fake_adapter(a,True);rp.write_text('{}')
         x=m.run(POL,a,rp)
         assert x['status']=='PASS' and x['pass_rate']==1.0
+        assert 'cold_start_latency_seconds' in x
         assert x['production_activation_authorized'] is False
 
 def test_bad_fixture_blocks():
@@ -28,3 +29,5 @@ def test_policy_zero_spend_and_bounded_iterations():
     assert POL['automatic_external_spend_eur']==0
     assert POL['production_activation_authorized'] is False
     assert 1 <= POL['iterations'] <= 20
+    assert POL['warmup_requests']==1
+    assert POL['maximum_cold_start_latency_seconds']>=POL['maximum_p95_latency_seconds']
