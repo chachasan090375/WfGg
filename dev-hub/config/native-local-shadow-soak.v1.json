@@ -7,20 +7,32 @@
   "cases": [
     {
       "id": "requirements-analysis",
-      "prompt": "List exactly three constraints for this bounded native-local fallback: inference offline, zero automatic external spend, rollback ready.",
-      "expected_substrings": ["offline", "zero", "rollback"]
+      "prompt": "Reply with exactly three short labels, one per line: OFFLINE; ZERO SPEND; ROLLBACK READY.",
+      "expected_substrings": [
+        "offline",
+        "zero",
+        "rollback"
+      ]
     },
     {
       "id": "architecture-optimization",
       "prompt": "Choose A or B. A is loopback-only with RPC disabled. B exposes RPC externally. Answer with A and a short reason.",
-      "expected_substrings": ["A", "RPC"]
+      "expected_substrings": [
+        "A",
+        "RPC"
+      ]
     },
     {
       "id": "uncertainty-resolution",
       "prompt": "Can automatic HA failover be authorized when no standby health evidence is supplied? Explain briefly.",
-      "expected_substrings": ["NO", "evidence"]
+      "expected_substrings": [
+        "NO",
+        "evidence"
+      ]
     }
   ],
   "production_activation_authorized": false,
-  "automatic_external_spend_eur": 0
+  "automatic_external_spend_eur": 0,
+  "warmup_requests": 1,
+  "maximum_cold_start_latency_seconds": 30.0
 }
