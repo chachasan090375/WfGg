@@ -46,6 +46,7 @@
     "technical_decision_authority": false
   },
   "governance": {
+    "canonical_user_stop_state": "/opt/chacha-dev/runtime/control/emergency-stop.json",
     "canonical_user_stop_must_be_clear": true,
     "downstream_guardian_required_before_mutation": true,
     "sentinelle_required_before_production": true,
