@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 SCHEMA="chacha.dev/session-bootstrap-cockpit/v1"
+UNRESOLVED={"status":"UNRESOLVED","reason":"CANONICAL_AUTHORITY_NOT_PROVEN"}
 
 def _json(path:Path)->dict[str,Any]|None:
     try:
@@ -18,20 +19,29 @@ def _text(path:Path)->str|None:
     except OSError:return None
 
 def build(runtime:Path,current:Path)->dict[str,Any]:
-    """Read-only bootstrap view. Authorities remain canonical files; nothing is copied back."""
+    """Read-only bootstrap over proven canonical runtime authorities."""
     active=_text(current/".revision")
-    guardian=_json(runtime/"guardian"/"state.json") or _json(runtime/"guardian"/"guardian-state.json")
-    stop=_json(runtime/"emergency-stop"/"state.json") or _json(runtime/"stop"/"state.json")
-    progress=_json(runtime/"progress"/"state.json") or _json(runtime/"progress-state.json")
     coverage=_json(runtime/"guardian"/"coverage-latest.json")
+    remediation=_json(runtime/"guardian"/"remediation-index.json")
+    guardian_stop=_json(runtime/"control"/"guardian-stop-required.json")
+    stop=_json(runtime/"control"/"emergency-stop.json")
+    progress=_json(runtime/"progress"/"progress.json")
+    guardian={
+      "coverage_snapshot":coverage,
+      "remediation_index":remediation,
+      "stop_required":guardian_stop,
+      "source_root":str(runtime/"guardian"),
+      "distributed_authority":True,
+    }
+    required_ok=bool(active and stop is not None and progress is not None and coverage is not None and guardian_stop is not None)
     return {
-      "schema":SCHEMA,"status":"OK" if active else "DEGRADED",
+      "schema":SCHEMA,"status":"OK" if required_ok else "DEGRADED",
       "active_production":{"revision":active,"source":str(current/".revision")},
-      "guardian":{"state":guardian,"coverage_snapshot":coverage,"source_root":str(runtime/"guardian")},
-      "stop":{"state":stop,"source_root":str(runtime)},
-      "progress":{"state":progress,"source_root":str(runtime)},
+      "live_candidates":dict(UNRESOLVED),
+      "guardian":guardian,
+      "stop":{"state":stop,"source":str(runtime/"control"/"emergency-stop.json")},
+      "progress":{"state":progress,"source":str(runtime/"progress"/"progress.json")},
       "authority":"CHACHA_DEV_CANONICAL_RUNTIME",
-      "chat_history_required":False,
-      "read_only":True,
+      "chat_history_required":False,"read_only":True,
       "automatic_external_spend_eur":0
     }
