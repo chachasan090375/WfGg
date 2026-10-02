@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import importlib.util
 import pathlib
+import inspect
 import sys
+import tempfile
 import traceback
 
 ROOT = pathlib.Path(__file__).resolve().parent
@@ -29,6 +31,46 @@ def load_modules():
     return modules
 
 
+
+class MonkeyPatch:
+    """Minimal zero-dependency monkeypatch fixture with deterministic undo."""
+    def __init__(self):
+        self._undo = []
+
+    def setattr(self, obj, name, value):
+        existed = hasattr(obj, name)
+        old = getattr(obj, name, None)
+        setattr(obj, name, value)
+        self._undo.append((obj, name, existed, old))
+
+    def undo(self):
+        while self._undo:
+            obj, name, existed, old = self._undo.pop()
+            if existed:
+                setattr(obj, name, old)
+            else:
+                delattr(obj, name)
+
+
+def run_test(test):
+    """Provide the only fixtures used by this zero-dependency test suite."""
+    params = inspect.signature(test).parameters
+    unsupported = sorted(set(params) - {"tmp_path", "monkeypatch"})
+    if unsupported:
+        raise RuntimeError("UNSUPPORTED_FIXTURES:" + ",".join(unsupported))
+    patch = MonkeyPatch()
+    try:
+        with tempfile.TemporaryDirectory(prefix="canonical-path-qualify-") as tmp:
+            kwargs = {}
+            if "tmp_path" in params:
+                kwargs["tmp_path"] = pathlib.Path(tmp)
+            if "monkeypatch" in params:
+                kwargs["monkeypatch"] = patch
+            test(**kwargs)
+    finally:
+        patch.undo()
+
+
 def main() -> int:
     modules = load_modules()
     tests = []
@@ -47,7 +89,7 @@ def main() -> int:
     failures = []
     for name, test in tests:
         try:
-            test()
+            run_test(test)
             print(f"PASS {name}")
         except Exception as exc:
             failures.append(name)
