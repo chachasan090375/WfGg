@@ -1,26 +1,40 @@
 {
-  "schema": "chacha.dev/persistent-missions-policy/v1",
-  "version": "1.0.0",
-  "purpose": "Persist multi-day mission progress without replacing Scheduler, Task Graph or Run Controller.",
-  "principles": {
-    "execution_plan_is_authoritative": true,
-    "controller_never_executes_tasks": true,
-    "resume_is_idempotent": true,
-    "checkpoint_is_append_only": true,
-    "human_boundary_is_fail_closed": true,
-    "emergency_stop_is_fail_closed": true,
-    "automatic_external_spend_eur": 0
-  },
-  "runtime": {
-    "root": "/opt/chacha-dev/runtime/persistent-missions",
-    "state_filename": "mission.json",
-    "checkpoint_filename": "checkpoints.jsonl",
-    "resume_filename": "resume-plan.json"
-  },
+  "automatic_external_spend_eur": 0,
   "limits": {
     "max_attempts_per_task": 3,
-    "max_mission_days": 30,
-    "max_checkpoint_events": 10000
+    "max_checkpoint_events": 10000,
+    "max_mission_days": 30
   },
-  "automatic_external_spend_eur": 0
+  "principles": {
+    "automatic_external_spend_eur": 0,
+    "canonical_mission_owner_required": true,
+    "checkpoint_is_append_only": true,
+    "client_lifecycle_independent": true,
+    "controller_never_executes_tasks": true,
+    "emergency_stop_is_fail_closed": true,
+    "execution_plan_is_authoritative": true,
+    "human_boundary_is_fail_closed": true,
+    "resume_is_idempotent": true,
+    "resume_must_resolve_existing_subject_before_creation": true,
+    "scheduler_run_controller_own_continuation": true
+  },
+  "purpose": "Persist multi-day mission progress without replacing Scheduler, Task Graph or Run Controller.",
+  "roadmap_convoy": {
+    "automatic_external_spend_eur": 0,
+    "eligible": true,
+    "ha_failover_execution_forbidden": true,
+    "mandates_root": "/opt/chacha-dev/runtime/roadmap-convoy/mandates",
+    "native_local_production_forbidden": true,
+    "one_train_at_a_time": true,
+    "policy": "/opt/chacha-dev/runtime/roadmap-convoy/convoy-policy.json",
+    "resume_from_first_nonterminal_train": true
+  },
+  "runtime": {
+    "checkpoint_filename": "checkpoints.jsonl",
+    "resume_filename": "resume-plan.json",
+    "root": "/opt/chacha-dev/runtime/persistent-missions",
+    "state_filename": "mission.json"
+  },
+  "schema": "chacha.dev/persistent-missions-policy/v1",
+  "version": "1.1.0"
 }

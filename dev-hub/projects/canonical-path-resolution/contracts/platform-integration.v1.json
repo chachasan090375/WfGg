@@ -1,0 +1,95 @@
+{
+  "schema": "chacha.dev/canonical-path-resolution/platform-integration/v1",
+  "project": "canonical-path-resolution",
+  "source_of_truth": {
+    "component_identity": "canonical-component-registry",
+    "capability_catalogue": "platform-capability-registry",
+    "second_registry_forbidden": true
+  },
+  "integration_points": [
+    {
+      "consumer": "universal-materialization-gate",
+      "phase": "birth",
+      "require": ["canonical_path_contract_declared", "owner_declared", "lifecycle_declared"],
+      "on_failure": "BLOCK_MATERIALIZATION"
+    },
+    {
+      "consumer": "scheduler",
+      "phase": "pre-dispatch",
+      "require": ["governed_run_gate"],
+      "on_failure": "BLOCK_DISPATCH"
+    },
+    {
+      "consumer": "run-controller",
+      "phase": "pre-execute",
+      "require": ["governed_run_gate", "evidence_or_strategy_delta_after_non_progress"],
+      "on_failure": "BLOCKED_NON_PROGRESS"
+    },
+    {
+      "consumer": "guardian",
+      "phase": "pre-post",
+      "require": ["canonical_resolution_evidence", "stop_authoritative"],
+      "on_failure": "BLOCK"
+    },
+    {
+      "consumer": "sentinelle",
+      "phase": "technical-assurance",
+      "require": ["resolver_contract_tests", "drift_reconciliation_tests", "run_gate_tests"],
+      "on_failure": "BLOCK"
+    },
+    {
+      "consumer": "fleet-observatory",
+      "phase": "continuous-observation",
+      "require": ["same_canonical_component_registry", "path_drift_events"],
+      "on_failure": "DEGRADED_OBSERVABILITY"
+    },
+    {
+      "consumer": "assurance",
+      "phase": "qualification",
+      "require": ["same_canonical_component_registry", "fleet_classification"],
+      "on_failure": "BLOCK"
+    },
+    {
+      "consumer": "reconciler",
+      "phase": "continuous-reconciliation",
+      "require": ["same_canonical_component_registry", "non_destructive_default"],
+      "on_failure": "BLOCK_REPAIR"
+    },
+    {
+      "consumer": "intendant-hygiene-purge-lifecycle",
+      "phase": "lifecycle",
+      "require": ["same_canonical_component_registry", "canonical_paths_before_mutation"],
+      "on_failure": "BLOCK_MUTATION"
+    },
+    {
+      "consumer": "foundries",
+      "phase": "future-component-materialization",
+      "require": ["universal_materialization_gate_contract", "canonical_path_contract"],
+      "on_failure": "BLOCK_MATERIALIZATION"
+    }
+  ],
+  "recovery": {
+    "coordinator_capability": "causal-analysis",
+    "coordinator_must_not_be_sole_participant": true,
+    "selection": "capability-driven",
+    "github_role": "optional-evidence-source",
+    "technology_watch_role": "optional-public-technical-evidence-provider",
+    "dark_intelligence_role": "optional-isolated-specialized-evidence-provider",
+    "architecture_council_role": "arbitrate_competing_viable_strategies_when_required",
+    "resume_rule": "material_evidence_delta_or_strategy_delta_required"
+  },
+  "safety": {
+    "guardian_bypass": false,
+    "sentinelle_bypass": false,
+    "stop_bypass": false,
+    "automatic_external_spend_eur": 0,
+    "destructive_reconciliation_default": false
+  },
+  "existing_component_classification": [
+    "COMPLIANT",
+    "UPDATABLE",
+    "SUPERSEDED",
+    "ORPHAN",
+    "INCOMPATIBLE"
+  ]
+}

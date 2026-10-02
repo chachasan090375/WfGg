@@ -1,0 +1,169 @@
+{
+  "schema": "chacha.dev/project-manifest/v3",
+  "identity": {
+    "name": "ChaCha DEV Canonical Path Resolution",
+    "slug": "canonical-path-resolution",
+    "description": "Platform-wide canonical path resolution, runtime path-drift reconciliation and capability-driven multi-agent recovery from non-progress.",
+    "lifecycle_stage": "BUILD",
+    "criticality": "high",
+    "tags": [
+      "platform",
+      "canonical-registry",
+      "path-resolution",
+      "drift-reconciliation",
+      "anti-loop",
+      "multi-agent",
+      "governance"
+    ]
+  },
+  "repository": {
+    "url": "https://github.com/chachasan090375/WfGg.git",
+    "default_branch": "main",
+    "working_branch": "project-canonical-path-resolution-multi-agent",
+    "monorepo": true,
+    "source_of_truth": "git"
+  },
+  "ownership": {
+    "technical_owner": "chacha-dev-platform",
+    "product_owner": "project-owner",
+    "operations_owner": "chacha-dev-platform"
+  },
+  "components": [
+    {
+      "id": "canonical-path-resolver",
+      "type": "platform-service",
+      "path": "dev-hub",
+      "runtime": "python-linux",
+      "framework": "chacha-dev-runtime",
+      "interfaces": ["internal-contract"],
+      "depends_on": ["canonical-component-registry"],
+      "commands": {},
+      "artifacts": ["path-resolution-contract", "path-resolution-evidence"],
+      "env_refs": [],
+      "secret_refs": [],
+      "observability_hooks": ["resolution-events", "unresolved-path-events"],
+      "owner": "chacha-dev-platform"
+    },
+    {
+      "id": "path-drift-reconciler",
+      "type": "platform-service",
+      "path": "dev-hub",
+      "runtime": "python-linux",
+      "framework": "chacha-dev-runtime",
+      "interfaces": ["internal-contract"],
+      "depends_on": ["canonical-path-resolver", "canonical-component-registry"],
+      "commands": {},
+      "artifacts": ["path-drift-report", "fleet-path-classification"],
+      "env_refs": [],
+      "secret_refs": [],
+      "observability_hooks": ["path-drift-events", "fleet-audit-events"],
+      "owner": "chacha-dev-platform"
+    },
+    {
+      "id": "non-progress-detector",
+      "type": "platform-control",
+      "path": "dev-hub",
+      "runtime": "python-linux",
+      "framework": "chacha-dev-runtime",
+      "interfaces": ["scheduler-run-controller-contract"],
+      "depends_on": ["canonical-component-registry"],
+      "commands": {},
+      "artifacts": ["non-progress-evidence"],
+      "env_refs": [],
+      "secret_refs": [],
+      "observability_hooks": ["loop-prevention-events"],
+      "owner": "chacha-dev-platform"
+    },
+    {
+      "id": "multi-agent-recovery-router",
+      "type": "platform-control",
+      "path": "dev-hub",
+      "runtime": "python-linux",
+      "framework": "chacha-dev-runtime",
+      "interfaces": ["capability-routing", "architecture-council"],
+      "depends_on": ["non-progress-detector", "canonical-component-registry"],
+      "commands": {},
+      "artifacts": ["recovery-plan", "hypothesis-ledger"],
+      "env_refs": [],
+      "secret_refs": [],
+      "observability_hooks": ["recovery-routing-events", "strategy-delta-events"],
+      "owner": "chacha-dev-platform"
+    }
+  ],
+  "dependencies": [
+    {"from": "path-drift-reconciler", "to": "canonical-path-resolver", "kind": "internal", "required": true},
+    {"from": "multi-agent-recovery-router", "to": "non-progress-detector", "kind": "control", "required": true},
+    {"from": "multi-agent-recovery-router", "to": "canonical-path-resolver", "kind": "evidence", "required": true}
+  ],
+  "environments": [
+    {"name": "development", "class": "dev", "provider": "vps", "approval_required": false},
+    {"name": "pilot", "class": "preview", "provider": "vps", "promotion_from": "development", "approval_required": true},
+    {"name": "production", "class": "production", "provider": "vps", "promotion_from": "pilot", "approval_required": true}
+  ],
+  "capabilities": [
+    {"id": "canonical-component-registry-read", "required": true, "preferred_provider": "chacha-dev-platform"},
+    {"id": "canonical-path-resolve", "required": true, "preferred_provider": "canonical-path-resolver"},
+    {"id": "runtime-path-observe", "required": true, "preferred_provider": "chacha-dev-platform"},
+    {"id": "path-drift-reconcile", "required": true, "preferred_provider": "path-drift-reconciler"},
+    {"id": "non-progress-detect", "required": true, "preferred_provider": "non-progress-detector"},
+    {"id": "causal-analysis", "required": true, "preferred_provider": "capability-router"},
+    {"id": "technology-watch", "required": false, "preferred_provider": "chacha-tech-watch"},
+    {"id": "specialized-isolated-research", "required": false, "preferred_provider": "dark-intelligence"},
+    {"id": "technical-assurance", "required": true, "preferred_provider": "sentinelle"},
+    {"id": "security-review", "required": true, "preferred_provider": "bastion"},
+    {"id": "architecture-arbitration", "required": true, "preferred_provider": "architecture-council"},
+    {"id": "capability-materialization", "required": false, "preferred_provider": "capability-foundry"},
+    {"id": "agent-materialization", "required": false, "preferred_provider": "agent-foundry"},
+    {"id": "branch-materialization", "required": false, "preferred_provider": "branch-foundry"}
+  ],
+  "quality_gates": {
+    "architecture": {"required": true, "blocking": true, "minimum_status": "OK", "evidence_required": true},
+    "technical-assurance": {"required": true, "blocking": true, "minimum_status": "OK", "evidence_required": true},
+    "identity-security": {"required": true, "blocking": true, "minimum_status": "OK", "evidence_required": true},
+    "testing": {"required": true, "blocking": true, "minimum_status": "OK", "evidence_required": true},
+    "reliability-resilience": {"required": true, "blocking": true, "minimum_status": "OK", "evidence_required": true},
+    "governance-compliance": {"required": true, "blocking": true, "minimum_status": "OK", "evidence_required": true},
+    "operations-sre": {"required": true, "blocking": true, "minimum_status": "OK", "evidence_required": true},
+    "documentation": {"required": true, "blocking": false, "minimum_status": "OK", "evidence_required": true}
+  },
+  "non_functional_requirements": {
+    "availability_target": "platform-control-plane-grade",
+    "latency_target": "local semantic resolution without repository-wide discovery",
+    "supported_locales": ["fr"],
+    "supported_clients": ["chacha-dev-internal"]
+  },
+  "security": {
+    "secrets_management": "existing-platform-policy",
+    "dependency_scanning": true,
+    "security_headers_required": false,
+    "audit_logging_required": true,
+    "production_change_requires_approval": true
+  },
+  "observability": {
+    "structured_logs": true,
+    "health_checks": true,
+    "alerts_required": true
+  },
+  "recovery": {
+    "rpo_hours": 24,
+    "rto_hours": 2,
+    "backup_policy": "existing ChaCha DEV governed backup policy",
+    "restore_procedure": "git-SHA rollback plus canonical registry/evidence restoration",
+    "production_restore_test_required": true
+  },
+  "delivery": {
+    "ci_provider": "github-actions",
+    "release_strategy": "qualification-then-isolated-pilot-then-explicit-production-promotion",
+    "rollback_strategy": "git-sha and release rollback",
+    "artifact_versioning": "git-sha"
+  },
+  "storage": {
+    "governor_required": true,
+    "tiers": [
+      {"name": "git", "purpose": ["source", "contracts", "docs", "tests"], "provider": "github", "retention": "versioned"},
+      {"name": "execution", "purpose": ["runtime", "temporary-evidence"], "provider": "vps", "path_or_ref": "/opt/chacha-dev", "retention": "governed"},
+      {"name": "archive", "purpose": ["evidence", "audit", "backups"], "provider": "nas", "path_or_ref": "ChaCha-DEV-HUB", "retention": "policy-driven"}
+    ]
+  },
+  "agents": []
+}
