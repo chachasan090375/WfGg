@@ -1,0 +1,20 @@
+{
+  "schema": "chacha.dev/component-materialization-manifest/v1",
+  "component_id": "chacha-remote-operator-python-runtime",
+  "governance_class": "RUNTIME_INFRASTRUCTURE",
+  "owner_foundry": "branch-foundry",
+  "materialization_gate_required": true,
+  "purpose": "Isolated persistent Python service runtime for ChaCha Remote Operator MCP.",
+  "scope": "PLATFORM",
+  "health_contract": "MCP_HTTP_LOOPBACK_8765",
+  "lifecycle": "MATERIALIZING",
+  "runtime_profile": "PYTHON_SERVICE_RUNTIME",
+  "isolation": "DEDICATED_VERSIONED_VENV",
+  "system_python_mutation_forbidden": true,
+  "dependency_source": "pyproject.toml",
+  "service_manager": "systemd",
+  "rollback_policy": "ROLLBACK_REQUIRED_WHEN_MATERIAL",
+  "retention_policy": "CLASS_DEFAULT_RETENTION",
+  "purge_policy": "UNIVERSAL_HYGIENE",
+  "automatic_external_spend_eur": 0
+}

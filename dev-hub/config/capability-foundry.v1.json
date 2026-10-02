@@ -90,5 +90,25 @@
     "progress_reporting_policy": "dev-hub/config/progress-reporting.v1.json",
     "progress_visibility_contract_required": true,
     "future_user_visible_long_running_components_inherit_progress_reporting": true
+  },
+  "python_service_runtime_profile": {
+    "enabled": true,
+    "governance_class": "RUNTIME_INFRASTRUCTURE",
+    "owner_foundry": "capability-foundry",
+    "universal_materialization_gate_required": true,
+    "isolation": "DEDICATED_VERSIONED_VENV",
+    "system_python_mutation_forbidden": true,
+    "dependency_manifest_required": true,
+    "dependency_version_bounds_required": true,
+    "service_manager": "systemd",
+    "persistent_service_required": true,
+    "restart_policy_required": true,
+    "healthcheck_required": true,
+    "rollback_required": true,
+    "retention_and_purge_contract_required": true,
+    "active_only_after_pilot_pass": true,
+    "guardian_required": true,
+    "sentinel_required": true,
+    "automatic_external_spend_eur": 0
   }
 }
