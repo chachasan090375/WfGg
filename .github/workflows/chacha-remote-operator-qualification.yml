@@ -8,6 +8,7 @@ on:
       - 'remote-operator-*'
     paths:
       - 'dev-hub/projects/chacha-remote-operator/**'
+      - 'dev-hub/lib/direct_operator_m2m_auth.py'
       - '.github/workflows/chacha-remote-operator-qualification.yml'
   workflow_dispatch:
 
@@ -15,7 +16,7 @@ permissions:
   contents: read
 
 jobs:
-  qualify-v02:
+  qualify-remote-operator:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -25,22 +26,27 @@ jobs:
       - name: Exact candidate identity
         run: |
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          echo "CHACHA_REMOTE_OPERATOR_V02_SHA=$(git rev-parse HEAD)"
-          echo "CHACHA_REMOTE_OPERATOR_V02_TREE=$(git rev-parse HEAD^{tree})"
-      - name: Install V0.2 project
+          echo "CHACHA_REMOTE_OPERATOR_SHA=$(git rev-parse HEAD)"
+          echo "CHACHA_REMOTE_OPERATOR_TREE=$(git rev-parse HEAD^{tree})"
+      - name: Install project
         run: python -m pip install -e './dev-hub/projects/chacha-remote-operator[dev]'
-      - name: Compile V0.2 runtime modules
+      - name: Compile governed runtime modules
         run: |
           python -m py_compile \
+            dev-hub/lib/direct_operator_m2m_auth.py \
             dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/audit.py \
             dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/governance.py \
             dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/lease.py \
             dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/operations.py \
             dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/policy.py \
+            dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/adaptive_operations.py \
+            dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/direct_operator_bridge.py \
             dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/server_v02.py
-      - name: V0.2 governed operation qualification
+      - name: Historical V0.2 governed operation regression
         run: pytest -q dev-hub/projects/chacha-remote-operator/tests/test_v02_governed_operations.py
-      - name: V0.2 policy invariants
+      - name: ChatGPT exposure contract qualification
+        run: pytest -q dev-hub/projects/chacha-remote-operator/tests/test_chatgpt_exposure_contract.py
+      - name: Historical V0.2 policy invariants
         run: |
           python - <<'PY'
           import json
@@ -68,21 +74,92 @@ jobs:
           assert float(x['automatic_external_spend_eur'])==0
           print('CHACHA_REMOTE_OPERATOR_V02_SECURITY_INVARIANTS=PASS')
           PY
-      - name: V0.2 MCP import smoke
-        env:
-          CHACHA_REMOTE_OPERATOR_POLICY: ${{ github.workspace }}/dev-hub/projects/chacha-remote-operator/config/policy.v2.json
+      - name: Current V0.3 policy and exposure invariants
         run: |
           python - <<'PY'
-          import chacha_remote_operator
+          import json
+          from pathlib import Path
+
+          root=Path('dev-hub/projects/chacha-remote-operator')
+          p=json.loads((root/'config/policy.v3.json').read_text(encoding='utf-8'))
+          assert p['schema']=='chacha.dev/chacha-remote-operator-policy/v3'
+          assert p['fail_closed'] is True
+          assert p['bind_host']=='127.0.0.1'
+          assert int(p['port'])==8767
+          assert p['mcp_path']=='/mcp'
+          assert p['command_execution_enabled'] is False
+          assert p['file_write_enabled'] is False
+          assert p['service_mutation_enabled'] is False
+          assert p['git_mutation_enabled'] is False
+          assert p['destructive_operations_enabled'] is False
+          assert p['credential_export_enabled'] is False
+          assert float(p['automatic_external_spend_eur'])==0
+
+          e=json.loads((root/'config/chatgpt-exposure.v1.json').read_text(encoding='utf-8'))
+          assert e['schema']=='chacha.dev/chatgpt-remote-operator-exposure/v1'
+          assert e['source_candidate']['transport']=='streamable-http'
+          assert e['source_candidate']['private_endpoint']=='http://127.0.0.1:8767/mcp'
+          assert e['exposure_transport']['kind']=='OPENAI_SECURE_MCP_TUNNEL'
+          assert e['exposure_transport']['public_ingress_forbidden'] is True
+          assert e['exposure_transport']['mcp_must_remain_loopback_bound'] is True
+          assert e['exposure_transport']['credentials_in_source_forbidden'] is True
+          assert float(e['exposure_transport']['automatic_external_spend_eur'])==0
+          t=e['direct_operator_target']
+          assert t['private_endpoint']=='http://127.0.0.1:8792'
+          assert t['intent_path']=='/api/v1/m2m/intent'
+          assert t['job_path_prefix']=='/api/v1/m2m/jobs/'
+          assert t['tailscale_identity_header_spoofing_forbidden'] is True
+          assert t['direct_central_orchestrator_bypass_forbidden'] is True
+          assert t['forced_channel']=='BUILD'
+          assert t['direct_mutation_authority'] is False
+          assert t['technical_decision_authority'] is False
+          assert t['bridge_enabled'] is False
+          assert e['activation']['production_activation_allowed'] is False
+
+          r=json.loads((root/'project-agent-registry.v1.json').read_text(encoding='utf-8'))
+          agent=r['agents'][0]
+          assert agent['agent_id']=='remote-operator-gateway-agent'
+          assert agent['functional_intent_submission_permission'] is True
+          assert agent['functional_intent_channel']=='BUILD'
+          assert agent['own_job_read_only'] is True
+          assert agent['technical_decision_authority'] is False
+          assert agent['direct_execution_authority'] is False
+          assert agent['direct_mutation_authority'] is False
+          assert agent['central_orchestrator_bypass_permission'] is False
+          assert agent['production_permission'] is False
+          assert agent['tailscale_identity_impersonation_permission'] is False
+          assert float(agent['automatic_external_spend_eur'])==0
+
+          m=json.loads((root/'runtime.materialization.v1.json').read_text(encoding='utf-8'))
+          assert m['schema']=='chacha.dev/component-materialization-manifest/v1'
+          assert m['materialization_gate_required'] is True
+          assert m['mcp_runtime']['bind']=='127.0.0.1'
+          assert int(m['mcp_runtime']['port'])==8767
+          assert m['mcp_runtime']['public_ingress_forbidden'] is True
+          tunnel=m['secure_mcp_tunnel']
+          assert tunnel['status']=='UNMATERIALIZED'
+          assert tunnel['network_initiation']=='OUTBOUND_ONLY'
+          assert tunnel['public_mcp_ingress_forbidden'] is True
+          assert tunnel['credential_in_git_forbidden'] is True
+          assert tunnel['human_platform_provisioning_boundary'] is True
+          assert m['activation']['production_active'] is False
+          assert float(m['automatic_external_spend_eur'])==0
+          print('CHACHA_REMOTE_OPERATOR_CURRENT_EXPOSURE_INVARIANTS=PASS')
+          PY
+      - name: MCP import smoke
+        env:
+          CHACHA_REMOTE_OPERATOR_POLICY: ${{ github.workspace }}/dev-hub/projects/chacha-remote-operator/config/policy.v3.json
+        run: |
+          python - <<'PY'
           import chacha_remote_operator.server_v02 as s
           expected=(
             'git_status','git_head','git_tree','service_is_active',
             'service_is_enabled','uptime','free_bytes','uname'
           )
-          assert chacha_remote_operator.__version__=='0.2.0'
           assert s.V02_TOOL_NAMES==expected
-          assert s.POLICY.raw['mode']=='PILOT_GOVERNED_READ_OPERATIONS'
+          assert s.POLICY.raw['schema']=='chacha.dev/chacha-remote-operator-policy/v3'
           assert s.POLICY.raw['bind_host']=='127.0.0.1'
+          assert int(s.POLICY.raw['port'])==8767
           assert s.POLICY.raw['command_execution_enabled'] is False
-          print('CHACHA_REMOTE_OPERATOR_V02_MCP_IMPORT=PASS')
+          print('CHACHA_REMOTE_OPERATOR_MCP_IMPORT=PASS')
           PY
