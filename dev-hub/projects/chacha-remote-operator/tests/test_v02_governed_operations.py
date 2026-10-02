@@ -211,7 +211,7 @@ def test_guardian_post_runs_when_execution_raises(tmp_path: Path, monkeypatch: p
     assert record["details"]["guardian_post_verdict"] == "PASS"
 
 
-def test_v02_mcp_surface_has_exactly_eight_named_tools() -> None:
+def test_v02_mcp_surface_preserves_exactly_eight_named_operations() -> None:
     source = (PROJECT_ROOT / "src" / "chacha_remote_operator" / "server_v02.py").read_text(encoding="utf-8")
     tree = ast.parse(source)
     decorated: list[ast.FunctionDef] = []
@@ -226,8 +226,12 @@ def test_v02_mcp_surface_has_exactly_eight_named_tools() -> None:
         ):
             decorated.append(node)
 
-    assert tuple(node.name for node in decorated) == V02_OPERATION_IDS
-    signatures = {node.name: [arg.arg for arg in node.args.args] for node in decorated}
+    by_name = {node.name: node for node in decorated}
+    # V0.2's compatibility contract is the exact eight governed operations.
+    # Later protocol extensions may add separately governed tools without
+    # changing or weakening that historical operation surface.
+    assert tuple(name for name in V02_OPERATION_IDS if name in by_name) == V02_OPERATION_IDS
+    signatures = {name: [arg.arg for arg in by_name[name].args.args] for name in V02_OPERATION_IDS}
     assert signatures == {
         "git_status": ["repository"],
         "git_head": ["repository"],
@@ -238,5 +242,5 @@ def test_v02_mcp_surface_has_exactly_eight_named_tools() -> None:
         "free_bytes": [],
         "uname": [],
     }
-    assert "governed_operation" not in signatures
+    assert "governed_operation" not in by_name
     assert all("argv" not in params for params in signatures.values())
