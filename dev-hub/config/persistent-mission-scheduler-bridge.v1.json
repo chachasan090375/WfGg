@@ -1,0 +1,13 @@
+{
+  "schema": "chacha.dev/persistent-mission-scheduler-bridge-policy/v1",
+  "version": "1.0.0",
+  "mission_schema": "chacha.dev/persistent-mission/v1",
+  "plan_schema": "chacha.dev/execution-plan/v1",
+  "graph_schema": "chacha.dev/task-graph/v1",
+  "handoff_schema": "chacha.dev/persistent-mission-scheduler-handoff/v1",
+  "bridge_executes_tasks": false,
+  "bridge_mutates_mission_state": false,
+  "completed_dependencies_are_satisfied": true,
+  "emergency_stop_must_be_clear": true,
+  "automatic_external_spend_eur": 0
+}

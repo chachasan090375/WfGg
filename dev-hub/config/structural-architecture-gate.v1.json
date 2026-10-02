@@ -1,0 +1,17 @@
+{
+  "schema": "chacha.dev/structural-architecture-gate/v1",
+  "version": "1.0.0",
+  "purpose": "Fail closed when canonical routes, mission ownership, or runtime graph consistency can diverge.",
+  "required_evidence": ["canonical_route_resolution", "mission_owner_resolution", "logician_structural_falsification", "runtime_graph_reconciliation", "sentinel_exact_revision"],
+  "responsibilities": {
+    "logician": "FALSIFY_ONLY",
+    "architecture-council": "ADMISSIBILITY_DECISION",
+    "canonical-component-registry": "CANONICAL_INVENTORY_AND_ROUTE_AUTHORITY",
+    "reconciler": "RUNTIME_VS_CANONICAL_COMPARISON",
+    "guardian": "POLICY_ENFORCEMENT",
+    "sentinel": "EXACT_REVISION_TECHNICAL_VERIFICATION",
+    "scheduler_run_controller": "EXECUTION_ONLY"
+  },
+  "fail_closed_on": ["PARALLEL_ROUTE", "ORPHAN_ROUTE", "MISSION_OWNER_MISSING", "MISSION_OWNER_AMBIGUOUS", "CANONICAL_ROUTE_DRIFT", "UNRESOLVED_COUNTEREXAMPLE"],
+  "automatic_external_spend_eur": 0
+}

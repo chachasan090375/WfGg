@@ -1,0 +1,60 @@
+{
+  "schema": "chacha.dev/project-intent/v1",
+  "project": "canonical-path-resolution",
+  "title": "Canonical path resolution, path drift reconciliation and multi-agent non-progress recovery",
+  "problem": "ChaCha DEV still requires ad-hoc rediscovery of component paths and may repeat equivalent investigation strategies when runtime, repository, service and state locations diverge or are unknown. This creates path drift, wasted exploration and loop risk.",
+  "goals": [
+    "Make the Canonical Component Registry the single authority for component identity while adding canonical semantic path resolution rather than a second registry.",
+    "Declare and resolve source, release, current, runtime, state, evidence, persistent and writable roots plus service/endpoints when applicable.",
+    "Detect path drift by comparing declared canonical locations with runtime truth.",
+    "Stop blind repeated path exploration when a required path is unresolved, ambiguous or drifting.",
+    "Detect non-progress from unchanged state/evidence/strategy rather than relying on a fixed retry count as the primary algorithm.",
+    "Use Logicien as causal-analysis coordinator with a dynamically selected multi-agent resolution cell driven by declared capabilities.",
+    "Allow Technology Watch to gather public web, documentation and GitHub evidence when relevant without making GitHub an automatic fallback.",
+    "Allow Dark Intelligence only when relevant, isolated and policy-permitted.",
+    "Use Architecture Council to arbitrate competing viable recovery strategies when required.",
+    "Resume Run Controller only when evidence or strategy has materially changed.",
+    "Audit existing components and classify them COMPLIANT, UPDATABLE, SUPERSEDED, ORPHAN or INCOMPATIBLE.",
+    "Preserve Guardian, Sentinelle, STOP, zero automatic external spend and lifecycle governance."
+  ],
+  "non_goals": [
+    "Do not create a second component registry.",
+    "Do not make Logicien the sole fallback solver.",
+    "Do not hard-code GitHub as the fallback after a fixed number of failures.",
+    "Do not allow repository exploration to silently redefine canonical runtime truth.",
+    "Do not bypass Guardian, Sentinelle, STOP or production approval boundaries.",
+    "Do not introduce automatic external spending.",
+    "Do not modify or requalify the frozen Remote MCP V0.2 candidate as part of this project."
+  ],
+  "current_change": {
+    "id": "canonical-path-resolution-multi-agent-recovery-v1",
+    "purpose": "Introduce canonical semantic path resolution, drift detection and evidence-driven multi-agent recovery from non-progress.",
+    "pilot_only": true,
+    "rollback_required": true,
+    "production_activation_requires_explicit_promotion": true
+  },
+  "acceptance_criteria": [
+    "Canonical semantic path lookup resolves a registered component without repository-wide discovery.",
+    "Missing required path returns CANONICAL_PATH_UNRESOLVED and does not trigger repeated generic searches.",
+    "Conflicting authoritative-looking locations return CANONICAL_PATH_AMBIGUOUS.",
+    "Observed runtime mismatch returns PATH_DRIFT with declared and observed values.",
+    "Identical action, inputs, state and evidence cannot be automatically replayed as progress.",
+    "A zero-evidence-delta and zero-strategy-delta recovery terminates BLOCKED_NON_PROGRESS.",
+    "Logicien requests capabilities and coordinates a multi-agent recovery cell instead of acting alone.",
+    "Technology Watch, Dark Intelligence and structural agents are selected only when their declared capabilities are relevant.",
+    "Architecture Council arbitrates competing viable strategies when required by policy/risk/confidence.",
+    "Run Controller resumes only with an explicit evidence_delta or strategy_delta.",
+    "Guardian/Sentinelle/STOP remain enforceable and no automatic external cost is enabled.",
+    "A retrospective fleet audit classifies existing components using the canonical five-state classification.",
+    "Remote MCP V0.2 SHA 301def3ab83015d454e75fc41c2de1b8a41e0b0d remains unchanged."
+  ],
+  "architecture_invariants": [
+    "Canonical Component Registry remains the single component identity authority.",
+    "Agent selection is capability-driven rather than platform-version-driven or hard-coded by agent name.",
+    "GitHub is an evidence source, not a retry policy.",
+    "Producer and verifier responsibilities remain separated.",
+    "STOP is authoritative and fail-closed.",
+    "Automatic external spend defaults to EUR 0.",
+    "Structural rules apply to future components through the Universal Materialization Gate and are audited retrospectively across existing components."
+  ]
+}

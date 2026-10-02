@@ -1,0 +1,16 @@
+{
+  "schema": "chacha.dev/persistent-mission-goal-monitor-policy/v1",
+  "version": "1.0.0",
+  "stale_after_hours": 24,
+  "deadline_warning_hours": 6,
+  "minimum_progress_delta": 0.01,
+  "principles": {
+    "mission_controller_remains_authoritative": true,
+    "monitor_never_executes_tasks": true,
+    "monitor_never_mutates_mission_state": true,
+    "human_boundary_is_fail_closed": true,
+    "emergency_stop_is_fail_closed": true,
+    "automatic_external_spend_eur": 0
+  },
+  "automatic_external_spend_eur": 0
+}
