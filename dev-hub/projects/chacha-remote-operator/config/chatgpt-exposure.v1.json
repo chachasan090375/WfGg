@@ -1,0 +1,91 @@
+{
+  "schema": "chacha.dev/chatgpt-remote-operator-exposure/v1",
+  "status": "CANDIDATE",
+  "purpose": "Expose the existing ChaCha Remote Operator MCP to a compatible ChatGPT custom-MCP interface without public ingress, without rebuilding the MCP, and without bypassing ChaCha DEV governance.",
+  "source_component": "chacha-remote-operator",
+  "source_candidate": {
+    "revision": "ad3f0ea7973cb9582031e04f915131570d88b092",
+    "tree": "2e680ee0d3b165921c5fd53addf5e909aef3dd2e",
+    "transport": "streamable-http",
+    "private_endpoint": "http://127.0.0.1:8767/mcp"
+  },
+  "exposure_transport": {
+    "kind": "OPENAI_SECURE_MCP_TUNNEL",
+    "public_ingress_forbidden": true,
+    "mcp_must_remain_loopback_bound": true,
+    "tunnel_id_source": "RUNTIME_CONTROL_PLANE_ONLY",
+    "runtime_api_key_source": "RUNTIME_SECRET_ONLY",
+    "credentials_in_source_forbidden": true,
+    "automatic_external_spend_eur": 0
+  },
+  "existing_mcp_surface": [
+    "git_status",
+    "git_head",
+    "git_tree",
+    "service_is_active",
+    "service_is_enabled",
+    "uptime",
+    "free_bytes",
+    "uname",
+    "guardian_check_event"
+  ],
+  "pilot_required_surface": {
+    "direct_operator_intent": "UNRESOLVED",
+    "direct_operator_job": "UNRESOLVED",
+    "reason": "CURRENT_V03_SURFACE_CANNOT_SUBMIT_A_GOVERNED_BUILD_INTENT_TO_DIRECT_OPERATOR"
+  },
+  "direct_operator_target": {
+    "component": "chacha-dev-direct-operator.service",
+    "private_endpoint": "http://127.0.0.1:8792",
+    "intent_path": "/api/v1/intent",
+    "job_path_prefix": "/api/v1/jobs/",
+    "authentication_authority": "direct-operator.v1.json",
+    "current_authentication_mode": "TAILSCALE_SERVE_IDENTITY",
+    "machine_to_machine_authentication": "UNRESOLVED",
+    "tailscale_identity_header_spoofing_forbidden": true,
+    "direct_central_orchestrator_bypass_forbidden": true
+  },
+  "governance": {
+    "canonical_stop_required": true,
+    "guardian_required": true,
+    "sentinelle_required_before_production": true,
+    "bastion_required_for_network_exposure": true,
+    "umg_required": true,
+    "ccr_required": true,
+    "capability_resolution_order": [
+      "REUSE",
+      "EXTEND",
+      "ADAPT",
+      "CREATE"
+    ],
+    "new_core_capability_required": false,
+    "direct_operator_retains_no_technical_decision_authority": true,
+    "chatgpt_is_not_operational_source_of_truth": true,
+    "automatic_external_spend_eur": 0
+  },
+  "activation": {
+    "production_activation_allowed": false,
+    "chatgpt_registration": "UNRESOLVED",
+    "secure_tunnel_runtime": "UNRESOLVED",
+    "direct_operator_bridge": "UNRESOLVED",
+    "pilot_allowed_before_all_gates_pass": false
+  },
+  "first_pilot": {
+    "route": [
+      "CHATGPT",
+      "CHACHA_REMOTE_OPERATOR_MCP",
+      "DIRECT_OPERATOR",
+      "CENTRAL_ORCHESTRATOR",
+      "TARGETED_FUNCTIONAL_ACCEPTANCE",
+      "GUARDIAN"
+    ],
+    "remote_desktop_commander_forbidden": true,
+    "remediation_id": "remed-functional-guardian-func-9796fd564207e5896c425d0fc8249f19",
+    "success_evidence": [
+      "REMEDIATION_APPLIED",
+      "RESOLUTION_EVIDENCE_ATTACHED",
+      "SOURCE_ALERT_ACKED",
+      "GUARDIAN_STOP_LATCH_RECALCULATED"
+    ]
+  }
+}
