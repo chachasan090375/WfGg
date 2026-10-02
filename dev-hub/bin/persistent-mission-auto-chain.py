@@ -13,12 +13,20 @@ def tasks(record:dict):
 def main()->int:
  ap=argparse.ArgumentParser();ap.add_argument('--state',type=Path,required=True);ap.add_argument('--mission-policy',type=Path,required=True)
  ap.add_argument('--bridge',type=Path,required=True);ap.add_argument('--bridge-policy',type=Path,required=True);ap.add_argument('--plan',type=Path,required=True);ap.add_argument('--graph',type=Path,required=True);ap.add_argument('--stop',type=Path,required=True)
- ap.add_argument('--run-controller',type=Path,required=True);ap.add_argument('--ledger',type=Path,required=True);ap.add_argument('--run-policy',type=Path,required=True);ap.add_argument('--adapters',type=Path,required=True);ap.add_argument('--output-dir',type=Path,required=True);ap.add_argument('--workspace');ap.add_argument('--max-hops',type=int,default=64);a=ap.parse_args()
+ ap.add_argument('--run-controller',type=Path,required=True);ap.add_argument('--ledger',type=Path,required=True);ap.add_argument('--run-policy',type=Path,required=True);ap.add_argument('--adapters',type=Path,required=True);ap.add_argument('--output-dir',type=Path,required=True);ap.add_argument('--workspace');ap.add_argument('--max-hops',type=int,default=64)
+ ap.add_argument('--continuation-judge',type=Path);ap.add_argument('--continuation-authorization',type=Path);a=ap.parse_args()
  controller=Path(__file__).with_name('persistent-mission-controller.py');handoff=a.output_dir/'auto-chain-handoff.json';a.output_dir.mkdir(parents=True,exist_ok=True)
+ if bool(a.continuation_judge) != bool(a.continuation_authorization):
+  print('PERSISTENT_MISSION_AUTO_CHAIN=BLOCK\nREASON=INCOMPLETE_CONTINUATION_BOUNDARY');return 20
  for hop in range(a.max_hops):
   state=load(a.state)
   if state.get('status')=='COMPLETE' or len(state.get('completed_tasks') or [])==len(state.get('task_order') or []):
    print('PERSISTENT_MISSION_AUTO_CHAIN=COMPLETE');print('HOPS='+str(hop));return 0
+  if a.continuation_judge:
+   verdict=a.output_dir/f'continuation-verdict-{hop}.json'
+   j=run([sys.executable,str(a.continuation_judge),'--mission',str(a.state),'--authorization',str(a.continuation_authorization),'--stop',str(a.stop),'--output',str(verdict)])
+   if j.returncode or load(verdict).get('verdict')!='CONTINUE':
+    print('PERSISTENT_MISSION_AUTO_CHAIN=BLOCK\nREASON=CONTINUATION_BOUNDARY');return 20
   c=run([sys.executable,str(a.bridge),'--policy',str(a.bridge_policy),'--mission',str(a.state),'--plan',str(a.plan),'--graph',str(a.graph),'--stop',str(a.stop),'--output',str(handoff)])
   if c.returncode:return 20
   h=load(handoff)

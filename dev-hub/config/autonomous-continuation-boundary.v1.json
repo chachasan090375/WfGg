@@ -1,0 +1,14 @@
+{
+  "schema": "chacha.dev/autonomous-continuation-authorization/v1",
+  "fail_closed": true,
+  "max_external_spend_eur": 0,
+  "allowed_verdicts": ["CONTINUE", "RETRY", "REPLAN", "BLOCK", "HUMAN_BOUNDARY"],
+  "authority_expansion_requires_human": true,
+  "destructive_scope_expansion_requires_human": true,
+  "sha_tree_change_requires_reauthorization": true,
+  "scope_change_requires_reauthorization": true,
+  "capability_expansion_requires_reauthorization": true,
+  "stop_is_immediate": true,
+  "judge_executes_tasks": false,
+  "judge_can_expand_authority": false
+}
