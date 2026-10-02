@@ -1,0 +1,24 @@
+{
+  "schema": "chacha.dev/guardian-stop-latch-reconciliation-policy/v2",
+  "version": "2.0.0",
+  "mode": "SCOPED_STOP_LIFECYCLE",
+  "fail_closed": true,
+  "production_revision_source": "/opt/chacha-dev/platform/current",
+  "classifications": [
+    "PRODUCTION_APPLICABLE",
+    "CANDIDATE_APPLICABLE",
+    "STALE_STOP_CANDIDATE",
+    "UNKNOWN_APPLICABILITY"
+  ],
+  "global_latch_eligible": ["PRODUCTION_APPLICABLE", "UNKNOWN_APPLICABILITY"],
+  "candidate_scope_only": ["CANDIDATE_APPLICABLE", "STALE_STOP_CANDIDATE"],
+  "resolution_states": ["ACTIVE", "RESOLVED_PENDING_RESET"],
+  "invariants": {
+    "canonical_emergency_stop_mutation_forbidden": true,
+    "resolution_and_reset_are_distinct_events": true,
+    "unknown_applicability_fails_closed": true,
+    "candidate_failure_must_not_global_latch_production": true,
+    "audit_evidence_required": true,
+    "automatic_external_spend_eur": 0
+  }
+}
