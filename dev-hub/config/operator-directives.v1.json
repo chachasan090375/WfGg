@@ -197,6 +197,21 @@
         "progress-reporting"
       ],
       "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-emergency-stop-lifecycle",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "SAFETY_GOVERNANCE",
+      "status": "ACTIVE",
+      "normalized_requirement": "Every STOP has cause, scope, date/state_since, resolution owner and resume criteria; active STOP is never bypassed; causes are revalidated on scope/release/lease/source-state change; resolved human-gated STOP becomes RESOLVED_PENDING_RESET; stale/orphaned STOP becomes STALE_STOP_CANDIDATE pending Guardian/Reconciler verification; resolution and reset are separate auditable events.",
+      "required_sinks": [
+        "lifecycle",
+        "component-registry-reconciler",
+        "guardian",
+        "canonical-component-registry"
+      ],
+      "backfill_required": true,
+      "source_candidate_id": "opdir-candidate-9318f7bd633f423c9b715e1668891502"
     }
   ],
   "runtime": {
@@ -208,15 +223,15 @@
   "automatic_external_spend_eur": 0,
   "intake_classification": {
     "high_confidence_phrases": [
-      "\u00e0 partir de maintenant",
-      "d\u00e9sormais",
+      "à partir de maintenant",
+      "désormais",
       "tous les agents",
       "toutes les applications",
       "tous les composants",
       "les futurs agents",
       "les futurs composants",
       "aucun composant",
-      "je veux que le syst\u00e8me"
+      "je veux que le système"
     ],
     "structural_terms": [
       "architecture",
@@ -232,7 +247,7 @@
       "guardian",
       "sentinel",
       "plateforme",
-      "syst\u00e8me",
+      "système",
       "systeme"
     ],
     "global_quantifiers": [
