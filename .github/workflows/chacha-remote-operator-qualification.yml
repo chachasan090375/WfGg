@@ -5,6 +5,7 @@ on:
     branches:
       - project-chacha-remote-operator-mcp
       - 'dev-hub-v-remote-operator-*'
+      - 'remote-operator-*'
     paths:
       - 'dev-hub/projects/chacha-remote-operator/**'
       - '.github/workflows/chacha-remote-operator-qualification.yml'
