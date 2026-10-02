@@ -74,6 +74,9 @@ def load_m2m_config(path: Path) -> dict[str, Any]:
     governance = data.get("governance") or {}
     if float(governance.get("automatic_external_spend_eur", -1)) != 0:
         raise SystemExit("DIRECT_OPERATOR_M2M_NONZERO_SPEND_FORBIDDEN")
+    stop_path = Path(str(governance.get("canonical_user_stop_state") or ""))
+    if not stop_path.is_absolute():
+        raise SystemExit("DIRECT_OPERATOR_M2M_CANONICAL_STOP_PATH_REQUIRED")
     return data
 
 
@@ -146,7 +149,7 @@ class M2MHandler(BASE.Handler):
             return
         cfg = self.m2m_config
         governance = cfg.get("governance") or {}
-        stop_path = Path(str(governance.get("canonical_stop_state") or "/opt/chacha-dev/runtime/control/emergency-stop.json"))
+        stop_path = Path(str(governance.get("canonical_user_stop_state") or ""))
         if governance.get("canonical_user_stop_must_be_clear") is not True or stop_active(stop_path):
             return self.json(423, {"status": "BLOCKED", "reason": "CANONICAL_STOP_ACTIVE_OR_UNREADABLE"})
         text = str(body.get("text") or "").strip()
