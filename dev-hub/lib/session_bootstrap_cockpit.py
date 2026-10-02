@@ -18,9 +18,20 @@ def _text(path:Path)->str|None:
         return v or None
     except OSError:return None
 
+def _active_revision(current:Path)->tuple[str|None,str]:
+    """Resolve revision from the deployed release root passed by Direct Operator."""
+    revision_file=current/".revision"
+    active=_text(revision_file)
+    if active:return active,str(revision_file)
+    # Candidate checkouts do not carry production authority. The runtime's
+    # platform/current symlink is the proven production authority.
+    canonical=Path("/opt/chacha-dev/platform/current/.revision")
+    active=_text(canonical)
+    return active,str(canonical)
+
 def build(runtime:Path,current:Path)->dict[str,Any]:
     """Read-only bootstrap over proven canonical runtime authorities."""
-    active=_text(current/".revision")
+    active,active_source=_active_revision(current)
     coverage=_json(runtime/"guardian"/"coverage-latest.json")
     remediation=_json(runtime/"guardian"/"remediation-index.json")
     guardian_stop=_json(runtime/"control"/"guardian-stop-required.json")
@@ -36,7 +47,7 @@ def build(runtime:Path,current:Path)->dict[str,Any]:
     required_ok=bool(active and stop is not None and progress is not None and coverage is not None and guardian_stop is not None)
     return {
       "schema":SCHEMA,"status":"OK" if required_ok else "DEGRADED",
-      "active_production":{"revision":active,"source":str(current/".revision")},
+      "active_production":{"revision":active,"source":active_source},
       "live_candidates":dict(UNRESOLVED),
       "guardian":guardian,
       "stop":{"state":stop,"source":str(runtime/"control"/"emergency-stop.json")},
