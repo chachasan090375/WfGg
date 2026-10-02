@@ -8,6 +8,8 @@ from mcp.server import MCPServer
 
 from .operations import run_governed_operation
 from .adaptive_operations import guardian_check_event as run_guardian_check_event
+from .direct_operator_bridge import read_job as run_direct_operator_job
+from .direct_operator_bridge import submit_intent as run_direct_operator_intent
 from .policy import V02_OPERATION_IDS, OperatorPolicy, load_policy
 
 
@@ -77,6 +79,18 @@ def uname() -> dict[str, Any]:
 def guardian_check_event(event_path: str) -> dict[str, Any]:
     """Submit one allowlisted immutable governance event to Guardian; no shell or arbitrary argv."""
     return run_guardian_check_event(POLICY, event_path)
+
+
+@mcp.tool()
+def direct_operator_intent(text: str, project: str, client_request_id: str) -> dict[str, Any]:
+    """Submit one functional BUILD intent to the existing Direct Operator; never execute a technical command directly."""
+    return run_direct_operator_intent(POLICY, text, project, client_request_id)
+
+
+@mcp.tool()
+def direct_operator_job(job_id: str) -> dict[str, Any]:
+    """Read one job created by the governed Direct Operator machine ingress."""
+    return run_direct_operator_job(POLICY, job_id)
 
 
 def main() -> None:
