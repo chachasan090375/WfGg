@@ -1,0 +1,65 @@
+{
+  "schema": "chacha.dev/direct-operator-machine-ingress/v1",
+  "status": "CANDIDATE",
+  "enabled": false,
+  "purpose": "Allow the ChaCha Remote Operator MCP to submit functional BUILD intents to the existing Direct Operator without impersonating a Tailscale user and without gaining direct technical mutation authority.",
+  "transport": {
+    "kind": "LOOPBACK_HTTP",
+    "bind": "127.0.0.1",
+    "direct_operator_port": 8792,
+    "public_ingress_forbidden": true,
+    "external_network_required": false
+  },
+  "authentication": {
+    "mode": "HMAC_SHA256_RUNTIME_SECRET",
+    "secret_registry": "/opt/chacha-dev/runtime/secrets/direct-operator-m2m.json",
+    "secret_registry_schema": "chacha.dev/direct-operator-m2m-secret-registry/v1",
+    "secret_in_git_forbidden": true,
+    "tailscale_identity_header_spoofing_forbidden": true,
+    "max_clock_skew_seconds": 30,
+    "nonce_ttl_seconds": 300,
+    "nonce_store": "/opt/chacha-dev/runtime/direct-operator/m2m-nonces",
+    "replay_protection_required": true
+  },
+  "service_contract": {
+    "service_id": "chacha-remote-operator-mcp",
+    "operator_identity": "service:chacha-remote-operator-mcp",
+    "allowed_routes": [
+      {
+        "method": "POST",
+        "path": "/api/v1/m2m/intent",
+        "semantic_action": "SUBMIT_FUNCTIONAL_BUILD_INTENT"
+      },
+      {
+        "method": "GET",
+        "path_prefix": "/api/v1/m2m/jobs/",
+        "semantic_action": "READ_OWN_JOB"
+      }
+    ],
+    "forced_channel": "BUILD",
+    "client_request_id_required": true,
+    "job_ownership_enforced": true,
+    "arbitrary_http_forbidden": true,
+    "arbitrary_command_forbidden": true,
+    "direct_central_orchestrator_call_forbidden": true,
+    "direct_mutation_authority": false,
+    "technical_decision_authority": false
+  },
+  "governance": {
+    "canonical_user_stop_must_be_clear": true,
+    "downstream_guardian_required_before_mutation": true,
+    "sentinelle_required_before_production": true,
+    "guardian_role_extension": "UNRESOLVED",
+    "umg_required": true,
+    "ccr_required": true,
+    "automatic_external_spend_eur": 0
+  },
+  "activation": {
+    "source_implementation": "IN_PROGRESS",
+    "runtime_secret_materialized": false,
+    "direct_operator_handler_integrated": false,
+    "remote_mcp_client_integrated": false,
+    "pilot_allowed": false,
+    "production_activation_allowed": false
+  }
+}
