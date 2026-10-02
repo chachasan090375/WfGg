@@ -896,6 +896,20 @@ async function functionalAcceptance(req,env){
   },verdict==="PASS"?200:409);
 }
 
+async function applyFunctionalRemediation(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(p.schema!=="chacha.dev/guardian-functional-remediation-apply-request/v1")return json({error:"remediation_apply_schema_invalid"},400);
+  const receiptId=String(p.guardian_functional_receipt_id||"");
+  if(!receiptId||p.explicit_apply_authorization!==true)return json({error:"explicit_apply_authorization_required"},403);
+  const row=await env.DB.prepare("SELECT project_id,revision,contract_id,contract_digest,verdict FROM functional_acceptance_receipts WHERE receipt_id=?1").bind(receiptId).first();
+  if(!row)return json({error:"guardian_functional_receipt_unknown"},404);
+  if(String(row.verdict)!=="PASS")return json({error:"guardian_functional_receipt_not_pass"},409);
+  const resolved=await resolveFunctionalContractDriftRemediations(env,{projectId:String(row.project_id),revision:String(row.revision),receiptId,contractId:String(row.contract_id),contractDigest:String(row.contract_digest)});
+  return json({schema:"chacha.dev/guardian-functional-remediation-apply-receipt/v1",status:"APPLIED",guardian_functional_receipt_id:receiptId,resolved_remediations:resolved,explicit_apply_authorization:true,direct_application_mutation:false,canonical_emergency_stop_mutated:false,applied_at:new Date().toISOString()});
+}
+
 async function dualReleaseGate(req,env){
   const body=await req.text();
   const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
@@ -1386,6 +1400,7 @@ export default {
       return await registerProjectAssuranceIdentity(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/project-events")return await projectEvents(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/functional-acceptance")return await functionalAcceptance(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/functional-remediation/apply")return await applyFunctionalRemediation(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/final-review")return await finalAgentReview(req,env);
     if(req.method==="GET"&&u.pathname.startsWith("/v1/final-reviews/"))
       return await publicFinalAgentReview(req,env,decodeURIComponent(u.pathname.slice("/v1/final-reviews/".length)));
