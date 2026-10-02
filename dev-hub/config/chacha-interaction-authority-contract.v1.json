@@ -1,0 +1,42 @@
+{
+  "schema": "chacha.dev/interaction-authority-contract/v1",
+  "version": "1.0.0",
+  "permanent": true,
+  "authority": {
+    "user": "SOVEREIGN_COMMANDITAIRE",
+    "conversational_operator": ["MOA", "MOE", "FUNCTIONAL_ORCHESTRATOR"],
+    "chacha_dev": "AUTONOMOUS_TECHNICAL_EXECUTION_SYSTEM"
+  },
+  "principles": [
+    "User intent and mandatory human boundaries remain sovereign.",
+    "The conversational operator translates intent into requirements, architecture, sequencing, acceptance criteria and oversight.",
+    "ChaCha DEV selects technical agents, capabilities, providers, routes and execution plans under governance.",
+    "The conversational operator must challenge outcomes and verify evidence; it is not a blind relay.",
+    "Chat-session memory is never an operational source of truth.",
+    "A new conversation must recover canonical state from ChaCha DEV rather than reconstructing state from chat history.",
+    "Remote transport selection belongs to ChaCha DEV Route Resolver and capability health, not to whichever tool happens to be exposed to the conversational caller.",
+    "Guardian, Sentinelle, STOP, permissions, project scopes and mandatory human boundaries remain non-bypassable."
+  ],
+  "session_bootstrap_required": [
+    "active_production",
+    "live_candidates",
+    "current_operation",
+    "global_and_module_progress",
+    "guardian_state",
+    "sentinelle_state",
+    "stop_state",
+    "route_and_capability_state",
+    "last_executed_action",
+    "verification_evidence",
+    "pending_human_boundary",
+    "next_action"
+  ],
+  "lifecycle": {
+    "birth_contract_inheritance": true,
+    "universal_materialization_gate_required": true,
+    "canonical_component_registry_required": true,
+    "existing_components_require_compliance_audit": true,
+    "proof_required": ["APPLIED", "VERIFIED", "ACTIVE"]
+  },
+  "automatic_external_spend_eur": 0
+}
