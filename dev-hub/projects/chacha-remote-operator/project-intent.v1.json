@@ -2,52 +2,85 @@
   "schema": "chacha.dev/project-intent/v1",
   "project": "chacha-remote-operator",
   "title": "ChaCha Remote Operator MCP — self-hosted governed remote operations",
-  "problem": "ChaCha DEV currently depends on a third-party remote terminal/filesystem connector whose commercial monthly call quota can halt otherwise authorized platform work even though the user's own VPS remains available.",
+  "problem": "ChaCha DEV needs a first-party, zero-license-cost remote operations route that remains governed even when a conversational interface lacks direct access to the user's runtime. The conversational interface must never become the operational source of truth or gain direct technical mutation authority.",
   "goals": [
-    "Provide a self-hosted MCP remote-operations endpoint controlled by ChaCha DEV.",
-    "Replace quota-dependent remote terminal, file, process, service and Git inspection workflows with a zero-license-cost capability.",
-    "Preserve Guardian, Sentinelle, Bastion, canonical STOP, append-only evidence and zero automatic external spend.",
-    "Start read-only and fail closed; add writes and destructive operations only through separately qualified governed profiles.",
-    "Support future multi-target operation across ChaChaVPS, ChaChaNas and ChaChaTel.",
-    "Use an open MCP transport so the backend is not tied to one conversational client."
+    "Provide a self-hosted MCP endpoint controlled by ChaCha DEV.",
+    "Prefer the proprietary Remote Operator route over quota-dependent third-party remote desktop or terminal connectors when policy and runtime health permit.",
+    "Expose the private MCP to compatible conversational clients without public ingress.",
+    "Allow a conversational client to hand off functional BUILD intents to the existing Direct Operator without executing technical commands itself.",
+    "Preserve Guardian, Sentinelle, Bastion, canonical STOP, CCR, Universal Materialization Gate, lifecycle, append-only evidence and zero automatic external spend.",
+    "Keep the transport, authentication, functional-intent handoff and machine-operation policies as separate governed layers.",
+    "Support future multi-target operation by capabilities and contracts rather than platform-version-specific logic."
   ],
   "non_goals": [
     "Do not expose an unrestricted root shell over the network.",
     "Do not expose credentials, SSH private keys, tokens or secret stores through MCP tools.",
-    "Do not enable destructive filesystem, service, package-manager or production deployment operations in V0.2.",
-    "Do not permit client-supplied argv execution in V0.2.",
+    "Do not impersonate a Tailscale user or fabricate Tailscale identity headers.",
+    "Do not create a second Direct Operator or a second operational source of truth.",
+    "Do not let the MCP call central-orchestrator directly; functional intents must enter through the existing Direct Operator.",
+    "Do not grant the gateway technical decision, direct execution, direct mutation or production authority.",
     "Do not bypass Guardian, Sentinelle, Bastion or canonical STOP.",
     "Do not auto-purchase hosting, identity, tunnel or SaaS services.",
-    "Do not build graphical remote desktop control before terminal/filesystem operations are proven insufficient."
+    "Do not use Remote Desktop Commander as an automatic fallback for this route."
   ],
   "current_change": {
-    "id": "chacha-remote-operator-mcp-v0.2",
-    "purpose": "Add fixed named read operations guarded by canonical STOP, a single-writer command lease and Guardian PRE/POST, while keeping the raw argv command surface disabled.",
-    "discovery_mode": "self-hosted-governed-mcp",
+    "id": "chatgpt-exposure-adapter",
+    "purpose": "Expose the already-qualified localhost Streamable HTTP MCP through a private conversational-client tunnel and add a fail-closed functional-intent bridge to the existing Direct Operator.",
+    "discovery_mode": "reuse-existing-governed-mcp",
+    "capability_resolution_order": [
+      "REUSE",
+      "EXTEND",
+      "ADAPT",
+      "CREATE"
+    ],
+    "new_core_capability_required": false,
     "pilot_only": true,
     "rollback_required": true
   },
   "acceptance_criteria": [
-    "The V0.1 read-only MCP remains functional and localhost-only.",
-    "V0.2 binds separately on localhost and adds one governed_operation tool.",
-    "The client can request only named operations from an explicit allowlist; the server constructs every executable argv itself.",
-    "Raw command_run remains disabled under the V0.2 policy.",
-    "Every governed operation checks canonical STOP before execution and again after Guardian PRE.",
-    "At most one governed operation executes at a time through an exclusive command lease.",
-    "Guardian PRE and POST are required for each governed operation.",
-    "Git operations are read-only status/revision queries and require an allowlisted cwd.",
-    "Systemd operations are limited to is-active/is-enabled for explicitly allowlisted ChaCha DEV units.",
-    "No V0.2 tool writes files, mutates Git, changes services or performs destructive operations.",
-    "Audit records include action, lease, operation and return-code metadata but never secret values.",
-    "Automatic external spend remains 0 EUR.",
-    "Network exposure, authentication and write-enabled profiles remain separate future qualifications."
+    "The existing Remote Operator MCP remains localhost-only and uses Streamable HTTP.",
+    "Conversational-client exposure uses an outbound private tunnel and never requires public ingress to the MCP.",
+    "The gateway exposes only named bounded tools; raw command execution remains disabled.",
+    "Functional intent handoff targets the single existing chacha-dev-direct-operator.service and forces channel BUILD.",
+    "The gateway submits user intent, project and an explicit idempotent client_request_id; it never supplies arbitrary argv, URLs or technical execution plans.",
+    "Direct Operator machine ingress uses a dedicated service identity and never fabricates Tailscale-User-Login.",
+    "Machine ingress is loopback-only, fail-closed, replay-protected, runtime-secret-backed and disabled until independently qualified.",
+    "The service identity may read only jobs it owns.",
+    "Canonical user STOP blocks new functional-intent submission; an unreadable STOP authority fails closed.",
+    "Guardian remains mandatory downstream before any governed mutation; Guardian stop remediation must be able to enter the orchestration path without a Guardian bypass.",
+    "The MCP gateway has no technical decision, direct execution, direct mutation or production permission.",
+    "Bastion and Sentinelle review network exposure and production activation respectively.",
+    "CCR, UMG and lifecycle remain mandatory before ACTIVE state.",
+    "ChatGPT or any other conversational client is never the operational source of truth.",
+    "Remote Desktop Commander is absent from the target PILOT path.",
+    "Automatic external spend remains 0 EUR."
   ],
+  "first_pilot": {
+    "route": [
+      "CHATGPT",
+      "CHACHA_REMOTE_OPERATOR_MCP",
+      "DIRECT_OPERATOR",
+      "CENTRAL_ORCHESTRATOR",
+      "TARGETED_FUNCTIONAL_ACCEPTANCE",
+      "GUARDIAN"
+    ],
+    "remediation_id": "remed-functional-guardian-func-9796fd564207e5896c425d0fc8249f19",
+    "success_evidence": [
+      "REMEDIATION_APPLIED",
+      "RESOLUTION_EVIDENCE_ATTACHED",
+      "SOURCE_ALERT_ACKED",
+      "GUARDIAN_STOP_LATCH_RECALCULATED"
+    ],
+    "remote_desktop_commander_forbidden": true
+  },
   "architecture_invariants": [
     "GitHub remains the source-code and CI authority.",
-    "ChaCha DEV on ChaChaVPS remains the runtime orchestrator.",
-    "ChaChaNas remains the preferred durable persistence target when available.",
-    "MCP transport and machine-operation policy remain separate layers.",
+    "ChaCha DEV on ChaChaVPS remains the runtime technical orchestrator and operational source of truth.",
+    "The conversational interface acts only as MOA, MOE and functional orchestrator.",
+    "MCP transport, exposure transport, authentication, Direct Operator ingress and machine-operation policy remain separate layers.",
     "Producer and verifier responsibilities remain separated.",
-    "No network exposure is permitted before authentication and Bastion review are qualified."
+    "A future component cannot become ACTIVE outside CCR, UMG, Guardian, Sentinelle and lifecycle gates.",
+    "No network exposure is permitted before authentication and Bastion review are qualified.",
+    "Capabilities, contracts, schemas, manifests and feature flags are preferred to major-platform-version branching."
   ]
 }
