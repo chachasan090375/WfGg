@@ -190,5 +190,16 @@
   },
   "core_class_overrides": {
     "autonomy-roadmap-evolution-router": "CORE_PLATFORM_COMPONENT"
+  },
+  "emergency_stop_lifecycle_invariant": {
+    "source_of_truth": "guardian-stop-latch-reconciler",
+    "required_states": [
+      "ACTIVE",
+      "STALE_STOP_CANDIDATE",
+      "RESOLVED_PENDING_RESET",
+      "RESOLVED"
+    ],
+    "resolved_historical_stop_must_not_block_future_materialization": true,
+    "reset_never_implied_by_resolution": true
   }
 }

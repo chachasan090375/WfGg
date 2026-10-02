@@ -83,7 +83,10 @@ def active_latch(snap: dict[str, Any], previous: dict[str, Any] | None) -> dict[
             "critical_source_count": len(sources), "critical_sources": sources,
             "source_state_digest": digest_obj(snap),
             "previous_reason": (previous or {}).get("reason"),
-            "human_or_out_of_band_stop_required": True}
+            "human_or_out_of_band_stop_required": True,
+            "lifecycle_state": "ACTIVE", "resolution_owner": "guardian-reconciler",
+            "resume_criteria": ["NO_ACTIVE_GUARDIAN_CRITICAL_SOURCE", "HUMAN_RESET_IF_REQUIRED"],
+            "scope": "GUARDIAN_EXTERNAL_PLANE", "state_since": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
 
 
 def cleared_latch(previous: dict[str, Any] | None, snap: dict[str, Any]) -> dict[str, Any]:
@@ -95,6 +98,9 @@ def cleared_latch(previous: dict[str, Any] | None, snap: dict[str, Any]) -> dict
             "previous_directive_id": (previous or {}).get("directive_id"),
             "previous_alert_id": (previous or {}).get("alert_id") or (previous or {}).get("source_alert_id"),
             "human_or_out_of_band_stop_required": False,
+            "lifecycle_state": "RESOLVED_PENDING_RESET" if (previous or {}).get("human_or_out_of_band_stop_required") is True else "RESOLVED",
+            "resolution_owner": "guardian-reconciler", "scope": "GUARDIAN_EXTERNAL_PLANE",
+            "resolution_evidence": {"critical_source_count": 0, "double_observation": True},
             "cleared_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
 
 
