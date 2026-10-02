@@ -12,6 +12,7 @@ class PolicyError(RuntimeError):
 
 
 V02_SCHEMA = "chacha.dev/chacha-remote-operator-policy/v2"
+V03_SCHEMA = "chacha.dev/chacha-remote-operator-policy/v3"
 V02_OPERATION_IDS = (
     "git_status",
     "git_head",
@@ -22,6 +23,7 @@ V02_OPERATION_IDS = (
     "free_bytes",
     "uname",
 )
+V03_OPERATION_IDS = V02_OPERATION_IDS + ("guardian_check_event",)
 
 
 @dataclass(frozen=True)
@@ -48,7 +50,7 @@ class OperatorPolicy:
 
     @property
     def is_v02(self) -> bool:
-        return self.raw.get("schema") == V02_SCHEMA
+        return self.raw.get("schema") in {V02_SCHEMA, V03_SCHEMA}
 
     def stop_active(self) -> bool:
         try:
@@ -129,6 +131,7 @@ def load_policy(path: Path | None = None) -> OperatorPolicy:
     if data.get("schema") not in {
         "chacha.dev/chacha-remote-operator-policy/v1",
         V02_SCHEMA,
+        V03_SCHEMA,
     }:
         raise PolicyError("POLICY_SCHEMA_INVALID")
     if float(data.get("automatic_external_spend_eur", -1)) != 0:
@@ -141,7 +144,7 @@ def load_policy(path: Path | None = None) -> OperatorPolicy:
         raise PolicyError("SERVICE_MUTATION_FORBIDDEN")
     if data.get("git_mutation_enabled") is not False:
         raise PolicyError("GIT_MUTATION_FORBIDDEN")
-    if data.get("schema") == V02_SCHEMA:
+    if data.get("schema") in {V02_SCHEMA, V03_SCHEMA}:
         if data.get("fail_closed") is not True:
             raise PolicyError("V02_FAIL_CLOSED_REQUIRED")
         if data.get("bind_host") != "127.0.0.1":
@@ -155,8 +158,9 @@ def load_policy(path: Path | None = None) -> OperatorPolicy:
         if data.get("command_execution_enabled") is not False:
             raise PolicyError("V02_RAW_COMMAND_EXECUTION_MUST_STAY_DISABLED")
         operations = [str(x) for x in data.get("governed_operation_allowlist", [])]
-        if len(operations) != len(V02_OPERATION_IDS) or set(operations) != set(V02_OPERATION_IDS):
-            raise PolicyError("V02_OPERATION_ALLOWLIST_MUST_BE_EXACT")
+        expected = V03_OPERATION_IDS if data.get("schema") == V03_SCHEMA else V02_OPERATION_IDS
+        if len(operations) != len(expected) or set(operations) != set(expected):
+            raise PolicyError("GOVERNED_OPERATION_ALLOWLIST_MUST_BE_EXACT")
         if data.get("governed_operations_enabled") is not True:
             raise PolicyError("V02_GOVERNED_OPERATIONS_REQUIRED")
         stop_path = Path(str(data.get("canonical_stop_state") or ""))

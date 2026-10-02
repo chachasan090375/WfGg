@@ -7,6 +7,7 @@ from typing import Any
 from mcp.server import MCPServer
 
 from .operations import run_governed_operation
+from .adaptive_operations import guardian_check_event as run_guardian_check_event
 from .policy import V02_OPERATION_IDS, OperatorPolicy, load_policy
 
 
@@ -17,11 +18,11 @@ def _v02_policy_path() -> Path:
     configured = os.environ.get("CHACHA_REMOTE_OPERATOR_POLICY", "").strip()
     if configured:
         return Path(configured)
-    return Path(__file__).resolve().parents[2] / "config" / "policy.v2.json"
+    return Path(__file__).resolve().parents[2] / "config" / "policy.v3.json"
 
 
 POLICY: OperatorPolicy = load_policy(_v02_policy_path())
-mcp = MCPServer("ChaCha Remote Operator V0.2")
+mcp = MCPServer("ChaCha Remote Operator V0.3")
 
 
 @mcp.tool()
@@ -70,6 +71,12 @@ def free_bytes() -> dict[str, Any]:
 def uname() -> dict[str, Any]:
     """Return kernel/system identity using the fixed server-side uname -a command."""
     return run_governed_operation(POLICY, "uname")
+
+
+@mcp.tool()
+def guardian_check_event(event_path: str) -> dict[str, Any]:
+    """Submit one allowlisted immutable governance event to Guardian; no shell or arbitrary argv."""
+    return run_guardian_check_event(POLICY, event_path)
 
 
 def main() -> None:
