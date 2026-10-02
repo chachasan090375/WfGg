@@ -30,20 +30,27 @@
     "guardian_check_event"
   ],
   "pilot_required_surface": {
-    "direct_operator_intent": "UNRESOLVED",
-    "direct_operator_job": "UNRESOLVED",
-    "reason": "CURRENT_V03_SURFACE_CANNOT_SUBMIT_A_GOVERNED_BUILD_INTENT_TO_DIRECT_OPERATOR"
+    "direct_operator_intent": "SOURCE_ADAPTER_IN_PROGRESS",
+    "direct_operator_job": "SOURCE_ADAPTER_IN_PROGRESS",
+    "reason": "MCP_MUST_SUBMIT_FUNCTIONAL_INTENT_THROUGH_EXISTING_DIRECT_OPERATOR_WITHOUT_DIRECT_MUTATION_AUTHORITY"
   },
   "direct_operator_target": {
     "component": "chacha-dev-direct-operator.service",
     "private_endpoint": "http://127.0.0.1:8792",
-    "intent_path": "/api/v1/intent",
-    "job_path_prefix": "/api/v1/jobs/",
-    "authentication_authority": "direct-operator.v1.json",
-    "current_authentication_mode": "TAILSCALE_SERVE_IDENTITY",
-    "machine_to_machine_authentication": "UNRESOLVED",
+    "intent_path": "/api/v1/m2m/intent",
+    "job_path_prefix": "/api/v1/m2m/jobs/",
+    "authentication_authority": "direct-operator-machine-ingress.v1.json",
+    "current_human_authentication_mode": "TAILSCALE_SERVE_IDENTITY",
+    "machine_to_machine_authentication": "HMAC_SHA256_RUNTIME_SECRET_CANDIDATE",
+    "service_id": "chacha-remote-operator-mcp",
+    "secret_registry": "/opt/chacha-dev/runtime/secrets/direct-operator-m2m.json",
+    "protocol_module": "dev-hub/lib/direct_operator_m2m_auth.py",
     "tailscale_identity_header_spoofing_forbidden": true,
-    "direct_central_orchestrator_bypass_forbidden": true
+    "direct_central_orchestrator_bypass_forbidden": true,
+    "forced_channel": "BUILD",
+    "direct_mutation_authority": false,
+    "technical_decision_authority": false,
+    "bridge_enabled": false
   },
   "governance": {
     "canonical_stop_required": true,
@@ -52,6 +59,7 @@
     "bastion_required_for_network_exposure": true,
     "umg_required": true,
     "ccr_required": true,
+    "guardian_role_extension": "UNRESOLVED",
     "capability_resolution_order": [
       "REUSE",
       "EXTEND",
@@ -67,7 +75,9 @@
     "production_activation_allowed": false,
     "chatgpt_registration": "UNRESOLVED",
     "secure_tunnel_runtime": "UNRESOLVED",
-    "direct_operator_bridge": "UNRESOLVED",
+    "direct_operator_bridge": "SOURCE_IN_PROGRESS_DISABLED",
+    "direct_operator_handler": "SOURCE_IN_PROGRESS_DISABLED",
+    "runtime_secret_materialized": false,
     "pilot_allowed_before_all_gates_pass": false
   },
   "first_pilot": {
