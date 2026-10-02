@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/project-agent-registry/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "project_id": "chacha-remote-operator",
   "platform_global": false,
   "agents": [
@@ -10,7 +10,7 @@
       "scope": "PROJECT_ONLY",
       "project_id": "chacha-remote-operator",
       "embedded_in": "ChaCha Remote Operator MCP",
-      "purpose": "Expose bounded remote read operations to ChaCha DEV while enforcing STOP, single-writer lease, Guardian PRE/POST, policy and append-only audit.",
+      "purpose": "Expose bounded remote observations and governed functional-intent handoff to the existing Direct Operator while enforcing canonical STOP, Guardian, policy and append-only evidence. The gateway never makes technical decisions and never mutates production directly.",
       "capabilities": [
         "remote-health-read",
         "remote-system-read",
@@ -18,19 +18,34 @@
         "remote-process-read",
         "remote-service-status-read",
         "remote-governed-operation-read",
-        "remote-command-policy-evaluate"
+        "remote-command-policy-evaluate",
+        "remote-functional-intent-submit",
+        "remote-direct-operator-own-job-read"
       ],
       "permissions": [
         "read",
-        "plan"
+        "plan",
+        "request"
       ],
+      "functional_intent_submission_permission": true,
+      "functional_intent_submission_target": "chacha-dev-direct-operator.service",
+      "functional_intent_channel": "BUILD",
+      "own_job_read_only": true,
+      "technical_decision_authority": false,
+      "direct_execution_authority": false,
+      "direct_mutation_authority": false,
+      "central_orchestrator_bypass_permission": false,
       "production_permission": false,
       "raw_shell_permission": false,
       "file_write_permission": false,
       "service_mutation_permission": false,
       "git_mutation_permission": false,
       "destructive_operation_permission": false,
+      "credential_access_permission": false,
+      "tailscale_identity_impersonation_permission": false,
       "guardian_pre_post_required_for_governed_operations": true,
+      "downstream_guardian_required_before_mutation": true,
+      "canonical_stop_required": true,
       "single_writer_command_lease_required": true,
       "central_brain_role": false,
       "technology_watch_platform_role": false,
