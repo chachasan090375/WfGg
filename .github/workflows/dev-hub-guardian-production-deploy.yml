@@ -167,6 +167,22 @@ jobs:
           grep -Fq '"binding": "SENTINEL_SERVICE"' .wrangler-guardian-production.jsonc
           echo CHACHA_DEV_GUARDIAN_SENTINEL_ROUTE_CONTRACT=PASS
 
+      - name: Capture Guardian rollback evidence before mutation
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/guardian-predeploy
+          npx --yes wrangler@4.45.0 deployments list --config=.wrangler-guardian-production.jsonc --json > /tmp/guardian-predeploy/worker-deployments.json
+          python3 dev-hub/bin/guardian-predeploy-snapshot.py \
+            --database-id '${{ steps.cf.outputs.database_id }}' \
+            --output-dir /tmp/guardian-predeploy
+          test -s /tmp/guardian-predeploy/manifest.json
+          test -s /tmp/guardian-predeploy/rollback.sql
+          echo CHACHA_DEV_GUARDIAN_PREDEPLOY_SNAPSHOT=PASS
+          echo CHACHA_DEV_GUARDIAN_ROLLBACK_EVIDENCE=PASS
+
       - name: Deploy with automatic rollback and capability healthcheck
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
