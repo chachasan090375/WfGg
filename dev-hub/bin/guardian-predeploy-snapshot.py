@@ -3,7 +3,7 @@ import argparse,hashlib,json,os,subprocess
 from pathlib import Path
 p=argparse.ArgumentParser(); p.add_argument('--database-id',required=True); p.add_argument('--output-dir',required=True); a=p.parse_args()
 out=Path(a.output_dir); out.mkdir(parents=True,exist_ok=True)
-tables=['role_contracts','expected_components','action_leases','remediation_directives','alerts']
+tables=['role_contracts','expected_components','action_leases','remediation_directives','guardian_alerts']
 def run(sql):
  r=subprocess.run(['npx','--yes','wrangler@4.45.0','d1','execute',a.database_id,'--remote','--json','--command',sql],capture_output=True,text=True,check=True)
  return json.loads(r.stdout)
