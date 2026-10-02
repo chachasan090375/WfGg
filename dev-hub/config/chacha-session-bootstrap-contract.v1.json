@@ -1,0 +1,60 @@
+{
+  "schema": "chacha.dev/session-bootstrap-contract/v1",
+  "version": "1.0.0",
+  "permanent": true,
+  "authority_contract": "dev-hub/config/chacha-interaction-authority-contract.v1.json",
+  "purpose": "Make every conversational session a recoverable MOA/MOE control surface over canonical ChaCha DEV state, never an operational source of truth.",
+  "on_session_start": {
+    "recover_from_chacha_dev": true,
+    "chat_history_required": false,
+    "recover": [
+      "active_production",
+      "live_candidates",
+      "current_operation",
+      "global_and_module_progress",
+      "guardian_state",
+      "sentinelle_state",
+      "direct_operator_state",
+      "stop_state",
+      "route_and_capability_state",
+      "last_executed_action",
+      "verification_evidence",
+      "pending_human_boundary",
+      "next_action"
+    ]
+  },
+  "functional_request_flow": [
+    "USER_INTENT",
+    "MOA_REQUIREMENTS",
+    "MOE_ARCHITECTURE_AND_ACCEPTANCE",
+    "CHACHA_DEV_MULTI_AGENT_REASONING",
+    "CHACHA_DEV_TECHNICAL_ORCHESTRATION",
+    "GOVERNED_EXECUTION",
+    "GUARDIAN_AND_SENTINELLE_VERIFICATION",
+    "MOA_MOE_COCKPIT_REPORT"
+  ],
+  "agent_rules": {
+    "logicien_must_falsify": true,
+    "logicien_must_not_decide_alone": true,
+    "capability_foundry_only_after_proven_gap": true,
+    "existing_capability_must_not_be_duplicated": true
+  },
+  "routing": {
+    "technical_route_selection_owned_by_chacha_dev": true,
+    "caller_tool_presence_is_not_route_authority": true,
+    "proprietary_remote_route_priority_required": true,
+    "fallback_must_be_explicit_and_governed": true
+  },
+  "cockpit": {
+    "distinguish": ["DECIDED", "EXECUTED", "VERIFIED", "ACTIVE"],
+    "continuous_visibility_required": true
+  },
+  "governance": {
+    "guardian_non_bypassable": true,
+    "sentinelle_non_bypassable": true,
+    "stop_non_bypassable": true,
+    "human_boundaries_non_bypassable": true,
+    "automatic_external_spend_eur": 0,
+    "proof_required": ["APPLIED", "VERIFIED", "ACTIVE"]
+  }
+}
