@@ -869,8 +869,9 @@ async function functionalAcceptance(req,env){
       (receipt_id,project_id,revision,contract_id,contract_digest,verdict,reason_codes_json,required_criteria_count,passed_required_criteria_count,created_at)
       VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,datetime('now'))`
   ).bind(receiptId,projectId,revision,contractId,contractDigest,verdict,JSON.stringify(reasons),required.length,passed).run();
-  const resolvedFunctionalDriftRemediations=verdict==="PASS"
-    ?await resolveFunctionalContractDriftRemediations(env,{projectId,revision,receiptId,contractId,contractDigest}):0;
+  // Evaluation is side-effect free with respect to remediation/holds/alerts.
+  // Remediation application is a separate, explicitly authorized lifecycle event.
+  const resolvedFunctionalDriftRemediations=0;
   let directiveId=null;
   if(verdict!=="PASS"){
     directiveId=await createAlert(env,{
