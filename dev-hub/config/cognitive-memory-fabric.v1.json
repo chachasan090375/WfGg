@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/cognitive-memory-fabric-policy/v1",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "scope": "PLATFORM_GLOBAL",
   "existing_sources": {
     "central_memory_snapshot": "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json",
@@ -84,7 +84,14 @@
     "hot_demote_automatic": false,
     "readback_after_publish_required": true,
     "restore_probe_interval_cycles": 8,
-    "tiering_ledger": "/opt/chacha-dev/runtime/knowledge/cognitive-memory-tiering-ledger.json"
+    "tiering_ledger": "/opt/chacha-dev/runtime/knowledge/cognitive-memory-tiering-ledger.json",
+    "consistent_sqlite_snapshot_required": true,
+    "source_wal_fingerprint_required": true,
+    "event_queue_pending": "/opt/chacha-dev/runtime/knowledge/cognitive-memory-tiering-events/pending",
+    "event_queue_processed": "/opt/chacha-dev/runtime/knowledge/cognitive-memory-tiering-events/processed",
+    "event_runtime": "SYSTEMD_PATH_DRAIN_SHADOW",
+    "event_processing_fail_closed": true,
+    "restore_probe_required": true
   },
   "historical_bootstrap": {
     "source": "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json",
