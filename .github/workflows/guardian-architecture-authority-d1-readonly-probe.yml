@@ -1,0 +1,62 @@
+name: Guardian architecture authority D1 readonly probe
+on:
+  push:
+    branches:
+      - guardian-architecture-authority-d1-probe-f58
+    paths:
+      - .github/workflows/guardian-architecture-authority-d1-readonly-probe.yml
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Query Guardian role contracts read-only
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request,urllib.error
+          token=os.environ.get('CF_API_TOKEN','').strip(); aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          if not token: raise SystemExit('MISSING_SECRET=CLOUDFLARE_API_TOKEN')
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url,method='GET',body=None):
+              data=None if body is None else json.dumps(body).encode()
+              req=urllib.request.Request(url,headers=headers,method=method,data=data)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode('utf-8','replace')
+                  try:p=json.loads(raw)
+                  except Exception:p={'raw':raw[:500]}
+                  return e.code,p
+          if not aid:
+              st,p=call('https://api.cloudflare.com/client/v4/accounts?per_page=50')
+              rows=(p.get('result') or []) if st==200 else []
+              if len(rows)!=1: raise SystemExit('ACCOUNT_RESOLUTION_FAILED')
+              aid=rows[0]['id']
+          st,p=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-guardian'))
+          db=next((x for x in (p.get('result') or []) if x.get('name')=='chacha-dev-guardian'),None)
+          if st!=200 or not db: raise SystemExit('GUARDIAN_D1_MISSING')
+          url=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{db['uuid']}/query"
+          sql="SELECT contract_id,kind,allowed_actions_json,forbidden_actions_json,source_digest,updated_at FROM role_contracts WHERE contract_id IN (?1,?2) ORDER BY contract_id"
+          st,p=call(url,'POST',{'sql':sql,'params':['component:central-orchestrator','role:architecture-decision-council']})
+          if st!=200 or not p.get('success'): raise SystemExit('READONLY_ROLE_QUERY_FAILED')
+          rows=[]
+          for block in p.get('result') or []: rows.extend(block.get('results') or [])
+          if len(rows)!=2: raise SystemExit('ROLE_ROWS_MISSING:'+str(len(rows)))
+          print('GUARDIAN_ARCHITECTURE_AUTHORITY_D1_READONLY=PASS')
+          for row in rows:
+              allowed=json.loads(row.get('allowed_actions_json') or '[]')
+              forbidden=json.loads(row.get('forbidden_actions_json') or '[]')
+              cid=row['contract_id']
+              print('CONTRACT='+cid)
+              print('FINAL_ARCHITECTURE_DECISION_ALLOWED='+('YES' if 'FINAL_ARCHITECTURE_DECISION' in allowed else 'NO'))
+              print('FINAL_ARCHITECTURE_DECISION_FORBIDDEN='+('YES' if 'FINAL_ARCHITECTURE_DECISION' in forbidden else 'NO'))
+              print('SOURCE_DIGEST='+str(row.get('source_digest') or ''))
+              print('UPDATED_AT='+str(row.get('updated_at') or ''))
+          print('DIRECT_MUTATION=NO')
+          PY
