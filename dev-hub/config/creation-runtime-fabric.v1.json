@@ -1,7 +1,7 @@
 {
   "schema": "chacha.dev/creation-runtime-fabric/v1",
   "scope": "chacha-dev-only",
-  "state": "REQUIREMENTS_DEFINED_SHADOW_ONLY",
+  "state": "E2E_SHADOW_PLAN_READY_LOCAL_PASS",
   "production_activation": false,
   "external_spend_eur": 0,
   "purpose": "Transform a functional request and attached artifacts into a feasible, recursively specialized, resource-aware, validated deliverable across multiple target operating systems.",
@@ -261,5 +261,9 @@
     "canonical_component_registry_applies": true,
     "no_self_promotion": true,
     "no_automatic_external_spend": true
-  }
+  },
+  "e2e_shadow_evidence": [
+    "dev-hub/evidence/creation-runtime-e2e-fit-shadow-pilot-2026-10-03.json",
+    "dev-hub/evidence/creation-runtime-e2e-blocked-shadow-pilot-2026-10-03.json"
+  ]
 }

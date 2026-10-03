@@ -1,0 +1,45 @@
+{
+  "project_id": "e2e-api-backend",
+  "deliverable_class": "application",
+  "archetype": "system_infrastructure",
+  "classification_confidence": 0.98,
+  "global_constraints": {
+    "security": "strict",
+    "external_spend": 0,
+    "language": "fr"
+  },
+  "artifact_refs": [
+    {
+      "artifact_id": "art-b2f17e3984374d34aa409328a9cc460d",
+      "filename": "specification-api-backend.txt",
+      "mime_type": "text/plain",
+      "size": 61,
+      "sha256": "sha256:0b7a017da5c750fc7a502d4441d4a844ffc20353f6ab0a591c4f048054933008",
+      "origin": "user-upload",
+      "security_state": "STORED_UNTRUSTED_NONEXECUTABLE",
+      "execution_allowed": false,
+      "version": 1
+    }
+  ],
+  "modules": [
+    {
+      "name": "API",
+      "kind": "api",
+      "owns_data": [],
+      "interfaces": [
+        {
+          "target": "Backend",
+          "kind": "api",
+          "contract": "users-v1"
+        }
+      ]
+    },
+    {
+      "name": "Backend",
+      "kind": "backend",
+      "owns_data": [
+        "users"
+      ]
+    }
+  ]
+}
