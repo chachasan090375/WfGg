@@ -750,6 +750,27 @@ async function resolveFunctionalContractDriftRemediations(env,{projectId,revisio
   return resolved;
 }
 
+async function readbackFunctionalContractPin(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(p.schema!=="chacha.dev/guardian-functional-contract-readback-request/v1")
+    return json({error:"functional_contract_readback_schema_invalid"},400);
+  const projectId=String(p.project_id||"").trim();
+  if(!projectId)return json({error:"functional_contract_readback_project_required"},400);
+  const row=await env.DB.prepare(
+    "SELECT project_id,contract_id,contract_digest,contract_json,pinned_at FROM project_functional_contracts WHERE project_id=?1"
+  ).bind(projectId).first();
+  if(!row)return json({schema:"chacha.dev/guardian-functional-contract-readback/v1",status:"NOT_FOUND",project_id:projectId,direct_mutation:false},404);
+  let contract=null;try{contract=JSON.parse(String(row.contract_json||"null"));}catch{return json({error:"functional_contract_pin_corrupt"},500);}
+  return json({
+    schema:"chacha.dev/guardian-functional-contract-readback/v1",status:"PASS",
+    project_id:String(row.project_id),contract_id:String(row.contract_id),
+    contract_digest:String(row.contract_digest),contract,pinned_at:String(row.pinned_at),
+    authority:"guardian-external-worker",read_only:true,direct_mutation:false
+  });
+}
+
 async function functionalAcceptance(req,env){
   const body=await req.text();
   const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
@@ -1292,6 +1313,7 @@ export default {
     if(req.method==="POST"&&u.pathname==="/v1/project-assurance-identities/register")
       return await registerProjectAssuranceIdentity(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/project-events")return await projectEvents(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/functional-contracts/readback")return await readbackFunctionalContractPin(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/functional-acceptance")return await functionalAcceptance(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/final-review")return await finalAgentReview(req,env);
     if(req.method==="GET"&&u.pathname.startsWith("/v1/final-reviews/"))
