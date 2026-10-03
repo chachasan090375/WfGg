@@ -1,0 +1,27 @@
+{
+  "schema": "chacha.dev/production-approval/v1",
+  "scope": "guardian-global-stale-batch1-production",
+  "approved": true,
+  "approved_by": "operator",
+  "candidate_revision": "f58d76f034b7e5ec423e312d78f8ca92b8d92111",
+  "active_production_revision": "3d403f60fe1a5c836b6fb84ddef24b7d74378307",
+  "inventory_v2_digest": "sha256:3e3ae9134d1e48092cb48de240ab7367dc9c771681a87f05ae3099749bd4668d",
+  "alert_ids": [
+    "alert-gov-482b245e8cdf45368cc4c33b53d66d14",
+    "alert-gov-18345055961044baa20429cd93a255d9",
+    "alert-gov-18426f99766f4ca287930260ec5ae1c2",
+    "alert-gov-5fdc41303ae44b6fb32941a27d7604e1",
+    "alert-gov-68c5e60154b34a9c94d1a8ed2b9667db"
+  ],
+  "terminalize_only": true,
+  "row_delete": false,
+  "action_lease_mutation": false,
+  "functional_remediation_apply": false,
+  "sre_contract_change": false,
+  "remote_operator_change": false,
+  "worker_deploy": false,
+  "platform_current_switch": false,
+  "native_local_activation": false,
+  "guardian_latch_clear": false,
+  "destructive_cleanup": false
+}
