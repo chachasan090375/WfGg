@@ -1,0 +1,23 @@
+{
+  "schema": "chacha.dev/production-approval/v1",
+  "scope": "guardian-sre-observability-role-sync",
+  "approved": true,
+  "approved_by": "operator",
+  "candidate_revision": "61847f8ed8d366c7a467de9b52c50028e1e0dc18",
+  "candidate_tree": "17ff7216911d84b816c36b928a53bf931d8c2f88",
+  "contract_id": "role:sre-observability-engineer",
+  "contract_source_digest": "4abf3d4bf59f9ab75650c9a08668901ef463246953820635eda14e58f39ea31e",
+  "allowed_mutation": "UPSERT_SINGLE_ROLE_CONTRACT",
+  "snapshot_required": true,
+  "readback_required": true,
+  "automatic_rollback_required": true,
+  "sre_alert_terminalization": false,
+  "action_lease_mutation": false,
+  "functional_remediation_apply": false,
+  "worker_deploy": false,
+  "platform_current_switch": false,
+  "remote_mcp_activation": false,
+  "native_local_qwen_activation": false,
+  "guardian_latch_clear": false,
+  "other_guardian_contract_mutation": false
+}
