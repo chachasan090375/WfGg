@@ -1,0 +1,26 @@
+{
+  "schema":"chacha.dev/specialist-cell-resolver/v1",
+  "version":"1.0.0",
+  "scope":"PLATFORM_GLOBAL_SHADOW",
+  "domain_policy":"dev-hub/config/domain-orchestration.v1.json",
+  "capability_registry":"dev-hub/config/capability-registry.v1.json",
+  "memory_namespace_pattern":"specialist:domain:{domain_id}",
+  "rules":{
+    "canonical_domain_cells_are_referenced_not_cloned":true,
+    "reuse_before_foundry":true,
+    "foundry_only_for_missing_domains_or_capabilities":true,
+    "agent_foundry_precedes_all_domain_execution":false,
+    "obsolete_v6_rule_replaced_by":"solution-composer -> recursive classification -> reuse/capability resolution -> Foundry only for gaps",
+    "foundry_requests_are_planning_only":true,
+    "no_automatic_materialization":true,
+    "no_execution_authority":true,
+    "no_production_authority":true
+  },
+  "transversal":{
+    "always":["logician"],
+    "release_gates":["guardian","sentinel"],
+    "security_domains":["bastion"],
+    "ux_domains":["ergonomist"]
+  },
+  "automatic_external_spend_eur":0
+}
