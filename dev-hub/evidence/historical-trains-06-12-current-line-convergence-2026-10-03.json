@@ -1,0 +1,139 @@
+{
+  "schema": "chacha.dev/historical-train-convergence/v1",
+  "status": "PASS",
+  "historical_trains": [
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "historical_commit_count": 23,
+  "historical_commits": [
+    "3e48c9e41c9272286b2bfac8a0d02d09a4f5c3d7",
+    "372aac0c311e39fb5b0fbd1f68b970487ebfa7f5",
+    "91727b7acce95efb20c9191e60757c41332ddf93",
+    "adc6328525718e2b2e1ef280b1c2868babf1aaa9",
+    "f1a14ae27f42677bfc5c67eb34e7fc60d7cdb99a",
+    "07a3dce08a0877821a00169672067aec1ce62ac3",
+    "c9cbb02c5877ef343a00ea990a0b87e9bd1272b5",
+    "5bcf603eb04de0e3dc31a7548292bdff3f61e2f5",
+    "64be8e84b3a0487ad7a0d7d560bda9f4d7e3d421",
+    "71ba2ec1fa8c082427c439b830b30c11d5bd6786",
+    "f59e553f5489f2fc018114b7771a4f310c9303aa",
+    "5aae3b55e0313b4c849f25fc4b59f1eef46fd6e8",
+    "a30efe6b34c3416b409a70cd0c0453a3de2ebf0c",
+    "7e81efb59388ee81e1f44a76761d3f543c1d7e17",
+    "6a8b23c798ecc0db1673f2af178446a1a1b4ceae",
+    "f282e014c92b5fd5d766317916415df100334bdf",
+    "4c5fbd031a87c7001e81ec7299e2663bdda74af0",
+    "f760da61ee2ba95efb2acc60335085ff6168cab6",
+    "b60fc8f3207cabcc48efbbf9a3be7571ef8f2ee2",
+    "cec7009ee1af70a915db1d2ef24c323622c1d2be",
+    "9b5dd7e35fe40d7447e97eae0463e3cd2299bca9",
+    "c4d7d3ae87cdc1274adf6774eea86895eb0f7487",
+    "d0e3283efc677ef359006ea6632f125820597730"
+  ],
+  "already_identical_before_train11": [
+    "91727b7acce95efb20c9191e60757c41332ddf93"
+  ],
+  "reapplied_commit_count": 22,
+  "reapplied_commits_current_line": [
+    {
+      "sha": "956c25c2fd48fcf262c154915d1d87ca91f5b9d1",
+      "subject": "feat(cognitive): learn from governed route outcomes"
+    },
+    {
+      "sha": "ab14c7bafafc8cbadb931315b82bf1d153560669",
+      "subject": "feat(cognitive): add model capability confidence decay"
+    },
+    {
+      "sha": "a7e63c10cfda345a5464628b8c2c2a86bb8ea0db",
+      "subject": "feat(autonomy): reconcile roadmap scores from evidence"
+    },
+    {
+      "sha": "07201389052d9334140bad868825458d01841d04",
+      "subject": "feat(progress): reconcile platform maturity from evidence"
+    },
+    {
+      "sha": "7bb9cc40afa8f398e594fe66a88d2c342a3f9bba",
+      "subject": "feat(progress): recover stale terminal progress state"
+    },
+    {
+      "sha": "bef3ae5f915e8d778d0af860191d5956e284e406",
+      "subject": "feat(autonomy): plan release trains from roadmap gaps"
+    },
+    {
+      "sha": "8dde7abd6b72c537a2fd365733a950a5be8743bb",
+      "subject": "feat(autonomy): route safe incident remediations"
+    },
+    {
+      "sha": "0c6b2d1f3098abfc9d255badcea0a606aef3a38a",
+      "subject": "feat(foundry): add shadow graduation gate"
+    },
+    {
+      "sha": "2a81be8a029cc1da8acabfe28344a0b4e9470580",
+      "subject": "feat(autonomy): watch constitution drift"
+    },
+    {
+      "sha": "6bfeca8889175f50bd66ec8c69e15d5db731ae77",
+      "subject": "feat(ha): add non-mutating standby rehearsal"
+    },
+    {
+      "sha": "c2dfd9ba60978d939ddc822a256aa13fa9ae7f6f",
+      "subject": "feat(autonomy): publish durable governed evidence"
+    },
+    {
+      "sha": "fc654d8d1ca525928360baf9c77a3b4b5608faa9",
+      "subject": "feat(autonomy): extend roadmap evidence stages"
+    },
+    {
+      "sha": "10d3275d5224a0e40cd803b5c22c4cecb5a56230",
+      "subject": "feat(progress): build maturity scorecard from live evidence"
+    },
+    {
+      "sha": "dc50e788e648608196535dbb5e7843fe646d9f4f",
+      "subject": "test(autonomy): add safe remediation closure pilot"
+    },
+    {
+      "sha": "ad3696667d1cd5a9177b6a87d1ff6e51f0da3ebb",
+      "subject": "test(foundry): add graduation closure pilot"
+    },
+    {
+      "sha": "7d9955455050ef917703a65b41d6c5d1cc10ea9e",
+      "subject": "test(autonomy): add roadmap train planning pilot"
+    },
+    {
+      "sha": "5603e3c5c4945f315bc6bdd1d6d429cd911c33d0",
+      "subject": "feat(learning): add terminal learning closure gate"
+    },
+    {
+      "sha": "8619156ea3e3cfece75ef6b842c909a64086bdd8",
+      "subject": "feat(autonomy): add self-evolution closure gate"
+    },
+    {
+      "sha": "25180fa0b93cce358792ee9fca476a34905d170d",
+      "subject": "feat(governance): add constitution closure gate"
+    },
+    {
+      "sha": "b26ef5b5ef2bd49888bbee2798a7fc995b49a44e",
+      "subject": "feat(autonomy): bundle terminal closure evidence"
+    },
+    {
+      "sha": "62e4b14ab887c33e8bb4ca1a8c2215d125ac648e",
+      "subject": "feat(learning): materialize train12 lineage cutover closure"
+    },
+    {
+      "sha": "87a15724d32e1a014dd39b685e91e2e77e2765fd",
+      "subject": "fix(autonomy): accept governed learning closure v2 bundle"
+    }
+  ],
+  "historical_convoy_closure": "d0e3283efc677ef359006ea6632f125820597730",
+  "final_touched_paths_identical_to_historical_convoy_closure": true,
+  "historical_regressions": "PASS",
+  "current_creation_runtime_e2e_regression": "PASS",
+  "production_mutation": false,
+  "automatic_external_spend_eur": 0
+}

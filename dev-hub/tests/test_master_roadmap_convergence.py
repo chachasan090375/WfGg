@@ -35,7 +35,9 @@ convoys=M.get("historical_release_convoys",[])
 convoy=next((x for x in convoys if x.get("id")=="historical-roadmap-trains-06-12"),None)
 assert convoy is not None
 assert convoy["individual_promotion_receipts"] is False
-assert convoy["current_resolution"]=="ABSORBED_IN_CONVERGED_BASELINE"
+assert convoy["current_resolution"]=="REABSORBED_IN_CURRENT_PRODUCTION_DERIVED_LINE"
+assert convoy["final_touched_paths_match_convoy_closure"] is True
+assert all(x["current_line_state"]=="REABSORBED_CURRENT_PRODUCTION_DERIVED_LINE" for x in convoy["trains"])
 assert convoy["converged_baseline_sha"]=="f58d76f034b7e5ec423e312d78f8ca92b8d92111"
 assert convoy["convoy_closure_sha"]=="d0e3283efc677ef359006ea6632f125820597730"
 assert [x["train"] for x in convoy["trains"]]==[6,7,8,9,10,11,12]
