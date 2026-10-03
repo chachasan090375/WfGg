@@ -1,0 +1,145 @@
+{
+  "schema": "chacha.dev/resource-aware-parallel-plan/v1",
+  "status": "PASS",
+  "project_id": "parallel-vps-shadow-pilot",
+  "waves": [
+    {
+      "wave": 0,
+      "parallel_task_count": 3,
+      "assignments": [
+        {
+          "task_id": "backend-module",
+          "host_id": "chacha-vps-current",
+          "resources": {
+            "cpu_cores": 0.5,
+            "ram_gib": 0.4,
+            "gpu_vram_gib": 0.0,
+            "storage_io_units": 0.0,
+            "network_mbps": 0.0
+          },
+          "critical_path_remaining_minutes": 38.0,
+          "priority": 9,
+          "integration_barrier": false
+        },
+        {
+          "task_id": "api-contract",
+          "host_id": "chacha-vps-current",
+          "resources": {
+            "cpu_cores": 0.5,
+            "ram_gib": 0.3,
+            "gpu_vram_gib": 0.0,
+            "storage_io_units": 0.0,
+            "network_mbps": 0.0
+          },
+          "critical_path_remaining_minutes": 30.0,
+          "priority": 8,
+          "integration_barrier": false
+        },
+        {
+          "task_id": "documentation",
+          "host_id": "chacha-vps-current",
+          "resources": {
+            "cpu_cores": 0.2,
+            "ram_gib": 0.2,
+            "gpu_vram_gib": 0.0,
+            "storage_io_units": 0.0,
+            "network_mbps": 0.0
+          },
+          "critical_path_remaining_minutes": 16.0,
+          "priority": 2,
+          "integration_barrier": false
+        }
+      ],
+      "host_residual_after_assignment": {
+        "chacha-vps-current": {
+          "cpu_cores": 0.3,
+          "ram_gib": 0.4454,
+          "gpu_vram_gib": 0.0,
+          "storage_io_units": 0.0,
+          "network_mbps": 0.0
+        }
+      }
+    },
+    {
+      "wave": 1,
+      "parallel_task_count": 1,
+      "assignments": [
+        {
+          "task_id": "integration",
+          "host_id": "chacha-vps-current",
+          "resources": {
+            "cpu_cores": 0.4,
+            "ram_gib": 0.3,
+            "gpu_vram_gib": 0.0,
+            "storage_io_units": 0.0,
+            "network_mbps": 0.0
+          },
+          "critical_path_remaining_minutes": 18.0,
+          "priority": 10,
+          "integration_barrier": true
+        }
+      ],
+      "host_residual_after_assignment": {
+        "chacha-vps-current": {
+          "cpu_cores": 1.1,
+          "ram_gib": 1.0454,
+          "gpu_vram_gib": 0.0,
+          "storage_io_units": 0.0,
+          "network_mbps": 0.0
+        }
+      }
+    },
+    {
+      "wave": 2,
+      "parallel_task_count": 1,
+      "assignments": [
+        {
+          "task_id": "verification",
+          "host_id": "chacha-vps-current",
+          "resources": {
+            "cpu_cores": 0.5,
+            "ram_gib": 0.35,
+            "gpu_vram_gib": 0.0,
+            "storage_io_units": 0.0,
+            "network_mbps": 0.0
+          },
+          "critical_path_remaining_minutes": 8.0,
+          "priority": 10,
+          "integration_barrier": true
+        }
+      ],
+      "host_residual_after_assignment": {
+        "chacha-vps-current": {
+          "cpu_cores": 1.0,
+          "ram_gib": 0.9954,
+          "gpu_vram_gib": 0.0,
+          "storage_io_units": 0.0,
+          "network_mbps": 0.0
+        }
+      }
+    }
+  ],
+  "planned_task_count": 5,
+  "total_task_count": 5,
+  "remaining_tasks": [],
+  "contract_blocks": [],
+  "resource_unfit": [],
+  "critical_path_scores": {
+    "api-contract": 30.0,
+    "backend-module": 38.0,
+    "documentation": 16.0,
+    "integration": 18.0,
+    "verification": 8.0
+  },
+  "max_parallel_tasks_planned": 3,
+  "adaptive_worker_count": 3,
+  "fixed_max_workers_used": false,
+  "work_stealing_ready_queue": true,
+  "backpressure_enabled": true,
+  "blockers": [],
+  "warnings": [],
+  "execution_authority": false,
+  "production_authority": false,
+  "automatic_external_spend_eur": 0,
+  "planned_at": "2026-10-03T20:38:50Z"
+}
