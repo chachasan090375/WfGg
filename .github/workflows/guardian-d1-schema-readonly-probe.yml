@@ -1,0 +1,60 @@
+name: Guardian D1 schema readonly probe
+on:
+  push:
+    branches:
+      - guardian-d1-schema-probe-f563
+    paths:
+      - .github/workflows/guardian-d1-schema-readonly-probe.yml
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Query Guardian D1 schema read-only
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request,urllib.error
+          token=os.environ.get('CF_API_TOKEN','').strip(); aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          if not token: raise SystemExit('MISSING_SECRET=CLOUDFLARE_API_TOKEN')
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url,method='GET',body=None):
+              data=None if body is None else json.dumps(body).encode()
+              req=urllib.request.Request(url,headers=headers,method=method,data=data)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode('utf-8','replace')
+                  try:p=json.loads(raw)
+                  except Exception:p={'raw':raw[:500]}
+                  return e.code,p
+          if not aid:
+              st,p=call('https://api.cloudflare.com/client/v4/accounts?per_page=50')
+              rows=(p.get('result') or []) if st==200 else []
+              if len(rows)!=1: raise SystemExit('ACCOUNT_RESOLUTION_FAILED')
+              aid=rows[0]['id']
+          st,p=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-guardian'))
+          db=next((x for x in (p.get('result') or []) if x.get('name')=='chacha-dev-guardian'),None)
+          if st!=200 or not db: raise SystemExit('GUARDIAN_D1_MISSING')
+          url=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{db['uuid']}/query"
+          sql="SELECT name FROM sqlite_master WHERE type='table' AND name='action_lease_reconciliations' LIMIT 1"
+          st,p=call(url,'POST',{'sql':sql,'params':[]})
+          if st!=200 or not p.get('success'): raise SystemExit('READONLY_SCHEMA_QUERY_FAILED')
+          rows=[]
+          for block in p.get('result') or []: rows.extend(block.get('results') or [])
+          present=any(r.get('name')=='action_lease_reconciliations' for r in rows)
+          print('GUARDIAN_D1_SCHEMA_READONLY=PASS')
+          print('ACTION_LEASE_RECONCILIATIONS_TABLE_PRESENT='+('YES' if present else 'NO'))
+          if present:
+              st,p=call(url,'POST',{'sql':'PRAGMA table_info(action_lease_reconciliations)','params':[]})
+              if st!=200 or not p.get('success'): raise SystemExit('READONLY_TABLE_INFO_FAILED')
+              cols=[]
+              for block in p.get('result') or []: cols.extend([r.get('name') for r in block.get('results') or []])
+              print('ACTION_LEASE_RECONCILIATIONS_COLUMNS='+','.join(str(x) for x in cols if x))
+          print('DIRECT_MUTATION=NO')
+          PY
