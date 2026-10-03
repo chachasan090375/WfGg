@@ -5,6 +5,7 @@ on:
     branches:
       - 'dev-hub-v*'
       - 'roadmap-train-*'
+      - 'route-authority-*'
   workflow_dispatch:
 
 permissions:
