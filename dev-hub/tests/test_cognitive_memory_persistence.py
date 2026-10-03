@@ -21,6 +21,8 @@ def test_bootstrap_maps_non_agent_to_central():
  snap={'schema':'chacha.dev/central-memory-assimilation/v1','snapshot_digest':'s1','items':[{'item_key':'abc','subject_kind':'architecture','subject_id':'a','signal_key':'reuse','state':'TRUSTED','evidence_count':3,'confidence':0.9,'evidence_digest':'c'*64}]};x=boot.bootstrap(snap);assert x['records'][0]['namespace']=='central';assert x['records'][0]['memory_type']=='procedural'
 def test_policy_does_not_authorize_activation():
  p=json.load(open(ROOT/'config/cognitive-memory-fabric.v1.json'));assert p['persistence']['production_activation_authorized'] is False;assert p['historical_bootstrap']['writes_performed'] is False
+def test_tiering_is_shadow_only_and_readback_bounded():
+ p=json.load(open(ROOT/'config/cognitive-memory-fabric.v1.json'));t=p['tiering'];assert t['readback_adapter']=='nas-readback-adapter';assert t['restore_mode']=='DISPOSABLE_WORKSPACE_ONLY';assert t['active_memory_restore_authorized'] is False;assert t['production_activation_authorized'] is False
 if __name__=='__main__':
  n=0
  for name,fn in sorted(globals().items()):
