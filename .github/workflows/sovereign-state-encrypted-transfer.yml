@@ -17,7 +17,13 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/sovereign-export
-          gh run download 37155998096 --repo "$GITHUB_REPOSITORY" --name sovereign-state-d1-authoritative-export --dir /tmp/sovereign-export
+          curl --fail --silent --show-error --location \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/11285867267/zip" \
+            -o /tmp/sovereign-export.zip
+          printf '%s  %s\n' '98abed0c73bcd655816977fef99dfe223a1d7d650afa385bdb2ee6625dee4f16' /tmp/sovereign-export.zip | sha256sum -c -
+          unzip -q /tmp/sovereign-export.zip -d /tmp/sovereign-export
           find /tmp/sovereign-export -maxdepth 1 -type f -print | sort
       - name: Verify source export contract and package
         run: |
