@@ -67,7 +67,7 @@ jobs:
           cd /tmp/sovereign-d1-export
           for db in chacha-dev-guardian chacha-dev-sentinel chacha-dev-assurance-exchange chacha-dev-learning-relay; do
             echo "READ_ONLY_EXPORT_START=$db"
-            npx --yes wrangler@4.45.0 d1 export "$db" --remote --skip-confirmation --output="${db}.sql" --config="${db}.jsonc"
+            npx --yes wrangler@4.45.0 d1 export "$db" --remote --output="${db}.sql" --config="${db}.jsonc"
             test -s "${db}.sql"
             sha256sum "${db}.sql" > "${db}.sql.sha256"
             echo "READ_ONLY_EXPORT_PASS=$db"
