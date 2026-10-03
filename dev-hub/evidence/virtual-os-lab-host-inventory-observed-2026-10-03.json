@@ -1,0 +1,41 @@
+{
+  "schema":"chacha.dev/virtual-os-host-inventory/v1",
+  "observed_at":"2026-10-03T20:40:02Z",
+  "hosts":[
+    {
+      "host_id":"chacha-vps-current",
+      "type":"linux-vps",
+      "health":"PASS",
+      "preference":10,
+      "roles":["linux-build","linux-runtime","native:linux","web-runtime","headless-services"],
+      "cpu_threads":2,
+      "ram_total_gib":1.922,
+      "virtualization_observed":false,
+      "nested_virtualization_assumed":false,
+      "source":"local VPS infrastructure feasibility observation"
+    },
+    {
+      "host_id":"chachanas-qnap-kvm",
+      "type":"qnap-nas-kvm",
+      "health":"PASS",
+      "preference":50,
+      "roles":["qnap-kvm-host","x86-guest-vm","vm-image-store","snapshot-store"],
+      "model":"TS-X51 family (TS-451+ deployment)",
+      "firmware":"QTS 5.2.9 build 20260214",
+      "cpu":"Intel Celeron J1900 @ 1.99GHz",
+      "cpu_threads":4,
+      "intel_vt_x":true,
+      "ram_total_gib":7.663,
+      "ram_available_gib_observed":4.522,
+      "load_average_1m_observed":1.55,
+      "virtualization_station":{"package":"QKVM","display_name":"Virtualization Station","version":"4.1.0.338","enabled":true,"dev_kvm":true,"kvm_intel_loaded":true,"libvirtd_running":true,"defined_vm_count":0},
+      "storage":[
+        {"path":"/share/CACHEDEV1_DATA","total_kib":3826508216,"used_kib":71970984,"available_kib":3753996560,"use_percent":2},
+        {"path":"/share/CACHEDEV2_DATA","total_kib":17278848944,"used_kib":12821698408,"available_kib":4456609864,"use_percent":74}
+      ],
+      "constraints":["admission-control-required","lightweight-vms-preferred","no-native-ios-build","no-native-macos-build","no-nested-accelerated-android-emulator"],
+      "source":"read-only SSH audit from ChaChaVPS to ChaChaNas"
+    }
+  ],
+  "automatic_external_spend_eur":0
+}

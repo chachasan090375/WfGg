@@ -1,0 +1,31 @@
+{
+  "schema":"chacha.dev/virtual-os-device-lab/v1",
+  "version":"1.0.0",
+  "scope":"PLATFORM_GLOBAL_SHADOW",
+  "purpose":"Route reproducible build, compatibility and validation workloads to governed OS/device runners without pretending unsupported native platforms exist.",
+  "target_families":["windows","linux","freebsd_unix","android","ios","macos","embedded_linux","web_runtime"],
+  "image_policy":{
+    "golden_images_immutable":true,
+    "checksum_required":"sha256",
+    "project_overlays":true,
+    "snapshots":true,
+    "restore_points":true,
+    "expiry_refresh_policy_required":true,
+    "mutable_golden_image":false
+  },
+  "host_policy":{
+    "resource_admission_required":true,
+    "resource_orchestrator":"resource-aware-parallel-orchestrator",
+    "healthy_hosts_only":true,
+    "qnap_nested_accelerated_android_emulator":false,
+    "qnap_native_ios_build":false,
+    "qnap_native_macos_build":false,
+    "vps_nested_virtualization_assumed":false,
+    "apple_native_runner_required_for_ios_xcode":true,
+    "apple_native_runner_required_for_native_macos":true,
+    "physical_device_required_when_hardware_specific_validation":true
+  },
+  "automatic_external_spend_eur":0,
+  "production_authority":false,
+  "execution_authority":false
+}

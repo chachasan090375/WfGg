@@ -1,0 +1,15 @@
+{
+  "schema":"chacha.dev/target-platform-matrix/v1",
+  "matrix_id":"creation-runtime-cross-platform-pilot",
+  "targets":[
+    {"target_id":"linux-build","family":"linux","version":"current-supported","purpose":"build"},
+    {"target_id":"web-runtime","family":"web_runtime","version":"current","purpose":"compatibility_test"},
+    {"target_id":"windows-compat","family":"windows","version":"current-supported","purpose":"compatibility_test"},
+    {"target_id":"freebsd-compat","family":"freebsd_unix","version":"current-supported","purpose":"compatibility_test"},
+    {"target_id":"android-build","family":"android","version":"current-supported","purpose":"build"},
+    {"target_id":"android-emulator","family":"android","version":"current-supported","purpose":"accelerated_emulator"},
+    {"target_id":"ios-build","family":"ios","version":"current-supported","purpose":"build"},
+    {"target_id":"macos-build","family":"macos","version":"current-supported","purpose":"build"},
+    {"target_id":"embedded-linux","family":"embedded_linux","version":"project-specific","purpose":"build"}
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "schema": "chacha.dev/virtual-os-device-lab-plan/v1",
+  "status": "PARTIAL",
+  "matrix_id": "creation-runtime-cross-platform-pilot",
+  "routes": [
+    {
+      "target_id": "linux-build",
+      "status": "READY",
+      "host_id": "chacha-vps-current",
+      "runner_type": "linux-vps",
+      "required_roles": [
+        "linux-build"
+      ],
+      "image_id": null,
+      "image_required": false,
+      "resource_admission_required": true
+    },
+    {
+      "target_id": "web-runtime",
+      "status": "READY",
+      "host_id": "chacha-vps-current",
+      "runner_type": "linux-vps",
+      "required_roles": [
+        "web-runtime"
+      ],
+      "image_id": null,
+      "image_required": false,
+      "resource_admission_required": true
+    },
+    {
+      "target_id": "windows-compat",
+      "status": "READY_HOST_IMAGE_REQUIRED",
+      "host_id": "chachanas-qnap-kvm",
+      "runner_type": "qnap-nas-kvm",
+      "required_roles": [
+        "windows-vm"
+      ],
+      "image_required": true
+    },
+    {
+      "target_id": "freebsd-compat",
+      "status": "READY_HOST_IMAGE_REQUIRED",
+      "host_id": "chachanas-qnap-kvm",
+      "runner_type": "qnap-nas-kvm",
+      "required_roles": [
+        "freebsd-unix-vm"
+      ],
+      "image_required": true
+    },
+    {
+      "target_id": "android-build",
+      "status": "BLOCKED_RUNNER_MISSING",
+      "required_roles": [
+        "android-build"
+      ]
+    },
+    {
+      "target_id": "android-emulator",
+      "status": "BLOCKED_RUNNER_MISSING",
+      "required_roles": [
+        "android-emulator-native-host"
+      ]
+    },
+    {
+      "target_id": "ios-build",
+      "status": "BLOCKED_RUNNER_MISSING",
+      "required_roles": [
+        "apple-native-ios"
+      ]
+    },
+    {
+      "target_id": "macos-build",
+      "status": "BLOCKED_RUNNER_MISSING",
+      "required_roles": [
+        "apple-native-macos"
+      ]
+    },
+    {
+      "target_id": "embedded-linux",
+      "status": "BLOCKED_RUNNER_MISSING",
+      "required_roles": [
+        "embedded-linux-build"
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "target_id": "windows-compat",
+      "family": "windows",
+      "kind": "VERIFIED_BASE_IMAGE_MISSING",
+      "host_id": "chachanas-qnap-kvm",
+      "required_sha256": true,
+      "automatic_download_or_purchase": false
+    },
+    {
+      "target_id": "freebsd-compat",
+      "family": "freebsd_unix",
+      "kind": "VERIFIED_BASE_IMAGE_MISSING",
+      "host_id": "chachanas-qnap-kvm",
+      "required_sha256": true,
+      "automatic_download_or_purchase": false
+    },
+    {
+      "target_id": "android-build",
+      "family": "android",
+      "kind": "RUNNER_CAPABILITY_MISSING",
+      "required_roles": [
+        "android-build"
+      ],
+      "route_label": "ANDROID_BUILD_RUNNER",
+      "automatic_paid_provisioning": false
+    },
+    {
+      "target_id": "android-emulator",
+      "family": "android",
+      "kind": "RUNNER_CAPABILITY_MISSING",
+      "required_roles": [
+        "android-emulator-native-host"
+      ],
+      "route_label": "ANDROID_ACCELERATED_EMULATOR_HOST",
+      "automatic_paid_provisioning": false
+    },
+    {
+      "target_id": "ios-build",
+      "family": "ios",
+      "kind": "RUNNER_CAPABILITY_MISSING",
+      "required_roles": [
+        "apple-native-ios"
+      ],
+      "route_label": "APPLE_NATIVE_IOS_RUNNER",
+      "automatic_paid_provisioning": false
+    },
+    {
+      "target_id": "macos-build",
+      "family": "macos",
+      "kind": "RUNNER_CAPABILITY_MISSING",
+      "required_roles": [
+        "apple-native-macos"
+      ],
+      "route_label": "APPLE_NATIVE_MACOS_RUNNER",
+      "automatic_paid_provisioning": false
+    },
+    {
+      "target_id": "embedded-linux",
+      "family": "embedded_linux",
+      "kind": "RUNNER_CAPABILITY_MISSING",
+      "required_roles": [
+        "embedded-linux-build"
+      ],
+      "route_label": "EMBEDDED_LINUX_RUNNER",
+      "automatic_paid_provisioning": false
+    }
+  ],
+  "host_count": 2,
+  "automatic_provisioning": false,
+  "automatic_external_spend_eur": 0,
+  "execution_authority": false,
+  "production_authority": false,
+  "planned_at": "2026-10-03T20:42:11Z"
+}

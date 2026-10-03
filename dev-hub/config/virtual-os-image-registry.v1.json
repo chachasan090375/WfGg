@@ -1,0 +1,7 @@
+{
+  "schema":"chacha.dev/virtual-os-image-registry/v1",
+  "version":"1.0.0",
+  "images":[],
+  "rules":{"image_id_unique":true,"sha256_required":true,"base_images_immutable":true,"project_overlays_separate":true,"unverified_image_execution_forbidden":true},
+  "automatic_external_spend_eur":0
+}
