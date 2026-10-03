@@ -1,0 +1,46 @@
+name: Guardian action lease diagnostic
+on:
+  push:
+    branches: [diagnostic-guardian-action-leases-20261003-v1]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve Guardian D1 and query read-only
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request
+          token=os.environ['CLOUDFLARE_API_TOKEN']; aid=os.environ.get('CLOUDFLARE_ACCOUNT_ID','').strip()
+          h={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def req(url,method='GET',body=None):
+              data=None if body is None else json.dumps(body).encode()
+              with urllib.request.urlopen(urllib.request.Request(url,headers=h,method=method,data=data),timeout=30) as r:return json.load(r)
+          if not aid:
+              rows=req('https://api.cloudflare.com/client/v4/accounts?per_page=50').get('result') or []
+              assert len(rows)==1; aid=rows[0]['id']
+          dbs=req('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-guardian')).get('result') or []
+          db=next(x for x in dbs if x.get('name')=='chacha-dev-guardian')
+          url=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{db['uuid']}/query"
+          def q(sql):
+              p=req(url,'POST',{'sql':sql}); out=[]
+              for b in p.get('result') or []: out.extend(b.get('results') or [])
+              return out
+          leases=q("SELECT * FROM action_leases WHERE status IN ('OPEN','EXPIRED') ORDER BY opened_at DESC;")
+          recs=q("SELECT * FROM action_lease_reconciliations ORDER BY reconciled_at DESC LIMIT 500;")
+          json.dump({'schema':'chacha.dev/action-lease-diagnostic/v1','leases':leases,'reconciliations':recs},open('/tmp/action-leases.json','w'),indent=2)
+          print('ACTION_LEASE_ROWS='+str(len(leases)))
+          print('RECONCILIATION_ROWS='+str(len(recs)))
+          print('READ_ONLY=YES')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: guardian-action-lease-diagnostic
+          path: /tmp/action-leases.json
+          retention-days: 30
