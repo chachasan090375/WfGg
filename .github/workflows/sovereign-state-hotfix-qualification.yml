@@ -42,6 +42,7 @@ jobs:
       - name: Static safety
         run: |
           set -euo pipefail
+          test "$(git status --porcelain)" = ""
           python3 -m py_compile \
             dev-hub/bin/sovereign-state-cutover-controller.py \
             dev-hub/bin/sovereign_state_authority.py \
@@ -51,6 +52,7 @@ jobs:
             dev-hub/bin/central-learning-relay-puller.py \
             dev-hub/bin/cockpit-state.py
           node --check dev-hub/bin/d1-worker-local-runtime.mjs
+          find dev-hub -type d -name __pycache__ -prune -exec rm -rf {} +
           test "$(git status --porcelain)" = ""
       - name: Qualification receipt
         run: |
