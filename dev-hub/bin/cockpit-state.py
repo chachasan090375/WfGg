@@ -119,7 +119,7 @@ def snapshot():
       'production':{'version':production_version(rev,release),'revision':rev,'state':'ACTIVE','path':str(release)},
       'candidate':{'version':cand.get('version','Aucun'),'revision':cand.get('revision',''),'tree':cand.get('tree',''),'state':cstate},
       'operation':{'label':op_label,'platform_percent':pr.get('platform_maturity_percent',86),'active_work_percent':op.get('percent',0),'runtime_status':runtime_status},
-      'health':{'guardian':health('https://chacha-dev-guardian.chachasan090375.workers.dev/healthz'),'sentinel':health('https://chacha-dev-sentinel.chachasan090375.workers.dev/healthz'),'direct_operator':'PASS' if ds else 'FAIL','emergency_stop':stop_state},
+      'health':{'guardian':health(ssa.endpoint('guardian')+'/healthz'),'sentinel':health(ssa.endpoint('sentinel')+'/healthz'),'direct_operator':'PASS' if ds else 'FAIL','emergency_stop':stop_state},
       'truth':{'decided':op.get('decided') or 'Maintenir l’autonomie active et n’afficher comme live que des preuves runtime fraîches.','executed':executed,'verified':verified},
       'autonomy':gaps,'promotion_transaction':tx,
       'next_human_boundary':op.get('human_boundary') or 'Aucune frontière humaine en attente',
