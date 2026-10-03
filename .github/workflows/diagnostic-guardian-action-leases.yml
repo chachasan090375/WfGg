@@ -34,13 +34,23 @@ jobs:
               return out
           leases=q("SELECT * FROM action_leases WHERE status IN ('OPEN','EXPIRED') ORDER BY opened_at DESC;")
           recs=q("SELECT * FROM action_lease_reconciliations ORDER BY reconciled_at DESC LIMIT 500;")
-          json.dump({'schema':'chacha.dev/action-lease-diagnostic/v1','leases':leases,'reconciliations':recs},open('/tmp/action-leases.json','w'),indent=2)
-          print('ACTION_LEASE_ROWS='+str(len(leases)))
-          print('RECONCILIATION_ROWS='+str(len(recs)))
-          print('LEASE_STATUS_COUNTS='+json.dumps(dict(collections.Counter(x.get('status') for x in leases)),sort_keys=True))
-          print('LEASE_ACTION_COUNTS='+json.dumps(dict(collections.Counter(x.get('action') for x in leases)),sort_keys=True))
-          for x in leases:
-              print('LEASE '+json.dumps({k:x.get(k) for k in ['action_id','status','last_verdict','action','permission','actor','subject_role','project_id','run_id','opened_at','deadline_at','closed_at']},sort_keys=True,separators=(',',':')))
+          dyn=q("SELECT contract_id,version,status,agent_id,project_id,allowed_actions_json,allowed_permissions_json,created_at,retired_at FROM dynamic_role_contracts ORDER BY created_at DESC LIMIT 1000;")
+          tasks=q("SELECT * FROM task_contract_leases ORDER BY opened_at DESC LIMIT 1000;")
+          static=q("SELECT contract_id,version,allowed_actions_json,allowed_permissions_json,source_digest,updated_at FROM role_contracts ORDER BY contract_id;")
+          json.dump({'schema':'chacha.dev/action-lease-diagnostic/v2','leases':leases,'reconciliations':recs,'dynamic_roles':dyn,'task_contract_leases':tasks,'static_roles':static},open('/tmp/action-leases.json','w'),indent=2)
+          print('ACTION_LEASE_ROWS='+str(len(leases))); print('RECONCILIATION_ROWS='+str(len(recs)))
+          print('DYNAMIC_ROLE_ROWS='+str(len(dyn))); print('ACTIVE_DYNAMIC_ROLES='+str(sum(x.get('status')=='ACTIVE' for x in dyn)))
+          print('TASK_CONTRACT_ROWS='+str(len(tasks))); print('OPEN_TASK_CONTRACTS='+str(sum(x.get('status')=='OPEN' for x in tasks)))
+          print('STATIC_ROLE_ROWS='+str(len(static)))
+          interests=['remote-operator-gateway-agent','sre-observability-engineer','e2e-fixture-provider','release-engineer','project-factory','collector-runtime','platform-component-pilot-runner','acceptance-confidence-bridge']
+          for role in interests:
+              ds=[x for x in dyn if x.get('agent_id')==role and x.get('status')=='ACTIVE']
+              ss=[x for x in static if x.get('contract_id')=='role:'+role]
+              print('ROLE '+role+' active_dynamic='+str(len(ds))+' static='+str(len(ss)))
+              for x in ds[:5]: print('DYNAMIC '+json.dumps(x,sort_keys=True,separators=(',',':')))
+          byproj=collections.Counter(x.get('project_id') for x in dyn if x.get('status')=='ACTIVE')
+          print('ACTIVE_DYNAMIC_PROJECTS='+json.dumps(dict(byproj),sort_keys=True))
+          print('TASK_STATUS_COUNTS='+json.dumps(dict(collections.Counter(x.get('status') for x in tasks)),sort_keys=True))
           print('READ_ONLY=YES')
           PY
       - uses: actions/upload-artifact@v4
