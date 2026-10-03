@@ -60,3 +60,5 @@ jobs:
               print('UPDATED_AT='+str(row.get('updated_at') or ''))
           print('DIRECT_MUTATION=NO')
           PY
+
+# post-sync verification 2026-10-03T12:01Z
