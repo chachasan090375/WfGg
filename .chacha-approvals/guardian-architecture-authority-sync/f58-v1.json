@@ -1,0 +1,19 @@
+{
+  "schema": "chacha.dev/production-approval/v1",
+  "scope": "guardian-architecture-authority-sync-production",
+  "approved": true,
+  "approved_by": "operator",
+  "revision": "f58d76f034b7e5ec423e312d78f8ca92b8d92111",
+  "role_contract_upserts": [
+    "component:central-orchestrator",
+    "role:architecture-decision-council"
+  ],
+  "worker_deploy": false,
+  "platform_current_switch": false,
+  "native_local_activation": false,
+  "guardian_latch_clear": false,
+  "functional_remediation_apply": false,
+  "action_lease_reconciliation_apply": false,
+  "destructive_cleanup": false,
+  "approval_basis": "operator Go immediately after bounded two-row Guardian D1 sync proposal"
+}
