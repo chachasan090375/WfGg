@@ -34,7 +34,11 @@ assert roles["principles"]["guardian_is_external_to_central_brain"] is True
 assert roles["principles"]["guardian_cannot_build_or_choose_architecture"] is True
 contracts={x["contract_id"]:x for x in roles["contracts"]}
 assert "FINAL_ARCHITECTURE_DECISION" in contracts["role:branch-foundry"]["forbidden_actions"]
-assert "FINAL_ARCHITECTURE_DECISION" in contracts["component:central-orchestrator"]["allowed_actions"]
+assert "FINAL_ARCHITECTURE_DECISION" not in contracts["component:central-orchestrator"]["allowed_actions"]
+assert "FINAL_ARCHITECTURE_DECISION" in contracts["component:central-orchestrator"]["forbidden_actions"]
+assert "REPORT_ARCHITECTURE_RECOMMENDATION" in contracts["component:central-orchestrator"]["allowed_actions"]
+assert "FINAL_ARCHITECTURE_DECISION" not in contracts["role:architecture-decision-council"]["allowed_actions"]
+assert "FINAL_ARCHITECTURE_DECISION" in contracts["role:architecture-decision-council"]["forbidden_actions"]
 assert "RUN_COMPARATIVE_PILOT" in contracts["role:comparative-pilot"]["allowed_actions"]
 
 # 3) Main execution and orchestration paths are actually guarded.
@@ -46,6 +50,8 @@ orch=ORCH.read_text(encoding="utf-8")
 assert "guardian_stage(" in orch
 assert 'architecture-comparative-pilot.py' in orch
 assert '--comparative-pilot-result' in orch
+pilot_source=PILOT.read_text(encoding="utf-8")
+assert '"action_id":str(evidence.get("run_id") or "")' in pilot_source
 tech=TECH.read_text(encoding="utf-8")
 assert "_guardian_observe_consult" in tech
 assert '"actor":"technology-watch"' in tech
@@ -98,7 +104,10 @@ with tempfile.TemporaryDirectory(prefix="chacha-v615-portfolio-") as td:
     subprocess.run(["python3",str(PILOT),"--repo-root",str(ROOT),"--portfolio",str(p1),
                     "--harness",str(hp),"--output",str(dry),"--runtime-root",str(td/"runtime"),"--dry-run"],
                    check=True,stdout=subprocess.DEVNULL)
-    assert json.load(open(dry))["status"]=="DRY_RUN"
+    dry_result=json.load(open(dry))
+    assert dry_result["status"]=="DRY_RUN"
+    assert dry_result["guardian_action_performed"] is False
+    assert not list((td/"runtime").glob("cmp-*/guardian/*.json"))
 
     # Valid pilot evidence resolves the same functional signature deterministically.
     pilot_result={

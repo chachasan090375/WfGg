@@ -56,7 +56,7 @@
       ],
       "permission": "plan",
       "verification": "independent-agent",
-      "notes": "Architecture Council is final authority for normal architecture decisions; explicit human approval remains required only at configured sensitive boundaries."
+      "notes": "Architecture Council is advisory. Revalidated reuse inside approved boundaries may auto-dispatch; new or material architecture decisions require the configured human/approval boundary."
     },
     "workspace-health": {
       "owner_role": "platform",

@@ -135,10 +135,7 @@ def guardian_stage(script:Path,args,phase:str,action_id:str):
             council_preview=load(out) if out and out.exists() else {}
         except Exception:
             council_preview={}
-        if bool(council_preview.get("dispatch_allowed")):
-            action="FINAL_ARCHITECTURE_DECISION"
-        else:
-            action="REPORT_DECISION"
+        action="REPORT_ARCHITECTURE_RECOMMENDATION"
     event_context=grr.inject_context(
       {"resource_class":"light","human_approval_required":False,"storage_preflight_required":False,"deadline_seconds":180},
       actor="central-orchestrator",subject_role=role,project_id="platform-bootstrap",

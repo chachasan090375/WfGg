@@ -26,6 +26,8 @@ with tempfile.TemporaryDirectory(prefix="roadmap-evolution-router-") as td:
     assert bygap["constitution"]["routing_mode"]=="GOVERNED_REASSESS",bygap["constitution"]
     assert plan["human_boundaries"][0]["gap_id"]=="resilience-ha",plan["human_boundaries"]
     assert all(x["direct_component_mutation"] is False and x["self_promotion"] is False for x in plan["requests"])
+    assert all(x["architecture_council_final_authority"] is False for x in plan["requests"])
+    assert all(x["architecture_council_recommendation_authority"] is True for x in plan["requests"])
     first=router.apply_plan(rt,policy,plan)
     assert first["managed_request_file_count"]==7,first
     assert len(first["written_files"])==7,first
