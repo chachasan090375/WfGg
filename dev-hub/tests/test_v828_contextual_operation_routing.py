@@ -44,7 +44,7 @@ assert 'database-migrate' not in pkg['capabilities'],pkg
 assert 'data-model-review' in pkg['capabilities'],pkg
 prod=router._preplan({'text':'Analyse l’état de la production actuelle sans déploiement.'},cfg)
 assert 'platform-release' not in prod['primary_domains'],prod
-central=(BIN/'central-interface-controller.py').read_text()
+central=(BIN/'central-interface-controller-core.py').read_text()
 assert '"domains":list(human_intent.get("domains") or [])' in central
 assert '"domains":list(ci.get("domains") or [])' in central
 print('CHACHA_DEV_V828_SELF_DEVELOPMENT_DOMAIN_HINT=PASS')

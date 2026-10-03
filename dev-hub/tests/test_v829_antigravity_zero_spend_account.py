@@ -94,7 +94,7 @@ normal=run_controller.prepare_envelope('r',1,{'project':'p','transition':'X','pe
 assert normal['policy_context']['timeout_seconds']==300,normal['policy_context']
 HEADLESS_WORKSPACE_PERMISSION_CONTRACT=True
 # ChaCha DEV development workspaces receive an isolated source baseline, never an empty branch.
-central=loadmod('v829_central',BIN/'central-interface-controller.py')
+central=loadmod('v829_central',BIN/'central-interface-controller-core.py')
 with tempfile.TemporaryDirectory(prefix='v829-baseline-') as raw:
     td=Path(raw);repo=td/'repo';runtime_root=td/'runtime';repo.mkdir();runtime_root.mkdir();(repo/'.revision').write_text('baseline-rev\n');(repo/'source.py').write_text('print("baseline")\n')
     ws=runtime_root/'projects'/'exec-project'/'branches'/'development';receipt=td/'materialization.json'

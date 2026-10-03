@@ -59,7 +59,7 @@ with tempfile.TemporaryDirectory(prefix='v826-translator-') as td:
     assert interface['semantic_intent']['routing_text']==canonical
     assert factory.workspace_file_spec(interface['user_text'])=={'action':'write-text','path':'chacha-dev-selftest.txt','content':'CHACHA_DEV_SELFTEST_OK'}
     assert translation['primary_domains']==['workspace-artifact'],translation
-central_source=(BIN/'central-interface-controller.py').read_text()
+central_source=(BIN/'central-interface-controller-core.py').read_text()
 assert '"text":str(human_intent.get("user_text") or "")' in central_source
 print('CHACHA_DEV_V826_CONTEXTUAL_INTENT_PARTITION=PASS')
 print('CHACHA_DEV_V826_META_PROCESS_NOT_BUSINESS_DOMAIN=PASS')

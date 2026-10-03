@@ -5,7 +5,7 @@ from types import SimpleNamespace
 ROOT=Path(__file__).resolve().parents[2]
 BIN=ROOT/'dev-hub/bin'
 sys.path.insert(0,str(BIN))
-spec=importlib.util.spec_from_file_location('central_v824',BIN/'central-interface-controller.py')
+spec=importlib.util.spec_from_file_location('central_v824',BIN/'central-interface-controller-core.py')
 central=importlib.util.module_from_spec(spec);spec.loader.exec_module(central)
 def save(path,value): path.write_text(json.dumps(value,indent=2)+'\n',encoding='utf-8')
 with tempfile.TemporaryDirectory(prefix='v824-effective-lineage-') as td:
@@ -35,7 +35,7 @@ for marker in [
     'adapters=adapters_value',
     '"--adapters", str(effective_adapters_path)',
 ]: assert marker in pc,marker
-central_text=(BIN/'central-interface-controller.py').read_text(encoding='utf-8')
+central_text=(BIN/'central-interface-controller-core.py').read_text(encoding='utf-8')
 for marker in [
     '"--adapters",str(adapter_registry)',
     'details.get("learning_context_status")=="TRUSTED_DISPATCH_CONTEXT"',
