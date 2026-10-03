@@ -475,7 +475,21 @@
       "criticality": "CRITICAL",
       "proof": {
         "file": "dev-hub/bin/central-interface-controller.py",
-        "marker": "RECEIPT_SCHEMA=\"chacha.dev/central-interface-receipt/v1\""
+        "marker": "def governed_argv(argv: list[str]) -> list[str]:",
+        "checks": [
+          {
+            "file": "dev-hub/bin/central-interface-controller.py",
+            "marker": "governed_project_control = repo_root / \"dev-hub/bin/governed-project-control.py\""
+          },
+          {
+            "file": "dev-hub/bin/central-interface-controller-core.py",
+            "marker": "RECEIPT_SCHEMA=\"chacha.dev/central-interface-receipt/v1\""
+          },
+          {
+            "file": "dev-hub/bin/central-interface-controller-core.py",
+            "marker": "def handle_instruction(a)->dict[str,Any]:"
+          }
+        ]
       }
     },
     {

@@ -12,16 +12,25 @@ def test_every_guardian_proof_is_materialized():
     missing=[]
     for row in rows:
         proof=row.get("proof") or {}
-        rel=proof.get("file")
-        marker=proof.get("marker")
-        path=ROOT/str(rel or "")
-        if not rel or not marker or not path.is_file():
-            missing.append((row.get("component_id"),rel,marker,"missing-file-or-proof"))
-            continue
-        text=path.read_text(encoding="utf-8",errors="ignore")
-        if marker not in text:
-            missing.append((row.get("component_id"),rel,marker,"marker-not-found"))
+        checks=[{"file":proof.get("file"),"marker":proof.get("marker")}]
+        checks.extend(x for x in (proof.get("checks") or []) if isinstance(x,dict))
+        for check in checks:
+            rel=check.get("file");marker=check.get("marker");path=ROOT/str(rel or "")
+            if not rel or not marker or not path.is_file():
+                missing.append((row.get("component_id"),rel,marker,"missing-file-or-proof"));continue
+            text=path.read_text(encoding="utf-8",errors="ignore")
+            if marker not in text:missing.append((row.get("component_id"),rel,marker,"marker-not-found"))
     assert not missing, missing
+
+def test_central_interface_split_is_fully_covered():
+    data=json.loads(MANIFEST.read_text(encoding="utf-8"))
+    row=next(x for x in data["expected_components"] if x.get("component_id")=="central-interface-controller")
+    proof=row["proof"]
+    assert proof["file"]=="dev-hub/bin/central-interface-controller.py"
+    checks={(x["file"],x["marker"]) for x in proof.get("checks") or []}
+    assert ("dev-hub/bin/central-interface-controller-core.py",'RECEIPT_SCHEMA="chacha.dev/central-interface-receipt/v1"') in checks
+    assert any(f=="dev-hub/bin/central-interface-controller.py" and "governed-project-control.py" in m for f,m in checks)
+
 
 def test_registered_adapter_proof_matches_run_controller():
     data=json.loads(MANIFEST.read_text(encoding="utf-8"))
