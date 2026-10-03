@@ -31,21 +31,32 @@ def test_direct_operator_authentication_cannot_be_spoofed_or_bypassed() -> None:
     contract = load_contract()
     direct = contract["direct_operator_target"]
 
-    assert direct["current_authentication_mode"] == "TAILSCALE_SERVE_IDENTITY"
-    assert direct["machine_to_machine_authentication"] == "UNRESOLVED"
+    assert direct["current_human_authentication_mode"] == "TAILSCALE_SERVE_IDENTITY"
+    assert direct["machine_to_machine_authentication"] == "HMAC_SHA256_RUNTIME_SECRET_CANDIDATE"
+    assert direct["service_id"] == "chacha-remote-operator-mcp"
+    assert direct["secret_registry"] == "/opt/chacha-dev/runtime/secrets/direct-operator-m2m.json"
     assert direct["tailscale_identity_header_spoofing_forbidden"] is True
     assert direct["direct_central_orchestrator_bypass_forbidden"] is True
+    assert direct["forced_channel"] == "BUILD"
+    assert direct["direct_mutation_authority"] is False
+    assert direct["technical_decision_authority"] is False
 
 
-def test_pilot_stays_blocked_until_real_direct_operator_bridge_exists() -> None:
+def test_source_bridge_exists_but_pilot_remains_fail_closed() -> None:
     contract = load_contract()
     required = contract["pilot_required_surface"]
+    direct = contract["direct_operator_target"]
     activation = contract["activation"]
 
-    assert required["direct_operator_intent"] == "UNRESOLVED"
-    assert required["direct_operator_job"] == "UNRESOLVED"
+    assert required["direct_operator_intent"] == "SOURCE_ADAPTER_IN_PROGRESS"
+    assert required["direct_operator_job"] == "SOURCE_ADAPTER_IN_PROGRESS"
+    assert direct["intent_path"] == "/api/v1/m2m/intent"
+    assert direct["job_path_prefix"] == "/api/v1/m2m/jobs/"
+    assert direct["bridge_enabled"] is False
     assert activation["production_activation_allowed"] is False
-    assert activation["direct_operator_bridge"] == "UNRESOLVED"
+    assert activation["direct_operator_bridge"] == "SOURCE_IN_PROGRESS_DISABLED"
+    assert activation["direct_operator_handler"] == "SOURCE_IN_PROGRESS_DISABLED"
+    assert activation["runtime_secret_materialized"] is False
     assert activation["pilot_allowed_before_all_gates_pass"] is False
 
 
@@ -60,6 +71,7 @@ def test_governance_and_pilot_path_preserve_authorities() -> None:
     assert governance["bastion_required_for_network_exposure"] is True
     assert governance["umg_required"] is True
     assert governance["ccr_required"] is True
+    assert governance["guardian_role_extension"] == "UNRESOLVED"
     assert governance["new_core_capability_required"] is False
     assert governance["chatgpt_is_not_operational_source_of_truth"] is True
     assert governance["capability_resolution_order"] == ["REUSE", "EXTEND", "ADAPT", "CREATE"]
