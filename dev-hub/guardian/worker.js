@@ -396,9 +396,14 @@ async function createRemediation(env,{alertId,eventId,severity,reasons,payload})
   if(["BLOCK","CRITICAL"].includes(String(severity))){
     const holdKey=[plan.target_actor,plan.project_id||"*",plan.run_id||"*"].join("|");
     await env.DB.prepare(
-      `INSERT OR IGNORE INTO remediation_holds
+      `INSERT INTO remediation_holds
         (hold_key,directive_id,target_actor,target_role,project_id,run_id,severity,active,created_at)
-        VALUES(?1,?2,?3,?4,?5,?6,?7,1,datetime('now'))`
+        VALUES(?1,?2,?3,?4,?5,?6,?7,1,datetime('now'))
+        ON CONFLICT(hold_key) DO UPDATE SET
+          directive_id=excluded.directive_id,target_actor=excluded.target_actor,target_role=excluded.target_role,
+          project_id=excluded.project_id,run_id=excluded.run_id,severity=excluded.severity,
+          active=1,created_at=datetime('now'),cleared_at=NULL
+        WHERE remediation_holds.active=0`
     ).bind(holdKey,directiveId,plan.target_actor,plan.target_role,plan.project_id,plan.run_id,String(severity)).run();
   }
   return directiveId;
