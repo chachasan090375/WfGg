@@ -35,6 +35,7 @@ def guardian_event(repo_root:Path,output_dir:Path,phase:str,evidence:dict[str,An
     event={
       "schema":"chacha.dev/governance-action/v1",
       "event_id":"gov-"+uuid.uuid4().hex,
+      "action_id":str(evidence.get("run_id") or ""),
       "phase":phase,
       "actor":"comparative-pilot",
       "subject_role":"comparative-pilot",
@@ -167,11 +168,12 @@ def main()->int:
     run_id="cmp-"+time.strftime("%Y%m%dT%H%M%SZ",time.gmtime())+"-"+uuid.uuid4().hex[:8]
     run_root=a.runtime_root/run_id
     evidence={"run_id":run_id,"isolated_capsules":True,"same_benchmark_contract":True}
-    guardian_event(a.repo_root.resolve(),run_root,"PRE_ACTION",evidence)
     if a.dry_run:
         result={"schema":"chacha.dev/architecture-comparative-pilot-result/v1","status":"DRY_RUN","resolved":False,
-                "run_id":run_id,"same_benchmark_contract":True,"isolated_capsules":True}
+                "run_id":run_id,"same_benchmark_contract":True,"isolated_capsules":True,
+                "guardian_action_performed":False}
         save(a.output,result);print("CHACHA_DEV_V615_COMPARATIVE_PILOT=DRY_RUN");return 0
+    guardian_event(a.repo_root.resolve(),run_root,"PRE_ACTION",evidence)
     results={
       "HISTORICAL":run_variant(run_id,"HISTORICAL",historical.get("components") or {},harness,run_root),
       "CURRENT":run_variant(run_id,"CURRENT",{"packages":current.get("packages") or []},harness,run_root)
