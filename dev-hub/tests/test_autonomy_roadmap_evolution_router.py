@@ -15,10 +15,15 @@ assert set(policy["rules"])=={x["id"] for x in road["gaps"]},(set(policy["rules"
 with tempfile.TemporaryDirectory(prefix="roadmap-evolution-router-") as td:
     rt=Path(td)
     plan=router.build_plan(road,policy,canonical)
+    eligible=set(policy.get("eligible_statuses") or [])
+    expected_request_gaps={x["id"] for x in road["gaps"] if x.get("status") in eligible and policy["rules"][x["id"]].get("mode")!="HUMAN_BOUNDARY"}
+    expected_human_gaps={x["id"] for x in road["gaps"] if x.get("status") in eligible and policy["rules"][x["id"]].get("mode")=="HUMAN_BOUNDARY"}
+    expected_closed_gaps={x["id"] for x in road["gaps"] if x.get("status") not in eligible}
     assert plan["routing_complete"] is True,plan
-    assert plan["request_count"]==7,plan
-    assert plan["closed_count"]==3,plan
-    assert plan["human_boundary_count"]==1,plan
+    assert plan["request_count"]==len(expected_request_gaps),plan
+    assert {x["roadmap_gap_id"] for x in plan["requests"]}==expected_request_gaps,plan
+    assert plan["closed_count"]==len(expected_closed_gaps),plan
+    assert plan["human_boundary_count"]==len(expected_human_gaps),plan
     assert plan["blocked_count"]==0,plan
     bygap={x["roadmap_gap_id"]:x for x in plan["requests"]}
     assert bygap["provider-independence"]["candidate_owner"]=="capability-foundry",bygap["provider-independence"]
@@ -27,15 +32,15 @@ with tempfile.TemporaryDirectory(prefix="roadmap-evolution-router-") as td:
     assert plan["human_boundaries"][0]["gap_id"]=="resilience-ha",plan["human_boundaries"]
     assert all(x["direct_component_mutation"] is False and x["self_promotion"] is False for x in plan["requests"])
     first=router.apply_plan(rt,policy,plan)
-    assert first["managed_request_file_count"]==7,first
-    assert len(first["written_files"])==7,first
+    assert first["managed_request_file_count"]==len(expected_request_gaps),first
+    assert len(first["written_files"])==len(expected_request_gaps),first
     second=router.apply_plan(rt,policy,plan)
-    assert len(second["unchanged_files"])==7 and not second["written_files"],second
+    assert len(second["unchanged_files"])==len(expected_request_gaps) and not second["written_files"],second
     road2=copy.deepcopy(road)
     next(x for x in road2["gaps"] if x["id"]=="learning").update({"status":"GREEN","progress":100})
     plan2=router.build_plan(road2,policy,canonical)
     third=router.apply_plan(rt,policy,plan2)
-    assert plan2["request_count"]==6,plan2
+    assert plan2["request_count"]==len(expected_request_gaps)-1,plan2
     assert any("learning" in x for x in third["removed_stale_files"]),third
     bad=copy.deepcopy(policy);bad["rules"]["learning"]={"mode":"AUTO_REASSESS","component_id":"core:not-real"}
     blocked=router.build_plan(road,bad,canonical)
