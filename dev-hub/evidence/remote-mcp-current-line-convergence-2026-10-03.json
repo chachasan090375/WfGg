@@ -1,0 +1,29 @@
+{
+  "schema": "chacha.dev/remote-mcp-current-line-convergence/v1",
+  "status": "PASS",
+  "historical_source_revision": "41b1864a0952e8c32598aaa88293fd1eeca8521a",
+  "historical_commits": [
+    "d1da1d51",
+    "160a2c42",
+    "afa118de",
+    "2f34119e",
+    "1945f98f",
+    "41b1864a"
+  ],
+  "current_line_head_before_receipt_commit": "a6135378c109563a21fead4a4c3629c2dd4053b9",
+  "source_union_identical_to_historical_terminal": true,
+  "m2m_authentication_tests": "PASS_6_OF_6",
+  "python_source_compile": "PASS",
+  "historical_source_qualification_reused": true,
+  "historical_pytest_not_replayed_reason": "runtime dependencies pytest/mcp are not materialized on current VPS; no global dependency installation performed; unchanged source identity plus current-line M2M/UMG checks used instead",
+  "current_umg_birth_contract": "PASS_CHECK_ONLY",
+  "machine_ingress_enabled": false,
+  "runtime_secret_materialized": false,
+  "mcp_runtime_materialized": false,
+  "secure_tunnel_materialized": false,
+  "chatgpt_registration_complete": false,
+  "public_ingress": false,
+  "production_activation": false,
+  "production_mutation": false,
+  "automatic_external_spend_eur": 0
+}
