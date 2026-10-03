@@ -16,29 +16,32 @@ jobs:
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import json,os,urllib.parse,urllib.request,collections
+          import json,os,urllib.parse,urllib.request,urllib.error,collections
           token=os.environ['CLOUDFLARE_API_TOKEN']; aid=os.environ.get('CLOUDFLARE_ACCOUNT_ID','').strip()
           h={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
           def req(url,method='GET',body=None):
-              data=None if body is None else json.dumps(body).encode()
-              with urllib.request.urlopen(urllib.request.Request(url,headers=h,method=method,data=data),timeout=30) as r:return json.load(r)
+              data=None if body is None else json.dumps(body).encode(); r=urllib.request.Request(url,headers=h,method=method,data=data)
+              try:
+                  with urllib.request.urlopen(r,timeout=30) as z:return json.load(z)
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode('utf-8','replace'); raise RuntimeError(f'HTTP_{e.code}:{raw[:1200]}')
           if not aid:
-              rows=req('https://api.cloudflare.com/client/v4/accounts?per_page=50').get('result') or []
-              assert len(rows)==1; aid=rows[0]['id']
+              rows=req('https://api.cloudflare.com/client/v4/accounts?per_page=50').get('result') or []; assert len(rows)==1; aid=rows[0]['id']
           dbs=req('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-guardian')).get('result') or []
-          db=next(x for x in dbs if x.get('name')=='chacha-dev-guardian')
-          url=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{db['uuid']}/query"
+          db=next(x for x in dbs if x.get('name')=='chacha-dev-guardian'); url=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{db['uuid']}/query"
           def q(sql):
               p=req(url,'POST',{'sql':sql}); out=[]
               for b in p.get('result') or []: out.extend(b.get('results') or [])
               return out
           leases=q("SELECT * FROM action_leases WHERE status IN ('OPEN','EXPIRED') ORDER BY opened_at DESC;")
           recs=q("SELECT * FROM action_lease_reconciliations ORDER BY reconciled_at DESC LIMIT 500;")
-          dyn=q("SELECT contract_id,version,status,agent_id,project_id,allowed_actions_json,allowed_permissions_json,created_at,retired_at FROM dynamic_role_contracts ORDER BY created_at DESC LIMIT 1000;")
+          schemas={t:q('PRAGMA table_info('+t+');') for t in ['dynamic_role_contracts','task_contract_leases','role_contracts']}
+          dyn=q("SELECT * FROM dynamic_role_contracts ORDER BY created_at DESC LIMIT 1000;")
           tasks=q("SELECT * FROM task_contract_leases ORDER BY opened_at DESC LIMIT 1000;")
-          static=q("SELECT contract_id,version,allowed_actions_json,allowed_permissions_json,source_digest,updated_at FROM role_contracts ORDER BY contract_id;")
-          json.dump({'schema':'chacha.dev/action-lease-diagnostic/v2','leases':leases,'reconciliations':recs,'dynamic_roles':dyn,'task_contract_leases':tasks,'static_roles':static},open('/tmp/action-leases.json','w'),indent=2)
+          static=q("SELECT * FROM role_contracts ORDER BY contract_id;")
+          json.dump({'schema':'chacha.dev/action-lease-diagnostic/v3','leases':leases,'reconciliations':recs,'schemas':schemas,'dynamic_roles':dyn,'task_contract_leases':tasks,'static_roles':static},open('/tmp/action-leases.json','w'),indent=2)
           print('ACTION_LEASE_ROWS='+str(len(leases))); print('RECONCILIATION_ROWS='+str(len(recs)))
+          for t,s in schemas.items(): print('SCHEMA '+t+' '+json.dumps([x.get('name') for x in s]))
           print('DYNAMIC_ROLE_ROWS='+str(len(dyn))); print('ACTIVE_DYNAMIC_ROLES='+str(sum(x.get('status')=='ACTIVE' for x in dyn)))
           print('TASK_CONTRACT_ROWS='+str(len(tasks))); print('OPEN_TASK_CONTRACTS='+str(sum(x.get('status')=='OPEN' for x in tasks)))
           print('STATIC_ROLE_ROWS='+str(len(static)))
@@ -48,8 +51,7 @@ jobs:
               ss=[x for x in static if x.get('contract_id')=='role:'+role]
               print('ROLE '+role+' active_dynamic='+str(len(ds))+' static='+str(len(ss)))
               for x in ds[:5]: print('DYNAMIC '+json.dumps(x,sort_keys=True,separators=(',',':')))
-          byproj=collections.Counter(x.get('project_id') for x in dyn if x.get('status')=='ACTIVE')
-          print('ACTIVE_DYNAMIC_PROJECTS='+json.dumps(dict(byproj),sort_keys=True))
+          print('ACTIVE_DYNAMIC_PROJECTS='+json.dumps(dict(collections.Counter(x.get('project_id') for x in dyn if x.get('status')=='ACTIVE')),sort_keys=True))
           print('TASK_STATUS_COUNTS='+json.dumps(dict(collections.Counter(x.get('status') for x in tasks)),sort_keys=True))
           print('READ_ONLY=YES')
           PY
