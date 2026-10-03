@@ -262,6 +262,19 @@ def register_project_assurance_identity(policy_path:Path,registration:Path)->int
     print(json.dumps(x,ensure_ascii=False))
     return 0 if status==200 and x.get("status")=="PASS" else 30
 
+def functional_contract_readback(policy_path:Path,project_id:str)->int:
+    _,url,key=policy_values(policy_path)
+    if not key.is_file():return 30
+    payload={"schema":"chacha.dev/guardian-functional-contract-readback-request/v1","project_id":project_id}
+    body=json.dumps(payload,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
+    try:
+        status,x=http_json(signed_request("POST",url+"/v1/functional-contracts/readback",key,body))
+    except Exception as exc:
+        print(json.dumps({"schema":"chacha.dev/guardian-client-result/v1","status":"UNAVAILABLE","reason":str(exc)[:300]}))
+        return 30
+    print(json.dumps(x,ensure_ascii=False))
+    return 0 if status==200 and x.get("status")=="PASS" and x.get("direct_mutation") is False else 20 if status==404 else 30
+
 def functional_acceptance(policy_path:Path,project_id:str,revision:str,contract:Path,acceptance:Path)->int:
     _,url,key=policy_values(policy_path)
     if not key.is_file():return 30
@@ -331,6 +344,7 @@ def main()->int:
     rr=sub.add_parser("readback-contract");rr.add_argument("--contract",type=Path,required=True)
     rrc=sub.add_parser("readback-component-contract");rrc.add_argument("--contract",type=Path,required=True)
     pi=sub.add_parser("register-project-assurance-identity");pi.add_argument("--registration",type=Path,required=True)
+    fcr=sub.add_parser("functional-contract-readback");fcr.add_argument("--project-id",required=True)
     fa=sub.add_parser("functional-acceptance");fa.add_argument("--project-id",required=True);fa.add_argument("--revision",required=True)
     fa.add_argument("--contract",type=Path,required=True);fa.add_argument("--acceptance",type=Path,required=True)
     dg=sub.add_parser("dual-release-gate");dg.add_argument("--project-id",required=True);dg.add_argument("--revision",required=True)
@@ -352,6 +366,7 @@ def main()->int:
     if args.cmd=="readback-contract":return readback_contract(args.policy,args.contract)
     if args.cmd=="readback-component-contract":return readback_component_contract(args.policy,args.contract)
     if args.cmd=="register-project-assurance-identity":return register_project_assurance_identity(args.policy,args.registration)
+    if args.cmd=="functional-contract-readback":return functional_contract_readback(args.policy,args.project_id)
     if args.cmd=="functional-acceptance":return functional_acceptance(args.policy,args.project_id,args.revision,args.contract,args.acceptance)
     if args.cmd=="dual-release-gate":return dual_release_gate(args.policy,args.project_id,args.revision,args.guardian_functional_receipt_id,args.sentinel_technical_receipt_id)
     if args.cmd=="final-review":return final_review(args.policy,args.project_id,args.revision,args.compromise_digest,args.source_receipt_id,args.implementation_verified)
