@@ -1,0 +1,32 @@
+{
+  "schema": "chacha.dev/action-lease-reconciliation-request/v1",
+  "reconciler_actor": "guardian-action-state-reconciler",
+  "action_id": "retire-1b826fe9-for-d84d-20261003T142636Z",
+  "source_alert_id": "lease-expired-retire-1b826fe9-for-d84d-20261003T142636Z",
+  "remediation_directive_id": "remed-lease-expired-retire-1b826fe9-for-d84d-20261003T142636Z",
+  "original_identity": {
+    "actor": "platform-hygiene-executor",
+    "subject_role": "platform-hygiene-executor",
+    "action": "EXECUTE_PLATFORM_RETIREMENT",
+    "permission": "destructive-operation",
+    "project_id": "chacha-dev-platform",
+    "run_id": "retire-1b826fe9-for-d84d-20261003T142636Z"
+  },
+  "evidence": {
+    "final_state_verified": true,
+    "original_action_outcome": "ROLLED_BACK",
+    "action_reexecuted": false,
+    "human_approval_verified": true,
+    "rollback_restored_revision": "1b826fe9eb6db8c0e101a1691e965c8ca2b32d51",
+    "rollback_restored_tree_sha256": "sha256:9c12d81ce0aba43ad2875c7565a42eaa346184c35474d1ec6ce4c858ecf569d4",
+    "platform_current_unchanged_revision": "3d403f60fe1a5c836b6fb84ddef24b7d74378307",
+    "sources": [
+      {"path":"/opt/chacha-dev/runtime/promotions/comparative-pilot-d84d389b-prestage/retirement-operator-approval.json","digest":"sha256:41665a86686178265aca0d2667880a080b43532c6c6fe66d8305755454f59a55"},
+      {"path":"/opt/chacha-dev/runtime/promotions/comparative-pilot-d84d389b-prestage/plan.json","digest":"sha256:a35b6d693dc83a58da9fff81bd51fa3467459c21ab471382336718e937ec5dfa"},
+      {"path":"/opt/chacha-dev/runtime/promotions/comparative-pilot-d84d389b-prestage/release-execution-authorized.json","digest":"sha256:070936efd47682fb050232d627ec8b6e62be1bbe5fb5d86928c753eec658378a"},
+      {"path":"/opt/chacha-dev/runtime/promotions/comparative-pilot-d84d389b-prestage/rollback-1b826fe9-physical.tar.gz","digest":"sha256:50d6d210ac2549b39b09ec241d55afb225ee591327d48d2c8d177c5463f17c8d"},
+      {"path":"/opt/chacha-dev/runtime/promotions/comparative-pilot-d84d389b-prestage/retirement-guardian-post-result.raw","digest":"sha256:cb637a704c02d264fd1264f4c6fbefc9c48a278ed432f3e2c7d4f52e716cf9ee"}
+    ]
+  },
+  "evidence_digest": "sha256:595630dd79b4524311fe60a0ee2d3c0c36b4b3efecfd84b7d078071546493705"
+}
