@@ -17,5 +17,7 @@
   "predeploy_worker_version_capture_required": true,
   "promotion_of_convoy_authorized": false,
   "convoy_revision": "d0e3283efc677ef359006ea6632f125820597730",
-  "plan_digest": "sha256:1816f0b597d573fd2a0e55c5f69150d53cf9a331b29d3ad853edd7801130a599"
+  "plan_digest": "sha256:1816f0b597d573fd2a0e55c5f69150d53cf9a331b29d3ad853edd7801130a599",
+  "workflow_retry_reason": "FIRST_BRANCH_PUSH_ZERO_BEFORE_GIT_DIFF_BUG",
+  "prior_failed_run_id": 37109707256
 }
