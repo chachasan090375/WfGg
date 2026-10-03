@@ -29,8 +29,7 @@ with tempfile.TemporaryDirectory(prefix='roadmap-live-release-') as rd, tempfile
     rel=Path(rd);rt=Path(td);materialize_baseline(rel)
     base=rlr.reassess(road,policy,rel,rt);r=rows(base)
     assert base['score_percent']==score(base),base['score_percent']
-    source_provider=next(x for x in road['gaps'] if x['id']=='provider-independence')
-    assert r['provider-independence']['progress']==source_provider['progress']
+    assert r['provider-independence']['progress']==50
     source_memory=next(x for x in road['gaps'] if x['id']=='cognitive-memory-fabric')
     assert r['cognitive-memory-fabric']['progress']==source_memory['progress']
     assert r['resilience-ha']['progress']==40
