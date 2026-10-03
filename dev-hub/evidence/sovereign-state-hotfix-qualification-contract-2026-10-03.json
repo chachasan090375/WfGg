@@ -1,0 +1,25 @@
+{
+  "schema": "chacha.dev/sovereign-state-hotfix-qualification-contract/v1",
+  "scope": "MINIMAL_PRODUCTION_DERIVED_D1_INDEPENDENCE_HOTFIX",
+  "production_base": "d84d389b74b5efe5e368f3d1c4851214d0ecc4fc",
+  "production_base_required_ancestor": true,
+  "default_authority_after_code_promotion": "D1_REMOTE",
+  "local_authority": "LOCAL_SQLITE",
+  "local_cutover_separate_human_approval_required": true,
+  "local_cutover_must_not_be_implicit_in_platform_promotion": true,
+  "services": [
+    "guardian",
+    "sentinel",
+    "assurance-exchange",
+    "learning-relay"
+  ],
+  "local_transport": "LOOPBACK_ONLY",
+  "authoritative_d1_export_obtained_read_only": true,
+  "candidate_sqlite_import_and_table_parity": "PASS",
+  "guardian_historical_verdict_replay": "PASS",
+  "nas_snapshot_readback_integrity": "PASS",
+  "rollback_authority": "D1_REMOTE",
+  "d1_deletion_authorized": false,
+  "automatic_external_spend_eur": 0,
+  "production_mutation_performed": false
+}
