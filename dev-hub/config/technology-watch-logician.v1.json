@@ -1,9 +1,48 @@
 {
-  "schema": "chacha.dev/technology-watch-logician-policy/v1",
-  "version": "1.1.0",
-  "owner_role": "logician",
   "decision_authority": "technology-watch-agent",
+  "owner_role": "logician",
+  "principles": {
+    "architecture_council_final_authority": false,
+    "automatic_external_spend_eur": 0,
+    "challenge_vendor_claims": true,
+    "cheapest_high_information_test_first": true,
+    "current_solution_is_a_candidate": true,
+    "direct_mutation": false,
+    "falsification_before_confirmation_bias": true,
+    "observation_bus_cannot_self_validate_promotion": true,
+    "search_for_counterexamples": true,
+    "architecture_council_recommendation_authority": true
+  },
   "purpose": "Design falsification paths and adaptive verification strategies for Technology Watch without selecting technologies.",
+  "schema": "chacha.dev/technology-watch-logician-policy/v1",
+  "structural_falsification": {
+    "counterexample_must_be_consumed_by": [
+      "architecture-council",
+      "guardian",
+      "sentinel"
+    ],
+    "enabled": true,
+    "forbidden_authorities": [
+      "FINAL_ARCHITECTURE_DECISION",
+      "MUTATE_CANONICAL_GRAPH",
+      "MUTATE_RUNTIME",
+      "PROMOTE_RELEASE",
+      "BLOCK_PRODUCTION_DIRECTLY"
+    ],
+    "no_role_duplication": true,
+    "outputs": [
+      "PASS",
+      "COUNTEREXAMPLE"
+    ],
+    "role": "ADVERSARIAL_EVIDENCE_ONLY",
+    "scope": [
+      "canonical_route_uniqueness",
+      "mission_ownership_continuity",
+      "resume_reaches_existing_subject",
+      "orphan_and_parallel_path_impossibility",
+      "runtime_graph_consistency"
+    ]
+  },
   "verification_routes": [
     {
       "id": "EXECUTABLE_REPRODUCTION",
@@ -86,16 +125,5 @@
       "cost_rank": 3
     }
   ],
-  "principles": {
-    "falsification_before_confirmation_bias": true,
-    "cheapest_high_information_test_first": true,
-    "search_for_counterexamples": true,
-    "challenge_vendor_claims": true,
-    "current_solution_is_a_candidate": true,
-    "direct_mutation": false,
-    "architecture_council_final_authority": false,
-    "architecture_council_recommendation_authority": true,
-    "automatic_external_spend_eur": 0,
-    "observation_bus_cannot_self_validate_promotion": true
-  }
+  "version": "1.1.0"
 }
