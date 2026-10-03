@@ -10,5 +10,7 @@ assert set(imp.SERVICES)=={'guardian','sentinel','assurance-exchange','learning-
 assert set(par.SERVICES)==set(imp.SERVICES)
 assert 'technical_workflow_attestations' in imp.SERVICES['sentinel']['required']
 assert 'assurance_correlations' in imp.SERVICES['assurance-exchange']['required']
+assert 'specialist_authority_reviews' in imp.SERVICES['assurance-exchange']['required']
+assert 'external_final_reviews' in imp.SERVICES['assurance-exchange']['required']
 assert 'learning_deltas' in imp.SERVICES['learning-relay']['required']
 print('CHACHA_DEV_SOVEREIGN_MULTI_SERVICE_CONTRACT=PASS')
