@@ -1,0 +1,187 @@
+name: Guardian global stale batch1 production
+on:
+  push:
+    branches: [production-guardian-global-stale-batch1-f58-v1]
+permissions:
+  contents: read
+jobs:
+  terminalize:
+    runs-on: ubuntu-24.04
+    env:
+      EXPECTED_CANDIDATE: f58d76f034b7e5ec423e312d78f8ca92b8d92111
+      EXPECTED_PRODUCTION: 3d403f60fe1a5c836b6fb84ddef24b7d74378307
+      EXPECTED_INVENTORY_DIGEST: sha256:3e3ae9134d1e48092cb48de240ab7367dc9c771681a87f05ae3099749bd4668d
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Resolve explicit operator approval
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,glob
+          fs=glob.glob('.chacha-approvals/guardian-global-reconciliation/*.json'); assert len(fs)==1,fs
+          x=json.load(open(fs[0]))
+          assert x['schema']=='chacha.dev/production-approval/v1'
+          assert x['scope']=='guardian-global-stale-batch1-production'
+          assert x['approved'] is True and x['approved_by']=='operator'
+          assert x['candidate_revision']=='f58d76f034b7e5ec423e312d78f8ca92b8d92111'
+          assert x['active_production_revision']=='3d403f60fe1a5c836b6fb84ddef24b7d74378307'
+          assert x['inventory_v2_digest']=='sha256:3e3ae9134d1e48092cb48de240ab7367dc9c771681a87f05ae3099749bd4668d'
+          assert len(x['alert_ids'])==5
+          for k in ['row_delete','action_lease_mutation','functional_remediation_apply','sre_contract_change','remote_operator_change','worker_deploy','platform_current_switch','native_local_activation','guardian_latch_clear','destructive_cleanup']:
+              assert x[k] is False,(k,x)
+          print('CHACHA_DEV_GUARDIAN_STALE_BATCH1_OPERATOR_APPROVAL=PASS')
+          PY
+      - name: Verify exact source proofs
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin "$EXPECTED_CANDIDATE" "$EXPECTED_PRODUCTION"
+          git show "$EXPECTED_PRODUCTION:dev-hub/bin/platform-component-pilot-runner.py" > /tmp/pcp.py
+          grep -F '"action_id":run_root.name' /tmp/pcp.py
+          git show "$EXPECTED_PRODUCTION:dev-hub/bin/dev-hub-e2e-runtime.py" > /tmp/e2e.py
+          grep -F '"project": PROJECT' /tmp/e2e.py
+          grep -F '"production":False' /tmp/e2e.py
+          echo CHACHA_DEV_GUARDIAN_STALE_BATCH1_SOURCE_PROOFS=PASS
+      - name: Resolve Guardian D1 target
+        id: d1
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request
+          token=os.environ['CF_API_TOKEN']; aid=os.environ.get('CF_ACCOUNT_ID','').strip(); h={'Authorization':'Bearer '+token}
+          def get(u):
+              with urllib.request.urlopen(urllib.request.Request(u,headers=h),timeout=30) as r:return json.load(r)
+          if not aid:
+              rows=get('https://api.cloudflare.com/client/v4/accounts?per_page=50').get('result') or []; assert len(rows)==1; aid=rows[0]['id']
+          rows=get('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-guardian')).get('result') or []
+          db=next(x for x in rows if x.get('name')=='chacha-dev-guardian')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('account_id='+aid+'\n');f.write('database_id='+db['uuid']+'\n')
+          print('CHACHA_DEV_GUARDIAN_STALE_BATCH1_TARGET=PASS')
+          PY
+      - name: Prepare D1-only Wrangler contract
+        run: |
+          cat > .wrangler-guardian-stale-batch1.jsonc <<EOF
+          {"name":"chacha-dev-guardian","main":"dev-hub/guardian/worker.js","compatibility_date":"2026-09-24","d1_databases":[{"binding":"DB","database_name":"chacha-dev-guardian","database_id":"${{ steps.d1.outputs.database_id }}"}]}
+          EOF
+      - name: Capture rollback snapshot and enforce preconditions
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          W=.wrangler-guardian-stale-batch1.jsonc
+          A="'alert-gov-482b245e8cdf45368cc4c33b53d66d14','alert-gov-18345055961044baa20429cd93a255d9','alert-gov-18426f99766f4ca287930260ec5ae1c2','alert-gov-5fdc41303ae44b6fb32941a27d7604e1','alert-gov-68c5e60154b34a9c94d1a8ed2b9667db'"
+          R="'remed-alert-gov-482b245e8cdf45368cc4c33b53d66d14','remed-alert-gov-18345055961044baa20429cd93a255d9','remed-alert-gov-18426f99766f4ca287930260ec5ae1c2','remed-alert-gov-5fdc41303ae44b6fb32941a27d7604e1','remed-alert-gov-68c5e60154b34a9c94d1a8ed2b9667db'"
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --config="$W" --json --command="SELECT * FROM guardian_alerts WHERE alert_id IN ($A) ORDER BY alert_id;" > /tmp/stale-alerts-before.json
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --config="$W" --json --command="SELECT * FROM remediation_directives WHERE directive_id IN ($R) ORDER BY directive_id;" > /tmp/stale-remeds-before.json
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --config="$W" --json --command="SELECT * FROM remediation_holds WHERE directive_id IN ($R) ORDER BY hold_key;" > /tmp/stale-holds-before.json
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --config="$W" --json --command="SELECT status,COUNT(*) AS n FROM task_contract_leases GROUP BY status ORDER BY status;" > /tmp/task-status-before.json
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --config="$W" --json --command="SELECT alert_id,status FROM guardian_alerts WHERE alert_id IN ('functional-guardian-func-dec5fdd67a52486f9c9e056664222591','alert-gov-0356805f35ee4124883b2eacbd45cf04','alert-gov-f56f51a00a084bc987f4dca2ba06175a','alert-cro-uname-1790945423-73f3d50cd5ed-pre','alert-cro-uname-1790945403-239b098b654c-pre','alert-gov-9dbd03edcfd245edb071c42b897be849','alert-gov-8a3e051ff4094f5f8cebe6616f205bdf') ORDER BY alert_id;" > /tmp/protected-alerts-before.json
+          python3 - <<'PY'
+          import json
+          def rows(p):
+              raw=json.load(open(p));o=[]
+              def w(v):
+                  if isinstance(v,dict):
+                      if isinstance(v.get('results'),list):o.extend(v['results'])
+                      for z in v.values():w(z)
+                  elif isinstance(v,list):
+                      for z in v:w(z)
+              w(raw);return o
+          a=rows('/tmp/stale-alerts-before.json'); r=rows('/tmp/stale-remeds-before.json'); h=rows('/tmp/stale-holds-before.json'); t=rows('/tmp/task-status-before.json'); p=rows('/tmp/protected-alerts-before.json')
+          assert len(a)==5 and all(x['status']=='OPEN' for x in a),a
+          assert len(r)==5 and all(x['status']=='DELIVERED' for x in r),r
+          assert sum(int(x['n']) for x in t if x['status']!='CLOSED')==0,t
+          assert all(x['status']=='OPEN' for x in p),p
+          q=lambda s:'NULL' if s is None else "'"+str(s).replace("'","''")+"'"
+          sql=[]
+          for x in a:sql.append("UPDATE guardian_alerts SET status="+q(x['status'])+" WHERE alert_id="+q(x['alert_id'])+";")
+          for x in r:sql.append("UPDATE remediation_directives SET status="+q(x['status'])+",applied_at="+q(x.get('applied_at'))+",resolution_evidence_json="+q(x.get('resolution_evidence_json'))+" WHERE directive_id="+q(x['directive_id'])+";")
+          for x in h:sql.append("UPDATE remediation_holds SET active="+str(int(x.get('active') or 0))+",cleared_at="+q(x.get('cleared_at'))+" WHERE hold_key="+q(x['hold_key'])+";")
+          open('/tmp/stale-batch1-rollback.sql','w').write('\n'.join(sql)+'\n')
+          print('CHACHA_DEV_GUARDIAN_STALE_BATCH1_PRECONDITIONS=PASS')
+          PY
+      - name: Persist pre-mutation rollback evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: guardian-global-stale-batch1-rollback
+          path: |
+            /tmp/stale-alerts-before.json
+            /tmp/stale-remeds-before.json
+            /tmp/stale-holds-before.json
+            /tmp/task-status-before.json
+            /tmp/protected-alerts-before.json
+            /tmp/stale-batch1-rollback.sql
+          retention-days: 30
+      - name: Terminalize exact stale batch1 with automatic rollback
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          W=.wrangler-guardian-stale-batch1.jsonc; MUTATED=0
+          rollback(){ set +e; if [[ "$MUTATED" = 1 ]]; then npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --file=/tmp/stale-batch1-rollback.sql --config="$W"; fi; echo CHACHA_DEV_GUARDIAN_STALE_BATCH1_AUTOMATIC_ROLLBACK=PASS; }
+          trap rollback ERR
+          python3 - <<'PY'
+          import json
+          alerts=['alert-gov-482b245e8cdf45368cc4c33b53d66d14','alert-gov-18345055961044baa20429cd93a255d9','alert-gov-18426f99766f4ca287930260ec5ae1c2','alert-gov-5fdc41303ae44b6fb32941a27d7604e1','alert-gov-68c5e60154b34a9c94d1a8ed2b9667db']
+          rems=['remed-'+x for x in alerts]
+          ev=json.dumps({'source':'guardian-global-reconciliation-v2','classification':'STALE_HISTORICAL_CONFIRMED','inventory_v2_digest':'sha256:3e3ae9134d1e48092cb48de240ab7367dc9c771681a87f05ae3099749bd4668d','proofs':['E2E_FIXTURE_NON_PRODUCTION_AND_TASK_CONTRACTS_CLOSED','PLATFORM_COMPONENT_PILOT_RUNNER_CURRENT_PRODUCTION_HAS_ACTION_ID'],'functional_drift_untouched':True,'action_leases_untouched':True},sort_keys=True,separators=(',',':'))
+          q=lambda s:"'"+str(s).replace("'","''")+"'"
+          sql=[]
+          for x in alerts:sql.append("UPDATE guardian_alerts SET status='ACKED' WHERE alert_id="+q(x)+" AND status='OPEN';")
+          for x in rems:sql.append("UPDATE remediation_directives SET status='APPLIED',applied_at=datetime('now'),resolution_evidence_json="+q(ev)+" WHERE directive_id="+q(x)+" AND status='DELIVERED';")
+          sql.append("UPDATE remediation_holds SET active=0,cleared_at=datetime('now') WHERE directive_id IN ("+','.join(q(x) for x in rems)+") AND active=1;")
+          open('/tmp/stale-batch1-apply.sql','w').write('\n'.join(sql)+'\n')
+          PY
+          MUTATED=1
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --file=/tmp/stale-batch1-apply.sql --config="$W"
+          A="'alert-gov-482b245e8cdf45368cc4c33b53d66d14','alert-gov-18345055961044baa20429cd93a255d9','alert-gov-18426f99766f4ca287930260ec5ae1c2','alert-gov-5fdc41303ae44b6fb32941a27d7604e1','alert-gov-68c5e60154b34a9c94d1a8ed2b9667db'"
+          R="'remed-alert-gov-482b245e8cdf45368cc4c33b53d66d14','remed-alert-gov-18345055961044baa20429cd93a255d9','remed-alert-gov-18426f99766f4ca287930260ec5ae1c2','remed-alert-gov-5fdc41303ae44b6fb32941a27d7604e1','remed-alert-gov-68c5e60154b34a9c94d1a8ed2b9667db'"
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --config="$W" --json --command="SELECT alert_id,status FROM guardian_alerts WHERE alert_id IN ($A) ORDER BY alert_id;" > /tmp/stale-alerts-after.json
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --config="$W" --json --command="SELECT directive_id,status,resolution_evidence_json FROM remediation_directives WHERE directive_id IN ($R) ORDER BY directive_id;" > /tmp/stale-remeds-after.json
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --config="$W" --json --command="SELECT * FROM remediation_holds WHERE directive_id IN ($R) ORDER BY hold_key;" > /tmp/stale-holds-after.json
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --config="$W" --json --command="SELECT alert_id,status FROM guardian_alerts WHERE alert_id IN ('functional-guardian-func-dec5fdd67a52486f9c9e056664222591','alert-gov-0356805f35ee4124883b2eacbd45cf04','alert-gov-f56f51a00a084bc987f4dca2ba06175a','alert-cro-uname-1790945423-73f3d50cd5ed-pre','alert-cro-uname-1790945403-239b098b654c-pre','alert-gov-9dbd03edcfd245edb071c42b897be849','alert-gov-8a3e051ff4094f5f8cebe6616f205bdf') ORDER BY alert_id;" > /tmp/protected-alerts-after.json
+          python3 - <<'PY'
+          import json
+          def rows(p):
+              raw=json.load(open(p));o=[]
+              def w(v):
+                  if isinstance(v,dict):
+                      if isinstance(v.get('results'),list):o.extend(v['results'])
+                      for z in v.values():w(z)
+                  elif isinstance(v,list):
+                      for z in v:w(z)
+              w(raw);return o
+          a=rows('/tmp/stale-alerts-after.json');r=rows('/tmp/stale-remeds-after.json');h=rows('/tmp/stale-holds-after.json');p=rows('/tmp/protected-alerts-after.json')
+          assert len(a)==5 and all(x['status']=='ACKED' for x in a),a
+          assert len(r)==5 and all(x['status']=='APPLIED' for x in r),r
+          assert all(int(x.get('active') or 0)==0 for x in h),h
+          assert all(x['status']=='OPEN' for x in p),p
+          print('CHACHA_DEV_GUARDIAN_STALE_BATCH1_READBACK=PASS')
+          print('STALE_ALERTS_ACKED=5');print('STALE_DIRECTIVES_APPLIED=5');print('PROTECTED_ALERTS_UNTOUCHED=YES')
+          PY
+          trap - ERR
+          echo CHACHA_DEV_GUARDIAN_STALE_BATCH1=PASS
+          echo ROW_DELETE=NO
+          echo ACTION_LEASE_MUTATION=NO
+          echo FUNCTIONAL_REMEDIATION_APPLIED=NO
+          echo WORKER_DEPLOY=NO
+          echo PLATFORM_CURRENT_SWITCH=NO
+          echo NATIVE_LOCAL_ACTIVATION=NO
+          echo GUARDIAN_LATCH_CLEAR=NO
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+      - name: Persist post-mutation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: guardian-global-stale-batch1-after
+          path: |
+            /tmp/stale-alerts-after.json
+            /tmp/stale-remeds-after.json
+            /tmp/stale-holds-after.json
+            /tmp/protected-alerts-after.json
+          retention-days: 30
