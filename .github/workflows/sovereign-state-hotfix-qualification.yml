@@ -42,6 +42,7 @@ jobs:
       - name: Static safety
         run: |
           set -euo pipefail
+          find dev-hub -type d -name __pycache__ -prune -exec rm -rf {} +
           test "$(git status --porcelain)" = ""
           python3 -m py_compile \
             dev-hub/bin/sovereign-state-cutover-controller.py \
