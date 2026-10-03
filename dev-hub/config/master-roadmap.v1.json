@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-03T20:00:00Z",
+  "updated_at": "2026-10-03T19:37:18Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -473,6 +473,99 @@
     {
       "rule": "Application archetype is the highest specialization class",
       "replacement": "Deliverable classification sits above archetype and recursion applies at module/submodule level"
+    }
+  ],
+  "historical_release_convoys": [
+    {
+      "id": "historical-roadmap-trains-06-12",
+      "scope": "PREPARED_NOT_INDIVIDUALLY_PROMOTED",
+      "historical_base": "3197446894758202d9f879f881fda4f8a61f980f",
+      "historical_status_before_convergence": "PREPARATION_REBASE_REQUIRED",
+      "individual_promotion_receipts": false,
+      "current_resolution": "ABSORBED_IN_CONVERGED_BASELINE",
+      "converged_baseline_sha": "f58d76f034b7e5ec423e312d78f8ca92b8d92111",
+      "convoy_closure_sha": "d0e3283efc677ef359006ea6632f125820597730",
+      "converged_baseline_promoted": false,
+      "production_remains_independent_until_governed_promotion": true,
+      "trains": [
+        {
+          "train": 6,
+          "state": "ABSORBED_EXACTLY",
+          "purpose": "governed cognitive outcome learning, model capability confidence, persistent mission goal monitoring, evidence-backed roadmap score reconciliation",
+          "absorbed_commits": [
+            "3e48c9e4",
+            "372aac0c",
+            "91727b7a",
+            "adc63285"
+          ]
+        },
+        {
+          "train": 7,
+          "state": "ABSORBED_EXACTLY",
+          "purpose": "live platform maturity reconciliation, stale/error progress recovery, persistent mission scheduling bridge lineage, roadmap release-train planning",
+          "absorbed_commits": [
+            "f1a14ae2",
+            "07a3dce0",
+            "c9cbb02c"
+          ],
+          "note": "The earlier standalone scheduler-bridge candidate was later carried by richer persistent-mission/structural convergence rather than promoted as an isolated train."
+        },
+        {
+          "train": 8,
+          "state": "ABSORBED_EXACTLY",
+          "purpose": "safe incident remediation routing, Foundry shadow graduation, constitution drift watch, non-mutating HA standby rehearsal",
+          "absorbed_commits": [
+            "5bcf603e",
+            "64be8e84",
+            "71ba2ec1",
+            "f59e553f"
+          ]
+        },
+        {
+          "train": 9,
+          "state": "ABSORBED_EXACTLY",
+          "purpose": "durable autonomy evidence publishing, roadmap live evidence stages, platform maturity live source/scorecard",
+          "absorbed_commits": [
+            "5aae3b55",
+            "a30efe6b",
+            "7e81efb5"
+          ]
+        },
+        {
+          "train": 10,
+          "state": "ABSORBED_EXACTLY_OR_SUPERSEDED_BY_RICHER_PROOF",
+          "purpose": "closure pilots for safe remediation, Foundry graduation, persistent mission E2E and real roadmap-train planning",
+          "absorbed_commits": [
+            "6a8b23c7",
+            "f282e014",
+            "4c5fbd03"
+          ],
+          "note": "Persistent-mission E2E proof was later superseded by the richer A→B→C→COMPLETE continuation/structural proof; capability retained."
+        },
+        {
+          "train": 11,
+          "state": "ABSORBED_AND_SUPERSEDED_BY_RICHER_CLOSURE",
+          "purpose": "learning closure, self-evolution closure, constitution closure and terminal evidence bundle",
+          "absorbed_commits": [
+            "f760da61",
+            "b60fc8f3",
+            "cec7009e",
+            "9b5dd7e3"
+          ],
+          "historical_blocker": "Learning PASS_WITH_ADVISORY / terminal bundle HOLD pending missing learning_context lineage; later closed by Train 12."
+        },
+        {
+          "train": 12,
+          "state": "ABSORBED_CLOSURE_PASS",
+          "purpose": "append-only learning-context forensic lineage closure and terminal bundle completion without historical ledger mutation",
+          "absorbed_commits": [
+            "c4d7d3ae",
+            "d0e3283e"
+          ],
+          "closure_result": "Learning v2 PASS, coverage 100%, blockers empty, terminal evidence ready; convoy qualified but not promoted."
+        }
+      ],
+      "anti_replay_rule": "Do not rebuild, cherry-pick or individually replay trains 06-12 when the converged baseline/descendant already contains their material changes and scope has not materially changed. Requalify only changed scope on the current production-derived line."
     }
   ]
 }
