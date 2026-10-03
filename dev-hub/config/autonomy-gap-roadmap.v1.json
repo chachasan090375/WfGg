@@ -75,9 +75,9 @@
       "id": "cognitive-memory-fabric",
       "label": "Cognitive Runtime mutualisé & mémoire agents",
       "status": "ORANGE",
-      "progress": 60,
-      "state": "AGENT_PERSISTENCE_BOOTSTRAP_SHADOW_READY",
-      "evidence": "Cognitive Memory Fabric fondé sur les briques existantes : contrat unifié, Memory Router et Memory Curator déterministes ; persistance SQLite par agent conçue sans contenu brut et Historical Memory Bootstrap en lecture seule depuis central-memory assimilation. Native Local reste advisory-only et non activé. Restent le tiering exécutoire VPS HOT + NAS LONG_TERM, la réplication/restore et le pilot runtime intégré."
+      "progress": 70,
+      "state": "NAS_TIERING_SHADOW_PROVEN",
+      "evidence": "Cognitive Memory Fabric fédère les briques existantes : Memory Router/Curator, persistance SQLite par agent et bootstrap historique 1157/1157. Le tiering VPS HOT vers NAS LONG_TERM est maintenant prouvé en shadow : publication create-only via nas-ssh-adapter, readback séparé read-only avec SHA-256 obligatoire, restore isolé SQLite PASS. Native Local/Qwen reste advisory-only et non activé ; restent l’intégration runtime gouvernée, la réplication programmée et l’activation production séparée."
     },
     {
       "id": "persistent-missions",
