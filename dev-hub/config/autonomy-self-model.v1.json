@@ -70,6 +70,11 @@
       "action": "RESTORE_DIRECTIVE_PROPAGATION_SINK",
       "class": "HUMAN_BOUNDARY"
     },
+    "EMERGENCY_STOP_LIFECYCLE_DRIFT": {
+      "owner": "architecture-council",
+      "action": "BACKFILL_EMERGENCY_STOP_LIFECYCLE_INVARIANT",
+      "class": "HUMAN_BOUNDARY"
+    },
     "VERSION_COUPLED_ACTIVE_LOGIC": {
       "owner": "architecture-council",
       "action": "REPLACE_PLATFORM_MAJOR_BRANCH_WITH_CAPABILITY_OR_CONTRACT",
