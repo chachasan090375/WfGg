@@ -350,18 +350,19 @@
     {
       "id": "provider-independence-native-local",
       "priority": "P2",
-      "state": "QUALIFIED_SHADOW_NOT_PROMOTED",
+      "state": "SOURCE_CONVERGED_RESOURCE_ADMISSION_PASS_RUNTIME_UNMATERIALIZED",
       "includes": [
         "adaptive cognitive routing",
         "native local model",
         "provider confidence/economics"
       ],
-      "blocking_for_full_creation_runtime": false
+      "blocking_for_full_creation_runtime": false,
+      "evidence": "Native Local final source subset from historical Trains 04/05 is converged exactly to f58d terminal paths. Current VPS resource admission PASS, but service/current/model are absent and production_activation_authorized=false; advisory-only."
     },
     {
       "id": "resilience-ha",
       "priority": "P1",
-      "state": "PARTIAL",
+      "state": "PROFILE_CONVERGED_CURRENT_PRODUCTION_READINESS_STALE_BLOCKED",
       "includes": [
         "rollback",
         "STOP",
@@ -370,7 +371,8 @@
         "HA",
         "disaster recovery"
       ],
-      "blocking_for_full_creation_runtime": false
+      "blocking_for_full_creation_runtime": false,
+      "evidence": "HA profile/builder/rehearsal match f58d terminal paths. Existing runtime readiness is PASS only for 3d403f60; rehearsal against current production d84d389b blocks on PLATFORM_REVISION_MISMATCH with no writer switch or failover."
     },
     {
       "id": "autonomy",
@@ -461,7 +463,8 @@
       "order": 10,
       "id": "HA_AND_NATIVE_LOCAL_DEEPENING",
       "action": "Continue HA and provider-independence tracks independently; neither may block safe core creation unless a target project explicitly requires them.",
-      "state": "PENDING"
+      "state": "CURRENT_LINE_CONVERGED_NON_MUTATING_LIMIT_REACHED",
+      "evidence": "Native Local source/policies converged from historical Trains 04/05; current VPS resource admission PASS but runtime/model/service remain unmaterialized and activation forbidden. HA source/profile already matched f58d; current readiness remains bound to 3d403f60 and rehearsal against d84d389b BLOCKS only on revision mismatch. No model start, checkpoint creation, writer switch, failover or spend performed."
     }
   ],
   "obsolete_or_replaced_rules": [
@@ -631,7 +634,8 @@
         "Guardian expired-action-lease reconciliation",
         "Guardian coverage proof integrity"
       ],
-      "anti_replay": "Reuse qualified/materially unchanged capability evidence where still valid; migrate contracts to the current production-derived line and requalify only changed scope."
+      "anti_replay": "Reuse qualified/materially unchanged capability evidence where still valid; migrate contracts to the current production-derived line and requalify only changed scope.",
+      "current_resolution": "NATIVE_LOCAL_RUNTIME_AND_LIFECYCLE_SOURCE_REABSORBED_CURRENT_LINE_RUNTIME_NOT_MATERIALIZED"
     },
     {
       "id": "historical-roadmap-train-05",
@@ -654,7 +658,8 @@
         "native-local shadow soak",
         "adaptive output budgeting"
       ],
-      "anti_replay": "Preserve real pilots and qualification evidence; do not activate Native Local implicitly. Reconcile onto the current production-derived line under current governance."
+      "anti_replay": "Preserve real pilots and qualification evidence; do not activate Native Local implicitly. Reconcile onto the current production-derived line under current governance.",
+      "current_resolution": "NATIVE_LOCAL_ADMISSION_REGISTRY_SOAK_OUTPUT_BUDGET_REABSORBED_CURRENT_LINE_NO_ACTIVATION"
     }
   ]
 }
