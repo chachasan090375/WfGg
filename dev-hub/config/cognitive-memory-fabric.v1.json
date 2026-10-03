@@ -14,7 +14,11 @@
     "central_hot_root": "/opt/chacha-dev/runtime/knowledge",
     "long_term_tier": "NAS"
   },
-  "memory_types": ["episodic", "semantic", "procedural"],
+  "memory_types": [
+    "episodic",
+    "semantic",
+    "procedural"
+  ],
   "routing": {
     "agent_read_includes_central_fallback": true,
     "central_write_requires_trusted_state": true,
@@ -47,5 +51,20 @@
     "promotion_authority": false,
     "permission_expansion_authority": false
   },
-  "automatic_external_spend_eur": 0
+  "automatic_external_spend_eur": 0,
+  "persistence": {
+    "agent_store_format": "SQLITE_PER_AGENT",
+    "agent_store_root": "/opt/chacha-dev/runtime/knowledge/agent-memory",
+    "raw_content_storage_forbidden": true,
+    "content_digest_required": true,
+    "evidence_refs_required": true,
+    "production_activation_authorized": false
+  },
+  "historical_bootstrap": {
+    "source": "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json",
+    "mode": "READ_ONLY_EXPORT",
+    "writes_performed": false,
+    "raw_user_content_import_forbidden": true,
+    "secret_material_import_forbidden": true
+  }
 }
