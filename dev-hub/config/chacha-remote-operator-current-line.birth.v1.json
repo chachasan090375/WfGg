@@ -1,0 +1,22 @@
+{
+  "schema":"chacha.dev/component-birth-candidate/v1",
+  "component_id":"chacha-remote-operator-current-line",
+  "project_id":"chacha-remote-operator",
+  "materialization_gate_required":true,
+  "governance_class":"CORE_PLATFORM_COMPONENT",
+  "owner_foundry":"branch-foundry",
+  "purpose":"Current-line governed binding for the historically qualified private ChaCha Remote Operator MCP source and disabled Direct Operator M2M ingress.",
+  "scope":"PLATFORM",
+  "permissions":["read","plan","workspace-write-shadow-only"],
+  "lifecycle":"SOURCE_CONVERGED->SHADOW->QUALIFY->PILOT->HUMAN_PROVISIONING->HUMAN_PROMOTION",
+  "source_component":"dev-hub/projects/chacha-remote-operator",
+  "historical_source_revision":"41b1864a0952e8c32598aaa88293fd1eeca8521a",
+  "machine_ingress_policy":"dev-hub/config/direct-operator-machine-ingress.v1.json",
+  "runtime_materialization":"dev-hub/projects/chacha-remote-operator/runtime.materialization.v1.json",
+  "runtime_secret_materialized":false,
+  "mcp_runtime_materialized":false,
+  "secure_tunnel_materialized":false,
+  "chatgpt_registration_complete":false,
+  "production_activation_authorized":false,
+  "automatic_external_spend_eur":0
+}

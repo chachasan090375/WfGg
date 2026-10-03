@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-03T20:48:42Z",
+  "updated_at": "2026-10-03T20:52:58Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -338,7 +338,7 @@
     {
       "id": "remote-mcp",
       "priority": "P1",
-      "state": "QUALIFIED_SIDE_TRACK_NEEDS_CONVERGENCE",
+      "state": "SOURCE_CONVERGED_DISABLED_RUNTIME_UNMATERIALIZED",
       "includes": [
         "own Remote MCP",
         "governed named operations",
@@ -454,7 +454,8 @@
       "order": 9,
       "id": "REMOTE_MCP_AND_OPERATOR_SURFACE_CONVERGENCE",
       "action": "Converge remote MCP and enhanced chat/artifact/cockpit surfaces without making them prerequisites for core creation correctness.",
-      "state": "PENDING"
+      "state": "SOURCE_CONVERGED_DISABLED_RUNTIME_UNMATERIALIZED",
+      "evidence": "Historically qualified Remote Operator source and six M2M ingress commits converged unchanged onto current production-derived line. Source union exactly matches historical terminal 41b1864a; stdlib current-line HMAC/anti-replay/route/STOP governance tests 6/6 PASS; current UMG birth wrapper PASS check-only. Direct Operator artifact/chat surface is already implemented in current line. Machine ingress remains enabled=false; no runtime secret, MCP runtime, secure tunnel, ChatGPT registration or production activation; public ingress forbidden and spend=0."
     },
     {
       "order": 10,
