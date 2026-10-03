@@ -1,0 +1,37 @@
+{
+  "schema": "chacha.dev/sovereign-state-authoritative-export-evidence/v1",
+  "status": "PASS",
+  "github_run_id": 37155998096,
+  "github_head_sha": "e2d4319566c8bfb9da35259f59bed15d5dce95e7",
+  "artifact_id": 11285867267,
+  "artifact_sha256": "sha256:98abed0c73bcd655816977fef99dfe223a1d7d650afa385bdb2ee6625dee4f16",
+  "workflow_mode": "READ_ONLY_EXPORT",
+  "files": [
+    {
+      "database": "chacha-dev-assurance-exchange",
+      "file": "chacha-dev-assurance-exchange.sql",
+      "bytes": 106235,
+      "sha256": "2c5bdcc13507479d38caabdd724de4ffa8c1eb62d8b892c6be366b40d441895f"
+    },
+    {
+      "database": "chacha-dev-guardian",
+      "file": "chacha-dev-guardian.sql",
+      "bytes": 40358248,
+      "sha256": "cea4e8a0ab147bbda4b2d95b5f04d04aa209f8e03708960f579da3cd4f9f1667"
+    },
+    {
+      "database": "chacha-dev-learning-relay",
+      "file": "chacha-dev-learning-relay.sql",
+      "bytes": 4296,
+      "sha256": "ecfe5edacbadaf94eb2f847353430627d9e670f278e9f8313165f55fa6175ead"
+    },
+    {
+      "database": "chacha-dev-sentinel",
+      "file": "chacha-dev-sentinel.sql",
+      "bytes": 573471,
+      "sha256": "2058454a021bd05b27a64c7a2cdb5894d4a866b468eb1c8cdb99ff472d2f69a2"
+    }
+  ],
+  "production_mutation": false,
+  "automatic_external_spend_eur": 0
+}

@@ -23,9 +23,11 @@ M=json.loads((ROOT/'dev-hub/config/master-roadmap.v1.json').read_text())
 assert M['priority_interrupt']['id']=='sovereign-state-d1-independence'
 assert M['priority_interrupt']['resume_master_roadmap_after']=='SOVEREIGN_STATE_LOCAL_PRIMARY_HUMAN_CUTOVER_AND_STABILITY_PROOF'
 w={x['id']:x for x in M['workstreams']}
-assert w['sovereign-state-fabric']['state']=='SHADOW_RUNTIME_REAL_PASS_AWAITING_D1_EXPORT_PARITY'
+assert w['sovereign-state-fabric']['state']=='CUTOVER_GATE_READY_PENDING_EXACT_SHA_QUALIFICATION_AND_HUMAN_APPROVAL'
 
 SM=json.loads((ROOT/'dev-hub/config/sovereign-state-service-matrix.v1.json').read_text())
 assert SM['state']=='SHADOW_ONLY' and SM['all_bind_loopback'] is True and SM['production_authority'] is False
 assert [x['id'] for x in SM['services']]==['guardian','sentinel','assurance-exchange','learning-relay']
 assert len({x['local_port'] for x in SM['services']})==4
+
+assert M['priority_interrupt']['state']=='CUTOVER_TECHNICALLY_READY_PENDING_EXACT_SHA_QUALIFICATION_AND_HUMAN_APPROVAL'

@@ -1,0 +1,38 @@
+{
+  "schema": "chacha.dev/sovereign-state-authoritative-candidate-read-pilot/v1",
+  "status": "PASS",
+  "services": [
+    {
+      "service": "guardian",
+      "http_status": 200,
+      "schema": "chacha.dev/guardian-alert-batch/v1",
+      "item_count": 5,
+      "pass": true
+    },
+    {
+      "service": "sentinel",
+      "http_status": 200,
+      "schema": "chacha.dev/sentinel-directive-batch/v1",
+      "item_count": 0,
+      "pass": true
+    },
+    {
+      "service": "assurance-exchange",
+      "http_status": 200,
+      "schema": "chacha.dev/assurance-exchange-recommendation-batch/v1",
+      "item_count": 0,
+      "pass": true
+    },
+    {
+      "service": "learning-relay",
+      "http_status": 200,
+      "schema": "chacha.dev/learning-relay-batch/v1",
+      "item_count": 0,
+      "pass": true
+    }
+  ],
+  "source": "AUTHORITATIVE_D1_EXPORT_IMPORTED",
+  "production_mutation": false,
+  "automatic_external_spend_eur": 0,
+  "observed_at": "2026-10-03T21:48:33Z"
+}

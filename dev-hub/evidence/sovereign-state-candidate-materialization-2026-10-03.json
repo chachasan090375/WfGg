@@ -1,0 +1,33 @@
+{
+  "schema": "chacha.dev/sovereign-state-candidate-materialization/v1",
+  "status": "PASS",
+  "services": {
+    "guardian": {
+      "db": "/opt/chacha-dev/runtime/sovereign-state/candidate/guardian/state.db",
+      "sha256": "sha256:3b12c929f23a47d028443e77364280795f04e94f435c00299b5799c853cb1195",
+      "integrity": "ok",
+      "table_count": 18
+    },
+    "sentinel": {
+      "db": "/opt/chacha-dev/runtime/sovereign-state/candidate/sentinel/state.db",
+      "sha256": "sha256:15d44492bac41e25d14eef9c6b44b61dcf5fef96c34fda118ef48a5a76259411",
+      "integrity": "ok",
+      "table_count": 7
+    },
+    "assurance-exchange": {
+      "db": "/opt/chacha-dev/runtime/sovereign-state/candidate/assurance-exchange/state.db",
+      "sha256": "sha256:869e93e497a60d462fe869e4300f4c8e1a49961a98d4d3a01c0969d80b3aa0be",
+      "integrity": "ok",
+      "table_count": 7
+    },
+    "learning-relay": {
+      "db": "/opt/chacha-dev/runtime/sovereign-state/candidate/learning-relay/state.db",
+      "sha256": "sha256:2620f1a27d66b75b002635beb6660fe44052a477e74a97d640ccdfd1d12671dc",
+      "integrity": "ok",
+      "table_count": 2
+    }
+  },
+  "production_authority": false,
+  "automatic_external_spend_eur": 0,
+  "observed_at": "2026-10-03T21:45:41Z"
+}

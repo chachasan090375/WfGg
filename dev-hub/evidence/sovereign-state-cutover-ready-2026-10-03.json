@@ -1,0 +1,17 @@
+{
+  "schema": "chacha.dev/sovereign-state-cutover-gate/v1",
+  "status": "READY_FOR_HUMAN_CUTOVER_APPROVAL",
+  "checks": {
+    "bootstrap": "PASS",
+    "local_pilot": "PASS",
+    "nas_snapshot": "PASS",
+    "d1_import": "PASS",
+    "parity": "PASS",
+    "dual_parity": "PASS"
+  },
+  "blockers": [],
+  "cutover_performed": false,
+  "production_mutation": false,
+  "human_approval_required": true,
+  "automatic_external_spend_eur": 0
+}

@@ -1,0 +1,341 @@
+{
+  "schema": "chacha.dev/sovereign-state-candidate-parity/v1",
+  "status": "PASS",
+  "services": {
+    "guardian": {
+      "status": "PASS",
+      "imported": {
+        "integrity": "ok",
+        "file_sha256": "sha256:3b12c929f23a47d028443e77364280795f04e94f435c00299b5799c853cb1195",
+        "tables": {
+          "action_lease_reconciliations": {
+            "count": 1,
+            "sha256": "sha256:7c916cef53d7f7a1eea741b04c1402809e442661011446a32bdf31f9991e4951"
+          },
+          "action_leases": {
+            "count": 13235,
+            "sha256": "sha256:a52eee1ce270f390fa625148b411ceb05d1eba5dd97a5c2f5bafbc5116305b5b"
+          },
+          "coverage_heartbeats": {
+            "count": 56,
+            "sha256": "sha256:5bdd73ce604f6ddd4e880751e8371af6b3c9042f0683b12b976f24223d7b4d44"
+          },
+          "dynamic_component_contracts": {
+            "count": 327,
+            "sha256": "sha256:c8a9a0b5fa71eaeae1280826b876af8db3ee81736a21cdc56eab0dd456e5726b"
+          },
+          "dynamic_role_contracts": {
+            "count": 2,
+            "sha256": "sha256:1f04ad1a6f84e09b42a32aa9f8d7b83ab9b4cc31c8142178f70b45bf9def5b4f"
+          },
+          "expected_components": {
+            "count": 56,
+            "sha256": "sha256:6e4941dd6b7e8c25e289d954c94e03b08263246696aefe475e63e7b231d26013"
+          },
+          "final_agent_reviews": {
+            "count": 4,
+            "sha256": "sha256:ca90bf880bf6d365cf369f4267ee5e696b547bdba4eeaf85d3e7fd2985749f78"
+          },
+          "functional_acceptance_receipts": {
+            "count": 29,
+            "sha256": "sha256:230c5bbb0a87a18035ff04b6c27fc7bf5c21155523b874893c0574da0c6fad8d"
+          },
+          "governance_events": {
+            "count": 26870,
+            "sha256": "sha256:15b1d4a8a740a1fcf4c553806fc4adb56c6aad4a3fa9be368a6855871124bbf2"
+          },
+          "guardian_alerts": {
+            "count": 223,
+            "sha256": "sha256:458bd4f85545a5df193fb580027f8efd1b59f3f1e729580b910d290f14fd7408"
+          },
+          "guardian_identities": {
+            "count": 1,
+            "sha256": "sha256:85a0e35e0e01d5dc3cb2a4c57d16e6d9846688be8da46f1869a2f648965892a4"
+          },
+          "project_assurance_identities": {
+            "count": 70,
+            "sha256": "sha256:d7500c227e123eaa4de544ace9e5693954eac060c473267605965f5f70b95e90"
+          },
+          "project_functional_contracts": {
+            "count": 16,
+            "sha256": "sha256:43e6faed7df49298a9a6d24247a10ee5813e2b013ea00183c063a172e9512fa5"
+          },
+          "project_functional_events": {
+            "count": 2,
+            "sha256": "sha256:9ea5ccf1ba55c54af18269e01bdbd20a4a61fe4526317d5c471fb26494f016d5"
+          },
+          "remediation_directives": {
+            "count": 205,
+            "sha256": "sha256:9a0abcf41c4d88f003075ba2c24329b064afa608058d7154ad7758968af87dff"
+          },
+          "remediation_holds": {
+            "count": 206,
+            "sha256": "sha256:75c0a5325a46abfa3be158bc16d273a077241cd982013c9405d543dd9cf0a033"
+          },
+          "role_contracts": {
+            "count": 91,
+            "sha256": "sha256:2bf27d8ec0f4c6804d5953f96045d1c0a8f1a24a8657dae81236dbc481ebd342"
+          },
+          "task_contract_leases": {
+            "count": 117,
+            "sha256": "sha256:ffb2ab00b0399d3a67900c9e56e95239c4bc8f6f9ff8274b9ca9bc3f0dc9e1fb"
+          }
+        }
+      },
+      "candidate": {
+        "integrity": "ok",
+        "file_sha256": "sha256:3b12c929f23a47d028443e77364280795f04e94f435c00299b5799c853cb1195",
+        "tables": {
+          "action_lease_reconciliations": {
+            "count": 1,
+            "sha256": "sha256:7c916cef53d7f7a1eea741b04c1402809e442661011446a32bdf31f9991e4951"
+          },
+          "action_leases": {
+            "count": 13235,
+            "sha256": "sha256:a52eee1ce270f390fa625148b411ceb05d1eba5dd97a5c2f5bafbc5116305b5b"
+          },
+          "coverage_heartbeats": {
+            "count": 56,
+            "sha256": "sha256:5bdd73ce604f6ddd4e880751e8371af6b3c9042f0683b12b976f24223d7b4d44"
+          },
+          "dynamic_component_contracts": {
+            "count": 327,
+            "sha256": "sha256:c8a9a0b5fa71eaeae1280826b876af8db3ee81736a21cdc56eab0dd456e5726b"
+          },
+          "dynamic_role_contracts": {
+            "count": 2,
+            "sha256": "sha256:1f04ad1a6f84e09b42a32aa9f8d7b83ab9b4cc31c8142178f70b45bf9def5b4f"
+          },
+          "expected_components": {
+            "count": 56,
+            "sha256": "sha256:6e4941dd6b7e8c25e289d954c94e03b08263246696aefe475e63e7b231d26013"
+          },
+          "final_agent_reviews": {
+            "count": 4,
+            "sha256": "sha256:ca90bf880bf6d365cf369f4267ee5e696b547bdba4eeaf85d3e7fd2985749f78"
+          },
+          "functional_acceptance_receipts": {
+            "count": 29,
+            "sha256": "sha256:230c5bbb0a87a18035ff04b6c27fc7bf5c21155523b874893c0574da0c6fad8d"
+          },
+          "governance_events": {
+            "count": 26870,
+            "sha256": "sha256:15b1d4a8a740a1fcf4c553806fc4adb56c6aad4a3fa9be368a6855871124bbf2"
+          },
+          "guardian_alerts": {
+            "count": 223,
+            "sha256": "sha256:458bd4f85545a5df193fb580027f8efd1b59f3f1e729580b910d290f14fd7408"
+          },
+          "guardian_identities": {
+            "count": 1,
+            "sha256": "sha256:85a0e35e0e01d5dc3cb2a4c57d16e6d9846688be8da46f1869a2f648965892a4"
+          },
+          "project_assurance_identities": {
+            "count": 70,
+            "sha256": "sha256:d7500c227e123eaa4de544ace9e5693954eac060c473267605965f5f70b95e90"
+          },
+          "project_functional_contracts": {
+            "count": 16,
+            "sha256": "sha256:43e6faed7df49298a9a6d24247a10ee5813e2b013ea00183c063a172e9512fa5"
+          },
+          "project_functional_events": {
+            "count": 2,
+            "sha256": "sha256:9ea5ccf1ba55c54af18269e01bdbd20a4a61fe4526317d5c471fb26494f016d5"
+          },
+          "remediation_directives": {
+            "count": 205,
+            "sha256": "sha256:9a0abcf41c4d88f003075ba2c24329b064afa608058d7154ad7758968af87dff"
+          },
+          "remediation_holds": {
+            "count": 206,
+            "sha256": "sha256:75c0a5325a46abfa3be158bc16d273a077241cd982013c9405d543dd9cf0a033"
+          },
+          "role_contracts": {
+            "count": 91,
+            "sha256": "sha256:2bf27d8ec0f4c6804d5953f96045d1c0a8f1a24a8657dae81236dbc481ebd342"
+          },
+          "task_contract_leases": {
+            "count": 117,
+            "sha256": "sha256:ffb2ab00b0399d3a67900c9e56e95239c4bc8f6f9ff8274b9ca9bc3f0dc9e1fb"
+          }
+        }
+      }
+    },
+    "sentinel": {
+      "status": "PASS",
+      "imported": {
+        "integrity": "ok",
+        "file_sha256": "sha256:15d44492bac41e25d14eef9c6b44b61dcf5fef96c34fda118ef48a5a76259411",
+        "tables": {
+          "final_agent_reviews": {
+            "count": 4,
+            "sha256": "sha256:92197a7901a7573a446608ccd7f9cac10c039e0d1adc95b98acd8b92edc60a38"
+          },
+          "project_assurance_identities": {
+            "count": 104,
+            "sha256": "sha256:1d91a41d240e8d8534d8f3d01d4287e5cc77f2c4210fb604ad9a2ebe36fcc596"
+          },
+          "project_technical_events": {
+            "count": 2,
+            "sha256": "sha256:de93dc21964fe2fef9da71b18244927c746e472822cce14385aa6e79c998e75d"
+          },
+          "sentinel_directives": {
+            "count": 3,
+            "sha256": "sha256:bfde9d83ccc2e16142625ac0ba4815b67cc16b2fe97fb39d4364199a8d39d275"
+          },
+          "sentinel_identities": {
+            "count": 1,
+            "sha256": "sha256:e02d19be0de5c43d0e5527e7cb5a88c38d2701797813203df87c5f793633922c"
+          },
+          "technical_release_receipts": {
+            "count": 37,
+            "sha256": "sha256:f4ce2af60c5f173dc26c16cdef11e59bad2c4d9969c8e221b6482ed97524e200"
+          },
+          "technical_workflow_attestations": {
+            "count": 1342,
+            "sha256": "sha256:1e6d7003016182072f15ebed9beaaa62eb19cad2a8fbfc46a4802adb4e5ff934"
+          }
+        }
+      },
+      "candidate": {
+        "integrity": "ok",
+        "file_sha256": "sha256:15d44492bac41e25d14eef9c6b44b61dcf5fef96c34fda118ef48a5a76259411",
+        "tables": {
+          "final_agent_reviews": {
+            "count": 4,
+            "sha256": "sha256:92197a7901a7573a446608ccd7f9cac10c039e0d1adc95b98acd8b92edc60a38"
+          },
+          "project_assurance_identities": {
+            "count": 104,
+            "sha256": "sha256:1d91a41d240e8d8534d8f3d01d4287e5cc77f2c4210fb604ad9a2ebe36fcc596"
+          },
+          "project_technical_events": {
+            "count": 2,
+            "sha256": "sha256:de93dc21964fe2fef9da71b18244927c746e472822cce14385aa6e79c998e75d"
+          },
+          "sentinel_directives": {
+            "count": 3,
+            "sha256": "sha256:bfde9d83ccc2e16142625ac0ba4815b67cc16b2fe97fb39d4364199a8d39d275"
+          },
+          "sentinel_identities": {
+            "count": 1,
+            "sha256": "sha256:e02d19be0de5c43d0e5527e7cb5a88c38d2701797813203df87c5f793633922c"
+          },
+          "technical_release_receipts": {
+            "count": 37,
+            "sha256": "sha256:f4ce2af60c5f173dc26c16cdef11e59bad2c4d9969c8e221b6482ed97524e200"
+          },
+          "technical_workflow_attestations": {
+            "count": 1342,
+            "sha256": "sha256:1e6d7003016182072f15ebed9beaaa62eb19cad2a8fbfc46a4802adb4e5ff934"
+          }
+        }
+      }
+    },
+    "assurance-exchange": {
+      "status": "PASS",
+      "imported": {
+        "integrity": "ok",
+        "file_sha256": "sha256:869e93e497a60d462fe869e4300f4c8e1a49961a98d4d3a01c0969d80b3aa0be",
+        "tables": {
+          "assurance_correlations": {
+            "count": 8,
+            "sha256": "sha256:31b11941fc2d849f214fcf75893204bce4c7fb103b2c9cd8b14650ab02363211"
+          },
+          "assurance_observations": {
+            "count": 44,
+            "sha256": "sha256:a0904374e6937b7bab995937a1fcbb4bae59c5dbc5a21acf884e8c0f0ba01a1c"
+          },
+          "exchange_identities": {
+            "count": 1,
+            "sha256": "sha256:0f730ddf09b8d240d1ade59526e122b7a5095f2cdae136d78cc545c069b5f653"
+          },
+          "external_final_reviews": {
+            "count": 24,
+            "sha256": "sha256:064cefe0ea1deedf6e817c8fc17acfe9dea36064070cb4c46b8e75984d81050e"
+          },
+          "peripheral_project_events": {
+            "count": 3,
+            "sha256": "sha256:3e041951a75a100aa10ae3ce93c69201780c9fdef8cffd0f347ad3141719f07b"
+          },
+          "project_assurance_identities": {
+            "count": 103,
+            "sha256": "sha256:6a378d0600b050e8bc2e5ed4326c07aa162c6dfc985ce1373d432ee37deaf0e4"
+          },
+          "specialist_authority_reviews": {
+            "count": 3,
+            "sha256": "sha256:c886f8c7b343b239eaa901c676dabaae8651fb81844a65c7bd1daa536e9001f1"
+          }
+        }
+      },
+      "candidate": {
+        "integrity": "ok",
+        "file_sha256": "sha256:869e93e497a60d462fe869e4300f4c8e1a49961a98d4d3a01c0969d80b3aa0be",
+        "tables": {
+          "assurance_correlations": {
+            "count": 8,
+            "sha256": "sha256:31b11941fc2d849f214fcf75893204bce4c7fb103b2c9cd8b14650ab02363211"
+          },
+          "assurance_observations": {
+            "count": 44,
+            "sha256": "sha256:a0904374e6937b7bab995937a1fcbb4bae59c5dbc5a21acf884e8c0f0ba01a1c"
+          },
+          "exchange_identities": {
+            "count": 1,
+            "sha256": "sha256:0f730ddf09b8d240d1ade59526e122b7a5095f2cdae136d78cc545c069b5f653"
+          },
+          "external_final_reviews": {
+            "count": 24,
+            "sha256": "sha256:064cefe0ea1deedf6e817c8fc17acfe9dea36064070cb4c46b8e75984d81050e"
+          },
+          "peripheral_project_events": {
+            "count": 3,
+            "sha256": "sha256:3e041951a75a100aa10ae3ce93c69201780c9fdef8cffd0f347ad3141719f07b"
+          },
+          "project_assurance_identities": {
+            "count": 103,
+            "sha256": "sha256:6a378d0600b050e8bc2e5ed4326c07aa162c6dfc985ce1373d432ee37deaf0e4"
+          },
+          "specialist_authority_reviews": {
+            "count": 3,
+            "sha256": "sha256:c886f8c7b343b239eaa901c676dabaae8651fb81844a65c7bd1daa536e9001f1"
+          }
+        }
+      }
+    },
+    "learning-relay": {
+      "status": "PASS",
+      "imported": {
+        "integrity": "ok",
+        "file_sha256": "sha256:2620f1a27d66b75b002635beb6660fe44052a477e74a97d640ccdfd1d12671dc",
+        "tables": {
+          "identities": {
+            "count": 3,
+            "sha256": "sha256:40350b8c406854d63962da5a1cd2d2c88c22229a74b03e37509ead8089cdea6b"
+          },
+          "learning_deltas": {
+            "count": 2,
+            "sha256": "sha256:3ea1d112713b6a5295514115fd791944559d646f7c6fd6ac659f50d7a95cc847"
+          }
+        }
+      },
+      "candidate": {
+        "integrity": "ok",
+        "file_sha256": "sha256:2620f1a27d66b75b002635beb6660fe44052a477e74a97d640ccdfd1d12671dc",
+        "tables": {
+          "identities": {
+            "count": 3,
+            "sha256": "sha256:40350b8c406854d63962da5a1cd2d2c88c22229a74b03e37509ead8089cdea6b"
+          },
+          "learning_deltas": {
+            "count": 2,
+            "sha256": "sha256:3ea1d112713b6a5295514115fd791944559d646f7c6fd6ac659f50d7a95cc847"
+          }
+        }
+      }
+    }
+  },
+  "production_cutover_authorized": false,
+  "automatic_external_spend_eur": 0,
+  "observed_at": "2026-10-03T21:46:19Z"
+}

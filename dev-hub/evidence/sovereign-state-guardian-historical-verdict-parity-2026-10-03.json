@@ -1,0 +1,422 @@
+{
+  "schema": "chacha.dev/sovereign-guardian-historical-verdict-parity/v1",
+  "status": "PASS",
+  "source": "AUTHORITATIVE_D1_EXPORT_HISTORICAL_VERDICTS",
+  "replayed_event_count": 24,
+  "action_pair_count": 12,
+  "results": [
+    {
+      "source_event_id": "component-confidence-20261003T182047Z-pre",
+      "phase": "PRE_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "component-confidence-20261003T182047Z-post",
+      "phase": "POST_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "production-lineage-feedback-20261003T182042Z-pre",
+      "phase": "PRE_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "production-lineage-feedback-20261003T182042Z-post",
+      "phase": "POST_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "component-confidence-20261003T181537Z-pre",
+      "phase": "PRE_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "component-confidence-20261003T181537Z-post",
+      "phase": "POST_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "production-lineage-feedback-20261003T181532Z-pre",
+      "phase": "PRE_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "production-lineage-feedback-20261003T181532Z-post",
+      "phase": "POST_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "component-confidence-20261003T181030Z-pre",
+      "phase": "PRE_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "component-confidence-20261003T181030Z-post",
+      "phase": "POST_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "production-lineage-feedback-20261003T181025Z-pre",
+      "phase": "PRE_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "production-lineage-feedback-20261003T181025Z-post",
+      "phase": "POST_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "component-confidence-20261003T180518Z-pre",
+      "phase": "PRE_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "component-confidence-20261003T180518Z-post",
+      "phase": "POST_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "production-lineage-feedback-20261003T180515Z-pre",
+      "phase": "PRE_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "production-lineage-feedback-20261003T180515Z-post",
+      "phase": "POST_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "component-confidence-20261003T180010Z-pre",
+      "phase": "PRE_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "component-confidence-20261003T180010Z-post",
+      "phase": "POST_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "production-lineage-feedback-20261003T180002Z-pre",
+      "phase": "PRE_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "production-lineage-feedback-20261003T180002Z-post",
+      "phase": "POST_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:production-lineage-feedback",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "component-confidence-20261003T180002Z-pre",
+      "phase": "PRE_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "component-confidence-20261003T180002Z-post",
+      "phase": "POST_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "component-confidence-20261003T175456Z-pre",
+      "phase": "PRE_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "same": true
+    },
+    {
+      "source_event_id": "component-confidence-20261003T175456Z-post",
+      "phase": "POST_ACTION",
+      "expected": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "actual": {
+        "verdict": "PASS",
+        "severity": "INFO",
+        "contract_id": "role:component-confidence-engine",
+        "reason_codes": []
+      },
+      "same": true
+    }
+  ],
+  "live_remote_write_performed": false,
+  "production_mutation": false,
+  "production_cutover_authorized": false,
+  "automatic_external_spend_eur": 0,
+  "observed_at": "2026-10-03T21:50:35Z"
+}

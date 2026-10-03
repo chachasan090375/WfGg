@@ -1,0 +1,13 @@
+{
+  "schema": "chacha.dev/sovereign-state-live-read-status/v1",
+  "status": "REMOTE_BLOCKED_D1_QUOTA_LOCAL_CANDIDATE_READY",
+  "remote_http_status": 503,
+  "remote_error_class": "D1_READ_QUOTA_EXHAUSTED",
+  "remote_stage": "identity_lookup",
+  "candidate_http_status": 200,
+  "candidate_schema": "chacha.dev/guardian-alert-batch/v1",
+  "candidate_item_count": 5,
+  "production_mutation": false,
+  "automatic_external_spend_eur": 0,
+  "observed_at": "2026-10-03T21:51:04Z"
+}

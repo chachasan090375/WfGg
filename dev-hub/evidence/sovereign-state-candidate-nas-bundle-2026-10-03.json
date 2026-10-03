@@ -1,0 +1,37 @@
+{
+  "schema": "chacha.dev/sovereign-state-candidate-nas-bundle/v1",
+  "status": "PASS",
+  "services": {
+    "guardian": {
+      "status": "PASS",
+      "snapshot_digest": "sha256:8a30ee421a37524c15844d19f56bf3d10b45c6d85025005de30a3b2d11e066f3",
+      "remote": "knowledge/sovereign-state-candidate/guardian/20261003/8a30ee421a37524c15844d19-guardian.db",
+      "readback": "NAS_READBACK_OK",
+      "sqlite_integrity": "OK"
+    },
+    "sentinel": {
+      "status": "PASS",
+      "snapshot_digest": "sha256:e219c5923b1ade3a934ab90f19676581322dc6798f51deceab032f8b89c77353",
+      "remote": "knowledge/sovereign-state-candidate/sentinel/20261003/e219c5923b1ade3a934ab90f-guardian.db",
+      "readback": "NAS_READBACK_OK",
+      "sqlite_integrity": "OK"
+    },
+    "assurance-exchange": {
+      "status": "PASS",
+      "snapshot_digest": "sha256:edd9702c439faaa8b355a9851bf2a525c251e16d3461fcb54ad135bc7758cbbd",
+      "remote": "knowledge/sovereign-state-candidate/assurance-exchange/20261003/edd9702c439faaa8b355a985-guardian.db",
+      "readback": "NAS_READBACK_OK",
+      "sqlite_integrity": "OK"
+    },
+    "learning-relay": {
+      "status": "PASS",
+      "snapshot_digest": "sha256:3ed91dd4055300ee4bb99657c7d704e04aab3285aaede0f5d3ebb1e270821311",
+      "remote": "knowledge/sovereign-state-candidate/learning-relay/20261003/3ed91dd4055300ee4bb99657-guardian.db",
+      "readback": "NAS_READBACK_OK",
+      "sqlite_integrity": "OK"
+    }
+  },
+  "production_activation_authorized": false,
+  "automatic_external_spend_eur": 0,
+  "observed_at": "2026-10-03T21:50:36Z"
+}
