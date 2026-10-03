@@ -1,0 +1,24 @@
+{
+  "schema":"chacha.dev/execution-planner/v1",
+  "version":"1.0.0",
+  "scope":"PLATFORM_GLOBAL_SHADOW",
+  "rules":{
+    "contract_first":true,
+    "one_runtime_capability_per_task":true,
+    "hard_dependencies_preserved":true,
+    "foundry_gap_blocks_execution":true,
+    "integration_barrier_required":true,
+    "verification_barrier_required":true,
+    "reuse_before_build":true,
+    "no_execution_authority":true,
+    "no_production_authority":true
+  },
+  "preferred_capabilities":["code-edit","documentation","data-model-review","integration-design","api-contract-review"],
+  "default_resource_profiles":{
+    "contract":{"cpu_cores":0.15,"ram_gib":0.15},
+    "implementation":{"cpu_cores":0.45,"ram_gib":0.35},
+    "integration":{"cpu_cores":0.35,"ram_gib":0.30},
+    "verification":{"cpu_cores":0.40,"ram_gib":0.35}
+  },
+  "automatic_external_spend_eur":0
+}

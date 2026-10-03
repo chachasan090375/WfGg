@@ -1,0 +1,238 @@
+{
+  "schema": "chacha.dev/execution-plan/v1",
+  "status": "BLOCKED",
+  "project_id": "pilot-retail-suite",
+  "task_graph": {
+    "schema": "chacha.dev/execution-task-graph/v1",
+    "project_id": "pilot-retail-suite",
+    "tasks": [
+      {
+        "task_id": "contract:formation-ludique:gestion:0",
+        "task_kind": "INTERFACE_CONTRACT",
+        "node_id": null,
+        "depends_on": [],
+        "runtime_capability": "integration-design",
+        "capabilities": [
+          "integration-design"
+        ],
+        "resources": {
+          "cpu_cores": 0.15,
+          "ram_gib": 0.15
+        },
+        "estimated_minutes": 4.0,
+        "interface_contract_state": "NOT_REQUIRED",
+        "priority": 100,
+        "required_host_roles": [
+          "linux"
+        ],
+        "integration_barrier": false
+      },
+      {
+        "task_id": "implement:gestion",
+        "task_kind": "IMPLEMENT_NODE",
+        "node_id": "gestion",
+        "depends_on": [
+          "contract:formation-ludique:gestion:0"
+        ],
+        "runtime_capability": "data-model-review",
+        "capabilities": [
+          "data-model-review"
+        ],
+        "resources": {
+          "cpu_cores": 0.69,
+          "ram_gib": 0.56
+        },
+        "estimated_minutes": 18.0,
+        "interface_contract_state": "STABLE",
+        "priority": 50,
+        "required_host_roles": [
+          "linux"
+        ],
+        "integration_barrier": false
+      },
+      {
+        "task_id": "implement:formation-ludique",
+        "task_kind": "IMPLEMENT_NODE",
+        "node_id": "formation-ludique",
+        "depends_on": [
+          "contract:formation-ludique:gestion:0",
+          "implement:gestion"
+        ],
+        "runtime_capability": "code-edit",
+        "capabilities": [
+          "code-edit"
+        ],
+        "resources": {
+          "cpu_cores": 0.69,
+          "ram_gib": 0.56
+        },
+        "estimated_minutes": 18.0,
+        "interface_contract_state": "STABLE",
+        "priority": 50,
+        "required_host_roles": [
+          "linux"
+        ],
+        "integration_barrier": false
+      },
+      {
+        "task_id": "implement:documentation",
+        "task_kind": "IMPLEMENT_NODE",
+        "node_id": "documentation",
+        "depends_on": [],
+        "runtime_capability": "documentation",
+        "capabilities": [
+          "documentation"
+        ],
+        "resources": {
+          "cpu_cores": 0.69,
+          "ram_gib": 0.56
+        },
+        "estimated_minutes": 18.0,
+        "interface_contract_state": "NOT_REQUIRED",
+        "priority": 50,
+        "required_host_roles": [
+          "linux"
+        ],
+        "integration_barrier": false
+      },
+      {
+        "task_id": "implement:reporting",
+        "task_kind": "IMPLEMENT_NODE",
+        "node_id": "reporting",
+        "depends_on": [
+          "implement:gestion"
+        ],
+        "runtime_capability": "data-model-review",
+        "capabilities": [
+          "data-model-review"
+        ],
+        "resources": {
+          "cpu_cores": 0.53,
+          "ram_gib": 0.42
+        },
+        "estimated_minutes": 14.0,
+        "interface_contract_state": "NOT_REQUIRED",
+        "priority": 50,
+        "required_host_roles": [
+          "linux"
+        ],
+        "integration_barrier": false
+      },
+      {
+        "task_id": "integration:project",
+        "task_kind": "INTEGRATION",
+        "node_id": null,
+        "depends_on": [
+          "implement:gestion",
+          "implement:formation-ludique",
+          "implement:documentation",
+          "implement:reporting"
+        ],
+        "runtime_capability": "integration-design",
+        "capabilities": [
+          "integration-design"
+        ],
+        "resources": {
+          "cpu_cores": 0.35,
+          "ram_gib": 0.3
+        },
+        "estimated_minutes": 8.0,
+        "interface_contract_state": "NOT_REQUIRED",
+        "priority": 90,
+        "required_host_roles": [
+          "linux"
+        ],
+        "integration_barrier": true
+      },
+      {
+        "task_id": "verification:project",
+        "task_kind": "VERIFICATION",
+        "node_id": null,
+        "depends_on": [
+          "integration:project"
+        ],
+        "runtime_capability": "code-review",
+        "capabilities": [
+          "code-review"
+        ],
+        "resources": {
+          "cpu_cores": 0.4,
+          "ram_gib": 0.35
+        },
+        "estimated_minutes": 7.0,
+        "interface_contract_state": "NOT_REQUIRED",
+        "priority": 100,
+        "required_host_roles": [
+          "linux"
+        ],
+        "integration_barrier": true
+      }
+    ]
+  },
+  "task_count": 7,
+  "interface_contract_task_count": 1,
+  "implementation_task_count": 4,
+  "foundry_gaps": [
+    {
+      "gap_id": "capability:register-adaptation",
+      "node_id": "documentation",
+      "kind": "CAPABILITY",
+      "requested_id": "register-adaptation",
+      "owner_foundry": "capability-foundry",
+      "state": "FOUNDRY_GAP_REQUEST",
+      "materialized": false,
+      "execution_authority": false
+    },
+    {
+      "gap_id": "capability:locale-localization",
+      "node_id": "documentation",
+      "kind": "CAPABILITY",
+      "requested_id": "locale-localization",
+      "owner_foundry": "capability-foundry",
+      "state": "FOUNDRY_GAP_REQUEST",
+      "materialized": false,
+      "execution_authority": false
+    },
+    {
+      "gap_id": "capability:ui-length-aware-translation",
+      "node_id": "documentation",
+      "kind": "CAPABILITY",
+      "requested_id": "ui-length-aware-translation",
+      "owner_foundry": "capability-foundry",
+      "state": "FOUNDRY_GAP_REQUEST",
+      "materialized": false,
+      "execution_authority": false
+    },
+    {
+      "gap_id": "capability:structured-content-preservation",
+      "node_id": "documentation",
+      "kind": "CAPABILITY",
+      "requested_id": "structured-content-preservation",
+      "owner_foundry": "capability-foundry",
+      "state": "FOUNDRY_GAP_REQUEST",
+      "materialized": false,
+      "execution_authority": false
+    },
+    {
+      "gap_id": "capability:project-translation-memory",
+      "node_id": "documentation",
+      "kind": "CAPABILITY",
+      "requested_id": "project-translation-memory",
+      "owner_foundry": "capability-foundry",
+      "state": "FOUNDRY_GAP_REQUEST",
+      "materialized": false,
+      "execution_authority": false
+    }
+  ],
+  "blockers": [
+    "FOUNDRY_GAPS_UNRESOLVED",
+    "INFRASTRUCTURE_FEASIBILITY_BLOCKS_EXECUTION"
+  ],
+  "execution_allowed": false,
+  "one_runtime_capability_per_task": true,
+  "foundry_invoked": false,
+  "execution_authority": false,
+  "production_authority": false,
+  "automatic_external_spend_eur": 0,
+  "planned_at": "2026-10-03T20:43:41Z"
+}
