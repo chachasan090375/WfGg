@@ -75,9 +75,9 @@
       "id": "cognitive-memory-fabric",
       "label": "Cognitive Runtime mutualisé & mémoire agents",
       "status": "ORANGE",
-      "progress": 50,
-      "state": "FABRIC_FOUNDATION_ROUTER_CURATOR_SHADOW_READY",
-      "evidence": "Fondation Cognitive Memory Fabric construite au-dessus des briques existantes sans réimplémenter Qwen : contrat unifié, Memory Router déterministe et Memory Curator déterministe en shadow/advisory-only ; réutilisation de central-memory assimilation/recall, learning fabric et provider native-local existant. Restent à matérialiser la persistance par agent, Historical Memory Bootstrap et le tiering exécutoire VPS HOT + NAS LONG_TERM."
+      "progress": 60,
+      "state": "AGENT_PERSISTENCE_BOOTSTRAP_SHADOW_READY",
+      "evidence": "Cognitive Memory Fabric fondé sur les briques existantes : contrat unifié, Memory Router et Memory Curator déterministes ; persistance SQLite par agent conçue sans contenu brut et Historical Memory Bootstrap en lecture seule depuis central-memory assimilation. Native Local reste advisory-only et non activé. Restent le tiering exécutoire VPS HOT + NAS LONG_TERM, la réplication/restore et le pilot runtime intégré."
     },
     {
       "id": "persistent-missions",
