@@ -1,0 +1,13 @@
+{
+  "schema": "chacha.dev/infrastructure-feasibility/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "mandatory_before_solution_composition": true,
+  "dimensions": ["cpu_cores", "ram_gib", "gpu_vram_gib", "storage_free_gib", "storage_iops", "network_mbps", "latency_ms", "os_families", "runtimes", "virtualization", "device_access", "availability", "backup_recovery"],
+  "verdicts": ["FIT", "FIT_WITH_CONSTRAINTS", "NOT_FIT"],
+  "safety_reserve": {"cpu_fraction": 0.25, "ram_fraction": 0.30, "storage_fraction": 0.15},
+  "not_fit_requires_target_architecture": true,
+  "target_profiles": ["minimum", "recommended"],
+  "automatic_external_spend_eur": 0,
+  "production_authority": false
+}

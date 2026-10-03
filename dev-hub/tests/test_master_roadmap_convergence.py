@@ -19,6 +19,7 @@ assert by["autonomy-gap-roadmap"]["decision"].find("derived view")>=0
 assert by["wfgg-radar-and-other-product-projects"]["classification"]=="VALIDATION_PROJECT_ONLY"
 rec={x["id"]:x for x in M["production_convergence_order"]}
 assert rec["RECURSIVE_SPECIALIZATION_FOUNDATION"]["state"]=="SHADOW_FOUNDATION_IMPLEMENTED_PENDING_EXACT_SHA_CI"
+assert rec["FEASIBILITY_AND_SOLUTION_COMPOSER"]["state"]=="SHADOW_IMPLEMENTED_PENDING_EXACT_SHA_CI"
 orders=[x["order"] for x in M["production_convergence_order"]]
 assert orders==list(range(len(orders)))
 assert M["production_convergence_order"][0]["id"]=="BASELINE_RECONCILIATION"

@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-03T20:24:24Z",
+  "updated_at": "2026-10-03T20:28:01Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -176,7 +176,7 @@
     },
     {
       "id": "creation-runtime-fabric",
-      "source": "origin/creation-runtime-fabric-v1@f3a7e86b",
+      "source": "dev-hub/config/creation-runtime-fabric.v1.json;dev-hub/docs/CHACHA_DEV_CREATION_RUNTIME_REQUIREMENTS_V1.md",
       "classification": "RETAIN_EXTEND",
       "decision": "Current target contract: infrastructure feasibility, Solution Composer, recursive specialization, Artifact Fabric, resource-aware parallel orchestration and Virtual Device & OS Lab."
     },
@@ -247,7 +247,7 @@
     {
       "id": "solution-conception",
       "priority": "P0",
-      "state": "DESIGN_DEFINED_RUNTIME_MISSING",
+      "state": "SHADOW_IMPLEMENTED_PENDING_EXACT_SHA_CI",
       "includes": [
         "Infrastructure Feasibility Auditor",
         "Solution Composer",
@@ -419,7 +419,8 @@
       "order": 4,
       "id": "FEASIBILITY_AND_SOLUTION_COMPOSER",
       "action": "Build Infrastructure Feasibility Auditor + Solution Composer + Solution Graph first, because downstream work depends on their contracts.",
-      "state": "PENDING"
+      "state": "SHADOW_IMPLEMENTED_PENDING_EXACT_SHA_CI",
+      "evidence": "Infrastructure Feasibility Auditor + Solution Composer implemented. UMG birth checks PASS. Deterministic tests cover FIT/FIT_WITH_CONSTRAINTS/NOT_FIT, safety reserves, target architecture sizing, runtime aliases, mandatory feasibility evidence and heterogeneous module composition. Real VPS pilot correctly returns NOT_FIT for a 4 CPU / 8 GiB reference workload and Solution Composer designs against proposed target while execution remains blocked."
     },
     {
       "order": 5,

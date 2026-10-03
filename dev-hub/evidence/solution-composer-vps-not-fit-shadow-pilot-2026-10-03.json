@@ -1,0 +1,201 @@
+{
+  "schema": "chacha.dev/solution-composition/v1",
+  "status": "DESIGN_READY_EXECUTION_BLOCKED_INFRASTRUCTURE",
+  "project_id": "pilot-retail-suite",
+  "feasibility_verdict": "NOT_FIT",
+  "design_infrastructure": "target_infrastructure_architecture",
+  "target_infrastructure_architecture": {
+    "minimum_profile": {
+      "cpu_cores": 5.33,
+      "ram_gib": 11.43,
+      "storage_free_gib": 15.36,
+      "gpu_vram_gib": 0.0,
+      "storage_iops": 0.0,
+      "network_mbps": 0.0
+    },
+    "recommended_profile": {
+      "cpu_cores": 6.66,
+      "ram_gib": 14.29,
+      "storage_free_gib": 19.2,
+      "gpu_vram_gib": 0.0,
+      "storage_iops": 0.0,
+      "network_mbps": 0.0
+    },
+    "missing_components": [
+      {
+        "dimension": "cpu_cores",
+        "required": 4.0,
+        "usable": 1.5
+      },
+      {
+        "dimension": "ram_gib",
+        "required": 8.0,
+        "usable": 1.345
+      }
+    ],
+    "placement_policy": "select zero-incremental-cost existing hosts first; add runner only when a required platform/device class is unavailable",
+    "migration_path": [
+      "preserve current production",
+      "provision isolated target runner",
+      "qualify target capabilities",
+      "bind only after Guardian/Sentinel and human approval if material"
+    ],
+    "cost_boundary": "NO_AUTOMATIC_EXTERNAL_SPEND",
+    "risks": [
+      "capacity mismatch until target is provisioned",
+      "platform-specific runners may be required"
+    ]
+  },
+  "solution_graph": {
+    "schema": "chacha.dev/recursive-specialization-graph/v1",
+    "project_id": "pilot-retail-suite",
+    "nodes": [
+      {
+        "node_id": "solution-root",
+        "node_kind": "project",
+        "classification": {
+          "deliverable_class": "application",
+          "archetype": "business_management",
+          "subtype": null,
+          "confidence": 0.98
+        },
+        "constraints_local": {
+          "security": "strict",
+          "external_spend": 0,
+          "language": "fr"
+        },
+        "domain_requirements": [
+          "product",
+          "development",
+          "qa"
+        ],
+        "dependencies": []
+      },
+      {
+        "node_id": "gestion",
+        "parent_id": "solution-root",
+        "node_kind": "module",
+        "classification": {
+          "deliverable_class": "application",
+          "archetype": "business_management",
+          "subtype": null,
+          "confidence": 0.9
+        },
+        "constraints_local": {},
+        "domain_requirements": [
+          "product",
+          "data-backend",
+          "ui-layout",
+          "cybersecurity"
+        ],
+        "capability_requirements": [],
+        "shared_component_refs": [
+          "identity-api"
+        ],
+        "dependencies": [],
+        "data_ownership": [
+          "stores",
+          "users"
+        ]
+      },
+      {
+        "node_id": "formation-ludique",
+        "parent_id": "solution-root",
+        "node_kind": "module",
+        "classification": {
+          "deliverable_class": "application",
+          "archetype": "game_realtime",
+          "subtype": null,
+          "confidence": 0.9
+        },
+        "constraints_local": {
+          "fps_floor": 60
+        },
+        "domain_requirements": [
+          "development",
+          "graphics",
+          "animation",
+          "data-backend"
+        ],
+        "capability_requirements": [],
+        "shared_component_refs": [
+          "identity-api"
+        ],
+        "dependencies": [
+          "gestion"
+        ],
+        "data_ownership": []
+      },
+      {
+        "node_id": "documentation",
+        "parent_id": "solution-root",
+        "node_kind": "module",
+        "classification": {
+          "deliverable_class": "document",
+          "archetype": null,
+          "subtype": "manual",
+          "confidence": 0.9
+        },
+        "constraints_local": {},
+        "domain_requirements": [
+          "documentation",
+          "knowledge-research",
+          "translation",
+          "publication"
+        ],
+        "capability_requirements": [],
+        "shared_component_refs": [
+          "identity-api"
+        ],
+        "dependencies": [],
+        "data_ownership": []
+      },
+      {
+        "node_id": "reporting",
+        "parent_id": "solution-root",
+        "node_kind": "module",
+        "classification": {
+          "deliverable_class": "data_artifact",
+          "archetype": null,
+          "subtype": "dashboard",
+          "confidence": 0.9
+        },
+        "constraints_local": {},
+        "domain_requirements": [
+          "data-backend",
+          "ui-layout"
+        ],
+        "capability_requirements": [],
+        "shared_component_refs": [],
+        "dependencies": [
+          "gestion"
+        ],
+        "data_ownership": []
+      }
+    ]
+  },
+  "interfaces": [
+    {
+      "source": "formation-ludique",
+      "target": "gestion",
+      "kind": "api",
+      "contract": "user-and-progress-v1",
+      "status": "DESIGN_CONTRACT_REQUIRED"
+    }
+  ],
+  "reuse_candidates": {
+    "identity-api": [
+      "gestion",
+      "formation-ludique",
+      "documentation"
+    ]
+  },
+  "execution_blocked": true,
+  "requires_recursive_specialization_resolution": true,
+  "requires_logician_challenge": true,
+  "requires_guardian_sentinel_before_production": true,
+  "production_authority": false,
+  "execution_authority": false,
+  "automatic_external_spend_eur": 0,
+  "composed_at": "2026-10-03T20:28:01Z"
+}

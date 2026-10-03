@@ -1,0 +1,18 @@
+{
+  "requirements_id": "reference-mixed-creation-workload",
+  "cpu_cores": 4,
+  "ram_gib": 8,
+  "gpu_vram_gib": 0,
+  "storage_free_gib": 10,
+  "storage_iops": 0,
+  "network_mbps": 0,
+  "os_families": [
+    "linux"
+  ],
+  "runtimes": [
+    "python",
+    "node"
+  ],
+  "virtualization": [],
+  "device_access": []
+}

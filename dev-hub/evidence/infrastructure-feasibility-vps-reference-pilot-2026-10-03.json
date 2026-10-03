@@ -1,0 +1,74 @@
+{
+  "schema": "chacha.dev/infrastructure-feasibility-report/v1",
+  "status": "PASS",
+  "verdict": "NOT_FIT",
+  "infrastructure_id": "chacha-vps-observed-2026-10-03",
+  "requirements_id": "reference-mixed-creation-workload",
+  "usable_capacity": {
+    "cpu_cores": 1.5,
+    "ram_gib": 1.3454,
+    "storage_free_gib": 13.0526,
+    "gpu_vram_gib": 0.0,
+    "storage_iops": 0.0,
+    "network_mbps": 0.0
+  },
+  "hard_gaps": [
+    {
+      "dimension": "cpu_cores",
+      "required": 4.0,
+      "usable": 1.5
+    },
+    {
+      "dimension": "ram_gib",
+      "required": 8.0,
+      "usable": 1.345
+    }
+  ],
+  "constraints": [],
+  "target_infrastructure_architecture": {
+    "minimum_profile": {
+      "cpu_cores": 5.33,
+      "ram_gib": 11.43,
+      "storage_free_gib": 15.36,
+      "gpu_vram_gib": 0.0,
+      "storage_iops": 0.0,
+      "network_mbps": 0.0
+    },
+    "recommended_profile": {
+      "cpu_cores": 6.66,
+      "ram_gib": 14.29,
+      "storage_free_gib": 19.2,
+      "gpu_vram_gib": 0.0,
+      "storage_iops": 0.0,
+      "network_mbps": 0.0
+    },
+    "missing_components": [
+      {
+        "dimension": "cpu_cores",
+        "required": 4.0,
+        "usable": 1.5
+      },
+      {
+        "dimension": "ram_gib",
+        "required": 8.0,
+        "usable": 1.345
+      }
+    ],
+    "placement_policy": "select zero-incremental-cost existing hosts first; add runner only when a required platform/device class is unavailable",
+    "migration_path": [
+      "preserve current production",
+      "provision isolated target runner",
+      "qualify target capabilities",
+      "bind only after Guardian/Sentinel and human approval if material"
+    ],
+    "cost_boundary": "NO_AUTOMATIC_EXTERNAL_SPEND",
+    "risks": [
+      "capacity mismatch until target is provisioned",
+      "platform-specific runners may be required"
+    ]
+  },
+  "execution_on_current_infrastructure_allowed": false,
+  "automatic_external_spend_eur": 0,
+  "production_authority": false,
+  "observed_at": "2026-10-03T20:27:41Z"
+}
