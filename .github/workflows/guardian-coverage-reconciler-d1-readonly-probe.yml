@@ -1,0 +1,63 @@
+name: Guardian reconciler coverage D1 readonly probe
+on:
+  push:
+    branches: [guardian-architecture-authority-d1-probe-f58]
+    paths: ['.github/workflows/guardian-coverage-reconciler-d1-readonly-probe.yml']
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Query Guardian coverage state read-only
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request,urllib.error
+          token=os.environ.get('CF_API_TOKEN','').strip(); aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          if not token: raise SystemExit('MISSING_SECRET=CLOUDFLARE_API_TOKEN')
+          h={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url,method='GET',body=None):
+              data=None if body is None else json.dumps(body).encode(); req=urllib.request.Request(url,headers=h,method=method,data=data)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode('utf-8','replace')
+                  try:p=json.loads(raw)
+                  except Exception:p={'raw':raw[:500]}
+                  return e.code,p
+          if not aid:
+              st,p=call('https://api.cloudflare.com/client/v4/accounts?per_page=50'); rows=(p.get('result') or []) if st==200 else []
+              if len(rows)!=1: raise SystemExit('ACCOUNT_RESOLUTION_FAILED')
+              aid=rows[0]['id']
+          st,p=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-guardian'))
+          db=next((x for x in (p.get('result') or []) if x.get('name')=='chacha-dev-guardian'),None)
+          if st!=200 or not db: raise SystemExit('GUARDIAN_D1_MISSING')
+          url=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{db['uuid']}/query"
+          sql="""
+          SELECT component_id,role,kind,enforcement_point,criticality,source_digest,updated_at FROM expected_components ORDER BY component_id;
+          SELECT component_id,snapshot_id,last_seen,hook_active,details_json FROM coverage_heartbeats WHERE component_id IN ('guardian-action-state-reconciler','guardian-critical-state-reconciler','governed-platform-promotion') ORDER BY component_id;
+          SELECT contract_id,kind,allowed_actions_json,source_digest,updated_at FROM role_contracts WHERE contract_id='role:guardian-action-state-reconciler';
+          SELECT name FROM sqlite_master WHERE type='table' AND name='action_lease_reconciliations';
+          """
+          st,p=call(url,'POST',{'sql':sql,'params':[]})
+          if st!=200 or not p.get('success'): raise SystemExit('D1_READONLY_QUERY_FAILED:'+str(st))
+          blocks=[]
+          for b in p.get('result') or []: blocks.append(b.get('results') or [])
+          if len(blocks)<4: raise SystemExit('D1_RESULT_BLOCKS_INCOMPLETE:'+str(len(blocks)))
+          expected,hb,roles,tables=blocks[:4]
+          ids={r.get('component_id') for r in expected}
+          print('GUARDIAN_RECONCILER_COVERAGE_D1_READONLY=PASS')
+          print('EXPECTED_COUNT='+str(len(expected)))
+          for cid in ['guardian-action-state-reconciler','guardian-critical-state-reconciler','governed-platform-promotion']:
+              print('EXPECTED_'+cid.upper().replace('-','_')+'='+('YES' if cid in ids else 'NO'))
+          for r in hb:
+              print('HEARTBEAT='+json.dumps({k:r.get(k) for k in ['component_id','snapshot_id','last_seen','hook_active']},sort_keys=True))
+          print('RECONCILER_ROLE_PRESENT='+('YES' if roles else 'NO'))
+          print('ACTION_LEASE_RECONCILIATIONS_TABLE_PRESENT='+('YES' if tables else 'NO'))
+          print('DIRECT_MUTATION=NO')
+          PY
