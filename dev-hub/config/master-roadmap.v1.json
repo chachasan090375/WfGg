@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-03T19:55:35Z",
+  "updated_at": "2026-10-03T20:13:52Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -569,6 +569,27 @@
     }
   ],
   "historical_release_trains": [
+    {
+      "id": "historical-roadmap-train-03",
+      "train_id": "roadmap-train-20261001-03",
+      "promotion_state": "PROMOTED_AND_ANCESTOR_OF_CURRENT_PRODUCTION",
+      "train_runtime_state": "OPEN_HISTORICAL_METADATA_BUT_PROMOTION_FINALIZED",
+      "base_revision": "1b826fe9eb6db8c0e101a1691e965c8ca2b32d51",
+      "promoted_revision": "3d403f60fe1a5c836b6fb84ddef24b7d74378307",
+      "promoted_tree": "79e564e995709ae7212c46e976d51f291726bbf1",
+      "activation_status": "ACTIVE_AT_PROMOTION_TIME",
+      "promotion_acceptance_status": "PASS",
+      "promotion_final_verification": "PASS",
+      "guardian_pre": "PASS",
+      "guardian_post": "PASS",
+      "sentinel_exact_sha": "PASS",
+      "platform_qualification": "PASS",
+      "controlled_cycle": "PASS",
+      "automatic_timer_cycle": "PASS",
+      "current_production_descends_from_train03": true,
+      "current_role": "HISTORICAL_PROMOTED_BASELINE_AND_CURRENT_ROLLBACK_LINEAGE",
+      "anti_replay_rule": "Do not re-promote or replay Train 03 proofs while its promoted SHA/tree/scope remain unchanged; current production already descends from it."
+    },
     {
       "id": "historical-roadmap-train-04",
       "train_id": "roadmap-train-20261001-04",
