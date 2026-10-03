@@ -1,0 +1,82 @@
+{
+  "schema": "chacha.dev/specialization-fabric/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "purpose": "Coordinate horizontal technical specialization and vertical application-archetype specialization over one canonical memory fabric.",
+  "canonical_memory_fabric": "dev-hub/config/cognitive-memory-fabric.v1.json",
+  "domain_specialist_policy": "dev-hub/config/domain-specialist-memory.v1.json",
+  "application_archetype_policy": "dev-hub/config/application-archetype-specialization.v1.json",
+  "axes": {
+    "horizontal_domain": {
+      "model": "HEAD_PLUS_ARM",
+      "head": "persistent domain-specialist memory and reasoning",
+      "arm": "Foundry-maintained executable capabilities, branches, components and patterns"
+    },
+    "vertical_application_archetype": {
+      "model": "ARCHETYPE_HEAD_PLUS_ASSEMBLY_BLUEPRINT",
+      "head": "persistent knowledge of how this class of application should be conceived, validated and evolved",
+      "assembly_blueprint": "weighted composition of canonical domain Head+Arm cells; never a duplicate technical stack"
+    }
+  },
+  "orchestration_order": [
+    "interpret_functional_intent",
+    "classify_application_archetype",
+    "resolve_primary_and_secondary_domains",
+    "retrieve_archetype_memory",
+    "retrieve_domain_specialist_memories",
+    "technology_watch_revalidate_relevant_practices",
+    "logician_challenge_complexity_tradeoffs_and_parallel_failure_modes",
+    "foundries_plan_or_reuse_required_arms_and_blueprints",
+    "architecture_council_compare_compositions",
+    "central_orchestrator_select_governed_plan",
+    "guardian_and_sentinel_verify_applicable_gates"
+  ],
+  "rules": {
+    "application_archetype_must_not_replace_domain_routing": true,
+    "domain_specialist_must_not_ignore_application_archetype": true,
+    "cross_axis_context_required_for_build_requests": true,
+    "simple_conversation_fast_path_remains_available": true,
+    "single_canonical_component_registry_required": true,
+    "single_canonical_memory_fabric_required": true,
+    "no_new_authority_from_specialization": true,
+    "no_automatic_external_spend": true
+  },
+  "logician_specialization": {
+    "cross_cutting": true,
+    "memory_namespace": "specialist:domain:logic-mathematics",
+    "competency_families": [
+      "algorithms",
+      "data_structures",
+      "mathematical_models",
+      "optimization",
+      "complexity_analysis",
+      "probabilistic_reasoning",
+      "counterexample_search",
+      "falsification",
+      "parallel_scenario_analysis",
+      "failure_mode_reasoning"
+    ],
+    "final_decision_authority": false
+  },
+  "technology_watch": {
+    "updates_horizontal_domain_knowledge": true,
+    "updates_vertical_archetype_knowledge": true,
+    "technology_is_not_adopted_only_because_it_is_new": true,
+    "maturity_evidence_required": true,
+    "benchmark_and_project_feedback_required_for_expertise_growth": true
+  },
+  "cockpit": {
+    "domain_icon_group_required": true,
+    "application_archetype_icon_group_required": true,
+    "clickable_transparent_detail_overlay_required": true,
+    "detail_overlay_close_control_required": true,
+    "domain_metrics": ["head_score", "arm_score", "combined_expertise_score", "freshness", "watch_state", "evidence_state"],
+    "archetype_metrics": ["archetype_head_score", "assembly_blueprint_score", "demonstrated_delivery_score", "freshness", "watch_state", "evidence_state"],
+    "project_projection": ["selected_archetype", "archetype_confidence", "required_domain_cells", "weakest_required_cell", "cross_axis_readiness"]
+  },
+  "activation": {
+    "production_activation_authorized": false,
+    "shadow_only": true
+  },
+  "automatic_external_spend_eur": 0
+}
