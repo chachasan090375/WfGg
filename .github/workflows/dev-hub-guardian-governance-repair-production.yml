@@ -1,0 +1,297 @@
+name: ChaCha DEV Guardian governed repair production
+
+on:
+  push:
+    branches:
+      - 'production-guardian-governance-repair-*'
+    paths:
+      - '.chacha-approvals/guardian-governance-repair/*.json'
+
+permissions:
+  contents: read
+
+jobs:
+  repair:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Resolve explicit governed-repair approval
+        id: approval
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find .chacha-approvals/guardian-governance-repair -maxdepth 1 -type f -name '*.json' 2>/dev/null | sort)
+          test "${#files[@]}" = 1
+          FILE="${files[0]}"
+          python3 - "$FILE" "$GITHUB_OUTPUT" <<'PY'
+          import json,re,sys
+          x=json.load(open(sys.argv[1],encoding='utf-8'))
+          assert x.get('schema')=='chacha.dev/production-approval/v1',x
+          assert x.get('scope')=='guardian-governance-repair-production',x
+          assert x.get('approved') is True and x.get('approved_by')=='operator',x
+          rev=str(x.get('revision') or '')
+          assert re.fullmatch(r'[0-9a-f]{40}',rev),x
+          assert x.get('allow_additive_migration') is True,x
+          assert x.get('migration')=='dev-hub/guardian/migrations/0011_action_lease_reconciliations.sql',x
+          md=str(x.get('migration_sha256') or '')
+          assert re.fullmatch(r'[0-9a-f]{64}',md),x
+          assert x.get('role_contract_upserts')==['role:guardian-action-state-reconciler'],x
+          assert x.get('expected_component_upserts')==['guardian-action-state-reconciler'],x
+          assert x.get('functional_remediation_apply') is False,x
+          assert x.get('action_lease_reconciliation_apply') is False,x
+          assert x.get('platform_current_switch') is False,x
+          assert x.get('native_local_activation') is False,x
+          assert x.get('ha_failover') is False,x
+          with open(sys.argv[2],'a') as f:
+              f.write('revision='+rev+'\n');f.write('migration_sha256='+md+'\n')
+          print('CHACHA_DEV_GUARDIAN_GOVERNED_REPAIR_APPROVAL=PASS')
+          PY
+
+      - name: Checkout exact approved candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          REV='${{ steps.approval.outputs.revision }}'
+          git fetch --depth=1 origin "$REV"
+          git checkout --detach "$REV"
+          test "$(git rev-parse HEAD)" = "$REV"
+          test "$(sha256sum dev-hub/guardian/migrations/0011_action_lease_reconciliations.sql | awk '{print $1}')" = '${{ steps.approval.outputs.migration_sha256 }}'
+          node --check dev-hub/guardian/worker.js
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_functional_contract_schema_validation.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_functional_drift_reconciliation.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_expired_action_lease_reconciliation.py
+          echo CHACHA_DEV_GUARDIAN_EXACT_REPAIR_CANDIDATE=PASS
+
+      - name: Require exact-revision Sentinel attestation
+        env:
+          REVISION: ${{ steps.approval.outputs.revision }}
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request,urllib.error
+          token=os.environ.get('CF_API_TOKEN','').strip(); aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          if not token: raise SystemExit('MISSING_SECRET=CLOUDFLARE_API_TOKEN')
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url,method='GET',body=None):
+              data=None if body is None else json.dumps(body).encode(); req=urllib.request.Request(url,headers=headers,method=method,data=data)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode('utf-8','replace')
+                  try:p=json.loads(raw)
+                  except Exception:p={'raw':raw[:500]}
+                  return e.code,p
+          if not aid:
+              st,p=call('https://api.cloudflare.com/client/v4/accounts?per_page=50'); rows=(p.get('result') or []) if st==200 else []
+              if len(rows)!=1: raise SystemExit('ACCOUNT_RESOLUTION_FAILED')
+              aid=rows[0]['id']
+          st,p=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-sentinel'))
+          db=next((x for x in (p.get('result') or []) if x.get('name')=='chacha-dev-sentinel'),None)
+          if st!=200 or not db: raise SystemExit('SENTINEL_D1_MISSING')
+          url=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{db['uuid']}/query"
+          sql="SELECT repository,revision,workflow_name,conclusion FROM technical_workflow_attestations WHERE repository=?1 AND revision=?2 AND workflow_name=?3 AND conclusion='PASS' LIMIT 1"
+          st,p=call(url,'POST',{'sql':sql,'params':[os.environ['GITHUB_REPOSITORY'],os.environ['REVISION'],'ChaCha DEV Sentinel technical assurance']})
+          rows=[]
+          for block in p.get('result') or []: rows.extend(block.get('results') or [])
+          if st!=200 or not p.get('success') or len(rows)!=1: raise SystemExit('SENTINEL_EXACT_HEAD_ATTESTATION_MISSING')
+          print('CHACHA_DEV_GUARDIAN_REPAIR_SENTINEL_EXACT_SHA=PASS')
+          PY
+
+      - name: Resolve Guardian target
+        id: cf
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request
+          token=os.environ['CF_API_TOKEN']; aid=os.environ.get('CF_ACCOUNT_ID','').strip(); headers={'Authorization':'Bearer '+token}
+          def call(url):
+              req=urllib.request.Request(url,headers=headers)
+              with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+          if not aid:
+              st,p=call('https://api.cloudflare.com/client/v4/accounts?per_page=50'); rows=p.get('result') or []
+              if len(rows)!=1: raise SystemExit('ACCOUNT_RESOLUTION_FAILED')
+              aid=rows[0]['id']
+          st,p=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-guardian'))
+          db=next((x for x in (p.get('result') or []) if x.get('name')=='chacha-dev-guardian'),None)
+          if st!=200 or not db: raise SystemExit('GUARDIAN_D1_MISSING')
+          st,p=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/workers/subdomain'); sub=(p.get('result') or {}).get('subdomain')
+          if not sub: raise SystemExit('WORKERS_SUBDOMAIN_MISSING')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('account_id='+aid+'\n');f.write('database_id='+db['uuid']+'\n');f.write('workers_subdomain='+sub+'\n')
+          print('CHACHA_DEV_GUARDIAN_REPAIR_TARGET=PASS')
+          PY
+
+      - name: Prepare Wrangler contract
+        env:
+          SUBDOMAIN: ${{ steps.cf.outputs.workers_subdomain }}
+        run: |
+          set -euo pipefail
+          SENTINEL_URL="https://chacha-dev-sentinel.$SUBDOMAIN.workers.dev"
+          cat > .wrangler-guardian-repair.jsonc <<EOF
+          {
+            "name": "chacha-dev-guardian",
+            "main": "dev-hub/guardian/worker.js",
+            "compatibility_date": "2026-09-24",
+            "workers_dev": true,
+            "triggers": {"crons": ["* * * * *"]},
+            "vars": {"SENTINEL_URL": "$SENTINEL_URL"},
+            "services": [{"binding": "SENTINEL_SERVICE", "service": "chacha-dev-sentinel"}],
+            "d1_databases": [{"binding":"DB","database_name":"chacha-dev-guardian","database_id":"${{ steps.cf.outputs.database_id }}"}]
+          }
+          EOF
+
+      - name: Capture rollback evidence and generate exact D1 restore
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 deployments list --config=.wrangler-guardian-repair.jsonc --json > /tmp/guardian-deployments-before.json
+          python3 - <<'PY'
+          import json
+          x=json.load(open('/tmp/guardian-deployments-before.json'))
+          rows=x if isinstance(x,list) else x.get('deployments') or x.get('result') or []
+          if not rows: raise SystemExit('NO_GUARDIAN_DEPLOYMENT_ROLLBACK_ANCHOR')
+          first=rows[0]; versions=first.get('versions') or []
+          vid=(versions[0].get('version_id') if versions else None) or first.get('version_id') or first.get('id')
+          if not vid: raise SystemExit('GUARDIAN_ROLLBACK_VERSION_ID_UNRESOLVED')
+          open('/tmp/guardian-previous-version-id','w').write(str(vid)+'\n')
+          print('GUARDIAN_ROLLBACK_VERSION_ID_CAPTURED=YES')
+          PY
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --config=.wrangler-guardian-repair.jsonc --json --command="SELECT * FROM role_contracts WHERE contract_id='role:guardian-action-state-reconciler'; SELECT * FROM expected_components WHERE component_id='guardian-action-state-reconciler'; SELECT name FROM sqlite_master WHERE type='table' AND name='action_lease_reconciliations';" > /tmp/guardian-d1-before.json
+          python3 - <<'PY'
+          import json
+          raw=json.load(open('/tmp/guardian-d1-before.json'))
+          blocks=[]
+          def walk(v):
+              if isinstance(v,dict):
+                  if isinstance(v.get('results'),list): blocks.append(v['results'])
+                  for z in v.values(): walk(z)
+              elif isinstance(v,list):
+                  for z in v: walk(z)
+          walk(raw)
+          # Wrangler returns result blocks in statement order; fail closed if not enough blocks.
+          if len(blocks)<3: raise SystemExit('D1_SNAPSHOT_BLOCKS_INCOMPLETE')
+          role=blocks[0]; comp=blocks[1]; table=blocks[2]
+          snap={'role':role,'component':comp,'table_present':any(r.get('name')=='action_lease_reconciliations' for r in table)}
+          open('/tmp/guardian-d1-snapshot.json','w').write(json.dumps(snap,indent=2)+'\n')
+          q=lambda s:"'"+str(s).replace("'","''")+"'"
+          sql=[]
+          if role:
+              r=role[0]; sql.append("INSERT INTO role_contracts(contract_id,kind,allowed_actions_json,forbidden_actions_json,allowed_permissions_json,required_evidence_json,unknown_role,source_digest,updated_at) VALUES("+','.join([q(r['contract_id']),q(r['kind']),q(r['allowed_actions_json']),q(r['forbidden_actions_json']),q(r['allowed_permissions_json']),q(r['required_evidence_json']),str(int(r.get('unknown_role') or 0)),q(r['source_digest']),q(r['updated_at'])])+") ON CONFLICT(contract_id) DO UPDATE SET kind=excluded.kind,allowed_actions_json=excluded.allowed_actions_json,forbidden_actions_json=excluded.forbidden_actions_json,allowed_permissions_json=excluded.allowed_permissions_json,required_evidence_json=excluded.required_evidence_json,unknown_role=excluded.unknown_role,source_digest=excluded.source_digest,updated_at=excluded.updated_at;")
+          else: sql.append("DELETE FROM role_contracts WHERE contract_id='role:guardian-action-state-reconciler';")
+          if comp:
+              r=comp[0]; sql.append("INSERT INTO expected_components(component_id,role,kind,enforcement_point,criticality,source_digest,updated_at) VALUES("+','.join([q(r['component_id']),q(r['role']),q(r['kind']),q(r['enforcement_point']),q(r['criticality']),q(r['source_digest']),q(r['updated_at'])])+") ON CONFLICT(component_id) DO UPDATE SET role=excluded.role,kind=excluded.kind,enforcement_point=excluded.enforcement_point,criticality=excluded.criticality,source_digest=excluded.source_digest,updated_at=excluded.updated_at;")
+          else: sql.append("DELETE FROM expected_components WHERE component_id='guardian-action-state-reconciler';")
+          open('/tmp/guardian-d1-rollback.sql','w').write('\n'.join(sql)+'\n')
+          print('GUARDIAN_D1_SNAPSHOT=PASS')
+          print('ACTION_LEASE_RECONCILIATIONS_TABLE_BEFORE='+('YES' if snap['table_present'] else 'NO'))
+          PY
+
+      - name: Persist rollback evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: guardian-governance-repair-rollback-${{ steps.approval.outputs.revision }}
+          path: |
+            /tmp/guardian-deployments-before.json
+            /tmp/guardian-previous-version-id
+            /tmp/guardian-d1-before.json
+            /tmp/guardian-d1-snapshot.json
+            /tmp/guardian-d1-rollback.sql
+          retention-days: 30
+
+      - name: Execute governed Guardian repair transaction
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+          SUBDOMAIN: ${{ steps.cf.outputs.workers_subdomain }}
+        run: |
+          set -euo pipefail
+          D1_MUTATED=0
+          DEPLOY_ATTEMPTED=0
+          rollback() {
+            set +e
+            if [[ "$DEPLOY_ATTEMPTED" = 1 ]]; then
+              PREV="$(cat /tmp/guardian-previous-version-id)"
+              npx --yes wrangler@4.45.0 rollback "$PREV" --yes --config=.wrangler-guardian-repair.jsonc --message 'ChaCha DEV Guardian governed repair automatic rollback'
+            fi
+            if [[ "$D1_MUTATED" = 1 ]]; then
+              npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --file=/tmp/guardian-d1-rollback.sql --config=.wrangler-guardian-repair.jsonc
+            fi
+            echo CHACHA_DEV_GUARDIAN_REPAIR_AUTOMATIC_ROLLBACK=PASS
+          }
+          trap rollback ERR
+
+          # Additive schema only; intentionally retained on rollback.
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --file=dev-hub/guardian/migrations/0011_action_lease_reconciliations.sql --config=.wrangler-guardian-repair.jsonc
+          D1_MUTATED=1
+
+          python3 - <<'PY'
+          import hashlib,json
+          roles=json.load(open('dev-hub/config/guardian-role-contracts.v1.json'))
+          cov=json.load(open('dev-hub/config/guardian-coverage-manifest.v1.json'))
+          role=next(x for x in roles['contracts'] if x['contract_id']=='role:guardian-action-state-reconciler')
+          comp=next(x for x in cov['expected_components'] if x['component_id']=='guardian-action-state-reconciler')
+          q=lambda s:"'"+str(s).replace("'","''")+"'"; stable=lambda v:json.dumps(v,separators=(',',':'),sort_keys=True)
+          rdig=hashlib.sha256(stable(role).encode()).hexdigest(); cdig=hashlib.sha256(stable(comp).encode()).hexdigest()
+          sql=["INSERT INTO role_contracts(contract_id,kind,allowed_actions_json,forbidden_actions_json,allowed_permissions_json,required_evidence_json,unknown_role,source_digest,updated_at) VALUES("+','.join([q(role['contract_id']),q(role.get('kind','role')),q(stable(role.get('allowed_actions',[]))),q(stable(role.get('forbidden_actions',[]))),q(stable(role.get('allowed_permissions',[]))),q(stable(role.get('required_evidence',[]))),str(1 if role.get('unknown_role') else 0),q(rdig),"datetime('now')"])+") ON CONFLICT(contract_id) DO UPDATE SET kind=excluded.kind,allowed_actions_json=excluded.allowed_actions_json,forbidden_actions_json=excluded.forbidden_actions_json,allowed_permissions_json=excluded.allowed_permissions_json,required_evidence_json=excluded.required_evidence_json,unknown_role=excluded.unknown_role,source_digest=excluded.source_digest,updated_at=datetime('now');"]
+          sql.append("INSERT INTO expected_components(component_id,role,kind,enforcement_point,criticality,source_digest,updated_at) VALUES("+','.join([q(comp['component_id']),q(comp['role']),q(comp['kind']),q(comp['enforcement_point']),q(comp['criticality']),q(cdig),"datetime('now')"])+") ON CONFLICT(component_id) DO UPDATE SET role=excluded.role,kind=excluded.kind,enforcement_point=excluded.enforcement_point,criticality=excluded.criticality,source_digest=excluded.source_digest,updated_at=datetime('now');")
+          open('/tmp/guardian-repair-seed.sql','w').write('\n'.join(sql)+'\n')
+          open('/tmp/guardian-repair-digests.json','w').write(json.dumps({'role_digest':rdig,'component_digest':cdig},indent=2)+'\n')
+          PY
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --file=/tmp/guardian-repair-seed.sql --config=.wrangler-guardian-repair.jsonc
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --json --config=.wrangler-guardian-repair.jsonc --command="SELECT contract_id,allowed_actions_json,allowed_permissions_json,source_digest FROM role_contracts WHERE contract_id='role:guardian-action-state-reconciler'; SELECT component_id,criticality,source_digest FROM expected_components WHERE component_id='guardian-action-state-reconciler'; SELECT name FROM sqlite_master WHERE type='table' AND name='action_lease_reconciliations';" > /tmp/guardian-repair-readback.json
+          python3 - <<'PY'
+          import json
+          raw=json.load(open('/tmp/guardian-repair-readback.json')); blocks=[]
+          def walk(v):
+              if isinstance(v,dict):
+                  if isinstance(v.get('results'),list): blocks.append(v['results'])
+                  for z in v.values(): walk(z)
+              elif isinstance(v,list):
+                  for z in v: walk(z)
+          walk(raw)
+          if len(blocks)<3: raise SystemExit('REPAIR_READBACK_INCOMPLETE')
+          role,comp,table=blocks[:3]; d=json.load(open('/tmp/guardian-repair-digests.json'))
+          if len(role)!=1 or role[0].get('source_digest')!=d['role_digest']: raise SystemExit('ROLE_RECONCILER_READBACK_MISMATCH')
+          if set(json.loads(role[0].get('allowed_actions_json') or '[]'))!={'RECONCILE_ACTION_STATE'}: raise SystemExit('ROLE_RECONCILER_ACTION_MISMATCH')
+          if len(comp)!=1 or comp[0].get('source_digest')!=d['component_digest']: raise SystemExit('COMPONENT_RECONCILER_READBACK_MISMATCH')
+          if not any(x.get('name')=='action_lease_reconciliations' for x in table): raise SystemExit('RECONCILIATION_TABLE_MISSING_AFTER_MIGRATION')
+          print('CHACHA_DEV_GUARDIAN_REPAIR_D1_READBACK=PASS')
+          PY
+
+          DEPLOY_ATTEMPTED=1
+          npx --yes wrangler@4.45.0 deploy --config=.wrangler-guardian-repair.jsonc
+          URL="https://chacha-dev-guardian.$SUBDOMAIN.workers.dev"
+          ok=0
+          for i in $(seq 1 30); do
+            if curl -fsS "$URL/healthz" -o /tmp/guardian-repair-health.json &&
+               grep -Fq '"external_governance_plane":true' /tmp/guardian-repair-health.json &&
+               grep -Fq '"coverage_watch":true' /tmp/guardian-repair-health.json &&
+               grep -Fq '"expired_action_lease_reconciliation":true' /tmp/guardian-repair-health.json &&
+               grep -Fq '"action_replay_forbidden":true' /tmp/guardian-repair-health.json &&
+               grep -Fq '"functional_acceptance_gate":true' /tmp/guardian-repair-health.json &&
+               grep -Fq '"sentinel_external_url_configured":true' /tmp/guardian-repair-health.json &&
+               grep -Fq '"sentinel_service_binding":true' /tmp/guardian-repair-health.json; then ok=1;break;fi
+            sleep 2
+          done
+          test "$ok" = 1
+          code="$(curl -sS -o /tmp/guardian-reconcile-unauth.json -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{}' "$URL/v1/action-leases/reconcile-expired")"
+          test "$code" = 401
+          code2="$(curl -sS -o /tmp/guardian-functional-apply-unauth.json -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{}' "$URL/v1/functional-remediation/apply")"
+          test "$code2" = 401
+          trap - ERR
+          echo CHACHA_DEV_GUARDIAN_GOVERNED_REPAIR_PRODUCTION=PASS
+          echo PLATFORM_CURRENT_SWITCH=NO
+          echo FUNCTIONAL_REMEDIATION_APPLIED=NO
+          echo ACTION_LEASE_RECONCILIATION_APPLIED=NO
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
