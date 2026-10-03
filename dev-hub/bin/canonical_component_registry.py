@@ -227,6 +227,7 @@ def build_registry(repo:Path,policy:dict[str,Any])->dict[str,Any]:
       "active_global_directive_ids":list(directives.get("active_global_ids") or []),
       "active_global_directive_digest":directives.get("active_global_digest"),
       "operator_directive_registry_digest":directives.get("registry_digest"),
+      "emergency_stop_lifecycle_invariant":dict(policy.get("emergency_stop_lifecycle_invariant") or {}),
       "automatic_external_spend_eur":0,
       "registry_digest":digest([{k:v for k,v in x.items() if k!="birth_contract"} for x in ordered])
     }
