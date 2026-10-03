@@ -16,7 +16,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import json,os,urllib.parse,urllib.request
+          import json,os,urllib.parse,urllib.request,collections
           token=os.environ['CLOUDFLARE_API_TOKEN']; aid=os.environ.get('CLOUDFLARE_ACCOUNT_ID','').strip()
           h={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
           def req(url,method='GET',body=None):
@@ -37,6 +37,10 @@ jobs:
           json.dump({'schema':'chacha.dev/action-lease-diagnostic/v1','leases':leases,'reconciliations':recs},open('/tmp/action-leases.json','w'),indent=2)
           print('ACTION_LEASE_ROWS='+str(len(leases)))
           print('RECONCILIATION_ROWS='+str(len(recs)))
+          print('LEASE_STATUS_COUNTS='+json.dumps(dict(collections.Counter(x.get('status') for x in leases)),sort_keys=True))
+          print('LEASE_ACTION_COUNTS='+json.dumps(dict(collections.Counter(x.get('action') for x in leases)),sort_keys=True))
+          for x in leases:
+              print('LEASE '+json.dumps({k:x.get(k) for k in ['action_id','status','last_verdict','action','permission','actor','subject_role','project_id','run_id','opened_at','deadline_at','closed_at']},sort_keys=True,separators=(',',':')))
           print('READ_ONLY=YES')
           PY
       - uses: actions/upload-artifact@v4
