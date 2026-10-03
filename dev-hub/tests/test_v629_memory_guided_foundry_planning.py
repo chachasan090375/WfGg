@@ -86,7 +86,7 @@ advice=pmr.package_advice(brief,pre["packages"][0])
 assert pmr.preferred_ids(advice,{"agent"})==["graphics-agent"],advice
 assert "graphics-old-agent" in pmr.avoid_ids(advice,{"agent"}),advice
 assert advice["reuse_candidates"],advice
-assert advice["rules"]["architecture_council_final_authority"] is True
+assert advice["rules"]["architecture_council_final_authority"] is False
 
 routing={"roles":{
   "graphics-agent":{"capabilities":["image-generation"]},
@@ -152,5 +152,5 @@ print("CHACHA_DEV_V629_AGENT_FOUNDRY_MEMORY_DECISION=PASS")
 print("CHACHA_DEV_V629_BRANCH_FOUNDRY_MEMORY_CANDIDATES=PASS")
 print("CHACHA_DEV_V629_CAPABILITY_FOUNDRY_MEMORY_CANDIDATES=PASS")
 print("CHACHA_DEV_V629_TECHNOLOGY_WATCH_REMAINS_REQUIRED=PASS")
-print("CHACHA_DEV_V629_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=PASS")
+print("CHACHA_DEV_V629_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
 print("CHACHA_DEV_V629_AUTOMATIC_EXTERNAL_SPEND_EUR=0")

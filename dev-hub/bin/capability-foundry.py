@@ -79,7 +79,7 @@ def platform_component_reassessment(contract,governance,watch):
       "promotion_authorized":False,"permission_expansion":False,
       "guardian_required":True,"sentinel_required":True,
       "logician_falsification_required":True,
-      "architecture_council_final_authority":True,
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "automatic_external_spend_eur":0}
 
 def main():

@@ -260,7 +260,7 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
       "git_history_preserved":True,"remote_branch_deletion":False,
       "canonical_observation_bus_rewrite":False,"benchmark_evidence_mutation":False,
       "active_self_mutation":False,"self_promotion":False,"permission_expansion":False,
-      "architecture_council_final_authority":True,"automatic_external_spend_eur":0
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0
     }
 
 def apply_plan(plan:dict[str,Any],policy:dict[str,Any],approval:Path|None,archive:Path,explicit:bool)->dict[str,Any]:
@@ -352,7 +352,7 @@ def main()->int:
     print("BENCHMARK_EVIDENCE_MUTATION=NO")
     print("SELF_MUTATION=NO")
     print("SELF_PROMOTION=NO")
-    print("ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
+    print("ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
     print("AUTOMATIC_EXTERNAL_SPEND_EUR=0")
     return 0
 

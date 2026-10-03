@@ -100,7 +100,7 @@ def main()->int:
       m.get("owner")=="agent-foundry" and m.get("isolated") is True and m.get("incumbent_control_group") is True and
       m.get("shadow_required") is True and m.get("pilot_required") is True and m.get("production_activation_allowed") is False and
       m.get("active_self_mutation") is False and m.get("self_promotion") is False and m.get("permission_expansion") is False and
-      m.get("architecture_council_final_authority") is True and float(m.get("automatic_external_spend_eur") or 0)==0
+      m.get("architecture_council_final_authority") is False and m.get("architecture_council_recommendation_authority") is True and float(m.get("automatic_external_spend_eur") or 0)==0
     )
     real=[];adversarial=[]
     with tempfile.TemporaryDirectory(prefix="v662-acceptance-independent-pilot-") as td:
@@ -154,7 +154,7 @@ def main()->int:
       "direct_mutation":False,"active_self_mutation":False,"self_promotion":False,"permission_expansion":False,
       "canonical_observation_bus_mutation":False,"benchmark_evidence_mutation":False,
       "technology_watch_revalidation_required":True,"logician_falsification_required":True,
-      "guardian_required":True,"sentinel_required":True,"architecture_council_final_authority":True,
+      "guardian_required":True,"sentinel_required":True,"architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "automatic_external_spend_eur":0,"real_cases":real,"adversarial_cases":adversarial
     }
     save(a.output,out)
@@ -166,7 +166,7 @@ def main()->int:
     print("CHACHA_DEV_V662_INCUMBENT_CONTROL_GROUP=YES")
     print("CHACHA_DEV_V662_SELF_MUTATION=NO")
     print("CHACHA_DEV_V662_SELF_PROMOTION=NO")
-    print("CHACHA_DEV_V662_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
+    print("CHACHA_DEV_V662_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
     print("CHACHA_DEV_V662_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
     return 0 if passed else 20
 

@@ -35,7 +35,7 @@ def main():
       "integration_ready":integration_ready,
       "assembly_allowed":integration_ready and plan.get("dispatch_allowed") is True,
       "direct_mutation":False,"decision_authority":False,
-      "architecture_council_final_authority":True,"automatic_external_spend_eur":0
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0
     }
     result["review_digest"]="sha256:"+hashlib.sha256(canonical(result)).hexdigest()
     Path(a.output).write_text(json.dumps(result,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")

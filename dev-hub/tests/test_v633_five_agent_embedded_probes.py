@@ -33,7 +33,7 @@ assert network["communication"]["common_exchange"]=="assurance-exchange"
 assert network["communication"]["direct_mutation"] is False
 assert network["communication"]["central_orchestrator_owns_remediation"] is True
 assert network["communication"]["architecture_change_requires_technology_watch"] is True
-assert network["communication"]["architecture_council_final_authority"] is True
+assert network["communication"]["architecture_council_final_authority"] is False
 
 samples=[
  ("guardian","functional-miss",{"component_id":"ui"}),
@@ -141,5 +141,5 @@ print("CHACHA_DEV_V633_DIRECT_MUTATION=NO")
 print("CHACHA_DEV_V633_CROSS_AGENT_COMMUNICATION_VIA_EXCHANGE=PASS")
 print("CHACHA_DEV_V633_CENTRAL_ORCHESTRATOR_REMEDIATION_OWNER=PASS")
 print("CHACHA_DEV_V633_TECHNOLOGY_WATCH_ARCHITECTURE_GUARD=PASS")
-print("CHACHA_DEV_V633_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=PASS")
+print("CHACHA_DEV_V633_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
 print("CHACHA_DEV_V633_AUTOMATIC_EXTERNAL_SPEND_EUR=0")

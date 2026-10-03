@@ -145,7 +145,8 @@ jobs:
             dev-hub/tests/test_autonomy_loop_runner.py \
             dev-hub/tests/test_autonomy_runtime_contract.py \
             dev-hub/tests/test_autonomy_cockpit_ui.py \
-            dev-hub/tests/test_v647_agent_fleet_observatory.py; do
+            dev-hub/tests/test_v647_agent_fleet_observatory.py \
+            dev-hub/tests/test_architecture_authority_propagation.py; do
             PYTHONPATH=dev-hub/bin python3 "$t"
           done
 

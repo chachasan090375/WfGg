@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/autonomy-constitution/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "purpose": "Unified compliance index for ChaCha DEV autonomy boundaries. Operational authority remains in the referenced source policies.",
   "authority_model": "REFERENCE_ONLY_NO_DUPLICATE_RUNTIME_AUTHORITY",
   "automatic_external_spend_eur": 0,
@@ -149,6 +149,48 @@
       "kind": "equals",
       "source": "dev-hub/config/direct-operator.v1.json",
       "path": "invariants.canonical_route_authority_required",
+      "expected": true
+    },
+    {
+      "id": "architecture-council-advisory-only",
+      "kind": "equals",
+      "source": "dev-hub/config/guardian-role-contracts.v1.json",
+      "path": "principles.architecture_council_is_advisory",
+      "expected": true
+    },
+    {
+      "id": "central-orchestrator-no-self-architecture-authority",
+      "kind": "equals",
+      "source": "dev-hub/config/guardian-role-contracts.v1.json",
+      "path": "principles.central_orchestrator_cannot_self_authorize_architecture",
+      "expected": true
+    },
+    {
+      "id": "central-orchestrator-not-final-architecture-decider",
+      "kind": "equals",
+      "source": "dev-hub/config/architecture-decision-council.v1.json",
+      "path": "central_orchestrator_is_final_decider",
+      "expected": false
+    },
+    {
+      "id": "new-architecture-requires-human-boundary",
+      "kind": "equals",
+      "source": "dev-hub/config/architecture-decision-council.v1.json",
+      "path": "new_architecture_synthesis_requires_human_approval",
+      "expected": true
+    },
+    {
+      "id": "roadmap-council-not-final-authority",
+      "kind": "equals",
+      "source": "dev-hub/config/autonomy-roadmap-evolution-routing.v1.json",
+      "path": "principles.architecture_council_final_authority",
+      "expected": false
+    },
+    {
+      "id": "roadmap-council-recommendation-authority",
+      "kind": "equals",
+      "source": "dev-hub/config/autonomy-roadmap-evolution-routing.v1.json",
+      "path": "principles.architecture_council_recommendation_authority",
       "expected": true
     }
   ]

@@ -81,7 +81,7 @@ def main():
           "recommendation_class":score.get("recommendation_class"),
           "technology_watch_owns_decision":True,
           "logician_decision_authority":False,
-          "architecture_council_final_authority":True,
+          "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
           "automatic_external_spend_eur":0
         }
         save(a.output_dir/"evaluation.json",receipt)

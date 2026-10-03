@@ -31,7 +31,7 @@ def execute(campaign:dict[str,Any],repo_root:Path,runtime_root:Path,revision:str
       "supported_adapter_count":len(supported),"attempted_supported_count":sum(1 for x in results if x["status"]!="NO_EXECUTABLE_ADAPTER"),
       "promoted_count":sum(1 for x in results if x.get("promoted")),"results":results,
       "benchmark_fixture_is_production_truth":False,"canonical_observation_bus_writes":False,
-      "direct_agent_mutation":False,"candidate_materialization":False,"architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+      "direct_agent_mutation":False,"candidate_materialization":False,"architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
 def main()->int:
     ap=argparse.ArgumentParser();ap.add_argument("--campaign",type=Path,required=True);ap.add_argument("--repo-root",type=Path,required=True)
     ap.add_argument("--runtime-root",type=Path,required=True);ap.add_argument("--revision",required=True);ap.add_argument("--config",type=Path,required=True);ap.add_argument("--output",type=Path,required=True);a=ap.parse_args()

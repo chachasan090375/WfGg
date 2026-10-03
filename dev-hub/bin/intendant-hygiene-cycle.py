@@ -294,7 +294,7 @@ def main()->int:
       "metrics_before":metrics,"metrics":post_metrics,"threshold_reasons_before":threshold_reasons,
       "threshold_reasons":post_threshold_reasons,"git_history_preserved":True,"remote_branch_deletion":False,
       "source_code_deletion":False,"canonical_observation_bus_rewrite":False,"benchmark_evidence_mutation":False,
-      "intendant_direct_mutation":False,"architecture_council_final_authority":True,"promotion_transaction":promotion_tx,"automatic_external_spend_eur":0}
+      "intendant_direct_mutation":False,"architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"promotion_transaction":promotion_tx,"automatic_external_spend_eur":0}
     report_path=report_dir/("hygiene-"+stamp+".json");save(report_path,report);save(latest_path,report)
     print("CHACHA_DEV_INTENDANT_HYGIENE_CYCLE=PASS")
     print("CYCLES="+(",".join(cycles) if cycles else "NONE"));print("HYGIENE_DEBT_SCORE="+str(post_metrics["hygiene_debt_score"]))

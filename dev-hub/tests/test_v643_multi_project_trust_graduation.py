@@ -294,7 +294,7 @@ policy=load(CFG/"capability-trust-graduation.v1.json")
 assert policy["thresholds"]["trusted_min_distinct_success_projects"]==3
 assert policy["evidence"]["replay_same_project_does_not_increase_success_count"] is True
 assert policy["reuse"]["technology_revalidation_required"] is True
-assert policy["reuse"]["architecture_council_final_authority"] is True
+assert policy["reuse"]["architecture_council_final_authority"] is False
 assert policy["reuse"]["guardian_authority_preserved"] is True
 assert policy["reuse"]["sentinel_authority_preserved"] is True
 assert policy["privilege"]["trust_never_grants_production_permission"] is True
@@ -317,5 +317,5 @@ print("CHACHA_DEV_V643_VERIFIED_RECOVERY_FRESH_EVIDENCE_REQUIRED=PASS")
 print("CHACHA_DEV_V643_RECOVERY_RETURNS_PROVISIONAL_NOT_TRUSTED=PASS")
 print("CHACHA_DEV_V643_TRUST_PERMISSION_ESCALATION=NO")
 print("CHACHA_DEV_V643_TECHNOLOGY_WATCH_REVALIDATION_REQUIRED=YES")
-print("CHACHA_DEV_V643_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
+print("CHACHA_DEV_V643_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
 print("CHACHA_DEV_V643_AUTOMATIC_EXTERNAL_SPEND_EUR=0")

@@ -142,7 +142,7 @@ def write_trigger(event:dict[str,Any],policy:dict[str,Any],runtime_root:Path)->d
       "logician_challenge_required":True,
       "guardian_preserved":True,
       "sentinel_preserved":True,
-      "architecture_council_final_authority":True,
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "automatic_external_spend_eur":0
     }
     path=root/(request["request_id"]+".json")

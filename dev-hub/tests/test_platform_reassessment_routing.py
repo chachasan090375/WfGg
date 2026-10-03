@@ -43,7 +43,7 @@ with tempfile.TemporaryDirectory(prefix="platform-reassess-route-") as td:
     assert all(x["direct_component_mutation"] is False and x["self_promotion"] is False for x in actions)
     assert all(x["technology_watch_revalidation_required"] is True for x in actions)
     assert all(x["logician_falsification_required"] is True for x in actions)
-    assert all(x["architecture_council_final_authority"] is True for x in actions)
+    assert all(x["architecture_council_final_authority"] is False for x in actions)
     assert blocked[0]["blocker"]=="UNSUPPORTED_PLATFORM_EVOLUTION_OWNER",blocked
 
 print("CHACHA_DEV_PLATFORM_REASSESSMENT_QUEUE_CONSUMED=PASS")
@@ -52,5 +52,5 @@ print("CHACHA_DEV_PLATFORM_BRANCH_FOUNDRY_ROUTING=PASS")
 print("CHACHA_DEV_PLATFORM_UNKNOWN_OWNER=BLOCKED")
 print("CHACHA_DEV_PLATFORM_DIRECT_MUTATION=NO")
 print("CHACHA_DEV_PLATFORM_SELF_PROMOTION=NO")
-print("CHACHA_DEV_PLATFORM_ARCHITECTURE_COUNCIL_FINAL=YES")
+print("CHACHA_DEV_PLATFORM_ARCHITECTURE_COUNCIL_FINAL=NO")
 print("CHACHA_DEV_PLATFORM_AUTOMATIC_EXTERNAL_SPEND_EUR=0")

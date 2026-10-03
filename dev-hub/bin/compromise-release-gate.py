@@ -134,7 +134,7 @@ def main()->int:
       "direct_mutation":False,
       "remediation_owner":"central-orchestrator",
       "technology_watch_required_for_architecture_change":True,
-      "architecture_council_final_authority":True,
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "automatic_external_spend_eur":0,
       "checked_at":now()
     }

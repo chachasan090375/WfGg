@@ -26,7 +26,7 @@ def campaign(index:dict,fleet:dict,policy:dict,technology_watch:dict)->dict:
     "candidate_owner":"agent-foundry","logician_challenge":sc.get("logician_challenge"),"technology_watch_revalidation_required":True,
     "technology_watch_state":technology_watch.get("state"),"independent_oracle_required":True,"direct_agent_mutation":False,
     "self_scoring_authority":False,"self_promotion":False,"shadow_required":True,"pilot_required_for_material_change":True})
- return {"schema":"chacha.dev/agent-benchmark-campaign/v1","scheduled_action_count":len(index.get("scheduled_actions") or []),"contract_count":len(contracts),"contracts":contracts,"technology_watch":technology_watch,"benchmark_fixture_is_production_truth":False,"direct_agent_mutation":False,"agent_self_scoring_authority":False,"architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+ return {"schema":"chacha.dev/agent-benchmark-campaign/v1","scheduled_action_count":len(index.get("scheduled_actions") or []),"contract_count":len(contracts),"contracts":contracts,"technology_watch":technology_watch,"benchmark_fixture_is_production_truth":False,"direct_agent_mutation":False,"agent_self_scoring_authority":False,"architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
 def _independently_verified(x:dict)->bool:
  return (x.get("verification")=="VERIFIED" and bool(x.get("evidence_refs")) and
          str(x.get("verifier") or "") not in {"",str(x.get("agent_id") or ""),str(x.get("subject_id") or "")})
@@ -58,7 +58,7 @@ def compare(inc:dict,cand:dict,policy:dict|None=None)->dict:
    "measurable_gain":bool(avg is not None and avg>=min_gain),"material_regression":bool(regress),
    "hard_gate_failures":hard,"decision":decision,"promotion_eligible":decision=="PILOT_ELIGIBLE",
    "latest_version_priority":False,"direct_candidate_promotion":False,
-   "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+   "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
 def main():
  ap=argparse.ArgumentParser();sub=ap.add_subparsers(dest="cmd",required=True);c=sub.add_parser("compile");c.add_argument("--index",type=Path,required=True);c.add_argument("--fleet",type=Path,required=True);c.add_argument("--policy",type=Path,required=True);c.add_argument("--technology-watch-status",type=Path,required=True);c.add_argument("--output",type=Path,required=True);q=sub.add_parser("compare");q.add_argument("--incumbent",type=Path,required=True);q.add_argument("--candidate",type=Path,required=True);q.add_argument("--policy",type=Path,required=True);q.add_argument("--output",type=Path,required=True);a=ap.parse_args()
  if a.cmd=="compile":x=campaign(load(a.index),load(a.fleet),load(a.policy),load(a.technology_watch_status))

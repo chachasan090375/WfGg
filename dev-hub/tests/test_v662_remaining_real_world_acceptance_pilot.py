@@ -60,7 +60,7 @@ with tempfile.TemporaryDirectory(prefix="v662-qualification-") as td:
       "ux_contract":ux_contract,"challenge_status":"REPLAN_REQUIRED","challenge_reason":"UX_FRAGMENTATION_RISK",
       "central_brain_response_required":True,"dismissal_without_evidence_forbidden":True,
       "recommended_next_action":"REOPEN_USER_JOURNEY","architecture_change_requires_technology_watch":True,
-      "architecture_council_final_authority":True,"direct_mutation":False,"automatic_external_spend_eur":0,"report_digest":ux_digest}
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"direct_mutation":False,"automatic_external_spend_eur":0,"report_digest":ux_digest}
     compromise={"schema":"chacha.dev/multi-agent-compromise/v1",
       "positions":[
         {"agent":"logician","proposal":{"candidate":{"candidate_id":"logic-v662"}}},
@@ -157,5 +157,5 @@ print("CHACHA_DEV_V662_ACCEPTANCE_PRODUCTION_ACTIVATION=NO")
 print("CHACHA_DEV_V662_ACCEPTANCE_PROMOTION=NO")
 print("CHACHA_DEV_V662_SELF_MUTATION=NO")
 print("CHACHA_DEV_V662_SELF_PROMOTION=NO")
-print("CHACHA_DEV_V662_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
+print("CHACHA_DEV_V662_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
 print("CHACHA_DEV_V662_AUTOMATIC_EXTERNAL_SPEND_EUR=0")

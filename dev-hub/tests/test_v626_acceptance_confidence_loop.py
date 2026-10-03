@@ -103,7 +103,7 @@ assert policy["positive_learning"]["require_exact_component_lineage"] is True
 assert policy["positive_learning"]["duplicate_acceptance_digest_is_idempotent"] is True
 assert policy["negative_learning"]["project_level_rejection_does_not_penalize_all_components"] is True
 assert policy["safety"]["technology_revalidation_required"] is True
-assert policy["safety"]["architecture_council_final_authority"] is True
+assert policy["safety"]["architecture_council_final_authority"] is False
 assert policy["economics"]["automatic_external_spend_eur"]==0
 
 contracts=json.load(open(CFG/"guardian-role-contracts.v1.json",encoding="utf-8"))

@@ -50,7 +50,8 @@
     "direct_mutation": false,
     "central_orchestrator_owns_remediation": true,
     "architecture_change_requires_technology_watch": true,
-    "architecture_council_final_authority": true,
+    "architecture_council_final_authority": false,
+    "architecture_council_recommendation_authority": true,
     "all_five_local_probes_share_incremental_transport": true,
     "future_specialized_authorities_consume_exchange_events": true,
     "local_probes_never_peer_decide": true

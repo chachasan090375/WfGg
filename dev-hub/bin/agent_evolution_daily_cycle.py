@@ -59,7 +59,7 @@ def collect_reassessment_requests(runtime:Path):
                 "shadow_required":bool(x.get("shadow_required") is True),
                 "pilot_required":bool(x.get("pilot_required") is True),
                 "direct_component_mutation":False,"self_promotion":False,
-                "architecture_council_final_authority":True,
+                "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
                 "automatic_external_spend_eur":0})
     return agent_requests,platform_requests,platform_actions,blocked
 def main()->int:
@@ -91,7 +91,7 @@ def main()->int:
     state["last_lightweight_health_at"]=iso(stamp);save(statep,state)
     idx={"schema":"chacha.dev/agent-evolution-reassessment-index/v1","generated_at":iso(stamp),"event_requests":requests,"scheduled_actions":scheduled,
       "event_request_count":len(requests),"scheduled_action_count":len(scheduled),"direct_agent_mutation":False,"self_promotion":False,
-      "candidate_owner":"agent-foundry","architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+      "candidate_owner":"agent-foundry","architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
     save(ae/"reassessment-queue-latest.json",idx)
     platform_idx={"schema":"chacha.dev/platform-evolution-reassessment-index/v1","generated_at":iso(stamp),
       "event_requests":platform_requests,"routed_actions":platform_actions,"blocked_requests":platform_blocked,
@@ -100,7 +100,7 @@ def main()->int:
       "routing_complete":len(platform_requests)==len(platform_actions) and not platform_blocked,
       "direct_component_mutation":False,"self_promotion":False,
       "technology_watch_revalidation_required":True,"logician_falsification_required":True,
-      "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
     pe=runtime/"platform-evolution";pe.mkdir(parents=True,exist_ok=True)
     save(pe/"reassessment-index-latest.json",platform_idx)
     benchmark_campaign=None
@@ -189,7 +189,7 @@ def main()->int:
       "guardian_evolution_coverage_sync_complete":component_index.get("guardian_evolution_coverage_sync_complete"),
       "guardian_uncovered_components":component_index.get("guardian_uncovered_components") or [],
       "technology_watch":tw.snapshot_status(root),"direct_agent_mutation":False,"self_promotion":False,
-      "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
     save(ae/"daily-cycle-latest.json",receipt)
     print("CHACHA_DEV_V648_AGENT_EVOLUTION_DAILY_CYCLE=PASS");print("AGENT_COUNT="+str(receipt["agent_count"]))
     print("EVENT_REQUESTS="+str(len(requests)));print("SCHEDULED_ACTIONS="+str(len(scheduled)))

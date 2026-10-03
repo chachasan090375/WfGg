@@ -275,7 +275,7 @@ def process(repo:Path,capture_path:Path,analysis_result:dict[str,Any],subject:st
       "authority":{
         "raw_source_authority":"ADVISORY_ONLY","analysis_decision_authority":False,
         "technology_watch_owns_evidence_score":True,"corroboration_gate_has_execution_authority":False,
-        "architecture_council_final_authority":True
+        "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True
       },
       "artifacts":{
         "observation":str(obs_path),"dossier":str(dossier_path),

@@ -96,7 +96,7 @@ def main()->int:
       "production_activation_allowed":False,"promotion_allowed":False,
       "direct_mutation":False,"active_self_mutation":False,"self_promotion":False,"permission_expansion":False,
       "canonical_observation_bus_mutation":False,"benchmark_evidence_mutation":False,
-      "architecture_council_final_authority":True,"automatic_external_spend_eur":0
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0
     }
     save(a.output,result)
     print("CHACHA_DEV_V664_ACCEPTANCE_ARCHITECTURE_COUNCIL_REVIEW="+("PASS" if passed else "BLOCK"))
@@ -107,7 +107,7 @@ def main()->int:
     print("CHACHA_DEV_V664_INCUMBENT_CONTROL_GROUP=YES")
     print("CHACHA_DEV_V664_SELF_MUTATION=NO")
     print("CHACHA_DEV_V664_SELF_PROMOTION=NO")
-    print("CHACHA_DEV_V664_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
+    print("CHACHA_DEV_V664_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
     print("CHACHA_DEV_V664_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
     return 0 if passed else 20
 

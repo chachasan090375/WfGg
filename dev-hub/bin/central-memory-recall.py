@@ -152,7 +152,7 @@ def recall(memory:dict[str,Any],intent:dict[str,Any],pre:dict[str,Any],project_i
       "single_observation_is_actionable":False,
       "previous_solution_is_default":False,
       "technology_revalidation_required":True,
-      "architecture_council_final_authority":True,
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "automatic_external_spend_eur":0
     }
     brief["brief_digest"]=digest(brief)

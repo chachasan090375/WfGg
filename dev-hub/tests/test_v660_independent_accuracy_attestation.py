@@ -145,7 +145,7 @@ with tempfile.TemporaryDirectory(prefix="v660-accuracy-") as td:
         assert sc["dimensions"]["accuracy"]==100,(aid,sc)
         assert pl["evidence_maturity"]["candidate_evidence_mature"] is True,(aid,pl)
         assert pl["self_evolution"]["active_self_mutation"] is False and pl["self_evolution"]["self_promotion"] is False,(aid,pl)
-        assert pl["assurance"]["architecture_council_final_authority"] is True,(aid,pl)
+        assert pl["assurance"]["architecture_council_final_authority"] is False,(aid,pl)
         if pl["candidate"]["owner"] is not None:
             assert pl["candidate"]["owner"]=="agent-foundry" and pl["candidate"]["isolated"] is True,(aid,pl)
 
@@ -155,5 +155,5 @@ print("CHACHA_DEV_V660_ACCEPTANCE_RECOMPUTED_ACCURACY=PASS")
 print("CHACHA_DEV_V660_PRODUCTION_ACCURACY_DIMENSIONS=3")
 print("CHACHA_DEV_V660_SELF_MUTATION=NO")
 print("CHACHA_DEV_V660_SELF_PROMOTION=NO")
-print("CHACHA_DEV_V660_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
+print("CHACHA_DEV_V660_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
 print("CHACHA_DEV_V660_AUTOMATIC_EXTERNAL_SPEND_EUR=0")

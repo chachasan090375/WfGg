@@ -144,7 +144,7 @@ def main()->int:
       "recommended_next_action":"REOPEN_PLAN" if status=="REPLAN_REQUIRED" else "COMPARE_AND_ANSWER" if status=="RECONSIDER" else "CONTINUE",
       "evidence_class":"STRUCTURAL_HEURISTIC_REQUIRES_VERIFICATION",
       "technology_watch_required_for_architecture_change":True,
-      "architecture_council_final_authority":True,
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "direct_mutation":False,"automatic_external_spend_eur":0
     }
     result["report_digest"]=digest(result)

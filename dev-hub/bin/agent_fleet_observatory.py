@@ -424,7 +424,7 @@ def build_metrics(inventory:dict[str,Any],runtime_root:Path,policy:dict[str,Any]
             if x.get("decision_authority") is not False or x.get("direct_mutation") is not False:continue
             if x.get("active_self_mutation") is not False or x.get("self_promotion") is not False or x.get("permission_expansion") is not False:continue
             if x.get("canonical_observation_bus_mutation") is not False or x.get("benchmark_evidence_mutation") is not False:continue
-            if x.get("architecture_council_final_authority") is not True or float(x.get("automatic_external_spend_eur") or 0)!=0:continue
+            if x.get("architecture_council_final_authority") is not False or x.get("architecture_council_recommendation_authority") is not True or float(x.get("automatic_external_spend_eur") or 0)!=0:continue
             total=int(x.get("case_count") or 0);passed=int(x.get("passed_case_count") or 0)
             dims=x.get("dimension_values") or {}
             if total<=0 or passed<0 or passed>total:continue
@@ -657,7 +657,7 @@ def build_report(repo_root:Path,runtime_root:Path,policy:dict[str,Any],evolution
       "unknown_dimension_default_score":None,
       "read_only":True,
       "agent_self_scoring_authority":False,
-      "architecture_council_final_authority":True,
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "automatic_external_spend_eur":0
     }
 

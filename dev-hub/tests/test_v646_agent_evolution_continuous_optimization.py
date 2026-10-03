@@ -48,7 +48,7 @@ assert p["candidate"]["incumbent_control_group"] is True,p
 assert p["assurance"]["technology_watch_required"] is True,p
 assert p["assurance"]["guardian_permission_diff_required"] is True,p
 assert p["assurance"]["sentinel_regression_required"] is True,p
-assert p["assurance"]["architecture_council_final_authority"] is True,p
+assert p["assurance"]["architecture_council_final_authority"] is False,p
 assert p["promotion"]["latest_version_priority"] is False,p
 assert p["automatic_external_spend_eur"]==0,p
 
@@ -63,5 +63,5 @@ print("CHACHA_DEV_V646_SELF_PROMOTION=NO")
 print("CHACHA_DEV_V646_INCUMBENT_CONTROL_GROUP=YES")
 print("CHACHA_DEV_V646_GUARDIAN_PERMISSION_DIFF=REQUIRED")
 print("CHACHA_DEV_V646_SENTINEL_REGRESSION=REQUIRED")
-print("CHACHA_DEV_V646_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
+print("CHACHA_DEV_V646_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
 print("CHACHA_DEV_V646_AUTOMATIC_EXTERNAL_SPEND_EUR=0")

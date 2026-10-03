@@ -44,7 +44,7 @@ def build_challenge(dossier:dict[str,Any],policy:dict[str,Any])->dict[str,Any]:
     return {"schema":"chacha.dev/technology-watch-logician-challenge/v1","owner_role":"logician",
       "decision_authority":"technology-watch-agent","technology_id":dossier.get("technology_id"),"version":dossier.get("version"),
       "falsification_paths":ordered,"adaptive_verification_order":True,"counterexample_search_required":True,
-      "current_solution_is_a_candidate":True,"direct_mutation":False,"architecture_council_final_authority":True,
+      "current_solution_is_a_candidate":True,"direct_mutation":False,"architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "automatic_external_spend_eur":0}
 def main()->int:
     ap=argparse.ArgumentParser();ap.add_argument("--dossier",type=Path,required=True);ap.add_argument("--policy",type=Path,required=True);ap.add_argument("--output",type=Path,required=True);a=ap.parse_args()

@@ -799,7 +799,8 @@
     "failed_fixture_is_valid_negative_evidence": true,
     "candidate_materialization": false,
     "self_promotion": false,
-    "architecture_council_final_authority": true
+    "architecture_council_final_authority": false,
+    "architecture_council_recommendation_authority": true
   },
   "isolation": {
     "runtime_root_must_be_temporary": true,

@@ -64,7 +64,7 @@ def build_index(report:dict[str,Any],routing:dict[str,Any],seven:dict[str,Any],p
             "candidate_materialization_allowed_now":bool(((pl.get("candidate") or {}).get("owner"))),
             "active_self_mutation":False,"self_promotion":False,"permission_expansion":False,
             "technology_watch_revalidation_required":True,"logician_falsification_required":True,
-            "guardian_required":True,"sentinel_required":True,"architecture_council_final_authority":True,
+            "guardian_required":True,"sentinel_required":True,"architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
             "latest_version_priority":False
           },
           "observation_bus":{"inventory_or_capability_change_requires_reassessment":True,"profile_policy_change_requires_reassessment":True},

@@ -82,7 +82,7 @@ with tempfile.TemporaryDirectory(prefix="v664-qualification-") as td:
          "--architecture-council",str(council),"--project-id","v664-real-project","--output",str(irev)])
     iv=load(irev)
     assert iv["project_id"]=="v664-real-project" and iv["integration_ready"] is True,iv
-    assert iv["decision_authority"] is False and iv["architecture_council_final_authority"] is True,iv
+    assert iv["decision_authority"] is False and iv["architecture_council_final_authority"] is False,iv
 
     # Architecture Council candidate review gate: technical admissibility never equals promotion.
     manifest=load(ROOT/"dev-hub/candidates/acceptance-engineer/v661/candidate-manifest.json")
@@ -142,5 +142,5 @@ print("CHACHA_DEV_V664_ACCEPTANCE_PROMOTION=NO")
 print("CHACHA_DEV_V664_RADAR_PROJECT_ONLY=PASS")
 print("CHACHA_DEV_V664_SELF_MUTATION=NO")
 print("CHACHA_DEV_V664_SELF_PROMOTION=NO")
-print("CHACHA_DEV_V664_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
+print("CHACHA_DEV_V664_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
 print("CHACHA_DEV_V664_AUTOMATIC_EXTERNAL_SPEND_EUR=0")

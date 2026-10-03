@@ -40,7 +40,7 @@ def _evolution_inheritance(agent_id:str|None,scope:str)->dict[str,Any]:
       "candidate_owner":"agent-foundry","active_self_mutation":False,"self_promotion":False,
       "permission_expansion":False,"technology_watch_revalidation_required":True,
       "logician_falsification_required":True,"guardian_required":True,"sentinel_required":True,
-      "architecture_council_final_authority":True,"observation_bus_required":True,
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"observation_bus_required":True,
       "learning_uplink_required":True,"automatic_external_spend_eur":0
     }
 

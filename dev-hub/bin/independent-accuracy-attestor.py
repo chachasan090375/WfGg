@@ -237,7 +237,7 @@ def attestation(agent_id:str,cases:list[dict[str,Any]])->dict[str,Any]:
       "source_refs":source_refs,"cases":cases,
       "decision_authority":False,"direct_mutation":False,
       "canonical_observation_bus_mutation":False,"benchmark_evidence_mutation":False,
-      "architecture_council_final_authority":True,"automatic_external_spend_eur":0
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0
     }
 
 def build(runtime_root:Path,output_root:Path,github_dir:Path|None,fetch_github:bool)->dict[str,dict[str,Any]]:
@@ -271,7 +271,7 @@ def main()->int:
     print("CHACHA_DEV_V660_INDEPENDENT_ACCURACY_ATTESTATION="+("PASS" if ok else "BLOCK"))
     print("CHACHA_DEV_V660_DIRECT_MUTATION=NO")
     print("CHACHA_DEV_V660_CANONICAL_OBSERVATION_BUS_MUTATION=NO")
-    print("CHACHA_DEV_V660_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
+    print("CHACHA_DEV_V660_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
     print("CHACHA_DEV_V660_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
     return 0 if ok else 20
 

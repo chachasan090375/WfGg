@@ -109,7 +109,7 @@ def evaluate(dossier:dict[str,Any],policy:dict[str,Any],source_registry:dict[str
       "automatic_selection_allowed":automatic_selection_allowed,"latest_version_priority":False,
       "historical_outcome_penalty":{"truth":outcome_penalty_truth,"maturity":outcome_penalty_maturity},
       "logician_challenge_summary":{"available":bool(challenge),"path_count":len((challenge or {}).get("falsification_paths") or []),"decision_authority":(challenge or {}).get("decision_authority")},
-      "technology_watch_owns_final_evidence_score":True,"architecture_council_final_authority":True,
+      "technology_watch_owns_final_evidence_score":True,"architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "guardian_authority_preserved":True,"sentinel_authority_preserved":True,"permission_escalation":False,"automatic_external_spend_eur":0}
 def select_verified_safe(reports:list[dict[str,Any]])->dict[str,Any]:
     rank={"REJECT":0,"WATCH":1,"SHADOW":2,"PILOT":3,"ADOPT":4};eligible=[x for x in reports if isinstance(x,dict)]
@@ -117,7 +117,7 @@ def select_verified_safe(reports:list[dict[str,Any]])->dict[str,Any]:
     best=max(eligible,key=lambda x:(rank.get(str(x.get("recommendation_class")),0),float(x.get("technical_truth_score") or 0),
       float(x.get("operational_maturity_score") or 0),float(x.get("architecture_fit_score") or 0),str(x.get("version") or "")))
     return {"schema":"chacha.dev/technology-selection/v1","selected":best,"latest_version_priority":False,
-      "selection_principle":"BEST_VERIFIED_SAFE_NOT_NEWEST","architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+      "selection_principle":"BEST_VERIFIED_SAFE_NOT_NEWEST","architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
 def main()->int:
     ap=argparse.ArgumentParser();sub=ap.add_subparsers(dest="cmd",required=True)
     s=sub.add_parser("score");s.add_argument("--dossier",type=Path,required=True);s.add_argument("--policy",type=Path,required=True);s.add_argument("--source-reputation",type=Path);s.add_argument("--logician-challenge",type=Path);s.add_argument("--output",type=Path,required=True)

@@ -212,7 +212,7 @@ def build_snapshot(repo_root: Path, *, scope_domain: str|None=None,
             "latest_version_has_no_priority":True,
             "logician_falsification_required":True,
             "policy_version":truth_policy.get("version"),
-            "architecture_council_final_authority":True
+            "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True
         },
         "core_architecture_watch":{
             "enabled":True,
