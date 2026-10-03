@@ -1,0 +1,114 @@
+{
+  "schema": "chacha.dev/deliverable-specialization/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "purpose": "Classify what is being created before selecting subtype/archetype, recursive module specializations, domains and capabilities.",
+  "classes": {
+    "application": {
+      "persistent": true,
+      "subtype_policy": "dev-hub/config/application-archetype-specialization.v1.json",
+      "examples": [
+        "business_management",
+        "game_realtime",
+        "system_infrastructure",
+        "consumer_application",
+        "data_ai_automation",
+        "creative_media_interactive"
+      ]
+    },
+    "document": {
+      "persistent": true,
+      "subtypes": [
+        "report",
+        "specification",
+        "manual",
+        "memo",
+        "letter",
+        "research_document"
+      ]
+    },
+    "visual_image": {
+      "persistent": true,
+      "subtypes": [
+        "photo",
+        "illustration",
+        "ui_visual",
+        "identity",
+        "concept_art",
+        "3d_still"
+      ]
+    },
+    "animation_motion": {
+      "persistent": true,
+      "subtypes": [
+        "motion_graphics",
+        "character_animation",
+        "ui_animation",
+        "technical_animation"
+      ]
+    },
+    "presentation": {
+      "persistent": true,
+      "subtypes": [
+        "business_review",
+        "project_kickoff",
+        "market_report",
+        "training_deck",
+        "general_presentation"
+      ]
+    },
+    "video_audio_media": {
+      "persistent": true,
+      "subtypes": [
+        "video",
+        "audio",
+        "podcast",
+        "composite_media"
+      ]
+    },
+    "data_artifact": {
+      "persistent": true,
+      "subtypes": [
+        "dataset",
+        "analytics_model",
+        "dashboard",
+        "etl_pipeline",
+        "ml_artifact"
+      ]
+    },
+    "infrastructure_system": {
+      "persistent": true,
+      "subtypes": [
+        "service_platform",
+        "network",
+        "runtime",
+        "embedded_system",
+        "os_integration"
+      ]
+    },
+    "mixed_composite": {
+      "persistent": true,
+      "subtypes": [
+        "multi_deliverable_project"
+      ]
+    }
+  },
+  "dynamic_extension": {
+    "unknown_types": "EPHEMERAL_SHADOW_PROFILE",
+    "promotion_requires": [
+      "successful_project_evidence",
+      "benchmark",
+      "trusted_memory",
+      "technology_watch_revalidation",
+      "logician_falsification",
+      "governed_adoption"
+    ],
+    "self_promotion": false
+  },
+  "authority": {
+    "execution": false,
+    "production": false,
+    "permission_escalation": false
+  },
+  "automatic_external_spend_eur": 0
+}

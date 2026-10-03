@@ -1,0 +1,165 @@
+{
+  "schema": "chacha.dev/specialization-fabric/v2",
+  "version": "2.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "state": "RECURSIVE_FOUNDATION_SHADOW_ONLY",
+  "supersedes_for_new_design": "dev-hub/config/specialization-fabric.v1.json",
+  "preserves": [
+    "canonical domain Head+Arm cells",
+    "application archetype specialist Heads",
+    "single Cognitive Memory Fabric",
+    "Technology Watch",
+    "Logicien falsification",
+    "Foundry materialization",
+    "Guardian/Sentinel/STOP"
+  ],
+  "canonical_memory_fabric": "dev-hub/config/cognitive-memory-fabric.v1.json",
+  "domain_specialist_policy": "dev-hub/config/domain-specialist-memory.v1.json",
+  "deliverable_policy": "dev-hub/config/deliverable-specialization.v1.json",
+  "application_archetype_policy": "dev-hub/config/application-archetype-specialization.v1.json",
+  "recursive_model": {
+    "functional_ownership_levels": [
+      "project",
+      "deliverable",
+      "module",
+      "submodule",
+      "domain",
+      "capability"
+    ],
+    "rule": "ANY_SUFFICIENTLY_COMPLEX_NODE_MAY_BE_RECLASSIFIED_AND_DECOMPOSED",
+    "ownership": "TREE",
+    "dependency_and_reuse": "DAG",
+    "shared_component_policy": "MATERIALIZE_ONCE_REFERENCE_MANY",
+    "classification": {
+      "primary_required": true,
+      "secondary_allowed": true,
+      "uncertain_route": "SHADOW_UNCERTAIN",
+      "minimum_confidence_for_committed_classification": 0.7
+    },
+    "decompose_when": [
+      "heterogeneous_domain_profiles",
+      "independent_lifecycle_or_release_boundary",
+      "explicit_interface_boundary",
+      "materially_different_nonfunctional_constraints",
+      "complexity_above_leaf_threshold"
+    ],
+    "guards": {
+      "max_depth": 8,
+      "max_nodes": 256,
+      "cycle_policy": "BLOCK",
+      "unbounded_recursion": "FORBIDDEN"
+    }
+  },
+  "node_contract": {
+    "required": [
+      "node_id",
+      "node_kind",
+      "classification",
+      "constraints",
+      "dependencies",
+      "specialist_cells",
+      "lifecycle",
+      "evidence"
+    ],
+    "fields": [
+      "node_id",
+      "parent_id",
+      "node_kind",
+      "deliverable_class",
+      "archetype",
+      "subtype",
+      "classification_confidence",
+      "secondary_classifications",
+      "constraints_inherited",
+      "constraints_local",
+      "constraint_overrides",
+      "domain_requirements",
+      "capability_requirements",
+      "dependencies",
+      "interfaces",
+      "shared_component_refs",
+      "specialist_cells",
+      "decomposition_policy",
+      "lifecycle",
+      "evidence",
+      "authority"
+    ]
+  },
+  "constraint_inheritance": {
+    "default": "INHERIT_AND_TIGHTEN",
+    "non_overridable_categories": [
+      "security",
+      "governance",
+      "external_spend",
+      "privacy",
+      "production_authority"
+    ],
+    "local_additions_allowed": true,
+    "local_tightening_allowed": true,
+    "weakening_non_overridable": "BLOCK",
+    "override_provenance_required": true
+  },
+  "specialist_resolution": {
+    "technical_cells": "CANONICAL_HEAD_PLUS_ARM_REFERENCE_ONLY",
+    "upper_level_specialist": "HEAD_PLUS_ASSEMBLY_BLUEPRINT",
+    "duplicate_domain_arms": "FORBIDDEN",
+    "transversal_specialists": [
+      "logician",
+      "ergonomist",
+      "bastion",
+      "sentinel",
+      "guardian"
+    ],
+    "context_supplies": [
+      "weights",
+      "constraints",
+      "quality_targets",
+      "performance_targets",
+      "security_targets",
+      "test_targets"
+    ]
+  },
+  "interface_contracts": {
+    "first_class": true,
+    "dimensions": [
+      "api",
+      "events",
+      "data_schema",
+      "permissions",
+      "versioning",
+      "error_model",
+      "slo",
+      "performance",
+      "security"
+    ]
+  },
+  "watch_and_learning": {
+    "technology_watch_all_levels": true,
+    "logician_challenges": [
+      "decomposition",
+      "interfaces",
+      "algorithms",
+      "complexity",
+      "contradictions",
+      "side_effects"
+    ],
+    "project_outcomes_enrich": [
+      "deliverable_patterns",
+      "archetype_patterns",
+      "module_patterns",
+      "domain_memory",
+      "capability_memory"
+    ]
+  },
+  "governance": {
+    "universal_materialization_gate": true,
+    "canonical_component_registry": true,
+    "guardian": true,
+    "sentinel": true,
+    "stop": true,
+    "no_new_authority": true,
+    "no_self_promotion": true,
+    "production_activation_authorized": false
+  },
+  "automatic_external_spend_eur": 0
+}

@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-04T09:11:00Z",
+  "updated_at": "2026-10-04T09:36:00Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -10,9 +10,9 @@
     "history_must_not_be_discarded_without_supersession_evidence": true
   },
   "baseline": {
-    "production_sha": "cf08380e2ce6ab7ef5b2e8290aaca58be302fb1d",
-    "production_tree": "627cc0a4f9bcb33a004e35c95cf02a50e733ddcf",
-    "mandatory_rule": "Every future production candidate must remain descendant of Structural Governance / Canonical Path Sovereign production cf08380e2ce6ab7ef5b2e8290aaca58be302fb1d, preserve LOCAL_SQLITE authority routing, Sovereign rollback floor, Canonical Path anti-loop governance and all materially newer production fixes before qualification.",
+    "production_sha": "439db7584ab721d32b4e9e6bf89db5a63849ce93",
+    "production_tree": "24f562a29d3318e9b42c51cb67c787260c77f4d5",
+    "mandatory_rule": "Every future production candidate must remain descendant of Cognitive Memory Fabric / Sovereign production 439db7584ab721d32b4e9e6bf89db5a63849ce93, preserve LOCAL_SQLITE authority routing, Sovereign rollback floor, Canonical Path anti-loop governance, CMF safety invariants and all materially newer production fixes before qualification.",
     "historical_unreconciled_candidate_sha": "f3a7e86b1fe9e6c5b1cfa7699ae9103ddde1ed95",
     "historical_unreconciled_candidate_is_descendant_of_current_production": false,
     "production_ancestry_reconciled": true,
@@ -20,7 +20,9 @@
     "structural_convergence_merge_sha": "c881cbe14e39ef1f55312350b1dfc5c223e1a57e",
     "converged_candidate_branch": "master-roadmap-production-derived-v1",
     "structural_governance_production_sha": "cf08380e2ce6ab7ef5b2e8290aaca58be302fb1d",
-    "structural_governance_production_tree": "627cc0a4f9bcb33a004e35c95cf02a50e733ddcf"
+    "structural_governance_production_tree": "627cc0a4f9bcb33a004e35c95cf02a50e733ddcf",
+    "cognitive_memory_production_sha": "439db7584ab721d32b4e9e6bf89db5a63849ce93",
+    "cognitive_memory_production_tree": "24f562a29d3318e9b42c51cb67c787260c77f4d5"
   },
   "classification_values": [
     "RETAIN",
@@ -428,15 +430,15 @@
       "order": 2,
       "id": "COGNITIVE_MEMORY",
       "action": "Reconcile qualified CMF 4968c020 onto the new production-derived line; reuse unchanged evidence, rerun only changed-scope qualification, then promote if separately approved.",
-      "state": "SOVEREIGN_DESCENDANT_LOCAL_BUNDLE_PASS_PENDING_EXACT_SHA_CI",
-      "evidence": "CMF original qualified lineage 812154fd→c9a23118→f8bfb1bc→9a547adc→4968c020 reconciled onto direct cf08380e descendant without reactivating Native Local/Qwen. Current Sovereign NAS readback allowlist retained as strict superset. CMF focused tests PASS: foundation 7/7, persistence 6/6, NAS readback 7/7, tiering schedule 5/5, domain specialist memory 7/7, runtime integration 4/4; roadmap, Master Roadmap, Guardian coverage, Sovereign promotion safeguards and Canonical Path 27/27 regressions PASS. Production activation remains NO; exact-SHA CI required on sealed descendant."
+      "state": "PRODUCTION_ACTIVE_FINALIZED",
+      "evidence": "CMF / Sovereign promoted and FINALIZED on exact SHA 439db7584ab721d32b4e9e6bf89db5a63849ce93, tree 24f562a29d3318e9b42c51cb67c787260c77f4d5. Guardian PRE/POST, Sentinel exact-SHA/post, Platform Qualification, Direct Operator readiness, controlled cycle 873→874 and real timer cycle 874→875 PASS. LOCAL_SQLITE remains authoritative; Native Local/Qwen OFF; HOT purge/demotion automatic NO; NAS create-only/readback RO; sandbox restore only."
     },
     {
       "order": 3,
       "id": "RECURSIVE_SPECIALIZATION_FOUNDATION",
       "action": "Migrate 673a5a9f from 2D to recursive specialization and converge onto production-derived CMF baseline; qualify before runtime routing.",
-      "state": "SHADOW_FOUNDATION_IMPLEMENTED_PENDING_EXACT_SHA_CI",
-      "evidence": "Recursive Specialization Fabric V2 implemented over preserved 2D Head+Arm/archetype foundation: deliverable taxonomy, recursive project→deliverable→module→submodule→domain→capability classification, ownership tree + dependency DAG, shared-component reuse, inherited constraints, uncertainty shadow route, recursion/cycle guards, UMG birth-contract check and mixed-project shadow pilot."
+      "state": "SOVEREIGN_DESCENDANT_LOCAL_PASS_PENDING_EXACT_SHA_CI",
+      "evidence": "Recursive Specialization Fabric V2 converged onto CMF/Sovereign production descendant: preserved 2D Head+Arm/archetype foundation plus deliverable taxonomy, recursive project→deliverable→module→submodule→domain→capability classification, ownership tree + dependency DAG, shared-component reuse, inherited constraints, uncertainty shadow route, recursion/cycle guards, UMG birth-contract check and mixed-project shadow pilot. Local focused qualification pending final seal."
     },
     {
       "order": 4,

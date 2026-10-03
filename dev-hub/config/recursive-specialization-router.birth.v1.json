@@ -1,0 +1,39 @@
+{
+  "schema": "chacha.dev/component-birth-candidate/v1",
+  "identity": "recursive-specialization-router",
+  "governance_class": "CORE_PLATFORM_COMPONENT",
+  "owner_foundry": "branch-foundry",
+  "version_or_fingerprint": "recursive-specialization-router/v1",
+  "purpose": "Validate and resolve recursively classified solution graphs without execution authority.",
+  "scope": "PLATFORM",
+  "permissions": [
+    "read",
+    "plan",
+    "workspace-write-shadow-only"
+  ],
+  "budget_policy": {
+    "automatic_external_spend_eur": 0
+  },
+  "health_contract": "deterministic validation tests plus shadow pilot",
+  "observability": "evidence receipt per graph",
+  "lifecycle": "DESIGN->SHADOW->QUALIFY->PILOT->HUMAN_PROMOTION",
+  "termination_policy": "fail closed on invalid graph",
+  "retention_policy": "retain receipts with project evidence",
+  "purge_policy": "no automatic evidence purge",
+  "rollback_policy": "remove router binding and revert to previous specialization policy",
+  "provenance": "master roadmap recursive specialization train",
+  "compatibility": "requires CMF and canonical domain registry",
+  "automatic_external_spend_eur": 0,
+  "operator_directives": "inherit global directives",
+  "required_controls": [
+    "guardian",
+    "sentinel",
+    "component_governance",
+    "regression",
+    "pilot",
+    "rollback"
+  ],
+  "production_activation_authorized": false,
+  "component_id": "recursive-specialization-router",
+  "materialization_gate_required": true
+}

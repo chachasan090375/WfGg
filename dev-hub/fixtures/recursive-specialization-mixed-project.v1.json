@@ -1,0 +1,103 @@
+{
+  "schema": "chacha.dev/recursive-specialization-graph/v1",
+  "project_id": "pilot-mixed-management-suite",
+  "nodes": [
+    {
+      "node_id": "root",
+      "node_kind": "project",
+      "classification": {
+        "deliverable_class": "application",
+        "archetype": "business_management",
+        "confidence": 0.99
+      },
+      "constraints_local": {
+        "security": "strict",
+        "external_spend": 0,
+        "language": "fr"
+      },
+      "domain_requirements": [
+        "product",
+        "development"
+      ],
+      "dependencies": []
+    },
+    {
+      "node_id": "management",
+      "parent_id": "root",
+      "node_kind": "module",
+      "classification": {
+        "deliverable_class": "application",
+        "archetype": "business_management",
+        "confidence": 0.98
+      },
+      "domain_requirements": [
+        "data-backend",
+        "cybersecurity"
+      ],
+      "shared_component_refs": [
+        "identity-api"
+      ],
+      "dependencies": []
+    },
+    {
+      "node_id": "training-game",
+      "parent_id": "root",
+      "node_kind": "module",
+      "classification": {
+        "deliverable_class": "application",
+        "archetype": "game_realtime",
+        "confidence": 0.97
+      },
+      "constraints_local": {
+        "fps_floor": 60
+      },
+      "domain_requirements": [
+        "development",
+        "graphics",
+        "animation"
+      ],
+      "shared_component_refs": [
+        "identity-api"
+      ],
+      "dependencies": [
+        "management"
+      ]
+    },
+    {
+      "node_id": "documentation",
+      "parent_id": "root",
+      "node_kind": "module",
+      "classification": {
+        "deliverable_class": "document",
+        "subtype": "manual",
+        "confidence": 0.96
+      },
+      "domain_requirements": [
+        "documentation",
+        "translation",
+        "publication"
+      ],
+      "shared_component_refs": [
+        "identity-api"
+      ],
+      "dependencies": []
+    },
+    {
+      "node_id": "reporting",
+      "parent_id": "root",
+      "node_kind": "module",
+      "classification": {
+        "deliverable_class": "data_artifact",
+        "subtype": "dashboard",
+        "confidence": 0.95
+      },
+      "domain_requirements": [
+        "data-backend",
+        "ui-layout"
+      ],
+      "dependencies": [
+        "management"
+      ]
+    }
+  ]
+}
