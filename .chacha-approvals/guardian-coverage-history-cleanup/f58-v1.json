@@ -1,0 +1,27 @@
+{
+  "schema": "chacha.dev/production-approval/v1",
+  "scope": "guardian-coverage-history-cleanup-production",
+  "approved": true,
+  "approved_by": "operator",
+  "candidate_revision": "f58d76f034b7e5ec423e312d78f8ca92b8d92111",
+  "active_production_revision": "3d403f60fe1a5c836b6fb84ddef24b7d74378307",
+  "alignment_run_id": 37122801656,
+  "heartbeat_snapshot_id": "coverage-8ada9a440ddd4629bc8647ea5d32d964",
+  "alert_ids": [
+    "coverage-missing-guardian-action-state-reconciler",
+    "coverage-stale-guardian-action-state-reconciler"
+  ],
+  "directive_ids": [
+    "remed-coverage-missing-guardian-action-state-reconciler",
+    "remed-coverage-stale-guardian-action-state-reconciler"
+  ],
+  "worker_deploy": false,
+  "platform_current_switch": false,
+  "native_local_activation": false,
+  "guardian_latch_clear": false,
+  "functional_remediation_apply": false,
+  "action_lease_reconciliation_apply": false,
+  "row_delete": false,
+  "destructive_cleanup": false,
+  "approval_basis": "operator Go immediately after exact bounded cleanup proposal for the two superseded coverage alerts/remediations"
+}
