@@ -1,0 +1,13 @@
+{
+  "project_id":"pilot-retail-suite",
+  "deliverable_class":"application",
+  "archetype":"business_management",
+  "classification_confidence":0.98,
+  "global_constraints":{"security":"strict","external_spend":0,"language":"fr"},
+  "modules":[
+    {"name":"Gestion","kind":"management","owns_data":["stores","users"],"reuse_candidates":["identity-api"]},
+    {"name":"Formation ludique","kind":"game","constraints":{"fps_floor":60},"depends_on":["Gestion"],"reuse_candidates":["identity-api"],"interfaces":[{"target":"Gestion","kind":"api","contract":"user-and-progress-v1"}]},
+    {"name":"Documentation","kind":"documentation","reuse_candidates":["identity-api"]},
+    {"name":"Reporting","kind":"reporting","depends_on":["Gestion"]}
+  ]
+}

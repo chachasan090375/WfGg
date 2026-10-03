@@ -1,0 +1,315 @@
+{
+  "schema": "chacha.dev/recursive-specialization-resolution/v1",
+  "status": "PASS",
+  "project_id": "pilot-retail-suite",
+  "root_nodes": [
+    "solution-root"
+  ],
+  "node_count": 5,
+  "nodes": [
+    {
+      "node_id": "solution-root",
+      "node_kind": "project",
+      "classification": {
+        "deliverable_class": "application",
+        "archetype": "business_management",
+        "subtype": null,
+        "confidence": 0.98
+      },
+      "constraints_local": {
+        "security": "strict",
+        "external_spend": 0,
+        "language": "fr"
+      },
+      "domain_requirements": [
+        "product",
+        "development",
+        "qa"
+      ],
+      "dependencies": [],
+      "classification_state": "COMMITTED",
+      "constraints_effective": {
+        "security": "strict",
+        "external_spend": 0,
+        "language": "fr"
+      },
+      "non_overridable_constraints": [
+        "external_spend",
+        "governance",
+        "privacy",
+        "production_authority",
+        "security"
+      ],
+      "specialist_cells": [
+        {
+          "domain": "product",
+          "model": "CANONICAL_HEAD_PLUS_ARM_REFERENCE"
+        },
+        {
+          "domain": "development",
+          "model": "CANONICAL_HEAD_PLUS_ARM_REFERENCE"
+        },
+        {
+          "domain": "qa",
+          "model": "CANONICAL_HEAD_PLUS_ARM_REFERENCE"
+        }
+      ],
+      "authority": {
+        "execution": false,
+        "production": false,
+        "permission_escalation": false
+      }
+    },
+    {
+      "node_id": "gestion",
+      "parent_id": "solution-root",
+      "node_kind": "module",
+      "classification": {
+        "deliverable_class": "application",
+        "archetype": "business_management",
+        "subtype": null,
+        "confidence": 0.9
+      },
+      "constraints_local": {},
+      "domain_requirements": [
+        "product",
+        "data-backend",
+        "ui-layout",
+        "cybersecurity"
+      ],
+      "capability_requirements": [],
+      "shared_component_refs": [
+        "identity-api"
+      ],
+      "dependencies": [],
+      "data_ownership": [
+        "stores",
+        "users"
+      ],
+      "classification_state": "COMMITTED",
+      "constraints_effective": {
+        "security": "strict",
+        "external_spend": 0,
+        "language": "fr"
+      },
+      "non_overridable_constraints": [
+        "external_spend",
+        "governance",
+        "privacy",
+        "production_authority",
+        "security"
+      ],
+      "specialist_cells": [
+        {
+          "domain": "product",
+          "model": "CANONICAL_HEAD_PLUS_ARM_REFERENCE"
+        },
+        {
+          "domain": "data-backend",
+          "model": "CANONICAL_HEAD_PLUS_ARM_REFERENCE"
+        },
+        {
+          "domain": "ui-layout",
+          "model": "CANONICAL_HEAD_PLUS_ARM_REFERENCE"
+        },
+        {
+          "domain": "cybersecurity",
+          "model": "CANONICAL_HEAD_PLUS_ARM_REFERENCE"
+        }
+      ],
+      "authority": {
+        "execution": false,
+        "production": false,
+        "permission_escalation": false
+      }
+    },
+    {
+      "node_id": "formation-ludique",
+      "parent_id": "solution-root",
+      "node_kind": "module",
+      "classification": {
+        "deliverable_class": "application",
+        "archetype": "game_realtime",
+        "subtype": null,
+        "confidence": 0.9
+      },
+      "constraints_local": {
+        "fps_floor": 60
+      },
+      "domain_requirements": [
+        "development",
+        "graphics",
+        "animation",
+        "data-backend"
+      ],
+      "capability_requirements": [],
+      "shared_component_refs": [
+        "identity-api"
+      ],
+      "dependencies": [
+        "gestion"
+      ],
+      "data_ownership": [],
+      "classification_state": "COMMITTED",
+      "constraints_effective": {
+        "security": "strict",
+        "external_spend": 0,
+        "language": "fr",
+        "fps_floor": 60
+      },
+      "non_overridable_constraints": [
+        "external_spend",
+        "governance",
+        "privacy",
+        "production_authority",
+        "security"
+      ],
+      "specialist_cells": [
+        {
+          "domain": "development",
+          "model": "CANONICAL_HEAD_PLUS_ARM_REFERENCE"
+        },
+        {
+          "domain": "graphics",
+          "model": "CANONICAL_HEAD_PLUS_ARM_REFERENCE"
+        },
+        {
+          "domain": "animation",
+          "model": "CANONICAL_HEAD_PLUS_ARM_REFERENCE"
+        },
+        {
+          "domain": "data-backend",
+          "model": "CANONICAL_HEAD_PLUS_ARM_REFERENCE"
+        }
+      ],
+      "authority": {
+        "execution": false,
+        "production": false,
+        "permission_escalation": false
+      }
+    },
+    {
+      "node_id": "documentation",
+      "parent_id": "solution-root",
+      "node_kind": "module",
+      "classification": {
+        "deliverable_class": "document",
+        "archetype": null,
+        "subtype": "manual",
+        "confidence": 0.9
+      },
+      "constraints_local": {},
+      "domain_requirements": [
+        "documentation",
+        "knowledge-research",
+        "translation",
+        "publication"
+      ],
+      "capability_requirements": [],
+      "shared_component_refs": [
+        "identity-api"
+      ],
+      "dependencies": [],
+      "data_ownership": [],
+      "classification_state": "COMMITTED",
+      "constraints_effective": {
+        "security": "strict",
+        "external_spend": 0,
+        "language": "fr"
+      },
+      "non_overridable_constraints": [
+        "external_spend",
+        "governance",
+        "privacy",
+        "production_authority",
+        "security"
+      ],
+      "specialist_cells": [
+        {
+          "domain": "documentation",
+          "model": "CANONICAL_HEAD_PLUS_ARM_REFERENCE"
+        },
+        {
+          "domain": "knowledge-research",
+          "model": "CANONICAL_HEAD_PLUS_ARM_REFERENCE"
+        },
+        {
+          "domain": "translation",
+          "model": "CANONICAL_HEAD_PLUS_ARM_REFERENCE"
+        },
+        {
+          "domain": "publication",
+          "model": "CANONICAL_HEAD_PLUS_ARM_REFERENCE"
+        }
+      ],
+      "authority": {
+        "execution": false,
+        "production": false,
+        "permission_escalation": false
+      }
+    },
+    {
+      "node_id": "reporting",
+      "parent_id": "solution-root",
+      "node_kind": "module",
+      "classification": {
+        "deliverable_class": "data_artifact",
+        "archetype": null,
+        "subtype": "dashboard",
+        "confidence": 0.9
+      },
+      "constraints_local": {},
+      "domain_requirements": [
+        "data-backend",
+        "ui-layout"
+      ],
+      "capability_requirements": [],
+      "shared_component_refs": [],
+      "dependencies": [
+        "gestion"
+      ],
+      "data_ownership": [],
+      "classification_state": "COMMITTED",
+      "constraints_effective": {
+        "security": "strict",
+        "external_spend": 0,
+        "language": "fr"
+      },
+      "non_overridable_constraints": [
+        "external_spend",
+        "governance",
+        "privacy",
+        "production_authority",
+        "security"
+      ],
+      "specialist_cells": [
+        {
+          "domain": "data-backend",
+          "model": "CANONICAL_HEAD_PLUS_ARM_REFERENCE"
+        },
+        {
+          "domain": "ui-layout",
+          "model": "CANONICAL_HEAD_PLUS_ARM_REFERENCE"
+        }
+      ],
+      "authority": {
+        "execution": false,
+        "production": false,
+        "permission_escalation": false
+      }
+    }
+  ],
+  "shared_component_reuse": {
+    "identity-api": [
+      "gestion",
+      "formation-ludique",
+      "documentation"
+    ]
+  },
+  "blockers": [],
+  "warnings": [],
+  "production_activation": false,
+  "execution_authority": false,
+  "automatic_external_spend_eur": 0,
+  "resolved_at": "2026-10-03T20:28:01Z"
+}
