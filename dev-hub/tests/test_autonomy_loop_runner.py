@@ -39,7 +39,11 @@ exit 7
  policy=td/'policy.json';save(policy,load(CFG/'autonomy-supervision.v1.json'))
  cmd=[sys.executable,str(BIN/'autonomy-loop-runner.py'),'--repo-root',str(ROOT),'--runtime-root',str(runtime),'--platform-root',str(platform),'--policy',str(policy),'--systemctl-bin',str(fake),'--test-mode']
  p=run(cmd);assert p.returncode==0,(p.stdout,p.stderr);assert 'CHACHA_DEV_AUTONOMY_LOOP=CONVERGED' in p.stdout,p.stdout
- assert load(runtime/'agent-evolution/fleet-observatory-latest.json')['agent_count']==40
+ canonical_after=load(runtime/'canonical-registry/canonical-component-registry.json')
+ expected_agent_count=canonical_after['fleet_projection_count']
+ fleet_after=load(runtime/'agent-evolution/fleet-observatory-latest.json')
+ assert fleet_after['agent_count']==expected_agent_count,(fleet_after['agent_count'],expected_agent_count)
+ assert {'remote-operator-gateway-agent','remote-operator-functional-ingress-agent'} <= {r['fleet_projection']['agent_id'] for r in canonical_after['components'] if r.get('fleet_required') is True and isinstance(r.get('fleet_projection'),dict)}
  rows=calls.read_text().splitlines();assert rows==['chacha-dev-agent-fleet-observatory.service'],rows
  # Second run sees a converged model and must not replay the verified owner action.
  p2=run(cmd);assert p2.returncode==0,(p2.stdout,p2.stderr);assert 'CHACHA_DEV_AUTONOMY_LOOP=CONVERGED' in p2.stdout,p2.stdout
