@@ -75,9 +75,9 @@
       "id": "cognitive-memory-fabric",
       "label": "Cognitive Runtime mutualisé & mémoire agents",
       "status": "ORANGE",
-      "progress": 40,
-      "state": "MAJOR_EVOLUTION_DEPENDS_ON_TRAIN05_NATIVE_LOCAL",
-      "evidence": "Évolution majeure à construire au-dessus du socle Train 05 existant, sans réimplémenter Qwen : Cognitive Runtime local mutualisé et advisory-only pour agents/composants adaptatifs ; Memory Router ; mémoire de travail VPS ; mémoires épisodique, sémantique et procédurale par agent ; mémoire centrale partagée ; Historical Memory Bootstrap ; Memory Curator ; provenance/confiance/versioning ; tiering VPS HOT + NAS LONG_TERM avec fonctionnement dégradé si NAS indisponible. Aucune autorité de route, architecture, sécurité ou promotion accordée au modèle."
+      "progress": 50,
+      "state": "FABRIC_FOUNDATION_ROUTER_CURATOR_SHADOW_READY",
+      "evidence": "Fondation Cognitive Memory Fabric construite au-dessus des briques existantes sans réimplémenter Qwen : contrat unifié, Memory Router déterministe et Memory Curator déterministe en shadow/advisory-only ; réutilisation de central-memory assimilation/recall, learning fabric et provider native-local existant. Restent à matérialiser la persistance par agent, Historical Memory Bootstrap et le tiering exécutoire VPS HOT + NAS LONG_TERM."
     },
     {
       "id": "persistent-missions",

@@ -22,11 +22,15 @@
     "maximum_incident_count": 0
   },
   "decision_rules": {
-    "central_council_remains_final_decider": true,
+    "central_council_remains_final_decider": false,
     "complete_architecture_is_baseline_candidate": true,
     "branch_level_revalidated_memory_has_priority_for_individual_branch": true,
     "current_foundry_opinions_remain_mandatory": true,
-    "technology_watch_pre_and_final_remain_mandatory": true
+    "technology_watch_pre_and_final_remain_mandatory": true,
+    "architecture_council_final_authority": false,
+    "architecture_council_recommendation_authority": true,
+    "human_approval_required_for_new_architecture": true,
+    "revalidated_reuse_within_approved_boundaries_may_continue": true
   },
   "ranking_order": [
     "zero_external_spend",

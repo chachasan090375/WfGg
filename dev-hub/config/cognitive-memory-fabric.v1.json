@@ -1,0 +1,51 @@
+{
+  "schema": "chacha.dev/cognitive-memory-fabric-policy/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "existing_sources": {
+    "central_memory_snapshot": "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json",
+    "central_memory_db": "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.db",
+    "learning_deltas_db": "/opt/chacha-dev/runtime/knowledge/learning-deltas.db",
+    "experience_db": "/opt/chacha-dev/runtime/knowledge/experience.db",
+    "reusable_architectures_db": "/opt/chacha-dev/runtime/knowledge/reusable-architectures.db"
+  },
+  "namespaces": {
+    "agent_hot_root": "/opt/chacha-dev/runtime/knowledge/agent-memory",
+    "central_hot_root": "/opt/chacha-dev/runtime/knowledge",
+    "long_term_tier": "NAS"
+  },
+  "memory_types": ["episodic", "semantic", "procedural"],
+  "routing": {
+    "agent_read_includes_central_fallback": true,
+    "central_write_requires_trusted_state": true,
+    "central_write_minimum_evidence": 3,
+    "write_plans_are_advisory_only": true
+  },
+  "curation": {
+    "retain_failed_patterns_as_anti_patterns": true,
+    "deduplicate_by_memory_key": true,
+    "quarantine_contradicted_or_suspended": true,
+    "hard_delete_authorized": false
+  },
+  "cognitive_assist": {
+    "provider_id": "native-local",
+    "policy": "dev-hub/config/local-cognitive-runtime.v1.json",
+    "optional": true,
+    "activation_required_by_fabric": false,
+    "advisory_only": true
+  },
+  "privacy": {
+    "raw_user_content_forbidden": true,
+    "secrets_forbidden": true,
+    "filtered_learning_sources_only": true
+  },
+  "authority": {
+    "execution_authority": false,
+    "architecture_authority": false,
+    "route_authority": false,
+    "security_authority": false,
+    "promotion_authority": false,
+    "permission_expansion_authority": false
+  },
+  "automatic_external_spend_eur": 0
+}
