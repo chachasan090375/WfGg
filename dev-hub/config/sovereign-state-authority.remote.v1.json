@@ -1,0 +1,19 @@
+{
+  "schema":"chacha.dev/sovereign-state-authority/v1",
+  "mode":"D1_REMOTE",
+  "generation":0,
+  "services":{
+    "guardian":"https://chacha-dev-guardian.chachasan090375.workers.dev",
+    "sentinel":"https://chacha-dev-sentinel.chachasan090375.workers.dev",
+    "assurance-exchange":"https://chacha-dev-assurance-exchange.chachasan090375.workers.dev",
+    "learning-relay":"https://chacha-dev-learning-relay.chachasan090375.workers.dev"
+  },
+  "fallback_services":{
+    "guardian":"http://127.0.0.1:8871",
+    "sentinel":"http://127.0.0.1:8872",
+    "assurance-exchange":"http://127.0.0.1:8873",
+    "learning-relay":"http://127.0.0.1:8874"
+  },
+  "production_mutation":false,
+  "automatic_external_spend_eur":0
+}

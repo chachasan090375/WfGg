@@ -4,6 +4,7 @@ import argparse,base64,hashlib,json,subprocess,tempfile,time,urllib.error,urllib
 from pathlib import Path
 from typing import Any
 import d1_quota_circuit as d1qc
+import sovereign_state_authority as ssa
 
 DEFAULT_POLICY=Path("/opt/chacha-dev/platform/current/dev-hub/config/guardian-runtime-policy.v1.json")
 MAX_RESPONSE=2*1024*1024
@@ -74,7 +75,7 @@ def http_json(req:urllib.request.Request,timeout:int=20)->tuple[int,dict[str,Any
 
 def policy_values(policy_path:Path):
     p=load(policy_path)
-    url=str(p["external_url"]).rstrip("/")
+    url=ssa.endpoint("guardian")
     key=Path(p["private_key"])
     return p,url,key
 

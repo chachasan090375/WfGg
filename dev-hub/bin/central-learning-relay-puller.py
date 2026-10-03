@@ -14,6 +14,7 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any
+import sovereign_state_authority as ssa
 
 DEFAULT_RELAY_URL="https://chacha-dev-learning-relay.chachasan090375.workers.dev"
 DEFAULT_PRIVATE_KEY=Path("/opt/chacha-dev/runtime/secrets/central-learning-key.pem")
@@ -198,7 +199,7 @@ def run_once(relay_url:str,private_key:Path,ingest:Path,db:Path,anomaly_queue:Pa
 
 def main()->int:
     ap=argparse.ArgumentParser()
-    ap.add_argument("--relay-url",default=DEFAULT_RELAY_URL)
+    ap.add_argument("--relay-url")
     ap.add_argument("--private-key",type=Path,default=DEFAULT_PRIVATE_KEY)
     ap.add_argument("--ingest",type=Path,default=DEFAULT_INGEST)
     ap.add_argument("--db",type=Path,default=DEFAULT_DB)
@@ -209,8 +210,9 @@ def main()->int:
     ap.add_argument("--global-index",type=Path,default=DEFAULT_GLOBAL_INDEX)
     ap.add_argument("--print-identity",action="store_true")
     a=ap.parse_args()
-    if not a.relay_url.startswith("https://"):
-        raise SystemExit("CENTRAL_RELAY_HTTPS_REQUIRED")
+    a.relay_url=a.relay_url or ssa.endpoint("learning-relay")
+    if not (a.relay_url.startswith("https://") or (a.relay_url.startswith("http://") and ssa.is_local_url(a.relay_url))):
+        raise SystemExit("CENTRAL_RELAY_HTTPS_OR_LOOPBACK_REQUIRED")
     if not 1<=a.batch_limit<=100:
         raise SystemExit("CENTRAL_RELAY_BATCH_LIMIT_INVALID")
     if a.print_identity:

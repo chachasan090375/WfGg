@@ -4,6 +4,7 @@ import argparse,base64,json,shutil,subprocess,tempfile,urllib.error,urllib.reque
 from pathlib import Path
 from typing import Any
 import universal_learning_runtime as ul
+import sovereign_state_authority as ssa
 
 DEFAULT_RELAY="https://chacha-dev-learning-relay.chachasan090375.workers.dev"
 DEFAULT_INGEST=Path("/opt/chacha-dev/platform/current/dev-hub/bin/learning-delta-ingest.py")
@@ -100,7 +101,7 @@ def main()->int:
     f.add_argument("--transport",choices=["local","relay"],required=True);f.add_argument("--outbox",type=Path,default=ul.DEFAULT_OUTBOX)
     f.add_argument("--sent",type=Path,default=Path("/opt/chacha-dev/runtime/learning/sent"))
     f.add_argument("--ingest",type=Path,default=DEFAULT_INGEST);f.add_argument("--db",type=Path,default=DEFAULT_DB)
-    f.add_argument("--relay-url",default=DEFAULT_RELAY);f.add_argument("--private-key",type=Path);f.add_argument("--limit",type=int,default=100)
+    f.add_argument("--relay-url");f.add_argument("--private-key",type=Path);f.add_argument("--limit",type=int,default=100)
     a=ap.parse_args()
     if a.cmd=="observe":
         anomaly=load(a.anomaly) if a.anomaly else None
@@ -110,7 +111,7 @@ def main()->int:
                        state=load(a.state),anomaly=anomaly,evidence_refs=a.evidence_ref,lineage=lineage,evaluation=evaluation,
                        personal_data_class=a.personal_data_class,outbox_root=a.outbox,state_root=a.state_root)
     else:
-        out=flush(a.outbox,a.sent,a.transport,a.ingest,a.db,a.relay_url,a.private_key,a.limit)
+        out=flush(a.outbox,a.sent,a.transport,a.ingest,a.db,a.relay_url or ssa.endpoint("learning-relay"),a.private_key,a.limit)
     print(json.dumps(out,indent=2,ensure_ascii=False))
     return 0 if not out.get("failed") else 1
 
