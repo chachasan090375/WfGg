@@ -1,0 +1,19 @@
+{
+  "schema": "chacha.dev/production-approval/v1",
+  "scope": "guardian-governance-repair-production",
+  "approved": true,
+  "approved_by": "operator",
+  "revision": "f56350dad28d9b3541507f264951de1f682ab716",
+  "tree": "31b63e208325fd2996aae0f9b3e92a048940d7ae",
+  "transaction_revision": "6ef58e5efe56a0abceb47d104139cd9ad5e33d08",
+  "allow_additive_migration": true,
+  "migration": "dev-hub/guardian/migrations/0011_action_lease_reconciliations.sql",
+  "migration_sha256": "0e837ccfaecd2c09c22a3e2fc296d92418712d6a46ad2c28e09268fe5870fe54",
+  "role_contract_upserts": ["role:guardian-action-state-reconciler"],
+  "expected_component_upserts": ["guardian-action-state-reconciler"],
+  "functional_remediation_apply": false,
+  "action_lease_reconciliation_apply": false,
+  "platform_current_switch": false,
+  "native_local_activation": false,
+  "ha_failover": false
+}
