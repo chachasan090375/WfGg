@@ -1,0 +1,67 @@
+name: Diagnostic comparative pilot fix D1 read-only
+
+on:
+  push:
+    branches: [diagnostic-comparative-pilot-fix-d84d-v1]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    env:
+      EXPECTED_CANDIDATE: d84d389b74b5efe5e368f3d1c4851214d0ecc4fc
+      EXPECTED_TREE: fd4bd54b9ef66ddd6fcbd14c83bb303894522bb2
+      PILOT_ACTION_ID: cmp-20261003T140035Z-efec372f
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify source parent only
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin "$EXPECTED_CANDIDATE"
+          test "$(git rev-parse "$EXPECTED_CANDIDATE")" = "$EXPECTED_CANDIDATE"
+          test "$(git rev-parse "$EXPECTED_CANDIDATE^{tree}")" = "$EXPECTED_TREE"
+          echo CHACHA_DEV_COMPARATIVE_FIX_SOURCE=PASS
+      - name: Query Guardian D1 read-only
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request
+          token=os.environ['CF_API_TOKEN']; aid=os.environ.get('CF_ACCOUNT_ID','').strip(); action=os.environ['PILOT_ACTION_ID']
+          h={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url,method='GET',body=None):
+              data=None if body is None else json.dumps(body).encode()
+              with urllib.request.urlopen(urllib.request.Request(url,headers=h,method=method,data=data),timeout=30) as r:return json.load(r)
+          if not aid:
+              rows=call('https://api.cloudflare.com/client/v4/accounts?per_page=50').get('result') or []; assert len(rows)==1; aid=rows[0]['id']
+          dbs=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-guardian')).get('result') or []
+          db=next(x for x in dbs if x.get('name')=='chacha-dev-guardian')
+          qurl=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{db['uuid']}/query"
+          def q(sql,params=None):
+              body={'sql':sql};
+              if params is not None: body['params']=params
+              p=call(qurl,'POST',body); assert p.get('success') is True,p
+              out=[]
+              for b in p.get('result') or []: out.extend(b.get('results') or [])
+              return out
+          leases=q('SELECT * FROM action_leases WHERE action_id=?1',[action])
+          alerts=q("SELECT * FROM guardian_alerts WHERE status='OPEN' ORDER BY created_at DESC LIMIT 500")
+          matches=[x for x in alerts if action in json.dumps(x,sort_keys=True)]
+          rec=q('SELECT * FROM action_lease_reconciliations WHERE action_id=?1',[action])
+          print('ACTION_LEASE_ROWS='+str(len(leases)))
+          print('ACTION_LEASE_STATUS='+(','.join(str(x.get('status')) for x in leases) if leases else 'NONE'))
+          print('OPEN_ALERT_MATCHES='+str(len(matches)))
+          print('RECONCILIATION_ROWS='+str(len(rec)))
+          print('ACTION_LEASE_JSON='+json.dumps(leases,sort_keys=True,separators=(',',':')))
+          if matches: print('MATCHED_ALERTS='+json.dumps(matches,sort_keys=True,separators=(',',':')))
+          assert len(leases)==1,leases
+          assert leases[0].get('status')=='CLOSED',leases
+          assert len(matches)==0,matches
+          assert len(rec)==0,rec
+          print('CHACHA_DEV_COMPARATIVE_PILOT_ACTION_CLOSURE=PASS')
+          print('D1_MUTATION=NO')
+          PY
