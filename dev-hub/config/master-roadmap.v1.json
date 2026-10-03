@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-03T19:37:18Z",
+  "updated_at": "2026-10-03T19:55:35Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -566,6 +566,57 @@
         }
       ],
       "anti_replay_rule": "Do not rebuild, cherry-pick or individually replay trains 06-12 when the converged baseline/descendant already contains their material changes and scope has not materially changed. Requalify only changed scope on the current production-derived line."
+    }
+  ],
+  "historical_release_trains": [
+    {
+      "id": "historical-roadmap-train-04",
+      "train_id": "roadmap-train-20261001-04",
+      "promotion_state": "NOT_PROMOTED",
+      "train_runtime_state": "OPEN",
+      "base_revision": "3d403f60fe1a5c836b6fb84ddef24b7d74378307",
+      "qualified_candidate_revision": "3197446894758202d9f879f881fda4f8a61f980f",
+      "qualified_candidate_tree": "540fd19279e8c4d3deb1361da74e186ec2d76949",
+      "historical_readiness": "HOLD",
+      "historical_readiness_state": "CANDIDATE_QUALIFIED_RECONCILIATION_READY_AWAITING_EXTERNAL_ASSURANCE_AND_GOVERNED_APPLY",
+      "production_mutation": false,
+      "reason_not_promoted": [
+        "external assurance not closed",
+        "Guardian action lease reconciliation pending governed apply",
+        "exact-SHA GitHub platform attestation pending at historical gate",
+        "explicit human production promotion approval missing"
+      ],
+      "capabilities_to_reconcile_not_rebuild": [
+        "local cognitive runtime",
+        "local cognitive lifecycle",
+        "Guardian critical-state reconciliation",
+        "Guardian expired-action-lease reconciliation",
+        "Guardian coverage proof integrity"
+      ],
+      "anti_replay": "Reuse qualified/materially unchanged capability evidence where still valid; migrate contracts to the current production-derived line and requalify only changed scope."
+    },
+    {
+      "id": "historical-roadmap-train-05",
+      "train_id": "roadmap-train-20261002-05",
+      "promotion_state": "NOT_PROMOTED",
+      "train_runtime_state": "OPEN_PREPARATION",
+      "base_revision": "3197446894758202d9f879f881fda4f8a61f980f",
+      "depends_on_train": "roadmap-train-20261001-04",
+      "depends_on_promotion": true,
+      "historical_preparation_state": "PREPARATION",
+      "production_mutation": false,
+      "reason_not_promoted": [
+        "Train 04 dependency was never promoted; Train 05 was prepared/shadow-qualified against the candidate lineage, not activated as production baseline."
+      ],
+      "capabilities_to_reconcile_not_rebuild": [
+        "Guardian governed deploy transaction",
+        "Guardian action evidence continuity",
+        "native-local resource admission",
+        "adaptive model registry",
+        "native-local shadow soak",
+        "adaptive output budgeting"
+      ],
+      "anti_replay": "Preserve real pilots and qualification evidence; do not activate Native Local implicitly. Reconcile onto the current production-derived line under current governance."
     }
   ]
 }

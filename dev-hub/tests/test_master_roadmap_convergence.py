@@ -33,6 +33,14 @@ assert convoy["converged_baseline_sha"]=="f58d76f034b7e5ec423e312d78f8ca92b8d921
 assert convoy["convoy_closure_sha"]=="d0e3283efc677ef359006ea6632f125820597730"
 assert [x["train"] for x in convoy["trains"]]==[6,7,8,9,10,11,12]
 
+
+trains={x.get("id"):x for x in M.get("historical_release_trains",[])}
+assert trains["historical-roadmap-train-04"]["promotion_state"]=="NOT_PROMOTED"
+assert trains["historical-roadmap-train-04"]["qualified_candidate_revision"]=="3197446894758202d9f879f881fda4f8a61f980f"
+assert trains["historical-roadmap-train-05"]["promotion_state"]=="NOT_PROMOTED"
+assert trains["historical-roadmap-train-05"]["depends_on_promotion"] is True
+assert trains["historical-roadmap-train-05"]["production_mutation"] is False
+
 print("CHACHA_DEV_MASTER_ROADMAP_CONVERGENCE=PASS")
 print("AUTONOMY_ROADMAP_ROLE=DERIVED_VIEW")
 print("PRODUCTION_BASELINE_RECONCILIATION=PASS")
