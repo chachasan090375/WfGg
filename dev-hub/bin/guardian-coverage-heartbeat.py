@@ -21,15 +21,20 @@ def digest(path:Path)->str|None:
 
 def proof_status(root:Path,component:dict[str,Any])->tuple[bool,dict[str,Any]]:
     proof=component.get("proof") if isinstance(component.get("proof"),dict) else {}
-    rel=str(proof.get("file") or "")
-    marker=str(proof.get("marker") or "")
-    if not rel:return False,{"reason":"PROOF_FILE_MISSING"}
-    path=root/rel
-    if not path.is_file():return False,{"reason":"PROOF_TARGET_MISSING","file":rel}
-    try:text=path.read_text(encoding="utf-8")
-    except Exception as exc:return False,{"reason":"PROOF_READ_FAILED","file":rel,"error":type(exc).__name__}
-    ok=bool(marker and marker in text)
-    return ok,{"file":rel,"marker":marker,"marker_present":ok,"sha256":digest(path)}
+    primary={"file":proof.get("file"),"marker":proof.get("marker")}
+    checks=[primary]+[x for x in (proof.get("checks") or []) if isinstance(x,dict)]
+    details=[]
+    for check in checks:
+        rel=str(check.get("file") or "");marker=str(check.get("marker") or "")
+        if not rel:return False,{"reason":"PROOF_FILE_MISSING","checks":details}
+        path=root/rel
+        if not path.is_file():return False,{"reason":"PROOF_TARGET_MISSING","file":rel,"checks":details}
+        try:text=path.read_text(encoding="utf-8")
+        except Exception as exc:return False,{"reason":"PROOF_READ_FAILED","file":rel,"error":type(exc).__name__,"checks":details}
+        ok=bool(marker and marker in text)
+        details.append({"file":rel,"marker":marker,"marker_present":ok,"sha256":digest(path)})
+        if not ok:return False,{"reason":"PROOF_MARKER_MISSING","file":rel,"marker":marker,"checks":details}
+    return True,{"checks":details,"proof_count":len(details)}
 
 def dynamic_class_status(root:Path,component:dict[str,Any])->tuple[bool,dict[str,Any]]:
     cid=str(component.get("component_id") or "")
