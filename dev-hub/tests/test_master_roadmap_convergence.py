@@ -35,6 +35,9 @@ assert [x["train"] for x in convoy["trains"]]==[6,7,8,9,10,11,12]
 
 
 trains={x.get("id"):x for x in M.get("historical_release_trains",[])}
+assert trains["historical-roadmap-train-03"]["promotion_state"]=="PROMOTED_AND_ANCESTOR_OF_CURRENT_PRODUCTION"
+assert trains["historical-roadmap-train-03"]["promoted_revision"]=="3d403f60fe1a5c836b6fb84ddef24b7d74378307"
+assert trains["historical-roadmap-train-03"]["current_production_descends_from_train03"] is True
 assert trains["historical-roadmap-train-04"]["promotion_state"]=="NOT_PROMOTED"
 assert trains["historical-roadmap-train-04"]["qualified_candidate_revision"]=="3197446894758202d9f879f881fda4f8a61f980f"
 assert trains["historical-roadmap-train-05"]["promotion_state"]=="NOT_PROMOTED"
