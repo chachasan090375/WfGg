@@ -1,0 +1,74 @@
+{
+  "schema": "chacha.dev/component-materialization-manifest/v1",
+  "component_id": "chacha-remote-operator-python-runtime",
+  "governance_class": "RUNTIME_INFRASTRUCTURE",
+  "owner_foundry": "branch-foundry",
+  "materialization_gate_required": true,
+  "purpose": "Isolated persistent Python runtime for the private ChaCha Remote Operator MCP and its outbound-only conversational-client tunnel adapter.",
+  "scope": "PLATFORM",
+  "health_contract": {
+    "mcp": "MCP_HTTP_LOOPBACK_8767",
+    "mcp_endpoint": "http://127.0.0.1:8767/mcp",
+    "tunnel_client_health": "/healthz",
+    "tunnel_client_readiness": "/readyz",
+    "tunnel_client_metrics": "/metrics"
+  },
+  "lifecycle": "MATERIALIZING",
+  "runtime_profile": "PYTHON_SERVICE_RUNTIME",
+  "isolation": "DEDICATED_VERSIONED_VENV",
+  "system_python_mutation_forbidden": true,
+  "dependency_source": "pyproject.toml",
+  "service_manager": "systemd",
+  "rollback_policy": "ROLLBACK_REQUIRED_WHEN_MATERIAL",
+  "retention_policy": "CLASS_DEFAULT_RETENTION",
+  "purge_policy": "UNIVERSAL_HYGIENE",
+  "mcp_runtime": {
+    "bind": "127.0.0.1",
+    "port": 8767,
+    "path": "/mcp",
+    "transport": "streamable-http",
+    "public_ingress_forbidden": true
+  },
+  "secure_mcp_tunnel": {
+    "status": "UNMATERIALIZED",
+    "client": "openai/tunnel-client",
+    "release_selection": "LATEST_PUBLIC_RELEASE_AT_MATERIALIZATION_TIME",
+    "hardcoded_release_version_forbidden": true,
+    "profile": "chacha-remote-operator",
+    "private_mcp_server_url": "http://127.0.0.1:8767/mcp",
+    "network_initiation": "OUTBOUND_ONLY",
+    "allowed_control_plane_egress": [
+      "https://api.openai.com:443/v1/tunnel/*"
+    ],
+    "public_mcp_ingress_forbidden": true,
+    "tunnel_id_source": "RUNTIME_CONTROL_PLANE_ONLY",
+    "control_plane_api_key_env": "CONTROL_PLANE_API_KEY",
+    "control_plane_api_key_source": "RUNTIME_SECRET_ONLY",
+    "credential_in_git_forbidden": true,
+    "doctor_required_before_run": true,
+    "health_and_readiness_required_before_chatgpt_registration": true,
+    "systemd_candidate_unit": "chacha-remote-operator-tunnel.service",
+    "platform_tunnel_read_use_permissions_required": true,
+    "platform_tunnel_manage_permission_required_for_creation_or_edit": true,
+    "chatgpt_workspace_association_required": true,
+    "human_platform_provisioning_boundary": true
+  },
+  "governance": {
+    "canonical_stop_required": true,
+    "guardian_required": true,
+    "sentinelle_required_before_production": true,
+    "bastion_required_for_network_exposure": true,
+    "ccr_required": true,
+    "umg_required": true,
+    "automatic_external_spend_eur": 0,
+    "automatic_paid_upgrade_forbidden": true
+  },
+  "activation": {
+    "mcp_source_qualified": true,
+    "tunnel_runtime_materialized": false,
+    "tunnel_identity_materialized": false,
+    "chatgpt_registration_complete": false,
+    "production_active": false
+  },
+  "automatic_external_spend_eur": 0
+}
