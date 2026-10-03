@@ -454,9 +454,14 @@ async function createRemediation(env,{alertId,eventId,severity,reasons,payload})
   if(["BLOCK","CRITICAL"].includes(String(severity))){
     const holdKey=[plan.target_actor,plan.project_id||"*",plan.run_id||"*"].join("|");
     await env.DB.prepare(
-      `INSERT OR IGNORE INTO remediation_holds
+      `INSERT INTO remediation_holds
         (hold_key,directive_id,target_actor,target_role,project_id,run_id,severity,active,created_at)
-        VALUES(?1,?2,?3,?4,?5,?6,?7,1,datetime('now'))`
+        VALUES(?1,?2,?3,?4,?5,?6,?7,1,datetime('now'))
+        ON CONFLICT(hold_key) DO UPDATE SET
+          directive_id=excluded.directive_id,target_actor=excluded.target_actor,target_role=excluded.target_role,
+          project_id=excluded.project_id,run_id=excluded.run_id,severity=excluded.severity,
+          active=1,created_at=datetime('now'),cleared_at=NULL
+        WHERE remediation_holds.active=0`
     ).bind(holdKey,directiveId,plan.target_actor,plan.target_role,plan.project_id,plan.run_id,String(severity)).run();
   }
   return directiveId;
@@ -842,6 +847,22 @@ async function readbackFunctionalContractPin(req,env){
   });
 }
 
+export function normalizeFunctionalContractCriteria(criteria,allowLegacyPinnedId=false){
+  if(!Array.isArray(criteria))return {ok:false,error:"functional_contract_criteria_invalid",criteria:[],legacy_alias_count:0};
+  const ids=new Set(),normalized=[];let legacyAliasCount=0;
+  for(const criterion of criteria){
+    const canonical=String(criterion&&criterion.criterion_id||"").trim();
+    const legacy=String(criterion&&criterion.id||"").trim();
+    if(canonical&&legacy&&canonical!==legacy)return {ok:false,error:"functional_contract_criterion_id_ambiguous",criteria:[],legacy_alias_count:legacyAliasCount};
+    const cid=canonical||(allowLegacyPinnedId?legacy:"");
+    if(!cid)return {ok:false,error:"functional_contract_criterion_id_invalid",criteria:[],legacy_alias_count:legacyAliasCount};
+    if(ids.has(cid))return {ok:false,error:"functional_contract_criterion_id_duplicate",criterion_id:cid,criteria:[],legacy_alias_count:legacyAliasCount};
+    ids.add(cid);if(!canonical&&legacy)legacyAliasCount++;
+    normalized.push({...criterion,criterion_id:cid});
+  }
+  return {ok:true,criteria:normalized,legacy_alias_count:legacyAliasCount};
+}
+
 async function functionalAcceptance(req,env){
   const body=await req.text();
   const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
@@ -854,15 +875,15 @@ async function functionalAcceptance(req,env){
   if(!acceptance||acceptance.schema!=="chacha.dev/acceptance-result/v1")return json({error:"acceptance_result_invalid"},400);
   const contractId=String(contract.contract_id||"");
   if(!contractId)return json({error:"functional_contract_id_missing"},400);
-  const contractCriteria=Array.isArray(contract.criteria)?contract.criteria:null;
-  if(!contractCriteria)return json({error:"functional_contract_criteria_invalid"},400);
-  const contractCriterionIds=new Set();
-  for(const criterion of contractCriteria){
-    const cid=String(criterion&&criterion.criterion_id||"").trim();
-    if(!cid)return json({error:"functional_contract_criterion_id_invalid"},400);
-    if(contractCriterionIds.has(cid))return json({error:"functional_contract_criterion_id_duplicate",criterion_id:cid},400);
-    contractCriterionIds.add(cid);
-  }
+  const contractDigest=await sha256Hex(stable(contract));
+  const pinned=await env.DB.prepare(
+    "SELECT contract_id,contract_digest FROM project_functional_contracts WHERE project_id=?1"
+  ).bind(projectId).first();
+  const exactPinnedContract=Boolean(pinned&&String(pinned.contract_id)===contractId&&String(pinned.contract_digest)===contractDigest);
+  const normalizedContract=normalizeFunctionalContractCriteria(contract.criteria,exactPinnedContract);
+  if(!normalizedContract.ok)return json({error:normalizedContract.error,criterion_id:normalizedContract.criterion_id||undefined},400);
+  const contractCriteria=normalizedContract.criteria;
+  const legacyPinnedCriterionAliases=Number(normalizedContract.legacy_alias_count||0);
   const acceptanceCriteria=Array.isArray(acceptance.criteria)?acceptance.criteria:null;
   if(!acceptanceCriteria)return json({error:"acceptance_criteria_invalid"},400);
   const acceptanceCriterionIds=new Set();
@@ -872,10 +893,6 @@ async function functionalAcceptance(req,env){
     if(acceptanceCriterionIds.has(cid))return json({error:"acceptance_criterion_id_duplicate",criterion_id:cid},400);
     acceptanceCriterionIds.add(cid);
   }
-  const contractDigest=await sha256Hex(stable(contract));
-  const pinned=await env.DB.prepare(
-    "SELECT contract_id,contract_digest FROM project_functional_contracts WHERE project_id=?1"
-  ).bind(projectId).first();
   const reasons=[];
   let severity="INFO";
   if(!pinned){
@@ -931,6 +948,8 @@ async function functionalAcceptance(req,env){
     functional_scope_only:true,direct_application_mutation:false,
     central_orchestrator_owns_remediation:true,
     resolved_functional_contract_drift_remediations:resolvedFunctionalDriftRemediations,
+    legacy_pinned_criterion_aliases:legacyPinnedCriterionAliases,
+    legacy_pinned_contract_compatibility:legacyPinnedCriterionAliases>0,
     assurance_exchange_delivery:exchangeDelivery,
     checked_at:new Date().toISOString()
   },verdict==="PASS"?200:409);
