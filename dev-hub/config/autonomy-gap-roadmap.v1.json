@@ -1,13 +1,13 @@
 {
   "schema": "chacha.dev/autonomy-gap-roadmap/v1",
   "scope": "chacha-dev-only",
-  "updated_at": "2026-09-28T20:12:50Z",
+  "updated_at": "2026-10-03T10:45:00Z",
   "score_percent": 73,
   "score_label": "Couverture de la feuille de route autonomie",
   "counts": {
     "GREEN": 3,
-    "ORANGE": 6,
-    "RED": 2
+    "ORANGE": 8,
+    "RED": 1
   },
   "legend": {
     "GREEN": "Terminé et actif",
@@ -66,10 +66,18 @@
     {
       "id": "provider-independence",
       "label": "Indépendance cognitive / fournisseurs IA",
-      "status": "RED",
-      "progress": 35,
-      "state": "MANQUE_IMPORTANT",
-      "evidence": "Fallback multi-provider partiel ; absence de fallback local durable capable de maintenir l’intelligence quand tous les quotas externes sont épuisés."
+      "status": "ORANGE",
+      "progress": 65,
+      "state": "TRAIN05_NATIVE_LOCAL_QUALIFIED_NOT_PROMOTED",
+      "evidence": "Le socle native-local du Train 05 est déjà construit et qualifié autour de Qwen3.5-0.8B-Q4_0 : model registry, resource admission réel PASS, shadow soak réel 9/9 PASS et output budgeting. Il reste non promu ; toute évolution cognitive doit récupérer ce socle sans créer de seconde implémentation concurrente."
+    },
+    {
+      "id": "cognitive-memory-fabric",
+      "label": "Cognitive Runtime mutualisé & mémoire agents",
+      "status": "ORANGE",
+      "progress": 40,
+      "state": "MAJOR_EVOLUTION_DEPENDS_ON_TRAIN05_NATIVE_LOCAL",
+      "evidence": "Évolution majeure à construire au-dessus du socle Train 05 existant, sans réimplémenter Qwen : Cognitive Runtime local mutualisé et advisory-only pour agents/composants adaptatifs ; Memory Router ; mémoire de travail VPS ; mémoires épisodique, sémantique et procédurale par agent ; mémoire centrale partagée ; Historical Memory Bootstrap ; Memory Curator ; provenance/confiance/versioning ; tiering VPS HOT + NAS LONG_TERM avec fonctionnement dégradé si NAS indisponible. Aucune autorité de route, architecture, sécurité ou promotion accordée au modèle."
     },
     {
       "id": "persistent-missions",

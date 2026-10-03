@@ -73,6 +73,10 @@
     "resilience-ha": {
       "mode": "HUMAN_BOUNDARY",
       "reason": "NO_CANONICAL_HA_RUNTIME_COMPONENT_REGISTERED"
+    },
+    "cognitive-memory-fabric": {
+      "mode": "AUTO_REASSESS",
+      "component_id": "core:learning-fabric"
     }
   }
 }
