@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-04T16:25:00Z",
+  "updated_at": "2026-10-04T16:29:00Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -475,7 +475,7 @@
       "id": "VIRTUAL_OS_DEVICE_LAB",
       "action": "Converge QNAP/VPS/target-platform validation runners; can be developed in parallel with step 6 but production binding must respect feasibility/resource gates.",
       "state": "SHADOW_PLANNER_IMPLEMENTED_REAL_QNAP_INVENTORY_PASS",
-      "evidence": "Virtual OS & Device Lab planner implemented with immutable/checksummed image policy and real read-only host inventory. ChaChaNas audit proves QNAP Virtualization Station/QKVM 4.1.0.338 enabled, VT-x/KVM/libvirtd active, 4 CPU threads, 7.663 GiB RAM, 4.522 GiB available at observation and zero defined VMs. Pilot routes Linux/Web to VPS; Windows/FreeBSD to QNAP host pending verified images; iOS/macOS/Android accelerated/hardware-specific validation fail closed on missing native/device runners. No VM created, no automatic provisioning or spend."
+      "evidence": "Historical Virtual OS/Device Lab delta reconciled onto current functional line after Execution Planner and Resource-Aware Scheduler; current-line qualification pending."
     },
     {
       "order": 8,
@@ -880,7 +880,7 @@
         "phase": "F06",
         "id": "VIRTUAL_OS_DEVICE_LAB",
         "priority": "P1",
-        "state": "SHADOW_REAL_QNAP_INVENTORY_PASS_TO_RECONCILE",
+        "state": "CURRENT_LINE_RECONCILED_PENDING_LOCAL_QUALIFICATION",
         "depends_on": [
           "F02"
         ],
@@ -893,7 +893,8 @@
           "VPS/QNAP runners",
           "immutable image policy",
           "fail-closed unsupported targets"
-        ]
+        ],
+        "reconciled_parent": "4ee2d6a92bf79f841fad77e8591db0323cb5783b"
       },
       {
         "phase": "F07",
