@@ -4,6 +4,7 @@ import argparse,base64,json,subprocess,tempfile,time,urllib.error,urllib.parse,u
 from pathlib import Path
 from typing import Any
 import d1_quota_circuit as d1qc
+import sovereign_state_authority as ssa
 
 DEFAULT_POLICY=Path("/opt/chacha-dev/platform/current/dev-hub/config/assurance-exchange-runtime-policy.v1.json")
 MAX_RESPONSE=2*1024*1024
@@ -45,7 +46,7 @@ def unsigned_json_request(method:str,url:str,payload:dict[str,Any])->urllib.requ
     return urllib.request.Request(url,data=body,headers={"Content-Type":"application/json",
       "Accept":"application/json","User-Agent":"ChaCha-DEV-Assurance-Exchange-Client/1.0"},method=method)
 def http(req:urllib.request.Request)->tuple[int,dict[str,Any]]:
-    blocked=d1qc.unavailable_payload("assurance-exchange-client")
+    blocked=d1qc.unavailable_payload("assurance-exchange-client") if ssa.d1_quota_applies(req.full_url) else None
     if blocked:return 503,blocked
     try:
         with urllib.request.urlopen(req,timeout=30) as r:
@@ -61,7 +62,7 @@ def http(req:urllib.request.Request)->tuple[int,dict[str,Any]]:
     return status,x
 
 def policy_values(path:Path)->tuple[dict[str,Any],str,Path]:
-    p=load(path);return p,str(p["external_url"]).rstrip("/"),Path(p["private_key"])
+    p=load(path);return p,ssa.endpoint("assurance-exchange"),Path(p["private_key"])
 def register_project_assurance_identity(policy_path:Path,registration:Path)->int:
     _,url,key=policy_values(policy_path)
     if not key.is_file():return 30

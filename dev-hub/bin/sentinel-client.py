@@ -4,6 +4,7 @@ import argparse,base64,hashlib,json,subprocess,tempfile,time,urllib.error,urllib
 from pathlib import Path
 from typing import Any
 import d1_quota_circuit as d1qc
+import sovereign_state_authority as ssa
 
 DEFAULT_POLICY=Path("/opt/chacha-dev/platform/current/dev-hub/config/sentinel-runtime-policy.v1.json")
 MAX_RESPONSE=2*1024*1024
@@ -38,7 +39,7 @@ def signed_request(method:str,url:str,key:Path,body:bytes=b"")->urllib.request.R
     if method.upper()!="GET":headers["Content-Type"]="application/json"
     return urllib.request.Request(url,data=(body if method.upper()!="GET" else None),headers=headers,method=method.upper())
 def http(req:urllib.request.Request)->tuple[int,dict[str,Any]]:
-    blocked=d1qc.unavailable_payload("sentinel-client")
+    blocked=d1qc.unavailable_payload("sentinel-client") if ssa.d1_quota_applies(req.full_url) else None
     if blocked:return 503,blocked
     try:
         with urllib.request.urlopen(req,timeout=30) as r:
@@ -54,7 +55,7 @@ def http(req:urllib.request.Request)->tuple[int,dict[str,Any]]:
     return status,x
 
 def policy(p:Path)->tuple[dict[str,Any],str,Path]:
-    x=load(p);return x,str(x["external_url"]).rstrip("/"),Path(x["private_key"])
+    x=load(p);return x,ssa.endpoint("sentinel"),Path(x["private_key"])
 def register_project_assurance_identity(policy_path:Path,registration:Path)->int:
     _,url,key=policy(policy_path)
     if not key.is_file():return 30
