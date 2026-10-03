@@ -1,0 +1,30 @@
+{
+  "schema": "chacha.dev/creation-runtime-e2e-shadow/v1",
+  "status": "SHADOW_PLAN_READY",
+  "project_id": "e2e-api-backend",
+  "artifact_ref_count": 1,
+  "feasibility": "FIT",
+  "recursive_nodes": 3,
+  "specialist_cells": 9,
+  "foundry_gaps": 0,
+  "execution_tasks": 5,
+  "parallel_waves": 4,
+  "max_parallel_tasks_planned": 2,
+  "os_routes": 2,
+  "blockers": [],
+  "task_execution_performed": false,
+  "vm_creation_performed": false,
+  "foundry_invoked": false,
+  "production_mutation": false,
+  "automatic_external_spend_eur": 0,
+  "receipts": [
+    "/opt/chacha-dev/runtime/e2e-creation-shadow-fit/01-feasibility.json",
+    "/opt/chacha-dev/runtime/e2e-creation-shadow-fit/02-composition.json",
+    "/opt/chacha-dev/runtime/e2e-creation-shadow-fit/03-recursive-specialization.json",
+    "/opt/chacha-dev/runtime/e2e-creation-shadow-fit/04-specialists.json",
+    "/opt/chacha-dev/runtime/e2e-creation-shadow-fit/05-execution-plan.json",
+    "/opt/chacha-dev/runtime/e2e-creation-shadow-fit/06-parallel-plan.json",
+    "/opt/chacha-dev/runtime/e2e-creation-shadow-fit/07-os-lab-plan.json"
+  ],
+  "observed_at": "2026-10-03T20:45:04Z"
+}

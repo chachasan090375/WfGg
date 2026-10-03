@@ -23,6 +23,7 @@ assert rec["FEASIBILITY_AND_SOLUTION_COMPOSER"]["state"]=="SHADOW_IMPLEMENTED_PE
 assert rec["ARTIFACT_AND_SPECIALIST_BINDING_PARALLEL_BUILD"]["state"].startswith("SHADOW_IMPLEMENTED_LOCAL_QUALIFICATION_PASS")
 assert rec["RESOURCE_AWARE_EXECUTION"]["state"]=="EXECUTION_DAG_PLUS_RESOURCE_PLANNER_SHADOW_IMPLEMENTED_LOCAL_PASS"
 assert rec["VIRTUAL_OS_DEVICE_LAB"]["state"]=="SHADOW_PLANNER_IMPLEMENTED_REAL_QNAP_INVENTORY_PASS"
+assert rec["END_TO_END_CREATION_RUNTIME"]["state"]=="E2E_SHADOW_PLAN_READY_LOCAL_PASS"
 orders=[x["order"] for x in M["production_convergence_order"]]
 assert orders==list(range(len(orders)))
 assert M["production_convergence_order"][0]["id"]=="BASELINE_RECONCILIATION"

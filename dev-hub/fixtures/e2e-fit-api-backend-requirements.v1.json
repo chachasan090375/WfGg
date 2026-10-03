@@ -1,0 +1,17 @@
+{
+  "requirements_id": "e2e-fit-api-backend",
+  "cpu_cores": 1.0,
+  "ram_gib": 1.0,
+  "gpu_vram_gib": 0,
+  "storage_free_gib": 0.5,
+  "storage_iops": 0,
+  "network_mbps": 0,
+  "os_families": [
+    "linux"
+  ],
+  "runtimes": [
+    "python"
+  ],
+  "virtualization": [],
+  "device_access": []
+}

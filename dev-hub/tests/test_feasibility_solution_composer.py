@@ -67,6 +67,11 @@ def test_no_execution_or_production_authority_and_no_spend():
  f=A.audit(infra(),req(),FP);out=C.compose(intent(),f,SP);assert out['execution_authority'] is False and out['production_authority'] is False and out['automatic_external_spend_eur']==0
  assert SP['architecture_council_recommendation_only'] is True and SP['logician_challenge_required_before_release_plan'] is True
 
+def test_artifact_refs_survive_composition_without_gaining_execution_authority():
+ i=intent();i["artifact_refs"]=[{"artifact_id":"art-fixture","sha256":"sha256:"+"1"*64,"execution_allowed":False}]
+ f=A.audit(infra(),req(),FP);out=C.compose(i,f,SP);assert out["artifact_refs"]==i["artifact_refs"];assert out["execution_authority"] is False
+
+
 def test_birth_contracts_require_umg_and_shadow():
  for rel in ['dev-hub/config/infrastructure-feasibility-auditor.birth.v1.json','dev-hub/config/solution-composer.birth.v1.json']:
   b=json.loads((ROOT/rel).read_text());assert b['materialization_gate_required'] is True;assert b['governance_class']=='CORE_PLATFORM_COMPONENT';assert b['owner_foundry']=='branch-foundry';assert b['production_activation_authorized'] is False
