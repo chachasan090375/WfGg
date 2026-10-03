@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs,urlparse
 from progress_state_controller import ProgressStore
+from artifact_fabric import ArtifactStore,ArtifactError
 import operator_directive_intake as odi
 
 HUMAN_RESPONSE_SCHEMA="chacha.dev/human-interface-response/v1"
@@ -136,6 +137,7 @@ def wrap(intent:dict[str,Any],receipt:dict[str,Any])->dict[str,Any]:
       "brain_decision_obtained":receipt.get("brain_decision_obtained") is True and status not in {"BRAIN_UNAVAILABLE","BRAIN_RECEIPT_INVALID"},
       "next_action":receipt.get("next_action") or "AWAIT_USER_DIRECTIVE",
       "evidence_refs":receipt.get("evidence_refs") or [],
+      "artifact_refs":receipt.get("artifact_refs") or receipt.get("artifacts") or [],
       "brain_receipt":receipt,
       "interface_direct_technical_decision":False,"interface_direct_mutation":False,
       "automatic_external_spend_eur":0
@@ -146,6 +148,10 @@ class State:
         self.repo=repo;self.runtime=runtime;self.policy=policy
         self.root=Path(str(policy.get("runtime_root") or runtime/"direct-operator"))
         self.root.mkdir(parents=True,exist_ok=True)
+        artifact_cfg=policy.get("artifact_fabric") if isinstance(policy.get("artifact_fabric"),dict) else {}
+        artifact_root=Path(str(artifact_cfg.get("runtime_root") or runtime/"artifacts"))
+        self.artifact_max_per_intent=max(1,min(128,int(artifact_cfg.get("max_artifacts_per_intent") or 32)))
+        self.artifacts=ArtifactStore(artifact_root,int(artifact_cfg.get("max_upload_bytes") or 67108864))
         self.jobs=self.root/"jobs";self.jobs.mkdir(parents=True,exist_ok=True)
         self.responses=self.root/"responses";self.responses.mkdir(parents=True,exist_ok=True)
         self.conversations=self.root/"conversations";self.conversations.mkdir(parents=True,exist_ok=True)
@@ -291,8 +297,10 @@ class State:
           "channel":response.get("channel") or ("BUILD" if response.get("route")=="CHACHA_DEV" else None),
           "subroute":response.get("subroute"),
           "submitted_at":response.get("submitted_at"),"responded_at":response.get("responded_at") or cv.get("responded_at"),
-          "user":{"role":"user","text":str(response.get("submitted_user_message") or "")},
+          "user":{"role":"user","text":str(response.get("submitted_user_message") or ""),
+                  "artifact_ids":list(response.get("attached_artifact_ids") or [])},
           "assistant":{"role":"assistant","text":str(cv.get("message") or response.get("message") or ""),
+                       "artifact_refs":list(response.get("artifact_refs") or []),
                        "kind":cv.get("kind") or "INFO",
                        "persona_id":(
                          (cv.get("dialogue_orchestrator") or {}).get("speaker_persona_id")
@@ -388,32 +396,36 @@ class State:
         raw=(operator+"\n"+project+"\n"+str(channel).upper()+"\n"+client_request_id).encode("utf-8")
         return hashlib.sha256(raw).hexdigest()
 
-    def accept_intent(self,text:str,project:str,operator:str,client_request_id:str,channel:str="BUILD")->tuple[str,bool]:
+    def accept_intent(self,text:str,project:str,operator:str,client_request_id:str,channel:str="BUILD",artifact_ids:list[str]|None=None)->tuple[str,bool]:
         channel=str(channel or "BUILD").upper()
         if channel not in {"CONVERSATION","BUILD"}:raise ValueError("CHANNEL_INVALID")
         client_request_id=str(client_request_id or "").strip()
         if not re.fullmatch(r"[A-Za-z0-9._:-]{8,128}",client_request_id):
             raise ValueError("CLIENT_REQUEST_ID_INVALID")
+        artifact_ids=list(dict.fromkeys(map(str,artifact_ids or [])))
+        if len(artifact_ids)>self.artifact_max_per_intent:raise ValueError("TOO_MANY_ARTIFACTS")
+        self.artifacts.validate_refs(artifact_ids,self.operator_key(operator),project)
         key=self.idempotency_key(operator,project,client_request_id,channel)
         p=self.idempotency/(key+".json")
         text_digest="sha256:"+hashlib.sha256(text.encode("utf-8")).hexdigest()
+        artifact_digest="sha256:"+hashlib.sha256(json.dumps(artifact_ids,separators=(",",":"),ensure_ascii=False).encode()).hexdigest()
         with self.lock:
             if p.is_file():
                 x=load(p)
-                if (x.get("text_digest")!=text_digest or x.get("operator")!=operator or
+                if (x.get("text_digest")!=text_digest or x.get("artifact_digest")!=artifact_digest or x.get("operator")!=operator or
                     x.get("project_id")!=project or str(x.get("channel") or "BUILD").upper()!=channel):
                     raise RuntimeError("IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST")
                 jid=str(x.get("job_id") or "")
                 if jid and self.job_path(jid).is_file():return jid,False
             jid="doj-"+uuid.uuid4().hex
             self.set_job(jid,state="QUEUED",operator=operator,project_id=project,channel=channel,
-                         client_request_id=client_request_id,text_digest=text_digest)
+                         client_request_id=client_request_id,text_digest=text_digest,artifact_ids=artifact_ids)
             atomic(p,{"schema":"chacha.dev/direct-operator-idempotency/v1","client_request_id":client_request_id,
                       "job_id":jid,"operator":operator,"project_id":project,"channel":channel,
-                      "text_digest":text_digest,"created_at":now_iso()})
+                      "text_digest":text_digest,"artifact_digest":artifact_digest,"artifact_ids":artifact_ids,"created_at":now_iso()})
             return jid,True
 
-    def process_conversation(self,jid:str,text:str,project:str,operator:str)->None:
+    def process_conversation(self,jid:str,text:str,project:str,operator:str,artifact_ids:list[str]|None=None)->None:
         project=stable_project(project,str(self.policy.get("default_project") or "chacha-dev-platform"))
         request_id="dor-"+uuid.uuid4().hex
         work=self.root/"requests"/request_id;work.mkdir(parents=True,exist_ok=True)
@@ -510,6 +522,7 @@ class State:
               "heavy_build_pipeline_called":False,"scheduler_called":False,"run_controller_called":False,
               "foundry_called":False,"conversation":conversation,"message":conversation.get("message"),
               "operator_directive_intake":directive_intake,
+              "attached_artifact_ids":list(artifact_ids or []),
               "submitted_user_message":text,"submitted_at":now_iso(),"session_project_id":project,
               "automatic_external_spend_eur":0
             }
@@ -533,10 +546,10 @@ class State:
             self.progress.fail("ChaCha Conversation a rencontré un problème")
             self.set_job(jid,state="FAILED",channel="CONVERSATION",error=str(exc)[:2000])
 
-    def process(self,jid:str,text:str,project:str,operator:str,channel:str="BUILD")->None:
+    def process(self,jid:str,text:str,project:str,operator:str,channel:str="BUILD",artifact_ids:list[str]|None=None)->None:
         channel=str(channel or "BUILD").upper()
         if channel=="CONVERSATION" and normalize(text)!="STOP":
-            return self.process_conversation(jid,text,project,operator)
+            return self.process_conversation(jid,text,project,operator,artifact_ids)
         project=stable_project(project,str(self.policy.get("default_project") or "chacha-dev-platform"))
         request_id="dor-"+uuid.uuid4().hex
         command=normalize(text)
@@ -547,6 +560,8 @@ class State:
           "source":"direct-operator","route":"CHACHA_DEV","command":command,"user_text":text,
           "project_id":project,"target_scope":"PLATFORM" if project=="chacha-dev-platform" else "PROJECT",
           "interface_decision_authority":False,"operator_identity":operator}
+        artifact_meta=self.artifacts.validate_refs(list(artifact_ids or []),self.operator_key(operator),project)
+        intent["artifact_refs"]=[{k:x.get(k) for k in ("artifact_id","filename","mime_type","size","sha256","origin","security_state","execution_allowed","version","parent_artifact")} for x in artifact_meta]
         if recovery_target:intent["recovery_target_request_id"]=recovery_target
         atomic(work/"intent.json",intent)
         initial_state="CENTRAL_ORCHESTRATION" if recovery_target or command!="INSTRUCTION" else "TRANSLATING"
@@ -601,6 +616,9 @@ class State:
                   "--request-id",request_id,"--output-dir",str(trans)],180)
                 if p.returncode!=0:raise RuntimeError("FUNCTIONAL_TRANSLATOR_FAILED:"+p.stderr[-1200:])
                 translation=load(trans/"translation.json")
+                if intent.get("artifact_refs"):
+                    interface_intent_path=trans/"interface-intent.json"
+                    interface_intent=load(interface_intent_path);interface_intent["artifact_refs"]=intent["artifact_refs"];atomic(interface_intent_path,interface_intent)
                 self.progress.update("functional-translator-satellite",100,"COMPLETE","Intention prête",45,"Demande comprise ✨")
                 self.set_job(jid,state="CENTRAL_ORCHESTRATION",translation=translation)
                 self.progress.update("central-interface-controller",55,"RUNNING","Transmission au cerveau central",62,"Transmission au cerveau central")
@@ -704,6 +722,7 @@ class State:
             response["submitted_at"]=intent.get("received_at")
             response["session_project_id"]=project
             response["operator_directive_intake"]=directive_intake
+            response["attached_artifact_ids"]=list(artifact_ids or [])
             response["continuation_steps"]=continuation_steps
             response["progress"]=self.progress.snapshot()
             if recovery_target:
@@ -766,6 +785,18 @@ class Handler(BaseHTTPRequestHandler):
             return self.json(200,self.st.effective_live_shell_config())
         if path=="/api/v1/native-update":
             return self.json(200,self.st.effective_native_update_manifest())
+        if path=="/api/v1/artifacts":
+            qs=parse_qs(parsed.query);project=(qs.get("project") or [None])[0]
+            items=self.st.artifacts.list(self.st.operator_key(identity),project,100)
+            return self.json(200,{"schema":"chacha.dev/artifact-list/v1","items":items,"count":len(items),"automatic_external_spend_eur":0})
+        if path.startswith("/api/v1/artifacts/"):
+            tail=path[len("/api/v1/artifacts/"):];metadata_only=tail.endswith("/metadata");aid=tail[:-9] if metadata_only else tail
+            try:
+                meta=self.st.artifacts.authorize(aid,self.st.operator_key(identity))
+                if metadata_only:return self.json(200,meta)
+                target=self.st.artifacts.content_path(aid,self.st.operator_key(identity));raw=target.read_bytes()
+            except ArtifactError as e:return self.json(404,{"status":str(e)})
+            self.send_response(200);self.send_header("Content-Type",str(meta.get("mime_type") or "application/octet-stream"));self.send_header("Content-Length",str(len(raw)));self.send_header("Content-Disposition",'attachment; filename="'+safe_id(str(meta.get("filename") or "artifact.bin"))+'"');self.send_header("Cache-Control","no-store");self.send_header("X-Content-Type-Options","nosniff");self.end_headers();self.wfile.write(raw);return
         if path.startswith("/api/v1/jobs/"):
             jid=path.rsplit("/",1)[-1];p=self.st.job_path(jid)
             if not p.is_file():return self.json(404,{"status":"NOT_FOUND"})
@@ -798,6 +829,16 @@ class Handler(BaseHTTPRequestHandler):
         identity=self.auth()
         if not identity:return
         path=urlparse(self.path).path
+        if path=="/api/v1/artifacts":
+            try:n=int(self.headers.get("Content-Length") or 0)
+            except Exception:n=0
+            filename=str(self.headers.get("X-Artifact-Filename") or "").strip()
+            if not filename:return self.json(400,{"status":"ARTIFACT_FILENAME_REQUIRED"})
+            s=self.st.session();default_project=str(self.st.policy.get("default_project") or "chacha-dev-platform")
+            project=stable_project(self.headers.get("X-Artifact-Project") or s.get("active_project"),default_project)
+            try:meta=self.st.artifacts.ingest_stream(self.rfile,n,filename,str(self.headers.get("Content-Type") or "application/octet-stream"),self.st.operator_key(identity),project,"user-upload",str(self.headers.get("X-Artifact-Parent") or "").strip() or None)
+            except ArtifactError as e:return self.json(413 if str(e)=="ARTIFACT_TOO_LARGE" else 400,{"status":str(e)})
+            return self.json(201,meta)
         if path=="/api/v1/human-profile":
             maxb=min(int(self.st.policy.get("max_request_bytes") or 65536),32768)
             try:n=int(self.headers.get("Content-Length") or 0)
@@ -818,6 +859,8 @@ class Handler(BaseHTTPRequestHandler):
         if not text:return self.json(400,{"status":"TEXT_REQUIRED"})
         channel=str(body.get("channel") or ((self.st.policy.get("dual_channel") or {}).get("default_api_channel")) or "BUILD").upper()
         if channel not in {"CONVERSATION","BUILD"}:return self.json(400,{"status":"CHANNEL_INVALID"})
+        artifact_ids=body.get("artifact_ids") or []
+        if not isinstance(artifact_ids,list) or not all(isinstance(x,str) for x in artifact_ids):return self.json(400,{"status":"ARTIFACT_IDS_INVALID"})
         client_request_id=str(body.get("client_request_id") or "").strip()
         legacy_client_request_id=not bool(client_request_id)
         if legacy_client_request_id:client_request_id="legacy-"+uuid.uuid4().hex
@@ -825,14 +868,14 @@ class Handler(BaseHTTPRequestHandler):
         default_project=str(self.st.policy.get("default_project") or "chacha-dev-platform")
         project=stable_project(body.get("project") or s.get("active_project"),default_project)
         try:
-            jid,created=self.st.accept_intent(text,project,identity,client_request_id,channel)
+            jid,created=self.st.accept_intent(text,project,identity,client_request_id,channel,artifact_ids)
         except ValueError as e:return self.json(400,{"status":str(e)})
         except RuntimeError as e:return self.json(409,{"status":str(e)})
         if created:
-            threading.Thread(target=self.st.process,args=(jid,text,project,identity,channel),daemon=True).start()
+            threading.Thread(target=self.st.process,args=(jid,text,project,identity,channel,artifact_ids),daemon=True).start()
         state=load(self.st.job_path(jid)).get("state") or "QUEUED"
         self.json(202,{"status":"ACCEPTED","job_id":jid,"state":state,"project_id":project,
-                       "channel":channel,"client_request_id":client_request_id,"deduplicated":not created,
+                       "channel":channel,"client_request_id":client_request_id,"artifact_ids":artifact_ids,"deduplicated":not created,
                        "legacy_non_idempotent_client":legacy_client_request_id})
 
 def main()->int:

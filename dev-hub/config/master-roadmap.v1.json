@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-03T20:28:01Z",
+  "updated_at": "2026-10-03T20:36:47Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -261,7 +261,7 @@
     {
       "id": "specialist-intelligence",
       "priority": "P0",
-      "state": "RECURSIVE_SHADOW_FOUNDATION_IMPLEMENTED",
+      "state": "RECURSIVE_PLUS_SPECIALIST_RESOLUTION_SHADOW_IMPLEMENTED",
       "includes": [
         "Cognitive Memory Fabric",
         "Head+Arm domains",
@@ -275,7 +275,7 @@
     {
       "id": "artifact-fabric",
       "priority": "P0",
-      "state": "REQUIREMENTS_DEFINED_RUNTIME_MISSING",
+      "state": "SHADOW_IMPLEMENTED_LOCAL_QUALIFICATION_PASS",
       "includes": [
         "chat/API upload",
         "chat/API output",
@@ -426,7 +426,8 @@
       "order": 5,
       "id": "ARTIFACT_AND_SPECIALIST_BINDING_PARALLEL_BUILD",
       "action": "Develop Artifact Fabric and Specialist Cell/Foundry binding in parallel on isolated worktrees; serialize production promotion after each exact-SHA qualification.",
-      "state": "PENDING"
+      "state": "SHADOW_IMPLEMENTED_LOCAL_QUALIFICATION_PASS_D1_EXTERNAL_ATTESTATION_DEFERRED",
+      "evidence": "Artifact Fabric and Specialist Cell Resolver implemented on one cumulative production-derived line. Artifact API/chat upload+download, SHA256 content addressing, operator/project binding, generated output publishing and non-execution default pass 9/9 tests plus isolated readback/access-control pilot. Specialist resolver passes 9/9 tests; mixed solution pilot resolves 17 canonical cells, reuses 64 registered capabilities, identifies 5 planning-only capability Foundry gaps and invokes no Foundry. Direct Operator regressions pass. External exact-SHA CI intentionally deferred while D1 quota circuit is known open."
     },
     {
       "order": 6,

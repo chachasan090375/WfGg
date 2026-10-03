@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/direct-operator-policy/v1",
-  "version": "1.8.2",
+  "version": "1.9.0",
   "component": "direct-operator-service",
   "bind": "127.0.0.1",
   "port": 8792,
@@ -65,7 +65,9 @@
     "run_controller_runtime_roots_must_be_systemd_write_scoped": true,
     "operator_directive_runtime_root_must_be_systemd_write_scoped": true,
     "downstream_child_runtime_write_contract_required": true,
-    "downstream_child_processes_inherit_service_sandbox": true
+    "downstream_child_processes_inherit_service_sandbox": true,
+    "artifact_upload_never_implies_execution": true,
+    "artifact_operator_and_project_binding_required": true
   },
   "progress_policy": "dev-hub/config/progress-reporting.v1.json",
   "android_live_shell_config": "dev-hub/config/android-live-shell.v1.json",
@@ -168,5 +170,16 @@
     "guardian_and_platform_governance_preserved": true,
     "automatic_external_spend_eur": 0
   },
-  "downstream_runtime_write_contract": "dev-hub/config/direct-operator-downstream-runtime-writes.v1.json"
+  "downstream_runtime_write_contract": "dev-hub/config/direct-operator-downstream-runtime-writes.v1.json",
+  "artifact_fabric": {
+    "enabled": true,
+    "policy": "dev-hub/config/artifact-fabric.v1.json",
+    "runtime_root": "/opt/chacha-dev/runtime/artifacts",
+    "max_upload_bytes": 67108864,
+    "max_artifacts_per_intent": 32,
+    "private_api_only": true,
+    "raw_upload_endpoint": "/api/v1/artifacts",
+    "download_endpoint_prefix": "/api/v1/artifacts/",
+    "execution_on_upload": false
+  }
 }
