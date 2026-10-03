@@ -53,6 +53,11 @@ jobs:
           ids={r.get('component_id') for r in expected}
           print('GUARDIAN_RECONCILER_COVERAGE_D1_READONLY=PASS')
           print('EXPECTED_COUNT='+str(len(expected)))
+          candidate=json.load(open('dev-hub/config/guardian-coverage-manifest.v1.json'))
+          cids={r.get('component_id') for r in candidate.get('expected_components',[])}
+          print('CANDIDATE_EXPECTED_COUNT='+str(len(cids)))
+          print('D1_MISSING_FROM_CANDIDATE='+json.dumps(sorted(cids-ids)))
+          print('D1_EXTRA_VS_CANDIDATE='+json.dumps(sorted(ids-cids)))
           for cid in ['guardian-action-state-reconciler','guardian-critical-state-reconciler','governed-platform-promotion']:
               print('EXPECTED_'+cid.upper().replace('-','_')+'='+('YES' if cid in ids else 'NO'))
           for r in hb:
