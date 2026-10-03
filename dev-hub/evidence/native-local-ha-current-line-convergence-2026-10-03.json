@@ -1,0 +1,28 @@
+{
+  "schema": "chacha.dev/native-local-ha-current-line-convergence/v1",
+  "observed_at": "2026-10-03T23:18:00+02:00",
+  "current_platform_revision": "d84d389b74b5efe5e368f3d1c4851214d0ecc4fc",
+  "native_local": {
+    "source_terminal_equivalence": "IDENTICAL_TO_F58D_NATIVE_LOCAL_FINAL_PATHS",
+    "resource_admission_evidence": "dev-hub/evidence/native-local-resource-admission-current-vps-2026-10-03.json",
+    "resource_admission": "PASS",
+    "runtime_state_evidence": "dev-hub/evidence/native-local-current-runtime-state-2026-10-03.json",
+    "runtime_materialized": false,
+    "model_materialized": false,
+    "production_activation_authorized": false,
+    "advisory_only": true
+  },
+  "ha": {
+    "profile_terminal_equivalence": "IDENTICAL_TO_F58D_HA_FINAL_PATHS",
+    "historical_readiness_revision": "3d403f60fe1a5c836b6fb84ddef24b7d74378307",
+    "current_rehearsal_evidence": "dev-hub/evidence/ha-current-production-rehearsal-2026-10-03.json",
+    "current_rehearsal_status": "BLOCK",
+    "blockers": [
+      "PLATFORM_REVISION_MISMATCH"
+    ],
+    "failover_performed": false,
+    "writer_switch_performed": false,
+    "production_activation_authorized": false
+  },
+  "automatic_external_spend_eur": 0
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "chacha.dev/component-birth-candidate/v1",
+  "component_id": "native-local-cognitive-current-line",
+  "project_id": "chacha-dev-platform",
+  "materialization_gate_required": true,
+  "governance_class": "CORE_PLATFORM_COMPONENT",
+  "owner_foundry": "branch-foundry",
+  "purpose": "Current-line governed binding for the historically qualified Native Local cognitive runtime, lifecycle, adaptive model registry, resource admission, shadow soak and output budgeting. Source is converged only; runtime/model remain unmaterialized and advisory.",
+  "scope": "PLATFORM",
+  "permissions": [
+    "read",
+    "plan",
+    "advisory-only"
+  ],
+  "lifecycle": "SOURCE_CONVERGED->SHADOW->RESOURCE_ADMISSION->QUALIFY->PILOT->HUMAN_ACTIVATION",
+  "historical_terminal_reference": "f58d76f034b7e5ec423e312d78f8ca92b8d92111",
+  "runtime_policy": "dev-hub/config/local-cognitive-runtime.v1.json",
+  "resource_admission_policy": "dev-hub/config/native-local-resource-admission.v1.json",
+  "adaptive_registry": "dev-hub/config/adaptive-model-registry.v1.json",
+  "runtime_materialized": false,
+  "model_materialized": false,
+  "service_active": false,
+  "advisory_only": true,
+  "production_activation_authorized": false,
+  "automatic_external_spend_eur": 0
+}
