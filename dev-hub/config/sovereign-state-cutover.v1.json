@@ -1,0 +1,49 @@
+{
+  "schema": "chacha.dev/sovereign-state-cutover-policy/v1",
+  "version": "1.0.0",
+  "runtime_root": "/opt/chacha-dev/runtime/sovereign-state",
+  "authority_file": "/opt/chacha-dev/runtime/sovereign-state/authority.json",
+  "platform_revision_file": "/opt/chacha-dev/platform/current/.revision",
+  "required_bridge_revision": "8c984ab17bf7911ea0537b6c755c2ad44337c969",
+  "candidate_source_revision": "TO_BE_BOUND_AT_FINAL_QUALIFICATION",
+  "services": [
+    {
+      "id": "guardian",
+      "port": 8871,
+      "worker": "dev-hub/guardian/worker.js",
+      "db_rel": "guardian/state.db"
+    },
+    {
+      "id": "sentinel",
+      "port": 8872,
+      "worker": "dev-hub/sentinel/worker.js",
+      "db_rel": "sentinel/state.db"
+    },
+    {
+      "id": "assurance-exchange",
+      "port": 8873,
+      "worker": "dev-hub/assurance-exchange/worker.js",
+      "db_rel": "assurance-exchange/state.db"
+    },
+    {
+      "id": "learning-relay",
+      "port": 8874,
+      "worker": "dev-hub/learning-relay/worker.js",
+      "db_rel": "learning-relay/state.db"
+    }
+  ],
+  "cutover_requirements": {
+    "fresh_authoritative_export_required": true,
+    "double_export_digest_convergence_required": true,
+    "max_export_age_seconds": 300,
+    "candidate_parity_required": true,
+    "nas_readback_required": true,
+    "all_local_health_required": true,
+    "bridge_must_be_active": true,
+    "human_approval_required": true
+  },
+  "rollback_floor": "SOVEREIGN_STATE_COMPAT_BRIDGE",
+  "rollback_below_bridge_after_local_writes_forbidden": true,
+  "production_mutation_authorized": false,
+  "automatic_external_spend_eur": 0
+}

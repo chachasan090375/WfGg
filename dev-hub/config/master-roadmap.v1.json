@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-03T21:51:04Z",
+  "updated_at": "2026-10-03T22:03:55Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -693,6 +693,20 @@
     "resume_rule": "Resume from the first not-promoted current production-convergence train; do not replay already-acquired shadow/history proofs.",
     "production_mutation": false,
     "automatic_external_spend_eur": 0,
-    "evidence": "Authoritative read-only export of all 4 D1 databases succeeded; import/integrity PASS; candidate state is byte/table-digest identical to imported authority; 24 historical Guardian PRE/POST verdicts replay exactly; all 4 candidate workers read signed authoritative state; all 4 candidate DBs archived create-only to NAS with independent SHA+SQLite readback; live remote Guardian remains 503 only because D1 read quota is exhausted. No cutover performed."
+    "evidence": "Authoritative read-only export of all 4 D1 databases succeeded; import/integrity PASS; candidate state is byte/table-digest identical to imported authority; 24 historical Guardian PRE/POST verdicts replay exactly; all 4 candidate workers read signed authoritative state; all 4 candidate DBs archived create-only to NAS with independent SHA+SQLite readback; live remote Guardian remains 503 only because D1 read quota is exhausted. No cutover performed.",
+    "compatibility_bridge_revision": "8c984ab17bf7911ea0537b6c755c2ad44337c969",
+    "cutover_protocol": [
+      "qualify and activate compatibility bridge",
+      "quiesce D1 writers",
+      "obtain two fresh read-only exports with identical digests",
+      "import all four authoritative databases",
+      "prove table/state parity and historical verdict parity",
+      "stage and health-check four loopback services",
+      "switch runtime authority atomically to LOCAL_SQLITE",
+      "run Guardian/Sentinel/post-cutover stability proof",
+      "resume Master Roadmap above the bridge rollback floor"
+    ],
+    "rollback_floor": "8c984ab17bf7911ea0537b6c755c2ad44337c969",
+    "rollback_below_bridge_after_local_writes_forbidden": true
   }
 }

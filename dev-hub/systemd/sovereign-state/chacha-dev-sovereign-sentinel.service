@@ -1,0 +1,27 @@
+[Unit]
+Description=ChaCha DEV Sovereign State local sentinel
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+Environment=CHACHA_D1_LOCAL_BIND=127.0.0.1
+Environment=CHACHA_D1_LOCAL_PORT=8872
+Environment=CHACHA_D1_LOCAL_SERVICE=chacha-dev-sentinel-local
+Environment=CHACHA_D1_LOCAL_DB=/opt/chacha-dev/runtime/sovereign-state/current/state/sentinel.db
+Environment=CHACHA_D1_LOCAL_WORKER=/opt/chacha-dev/runtime/sovereign-state/current/workers/sentinel.js
+ExecStart=/usr/bin/node /opt/chacha-dev/runtime/sovereign-state/current/bin/d1-worker-local-runtime.mjs
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/chacha-dev/runtime/sovereign-state
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=192M
+TasksMax=32
+
+[Install]
+WantedBy=multi-user.target
