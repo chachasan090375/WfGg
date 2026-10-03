@@ -1,0 +1,24 @@
+{
+  "schema":"chacha.dev/resource-aware-parallel-orchestrator/v1",
+  "version":"1.0.0",
+  "scope":"PLATFORM_GLOBAL_SHADOW",
+  "goal":"MINIMIZE_TOTAL_PROJECT_ELAPSED_TIME_WITHOUT_RESOURCE_SATURATION_OR_CONTRACT_VIOLATION",
+  "rules":{
+    "dependency_aware":true,
+    "contract_first_parallelism":true,
+    "critical_path_priority":true,
+    "adaptive_concurrency":true,
+    "fixed_max_workers_as_single_policy":false,
+    "work_stealing_ready_queue":true,
+    "backpressure":true,
+    "integration_barriers":true,
+    "fail_closed_on_dependency_uncertainty":true,
+    "healthy_hosts_only":true
+  },
+  "resource_dimensions":["cpu_cores","ram_gib","gpu_vram_gib","storage_io_units","network_mbps"],
+  "contract_states_allowed_for_execution":["STABLE","NOT_REQUIRED"],
+  "host_health_allowed":["PASS","HEALTHY","READY"],
+  "production_authority":false,
+  "execution_authority":false,
+  "automatic_external_spend_eur":0
+}

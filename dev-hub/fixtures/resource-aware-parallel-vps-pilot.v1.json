@@ -1,0 +1,84 @@
+{
+  "schema": "chacha.dev/execution-task-graph/v1",
+  "project_id": "parallel-vps-shadow-pilot",
+  "tasks": [
+    {
+      "task_id": "api-contract",
+      "depends_on": [],
+      "resources": {
+        "cpu_cores": 0.5,
+        "ram_gib": 0.3
+      },
+      "estimated_minutes": 12,
+      "interface_contract_state": "STABLE",
+      "priority": 8,
+      "required_host_roles": [
+        "linux"
+      ]
+    },
+    {
+      "task_id": "backend-module",
+      "depends_on": [],
+      "resources": {
+        "cpu_cores": 0.5,
+        "ram_gib": 0.4
+      },
+      "estimated_minutes": 20,
+      "interface_contract_state": "STABLE",
+      "priority": 9,
+      "required_host_roles": [
+        "linux"
+      ]
+    },
+    {
+      "task_id": "documentation",
+      "depends_on": [],
+      "resources": {
+        "cpu_cores": 0.2,
+        "ram_gib": 0.2
+      },
+      "estimated_minutes": 8,
+      "interface_contract_state": "NOT_REQUIRED",
+      "priority": 2,
+      "required_host_roles": [
+        "linux"
+      ]
+    },
+    {
+      "task_id": "integration",
+      "depends_on": [
+        "api-contract",
+        "backend-module"
+      ],
+      "resources": {
+        "cpu_cores": 0.4,
+        "ram_gib": 0.3
+      },
+      "estimated_minutes": 10,
+      "interface_contract_state": "STABLE",
+      "priority": 10,
+      "required_host_roles": [
+        "linux"
+      ],
+      "integration_barrier": true
+    },
+    {
+      "task_id": "verification",
+      "depends_on": [
+        "integration",
+        "documentation"
+      ],
+      "resources": {
+        "cpu_cores": 0.5,
+        "ram_gib": 0.35
+      },
+      "estimated_minutes": 8,
+      "interface_contract_state": "NOT_REQUIRED",
+      "priority": 10,
+      "required_host_roles": [
+        "linux"
+      ],
+      "integration_barrier": true
+    }
+  ]
+}

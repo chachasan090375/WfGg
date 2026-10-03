@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-04T16:03:00Z",
+  "updated_at": "2026-10-04T16:06:00Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -467,8 +467,8 @@
       "order": 6,
       "id": "RESOURCE_AWARE_EXECUTION",
       "action": "Activate executable DAG/adaptive parallelism only after stable solution/interface contracts and specialist resolution exist.",
-      "state": "EXECUTION_DAG_PLUS_RESOURCE_PLANNER_SHADOW_IMPLEMENTED_LOCAL_PASS",
-      "evidence": "Resource-Aware Parallel Orchestrator implemented as planning-only component. 11/11 deterministic tests cover dependency waves, integration barriers, resource serialization, unstable interface contracts, critical-path priority, multi-host placement, live pressure, oversized tasks and DAG cycles. Real VPS pilot using audited safe capacity plans API + backend + documentation concurrently (3 tasks), then integration and verification barriers. UMG PASS; no execution/production authority or spend. Execution Planner now compiles Solution Graph + specialist resolution into atomic task DAGs: interface-contract tasks precede implementations, hard dependencies persist, one runtime capability per task, and integration/verification barriers are mandatory. 10/10 tests PASS; mixed real shadow project correctly blocks on unresolved Foundry gaps and NOT_FIT infrastructure."
+      "state": "CURRENT_LINE_RECONCILED_PENDING_LOCAL_QUALIFICATION",
+      "evidence": "Historical resource-aware planner commit 920c926b96191cac795d52da4ef99d1ff0514820 reconciled onto current functional line; qualification pending."
     },
     {
       "order": 7,
@@ -835,7 +835,7 @@
         "phase": "F04",
         "id": "RESOURCE_AWARE_EXECUTION_PLANNER",
         "priority": "P0",
-        "state": "SHADOW_LOCAL_PASS_TO_RECONCILE",
+        "state": "CURRENT_LINE_RECONCILED_PENDING_LOCAL_QUALIFICATION",
         "depends_on": [
           "F02",
           "F03"
@@ -850,7 +850,8 @@
           "resource budgets",
           "isolated parallel lanes",
           "integration barriers"
-        ]
+        ],
+        "reconciled_parent": "4a5c4e9d21267da2fb6886432cdaa6b62646e8ee"
       },
       {
         "phase": "F05",
