@@ -1,0 +1,52 @@
+{
+  "schema": "chacha.dev/component-materialization-manifest/v1",
+  "component_id": "chacha-remote-operator-python-runtime",
+  "governance_class": "RUNTIME_INFRASTRUCTURE",
+  "owner_foundry": "branch-foundry",
+  "materialization_gate_required": true,
+  "purpose": "Isolated persistent Python runtime for the owned ChaCha Remote Operator MCP.",
+  "scope": "PLATFORM",
+  "health_contract": {
+    "mcp": "MCP_HTTP_LOOPBACK_8767",
+    "mcp_endpoint": "http://127.0.0.1:8767/mcp"
+  },
+  "lifecycle": "MATERIALIZING",
+  "runtime_profile": "PYTHON_SERVICE_RUNTIME",
+  "isolation": "DEDICATED_VERSIONED_VENV",
+  "system_python_mutation_forbidden": true,
+  "dependency_source": "pyproject.toml",
+  "service_manager": "systemd",
+  "rollback_policy": "ROLLBACK_REQUIRED_WHEN_MATERIAL",
+  "retention_policy": "CLASS_DEFAULT_RETENTION",
+  "purge_policy": "UNIVERSAL_HYGIENE",
+  "automatic_external_spend_eur": 0,
+  "mcp_runtime": {
+    "bind": "127.0.0.1",
+    "port": 8767,
+    "path": "/mcp",
+    "transport": "streamable-http",
+    "public_ingress_forbidden": true
+  },
+  "exposure_adapter": {
+    "contract": "config/chatgpt-exposure.v1.json",
+    "state": "UNMATERIALIZED",
+    "separate_materialization_required": true,
+    "human_provisioning_boundary": true
+  },
+  "governance": {
+    "canonical_stop_required": true,
+    "canonical_route_authority_required": true,
+    "guardian_required": true,
+    "sentinelle_required_before_production": true,
+    "bastion_required_for_network_exposure": true,
+    "ccr_required": true,
+    "umg_required": true,
+    "automatic_external_spend_eur": 0
+  },
+  "activation": {
+    "mcp_source_qualified": false,
+    "production_active": false,
+    "exposure_materialized": false,
+    "runtime_secret_materialized": false
+  }
+}

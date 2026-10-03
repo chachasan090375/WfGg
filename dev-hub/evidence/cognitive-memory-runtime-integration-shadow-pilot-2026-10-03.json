@@ -1,0 +1,109 @@
+{
+  "schema": "chacha.dev/cognitive-memory-runtime-integration-evidence/v1",
+  "observed_at": "2026-10-03T18:02:00Z",
+  "status": "PASS",
+  "base_sha": "9a547adcedec6b62f2dff1053d89cf21369ec3de",
+  "runtime_pilot": {
+    "schema": "chacha.dev/cognitive-memory-runtime-pilot/v1",
+    "status": "PASS",
+    "cycle1": {
+      "schema": "chacha.dev/cognitive-memory-tiering-result/v1",
+      "status": "PASS",
+      "trigger": "INTERVAL",
+      "cycle": 1,
+      "material_change": true,
+      "archived": 1,
+      "results": [
+        {
+          "source": "/tmp/chacha-cmf-runtime-pilot-20261003/agent/pilot.db",
+          "source_fingerprint": "sha256:fd42848cbb54b0dad7909fdd1dceb484fbd08ab2923b1612e7fcc4b96b065e71",
+          "snapshot_digest": "sha256:3c96b3c398f00297320968ef2042e809184a5848616a4fabe41fdd551932f481",
+          "remote": "knowledge/cognitive-memory-shadow/20261003/3c96b3c398f002973209-pilot.db",
+          "publish": "NAS_DESTINATION_ALREADY_EXISTS",
+          "readback": "NAS_READBACK_OK",
+          "sqlite_integrity": "OK"
+        }
+      ],
+      "restore_probe": {
+        "status": "NOT_DUE",
+        "cycle": 1,
+        "interval_cycles": 2
+      },
+      "hot_purge_performed": false,
+      "hot_demote_performed": false,
+      "automatic_external_spend_eur": 0
+    },
+    "cycle2": {
+      "schema": "chacha.dev/cognitive-memory-tiering-result/v1",
+      "status": "PASS",
+      "trigger": "MISSION_ACCEPTED_COMPLETE",
+      "cycle": 2,
+      "material_change": false,
+      "archived": 0,
+      "results": [],
+      "restore_probe": {
+        "status": "PASS",
+        "remote": "knowledge/cognitive-memory-shadow/20261003/3c96b3c398f002973209-pilot.db",
+        "snapshot_digest": "sha256:3c96b3c398f00297320968ef2042e809184a5848616a4fabe41fdd551932f481",
+        "readback": "NAS_READBACK_OK",
+        "workspace_disposed": true
+      },
+      "hot_purge_performed": false,
+      "hot_demote_performed": false,
+      "automatic_external_spend_eur": 0
+    },
+    "ledger_cycle_count": 2,
+    "production_mutation": false,
+    "platform_current_modified": false,
+    "hot_purge_performed": false,
+    "automatic_external_spend_eur": 0,
+    "proof_digest": "sha256:1309c64f5edeebb4d0cc924183653d163b7c46ebb307fd8e818e495147d41c07"
+  },
+  "event_runtime": {
+    "schema": "chacha.dev/cognitive-memory-tiering-event-drain/v1",
+    "status": "PASS",
+    "processed": 1,
+    "results": [
+      {
+        "event_id": "cmf-event-88a0af96d502025427a6ce01",
+        "trigger": "MEMORY_PROMOTED_TRUSTED",
+        "result": {
+          "schema": "chacha.dev/cognitive-memory-tiering-result/v1",
+          "status": "PASS",
+          "trigger": "MEMORY_PROMOTED_TRUSTED",
+          "cycle": 3,
+          "material_change": false,
+          "archived": 0,
+          "results": [],
+          "restore_probe": {
+            "status": "NOT_DUE",
+            "cycle": 3,
+            "interval_cycles": 2
+          },
+          "hot_purge_performed": false,
+          "hot_demote_performed": false,
+          "automatic_external_spend_eur": 0
+        }
+      }
+    ],
+    "automatic_external_spend_eur": 0
+  },
+  "verified_invariants": {
+    "three_hour_schedule_configured": true,
+    "material_change_required": true,
+    "consistent_sqlite_snapshot": true,
+    "sqlite_wal_fingerprinted": true,
+    "nas_create_only": true,
+    "independent_readback": true,
+    "sha256_verified": true,
+    "periodic_restore_probe_sandbox": true,
+    "event_queue_runtime": true,
+    "hot_purge_automatic": false,
+    "hot_demote_automatic": false,
+    "production_activation_authorized": false,
+    "native_local_activated": false,
+    "automatic_external_spend_eur": 0
+  },
+  "production_active_unchanged": "d84d389b74b5efe5e368f3d1c4851214d0ecc4fc",
+  "evidence_digest": "sha256:ee6490a0c4bc7f744cb4a211c0df9b063ffc437086ddc3292c197b8dd1233630"
+}

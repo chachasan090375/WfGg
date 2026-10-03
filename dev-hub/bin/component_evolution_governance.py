@@ -30,7 +30,7 @@ def build_index(agent_profiles:dict[str,Any],core:dict[str,Any],providers:dict[s
              "forbidden_controls":list(spec.get("forbidden_controls") or []),
              "active_self_mutation":False,"self_promotion":False,"permission_expansion":False,
              "technology_watch_revalidation_required":True,"logician_falsification_required":True,
-             "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+             "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
         if meta:row["metadata"]=meta
         if cid in entries:
             old=entries[cid]

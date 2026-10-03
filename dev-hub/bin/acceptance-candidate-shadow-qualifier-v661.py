@@ -51,7 +51,7 @@ def main()->int:
       manifest.get("incumbent_control_group") is True and manifest.get("shadow_required") is True and
       manifest.get("pilot_required") is True and manifest.get("production_activation_allowed") is False and
       manifest.get("active_self_mutation") is False and manifest.get("self_promotion") is False and
-      manifest.get("permission_expansion") is False and manifest.get("architecture_council_final_authority") is True and
+      manifest.get("permission_expansion") is False and manifest.get("architecture_council_final_authority") is False and manifest.get("architecture_council_recommendation_authority") is True and
       float(manifest.get("automatic_external_spend_eur") or 0)==0 and
       candplan.get("owner")=="agent-foundry" and candplan.get("isolated") is True and
       candplan.get("incumbent_control_group") is True and candplan.get("shadow_required") is True and
@@ -106,7 +106,7 @@ def main()->int:
       "measurable_gain_required_for_future_promotion":True,"no_material_regression_required":True,
       "active_self_mutation":False,"self_promotion":False,"permission_expansion":False,
       "technology_watch_revalidation_required":True,"logician_falsification_required":True,
-      "guardian_required":True,"sentinel_required":True,"architecture_council_final_authority":True,
+      "guardian_required":True,"sentinel_required":True,"architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "canonical_observation_bus_mutation":False,"benchmark_evidence_mutation":False,
       "automatic_external_spend_eur":0,"real_cases":real_cases
     }
@@ -119,7 +119,7 @@ def main()->int:
     print("CHACHA_DEV_V661_INCUMBENT_CONTROL_GROUP=YES")
     print("CHACHA_DEV_V661_SELF_MUTATION=NO")
     print("CHACHA_DEV_V661_SELF_PROMOTION=NO")
-    print("CHACHA_DEV_V661_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
+    print("CHACHA_DEV_V661_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
     print("CHACHA_DEV_V661_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
     return 0 if pilot_eligible else 20
 

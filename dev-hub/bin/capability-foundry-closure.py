@@ -206,7 +206,7 @@ def build_plan(foundry:dict[str,Any],caps:dict[str,Any],provider_registry:dict[s
       },
       "automatic_external_spend_eur":0,
       "technology_watch_evidence_required":True,
-      "architecture_council_final_authority":True
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True
     }
 
 

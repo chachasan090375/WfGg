@@ -1,0 +1,212 @@
+{
+  "schema": "chacha.dev/canonical-route-authority/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "authority_model": "EXPLICIT_CAPABILITY_ROUTE_AND_PERMISSION_CONTRACT",
+  "principles": {
+    "unknown_route_fails_closed": true,
+    "unknown_authority_fails_closed": true,
+    "agents_cannot_expand_own_authority": true,
+    "route_policy_mutation_requires_explicit_human_approval": true,
+    "guardian_sentinel_and_stop_cannot_be_bypassed": true,
+    "security_gate_unavailable_blocks_instead_of_fallback": true,
+    "fallback_must_be_predeclared": true,
+    "fallback_preserves_or_reduces_authority": true,
+    "fallback_cannot_change_functional_intent_into_technical_execution": true,
+    "ingress_components_have_no_technical_decision_authority": true,
+    "functional_intent_and_technical_execution_are_separate_authority_classes": true,
+    "direct_provider_execution_by_non_executor_agents_is_forbidden": true,
+    "remote_operator_is_preferred_only_when_capability_supported_healthy_and_policy_allowed": true,
+    "third_party_remote_connectors_are_fallback_only": true,
+    "automatic_external_spend_eur": 0
+  },
+  "decision_boundaries": {
+    "deterministic_execution": "INTERNAL_ALLOWED_WITHIN_FIXED_CONTRACT",
+    "bounded_local_recovery": "INTERNAL_ALLOWED_WITHIN_FIXED_SCOPE_AND_AUTHORITY",
+    "architectural_decision": "EXTERNAL_AUTHORITY_REQUIRED",
+    "scope_change": "EXTERNAL_AUTHORITY_REQUIRED",
+    "ambiguous_evidence": "EXTERNAL_AUTHORITY_REQUIRED",
+    "security_policy": "EXTERNAL_AUTHORITY_REQUIRED",
+    "promotion": "EXPLICIT_HUMAN_REQUIRED",
+    "route_or_authority_change": "EXPLICIT_HUMAN_REQUIRED",
+    "new_iteration_requires_material_signal": true,
+    "bounded_local_recovery_max_distinct_variants": 3
+  },
+  "routes": [
+    {
+      "route_id": "direct-operator-functional-build",
+      "class": "FUNCTIONAL_INTENT",
+      "priority": 10,
+      "chain": [
+        "operator-surface",
+        "direct-operator",
+        "functional-translator",
+        "central-orchestrator",
+        "scheduler",
+        "run-controller",
+        "registered-adapter"
+      ],
+      "required_gates": [
+        "canonical-stop",
+        "route-authority",
+        "guardian-when-governed",
+        "sentinel-before-production",
+        "explicit-human-production-approval"
+      ],
+      "forbidden": [
+        "direct-provider-execution",
+        "direct-production-promotion",
+        "technical-decision-at-ingress"
+      ]
+    },
+    {
+      "route_id": "remote-mcp-functional-build",
+      "class": "FUNCTIONAL_INTENT",
+      "priority": 100,
+      "chain": [
+        "conversational-client",
+        "chacha-remote-operator-mcp",
+        "direct-operator-m2m",
+        "functional-translator",
+        "central-orchestrator",
+        "scheduler",
+        "run-controller",
+        "registered-adapter"
+      ],
+      "preferred_when": [
+        "capability-supported",
+        "runtime-healthy",
+        "policy-allowed",
+        "canonical-stop-clear"
+      ],
+      "required_gates": [
+        "canonical-stop",
+        "route-authority",
+        "m2m-authentication",
+        "replay-protection",
+        "sentinel-before-production",
+        "explicit-human-production-approval"
+      ],
+      "forbidden": [
+        "remote-mcp-direct-central-orchestrator",
+        "arbitrary-command",
+        "direct-provider-execution",
+        "authority-expansion"
+      ]
+    },
+    {
+      "route_id": "remote-mcp-governed-read",
+      "class": "BOUNDED_REMOTE_READ",
+      "priority": 100,
+      "chain": [
+        "conversational-client",
+        "chacha-remote-operator-mcp",
+        "remote-operator-gateway-agent",
+        "named-read-operation"
+      ],
+      "preferred_when": [
+        "capability-supported",
+        "runtime-healthy",
+        "policy-allowed",
+        "canonical-stop-clear"
+      ],
+      "required_gates": [
+        "canonical-stop",
+        "route-authority",
+        "operation-allowlist",
+        "single-writer-lease",
+        "guardian-pre",
+        "guardian-post"
+      ],
+      "forbidden": [
+        "write-operation",
+        "arbitrary-command",
+        "production-deploy",
+        "authority-expansion"
+      ]
+    },
+    {
+      "route_id": "third-party-remote-fallback",
+      "class": "OPERATOR_FALLBACK",
+      "priority": 10,
+      "chain": [
+        "authorized-operator",
+        "third-party-remote-connector",
+        "authorized-target"
+      ],
+      "allowed_fallback_from": [
+        "remote-mcp-functional-build",
+        "remote-mcp-governed-read"
+      ],
+      "allowed_reasons": [
+        "preferred-route-unavailable",
+        "capability-not-supported",
+        "runtime-unhealthy"
+      ],
+      "required_gates": [
+        "same-request-policy",
+        "same-or-lower-permission",
+        "canonical-stop",
+        "explicit-human-production-approval-if-production"
+      ],
+      "forbidden": [
+        "policy-denied-bypass",
+        "security-gate-bypass",
+        "guardian-bypass",
+        "sentinel-bypass",
+        "authority-expansion"
+      ]
+    },
+    {
+      "route_id": "internal-governed-execution",
+      "class": "TECHNICAL_EXECUTION",
+      "priority": 100,
+      "chain": [
+        "central-orchestrator",
+        "scheduler",
+        "run-controller",
+        "registered-adapter",
+        "provider"
+      ],
+      "required_gates": [
+        "route-authority",
+        "capability-contract",
+        "provider-health",
+        "project-lock-for-write",
+        "independent-verification"
+      ],
+      "forbidden": [
+        "agent-direct-provider",
+        "unregistered-adapter",
+        "implicit-production-promotion"
+      ]
+    }
+  ],
+  "forbidden_bypasses": [
+    {
+      "from": "chacha-remote-operator-mcp",
+      "to": "central-orchestrator",
+      "reason": "DIRECT_OPERATOR_M2M_REQUIRED_FOR_FUNCTIONAL_BUILD"
+    },
+    {
+      "from": "direct-operator",
+      "to": "provider",
+      "reason": "CENTRAL_ORCHESTRATOR_SCHEDULER_RUN_CONTROLLER_REQUIRED"
+    },
+    {
+      "from": "specialist-agent",
+      "to": "provider",
+      "reason": "RUN_CONTROLLER_AND_REGISTERED_ADAPTER_REQUIRED"
+    },
+    {
+      "from": "fallback-route",
+      "to": "higher-authority",
+      "reason": "FALLBACK_CANNOT_EXPAND_AUTHORITY"
+    },
+    {
+      "from": "any-route",
+      "to": "guardian-sentinel-stop-bypass",
+      "reason": "SECURITY_GOVERNANCE_BYPASS_FORBIDDEN"
+    }
+  ]
+}

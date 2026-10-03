@@ -1,12 +1,12 @@
 {
   "schema": "chacha.dev/autonomy-gap-roadmap/v1",
   "scope": "chacha-dev-only",
-  "updated_at": "2026-09-28T20:12:50Z",
-  "score_percent": 73,
+  "updated_at": "2026-10-03T19:13:04Z",
+  "score_percent": 69,
   "score_label": "Couverture de la feuille de route autonomie",
   "counts": {
     "GREEN": 3,
-    "ORANGE": 6,
+    "ORANGE": 9,
     "RED": 2
   },
   "legend": {
@@ -66,10 +66,26 @@
     {
       "id": "provider-independence",
       "label": "Indépendance cognitive / fournisseurs IA",
-      "status": "RED",
+      "status": "ORANGE",
+      "progress": 65,
+      "state": "TRAIN05_NATIVE_LOCAL_QUALIFIED_NOT_PROMOTED",
+      "evidence": "Le socle native-local du Train 05 est déjà construit et qualifié autour de Qwen3.5-0.8B-Q4_0 : model registry, resource admission réel PASS, shadow soak réel 9/9 PASS et output budgeting. Il reste non promu ; toute évolution cognitive doit récupérer ce socle sans créer de seconde implémentation concurrente."
+    },
+    {
+      "id": "cognitive-memory-fabric",
+      "label": "Cognitive Runtime mutualisé & mémoire agents",
+      "status": "ORANGE",
+      "progress": 80,
+      "state": "RUNTIME_TIERING_SHADOW_VERIFIED_NOT_PROMOTED",
+      "evidence": "Cognitive Memory Fabric fédère désormais mémoire agents et sources HOT centrales dans un runtime shadow gouverné : cadence 3 h, déclencheurs événementiels via queue locale fail-closed, snapshot SQLite cohérent avec fingerprint WAL, publication NAS create-only uniquement sur changement matériel, readback indépendant SHA-256, restore-probe périodique en workspace jetable, zéro purge/demotion HOT. Pilot NAS réel et trigger runtime PASS ; production et Native Local restent inchangés/non activés. Evidence: sha256:ee6490a0c4bc7f744cb4a211c0df9b063ffc437086ddc3292c197b8dd1233630"
+    },
+    {
+      "id": "multi-specialist-intelligence",
+      "label": "Intelligence multi-spécialiste par domaine",
+      "status": "ORANGE",
       "progress": 35,
-      "state": "MANQUE_IMPORTANT",
-      "evidence": "Fallback multi-provider partiel ; absence de fallback local durable capable de maintenir l’intelligence quand tous les quotas externes sont épuisés."
+      "state": "TWO_AXIS_FOUNDATION_PLUS_RECURSIVE_REQUIREMENTS_DEFINED",
+      "evidence": "Specialization Fabric est désormais défini sur deux axes complémentaires : spécialistes techniques horizontaux Tête+Bras et spécialistes verticaux par archétype d’application. Six archétypes canoniques initiaux composent les domaines existants sans dupliquer leurs Bras ; les archétypes rares restent éphémères jusqu’à preuves projet/benchmark. Technology Watch revalide les deux axes, Logicien devient spécialiste transversal logique/algorithmes/mathématiques sans autorité finale, et le Cockpit doit exposer les progressions domaine + archétype + readiness croisée. Fondation shadow 8/8 PASS ; runtime spécialisé et Foundry materialization restent à construire. Exigence supérieure ajoutée : classification Livrable → Archétype → Module/Sous-module → Domaine → Capacité, avec reclassification récursive par nœud et graphe de dépendances ; exigences définies mais runtime non encore matérialisé."
     },
     {
       "id": "persistent-missions",
@@ -102,6 +118,17 @@
       "progress": 25,
       "state": "NON_PROUVÉ",
       "evidence": "Rollback et STOP existent ; haute disponibilité actif/passif et reprise complète d’infrastructure ne sont pas encore prouvées."
+    },
+    {
+      "id": "creation-runtime-fabric",
+      "label": "Chaîne de création multimodale, parallèle & multi-OS",
+      "status": "RED",
+      "progress": 15,
+      "state": "REQUIREMENTS_DEFINED_NOT_RUNTIME_PROVEN",
+      "evidence": "Cahier des charges V1 défini : audit préalable de faisabilité infrastructure, Solution Composer, spécialisation récursive, Artifact Fabric bidirectionnelle, orchestration parallèle adaptative et Virtual Device & OS Lab multi-plateformes. Aucun runtime de ces nouvelles briques n’est encore qualifié."
     }
-  ]
+  ],
+  "roadmap_role": "DERIVED_AUTONOMY_VIEW",
+  "master_roadmap": "dev-hub/config/master-roadmap.v1.json",
+  "authority_note": "This file tracks autonomy gaps only and must not be used as the complete ChaCha DEV product backlog."
 }

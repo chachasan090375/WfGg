@@ -57,7 +57,7 @@ def build_dispatch(index:dict[str,Any],governance:dict[str,Any])->dict[str,Any]:
               "guardian_required":True,"sentinel_required":True,
               "shadow_required":bool(action.get("shadow_required") is True),
               "pilot_required":bool(action.get("pilot_required") is True),
-              "architecture_council_final_authority":True,
+              "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
               "materialization_authorized":False,"promotion_authorized":False,
               "direct_component_mutation":False,"permission_expansion":False,
               "automatic_external_spend_eur":0}
@@ -70,7 +70,7 @@ def build_dispatch(index:dict[str,Any],governance:dict[str,Any])->dict[str,Any]:
       "dispatch_complete":len(dispatches)==len(index.get("routed_actions") or []) and not blocked,
       "materialization_authorized":False,"promotion_authorized":False,
       "direct_component_mutation":False,"self_promotion":False,
-      "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
 def execute_shadow_dispatches(dispatch_index:dict[str,Any],governance:dict[str,Any],repo_root:Path,watch_provider=None,completed_dispatch_ids:set[str]|None=None)->dict[str,Any]:
     watch_provider=watch_provider or (lambda consumer,cid:tw.consult(
         repo_root,consumer=consumer,domain="platform-component-evolution",capabilities=[cid]))
@@ -110,7 +110,7 @@ def execute_shadow_dispatches(dispatch_index:dict[str,Any],governance:dict[str,A
       "shadow_execution_complete":len(results)+len(skipped)==len(dispatch_index.get("dispatches") or []) and not blocked and all_shadow,
       "materialization_authorized":False,"active_component_mutation":False,
       "promotion_authorized":False,"self_promotion":False,
-      "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
 
 def build_pilot_readiness(shadow_ledger:dict[str,Any],evidence_index:dict[str,Any])->dict[str,Any]:
     evidence_by={}
@@ -154,7 +154,7 @@ def build_pilot_readiness(shadow_ledger:dict[str,Any],evidence_index:dict[str,An
           "active_component_mutation":False,"promotion_authorized":False,
           "permission_expansion":False,"real_harness_required":True,
           "isolated_pilot_required":True,"guardian_required":True,"sentinel_required":True,
-          "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+          "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
         rows.append(row)
         if state=="PILOT_READY":ready.append(row)
         elif state=="HOLD_SHADOW":blocked.append(row)
@@ -163,7 +163,7 @@ def build_pilot_readiness(shadow_ledger:dict[str,Any],evidence_index:dict[str,An
       "rows":rows,"pilot_ready":ready,"hold_shadow":blocked,
       "candidate_presence_alone_never_authorizes_pilot":True,
       "pilot_execution_authorized":False,"production_change_authorized":False,
-      "promotion_authorized":False,"architecture_council_final_authority":True,
+      "promotion_authorized":False,"architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "automatic_external_spend_eur":0}
 
 def build_pilot_contracts(readiness:dict[str,Any],harness_registry:dict[str,Any])->dict[str,Any]:
@@ -211,7 +211,7 @@ def build_pilot_contracts(readiness:dict[str,Any],harness_registry:dict[str,Any]
           "logician_falsification_required":True,"rollback_required":True,
           "pilot_execution_authorized":True,"production_change_authorized":False,
           "promotion_authorized":False,"permission_expansion":False,
-          "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+          "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
         contracts.append(contract)
     return {"schema":"chacha.dev/platform-component-pilot-contract-index/v1",
       "pilot_ready_input_count":len(readiness.get("pilot_ready") or []),
@@ -219,7 +219,7 @@ def build_pilot_contracts(readiness:dict[str,Any],harness_registry:dict[str,Any]
       "contracts":contracts,"blocked":blocked,
       "default_admission":"DENY","synthetic_harness_for_production_decision":False,
       "production_change_authorized":False,"promotion_authorized":False,
-      "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
 
 def main()->int:
     ap=argparse.ArgumentParser()

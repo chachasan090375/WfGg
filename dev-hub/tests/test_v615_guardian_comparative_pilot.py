@@ -34,7 +34,11 @@ assert roles["principles"]["guardian_is_external_to_central_brain"] is True
 assert roles["principles"]["guardian_cannot_build_or_choose_architecture"] is True
 contracts={x["contract_id"]:x for x in roles["contracts"]}
 assert "FINAL_ARCHITECTURE_DECISION" in contracts["role:branch-foundry"]["forbidden_actions"]
-assert "FINAL_ARCHITECTURE_DECISION" in contracts["component:central-orchestrator"]["allowed_actions"]
+assert "FINAL_ARCHITECTURE_DECISION" not in contracts["component:central-orchestrator"]["allowed_actions"]
+assert "FINAL_ARCHITECTURE_DECISION" in contracts["component:central-orchestrator"]["forbidden_actions"]
+assert "REPORT_ARCHITECTURE_RECOMMENDATION" in contracts["component:central-orchestrator"]["allowed_actions"]
+assert "FINAL_ARCHITECTURE_DECISION" not in contracts["role:architecture-decision-council"]["allowed_actions"]
+assert "FINAL_ARCHITECTURE_DECISION" in contracts["role:architecture-decision-council"]["forbidden_actions"]
 assert "RUN_COMPARATIVE_PILOT" in contracts["role:comparative-pilot"]["allowed_actions"]
 
 # 3) Main execution and orchestration paths are actually guarded.

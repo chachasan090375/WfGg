@@ -256,7 +256,8 @@
     "uncontrolled_upgrade": false,
     "rollback_required": true,
     "regression_evidence_required_for_core_change": true,
-    "architecture_council_final_authority": true,
+    "architecture_council_final_authority": false,
+    "architecture_council_recommendation_authority": true,
     "guardian_authority_preserved": true,
     "sentinel_authority_preserved": true,
     "automatic_external_spend_eur": 0

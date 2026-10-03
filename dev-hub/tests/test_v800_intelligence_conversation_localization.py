@@ -55,7 +55,7 @@ with tempfile.TemporaryDirectory(prefix="v800-dark-watch-") as td:
     assert evaluation["status"]=="PASS"
     assert (Path(td)/"technology-truth-score.json").is_file()
     assert (Path(td)/"logician-falsification.json").is_file()
-    assert evaluation["architecture_council_final_authority"] is True
+    assert evaluation["architecture_council_final_authority"] is False
 
 # Prove that the same Technology Watch truth engine receives the normalized source.
 import sys

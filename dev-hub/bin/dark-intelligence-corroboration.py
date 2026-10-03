@@ -128,7 +128,7 @@ def evaluate(dossier:dict[str,Any],evidence:list[dict[str,Any]],policy:dict[str,
       "fact_promotion_allowed":False,
       "technology_watch_re_evaluation_required":True,
       "logician_falsification_required":True,
-      "architecture_council_final_authority":True,
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "guardian_required":True,"sentinel_required":True,
       "evidence_digest":digest(evidence),
       "automatic_external_spend_eur":0

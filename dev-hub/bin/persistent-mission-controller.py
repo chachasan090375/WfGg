@@ -93,8 +93,10 @@ def checkpoint(args)->dict[str,Any]:
         attempts[args.task_id]=int(attempts.get(args.task_id,0))+1
     max_attempts=int((pol.get("limits") or {}).get("max_attempts_per_task",3))
     human=bool(args.human_boundary) or any(int(v)>=max_attempts for v in attempts.values())
+    all_complete = set(completed) == set(state.get("task_order") or [])
+    status = "COMPLETE" if all_complete and not human else ("AWAIT_HUMAN" if human else "ACTIVE")
     state.update({"completed_tasks":completed,"attempts":attempts,"human_boundary":human,
-                  "status":"AWAIT_HUMAN" if human else "ACTIVE","next_resume_at":args.next_resume_at,
+                  "status":status,"next_resume_at":args.next_resume_at,
                   "updated_at":iso(),"automatic_external_spend_eur":0,"controller_executes_tasks":False})
     state.setdefault("applied_event_ids",[]).append(args.event_id)
     event={"schema":"chacha.dev/persistent-mission-checkpoint/v1","event_id":args.event_id,

@@ -105,7 +105,7 @@ def release_retirement(a)->dict[str,Any]:
       "active_release_preserved":active.is_dir(),"guardian_action_id":guardian.get("action_id"),
       "git_history_preserved":True,"remote_branch_deletion":False,"source_code_deletion":False,
       "canonical_observation_bus_rewrite":False,"benchmark_evidence_mutation":False,
-      "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
 
 def safe_temp_cleanup(a)->dict[str,Any]:
     manifest=load(a.manifest.resolve());config=load(a.hygiene_config.resolve());event=load(a.guardian_event.resolve());guardian=load(a.guardian_result.resolve())
@@ -136,7 +136,7 @@ def safe_temp_cleanup(a)->dict[str,Any]:
       "guardian_action_id":guardian.get("action_id"),"git_history_preserved":True,
       "remote_branch_deletion":False,"source_code_deletion":False,
       "canonical_observation_bus_rewrite":False,"benchmark_evidence_mutation":False,
-      "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
 
 def main()->int:
     ap=argparse.ArgumentParser();sub=ap.add_subparsers(dest="mode",required=True)

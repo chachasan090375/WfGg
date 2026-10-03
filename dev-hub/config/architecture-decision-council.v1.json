@@ -1,7 +1,7 @@
 {
   "schema": "chacha.dev/architecture-decision-council-policy/v1",
-  "version": "1.5.0",
-  "central_orchestrator_is_final_decider": true,
+  "version": "2.0.0",
+  "central_orchestrator_is_final_decider": false,
   "no_single_foundry_may_select_final_architecture": true,
   "mandatory_advisors": [
     "technology-watch-pre",
@@ -119,5 +119,11 @@
     "explicit_human_promotion_approval_required": true,
     "default_action_without_human_approval": "HOLD_INCUMBENT",
     "automatic_external_spend_eur": 0
-  }
+  },
+  "architecture_council_is_advisory": true,
+  "revalidated_reuse_may_dispatch_without_human": true,
+  "new_architecture_synthesis_requires_human_approval": true,
+  "material_architecture_change_requires_human_approval": true,
+  "route_authority_change_requires_human_approval": true,
+  "security_governance_change_requires_human_approval": true
 }

@@ -78,7 +78,7 @@ def main()->int:
       "freshness_grants_permissions":False,
       "guardian_authority_preserved":True,
       "sentinel_authority_preserved":True,
-      "architecture_council_final_authority":True,
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "automatic_external_spend_eur":0
     }
     proof["proof_digest"]=digest(proof)

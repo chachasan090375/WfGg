@@ -34,7 +34,8 @@
     "final_delivery_receipt_is_only_delivery_authority": true,
     "local_acceptance_is_provisional": true,
     "architecture_change_requires_technology_watch": true,
-    "architecture_council_final_authority": true,
+    "architecture_council_final_authority": false,
+    "architecture_council_recommendation_authority": true,
     "direct_mutation": false
   },
   "automatic_external_spend_eur": 0

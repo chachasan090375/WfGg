@@ -25,7 +25,8 @@
     "no_direct_application_mutation": true,
     "no_automatic_re_adoption_after_recovery": true,
     "technology_revalidation_required": true,
-    "architecture_council_final_authority": true
+    "architecture_council_final_authority": false,
+    "architecture_council_recommendation_authority": true
   },
   "economics": {
     "automatic_external_spend_eur": 0

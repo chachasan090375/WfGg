@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/direct-operator-policy/v1",
-  "version": "1.8.2",
+  "version": "1.9.0",
   "component": "direct-operator-service",
   "bind": "127.0.0.1",
   "port": 8792,
@@ -54,7 +54,7 @@
     "dialogue_model_may_only_rephrase_human_message": true,
     "dialogue_provider_requires_zero_cost_attestation": true,
     "voice_gateway_has_no_execution_authority": true,
-    "voice_gateway_has_no_build_auto_switch": false,
+    "voice_gateway_has_no_build_auto_switch": true,
     "operator_structural_directive_capture_before_downstream": true,
     "verified_existing_candidate_bypasses_new_domain_factory_bootstrap": true,
     "platform_recovery_instruction_never_bootstraps_new_project": true,
@@ -65,7 +65,10 @@
     "run_controller_runtime_roots_must_be_systemd_write_scoped": true,
     "operator_directive_runtime_root_must_be_systemd_write_scoped": true,
     "downstream_child_runtime_write_contract_required": true,
-    "downstream_child_processes_inherit_service_sandbox": true
+    "downstream_child_processes_inherit_service_sandbox": true,
+    "canonical_route_authority_required": true,
+    "direct_central_orchestrator_bypass_forbidden": true,
+    "fallback_cannot_expand_authority": true
   },
   "progress_policy": "dev-hub/config/progress-reporting.v1.json",
   "android_live_shell_config": "dev-hub/config/android-live-shell.v1.json",
@@ -168,5 +171,6 @@
     "guardian_and_platform_governance_preserved": true,
     "automatic_external_spend_eur": 0
   },
-  "downstream_runtime_write_contract": "dev-hub/config/direct-operator-downstream-runtime-writes.v1.json"
+  "downstream_runtime_write_contract": "dev-hub/config/direct-operator-downstream-runtime-writes.v1.json",
+  "canonical_route_authority": "dev-hub/config/canonical-route-authority.v1.json"
 }

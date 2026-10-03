@@ -1,0 +1,54 @@
+{
+  "schema": "chacha.dev/project-intent/v1",
+  "project": "chacha-remote-operator",
+  "title": "ChaCha Remote Operator MCP — self-hosted governed remote operations",
+  "problem": "ChaCha DEV needs a first-party zero-license-cost remote route that cannot bypass canonical routing, Guardian, Sentinelle, STOP or the existing Direct Operator when used for functional BUILD handoff.",
+  "goals": [
+    "Preserve the qualified bounded Remote Operator READ surface as the owned preferred remote route when capability, health and policy permit.",
+    "Add a separate functional-intent handoff through the existing Direct Operator M2M ingress without granting technical decision or mutation authority to the MCP.",
+    "Keep Remote Operations and Functional Intent as distinct authority classes.",
+    "Make route preference and fallback derive from the canonical route-authority contract rather than client or agent choice.",
+    "Preserve Guardian, Sentinelle, Bastion, canonical STOP, CCR, UMG, lifecycle, append-only evidence and zero automatic external spend.",
+    "Keep transport, authentication, routing, functional handoff and machine-operation policy as separate governed layers.",
+    "Remain capability/contract/schema driven and version agnostic."
+  ],
+  "non_goals": [
+    "Do not expose unrestricted shell, arbitrary argv, arbitrary HTTP, credentials or secret stores.",
+    "Do not impersonate a Tailscale user or fabricate identity headers.",
+    "Do not create a second Direct Operator or another operational source of truth.",
+    "Do not let Remote MCP call central-orchestrator or a provider directly for functional BUILD execution.",
+    "Do not grant technical decision, direct execution, direct mutation, production or destructive authority to the Remote MCP.",
+    "Do not convert policy denial, STOP or unavailable security gates into a fallback route.",
+    "Do not auto-purchase hosting, identity, tunnel or SaaS services."
+  ],
+  "current_change": {
+    "id": "route-authority-convergence-v1",
+    "purpose": "Converge Remote Operator V0.3, Direct Operator M2M ingress and conversational exposure under one canonical route-authority contract.",
+    "discovery_mode": "reuse-extend-adapt",
+    "pilot_only": true,
+    "rollback_required": true
+  },
+  "acceptance_criteria": [
+    "Remote governed READ and functional BUILD handoff use separate agents and Guardian authority contracts.",
+    "Remote MCP remains loopback-bound and raw command execution remains disabled.",
+    "Functional handoff follows Remote MCP -> Direct Operator M2M -> Central Orchestrator -> Scheduler -> Run Controller -> registered adapter.",
+    "M2M authentication is service-identity based, HMAC signed, replay-protected and never spoofs Tailscale identity.",
+    "Only POST /api/v1/m2m/intent and GET /api/v1/m2m/jobs/<owned-job> are allowed by the M2M service contract.",
+    "Canonical STOP or unreadable STOP authority blocks submission.",
+    "Unknown route, policy denial or security-gate failure fails closed and does not select fallback.",
+    "Fallback may be proposed only when predeclared and must preserve or reduce authority.",
+    "CCR discovers the Remote Operator project runtime from its materialization manifest.",
+    "UMG accepts persistent PLATFORM runtime infrastructure only with health, rollback, retention and purge contracts.",
+    "No production activation, tunnel materialization, secret materialization or platform/current switch is part of this change.",
+    "Automatic external spend remains 0 EUR."
+  ],
+  "architecture_invariants": [
+    "GitHub remains source-code and CI authority.",
+    "ChaCha DEV on ChaChaVPS remains runtime technical orchestrator and operational source of truth.",
+    "Canonical route-authority is the routing authority; individual agents and clients cannot invent bypasses.",
+    "Remote READ and functional BUILD handoff are separate authority classes.",
+    "MCP transport, exposure transport, M2M authentication and machine-operation policy remain separate layers.",
+    "Producer and verifier responsibilities remain separated.",
+    "Capabilities, contracts, schemas and manifests are preferred to major-version branching."
+  ]
+}

@@ -83,7 +83,7 @@ def agent_foundry_case(run:Path)->dict[str,Any]|None:
       "technology_watch_consulted":watch_ok,
       "memory_context_consumed":t.get("central_memory_recall_consumed") is True,
       "dispatch_allowed_after_foundry":b.get("domain_dispatch_allowed") is True,
-      "architecture_council_final_authority":b.get("architecture_decision_allowed") is True,
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "automatic_external_spend_zero":_zero_spend(b.get("external_spend_eur"))
     }
     return _result("agent-foundry-architect",run,checks,[top,finalp,bootp,councilp],
@@ -118,7 +118,7 @@ def branch_foundry_case(run:Path)->dict[str,Any]|None:
       "runtime_schedulable":b.get("runtime_schedulable") is True,
       "architecture_council_advisor_pass":_advisors_pass(c,"branch-foundry"),
       "technology_watch_consulted":watch_ok,
-      "architecture_council_final_authority":b.get("architecture_decision_allowed") is True,
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "automatic_external_spend_zero":_zero_spend(b.get("external_spend_eur"))
     }
     return _result("branch-foundry-architect",run,checks,[top,finalp,bootp,councilp],
@@ -140,7 +140,7 @@ def capability_foundry_case(run:Path)->dict[str,Any]|None:
       "technology_watch_consulted":cap.get("technology_watch_consulted") is True,
       "central_memory_consumed":cap.get("central_memory_recall_consumed") is True,
       "promotion_requires_qualification":cap.get("promotion_requires_qualification") is True,
-      "architecture_council_final_authority":b.get("architecture_decision_allowed") is True,
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "automatic_external_spend_zero":_zero_spend(b.get("external_spend_eur"))
     }
     return _result("capability-foundry-architect",run,checks,[capp,bootp,councilp,gapsp],
@@ -214,7 +214,7 @@ def attestation(agent_id:str,cases:list[dict[str,Any]])->dict[str,Any]:
       "decision_authority":False,"direct_mutation":False,
       "active_self_mutation":False,"self_promotion":False,"permission_expansion":False,
       "canonical_observation_bus_mutation":False,"benchmark_evidence_mutation":False,
-      "architecture_council_final_authority":True,"automatic_external_spend_eur":0
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0
     }
 
 def build(runtime_root:Path,output_root:Path)->dict[str,dict[str,Any]]:
@@ -253,7 +253,7 @@ def main()->int:
     print("CHACHA_DEV_V661_CANONICAL_OBSERVATION_BUS_MUTATION=NO")
     print("CHACHA_DEV_V661_SELF_MUTATION=NO")
     print("CHACHA_DEV_V661_SELF_PROMOTION=NO")
-    print("CHACHA_DEV_V661_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
+    print("CHACHA_DEV_V661_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
     print("CHACHA_DEV_V661_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
     return 0 if ok else 20
 

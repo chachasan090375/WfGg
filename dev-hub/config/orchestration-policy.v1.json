@@ -23,7 +23,8 @@
     "recovery_drill": "dev-hub/config/recovery-drill.v1.json",
     "platform_evidence": "dev-hub/config/platform-evidence.v1.json",
     "platform_readiness": "dev-hub/config/platform-readiness.v1.json",
-    "technical_design": "dev-hub/config/technical-design.v1.json"
+    "technical_design": "dev-hub/config/technical-design.v1.json",
+    "canonical_route_authority": "dev-hub/config/canonical-route-authority.v1.json"
   },
   "principles": {
     "least_privilege": true,
@@ -72,7 +73,12 @@
     "unknown_platform_readiness_blocks_execution": true,
     "product_requirement_precedes_technical_design": true,
     "product_owner_defines_what_specialists_define_how": true,
-    "implementation_requires_completed_technical_design": true
+    "implementation_requires_completed_technical_design": true,
+    "canonical_route_authority_required": true,
+    "unknown_route_fails_closed": true,
+    "fallback_cannot_expand_authority": true,
+    "security_or_policy_denial_cannot_trigger_fallback": true,
+    "route_authority_change_requires_explicit_human_approval": true
   },
   "permissions": {
     "read": {
@@ -112,6 +118,9 @@
       "approval": "explicit-human"
     },
     "signing-key-revocation": {
+      "approval": "explicit-human"
+    },
+    "route-authority-change": {
       "approval": "explicit-human"
     }
   },
@@ -363,6 +372,11 @@
     "technical_design_must_route_to_specialist_roles": true,
     "backend_change_requires_backend_api_architect": true,
     "data_change_requires_data_architect": true,
-    "technical_design_requires_cross_review": true
+    "technical_design_requires_cross_review": true,
+    "dispatch_route_must_be_canonical": true,
+    "fallback_route_must_be_predeclared": true,
+    "fallback_must_preserve_or_reduce_permission": true,
+    "policy_denied_never_falls_back": true,
+    "security_gate_unavailable_never_falls_back": true
   }
 }

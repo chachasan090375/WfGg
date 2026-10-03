@@ -1,0 +1,14 @@
+{
+  "schema": "chacha.dev/platform-maturity-live-source-adapter-policy/v1",
+  "version": "1.0.0",
+  "weights": {
+    "autonomy_roadmap": 80,
+    "constitutional_governance": 10,
+    "resilience": 10
+  },
+  "constitution_required_status": "STABLE",
+  "ha_required_status": "PASS",
+  "scorecard_schema": "chacha.dev/platform-maturity-scorecard/v1",
+  "adapter_has_execution_authority": false,
+  "automatic_external_spend_eur": 0
+}

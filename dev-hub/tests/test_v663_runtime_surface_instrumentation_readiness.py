@@ -80,7 +80,7 @@ with tempfile.TemporaryDirectory(prefix="v663-qualification-") as td:
              "--architecture-council",str(council),"--output",str(irev)])
     assert "INTEGRATION_READY=YES" in out
     iv=load(irev);assert iv["integration_ready"] is True and iv["linked_package_count"]==1,iv
-    assert iv["decision_authority"] is False and iv["architecture_council_final_authority"] is True,iv
+    assert iv["decision_authority"] is False and iv["architecture_council_final_authority"] is False,iv
 
     # Orchestrator instrumentation contracts: these are observed only when the real stage executes.
     spec=importlib.util.spec_from_file_location("apo_v663",BIN/"autonomous-project-orchestrator.py")
@@ -109,7 +109,7 @@ with tempfile.TemporaryDirectory(prefix="v663-qualification-") as td:
                 "decision":"INDEPENDENT_ISOLATED_PILOT_PASS_HOLD_INCUMBENT","isolated":True,
                 "incumbent_control_group":True,"production_activation_allowed":False,"promotion_allowed":False,
                 "technology_watch_revalidation_required":True,"logician_falsification_required":True,
-                "guardian_required":True,"sentinel_required":True,"architecture_council_final_authority":True})
+                "guardian_required":True,"sentinel_required":True,"architecture_council_final_authority":False,"architecture_council_recommendation_authority":True})
     save(acc_rt/"agent-evolution/fleet-observatory-latest.json",{"agents":[{
       "agent_id":"acceptance-engineer","plan":{"candidate":{"owner":"agent-foundry","isolated":True,"incumbent_control_group":True}}
     }]})
@@ -145,5 +145,5 @@ print("CHACHA_DEV_V663_ACCEPTANCE_PRODUCTION_ACTIVATION=NO")
 print("CHACHA_DEV_V663_ACCEPTANCE_PROMOTION=NO")
 print("CHACHA_DEV_V663_SELF_MUTATION=NO")
 print("CHACHA_DEV_V663_SELF_PROMOTION=NO")
-print("CHACHA_DEV_V663_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
+print("CHACHA_DEV_V663_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
 print("CHACHA_DEV_V663_AUTOMATIC_EXTERNAL_SPEND_EUR=0")

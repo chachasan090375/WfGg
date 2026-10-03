@@ -1,24 +1,197 @@
 {
   "schema": "chacha.dev/autonomy-constitution/v1",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "purpose": "Unified compliance index for ChaCha DEV autonomy boundaries. Operational authority remains in the referenced source policies.",
   "authority_model": "REFERENCE_ONLY_NO_DUPLICATE_RUNTIME_AUTHORITY",
   "automatic_external_spend_eur": 0,
   "clauses": [
-    {"id":"guardian-sentinel-no-bypass","kind":"active-directive","source":"dev-hub/config/operator-directives.v1.json","directive_id":"opdir-guardian-sentinel-no-bypass"},
-    {"id":"zero-auto-external-spend","kind":"active-directive","source":"dev-hub/config/operator-directives.v1.json","directive_id":"opdir-zero-auto-external-spend"},
-    {"id":"preserve-valid-qualification","kind":"active-directive","source":"dev-hub/config/operator-directives.v1.json","directive_id":"opdir-preserve-valid-qualification"},
-    {"id":"version-agnostic-runtime","kind":"active-directive","source":"dev-hub/config/operator-directives.v1.json","directive_id":"opdir-version-agnostic-runtime"},
-    {"id":"permanent-progress-visibility","kind":"active-directive","source":"dev-hub/config/operator-directives.v1.json","directive_id":"opdir-permanent-progress-visibility"},
-    {"id":"universal-materialization","kind":"active-directive","source":"dev-hub/config/operator-directives.v1.json","directive_id":"opdir-universal-materialization"},
-    {"id":"canonical-inventory","kind":"equals","source":"dev-hub/config/canonical-component-registry.v1.json","path":"principles.single_canonical_inventory","expected":true},
-    {"id":"unknown-component-fails-closed","kind":"equals","source":"dev-hub/config/canonical-component-registry.v1.json","path":"principles.unknown_component_fails_closed","expected":true},
-    {"id":"single-writer-promotion","kind":"equals","source":"dev-hub/config/platform-promotion-transaction.v1.json","path":"invariants.single_active_promotion_writer","expected":true},
-    {"id":"human-production-approval","kind":"equals","source":"dev-hub/config/platform-promotion-transaction.v1.json","path":"invariants.human_production_approval_still_required","expected":true},
-    {"id":"stop-latched","kind":"equals","source":"dev-hub/config/emergency-stop.v1.json","path":"latch_persists_across_restart","expected":true},
-    {"id":"stop-reset-explicit","kind":"equals","source":"dev-hub/config/emergency-stop.v1.json","path":"reset.explicit_only","expected":true},
-    {"id":"direct-operator-no-technical-authority","kind":"equals","source":"dev-hub/config/direct-operator.v1.json","path":"invariants.direct_operator_has_no_technical_decision_authority","expected":true},
-    {"id":"guardian-action-lease","kind":"equals","source":"dev-hub/config/guardian-runtime-policy.v1.json","path":"action_lease_required","expected":true},
-    {"id":"sentinel-fail-closed","kind":"equals","source":"dev-hub/config/sentinel-runtime-policy.v1.json","path":"fail_closed_on_unavailable","expected":true}
+    {
+      "id": "guardian-sentinel-no-bypass",
+      "kind": "active-directive",
+      "source": "dev-hub/config/operator-directives.v1.json",
+      "directive_id": "opdir-guardian-sentinel-no-bypass"
+    },
+    {
+      "id": "zero-auto-external-spend",
+      "kind": "active-directive",
+      "source": "dev-hub/config/operator-directives.v1.json",
+      "directive_id": "opdir-zero-auto-external-spend"
+    },
+    {
+      "id": "preserve-valid-qualification",
+      "kind": "active-directive",
+      "source": "dev-hub/config/operator-directives.v1.json",
+      "directive_id": "opdir-preserve-valid-qualification"
+    },
+    {
+      "id": "version-agnostic-runtime",
+      "kind": "active-directive",
+      "source": "dev-hub/config/operator-directives.v1.json",
+      "directive_id": "opdir-version-agnostic-runtime"
+    },
+    {
+      "id": "permanent-progress-visibility",
+      "kind": "active-directive",
+      "source": "dev-hub/config/operator-directives.v1.json",
+      "directive_id": "opdir-permanent-progress-visibility"
+    },
+    {
+      "id": "universal-materialization",
+      "kind": "active-directive",
+      "source": "dev-hub/config/operator-directives.v1.json",
+      "directive_id": "opdir-universal-materialization"
+    },
+    {
+      "id": "canonical-inventory",
+      "kind": "equals",
+      "source": "dev-hub/config/canonical-component-registry.v1.json",
+      "path": "principles.single_canonical_inventory",
+      "expected": true
+    },
+    {
+      "id": "unknown-component-fails-closed",
+      "kind": "equals",
+      "source": "dev-hub/config/canonical-component-registry.v1.json",
+      "path": "principles.unknown_component_fails_closed",
+      "expected": true
+    },
+    {
+      "id": "single-writer-promotion",
+      "kind": "equals",
+      "source": "dev-hub/config/platform-promotion-transaction.v1.json",
+      "path": "invariants.single_active_promotion_writer",
+      "expected": true
+    },
+    {
+      "id": "human-production-approval",
+      "kind": "equals",
+      "source": "dev-hub/config/platform-promotion-transaction.v1.json",
+      "path": "invariants.human_production_approval_still_required",
+      "expected": true
+    },
+    {
+      "id": "stop-latched",
+      "kind": "equals",
+      "source": "dev-hub/config/emergency-stop.v1.json",
+      "path": "latch_persists_across_restart",
+      "expected": true
+    },
+    {
+      "id": "stop-reset-explicit",
+      "kind": "equals",
+      "source": "dev-hub/config/emergency-stop.v1.json",
+      "path": "reset.explicit_only",
+      "expected": true
+    },
+    {
+      "id": "direct-operator-no-technical-authority",
+      "kind": "equals",
+      "source": "dev-hub/config/direct-operator.v1.json",
+      "path": "invariants.direct_operator_has_no_technical_decision_authority",
+      "expected": true
+    },
+    {
+      "id": "guardian-action-lease",
+      "kind": "equals",
+      "source": "dev-hub/config/guardian-runtime-policy.v1.json",
+      "path": "action_lease_required",
+      "expected": true
+    },
+    {
+      "id": "sentinel-fail-closed",
+      "kind": "equals",
+      "source": "dev-hub/config/sentinel-runtime-policy.v1.json",
+      "path": "fail_closed_on_unavailable",
+      "expected": true
+    },
+    {
+      "id": "canonical-route-authority-directive",
+      "kind": "active-directive",
+      "source": "dev-hub/config/operator-directives.v1.json",
+      "directive_id": "opdir-canonical-route-authority"
+    },
+    {
+      "id": "fallback-no-authority-expansion-directive",
+      "kind": "active-directive",
+      "source": "dev-hub/config/operator-directives.v1.json",
+      "directive_id": "opdir-route-fallback-no-authority-expansion"
+    },
+    {
+      "id": "unknown-route-fails-closed",
+      "kind": "equals",
+      "source": "dev-hub/config/canonical-route-authority.v1.json",
+      "path": "principles.unknown_route_fails_closed",
+      "expected": true
+    },
+    {
+      "id": "fallback-preserves-authority",
+      "kind": "equals",
+      "source": "dev-hub/config/canonical-route-authority.v1.json",
+      "path": "principles.fallback_preserves_or_reduces_authority",
+      "expected": true
+    },
+    {
+      "id": "security-gate-no-fallback",
+      "kind": "equals",
+      "source": "dev-hub/config/canonical-route-authority.v1.json",
+      "path": "principles.security_gate_unavailable_blocks_instead_of_fallback",
+      "expected": true
+    },
+    {
+      "id": "remote-operator-conditional-preference",
+      "kind": "equals",
+      "source": "dev-hub/config/canonical-route-authority.v1.json",
+      "path": "principles.remote_operator_is_preferred_only_when_capability_supported_healthy_and_policy_allowed",
+      "expected": true
+    },
+    {
+      "id": "direct-operator-route-authority",
+      "kind": "equals",
+      "source": "dev-hub/config/direct-operator.v1.json",
+      "path": "invariants.canonical_route_authority_required",
+      "expected": true
+    },
+    {
+      "id": "architecture-council-advisory-only",
+      "kind": "equals",
+      "source": "dev-hub/config/guardian-role-contracts.v1.json",
+      "path": "principles.architecture_council_is_advisory",
+      "expected": true
+    },
+    {
+      "id": "central-orchestrator-no-self-architecture-authority",
+      "kind": "equals",
+      "source": "dev-hub/config/guardian-role-contracts.v1.json",
+      "path": "principles.central_orchestrator_cannot_self_authorize_architecture",
+      "expected": true
+    },
+    {
+      "id": "central-orchestrator-not-final-architecture-decider",
+      "kind": "equals",
+      "source": "dev-hub/config/architecture-decision-council.v1.json",
+      "path": "central_orchestrator_is_final_decider",
+      "expected": false
+    },
+    {
+      "id": "new-architecture-requires-human-boundary",
+      "kind": "equals",
+      "source": "dev-hub/config/architecture-decision-council.v1.json",
+      "path": "new_architecture_synthesis_requires_human_approval",
+      "expected": true
+    },
+    {
+      "id": "roadmap-council-not-final-authority",
+      "kind": "equals",
+      "source": "dev-hub/config/autonomy-roadmap-evolution-routing.v1.json",
+      "path": "principles.architecture_council_final_authority",
+      "expected": false
+    },
+    {
+      "id": "roadmap-council-recommendation-authority",
+      "kind": "equals",
+      "source": "dev-hub/config/autonomy-roadmap-evolution-routing.v1.json",
+      "path": "principles.architecture_council_recommendation_authority",
+      "expected": true
+    }
   ]
 }

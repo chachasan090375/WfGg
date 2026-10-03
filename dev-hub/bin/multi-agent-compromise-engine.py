@@ -167,7 +167,7 @@ def main()->int:
       "central_brain_must_not_request_revision_when_compromise_exists":True,
       "current_plan_has_no_incumbency_privilege":True,
       "technology_watch_required_for_architecture_change":True,
-      "architecture_council_final_authority":True,
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "direct_mutation":False,"automatic_external_spend_eur":0
     }
     result["dossier_digest"]=digest(result)

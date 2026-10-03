@@ -166,7 +166,7 @@ policy=json.load(open(CFG/"component-confidence.v1.json",encoding="utf-8"))
 assert policy["evidence"]["explicit_verified_success_required"] is True
 assert policy["evidence"]["absence_of_anomaly_is_not_success"] is True
 assert policy["reuse"]["technology_revalidation_required"] is True
-assert policy["reuse"]["architecture_council_final_authority"] is True
+assert policy["reuse"]["architecture_council_final_authority"] is False
 assert policy["safety"]["no_automatic_re_adoption_after_recovery"] is True
 assert policy["economics"]["automatic_external_spend_eur"]==0
 

@@ -1,0 +1,20 @@
+[Unit]
+Description=ChaCha DEV Guardian stop latch reconciliation
+Wants=network-online.target
+After=network-online.target chacha-dev-guardian-alert-pull.service chacha-dev-guardian-remediation.service
+ConditionPathExists=/opt/chacha-dev/runtime/secrets/central-learning-key.pem
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/guardian-stop-latch-reconciler.py --policy /opt/chacha-dev/platform/current/dev-hub/config/guardian-runtime-policy.v1.json --config /opt/chacha-dev/platform/current/dev-hub/config/guardian-stop-latch-reconciliation.v1.json --client /opt/chacha-dev/platform/current/dev-hub/bin/guardian-client.py --receipt /opt/chacha-dev/runtime/guardian/stop-latch-reconciliation.json
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/chacha-dev/runtime/secrets/central-learning-key.pem
+ReadWritePaths=/opt/chacha-dev/runtime/guardian /opt/chacha-dev/runtime/control
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=128M
+TasksMax=24

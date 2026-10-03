@@ -82,7 +82,7 @@ def main()->int:
       manifest.get("owner")=="agent-foundry" and manifest.get("isolated") is True and
       manifest.get("incumbent_control_group") is True and manifest.get("production_activation_allowed") is False and
       manifest.get("active_self_mutation") is False and manifest.get("self_promotion") is False and
-      manifest.get("permission_expansion") is False and manifest.get("architecture_council_final_authority") is True and
+      manifest.get("permission_expansion") is False and manifest.get("architecture_council_final_authority") is False and manifest.get("architecture_council_recommendation_authority") is True and
       cand.get("owner")=="agent-foundry" and cand.get("isolated") is True and cand.get("incumbent_control_group") is True
     )
     evidence_complete=all((pilot_ok,incumbent_unchanged,guardian_ok,watch_ok,logician_ok,sentinel_required,sentinel_ok,qualification_ok,candidate_governance_ok))
@@ -104,7 +104,7 @@ def main()->int:
       "production_entrypoint_changed":False,"production_activation_allowed":False,"promotion_allowed":False,
       "active_self_mutation":False,"self_promotion":False,"permission_expansion":False,
       "canonical_observation_bus_mutation":False,"benchmark_evidence_mutation":False,
-      "architecture_council_final_authority":True,"automatic_external_spend_eur":0
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0
     }
     save(a.output,result)
     print("CHACHA_DEV_V663_ACCEPTANCE_READINESS="+("PASS" if evidence_complete else "BLOCK"))
@@ -118,7 +118,7 @@ def main()->int:
     print("CHACHA_DEV_V663_INCUMBENT_CONTROL_GROUP=YES")
     print("CHACHA_DEV_V663_SELF_MUTATION=NO")
     print("CHACHA_DEV_V663_SELF_PROMOTION=NO")
-    print("CHACHA_DEV_V663_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
+    print("CHACHA_DEV_V663_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
     print("CHACHA_DEV_V663_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
     return 0 if evidence_complete else 20
 if __name__=="__main__":raise SystemExit(main())

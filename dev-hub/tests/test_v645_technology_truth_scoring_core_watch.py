@@ -54,7 +54,7 @@ core=tcw.build_core_watch(CORE,{"components":{"node-runtime":{"eol_days":20,"mai
 assert core["inventory_coverage_complete"] is True and core["recommendations_only"] is True and core["uncontrolled_upgrade"] is False,core
 assert max(x["technology_debt_score"] for x in core["components"])>=50,core
 for report in (m,r2,we,cr,orpt,nrpt,br):
-    assert report["automatic_external_spend_eur"]==0 and report["permission_escalation"] is False and report["architecture_council_final_authority"] is True and report["guardian_authority_preserved"] is True and report["sentinel_authority_preserved"] is True,report
+    assert report["automatic_external_spend_eur"]==0 and report["permission_escalation"] is False and report["architecture_council_final_authority"] is False and report["guardian_authority_preserved"] is True and report["sentinel_authority_preserved"] is True,report
 print("CHACHA_DEV_V645_MARKETING_ONLY_ADOPTION=BLOCKED")
 print("CHACHA_DEV_V645_SOURCE_DUPLICATION_INFLATION=NO")
 print("CHACHA_DEV_V645_EXECUTABLE_PROOF_RAISES_TRUTH=PASS")
@@ -69,7 +69,7 @@ print("CHACHA_DEV_V645_LOGICIAN_DECISION_AUTHORITY=NO")
 print("CHACHA_DEV_V645_CORE_ARCHITECTURE_WATCH=PASS")
 print("CHACHA_DEV_V645_TECHNOLOGY_DEBT_RADAR=PASS")
 print("CHACHA_DEV_V645_PERMISSION_ESCALATION=NO")
-print("CHACHA_DEV_V645_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
+print("CHACHA_DEV_V645_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
 print("CHACHA_DEV_V645_AUTOMATIC_EXTERNAL_SPEND_EUR=0")
 
 # A time-fresh V6.44-style snapshot is not semantically fresh for V6.45.

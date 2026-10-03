@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - 'dev-hub-v*'
+      - 'roadmap-train-*'
+      - 'route-authority-*'
   workflow_dispatch:
 
 permissions:
@@ -45,6 +47,7 @@ jobs:
             dev-hub/bin/provider_quota_circuit.py \
             dev-hub/bin/autonomy-self-model.py \
             dev-hub/bin/guardian-governed-release-state-reconciler.py \
+            dev-hub/bin/guardian-stop-latch-reconciler.py \
             dev-hub/bin/governed-platform-promotion.py \
             dev-hub/bin/autonomy_roadmap_evolution_router.py \
             dev-hub/bin/autonomy-supervision-controller.py \
@@ -59,6 +62,7 @@ jobs:
           python3 -m json.tool dev-hub/config/autonomy-supervision.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/autonomy-gap-roadmap.v1.json >/dev/null
           python3 -m json.tool dev-hub/config/autonomy-roadmap-evolution-routing.v1.json >/dev/null
+          python3 -m json.tool dev-hub/config/guardian-stop-latch-reconciliation.v1.json >/dev/null
 
       - name: Operator constitution and materialization
         run: |
@@ -141,9 +145,18 @@ jobs:
             dev-hub/tests/test_autonomy_loop_runner.py \
             dev-hub/tests/test_autonomy_runtime_contract.py \
             dev-hub/tests/test_autonomy_cockpit_ui.py \
-            dev-hub/tests/test_v647_agent_fleet_observatory.py; do
+            dev-hub/tests/test_v647_agent_fleet_observatory.py \
+            dev-hub/tests/test_architecture_authority_propagation.py; do
             PYTHONPATH=dev-hub/bin python3 "$t"
           done
+
+      - name: Guardian critical state and expired action lease reconciliation
+        run: |
+          set -euo pipefail
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_stop_latch_reconciliation.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_critical_state_reconciliation.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_expired_action_lease_reconciliation.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_coverage_proof_integrity.py
 
       - name: Stable platform qualification receipt
         run: |

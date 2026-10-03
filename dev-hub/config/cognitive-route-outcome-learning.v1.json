@@ -1,0 +1,22 @@
+{
+  "schema": "chacha.dev/cognitive-route-outcome-learning-policy/v1",
+  "version": "1.0.0",
+  "minimum_samples": 3,
+  "promotion_pass_rate": 0.95,
+  "degradation_pass_rate": 0.75,
+  "latency_target_seconds": 15.0,
+  "latency_hard_seconds": 30.0,
+  "weights": {
+    "pass_rate": 60,
+    "latency": 20,
+    "evidence": 20
+  },
+  "guardrails": {
+    "router_mutation_authorized": false,
+    "registry_mutation_authorized": false,
+    "technology_watch_revalidation_required": true,
+    "human_approval_required_for_paid_provider": true,
+    "automatic_external_spend_eur": 0
+  },
+  "automatic_external_spend_eur": 0
+}

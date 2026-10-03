@@ -36,7 +36,7 @@ assert baseline["acceptance_candidate"]["promotion"] is False
 assert policy["owner_agent"]=="intendant",policy
 assert policy["execution"]["default_mode"]=="DRY_RUN"
 assert policy["source_retirement"]["no_automatic_remote_branch_deletion"] is True
-assert policy["invariants"]["architecture_council_final_authority"] is True
+assert policy["invariants"]["architecture_council_final_authority"] is False
 assert policy["invariants"]["automatic_external_spend_eur"]==0
 
 src=(BIN/"autonomous-project-orchestrator.py").read_text(encoding="utf-8")
@@ -154,5 +154,5 @@ print("CHACHA_DEV_V700_CANONICAL_BUS_REWRITE=NO")
 print("CHACHA_DEV_V700_BENCHMARK_EVIDENCE_MUTATION=NO")
 print("CHACHA_DEV_V700_SELF_MUTATION=NO")
 print("CHACHA_DEV_V700_SELF_PROMOTION=NO")
-print("CHACHA_DEV_V700_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=YES")
+print("CHACHA_DEV_V700_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
 print("CHACHA_DEV_V700_AUTOMATIC_EXTERNAL_SPEND_EUR=0")

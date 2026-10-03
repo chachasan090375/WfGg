@@ -1,0 +1,27 @@
+{
+  "schema": "chacha.dev/guardian-governed-deploy-transaction-policy/v1",
+  "wrangler_version": "4.45.0",
+  "database": "chacha-dev-guardian",
+  "worker_name": "chacha-dev-guardian",
+  "snapshot_tables": ["role_contracts", "expected_components"],
+  "required_preconditions": [
+    "D1_QUOTA_CIRCUIT_CLOSED",
+    "CANONICAL_STOP_FALSE",
+    "EXACT_CANDIDATE_SHA_UNCHANGED",
+    "FINAL_EXTERNAL_SENTINEL_RECEIPT_PASS",
+    "GUARDIAN_FUNCTIONAL_PASS",
+    "EXPLICIT_HUMAN_GUARDIAN_DEPLOY_APPROVAL"
+  ],
+  "rollback": {
+    "d1_restore_required": true,
+    "worker_version_required": true,
+    "worker_rollback_command": "wrangler rollback <version-id> --yes"
+  },
+  "forbidden": [
+    "PLATFORM_CURRENT_SWITCH",
+    "NATIVE_LOCAL_ACTIVATION",
+    "HA_FAILOVER",
+    "ORIGINAL_DESTRUCTIVE_ACTION_REPLAY"
+  ],
+  "automatic_external_spend_eur": 0
+}

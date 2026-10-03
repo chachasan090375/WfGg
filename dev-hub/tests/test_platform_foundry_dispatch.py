@@ -29,7 +29,7 @@ assert by["r2"]["target_foundry"]=="capability-foundry",by
 assert by["r2"]["target_contract"]=="chacha.dev/capability-foundry-platform-component-reassessment/v1",by
 assert all(x["materialization_authorized"] is False for x in out["dispatches"])
 assert all(x["promotion_authorized"] is False for x in out["dispatches"])
-assert all(x["architecture_council_final_authority"] is True for x in out["dispatches"])
+assert all(x["architecture_council_final_authority"] is False for x in out["dispatches"])
 
 bad={"schema":idx["schema"],"routed_actions":[
  {"request_id":"bad1","component_id":"agent-observation-bus","candidate_owner":"capability-foundry",
@@ -53,5 +53,5 @@ print("CHACHA_DEV_PLATFORM_OWNER_MISMATCH=BLOCKED")
 print("CHACHA_DEV_PLATFORM_UNKNOWN_COMPONENT=BLOCKED")
 print("CHACHA_DEV_PLATFORM_MATERIALIZATION_AUTHORIZED=NO")
 print("CHACHA_DEV_PLATFORM_PROMOTION_AUTHORIZED=NO")
-print("CHACHA_DEV_PLATFORM_ARCHITECTURE_COUNCIL_FINAL=YES")
+print("CHACHA_DEV_PLATFORM_ARCHITECTURE_COUNCIL_FINAL=NO")
 print("CHACHA_DEV_PLATFORM_FOUNDRY_AUTOMATIC_EXTERNAL_SPEND_EUR=0")

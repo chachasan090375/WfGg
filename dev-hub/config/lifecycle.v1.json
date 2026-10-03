@@ -204,5 +204,29 @@
     "pre_materialization_retention_owner": "intendant",
     "activation_release_count_maximum": 3,
     "guardian_pre_mode": "CANONICAL_ORCHESTRATOR_PROMOTION_PRE"
+  },
+  "emergency_stop_lifecycle": {
+    "required_metadata": [
+      "cause",
+      "scope",
+      "state_since",
+      "resolution_owner",
+      "resume_criteria"
+    ],
+    "states": [
+      "ACTIVE",
+      "STALE_STOP_CANDIDATE",
+      "RESOLVED_PENDING_RESET",
+      "RESOLVED"
+    ],
+    "active_stop_bypass_forbidden": true,
+    "cause_revalidation_on": [
+      "scope_change",
+      "release_change",
+      "lease_change",
+      "source_state_change"
+    ],
+    "human_reset_required_when_flagged": true,
+    "resolution_and_reset_separate_events": true
   }
 }

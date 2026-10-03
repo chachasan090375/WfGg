@@ -16,7 +16,11 @@
     "backend_design_requires_backend_api_architect": true,
     "data_design_requires_data_architect": true,
     "project_scoped_agents_must_not_enter_platform_routing": true,
-    "technology_watch_is_platform_global": true
+    "technology_watch_is_platform_global": true,
+    "canonical_route_authority_required": true,
+    "agents_cannot_expand_route_authority": true,
+    "fallback_cannot_bypass_governance": true,
+    "route_authority_change_requires_human_approval": true
   },
   "roles": {
     "product-domain-architect": {

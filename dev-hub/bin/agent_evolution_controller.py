@@ -137,7 +137,7 @@ def plan(agent_id:str,scorecard:dict[str,Any],policy:dict[str,Any])->dict[str,An
         "benchmark_only_cannot_materialize_candidate":True},
       "self_evolution":{"proposal_allowed":True,"active_self_mutation":False,"self_promotion":False,"permission_expansion":False},
       "candidate":{"owner":"agent-foundry" if candidate_needed else None,"isolated":candidate_needed,"incumbent_control_group":True,"shadow_required":candidate_needed,"pilot_required":material},
-      "assurance":{"technology_watch_required":True,"logician_falsification_required":True,"guardian_permission_diff_required":True,"sentinel_regression_required":True,"architecture_council_final_authority":True},
+      "assurance":{"technology_watch_required":True,"logician_falsification_required":True,"guardian_permission_diff_required":True,"sentinel_regression_required":True,"architecture_council_final_authority":False,"architecture_council_recommendation_authority":True},
       "promotion":{"measurable_gain_required":True,"no_material_regression_required":True,"rollback_required":True,"latest_version_priority":False},
       "automatic_external_spend_eur":0
     }

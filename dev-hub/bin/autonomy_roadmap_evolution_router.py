@@ -71,7 +71,7 @@ def build_plan(roadmap:dict[str,Any],policy:dict[str,Any],canonical:dict[str,Any
           "routing_mode":mode,"shadow_required":True,"pilot_required":True,
           "direct_self_mutation":False,"direct_component_mutation":False,"self_promotion":False,"permission_expansion":False,
           "technology_watch_revalidation_required":True,"logician_falsification_required":True,
-          "guardian_required":True,"sentinel_required":True,"architecture_council_final_authority":True,
+          "guardian_required":True,"sentinel_required":True,"architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
           "automatic_external_spend_eur":0}
         requests.append(req)
     extra=sorted(set(rules)-seen)
@@ -83,7 +83,7 @@ def build_plan(roadmap:dict[str,Any],policy:dict[str,Any],canonical:dict[str,Any
       "requests":requests,"closed":closed,"human_boundaries":boundaries,"blocked":blocked,
       "routing_complete":not blocked and len(requests)+len(closed)+len(boundaries)==len(roadmap.get("gaps") or []),
       "direct_component_mutation":False,"self_promotion":False,"permission_expansion":False,
-      "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
 
 def apply_plan(runtime_root:Path,policy:dict[str,Any],plan:dict[str,Any])->dict[str,Any]:
     queue=runtime_root/str(policy.get("queue_root") or "platform-evolution/reassessment-queue")

@@ -1,0 +1,13 @@
+{
+  "schema": "chacha.dev/guardian-action-evidence-continuity-policy/v1",
+  "warning_before_deadline_seconds": 60,
+  "warning_reason": "POST_ACTION_DUE_SOON",
+  "expiry_reason": "POST_ACTION_MISSING",
+  "warning_severity": "BLOCK",
+  "sensitive_expiry_severity": "CRITICAL",
+  "post_closes_warning": true,
+  "post_fabrication_forbidden": true,
+  "expired_action_replay_forbidden": true,
+  "canonical_stop_mutation": false,
+  "automatic_external_spend_eur": 0
+}

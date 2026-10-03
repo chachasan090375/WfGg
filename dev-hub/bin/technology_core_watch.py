@@ -27,7 +27,7 @@ def build_core_watch(inventory:dict[str,Any],signals:dict[str,Any]|None=None)->d
         rows.append({"component_id":cid,"class":c.get("class"),"criticality":c.get("criticality"),"technology_debt_score":debt,"status":status,"reason_codes":reasons})
     return {"schema":"chacha.dev/technology-core-watch-report/v1","status":"PASS","component_count":len(rows),
       "inventory_coverage_complete":len(rows)==len(inventory.get("components") or []),"components":rows,
-      "recommendations_only":True,"uncontrolled_upgrade":False,"architecture_council_final_authority":True,
+      "recommendations_only":True,"uncontrolled_upgrade":False,"architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,
       "guardian_authority_preserved":True,"sentinel_authority_preserved":True,"automatic_external_spend_eur":0}
 def main()->int:
     ap=argparse.ArgumentParser();ap.add_argument("--inventory",type=Path,required=True);ap.add_argument("--signals",type=Path);ap.add_argument("--output",type=Path,required=True);a=ap.parse_args()

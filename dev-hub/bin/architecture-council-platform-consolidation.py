@@ -96,7 +96,7 @@ def main()->int:
       "git_history_preserved":True,"remote_branch_deletion":False,
       "canonical_observation_bus_rewrite":False,"benchmark_evidence_mutation":False,
       "active_self_mutation":False,"self_promotion":False,"permission_expansion":False,
-      "architecture_council_final_authority":True,"automatic_external_spend_eur":0
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0
     }
     save(a.output,result)
     print("CHACHA_DEV_PLATFORM_CONSOLIDATION_COUNCIL="+("PASS" if passed else "BLOCK"))

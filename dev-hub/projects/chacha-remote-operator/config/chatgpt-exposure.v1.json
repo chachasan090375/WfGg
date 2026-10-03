@@ -1,0 +1,86 @@
+{
+  "schema": "chacha.dev/chatgpt-remote-operator-exposure/v1",
+  "status": "CANDIDATE_DISABLED",
+  "purpose": "Expose the existing ChaCha Remote Operator MCP to a compatible ChatGPT custom-MCP interface without public ingress, without rebuilding the MCP, and without bypassing ChaCha DEV governance.",
+  "source_component": "chacha-remote-operator",
+  "source_candidate": {
+    "revision_authority": "EXACT_SHA_AT_QUALIFICATION",
+    "transport": "streamable-http",
+    "private_endpoint": "http://127.0.0.1:8767/mcp"
+  },
+  "exposure_transport": {
+    "kind": "OPENAI_SECURE_MCP_TUNNEL",
+    "public_ingress_forbidden": true,
+    "mcp_must_remain_loopback_bound": true,
+    "tunnel_id_source": "RUNTIME_CONTROL_PLANE_ONLY",
+    "runtime_api_key_source": "RUNTIME_SECRET_ONLY",
+    "credentials_in_source_forbidden": true,
+    "automatic_external_spend_eur": 0
+  },
+  "existing_mcp_surface": [
+    "git_status",
+    "git_head",
+    "git_tree",
+    "service_is_active",
+    "service_is_enabled",
+    "uptime",
+    "free_bytes",
+    "uname",
+    "guardian_check_event"
+  ],
+  "pilot_required_surface": {
+    "direct_operator_intent": "SOURCE_IMPLEMENTED_DISABLED",
+    "direct_operator_job": "SOURCE_IMPLEMENTED_DISABLED",
+    "reason": "FUNCTIONAL_BUILD_HANDOFF_MUST_USE_CANONICAL_DIRECT_OPERATOR_M2M_ROUTE"
+  },
+  "direct_operator_target": {
+    "component": "chacha-dev-direct-operator.service",
+    "private_endpoint": "http://127.0.0.1:8792",
+    "intent_path": "/api/v1/m2m/intent",
+    "job_path_prefix": "/api/v1/m2m/jobs/",
+    "authentication_authority": "direct-operator-machine-ingress.v1.json",
+    "current_human_authentication_mode": "TAILSCALE_SERVE_IDENTITY",
+    "machine_to_machine_authentication": "HMAC_SHA256_RUNTIME_SECRET",
+    "service_id": "chacha-remote-operator-mcp",
+    "secret_registry": "/opt/chacha-dev/runtime/secrets/direct-operator-m2m.json",
+    "protocol_module": "dev-hub/lib/direct_operator_m2m_auth.py",
+    "tailscale_identity_header_spoofing_forbidden": true,
+    "direct_central_orchestrator_bypass_forbidden": true,
+    "forced_channel": "BUILD",
+    "direct_mutation_authority": false,
+    "technical_decision_authority": false,
+    "bridge_enabled": false,
+    "canonical_route_id": "remote-mcp-functional-build"
+  },
+  "governance": {
+    "canonical_stop_required": true,
+    "guardian_required": true,
+    "sentinelle_required_before_production": true,
+    "bastion_required_for_network_exposure": true,
+    "umg_required": true,
+    "ccr_required": true,
+    "guardian_role_extension": "role:remote-operator-functional-ingress-agent",
+    "capability_resolution_order": [
+      "REUSE",
+      "EXTEND",
+      "ADAPT",
+      "CREATE"
+    ],
+    "new_core_capability_required": false,
+    "direct_operator_retains_no_technical_decision_authority": true,
+    "chatgpt_is_not_operational_source_of_truth": true,
+    "automatic_external_spend_eur": 0,
+    "canonical_route_authority": "dev-hub/config/canonical-route-authority.v1.json",
+    "unknown_route_fails_closed": true,
+    "fallback_cannot_expand_authority": true
+  },
+  "activation": {
+    "production_activation_allowed": false,
+    "chatgpt_registration": "UNRESOLVED",
+    "secure_tunnel_runtime": "UNMATERIALIZED",
+    "direct_operator_bridge": "SOURCE_IMPLEMENTED_DISABLED",
+    "direct_operator_handler": "SOURCE_IMPLEMENTED_DISABLED",
+    "runtime_secret_materialized": false,
+    "pilot_allowed_before_all_gates_pass": false
+  }
+}

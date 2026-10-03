@@ -136,7 +136,7 @@ def run(runtime_root:Path,fleet_policy:dict[str,Any],bus_policy:dict[str,Any],
       "event_type":str(cfg.get("event_type") or "HISTORICAL_TASK_RESULT_VERIFIED"),
       "production_truth":True,"independent_verification_required":True,
       "retroactive_reassessment":False,"direct_agent_mutation":False,"candidate_materialization":False,
-      "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
 
 def main()->int:
     ap=argparse.ArgumentParser();ap.add_argument("--runtime-root",type=Path,required=True)

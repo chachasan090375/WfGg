@@ -49,6 +49,16 @@ def load_task_contract_binder():
     mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod);return mod
 
 
+def fallback_provider_ids(providers: list[dict[str, Any]], primary_id: str) -> set[str]:
+    by_id={str(p.get("id")):p for p in providers if isinstance(p,dict) and p.get("id")}
+    allowed:set[str]=set(); queue=list((by_id.get(primary_id) or {}).get("fallback") or [])
+    while queue:
+        pid=str(queue.pop(0))
+        if not pid or pid in allowed or pid==primary_id: continue
+        if pid not in by_id: continue
+        allowed.add(pid); queue.extend((by_id[pid].get("fallback") or []))
+    return allowed
+
 def bind(capability: str, permission: str, registry: dict[str, Any], health: dict[str, Any], policy: dict[str, Any]) -> dict[str, Any]:
     cap = (registry.get("capabilities") or {}).get(capability)
     if not isinstance(cap, dict):
@@ -58,15 +68,27 @@ def bind(capability: str, permission: str, registry: dict[str, Any], health: dic
     if not providers:
         return {"capability": capability, "provider": None, "provider_status": None, "health_state": None,
                 "state": "BLOCKED", "fallback_used": False, "reason": "no-provider"}
-    primary = providers[0].get("id")
+    primary = str(providers[0].get("id") or "")
+    primary_snap = (health.get("providers") or {}).get(primary) or {}
+    if primary_snap.get("policy_allowed") is False:
+        return {"capability": capability, "provider": None, "provider_status": providers[0].get("status"), "health_state": primary_snap.get("state", "UNKNOWN"),
+                "state": "BLOCKED", "fallback_used": False, "reason": "primary-policy-denied"}
+    if primary_snap.get("security_gates_available") is False:
+        return {"capability": capability, "provider": None, "provider_status": providers[0].get("status"), "health_state": primary_snap.get("state", "UNKNOWN"),
+                "state": "BLOCKED", "fallback_used": False, "reason": "primary-security-gate-unavailable"}
+    allowed_fallbacks = fallback_provider_ids(providers, primary)
     selection = policy.get("provider_selection") or {}
     prod = permission in {"production-deploy", "production-data-write", "secret-change", "destructive-operation", "technology-replacement"}
     allow_degraded = bool(selection.get("allow_degraded_for_production" if prod else "allow_degraded_for_non_production", False))
     allow_unknown = bool(selection.get("allow_unknown", False))
     candidates: list[tuple[int, dict[str, Any], dict[str, Any]]] = []
     for provider in providers:
-        pid = provider.get("id")
+        pid = str(provider.get("id") or "")
+        if pid != primary and pid not in allowed_fallbacks:
+            continue
         snap = (health.get("providers") or {}).get(pid) or {}
+        if snap.get("policy_allowed") is False or snap.get("security_gates_available") is False:
+            continue
         hstate = snap.get("state", "UNKNOWN")
         if hstate == "UNAVAILABLE":
             continue

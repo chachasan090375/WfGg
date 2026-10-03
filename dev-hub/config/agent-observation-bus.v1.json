@@ -85,7 +85,8 @@
     "direct_agent_mutation": false,
     "direct_candidate_materialization": false,
     "candidate_owner": "agent-foundry",
-    "architecture_council_final_authority": true,
+    "architecture_council_final_authority": false,
+    "architecture_council_recommendation_authority": true,
     "self_reassessment_request": {
       "allowed": true,
       "event_type": "AGENT_REASSESSMENT_REQUEST",
@@ -124,7 +125,8 @@
     "technology_watch_revalidation_required": true,
     "guardian_preserved": true,
     "sentinel_preserved": true,
-    "architecture_council_final_authority": true
+    "architecture_council_final_authority": false,
+    "architecture_council_recommendation_authority": true
   },
   "economics": {
     "automatic_external_spend_eur": 0
@@ -166,7 +168,8 @@
       "rollback_required": true,
       "guardian_required": true,
       "sentinel_required": true,
-      "architecture_council_final_authority": true,
+      "architecture_council_final_authority": false,
+    "architecture_council_recommendation_authority": true,
       "latest_version_priority": false
     },
     "falsification_routes": [

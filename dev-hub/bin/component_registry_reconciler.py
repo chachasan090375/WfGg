@@ -143,6 +143,13 @@ def directive_issues(repo:Path,registry:dict[str,Any],policy:dict[str,Any])->lis
                          "RESTORE_DIRECTIVE_PROPAGATION_SINK",miss))
     return out
 
+def emergency_stop_lifecycle_issues(registry:dict[str,Any])->list[dict[str,Any]]:
+    inv=registry.get("emergency_stop_lifecycle_invariant") or {}
+    required={"ACTIVE","STALE_STOP_CANDIDATE","RESOLVED_PENDING_RESET","RESOLVED"}
+    actual=set(str(x) for x in inv.get("required_states") or [])
+    if inv.get("resolved_historical_stop_must_not_block_future_materialization") is True and inv.get("reset_never_implied_by_resolution") is True and required.issubset(actual): return []
+    return [issue("EMERGENCY_STOP_LIFECYCLE_DRIFT","CRITICAL","canonical-component-registry","BACKFILL_EMERGENCY_STOP_LIFECYCLE_INVARIANT")]
+
 def version_coupling_issues(repo:Path)->list[dict[str,Any]]:
     report=vca.audit(repo/"dev-hub")
     return [issue("VERSION_COUPLED_ACTIVE_LOGIC","CRITICAL",str(r.get("path")),
@@ -157,6 +164,7 @@ def reconcile(repo:Path,registry:dict[str,Any],policy:dict[str,Any],fleet:dict[s
     issues.extend(materializer_issues(repo))
     issues.extend(learning_issues(repo))
     issues.extend(directive_issues(repo,registry,policy))
+    issues.extend(emergency_stop_lifecycle_issues(registry))
     issues.extend(version_coupling_issues(repo))
     issues.extend(release_issues(platform_root,policy))
     blocking=[x for x in issues if x.get("severity") in {"CRITICAL","HIGH"}]

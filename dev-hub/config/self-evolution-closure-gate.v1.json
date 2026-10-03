@@ -1,0 +1,12 @@
+{
+  "schema": "chacha.dev/self-evolution-closure-gate-policy/v1",
+  "version": "1.0.0",
+  "required_train_pilot_schema": "chacha.dev/roadmap-train-planning-pilot/v1",
+  "required_foundry_pilot_schema": "chacha.dev/foundry-graduation-pilot/v1",
+  "required_universal_policy_schema": "chacha.dev/universal-evolution-governance-policy/v1",
+  "require_no_active_self_mutation": true,
+  "require_no_self_promotion": true,
+  "execution_authority": false,
+  "production_mutation_authorized": false,
+  "automatic_external_spend_eur": 0
+}

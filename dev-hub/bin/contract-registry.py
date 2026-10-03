@@ -63,7 +63,7 @@ def reconcile_dynamic(plan,component_batch):
       "mode":"DYNAMIC_COMPONENT_ROLE_CONTRACTS",
       "contracts":len(contracts),"runtime_packages":len(packages),"checked_packages":checked,
       "mismatches":mismatches,"compatible":not mismatches,"assembly_allowed":not mismatches,
-      "direct_mutation":False,"architecture_council_final_authority":True,"automatic_external_spend_eur":0
+      "direct_mutation":False,"architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0
     }
 
 def main():

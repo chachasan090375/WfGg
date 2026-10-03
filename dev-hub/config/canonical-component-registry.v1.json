@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/canonical-component-registry-policy/v1",
-  "version": "8.2.2",
+  "version": "8.2.3",
   "purpose": "Make every materialized ChaCha DEV component discoverable, governed, observable and retireable from one canonical registry.",
   "principles": {
     "single_canonical_inventory": true,
@@ -13,7 +13,8 @@
     "automatic_external_spend_eur": 0,
     "operator_directive_registry_required": true,
     "active_global_directives_inherited_at_birth": true,
-    "platform_promotion_single_writer_required": true
+    "platform_promotion_single_writer_required": true,
+    "project_runtime_manifests_are_canonical_sources": true
   },
   "source_catalogs": [
     "agent-routing",
@@ -24,7 +25,8 @@
     "guardian-role-contracts",
     "provider-adapters",
     "mcp-provider-catalog",
-    "assurance-agent-instrumentation"
+    "assurance-agent-instrumentation",
+    "project-runtime-materialization"
   ],
   "materializers": [
     "agent-foundry",
@@ -190,5 +192,16 @@
   },
   "core_class_overrides": {
     "autonomy-roadmap-evolution-router": "CORE_PLATFORM_COMPONENT"
+  },
+  "emergency_stop_lifecycle_invariant": {
+    "source_of_truth": "guardian-stop-latch-reconciler",
+    "required_states": [
+      "ACTIVE",
+      "STALE_STOP_CANDIDATE",
+      "RESOLVED_PENDING_RESET",
+      "RESOLVED"
+    ],
+    "resolved_historical_stop_must_not_block_future_materialization": true,
+    "reset_never_implied_by_resolution": true
   }
 }

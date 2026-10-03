@@ -1,0 +1,123 @@
+name: ChaCha Remote Operator qualification
+
+on:
+  push:
+    branches:
+      - project-chacha-remote-operator-mcp
+      - 'dev-hub-v-remote-operator-*'
+      - 'remote-operator-*'
+      - 'route-authority-*'
+    paths:
+      - 'dev-hub/projects/chacha-remote-operator/**'
+      - 'dev-hub/bin/direct-operator-service-m2m.py'
+      - 'dev-hub/lib/direct_operator_m2m_auth.py'
+      - 'dev-hub/config/direct-operator-machine-ingress.v1.json'
+      - 'dev-hub/config/canonical-route-authority.v1.json'
+      - 'dev-hub/bin/canonical_route_resolver.py'
+      - '.github/workflows/chacha-remote-operator-qualification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify-remote-operator:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exact candidate identity
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo "CHACHA_REMOTE_OPERATOR_SHA=$(git rev-parse HEAD)"
+          echo "CHACHA_REMOTE_OPERATOR_TREE=$(git rev-parse HEAD^{tree})"
+      - name: Install Remote Operator project
+        run: python -m pip install -e './dev-hub/projects/chacha-remote-operator[dev]'
+      - name: Compile Remote Operator and route modules
+        run: |
+          python -m py_compile \
+            dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/audit.py \
+            dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/governance.py \
+            dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/lease.py \
+            dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/operations.py \
+            dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/policy.py \
+            dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/adaptive_operations.py \
+            dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/direct_operator_bridge.py \
+            dev-hub/lib/direct_operator_m2m_auth.py \
+            dev-hub/bin/direct-operator-service-m2m.py \
+            dev-hub/bin/canonical_route_resolver.py \
+            dev-hub/projects/chacha-remote-operator/src/chacha_remote_operator/server_v02.py
+      - name: Governed operation and route convergence qualification
+        run: |
+          pytest -q dev-hub/projects/chacha-remote-operator/tests
+          python dev-hub/tests/test_canonical_route_authority.py
+          python dev-hub/tests/test_canonical_route_resolver.py
+          python dev-hub/tests/test_remote_operator_route_convergence.py
+          python dev-hub/tests/test_canonical_project_runtime_inventory.py
+      - name: V0.2 policy invariants
+        run: |
+          python - <<'PY'
+          import json
+          p='dev-hub/projects/chacha-remote-operator/config/policy.v2.json'
+          x=json.load(open(p,encoding='utf-8'))
+          expected=[
+            'git_status','git_head','git_tree','service_is_active',
+            'service_is_enabled','uptime','free_bytes','uname'
+          ]
+          assert x['version']=='0.2.0'
+          assert x['mode']=='PILOT_GOVERNED_READ_OPERATIONS'
+          assert x['fail_closed'] is True
+          assert x['bind_host']=='127.0.0.1'
+          assert x['command_execution_enabled'] is False
+          assert x['governed_operations_enabled'] is True
+          assert x['governed_operation_allowlist']==expected
+          assert x['single_writer_command_lease'] is True
+          assert x['guardian_required_for_governed_operations'] is True
+          assert x['file_write_enabled'] is False
+          assert x['service_mutation_enabled'] is False
+          assert x['git_mutation_enabled'] is False
+          assert x['destructive_operations_enabled'] is False
+          assert x['external_network_access_enabled'] is False
+          assert x['credential_export_enabled'] is False
+          assert float(x['automatic_external_spend_eur'])==0
+          print('CHACHA_REMOTE_OPERATOR_V02_SECURITY_INVARIANTS=PASS')
+          PY
+      - name: V0.2 MCP import smoke
+        env:
+          CHACHA_REMOTE_OPERATOR_POLICY: ${{ github.workspace }}/dev-hub/projects/chacha-remote-operator/config/policy.v2.json
+        run: |
+          python - <<'PY'
+          import chacha_remote_operator
+          import chacha_remote_operator.server_v02 as s
+          expected=(
+            'git_status','git_head','git_tree','service_is_active',
+            'service_is_enabled','uptime','free_bytes','uname'
+          )
+          assert chacha_remote_operator.__version__=='0.2.0'
+          assert s.V02_TOOL_NAMES==expected
+          assert s.POLICY.raw['mode']=='PILOT_GOVERNED_READ_OPERATIONS'
+          assert s.POLICY.raw['bind_host']=='127.0.0.1'
+          assert s.POLICY.raw['command_execution_enabled'] is False
+          print('CHACHA_REMOTE_OPERATOR_V02_MCP_IMPORT=PASS')
+          PY
+      - name: Current V0.3 and route binding smoke
+        env:
+          CHACHA_REMOTE_OPERATOR_POLICY: ${{ github.workspace }}/dev-hub/projects/chacha-remote-operator/config/policy.v3.json
+        run: |
+          python - <<'PY'
+          import json
+          import chacha_remote_operator.server_v02 as s
+          p=s.POLICY.raw
+          assert p['schema']=='chacha.dev/chacha-remote-operator-policy/v3'
+          assert p['bind_host']=='127.0.0.1' and int(p['port'])==8767
+          assert p['command_execution_enabled'] is False
+          assert s.EXPOSURE_TOOL_NAMES==('direct_operator_intent','direct_operator_job')
+          m=json.load(open('dev-hub/config/direct-operator-machine-ingress.v1.json'))
+          assert m['enabled'] is False
+          assert m['service_contract']['canonical_route_id']=='remote-mcp-functional-build'
+          assert m['governance']['guardian_role_extension']=='role:remote-operator-functional-ingress-agent'
+          assert m['activation']['production_activation_allowed'] is False
+          print('CHACHA_REMOTE_OPERATOR_V03_ROUTE_BINDING=PASS')
+          PY

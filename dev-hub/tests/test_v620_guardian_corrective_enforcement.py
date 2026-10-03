@@ -36,7 +36,10 @@ for marker in [
   "REMEDIATION_MAX_ATTEMPTS_EXCEEDED","RESTORE_AUTHORITATIVE_TASK_BINDING",
   "REPLAN_WITHIN_AUTHORIZED_SCOPE","/v1/remediations",
   "/v1/remediations/delivered","corrective_enforcement:true",
-  "remediation_retry_limit:3"
+  "remediation_retry_limit:3",
+  "ON CONFLICT(hold_key) DO UPDATE SET",
+  "WHERE remediation_holds.active=0",
+  "active=1,created_at=datetime('now'),cleared_at=NULL"
 ]:
     assert marker in worker,marker
 

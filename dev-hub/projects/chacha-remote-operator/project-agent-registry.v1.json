@@ -1,0 +1,80 @@
+{
+  "schema": "chacha.dev/project-agent-registry/v1",
+  "version": "1.3.0",
+  "project_id": "chacha-remote-operator",
+  "platform_global": false,
+  "agents": [
+    {
+      "agent_id": "remote-operator-gateway-agent",
+      "role": "remote-operator-gateway-agent",
+      "scope": "PROJECT_ONLY",
+      "project_id": "chacha-remote-operator",
+      "embedded_in": "ChaCha Remote Operator MCP",
+      "purpose": "Expose only bounded governed remote READ operations while enforcing STOP, lease, Guardian PRE/POST, policy and append-only audit.",
+      "capabilities": [
+        "remote-health-read",
+        "remote-system-read",
+        "remote-filesystem-read",
+        "remote-process-read",
+        "remote-service-status-read",
+        "remote-governed-operation-read",
+        "remote-command-policy-evaluate"
+      ],
+      "permissions": [
+        "read",
+        "plan"
+      ],
+      "production_permission": false,
+      "raw_shell_permission": false,
+      "file_write_permission": false,
+      "service_mutation_permission": false,
+      "git_mutation_permission": false,
+      "destructive_operation_permission": false,
+      "guardian_pre_post_required_for_governed_operations": true,
+      "single_writer_command_lease_required": true,
+      "central_brain_role": false,
+      "technology_watch_platform_role": false,
+      "automatic_external_spend_eur": 0,
+      "technical_decision_authority": false,
+      "direct_execution_authority": false,
+      "direct_mutation_authority": false,
+      "central_orchestrator_bypass_permission": false
+    },
+    {
+      "agent_id": "remote-operator-functional-ingress-agent",
+      "role": "remote-operator-functional-ingress-agent",
+      "scope": "PROJECT_ONLY",
+      "project_id": "chacha-remote-operator",
+      "embedded_in": "ChaCha Remote Operator MCP",
+      "purpose": "Submit functional BUILD intent to the existing Direct Operator M2M ingress and read only jobs owned by the service identity; never choose or execute the technical solution.",
+      "capabilities": [
+        "remote-functional-intent-submit",
+        "remote-direct-operator-own-job-read"
+      ],
+      "permissions": [
+        "read",
+        "plan"
+      ],
+      "production_permission": false,
+      "raw_shell_permission": false,
+      "file_write_permission": false,
+      "service_mutation_permission": false,
+      "git_mutation_permission": false,
+      "destructive_operation_permission": false,
+      "credential_access_permission": false,
+      "tailscale_identity_impersonation_permission": false,
+      "canonical_stop_required": true,
+      "direct_operator_m2m_required": true,
+      "functional_intent_channel": "BUILD",
+      "own_job_read_only": true,
+      "technical_decision_authority": false,
+      "direct_execution_authority": false,
+      "direct_mutation_authority": false,
+      "central_orchestrator_bypass_permission": false,
+      "downstream_guardian_required_before_mutation": true,
+      "central_brain_role": false,
+      "technology_watch_platform_role": false,
+      "automatic_external_spend_eur": 0
+    }
+  ]
+}

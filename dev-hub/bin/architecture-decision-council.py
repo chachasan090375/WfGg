@@ -137,6 +137,18 @@ def capability_plan_map(plan:dict[str,Any])->dict[str,dict[str,Any]]:
         elif isinstance(x,dict) and x.get("id"):out[str(x["id"])]=x
     return out
 
+def architecture_authority(architecture_source:str,blocked_by:list[str]|None=None)->dict[str,Any]:
+    blocked=list(blocked_by or [])
+    recommendation_ready=not blocked
+    new_synthesis=architecture_source=="FOUNDRY_SYNTHESIS"
+    return {
+      "decision_authority":"ADVISORY",
+      "architecture_change_class":"REVALIDATED_REUSE" if str(architecture_source).startswith("REUSE_REVALIDATED_") else "NEW_ARCHITECTURE_SYNTHESIS",
+      "recommendation_ready":recommendation_ready,
+      "human_approval_required":bool(new_synthesis),
+      "dispatch_allowed":bool(recommendation_ready and not new_synthesis)
+    }
+
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--repo-root",type=Path,default=Path("."))
@@ -280,6 +292,7 @@ def main():
         if challenge_required:
             advisor_state["logic-ux-compromise"]="PASS" if challenge_ok else "BLOCKED"
         missing=[x for x in mandatory_advisors if advisor_state.get(x)!="PASS"]
+        authority=architecture_authority(architecture_source,missing)
         d={
           "package_id":pid,"domain":domain,"capabilities":caps,
           "mandatory_advisors":advisor_state,
@@ -330,6 +343,7 @@ def main():
           "architecture_source":architecture_source,
           "architecture":architecture,
           "decision_ready":not missing,
+          **authority,
           "blocked_by":missing
         }
         decisions.append(d)
@@ -338,7 +352,9 @@ def main():
       "schema":"chacha.dev/architecture-decision-council/v1",
       "version":"6.34.0" if challenge_required else "6.25.0",
       "mandatory_advisors":mandatory_advisors,
-      "decision_rule":"CENTRAL_ORCHESTRATOR_DECIDES_ONLY_AFTER_CONTEXTUAL_MEMORY_COMPONENT_CONFIDENCE_ALL_MANDATORY_ADVISORS_AND_FINAL_TECHNOLOGY_REVALIDATION",
+      "decision_rule":"COUNCIL_RECOMMENDS_AFTER_ALL_ADVISORS;REVALIDATED_REUSE_MAY_AUTO_DISPATCH;NEW_OR_MATERIAL_ARCHITECTURE_REQUIRES_HUMAN_BOUNDARY",
+      "decision_authority":"ADVISORY",
+      "final_architecture_authority":False,
       "dynamic_expert_domains":sorted(x for x in experts if x),
       "architecture_memory":{"candidate_count":len(architecture_memory.get("candidates") or []),"selected":({"architecture_id":selected_architecture_memory.get("architecture_id"),"version":selected_architecture_memory.get("version")} if selected_architecture_memory else None)},
       "architecture_portfolio":portfolio,
@@ -377,7 +393,10 @@ def main():
       },
       "decisions":decisions,
       "blocked":blocked,
-      "dispatch_allowed":not blocked,
+      "human_boundaries":[{"package_id":d["package_id"],"reason":"NEW_ARCHITECTURE_SYNTHESIS_REQUIRES_HUMAN_APPROVAL"} for d in decisions if d.get("human_approval_required")],
+      "recommendation_ready":not blocked,
+      "human_approval_required":any(bool(d.get("human_approval_required")) for d in decisions),
+      "dispatch_allowed":not blocked and all(bool(d.get("dispatch_allowed")) for d in decisions),
       "automatic_external_spend_eur":0
     }
     a.output.parent.mkdir(parents=True,exist_ok=True)

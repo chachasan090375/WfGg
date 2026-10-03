@@ -1,0 +1,11 @@
+{
+  "schema": "chacha.dev/constitution-closure-gate-policy/v1",
+  "version": "1.0.0",
+  "required_verification_schema": "chacha.dev/autonomy-constitution-verification/v1",
+  "required_drift_watch_schema": "chacha.dev/autonomy-constitution-drift-watch/v1",
+  "required_watch_status": "STABLE",
+  "require_all_clauses_pass": true,
+  "execution_authority": false,
+  "constitution_mutation_authorized": false,
+  "automatic_external_spend_eur": 0
+}

@@ -31,7 +31,7 @@ assert network["communication"]["peer_to_peer_decision_making"] is False
 assert network["communication"]["direct_mutation"] is False
 assert network["communication"]["central_orchestrator_owns_remediation"] is True
 assert network["communication"]["architecture_change_requires_technology_watch"] is True
-assert network["communication"]["architecture_council_final_authority"] is True
+assert network["communication"]["architecture_council_final_authority"] is False
 
 for name in ["embedded-assurance-manifest","guardian-local-probe","sentinel-local-probe",
              "project-assurance-outbox","project-assurance-relay","project-assurance-identity-request"]:
@@ -133,5 +133,5 @@ print("CHACHA_DEV_V632_FIVE_AGENT_NETWORK_RESERVED=PASS")
 print("CHACHA_DEV_V632_COMMON_ASSURANCE_EXCHANGE=PASS")
 print("CHACHA_DEV_V632_CENTRAL_ORCHESTRATOR_REMEDIATION_OWNER=PASS")
 print("CHACHA_DEV_V632_TECHNOLOGY_WATCH_ARCHITECTURE_GUARD=PASS")
-print("CHACHA_DEV_V632_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=PASS")
+print("CHACHA_DEV_V632_ARCHITECTURE_COUNCIL_FINAL_AUTHORITY=NO")
 print("CHACHA_DEV_V632_AUTOMATIC_EXTERNAL_SPEND_EUR=0")

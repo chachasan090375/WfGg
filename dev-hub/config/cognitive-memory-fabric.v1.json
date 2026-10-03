@@ -1,0 +1,104 @@
+{
+  "schema": "chacha.dev/cognitive-memory-fabric-policy/v1",
+  "version": "1.3.0",
+  "scope": "PLATFORM_GLOBAL",
+  "existing_sources": {
+    "central_memory_snapshot": "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json",
+    "central_memory_db": "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.db",
+    "learning_deltas_db": "/opt/chacha-dev/runtime/knowledge/learning-deltas.db",
+    "experience_db": "/opt/chacha-dev/runtime/knowledge/experience.db",
+    "reusable_architectures_db": "/opt/chacha-dev/runtime/knowledge/reusable-architectures.db"
+  },
+  "namespaces": {
+    "agent_hot_root": "/opt/chacha-dev/runtime/knowledge/agent-memory",
+    "central_hot_root": "/opt/chacha-dev/runtime/knowledge",
+    "long_term_tier": "NAS"
+  },
+  "memory_types": [
+    "episodic",
+    "semantic",
+    "procedural"
+  ],
+  "routing": {
+    "agent_read_includes_central_fallback": true,
+    "central_write_requires_trusted_state": true,
+    "central_write_minimum_evidence": 3,
+    "write_plans_are_advisory_only": true
+  },
+  "curation": {
+    "retain_failed_patterns_as_anti_patterns": true,
+    "deduplicate_by_memory_key": true,
+    "quarantine_contradicted_or_suspended": true,
+    "hard_delete_authorized": false
+  },
+  "cognitive_assist": {
+    "provider_id": "native-local",
+    "policy": "dev-hub/config/local-cognitive-runtime.v1.json",
+    "optional": true,
+    "activation_required_by_fabric": false,
+    "advisory_only": true
+  },
+  "privacy": {
+    "raw_user_content_forbidden": true,
+    "secrets_forbidden": true,
+    "filtered_learning_sources_only": true
+  },
+  "authority": {
+    "execution_authority": false,
+    "architecture_authority": false,
+    "route_authority": false,
+    "security_authority": false,
+    "promotion_authority": false,
+    "permission_expansion_authority": false
+  },
+  "automatic_external_spend_eur": 0,
+  "persistence": {
+    "agent_store_format": "SQLITE_PER_AGENT",
+    "agent_store_root": "/opt/chacha-dev/runtime/knowledge/agent-memory",
+    "raw_content_storage_forbidden": true,
+    "content_digest_required": true,
+    "evidence_refs_required": true,
+    "production_activation_authorized": false
+  },
+  "tiering": {
+    "hot_tier": "VPS",
+    "long_term_tier": "NAS",
+    "publish_adapter": "nas-ssh-adapter",
+    "readback_adapter": "nas-readback-adapter",
+    "production_remote_prefix": "knowledge/cognitive-memory/agents/",
+    "shadow_remote_prefix": "knowledge/cognitive-memory-shadow/",
+    "expected_sha256_required": true,
+    "restore_mode": "DISPOSABLE_WORKSPACE_ONLY",
+    "active_memory_restore_authorized": false,
+    "production_activation_authorized": false,
+    "schedule_mode": "INTERVAL_PLUS_EVENTS",
+    "interval_seconds": 10800,
+    "material_change_required": true,
+    "event_triggers": [
+      "MISSION_ACCEPTED_COMPLETE",
+      "MEMORY_PROMOTED_TRUSTED",
+      "REUSABLE_ARCHITECTURE_CONSOLIDATED",
+      "AGENT_SPECIALIST_CORPUS_UPDATED"
+    ],
+    "hot_purge_automatic": false,
+    "hot_demote_automatic": false,
+    "readback_after_publish_required": true,
+    "restore_probe_interval_cycles": 8,
+    "tiering_ledger": "/opt/chacha-dev/runtime/knowledge/cognitive-memory-tiering-ledger.json",
+    "consistent_sqlite_snapshot_required": true,
+    "source_wal_fingerprint_required": true,
+    "event_queue_pending": "/opt/chacha-dev/runtime/knowledge/cognitive-memory-tiering-events/pending",
+    "event_queue_processed": "/opt/chacha-dev/runtime/knowledge/cognitive-memory-tiering-events/processed",
+    "event_runtime": "SYSTEMD_PATH_DRAIN_SHADOW",
+    "event_processing_fail_closed": true,
+    "restore_probe_required": true
+  },
+  "historical_bootstrap": {
+    "source": "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json",
+    "mode": "READ_ONLY_EXPORT",
+    "writes_performed": false,
+    "raw_user_content_import_forbidden": true,
+    "secret_material_import_forbidden": true
+  },
+  "specialist_memory_policy": "dev-hub/config/domain-specialist-memory.v1.json"
+}

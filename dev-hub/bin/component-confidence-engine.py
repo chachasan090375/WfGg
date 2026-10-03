@@ -261,7 +261,7 @@ def build(args)->dict[str,Any]:
           "absence_of_anomaly_is_not_success":True,"technology_revalidation_required":True,
           "capability_project_distinct_counting":True,
           "capability_replay_does_not_inflate_trust":True,
-          "architecture_council_final_authority":True,"automatic_external_spend_eur":0}
+          "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0}
     snap["snapshot_digest"]=digest(snap)
     db=db_open(args.db)
     with db:

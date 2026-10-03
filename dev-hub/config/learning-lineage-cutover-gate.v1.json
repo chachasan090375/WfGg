@@ -1,0 +1,14 @@
+{
+  "schema": "chacha.dev/learning-lineage-cutover-policy/v1",
+  "version": "1.0.0",
+  "cutover_commit": "9bc297e9ad6b0464e6581f976501a604d24770e9",
+  "cutover_observed_at": "2026-09-27T13:47:23+00:00",
+  "required_result_status": "OK",
+  "required_verification_status": "VERIFIED",
+  "require_sha256_result_digest": true,
+  "require_valid_context_after_cutover": true,
+  "read_only": true,
+  "execution_authority": false,
+  "production_mutation_authorized": false,
+  "automatic_external_spend_eur": 0
+}

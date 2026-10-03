@@ -105,7 +105,7 @@ assert policy["eligibility"]["require_exact_component_lineage"] is True
 assert policy["eligibility"]["missing_context_behavior"]=="NO_CONFIDENCE_NO_PENALTY"
 assert policy["separation_of_concerns"]["learning_failure_does_not_rewrite_evidence"] is True
 assert policy["separation_of_concerns"]["technology_revalidation_required"] is True
-assert policy["separation_of_concerns"]["architecture_council_final_authority"] is True
+assert policy["separation_of_concerns"]["architecture_council_final_authority"] is False
 assert policy["economics"]["automatic_external_spend_eur"]==0
 roles=load(CFG/"guardian-role-contracts.v1.json")
 assert any(x["contract_id"]=="role:verified-evidence-learning" for x in roles["contracts"])

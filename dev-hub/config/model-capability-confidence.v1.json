@@ -1,0 +1,18 @@
+{
+  "schema": "chacha.dev/model-capability-confidence-policy/v1",
+  "version": "1.0.0",
+  "minimum_samples": 3,
+  "freshness_days": 7,
+  "stale_days": 30,
+  "verified_threshold": 0.80,
+  "provisional_threshold": 0.60,
+  "principles": {
+    "confidence_is_capability_specific": true,
+    "stale_evidence_cannot_remain_verified": true,
+    "negative_evidence_reduces_confidence": true,
+    "confidence_never_grants_execution_authority": true,
+    "technology_watch_revalidation_required": true,
+    "automatic_external_spend_eur": 0
+  },
+  "automatic_external_spend_eur": 0
+}

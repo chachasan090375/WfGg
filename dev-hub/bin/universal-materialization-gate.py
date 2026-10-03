@@ -103,10 +103,23 @@ def validate(view:dict[str,Any],manifest:dict[str,Any],policy:dict[str,Any],dire
     project_id=str(manifest.get("project_id") or view["nested"].get("project_id") or "").strip()
     scope=str(manifest.get("scope") or view["nested"].get("scope") or ("PROJECT" if project_id else "PLATFORM")).strip().upper()
     if owner=="branch-foundry" and gclass=="RUNTIME_INFRASTRUCTURE":
-        if not project_id: raise ValueError("PROJECT_CAPSULE_PROJECT_ID_REQUIRED")
-        if scope!="PROJECT": raise ValueError("PROJECT_CAPSULE_SCOPE_MUST_BE_PROJECT")
-        if int(manifest.get("ttl_seconds") or view["nested"].get("ttl_seconds") or 0)<=0:
-            raise ValueError("PROJECT_CAPSULE_TTL_REQUIRED")
+        ttl=int(manifest.get("ttl_seconds") or view["nested"].get("ttl_seconds") or 0)
+        if scope=="PROJECT":
+            if not project_id: raise ValueError("PROJECT_CAPSULE_PROJECT_ID_REQUIRED")
+            if ttl<=0: raise ValueError("PROJECT_CAPSULE_TTL_REQUIRED")
+        elif scope=="PLATFORM":
+            if project_id: raise ValueError("PLATFORM_RUNTIME_PROJECT_ID_FORBIDDEN")
+            if ttl!=0: raise ValueError("PLATFORM_RUNTIME_TTL_FORBIDDEN")
+            if not (manifest.get("health_contract") or view["nested"].get("health_contract")):
+                raise ValueError("PLATFORM_RUNTIME_HEALTH_CONTRACT_REQUIRED")
+            if not (manifest.get("rollback_policy") or view["nested"].get("rollback_policy")):
+                raise ValueError("PLATFORM_RUNTIME_ROLLBACK_POLICY_REQUIRED")
+            if not (manifest.get("retention_policy") or view["nested"].get("retention_policy")):
+                raise ValueError("PLATFORM_RUNTIME_RETENTION_POLICY_REQUIRED")
+            if not (manifest.get("purge_policy") or view["nested"].get("purge_policy")):
+                raise ValueError("PLATFORM_RUNTIME_PURGE_POLICY_REQUIRED")
+        else:
+            raise ValueError("RUNTIME_INFRASTRUCTURE_SCOPE_INVALID:"+scope)
     birth=complete_birth_contract(view,manifest,policy,directives)
     return {"required":True,"status":"PASS","birth_contract":birth}
 
