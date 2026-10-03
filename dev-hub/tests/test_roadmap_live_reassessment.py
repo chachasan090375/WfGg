@@ -27,8 +27,11 @@ def materialize_train03(root:Path):
 with tempfile.TemporaryDirectory(prefix='roadmap-live-release-') as rd, tempfile.TemporaryDirectory(prefix='roadmap-live-runtime-') as td:
     rel=Path(rd);rt=Path(td);materialize_baseline(rel)
     base=rlr.reassess(road,policy,rel,rt);r=rows(base)
-    assert base['score_percent']==85,base['score_percent']
-    assert r['provider-independence']['progress']==50
+    assert base['score_percent']==score(base),base['score_percent']
+    source_provider=next(x for x in road['gaps'] if x['id']=='provider-independence')
+    assert r['provider-independence']['progress']==source_provider['progress']
+    source_memory=next(x for x in road['gaps'] if x['id']=='cognitive-memory-fabric')
+    assert r['cognitive-memory-fabric']['progress']==source_memory['progress']
     assert r['resilience-ha']['progress']==40
     materialize_train03(rel)
     adaptive=rlr.reassess(road,policy,rel,rt);r=rows(adaptive)

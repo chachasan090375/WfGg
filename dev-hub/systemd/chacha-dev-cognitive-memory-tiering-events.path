@@ -1,0 +1,9 @@
+[Unit]
+Description=ChaCha DEV Cognitive Memory Fabric event trigger watch
+
+[Path]
+DirectoryNotEmpty=/opt/chacha-dev/runtime/knowledge/cognitive-memory-tiering-events/pending
+Unit=chacha-dev-cognitive-memory-tiering-events.service
+
+[Install]
+WantedBy=multi-user.target

@@ -16,7 +16,7 @@ def test_plan_only_archives_material_change():
 def test_ledger_tracks_all_observed_digests():
  with tempfile.TemporaryDirectory() as td:
   root=Path(td);(root/'a.db').write_bytes(b'a');(root/'b.db').write_bytes(b'b')
-  p=m.plan(POL,'MEMORY_PROMOTED_TRUSTED',root,{'digests':{str(root/'a.db'):m.sha(root/'a.db')}})
+  p=m.plan(POL,'MEMORY_PROMOTED_TRUSTED',root,{'digests':{str(root/'a.db'):m.source_fingerprint(root/'a.db')}})
   assert len(p['observed_digests'])==2 and len(p['changed'])==1
 def test_unknown_trigger_fails_closed():
  with tempfile.TemporaryDirectory() as td:
