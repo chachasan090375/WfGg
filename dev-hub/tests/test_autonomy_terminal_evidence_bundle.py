@@ -14,6 +14,10 @@ def test_all_pass_bundle_passes():assert m.bundle(policy,learning(),selfe(),cons
 def test_hold_propagates():assert m.bundle(policy,learning(status='HOLD'),selfe(),constitution())['status']=='HOLD'
 def test_not_ready_holds():assert m.bundle(policy,learning(learning_terminal_evidence_ready=False),selfe(),constitution())['status']=='HOLD'
 def test_bundle_has_no_authority():assert m.bundle(policy,learning(),selfe(),constitution())['production_mutation'] is False
+
+def test_learning_v2_is_explicitly_accepted():assert m.bundle(policy,learning(schema='chacha.dev/learning-closure-gate/v2'),selfe(),constitution())['status']=='PASS'
+def test_unknown_learning_schema_holds():assert m.bundle(policy,learning(schema='chacha.dev/learning-closure-gate/v3'),selfe(),constitution())['status']=='HOLD'
+
 if __name__=='__main__':
     for n,f in sorted(globals().items()):
         if n.startswith('test_'):f();print(n+'=PASS')

@@ -17,7 +17,8 @@ def bundle(policy:dict[str,Any],learning:dict[str,Any],selfe:dict[str,Any],const
     rows={'learning':learning,'self_evolution':selfe,'constitution':constitution};req=policy.get('required_schemas') or {};blockers=[]
     ready_fields={'learning':'learning_terminal_evidence_ready','self_evolution':'self_evolution_terminal_evidence_ready','constitution':'constitution_terminal_evidence_ready'}
     for name,row in rows.items():
-        if row.get('schema')!=req.get(name):blockers.append(name.upper()+'_SCHEMA_MISMATCH')
+        expected=req.get(name);allowed=set(expected if isinstance(expected,list) else [expected])
+        if row.get('schema') not in allowed:blockers.append(name.upper()+'_SCHEMA_MISMATCH')
         if row.get('status')!=policy.get('required_status'):blockers.append(name.upper()+'_NOT_PASS')
         if row.get(ready_fields[name]) is not True:blockers.append(name.upper()+'_NOT_TERMINAL_READY')
         if row.get('execution_authority') is True:blockers.append(name.upper()+'_EXECUTION_AUTHORITY')
