@@ -1,0 +1,24 @@
+{
+  "schema": "chacha.dev/sovereign-state-d1-import-blocker/v1",
+  "status": "BLOCKED_EXTERNAL_CONDITION",
+  "reason": "D1_AUTHORITATIVE_EXPORT_UNAVAILABLE_WHILE_QUOTA_CIRCUIT_OPEN",
+  "d1_circuit": {
+    "schema": "chacha.dev/d1-account-quota-circuit/v1",
+    "status": "OPEN",
+    "reason": "D1_READ_QUOTA_EXHAUSTED",
+    "opened_at": "2026-10-03T18:24:28Z",
+    "opened_epoch": 1791051868,
+    "resume_at": "2026-10-04T00:00:05Z",
+    "resume_epoch": 1791072005,
+    "sources": [
+      "guardian-client"
+    ],
+    "fail_closed": true,
+    "automatic_paid_upgrade": false,
+    "automatic_external_spend_eur": 0
+  },
+  "workaround_forbidden": "DO_NOT_CUTOVER_WITHOUT_AUTHORITATIVE_STATE_IMPORT",
+  "production_mutation": false,
+  "automatic_external_spend_eur": 0,
+  "observed_at": "2026-10-03T21:34:07Z"
+}

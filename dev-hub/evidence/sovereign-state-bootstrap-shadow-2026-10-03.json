@@ -1,0 +1,26 @@
+{
+  "schema": "chacha.dev/sovereign-state-bootstrap-receipt/v1",
+  "status": "PASS",
+  "db": "/opt/chacha-dev/runtime/sovereign-state/shadow/guardian.db",
+  "db_sha256": "sha256:d825988ad537fa06bece4a55ec8055f1030957d5bcae82c65caaa0f4de9f5a2f",
+  "migrations_applied": [
+    "0001.sql",
+    "0002_action_leases_coverage.sql",
+    "0003_dynamic_agent_role_contracts.sql",
+    "0004_dynamic_component_contracts.sql",
+    "0005_task_contract_leases.sql",
+    "0006_remediation_directives.sql",
+    "0007_functional_acceptance.sql",
+    "0008_project_functional_events.sql",
+    "0009_project_assurance_identities.sql",
+    "0010_final_agent_reviews.sql",
+    "0011_action_lease_reconciliations.sql"
+  ],
+  "table_count": 19,
+  "active_identity_count": 1,
+  "role_contract_count": 65,
+  "contracts_seen": 65,
+  "production_activation_authorized": false,
+  "automatic_external_spend_eur": 0,
+  "observed_at": "2026-10-03T21:31:06Z"
+}

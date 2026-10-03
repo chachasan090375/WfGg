@@ -51,8 +51,13 @@ def signed_request(method:str,url:str,private_key:Path,body:bytes=b"")->urllib.r
     if method.upper()!="GET":headers["Content-Type"]="application/json"
     return urllib.request.Request(url,data=(body if method.upper()!="GET" else None),headers=headers,method=method.upper())
 
+def _d1_quota_applies(req:urllib.request.Request)->bool:
+    host=(urllib.parse.urlsplit(req.full_url).hostname or "").lower()
+    # Local Sovereign State endpoints must never be blocked by a SaaS D1 quota circuit.
+    return host not in {"127.0.0.1","localhost","::1"}
+
 def http_json(req:urllib.request.Request,timeout:int=20)->tuple[int,dict[str,Any]]:
-    blocked=d1qc.unavailable_payload("guardian-client")
+    blocked=d1qc.unavailable_payload("guardian-client") if _d1_quota_applies(req) else None
     if blocked:return 503,blocked
     try:
         with urllib.request.urlopen(req,timeout=timeout) as r:

@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-03T20:52:58Z",
+  "updated_at": "2026-10-03T21:34:33Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -212,6 +212,24 @@
     }
   ],
   "workstreams": [
+    {
+      "id": "sovereign-state-fabric",
+      "priority": "P0",
+      "state": "SHADOW_RUNTIME_REAL_PASS_AWAITING_D1_EXPORT_PARITY",
+      "includes": [
+        "D1-compatible local SQLite binding",
+        "same Guardian worker source",
+        "local loopback Guardian runtime",
+        "D1 import",
+        "critical-table parity",
+        "dual-verdict parity",
+        "NAS create-only snapshot/readback",
+        "local-primary cutover gate",
+        "optional D1 mirror"
+      ],
+      "blocking_for_governed_production_progress": true,
+      "evidence": "Guardian migrations 11/11 apply unchanged to local SQLite; 19 tables and 65 static contracts bootstrap. Real signed Guardian PRE/POST against local state PASS with action lease CLOSED and D1 unused. NAS create-only snapshot/readback SHA+SQLite integrity PASS. Cutover remains HOLD only for authoritative D1 import + DB parity + dual-verdict parity; no production mutation."
+    },
     {
       "id": "governance-control-plane",
       "priority": "P0",
@@ -483,6 +501,10 @@
     {
       "rule": "Application archetype is the highest specialization class",
       "replacement": "Deliverable classification sits above archetype and recursion applies at module/submodule level"
+    },
+    {
+      "rule": "D1 is a mandatory authoritative backend for Guardian availability",
+      "replacement": "Canonical State Adapter / Sovereign State Fabric: local SQLite primary candidate + NAS recovery; D1 becomes optional mirror after governed parity and human cutover."
     }
   ],
   "historical_release_convoys": [
@@ -661,5 +683,15 @@
       "anti_replay": "Preserve real pilots and qualification evidence; do not activate Native Local implicitly. Reconcile onto the current production-derived line under current governance.",
       "current_resolution": "NATIVE_LOCAL_ADMISSION_REGISTRY_SOAK_OUTPUT_BUDGET_REABSORBED_CURRENT_LINE_NO_ACTIVATION"
     }
-  ]
+  ],
+  "priority_interrupt": {
+    "id": "sovereign-state-d1-independence",
+    "state": "ACTIVE_PRIORITY_SHADOW_PROVEN_AWAITING_AUTHORITATIVE_D1_EXPORT",
+    "reason": "D1 quota is a single external blocker for Guardian-governed promotions; remove SaaS quota from the critical governance path before resuming ordinary production convergence.",
+    "started_from_revision": "8b0f0a01e1b2e028adefa0c13f2807912d73452f",
+    "resume_master_roadmap_after": "SOVEREIGN_STATE_LOCAL_PRIMARY_HUMAN_CUTOVER_AND_STABILITY_PROOF",
+    "resume_rule": "Resume from the first not-promoted current production-convergence train; do not replay already-acquired shadow/history proofs.",
+    "production_mutation": false,
+    "automatic_external_spend_eur": 0
+  }
 }

@@ -1,0 +1,96 @@
+name: Sovereign State D1 Read-Only Export
+
+on:
+  push:
+    branches:
+      - roadmap-master-train-20261003-14-sovereign-state-fabric
+    paths:
+      - '.github/workflows/sovereign-state-d1-export.yml'
+      - 'dev-hub/config/sovereign-state-fabric.v1.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+jobs:
+  export-d1-read-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assert read-only export contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_API_TOKEN:-}"
+          test -n "${CLOUDFLARE_ACCOUNT_ID:-}"
+          mkdir -p /tmp/sovereign-d1-export
+          cat > /tmp/sovereign-d1-export/contract.json <<'JSON'
+          {"schema":"chacha.dev/sovereign-d1-export-contract/v1","mode":"READ_ONLY_EXPORT","databases":["chacha-dev-guardian","chacha-dev-sentinel","chacha-dev-assurance-exchange","chacha-dev-learning-relay"],"d1_execute_forbidden":true,"worker_deploy_forbidden":true,"production_mutation":false,"automatic_external_spend_eur":0}
+          JSON
+
+      - name: Resolve database IDs and create ephemeral Wrangler configs
+        shell: python
+        run: |
+          import json, os, pathlib, urllib.parse, urllib.request
+          root=pathlib.Path('/tmp/sovereign-d1-export')
+          account=os.environ['CLOUDFLARE_ACCOUNT_ID']
+          token=os.environ['CLOUDFLARE_API_TOKEN']
+          names=['chacha-dev-guardian','chacha-dev-sentinel','chacha-dev-assurance-exchange','chacha-dev-learning-relay']
+          resolved={}
+          for name in names:
+              url='https://api.cloudflare.com/client/v4/accounts/'+account+'/d1/database?name='+urllib.parse.quote(name)
+              req=urllib.request.Request(url,headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'})
+              with urllib.request.urlopen(req,timeout=20) as r: payload=json.load(r)
+              rows=payload.get('result') or []
+              db=next((x for x in rows if x.get('name')==name),None)
+              if not db or not db.get('uuid'):
+                  raise SystemExit('D1_DATABASE_NOT_FOUND:'+name)
+              resolved[name]=db['uuid']
+              cfg={
+                'name':'sovereign-state-read-only-export',
+                'compatibility_date':'2026-10-03',
+                'd1_databases':[{'binding':'DB','database_name':name,'database_id':db['uuid']}]
+              }
+              (root/(name+'.jsonc')).write_text(json.dumps(cfg))
+          (root/'resolved.json').write_text(json.dumps({'schema':'chacha.dev/sovereign-d1-resolved-databases/v1','databases':resolved},indent=2)+'\n')
+
+      - name: Export authoritative D1 databases
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/sovereign-d1-export
+          for db in chacha-dev-guardian chacha-dev-sentinel chacha-dev-assurance-exchange chacha-dev-learning-relay; do
+            echo "READ_ONLY_EXPORT_START=$db"
+            npx --yes wrangler@4.45.0 d1 export "$db" --remote --skip-confirmation --output="${db}.sql" --config="${db}.jsonc"
+            test -s "${db}.sql"
+            sha256sum "${db}.sql" > "${db}.sql.sha256"
+            echo "READ_ONLY_EXPORT_PASS=$db"
+          done
+          python - <<'PY'
+          import json, pathlib, time
+          root=pathlib.Path('/tmp/sovereign-d1-export')
+          out={'schema':'chacha.dev/sovereign-d1-export-receipt/v1','status':'PASS','production_mutation':False,'automatic_external_spend_eur':0,'files':[]}
+          for p in sorted(root.glob('chacha-dev-*.sql')):
+              out['files'].append({'database':p.stem,'file':p.name,'bytes':p.stat().st_size,'sha256':(root/(p.name+'.sha256')).read_text().split()[0]})
+          (root/'receipt.json').write_text(json.dumps(out,indent=2)+'\n')
+          PY
+
+      - name: Upload short-lived read-only export artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sovereign-state-d1-authoritative-export
+          path: |
+            /tmp/sovereign-d1-export/contract.json
+            /tmp/sovereign-d1-export/resolved.json
+            /tmp/sovereign-d1-export/receipt.json
+            /tmp/sovereign-d1-export/*.sql
+            /tmp/sovereign-d1-export/*.sql.sha256
+          if-no-files-found: error
+          retention-days: 1

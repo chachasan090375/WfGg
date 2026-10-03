@@ -1,0 +1,12 @@
+{
+  "schema": "chacha.dev/sovereign-state-nas-snapshot/v1",
+  "status": "PASS",
+  "source": "/opt/chacha-dev/runtime/sovereign-state/shadow/guardian.db",
+  "snapshot_digest": "sha256:3b403f39cc1d1949ff827346e7364ca553ca323befb701ebb49a1675cc8fee3f",
+  "remote": "knowledge/sovereign-state-shadow/20261003/3b403f39cc1d1949ff827346-guardian.db",
+  "publish": "NAS_DESTINATION_ALREADY_EXISTS",
+  "readback": "NAS_READBACK_OK",
+  "sqlite_integrity": "OK",
+  "production_activation_authorized": false,
+  "automatic_external_spend_eur": 0
+}

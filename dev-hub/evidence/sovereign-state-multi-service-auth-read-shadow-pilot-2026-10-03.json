@@ -1,0 +1,38 @@
+{
+  "schema": "chacha.dev/sovereign-state-multi-service-read-pilot/v1",
+  "status": "PASS",
+  "services": [
+    {
+      "service": "sentinel",
+      "http_status": 200,
+      "body": {
+        "schema": "chacha.dev/sentinel-directive-batch/v1",
+        "items": []
+      },
+      "pass": true
+    },
+    {
+      "service": "assurance-exchange",
+      "http_status": 200,
+      "body": {
+        "schema": "chacha.dev/assurance-exchange-recommendation-batch/v1",
+        "items": [],
+        "count": 0,
+        "direct_mutation": false,
+        "central_orchestrator_owns_remediation": true
+      },
+      "pass": true
+    },
+    {
+      "service": "learning-relay",
+      "http_status": 200,
+      "body": {
+        "schema": "chacha.dev/learning-relay-batch/v1",
+        "items": []
+      },
+      "pass": true
+    }
+  ],
+  "production_mutation": false,
+  "automatic_external_spend_eur": 0
+}

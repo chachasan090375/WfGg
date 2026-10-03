@@ -1,0 +1,13 @@
+{
+  "schema":"chacha.dev/sovereign-state-service-matrix/v1",
+  "state":"SHADOW_ONLY",
+  "services":[
+    {"id":"guardian","worker":"dev-hub/guardian/worker.js","migrations":"dev-hub/guardian/migrations","local_db":"/opt/chacha-dev/runtime/sovereign-state/shadow/guardian.db","local_port":8871,"d1_database":"chacha-dev-guardian"},
+    {"id":"sentinel","worker":"dev-hub/sentinel/worker.js","migrations":"dev-hub/sentinel/migrations","local_db":"/opt/chacha-dev/runtime/sovereign-state/shadow/sentinel/state.db","local_port":8872,"d1_database":"chacha-dev-sentinel"},
+    {"id":"assurance-exchange","worker":"dev-hub/assurance-exchange/worker.js","migrations":"dev-hub/assurance-exchange/migrations","local_db":"/opt/chacha-dev/runtime/sovereign-state/shadow/assurance-exchange/state.db","local_port":8873,"d1_database":"chacha-dev-assurance-exchange"},
+    {"id":"learning-relay","worker":"dev-hub/learning-relay/worker.js","migrations":"dev-hub/learning-relay/migrations","local_db":"/opt/chacha-dev/runtime/sovereign-state/shadow/learning-relay/state.db","local_port":8874,"d1_database":"chacha-dev-learning-relay"}
+  ],
+  "all_bind_loopback":true,
+  "production_authority":false,
+  "automatic_external_spend_eur":0
+}
