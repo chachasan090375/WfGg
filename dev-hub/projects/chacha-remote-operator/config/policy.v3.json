@@ -1,0 +1,78 @@
+{
+  "schema": "chacha.dev/chacha-remote-operator-policy/v3",
+  "version": "0.3.0",
+  "mode": "PILOT_ADAPTIVE_GOVERNED_OPERATIONS",
+  "fail_closed": true,
+  "bind_host": "127.0.0.1",
+  "port": 8767,
+  "mcp_path": "/mcp",
+  "runtime_root": "/opt/chacha-dev/runtime/remote-operator-v03",
+  "canonical_stop_state": "/opt/chacha-dev/runtime/control/emergency-stop.json",
+  "audit_log": "/opt/chacha-dev/runtime/remote-operator-v03/audit.jsonl",
+  "max_read_bytes": 262144,
+  "max_search_results": 100,
+  "max_command_seconds": 20,
+  "max_command_output_bytes": 131072,
+  "allowed_roots": [
+    "/opt/chacha-dev/runtime",
+    "/opt/chacha-dev/platform"
+  ],
+  "blocked_path_fragments": [
+    "/.ssh/",
+    "/.gnupg/",
+    "/secrets/",
+    "/credentials/",
+    "/tokens/",
+    "/.env"
+  ],
+  "service_status_allowlist": [
+    "chacha-dev-autonomy-core.timer",
+    "chacha-dev-autonomy-core.service",
+    "chacha-dev-direct-operator.service",
+    "chacha-dev-intendant-hygiene.timer",
+    "chacha-dev-intendant-hygiene.service"
+  ],
+  "command_execution_enabled": false,
+  "command_allowlist": [],
+  "governed_operations_enabled": true,
+  "governed_operation_allowlist": [
+    "git_status",
+    "git_head",
+    "git_tree",
+    "service_is_active",
+    "service_is_enabled",
+    "uptime",
+    "free_bytes",
+    "uname",
+    "guardian_check_event"
+  ],
+  "single_writer_command_lease": true,
+  "guardian_required_for_governed_operations": true,
+  "guardian_client_path": "/opt/chacha-dev/platform/current/dev-hub/bin/guardian-client.py",
+  "guardian_policy_path": "/opt/chacha-dev/platform/current/dev-hub/config/guardian-runtime-policy.v1.json",
+  "guardian_timeout_seconds": 10,
+  "file_write_enabled": false,
+  "service_mutation_enabled": false,
+  "git_mutation_enabled": false,
+  "destructive_operations_enabled": false,
+  "external_network_access_enabled": false,
+  "credential_export_enabled": false,
+  "bastion_required_for_network_exposure": true,
+  "sentinel_required_before_production": true,
+  "automatic_external_spend_eur": 0,
+  "guardian_event_allowed_root": "/opt/chacha-dev/runtime/release-gates",
+  "capability_evolution": {
+    "resolution_order": [
+      "REUSE",
+      "EXTEND",
+      "ADAPT",
+      "CREATE"
+    ],
+    "authority_expansion": false,
+    "generic_shell": false,
+    "qualification_required": true,
+    "umg_required": true,
+    "ccr_required": true,
+    "automatic_external_spend_eur": 0
+  }
+}
