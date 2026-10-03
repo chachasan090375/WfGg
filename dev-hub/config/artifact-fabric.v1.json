@@ -1,0 +1,18 @@
+{
+  "schema":"chacha.dev/artifact-fabric/v1",
+  "version":"1.0.0",
+  "scope":"PLATFORM_GLOBAL",
+  "runtime_root":"/opt/chacha-dev/runtime/artifacts",
+  "max_upload_bytes":67108864,
+  "max_artifacts_per_intent":32,
+  "content_addressed_objects":true,
+  "sha256_required":true,
+  "persistent_across_conversations":true,
+  "operator_and_project_binding_required":true,
+  "input_execution_default":"FORBIDDEN",
+  "untrusted_input_state":"STORED_UNTRUSTED_NONEXECUTABLE",
+  "generated_output_state":"GENERATED_NONEXECUTABLE_UNLESS_SEPARATELY_AUTHORIZED",
+  "large_artifact_policy":"REFERENCE_AND_STREAM_REQUIRED_RANGES",
+  "automatic_external_spend_eur":0,
+  "production_authority":false
+}

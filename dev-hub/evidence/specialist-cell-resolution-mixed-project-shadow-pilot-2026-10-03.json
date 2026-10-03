@@ -1,0 +1,1205 @@
+{
+  "schema": "chacha.dev/specialist-cell-resolution/v1",
+  "status": "PASS",
+  "project_id": "pilot-retail-suite",
+  "specialist_cells": [
+    {
+      "node_id": "solution-root",
+      "domain_id": "product",
+      "head": {
+        "memory_namespace": "specialist:domain:product",
+        "roles": [
+          "product-domain-architect"
+        ],
+        "orchestrator": "domain-product-orchestrator",
+        "model": "CANONICAL_DOMAIN_HEAD_REFERENCE"
+      },
+      "arm": {
+        "capability_ids": [
+          "requirements-analysis",
+          "domain-modeling",
+          "acceptance-criteria"
+        ],
+        "model": "CANONICAL_CAPABILITY_REFERENCES"
+      },
+      "transversal_support": [
+        "logician",
+        "ergonomist"
+      ],
+      "cloned": false,
+      "execution_authority": false,
+      "production_authority": false
+    },
+    {
+      "node_id": "solution-root",
+      "domain_id": "development",
+      "head": {
+        "memory_namespace": "specialist:domain:development",
+        "roles": [
+          "frontend-architect",
+          "backend-api-architect"
+        ],
+        "orchestrator": "domain-development-orchestrator",
+        "model": "CANONICAL_DOMAIN_HEAD_REFERENCE"
+      },
+      "arm": {
+        "capability_ids": [
+          "code-edit",
+          "library-docs",
+          "api-contract-review",
+          "integration-design"
+        ],
+        "model": "CANONICAL_CAPABILITY_REFERENCES"
+      },
+      "transversal_support": [
+        "logician"
+      ],
+      "cloned": false,
+      "execution_authority": false,
+      "production_authority": false
+    },
+    {
+      "node_id": "solution-root",
+      "domain_id": "qa",
+      "head": {
+        "memory_namespace": "specialist:domain:qa",
+        "roles": [
+          "test-engineer",
+          "performance-engineer"
+        ],
+        "orchestrator": "domain-qa-orchestrator",
+        "model": "CANONICAL_DOMAIN_HEAD_REFERENCE"
+      },
+      "arm": {
+        "capability_ids": [
+          "unit-test-js",
+          "e2e-test-web",
+          "smoke-test-web",
+          "performance-test-web",
+          "test-strategy"
+        ],
+        "model": "CANONICAL_CAPABILITY_REFERENCES"
+      },
+      "transversal_support": [
+        "logician"
+      ],
+      "cloned": false,
+      "execution_authority": false,
+      "production_authority": false
+    },
+    {
+      "node_id": "gestion",
+      "domain_id": "product",
+      "head": {
+        "memory_namespace": "specialist:domain:product",
+        "roles": [
+          "product-domain-architect"
+        ],
+        "orchestrator": "domain-product-orchestrator",
+        "model": "CANONICAL_DOMAIN_HEAD_REFERENCE"
+      },
+      "arm": {
+        "capability_ids": [
+          "requirements-analysis",
+          "domain-modeling",
+          "acceptance-criteria"
+        ],
+        "model": "CANONICAL_CAPABILITY_REFERENCES"
+      },
+      "transversal_support": [
+        "logician",
+        "ergonomist"
+      ],
+      "cloned": false,
+      "execution_authority": false,
+      "production_authority": false
+    },
+    {
+      "node_id": "gestion",
+      "domain_id": "data-backend",
+      "head": {
+        "memory_namespace": "specialist:domain:data-backend",
+        "roles": [
+          "data-architect",
+          "backend-api-architect"
+        ],
+        "orchestrator": "domain-data-orchestrator",
+        "model": "CANONICAL_DOMAIN_HEAD_REFERENCE"
+      },
+      "arm": {
+        "capability_ids": [
+          "database-migrate",
+          "data-model-review",
+          "backup-design",
+          "api-contract-review"
+        ],
+        "model": "CANONICAL_CAPABILITY_REFERENCES"
+      },
+      "transversal_support": [
+        "logician"
+      ],
+      "cloned": false,
+      "execution_authority": false,
+      "production_authority": false
+    },
+    {
+      "node_id": "gestion",
+      "domain_id": "ui-layout",
+      "head": {
+        "memory_namespace": "specialist:domain:ui-layout",
+        "roles": [
+          "ui-layout-specialist"
+        ],
+        "orchestrator": "domain-ui-layout-orchestrator",
+        "model": "CANONICAL_DOMAIN_HEAD_REFERENCE"
+      },
+      "arm": {
+        "capability_ids": [
+          "browser-automation",
+          "browser-diagnostics",
+          "accessibility-review",
+          "frontend-performance",
+          "ui-layout-review"
+        ],
+        "model": "CANONICAL_CAPABILITY_REFERENCES"
+      },
+      "transversal_support": [
+        "logician",
+        "ergonomist"
+      ],
+      "cloned": false,
+      "execution_authority": false,
+      "production_authority": false
+    },
+    {
+      "node_id": "gestion",
+      "domain_id": "cybersecurity",
+      "head": {
+        "memory_namespace": "specialist:domain:cybersecurity",
+        "roles": [
+          "security-reviewer"
+        ],
+        "orchestrator": "domain-security-orchestrator",
+        "model": "CANONICAL_DOMAIN_HEAD_REFERENCE"
+      },
+      "arm": {
+        "capability_ids": [
+          "security-scan-js",
+          "threat-model",
+          "secrets-review",
+          "dependency-review",
+          "digital-signature-verification"
+        ],
+        "model": "CANONICAL_CAPABILITY_REFERENCES"
+      },
+      "transversal_support": [
+        "logician",
+        "bastion"
+      ],
+      "cloned": false,
+      "execution_authority": false,
+      "production_authority": false
+    },
+    {
+      "node_id": "formation-ludique",
+      "domain_id": "development",
+      "head": {
+        "memory_namespace": "specialist:domain:development",
+        "roles": [
+          "frontend-architect",
+          "backend-api-architect"
+        ],
+        "orchestrator": "domain-development-orchestrator",
+        "model": "CANONICAL_DOMAIN_HEAD_REFERENCE"
+      },
+      "arm": {
+        "capability_ids": [
+          "code-edit",
+          "library-docs",
+          "api-contract-review",
+          "integration-design"
+        ],
+        "model": "CANONICAL_CAPABILITY_REFERENCES"
+      },
+      "transversal_support": [
+        "logician"
+      ],
+      "cloned": false,
+      "execution_authority": false,
+      "production_authority": false
+    },
+    {
+      "node_id": "formation-ludique",
+      "domain_id": "graphics",
+      "head": {
+        "memory_namespace": "specialist:domain:graphics",
+        "roles": [
+          "graphics-specialist"
+        ],
+        "orchestrator": "domain-graphics-orchestrator",
+        "model": "CANONICAL_DOMAIN_HEAD_REFERENCE"
+      },
+      "arm": {
+        "capability_ids": [
+          "3d-pipeline",
+          "graphics-pipeline",
+          "asset-analysis"
+        ],
+        "model": "CANONICAL_CAPABILITY_REFERENCES"
+      },
+      "transversal_support": [
+        "logician",
+        "ergonomist"
+      ],
+      "cloned": false,
+      "execution_authority": false,
+      "production_authority": false
+    },
+    {
+      "node_id": "formation-ludique",
+      "domain_id": "animation",
+      "head": {
+        "memory_namespace": "specialist:domain:animation",
+        "roles": [
+          "animation-specialist"
+        ],
+        "orchestrator": "domain-animation-orchestrator",
+        "model": "CANONICAL_DOMAIN_HEAD_REFERENCE"
+      },
+      "arm": {
+        "capability_ids": [
+          "3d-pipeline",
+          "animation-pipeline",
+          "asset-analysis"
+        ],
+        "model": "CANONICAL_CAPABILITY_REFERENCES"
+      },
+      "transversal_support": [
+        "logician",
+        "ergonomist"
+      ],
+      "cloned": false,
+      "execution_authority": false,
+      "production_authority": false
+    },
+    {
+      "node_id": "formation-ludique",
+      "domain_id": "data-backend",
+      "head": {
+        "memory_namespace": "specialist:domain:data-backend",
+        "roles": [
+          "data-architect",
+          "backend-api-architect"
+        ],
+        "orchestrator": "domain-data-orchestrator",
+        "model": "CANONICAL_DOMAIN_HEAD_REFERENCE"
+      },
+      "arm": {
+        "capability_ids": [
+          "database-migrate",
+          "data-model-review",
+          "backup-design",
+          "api-contract-review"
+        ],
+        "model": "CANONICAL_CAPABILITY_REFERENCES"
+      },
+      "transversal_support": [
+        "logician"
+      ],
+      "cloned": false,
+      "execution_authority": false,
+      "production_authority": false
+    },
+    {
+      "node_id": "documentation",
+      "domain_id": "documentation",
+      "head": {
+        "memory_namespace": "specialist:domain:documentation",
+        "roles": [
+          "documentation-adr-agent"
+        ],
+        "orchestrator": "domain-documentation-orchestrator",
+        "model": "CANONICAL_DOMAIN_HEAD_REFERENCE"
+      },
+      "arm": {
+        "capability_ids": [
+          "documentation",
+          "architecture-documentation",
+          "adr-management",
+          "runbook-maintenance",
+          "library-docs"
+        ],
+        "model": "CANONICAL_CAPABILITY_REFERENCES"
+      },
+      "transversal_support": [
+        "logician"
+      ],
+      "cloned": false,
+      "execution_authority": false,
+      "production_authority": false
+    },
+    {
+      "node_id": "documentation",
+      "domain_id": "knowledge-research",
+      "head": {
+        "memory_namespace": "specialist:domain:knowledge-research",
+        "roles": [
+          "technology-watch-agent"
+        ],
+        "orchestrator": "domain-knowledge-orchestrator",
+        "model": "CANONICAL_DOMAIN_HEAD_REFERENCE"
+      },
+      "arm": {
+        "capability_ids": [
+          "technology-radar",
+          "architecture-optimization",
+          "web-research",
+          "library-docs",
+          "collector-knowledge-inspect"
+        ],
+        "model": "CANONICAL_CAPABILITY_REFERENCES"
+      },
+      "transversal_support": [
+        "logician"
+      ],
+      "cloned": false,
+      "execution_authority": false,
+      "production_authority": false
+    },
+    {
+      "node_id": "documentation",
+      "domain_id": "translation",
+      "head": {
+        "memory_namespace": "specialist:domain:translation",
+        "roles": [
+          "translation-specialist"
+        ],
+        "orchestrator": "domain-translation-orchestrator",
+        "model": "CANONICAL_DOMAIN_HEAD_REFERENCE"
+      },
+      "arm": {
+        "capability_ids": [
+          "translation",
+          "terminology-management",
+          "translation-quality-review",
+          "register-adaptation",
+          "locale-localization",
+          "ui-length-aware-translation",
+          "structured-content-preservation",
+          "project-translation-memory"
+        ],
+        "model": "CANONICAL_CAPABILITY_REFERENCES"
+      },
+      "transversal_support": [
+        "logician"
+      ],
+      "cloned": false,
+      "execution_authority": false,
+      "production_authority": false
+    },
+    {
+      "node_id": "documentation",
+      "domain_id": "publication",
+      "head": {
+        "memory_namespace": "specialist:domain:publication",
+        "roles": [
+          "publication-specialist"
+        ],
+        "orchestrator": "domain-publication-orchestrator",
+        "model": "CANONICAL_DOMAIN_HEAD_REFERENCE"
+      },
+      "arm": {
+        "capability_ids": [
+          "publication-writing",
+          "style-transformation",
+          "channel-formatting"
+        ],
+        "model": "CANONICAL_CAPABILITY_REFERENCES"
+      },
+      "transversal_support": [
+        "logician"
+      ],
+      "cloned": false,
+      "execution_authority": false,
+      "production_authority": false
+    },
+    {
+      "node_id": "reporting",
+      "domain_id": "data-backend",
+      "head": {
+        "memory_namespace": "specialist:domain:data-backend",
+        "roles": [
+          "data-architect",
+          "backend-api-architect"
+        ],
+        "orchestrator": "domain-data-orchestrator",
+        "model": "CANONICAL_DOMAIN_HEAD_REFERENCE"
+      },
+      "arm": {
+        "capability_ids": [
+          "database-migrate",
+          "data-model-review",
+          "backup-design",
+          "api-contract-review"
+        ],
+        "model": "CANONICAL_CAPABILITY_REFERENCES"
+      },
+      "transversal_support": [
+        "logician"
+      ],
+      "cloned": false,
+      "execution_authority": false,
+      "production_authority": false
+    },
+    {
+      "node_id": "reporting",
+      "domain_id": "ui-layout",
+      "head": {
+        "memory_namespace": "specialist:domain:ui-layout",
+        "roles": [
+          "ui-layout-specialist"
+        ],
+        "orchestrator": "domain-ui-layout-orchestrator",
+        "model": "CANONICAL_DOMAIN_HEAD_REFERENCE"
+      },
+      "arm": {
+        "capability_ids": [
+          "browser-automation",
+          "browser-diagnostics",
+          "accessibility-review",
+          "frontend-performance",
+          "ui-layout-review"
+        ],
+        "model": "CANONICAL_CAPABILITY_REFERENCES"
+      },
+      "transversal_support": [
+        "logician",
+        "ergonomist"
+      ],
+      "cloned": false,
+      "execution_authority": false,
+      "production_authority": false
+    }
+  ],
+  "reused_capabilities": [
+    {
+      "node_id": "solution-root",
+      "capability_id": "requirements-analysis",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "solution-root",
+      "capability_id": "domain-modeling",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "solution-root",
+      "capability_id": "acceptance-criteria",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "solution-root",
+      "capability_id": "code-edit",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "antigravity"
+      ],
+      "capability_class": "execution",
+      "materialize_new": false
+    },
+    {
+      "node_id": "solution-root",
+      "capability_id": "library-docs",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "context7-mcp"
+      ],
+      "capability_class": "knowledge",
+      "materialize_new": false
+    },
+    {
+      "node_id": "solution-root",
+      "capability_id": "api-contract-review",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "solution-root",
+      "capability_id": "integration-design",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "solution-root",
+      "capability_id": "unit-test-js",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "vitest",
+        "node-test"
+      ],
+      "capability_class": "verification",
+      "materialize_new": false
+    },
+    {
+      "node_id": "solution-root",
+      "capability_id": "e2e-test-web",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "playwright"
+      ],
+      "capability_class": "verification",
+      "materialize_new": false
+    },
+    {
+      "node_id": "solution-root",
+      "capability_id": "smoke-test-web",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "http-smoke",
+        "playwright"
+      ],
+      "capability_class": "verification",
+      "materialize_new": false
+    },
+    {
+      "node_id": "solution-root",
+      "capability_id": "performance-test-web",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "lighthouse"
+      ],
+      "capability_class": "verification",
+      "materialize_new": false
+    },
+    {
+      "node_id": "solution-root",
+      "capability_id": "test-strategy",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "gestion",
+      "capability_id": "requirements-analysis",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "gestion",
+      "capability_id": "domain-modeling",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "gestion",
+      "capability_id": "acceptance-criteria",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "gestion",
+      "capability_id": "database-migrate",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "wrangler-d1"
+      ],
+      "capability_class": "data",
+      "materialize_new": false
+    },
+    {
+      "node_id": "gestion",
+      "capability_id": "data-model-review",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "gestion",
+      "capability_id": "backup-design",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "gestion",
+      "capability_id": "api-contract-review",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "gestion",
+      "capability_id": "browser-automation",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "playwright"
+      ],
+      "capability_class": "execution",
+      "materialize_new": false
+    },
+    {
+      "node_id": "gestion",
+      "capability_id": "browser-diagnostics",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chrome-devtools-mcp"
+      ],
+      "capability_class": "verification",
+      "materialize_new": false
+    },
+    {
+      "node_id": "gestion",
+      "capability_id": "accessibility-review",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "gestion",
+      "capability_id": "frontend-performance",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "gestion",
+      "capability_id": "ui-layout-review",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chrome-devtools-mcp",
+        "playwright-mcp",
+        "chacha-dev-architect"
+      ],
+      "capability_class": "verification",
+      "materialize_new": false
+    },
+    {
+      "node_id": "gestion",
+      "capability_id": "security-scan-js",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "npm-audit"
+      ],
+      "capability_class": "verification",
+      "materialize_new": false
+    },
+    {
+      "node_id": "gestion",
+      "capability_id": "threat-model",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "gestion",
+      "capability_id": "secrets-review",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "gestion",
+      "capability_id": "dependency-review",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "gestion",
+      "capability_id": "digital-signature-verification",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "openssl-ed25519"
+      ],
+      "capability_class": "verification",
+      "materialize_new": false
+    },
+    {
+      "node_id": "formation-ludique",
+      "capability_id": "code-edit",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "antigravity"
+      ],
+      "capability_class": "execution",
+      "materialize_new": false
+    },
+    {
+      "node_id": "formation-ludique",
+      "capability_id": "library-docs",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "context7-mcp"
+      ],
+      "capability_class": "knowledge",
+      "materialize_new": false
+    },
+    {
+      "node_id": "formation-ludique",
+      "capability_id": "api-contract-review",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "formation-ludique",
+      "capability_id": "integration-design",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "formation-ludique",
+      "capability_id": "3d-pipeline",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "blender",
+        "unitypy"
+      ],
+      "capability_class": "execution",
+      "materialize_new": false
+    },
+    {
+      "node_id": "formation-ludique",
+      "capability_id": "graphics-pipeline",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "blender",
+        "unitypy"
+      ],
+      "capability_class": "execution",
+      "materialize_new": false
+    },
+    {
+      "node_id": "formation-ludique",
+      "capability_id": "asset-analysis",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "unitypy",
+        "collector-knowledge-runtime"
+      ],
+      "capability_class": "knowledge",
+      "materialize_new": false
+    },
+    {
+      "node_id": "formation-ludique",
+      "capability_id": "animation-pipeline",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "blender"
+      ],
+      "capability_class": "execution",
+      "materialize_new": false
+    },
+    {
+      "node_id": "formation-ludique",
+      "capability_id": "database-migrate",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "wrangler-d1"
+      ],
+      "capability_class": "data",
+      "materialize_new": false
+    },
+    {
+      "node_id": "formation-ludique",
+      "capability_id": "data-model-review",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "formation-ludique",
+      "capability_id": "backup-design",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "documentation",
+      "capability_id": "documentation",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "skywork",
+        "antigravity"
+      ],
+      "capability_class": "knowledge",
+      "materialize_new": false
+    },
+    {
+      "node_id": "documentation",
+      "capability_id": "architecture-documentation",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "documentation",
+      "capability_id": "adr-management",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "documentation",
+      "capability_id": "runbook-maintenance",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "documentation",
+      "capability_id": "library-docs",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "context7-mcp"
+      ],
+      "capability_class": "knowledge",
+      "materialize_new": false
+    },
+    {
+      "node_id": "documentation",
+      "capability_id": "technology-radar",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-tech-watch"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "documentation",
+      "capability_id": "architecture-optimization",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-tech-watch",
+        "chacha-dev-architect"
+      ],
+      "capability_class": "knowledge",
+      "materialize_new": false
+    },
+    {
+      "node_id": "documentation",
+      "capability_id": "web-research",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "technology-radar",
+        "exa-mcp"
+      ],
+      "capability_class": "knowledge",
+      "materialize_new": false
+    },
+    {
+      "node_id": "documentation",
+      "capability_id": "collector-knowledge-inspect",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "collector-knowledge-runtime"
+      ],
+      "capability_class": "knowledge",
+      "materialize_new": false
+    },
+    {
+      "node_id": "documentation",
+      "capability_id": "translation",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "skywork",
+        "antigravity"
+      ],
+      "capability_class": "knowledge",
+      "materialize_new": false
+    },
+    {
+      "node_id": "documentation",
+      "capability_id": "terminology-management",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "collector-knowledge-runtime",
+        "skywork"
+      ],
+      "capability_class": "knowledge",
+      "materialize_new": false
+    },
+    {
+      "node_id": "documentation",
+      "capability_id": "translation-quality-review",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "skywork",
+        "antigravity"
+      ],
+      "capability_class": "verification",
+      "materialize_new": false
+    },
+    {
+      "node_id": "documentation",
+      "capability_id": "publication-writing",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "skywork"
+      ],
+      "capability_class": "knowledge",
+      "materialize_new": false
+    },
+    {
+      "node_id": "documentation",
+      "capability_id": "style-transformation",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "skywork"
+      ],
+      "capability_class": "knowledge",
+      "materialize_new": false
+    },
+    {
+      "node_id": "documentation",
+      "capability_id": "channel-formatting",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "skywork"
+      ],
+      "capability_class": "execution",
+      "materialize_new": false
+    },
+    {
+      "node_id": "reporting",
+      "capability_id": "database-migrate",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "wrangler-d1"
+      ],
+      "capability_class": "data",
+      "materialize_new": false
+    },
+    {
+      "node_id": "reporting",
+      "capability_id": "data-model-review",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "reporting",
+      "capability_id": "backup-design",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "reporting",
+      "capability_id": "api-contract-review",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "reporting",
+      "capability_id": "browser-automation",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "playwright"
+      ],
+      "capability_class": "execution",
+      "materialize_new": false
+    },
+    {
+      "node_id": "reporting",
+      "capability_id": "browser-diagnostics",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chrome-devtools-mcp"
+      ],
+      "capability_class": "verification",
+      "materialize_new": false
+    },
+    {
+      "node_id": "reporting",
+      "capability_id": "accessibility-review",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "reporting",
+      "capability_id": "frontend-performance",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chacha-dev-architect"
+      ],
+      "capability_class": "governance",
+      "materialize_new": false
+    },
+    {
+      "node_id": "reporting",
+      "capability_id": "ui-layout-review",
+      "resolution": "REUSE",
+      "provider_ids": [
+        "chrome-devtools-mcp",
+        "playwright-mcp",
+        "chacha-dev-architect"
+      ],
+      "capability_class": "verification",
+      "materialize_new": false
+    }
+  ],
+  "foundry_gap_requests": [
+    {
+      "gap_id": "capability:register-adaptation",
+      "node_id": "documentation",
+      "kind": "CAPABILITY",
+      "requested_id": "register-adaptation",
+      "owner_foundry": "capability-foundry",
+      "state": "FOUNDRY_GAP_REQUEST",
+      "materialized": false,
+      "execution_authority": false
+    },
+    {
+      "gap_id": "capability:locale-localization",
+      "node_id": "documentation",
+      "kind": "CAPABILITY",
+      "requested_id": "locale-localization",
+      "owner_foundry": "capability-foundry",
+      "state": "FOUNDRY_GAP_REQUEST",
+      "materialized": false,
+      "execution_authority": false
+    },
+    {
+      "gap_id": "capability:ui-length-aware-translation",
+      "node_id": "documentation",
+      "kind": "CAPABILITY",
+      "requested_id": "ui-length-aware-translation",
+      "owner_foundry": "capability-foundry",
+      "state": "FOUNDRY_GAP_REQUEST",
+      "materialized": false,
+      "execution_authority": false
+    },
+    {
+      "gap_id": "capability:structured-content-preservation",
+      "node_id": "documentation",
+      "kind": "CAPABILITY",
+      "requested_id": "structured-content-preservation",
+      "owner_foundry": "capability-foundry",
+      "state": "FOUNDRY_GAP_REQUEST",
+      "materialized": false,
+      "execution_authority": false
+    },
+    {
+      "gap_id": "capability:project-translation-memory",
+      "node_id": "documentation",
+      "kind": "CAPABILITY",
+      "requested_id": "project-translation-memory",
+      "owner_foundry": "capability-foundry",
+      "state": "FOUNDRY_GAP_REQUEST",
+      "materialized": false,
+      "execution_authority": false
+    }
+  ],
+  "blockers": [],
+  "warnings": [],
+  "foundry_invoked": false,
+  "automatic_materialization": false,
+  "release_gate_support": [
+    "guardian",
+    "sentinel"
+  ],
+  "execution_authority": false,
+  "production_authority": false,
+  "automatic_external_spend_eur": 0,
+  "resolved_at": "2026-10-03T20:35:06Z"
+}

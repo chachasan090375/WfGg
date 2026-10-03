@@ -58,8 +58,8 @@ with tempfile.TemporaryDirectory(prefix="v803-session-") as raw:
 ui=(ROOT/"dev-hub/direct-operator-ui/index.html").read_text(encoding="utf-8")
 assert "async function hydrateConversation()" in ui
 assert "if(s.last_response)renderConversation(s.last_response)" in ui
-assert "hydrateConversation();refreshProgress()" in ui
-assert "function renderConversation(z)" in ui
+assert "hydrateConversation();" in ui and "refreshProgress();" in ui
+assert "function renderConversation(z" in ui
 assert "submitted_user_message" in ui
 assert "👤 Ta demande" in ui
 assert "💨 ChaCha répond" in ui

@@ -1,0 +1,28 @@
+{
+  "schema": "chacha.dev/artifact-fabric-shadow-pilot/v1",
+  "status": "PASS",
+  "runtime_root": "/opt/chacha-dev/runtime/artifact-fabric-shadow-pilot-20261003",
+  "input_artifact": {
+    "artifact_id": "art-b2c2ddeab5f344b0837e9f2733744fec",
+    "filename": "cahier-des-charges.txt",
+    "mime_type": "text/plain",
+    "size": 27,
+    "sha256": "sha256:6fe4fbe7db05fd2b2297ab535ec6478891b8572343532911f7f6d1df793ed098",
+    "security_state": "STORED_UNTRUSTED_NONEXECUTABLE",
+    "execution_allowed": false
+  },
+  "generated_artifact": {
+    "artifact_id": "art-6983fe2b6b2344ef953236ad223065c7",
+    "filename": "rapport-qualification.txt",
+    "mime_type": "text/plain",
+    "size": 25,
+    "sha256": "sha256:9d3b62b2dc0eaea5fdc129d159e17ec6442162d6449487476ac6040d9b8bcdd9",
+    "security_state": "GENERATED_NONEXECUTABLE_UNLESS_SEPARATELY_AUTHORIZED",
+    "execution_allowed": false,
+    "parent_artifact": "art-b2c2ddeab5f344b0837e9f2733744fec"
+  },
+  "readback_verified": true,
+  "cross_owner_access_blocked": true,
+  "automatic_execution": false,
+  "automatic_external_spend_eur": 0
+}
