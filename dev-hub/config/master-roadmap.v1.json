@@ -1,0 +1,461 @@
+{
+  "schema": "chacha.dev/master-roadmap/v1",
+  "version": "1.0.0",
+  "scope": "CHACHA_DEV_PLATFORM_CORE",
+  "updated_at": "2026-10-03T20:00:00Z",
+  "authority": {
+    "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
+    "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
+    "project_roadmaps_role": "CONSUMER_PROJECTS_AND_VALIDATION_TRACKS",
+    "history_must_not_be_discarded_without_supersession_evidence": true
+  },
+  "baseline": {
+    "production_sha": "d84d389b74b5efe5e368f3d1c4851214d0ecc4fc",
+    "production_tree": "fd4bd54b9ef66ddd6fcbd14c83bb303894522bb2",
+    "current_creation_candidate_sha": "f3a7e86b1fe9e6c5b1cfa7699ae9103ddde1ed95",
+    "candidate_is_descendant_of_current_production": false,
+    "mandatory_rule": "NO_FUTURE_PRODUCTION_CANDIDATE_MAY_BE_PROMOTED_UNTIL_CURRENT_PRODUCTION_DELTA_IS_RECONCILED_AND_REQUALIFIED"
+  },
+  "classification_values": [
+    "RETAIN",
+    "RETAIN_EXTEND",
+    "MIGRATE",
+    "SUPERSEDED_SEMANTICS_RETAINED",
+    "CONVERGE_BRANCH",
+    "PARALLEL_TRACK",
+    "VALIDATION_PROJECT_ONLY"
+  ],
+  "legacy_audit": [
+    {
+      "id": "v4.1-blueprint",
+      "source": "dev-hub/ARCHITECTURE_BLUEPRINT_V4_1.md@58adfa7c",
+      "classification": "SUPERSEDED_SEMANTICS_RETAINED",
+      "decision": "Do not restore the obsolete document as authority. Its product/frontend/backend/data/security/testing/build/release/operations/performance/docs/DX/storage checklist is subsumed and expanded by V5."
+    },
+    {
+      "id": "v5-reference-architecture",
+      "source": "dev-hub/docs/REFERENCE_ARCHITECTURE_V5.md",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Remain the architecture foundation: vendor-neutral capabilities, Manifest V3, 18 quality domains, evidence gates, storage tiers, golden paths and project/component model. Extend with multimodal artifacts, feasibility, recursive specialization, OS lab and resource-aware parallelism."
+    },
+    {
+      "id": "manifest-v3",
+      "source": "dev-hub/schemas/project-manifest-v3.schema.json",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as durable project contract; extend or companion-bind it to recursive Solution Graph nodes, artifact references, resource budgets and target-platform validation matrix."
+    },
+    {
+      "id": "capability-registry-provider-abstraction",
+      "source": "dev-hub/config/capability-registry.v1.json",
+      "classification": "RETAIN",
+      "decision": "Still canonical. Requirements request capabilities, not vendor names; provider selection remains replaceable, evidence-based and zero-cost-first."
+    },
+    {
+      "id": "golden-paths",
+      "source": "dev-hub/config/golden-paths.v1.json",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as reusable architecture-pattern library, not as the top-level classifier. Solution Composer may use/combine them after deliverable/archetype classification."
+    },
+    {
+      "id": "project-planner-v1",
+      "source": "dev-hub/docs/PROJECT_PLANNER_V1.md",
+      "classification": "MIGRATE",
+      "decision": "Evolve into Solution Composer. Preserve intent normalization, risk/unresolved-decision handling, Manifest generation and reuse-before-build. Add infrastructure feasibility pre-gate, recursive module decomposition and explicit dependency/interface graph."
+    },
+    {
+      "id": "technical-design-router-v1",
+      "source": "dev-hub/docs/TECHNICAL_DESIGN_ROUTING_V1.md",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as downstream technical-design boundary. It must consume Solution Graph nodes and route domain specialists after composition, rather than acting as the first decomposition layer."
+    },
+    {
+      "id": "lifecycle-evidence-v1",
+      "source": "dev-hub/docs/LIFECYCLE_ORCHESTRATION_V1.md",
+      "classification": "MIGRATE",
+      "decision": "Keep evidence-driven IDEA/DESIGN/READY/BUILD/VERIFY/PREVIEW/RELEASE/OPERATE/RETIRE semantics and human release boundaries. Replace global single-writer rule with isolated concurrent mutation lanes, scoped locks/contracts and merge barriers."
+    },
+    {
+      "id": "domain-orchestration-v6",
+      "source": "dev-hub/docs/DOMAIN_ORCHESTRATION_V6.md",
+      "classification": "MIGRATE",
+      "decision": "Keep domains, runtime provider resolution, Technology Watch and cross-domain review. Retire the invariant that Agent Foundry precedes every domain execution; Foundry becomes gap materializer after Solution Composer classification/reuse resolution. Old regression suite shows routing/Guardian contract drift and must be migrated."
+    },
+    {
+      "id": "foundry-family-v6x",
+      "source": "dev-hub/bin/agent-foundry-planner.py;dev-hub/bin/branch-foundry-planner.py;dev-hub/bin/capability-foundry.py",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep Agent/Branch/Capability Foundries. All new Heads, Arms, archetypes, adapters and runtime components inherit UMG/CCR/birth/lifecycle/evidence contracts."
+    },
+    {
+      "id": "architecture-governance",
+      "source": "dev-hub/config/architecture-decision-council.v1.json; Guardian; Sentinel; Logicien",
+      "classification": "RETAIN",
+      "decision": "Keep recommendation/falsification/verification separation. Architecture Council is advisory/recommendation authority, not production authority; Guardian/Sentinel gates remain mandatory."
+    },
+    {
+      "id": "object-factory-v770",
+      "source": "dev-hub/config/object-factory.v1.json",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as a specialized sub-factory for application-domain objects under Solution Composer nodes; reuse-before-build remains mandatory. Current focused test PASS."
+    },
+    {
+      "id": "human-conversation-v810",
+      "source": "dev-hub/docs/HUMAN_CONVERSATION_ARCHITECTURE_V810.md",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep lightweight human conversation channel, private timeline/profile and no technical authority. Extend with Artifact Fabric attachments, output artifacts, durable project bindings and future voice/TTS/barge-in where appropriate. Current focused test PASS."
+    },
+    {
+      "id": "domain-factory-atomic-capabilities-v818-v828",
+      "source": "dev-hub/bin/domain-factory-runner.py; capability atomic execution/runtime continuation",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as implementation substrate for specialist Arms and bounded capability execution. One older V8.22 test has expected-string drift in zero-cost attestation and needs regression-contract update, not removal of the feature."
+    },
+    {
+      "id": "universal-materialization-and-ccr",
+      "source": "dev-hub/bin/universal-materialization-gate.py;dev-hub/config/canonical-component-registry.v1.json",
+      "classification": "RETAIN",
+      "decision": "Remain mandatory birth and inventory authority for all evolvable components."
+    },
+    {
+      "id": "canonical-path-standalone",
+      "source": "origin/project-canonical-path-resolution-multi-agent@56321069",
+      "classification": "SUPERSEDED_SEMANTICS_RETAINED",
+      "decision": "Do not converge as an independent line. Its project is carried forward and enhanced in structural-architecture-gates-20261002."
+    },
+    {
+      "id": "structural-architecture-gates",
+      "source": "origin/structural-architecture-gates-20261002@e0de6300",
+      "classification": "CONVERGE_BRANCH",
+      "decision": "Still fully aligned and required: canonical route resolution, anti-parallel-route protection, durable mission owner resolution, Logicien falsification, runtime reconciliation and persistent mission bridges. Must be converged onto current production-derived baseline before creation runtime activation."
+    },
+    {
+      "id": "remote-operator-mcp",
+      "source": "origin/remote-operator-chatgpt-pilot-converged-v1@41b1864a",
+      "classification": "PARALLEL_TRACK",
+      "decision": "Still current. Own Remote MCP remains preferred future zero-incremental-cost remote route when policy/capabilities/Guardian/Sentinel/STOP/runtime health permit. It is not a prerequisite for Solution Composer but must be represented in the master roadmap and later converged onto current production."
+    },
+    {
+      "id": "android-direct-operator-live-interface",
+      "source": "V7.2-V8.x Direct Operator/Android widget/live sync lineage",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as operator surface. Creation runtime must expose project/artifact/progress state through the same authoritative interface rather than create a second UI authority."
+    },
+    {
+      "id": "autonomy-gap-roadmap",
+      "source": "dev-hub/config/autonomy-gap-roadmap.v1.json",
+      "classification": "RETAIN",
+      "decision": "Keep, but only as an autonomy-specific derived view. It must never again substitute for the complete product roadmap."
+    },
+    {
+      "id": "native-local-provider-independence",
+      "source": "local cognitive runtime/adaptive cognitive routing lineage",
+      "classification": "PARALLEL_TRACK",
+      "decision": "Keep zero-cost/advisory provider-independence track. It is not a blocker for the creation architecture; no activation until resource/maturity gates pass."
+    },
+    {
+      "id": "resilience-ha",
+      "source": "HA standby/readiness lineage",
+      "classification": "PARALLEL_TRACK",
+      "decision": "Keep as cross-cutting infrastructure workstream; rollback/STOP exist, full HA remains incomplete and should not be hidden by creation-roadmap progress."
+    },
+    {
+      "id": "cognitive-memory-fabric",
+      "source": "origin/cognitive-memory-runtime-integration-v1@4968c020",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as one canonical memory fabric for central and specialist Heads. Qualified shadow candidate remains non-production; no competing memory fabric."
+    },
+    {
+      "id": "specialization-fabric-2d",
+      "source": "origin/specialization-fabric-2d-v1@673a5a9f",
+      "classification": "MIGRATE",
+      "decision": "Keep Head+Arm and application-archetype composition concepts, but generalize from two axes to recursive hierarchy/graph: deliverable -> archetype -> module/submodule -> domain -> capability, with reclassification at every complex node."
+    },
+    {
+      "id": "creation-runtime-fabric",
+      "source": "origin/creation-runtime-fabric-v1@f3a7e86b",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Current target contract: infrastructure feasibility, Solution Composer, recursive specialization, Artifact Fabric, resource-aware parallel orchestration and Virtual Device & OS Lab."
+    },
+    {
+      "id": "wfgg-radar-and-other-product-projects",
+      "source": "dev-hub/projects/*",
+      "classification": "VALIDATION_PROJECT_ONLY",
+      "decision": "Keep as consumer projects/pilots. Their feature backlog does not define ChaCha DEV core roadmap, but their evidence may prove core capabilities."
+    },
+    {
+      "id": "technology-watch-truth-scoring",
+      "source": "Technology Watch / V6.45+ lineage",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as cross-cutting discovery/revalidation plane for domains, archetypes, providers and OS/toolchain choices; novelty alone never authorizes adoption."
+    },
+    {
+      "id": "translation-localization-specialist",
+      "source": "V8.13 professional localization lineage",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as a technical specialist domain/cell under recursive specialization, reusable by applications, documents, media and operator surfaces."
+    },
+    {
+      "id": "dark-intelligence-isolated-research",
+      "source": "V8.01 isolated Dark Intelligence lineage",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep only as isolated governed research capability with scored/reverified sources; it is not a general execution authority and is not a blocker for creation runtime."
+    },
+    {
+      "id": "embedded-assurance-agents",
+      "source": "V6.32-V6.36 project embedded assurance lineage",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep lightweight Guardian/Sentinel/Bastion/Visual/Translation-style probes where useful, but bind them to project/module nodes and central authority rather than duplicate central agents."
+    }
+  ],
+  "workstreams": [
+    {
+      "id": "governance-control-plane",
+      "priority": "P0",
+      "state": "ACTIVE_FOUNDATION_NEEDS_BRANCH_CONVERGENCE",
+      "includes": [
+        "Guardian",
+        "Sentinel",
+        "STOP",
+        "CCR",
+        "UMG",
+        "Architecture Council",
+        "Logicien",
+        "canonical routes",
+        "anti-loop",
+        "persistent missions"
+      ],
+      "blocking_for_full_creation_runtime": true
+    },
+    {
+      "id": "project-model-lifecycle",
+      "priority": "P0",
+      "state": "ACTIVE_NEEDS_PARALLELISM_MIGRATION",
+      "includes": [
+        "V5 18 architecture domains",
+        "Manifest V3",
+        "Lifecycle",
+        "Evidence Ledger",
+        "Golden Paths",
+        "Object Factory"
+      ],
+      "blocking_for_full_creation_runtime": true
+    },
+    {
+      "id": "solution-conception",
+      "priority": "P0",
+      "state": "DESIGN_DEFINED_RUNTIME_MISSING",
+      "includes": [
+        "Infrastructure Feasibility Auditor",
+        "Solution Composer",
+        "recursive classification",
+        "Solution Graph",
+        "interface/data ownership",
+        "constraint inheritance"
+      ],
+      "blocking_for_full_creation_runtime": true
+    },
+    {
+      "id": "specialist-intelligence",
+      "priority": "P0",
+      "state": "SHADOW_FOUNDATION_PARTIAL",
+      "includes": [
+        "Cognitive Memory Fabric",
+        "Head+Arm domains",
+        "archetype heads",
+        "recursive specialization",
+        "Technology Watch",
+        "Logicien cross-domain reasoning"
+      ],
+      "blocking_for_full_creation_runtime": true
+    },
+    {
+      "id": "artifact-fabric",
+      "priority": "P0",
+      "state": "REQUIREMENTS_DEFINED_RUNTIME_MISSING",
+      "includes": [
+        "chat/API upload",
+        "chat/API output",
+        "artifact registry",
+        "versioning",
+        "sha256",
+        "provenance",
+        "sandbox",
+        "persistent project binding",
+        "large-file streaming/derived representations"
+      ],
+      "blocking_for_full_creation_runtime": true
+    },
+    {
+      "id": "parallel-execution",
+      "priority": "P0",
+      "state": "REQUIREMENTS_DEFINED_RUNTIME_MISSING",
+      "includes": [
+        "Execution Planner",
+        "task DAG",
+        "critical path",
+        "adaptive concurrency",
+        "resource budgets",
+        "work stealing",
+        "backpressure",
+        "integration barriers"
+      ],
+      "blocking_for_full_creation_runtime": true
+    },
+    {
+      "id": "virtual-os-device-lab",
+      "priority": "P1",
+      "state": "REQUIREMENTS_DEFINED_RUNTIME_MISSING",
+      "includes": [
+        "QNAP VM/image/snapshot roles",
+        "VPS Linux runners",
+        "Windows/Linux/Unix matrix",
+        "Android routing",
+        "Apple-native runner contract",
+        "physical device pool"
+      ],
+      "blocking_for_full_creation_runtime": true
+    },
+    {
+      "id": "conversation-operator-surface",
+      "priority": "P1",
+      "state": "ACTIVE_PARTIAL",
+      "includes": [
+        "Direct Operator",
+        "conversation timeline",
+        "dual channel",
+        "Android widget",
+        "live sync",
+        "progress",
+        "future voice",
+        "artifact UI"
+      ],
+      "blocking_for_full_creation_runtime": false
+    },
+    {
+      "id": "remote-mcp",
+      "priority": "P1",
+      "state": "QUALIFIED_SIDE_TRACK_NEEDS_CONVERGENCE",
+      "includes": [
+        "own Remote MCP",
+        "governed named operations",
+        "M2M ingress",
+        "future preferred zero-cost remote route"
+      ],
+      "blocking_for_full_creation_runtime": false
+    },
+    {
+      "id": "provider-independence-native-local",
+      "priority": "P2",
+      "state": "QUALIFIED_SHADOW_NOT_PROMOTED",
+      "includes": [
+        "adaptive cognitive routing",
+        "native local model",
+        "provider confidence/economics"
+      ],
+      "blocking_for_full_creation_runtime": false
+    },
+    {
+      "id": "resilience-ha",
+      "priority": "P1",
+      "state": "PARTIAL",
+      "includes": [
+        "rollback",
+        "STOP",
+        "backup/restore",
+        "standby",
+        "HA",
+        "disaster recovery"
+      ],
+      "blocking_for_full_creation_runtime": false
+    },
+    {
+      "id": "autonomy",
+      "priority": "P1",
+      "state": "ACTIVE_PARTIAL",
+      "includes": [
+        "self-model",
+        "autonomy loop",
+        "roadmap gap view",
+        "incident remediation",
+        "self-evolution",
+        "persistent missions"
+      ],
+      "blocking_for_full_creation_runtime": false
+    }
+  ],
+  "production_convergence_order": [
+    {
+      "order": 0,
+      "id": "BASELINE_RECONCILIATION",
+      "action": "Rebase/compose every future candidate onto production d84d... and preserve its Guardian comparative-pilot fix before any new qualification."
+    },
+    {
+      "order": 1,
+      "id": "STRUCTURAL_GOVERNANCE_CONVERGENCE",
+      "action": "Converge structural-architecture-gates e0de6300 (including enhanced Canonical Path and persistent mission wiring) onto the production-derived line; qualify and promote as a small reversible train."
+    },
+    {
+      "order": 2,
+      "id": "COGNITIVE_MEMORY",
+      "action": "Reconcile qualified CMF 4968c020 onto the new production-derived line; reuse unchanged evidence, rerun only changed-scope qualification, then promote if separately approved."
+    },
+    {
+      "order": 3,
+      "id": "RECURSIVE_SPECIALIZATION_FOUNDATION",
+      "action": "Migrate 673a5a9f from 2D to recursive specialization and converge onto production-derived CMF baseline; qualify before runtime routing."
+    },
+    {
+      "order": 4,
+      "id": "FEASIBILITY_AND_SOLUTION_COMPOSER",
+      "action": "Build Infrastructure Feasibility Auditor + Solution Composer + Solution Graph first, because downstream work depends on their contracts."
+    },
+    {
+      "order": 5,
+      "id": "ARTIFACT_AND_SPECIALIST_BINDING_PARALLEL_BUILD",
+      "action": "Develop Artifact Fabric and Specialist Cell/Foundry binding in parallel on isolated worktrees; serialize production promotion after each exact-SHA qualification."
+    },
+    {
+      "order": 6,
+      "id": "RESOURCE_AWARE_EXECUTION",
+      "action": "Activate executable DAG/adaptive parallelism only after stable solution/interface contracts and specialist resolution exist."
+    },
+    {
+      "order": 7,
+      "id": "VIRTUAL_OS_DEVICE_LAB",
+      "action": "Converge QNAP/VPS/target-platform validation runners; can be developed in parallel with step 6 but production binding must respect feasibility/resource gates."
+    },
+    {
+      "order": 8,
+      "id": "END_TO_END_CREATION_RUNTIME",
+      "action": "Bind request/files -> feasibility -> composition -> recursive specialist execution -> target validation -> Guardian/Sentinel -> downloadable artifacts; validate with heterogeneous pilot projects."
+    },
+    {
+      "order": 9,
+      "id": "REMOTE_MCP_AND_OPERATOR_SURFACE_CONVERGENCE",
+      "action": "Converge remote MCP and enhanced chat/artifact/cockpit surfaces without making them prerequisites for core creation correctness."
+    },
+    {
+      "order": 10,
+      "id": "HA_AND_NATIVE_LOCAL_DEEPENING",
+      "action": "Continue HA and provider-independence tracks independently; neither may block safe core creation unless a target project explicitly requires them."
+    }
+  ],
+  "obsolete_or_replaced_rules": [
+    {
+      "rule": "Agent Foundry precedes every domain execution",
+      "replacement": "Solution Composer/recursive classification -> reuse/capability resolution -> Foundry only for gaps or topology materialization"
+    },
+    {
+      "rule": "Only one write-capable specialist may mutate a project at a time",
+      "replacement": "Multiple isolated mutation lanes are allowed when dependency, file-scope and interface contracts prove independence; integration remains barriered and governed"
+    },
+    {
+      "rule": "Autonomy gap roadmap is the product roadmap",
+      "replacement": "Autonomy gap roadmap is a derived view of the master roadmap"
+    },
+    {
+      "rule": "Application archetype is the highest specialization class",
+      "replacement": "Deliverable classification sits above archetype and recursion applies at module/submodule level"
+    }
+  ]
+}

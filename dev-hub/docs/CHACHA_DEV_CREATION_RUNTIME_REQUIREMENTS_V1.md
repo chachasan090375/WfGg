@@ -40,3 +40,8 @@ Le laboratoire doit fournir des environnements reproductibles et versionnés pou
 
 ## Gouvernance
 Guardian, Sentinelle, STOP, Universal Materialization Gate et Canonical Component Registry restent applicables. Aucune nouvelle spécialisation, VM, capacité, dépendance externe ou dépense ne gagne d'autorité du seul fait d'avoir été créée. Toute activation production reste séparée du travail de conception et de qualification.
+
+## Continuité avec l'architecture historique
+Ce cahier des charges **étend** la Reference Architecture V5 et ne la remplace pas. Manifest V3, les 18 domaines qualité, Capability Registry, Golden Paths, Lifecycle/Evidence, Object Factory, Foundries, UMG/CCR, Guardian, Sentinelle, Architecture Council, Technology Watch et les canaux Direct Operator/Conversation restent applicables selon l'audit de convergence. Les règles explicitement supersédées sont documentées dans `master-roadmap.v1.json`. La `autonomy-gap-roadmap.v1.json` est une vue dérivée et ne doit plus être utilisée comme backlog maître.
+
+Aucun candidat issu de ce cahier des charges ne peut être promu s'il n'est pas reconstruit/convergé sur la production active la plus récente et requalifié pour le périmètre matériellement modifié.
