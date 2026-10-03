@@ -13,7 +13,7 @@ def loadmod(name,path):
     spec.loader.exec_module(mod)
     return mod
 
-central=loadmod("v831_central",ROOT/"dev-hub/bin/central-interface-controller.py")
+central=loadmod("v831_central",ROOT/"dev-hub/bin/central-interface-controller-core.py")
 conversation=loadmod("v831_conversation",ROOT/"dev-hub/bin/conversation-interface-agent.py")
 direct=loadmod("v831_direct",ROOT/"dev-hub/bin/direct-operator-service.py")
 
@@ -53,7 +53,7 @@ assert next_gen=="RETRY_WHEN_BRAIN_AVAILABLE",(status_gen,next_gen,decision_gen)
 
 # 4. Continuation contract: RUN_CONTROLLER_COMPLETE must route to domain execution continuation,
 # never falling through to FRESH_CENTRAL_REORCHESTRATION (preventing loop).
-central_src=(ROOT/"dev-hub/bin/central-interface-controller.py").read_text(encoding="utf-8")
+central_src=(ROOT/"dev-hub/bin/central-interface-controller-core.py").read_text(encoding="utf-8")
 assert 'prior_next in {"SCHEDULER_READY","RUN_CONTROLLER_COMPLETE"}' in central_src
 
 print("CHACHA_DEV_V831_D1_NO_FALSE_BRAIN_UNAVAILABLE=PASS")

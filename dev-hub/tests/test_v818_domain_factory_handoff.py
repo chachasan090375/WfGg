@@ -74,7 +74,7 @@ with tempfile.TemporaryDirectory(prefix="v818-domain-factory-") as td:
     rec=json.loads((out/"contract-reconciliation.json").read_text())
     assert rec["assembly_allowed"] is True,rec
 
-controller=(ROOT/"dev-hub/bin/central-interface-controller.py").read_text(encoding="utf-8")
+controller=(ROOT/"dev-hub/bin/central-interface-controller-core.py").read_text(encoding="utf-8")
 for marker in [
   'prior_next=="DOMAIN_FACTORIES"',
   'domain-factory-runner.py',

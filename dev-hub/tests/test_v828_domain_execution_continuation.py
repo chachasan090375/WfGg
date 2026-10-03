@@ -50,7 +50,7 @@ with tempfile.TemporaryDirectory(prefix="v828-domain-exec-") as raw:
     task=ready["tasks"][0]
     assert task["gate"]=="READY" and (task.get("selected_candidate") or {}).get("health_state")=="HEALTHY",task
 
-controller=(ROOT/"dev-hub/bin/central-interface-controller.py").read_text(encoding="utf-8")
+controller=(ROOT/"dev-hub/bin/central-interface-controller-core.py").read_text(encoding="utf-8")
 for marker in [
   'prior_next in {',
   '"PROVIDER_HEALTH_PROBE_REQUIRED"',

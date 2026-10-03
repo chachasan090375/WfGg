@@ -32,7 +32,7 @@ assert extension["version"]=="8.0.1"
 assert extension["core_platform_version"]=="7.8.0"
 assert "conversation-interface-agent" in extension["components"]
 assert "isolated-dark-intelligence-collector" in extension["components"]
-central_src=(ROOT/"dev-hub/bin/central-interface-controller.py").read_text(encoding="utf-8")
+central_src=(ROOT/"dev-hub/bin/central-interface-controller-core.py").read_text(encoding="utf-8")
 conversation_src=(ROOT/"dev-hub/bin/conversation-interface-agent.py").read_text(encoding="utf-8")
 assert 'platform-extension.v1.json' in central_src
 assert 'platform_extension' in central_src

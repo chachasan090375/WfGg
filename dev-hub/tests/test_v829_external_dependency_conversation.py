@@ -13,7 +13,7 @@ def loadmod(name,path):
     spec.loader.exec_module(mod)
     return mod
 
-central=loadmod("v829_central",ROOT/"dev-hub/bin/central-interface-controller.py")
+central=loadmod("v829_central",ROOT/"dev-hub/bin/central-interface-controller-core.py")
 conversation=loadmod("v829_conversation",ROOT/"dev-hub/bin/conversation-interface-agent.py")
 direct=loadmod("v829_direct",ROOT/"dev-hub/bin/direct-operator-service.py")
 

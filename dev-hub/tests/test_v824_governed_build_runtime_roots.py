@@ -130,7 +130,7 @@ assert "CHACHA_DEV_GUARDIAN_ADAPTER_CONTRACT_SYNC=PASS" in sync
 print('CHACHA_DEV_V824_GUARDIAN_ADAPTER_CONTRACT_SYNC=PASS')
 print('CHACHA_DEV_V824_GUARDIAN_D1_DEV_BRANCH_MUTATION=FORBIDDEN')
 
-central=(ROOT/'dev-hub/bin/central-interface-controller.py').read_text()
+central=(ROOT/'dev-hub/bin/central-interface-controller-core.py').read_text()
 for marker in ['def verify_domain_run_results','"verify-result"','DOMAIN_EXECUTION_VERIFICATION_REQUIRED','"domain_execution_verified"','status="COMPLETE";next_action="AWAIT_NEW_INSTRUCTION"','continuation_mode":"DOMAIN_EXECUTION_VERIFICATION_RESUME"']:
     assert marker in central,marker
 print('CHACHA_DEV_V824_INDEPENDENT_RESULT_VERIFICATION_GATE=PASS')

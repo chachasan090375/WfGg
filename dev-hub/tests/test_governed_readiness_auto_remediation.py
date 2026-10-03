@@ -75,7 +75,7 @@ assert permissions['overrides']['library-docs']=='read'
 assert permissions['overrides']['technology-radar']=='read'
 assert permissions['guardrails']['production_permission_never_inferred'] is True
 
-central=(BIN/'central-interface-controller.py').read_text()
+central=(BIN/'central-interface-controller-core.py').read_text()
 assert 'domain-factories-reconciled' in central
 assert 'runtime-adapter-registry.py' in central
 assert 'domain-readiness-auto-remediator.py' in central
