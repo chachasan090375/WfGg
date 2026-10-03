@@ -12,9 +12,13 @@
   "baseline": {
     "production_sha": "d84d389b74b5efe5e368f3d1c4851214d0ecc4fc",
     "production_tree": "fd4bd54b9ef66ddd6fcbd14c83bb303894522bb2",
-    "current_creation_candidate_sha": "f3a7e86b1fe9e6c5b1cfa7699ae9103ddde1ed95",
-    "candidate_is_descendant_of_current_production": false,
-    "mandatory_rule": "NO_FUTURE_PRODUCTION_CANDIDATE_MAY_BE_PROMOTED_UNTIL_CURRENT_PRODUCTION_DELTA_IS_RECONCILED_AND_REQUALIFIED"
+    "mandatory_rule": "Every future production candidate must remain descendant of the current production baseline and preserve materially newer production fixes before qualification.",
+    "historical_unreconciled_candidate_sha": "f3a7e86b1fe9e6c5b1cfa7699ae9103ddde1ed95",
+    "historical_unreconciled_candidate_is_descendant_of_current_production": false,
+    "production_ancestry_reconciled": true,
+    "baseline_reconciliation_merge_sha": "af82b3b4",
+    "structural_convergence_merge_sha": "c881cbe14e39ef1f55312350b1dfc5c223e1a57e",
+    "converged_candidate_branch": "master-roadmap-production-derived-v1"
   },
   "classification_values": [
     "RETAIN",
@@ -387,57 +391,70 @@
     {
       "order": 0,
       "id": "BASELINE_RECONCILIATION",
-      "action": "Rebase/compose every future candidate onto production d84d... and preserve its Guardian comparative-pilot fix before any new qualification."
+      "action": "Rebase/compose every future candidate onto production d84d... and preserve its Guardian comparative-pilot fix before any new qualification.",
+      "state": "SHADOW_VERIFIED_COMPLETE",
+      "evidence": "Production d84d389b is an ancestor of the converged candidate; merge completed without conflicts and Guardian comparative-pilot regression passes."
     },
     {
       "order": 1,
       "id": "STRUCTURAL_GOVERNANCE_CONVERGENCE",
-      "action": "Converge structural-architecture-gates e0de6300 (including enhanced Canonical Path and persistent mission wiring) onto the production-derived line; qualify and promote as a small reversible train."
+      "action": "Converge structural-architecture-gates e0de6300 (including enhanced Canonical Path and persistent mission wiring) onto the production-derived line; qualify and promote as a small reversible train.",
+      "state": "SHADOW_VERIFIED_PENDING_EXACT_SHA_CI",
+      "evidence": "Structural gates merged with current constitutional authority retained; canonical-path qualification 27/27 PASS plus structural/route/persistent-mission tests PASS."
     },
     {
       "order": 2,
       "id": "COGNITIVE_MEMORY",
-      "action": "Reconcile qualified CMF 4968c020 onto the new production-derived line; reuse unchanged evidence, rerun only changed-scope qualification, then promote if separately approved."
+      "action": "Reconcile qualified CMF 4968c020 onto the new production-derived line; reuse unchanged evidence, rerun only changed-scope qualification, then promote if separately approved.",
+      "state": "PENDING"
     },
     {
       "order": 3,
       "id": "RECURSIVE_SPECIALIZATION_FOUNDATION",
-      "action": "Migrate 673a5a9f from 2D to recursive specialization and converge onto production-derived CMF baseline; qualify before runtime routing."
+      "action": "Migrate 673a5a9f from 2D to recursive specialization and converge onto production-derived CMF baseline; qualify before runtime routing.",
+      "state": "PENDING"
     },
     {
       "order": 4,
       "id": "FEASIBILITY_AND_SOLUTION_COMPOSER",
-      "action": "Build Infrastructure Feasibility Auditor + Solution Composer + Solution Graph first, because downstream work depends on their contracts."
+      "action": "Build Infrastructure Feasibility Auditor + Solution Composer + Solution Graph first, because downstream work depends on their contracts.",
+      "state": "PENDING"
     },
     {
       "order": 5,
       "id": "ARTIFACT_AND_SPECIALIST_BINDING_PARALLEL_BUILD",
-      "action": "Develop Artifact Fabric and Specialist Cell/Foundry binding in parallel on isolated worktrees; serialize production promotion after each exact-SHA qualification."
+      "action": "Develop Artifact Fabric and Specialist Cell/Foundry binding in parallel on isolated worktrees; serialize production promotion after each exact-SHA qualification.",
+      "state": "PENDING"
     },
     {
       "order": 6,
       "id": "RESOURCE_AWARE_EXECUTION",
-      "action": "Activate executable DAG/adaptive parallelism only after stable solution/interface contracts and specialist resolution exist."
+      "action": "Activate executable DAG/adaptive parallelism only after stable solution/interface contracts and specialist resolution exist.",
+      "state": "PENDING"
     },
     {
       "order": 7,
       "id": "VIRTUAL_OS_DEVICE_LAB",
-      "action": "Converge QNAP/VPS/target-platform validation runners; can be developed in parallel with step 6 but production binding must respect feasibility/resource gates."
+      "action": "Converge QNAP/VPS/target-platform validation runners; can be developed in parallel with step 6 but production binding must respect feasibility/resource gates.",
+      "state": "PENDING"
     },
     {
       "order": 8,
       "id": "END_TO_END_CREATION_RUNTIME",
-      "action": "Bind request/files -> feasibility -> composition -> recursive specialist execution -> target validation -> Guardian/Sentinel -> downloadable artifacts; validate with heterogeneous pilot projects."
+      "action": "Bind request/files -> feasibility -> composition -> recursive specialist execution -> target validation -> Guardian/Sentinel -> downloadable artifacts; validate with heterogeneous pilot projects.",
+      "state": "PENDING"
     },
     {
       "order": 9,
       "id": "REMOTE_MCP_AND_OPERATOR_SURFACE_CONVERGENCE",
-      "action": "Converge remote MCP and enhanced chat/artifact/cockpit surfaces without making them prerequisites for core creation correctness."
+      "action": "Converge remote MCP and enhanced chat/artifact/cockpit surfaces without making them prerequisites for core creation correctness.",
+      "state": "PENDING"
     },
     {
       "order": 10,
       "id": "HA_AND_NATIVE_LOCAL_DEEPENING",
-      "action": "Continue HA and provider-independence tracks independently; neither may block safe core creation unless a target project explicitly requires them."
+      "action": "Continue HA and provider-independence tracks independently; neither may block safe core creation unless a target project explicitly requires them.",
+      "state": "PENDING"
     }
   ],
   "obsolete_or_replaced_rules": [

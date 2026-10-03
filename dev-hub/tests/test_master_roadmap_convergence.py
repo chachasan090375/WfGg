@@ -4,7 +4,8 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 M=json.loads((ROOT/"dev-hub/config/master-roadmap.v1.json").read_text())
 assert M["authority"]["autonomy_gap_roadmap_role"]=="DERIVED_SPECIALIZED_VIEW_ONLY"
-assert M["baseline"]["candidate_is_descendant_of_current_production"] is False
+assert M["baseline"]["historical_unreconciled_candidate_is_descendant_of_current_production"] is False
+assert M["baseline"]["production_ancestry_reconciled"] is True
 by={x["id"]:x for x in M["legacy_audit"]}
 assert by["v5-reference-architecture"]["classification"]=="RETAIN_EXTEND"
 assert by["project-planner-v1"]["classification"]=="MIGRATE"
@@ -24,4 +25,4 @@ assert "Agent Foundry precedes every domain execution" in repl
 assert "Only one write-capable specialist may mutate a project at a time" in repl
 print("CHACHA_DEV_MASTER_ROADMAP_CONVERGENCE=PASS")
 print("AUTONOMY_ROADMAP_ROLE=DERIVED_VIEW")
-print("PRODUCTION_BASELINE_RECONCILIATION_REQUIRED=YES")
+print("PRODUCTION_BASELINE_RECONCILIATION=PASS")

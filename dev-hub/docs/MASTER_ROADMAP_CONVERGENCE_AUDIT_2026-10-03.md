@@ -37,3 +37,6 @@ La production active est `d84d389b...`, tandis que la branche de création actue
 Les développements indépendants peuvent être parallélisés dans des worktrees/branches isolés. Les promotions production restent sérialisées, exact-SHA, avec réutilisation des preuves inchangées, Guardian/Sentinel, rollback et approbation humaine explicite.
 
 Le détail machine-readable est `dev-hub/config/master-roadmap.v1.json`.
+
+## Résolution du point critique
+Un candidat composite a ensuite été reconstruit **depuis la production `d84d389b...`**, puis la lignée Roadmap maître/CMF/Spécialisation/Creation Runtime et la branche `structural-architecture-gates-20261002` y ont été convergées. La production est maintenant un ancêtre du candidat shadow. Les trois conflits d'autorité ont été résolus en conservant le contrat constitutionnel le plus récent (Architecture Council = recommandation/admissibilité, Logicien = falsification, aucune autorité de promotion) tout en important les protections de route canonique et de missions persistantes. Canonical Path qualifie 27/27 tests PASS. Aucune activation production n'a été effectuée.

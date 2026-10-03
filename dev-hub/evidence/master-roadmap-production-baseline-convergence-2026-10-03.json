@@ -1,0 +1,41 @@
+{
+  "schema": "chacha.dev/master-roadmap-production-baseline-convergence-evidence/v1",
+  "observed_at": "2026-10-03T19:30:00Z",
+  "production_sha": "d84d389b74b5efe5e368f3d1c4851214d0ecc4fc",
+  "production_tree": "fd4bd54b9ef66ddd6fcbd14c83bb303894522bb2",
+  "master_roadmap_merge_sha": "af82b3b4",
+  "structural_convergence_merge_sha": "c881cbe14e39ef1f55312350b1dfc5c223e1a57e",
+  "production_is_ancestor": true,
+  "conflict_resolution": {
+    "files": [
+      "dev-hub/config/architecture-decision-council.v1.json",
+      "dev-hub/config/canonical-component-registry.v1.json",
+      "dev-hub/config/technology-watch-logician.v1.json"
+    ],
+    "policy": "deep-union structural requirements while preserving newer constitutional authority",
+    "architecture_council_final_authority": false,
+    "architecture_council_recommendation_authority": true,
+    "logician_final_authority": false
+  },
+  "verification": {
+    "master_roadmap_convergence": "PASS",
+    "structural_architecture_gate": "PASS",
+    "canonical_route_authority": "PASS",
+    "canonical_route_resolver": "PASS",
+    "persistent_mission_goal_monitor": "PASS",
+    "persistent_mission_scheduler_bridge": "PASS",
+    "persistent_mission_e2e_pilot": "PASS",
+    "architecture_authority_constitution": "PASS",
+    "architecture_authority_propagation": "PASS",
+    "guardian_comparative_pilot_regression": "PASS",
+    "creation_runtime_fabric": "PASS",
+    "specialization_fabric_2d": "PASS_8_OF_8",
+    "cognitive_memory_runtime_integration": "PASS_4_OF_4",
+    "autonomy_roadmap_router": "PASS",
+    "roadmap_live_reassessment": "PASS",
+    "remote_operator_route_convergence": "PASS_5_OF_5",
+    "canonical_path_project_qualification": "PASS_27_OF_27"
+  },
+  "production_activation": false,
+  "automatic_external_spend_eur": 0
+}
