@@ -81,6 +81,10 @@
     "multi-specialist-intelligence": {
       "mode": "AUTO_REASSESS",
       "component_id": "core:learning-fabric"
+    },
+    "creation-runtime-fabric": {
+      "mode": "GOVERNED_REASSESS",
+      "component_id": "core:run-controller"
     }
   }
 }

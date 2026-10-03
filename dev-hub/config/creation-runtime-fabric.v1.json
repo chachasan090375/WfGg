@@ -1,0 +1,265 @@
+{
+  "schema": "chacha.dev/creation-runtime-fabric/v1",
+  "scope": "chacha-dev-only",
+  "state": "REQUIREMENTS_DEFINED_SHADOW_ONLY",
+  "production_activation": false,
+  "external_spend_eur": 0,
+  "purpose": "Transform a functional request and attached artifacts into a feasible, recursively specialized, resource-aware, validated deliverable across multiple target operating systems.",
+  "canonical_flow": [
+    "central_brain_intent_understanding",
+    "infrastructure_feasibility_audit",
+    "solution_composition",
+    "recursive_specialization_graph",
+    "artifact_fabric_binding",
+    "specialist_cell_resolution",
+    "capability_component_reuse_check",
+    "execution_planning",
+    "resource_aware_parallel_orchestration",
+    "virtual_device_os_lab_validation",
+    "scheduler_run_controller_execution",
+    "integration",
+    "guardian_functional_validation",
+    "sentinel_technical_validation",
+    "artifact_delivery"
+  ],
+  "infrastructure_feasibility_auditor": {
+    "mandatory_before_solution_composition": true,
+    "dimensions": [
+      "cpu",
+      "ram",
+      "gpu",
+      "storage",
+      "io",
+      "network",
+      "latency",
+      "os",
+      "runtime",
+      "virtualization",
+      "containerization",
+      "device_access",
+      "availability",
+      "backup_recovery",
+      "cost_constraints"
+    ],
+    "verdicts": [
+      "FIT",
+      "FIT_WITH_CONSTRAINTS",
+      "NOT_FIT"
+    ],
+    "not_fit_output": "target_infrastructure_architecture",
+    "target_architecture_must_include": [
+      "minimum_profile",
+      "recommended_profile",
+      "missing_components",
+      "placement",
+      "migration_path",
+      "cost_boundary",
+      "risks"
+    ],
+    "recheck_on_material_requirement_change": true
+  },
+  "solution_composer": {
+    "persistent_head": true,
+    "no_production_authority": true,
+    "responsibilities": [
+      "conceptualize_request",
+      "define_deliverable_class",
+      "define_archetype",
+      "decompose_modules",
+      "decompose_submodules",
+      "assign_node_owners",
+      "define_interfaces",
+      "define_data_ownership",
+      "define_inherited_constraints",
+      "define_local_constraints",
+      "define_dependencies",
+      "identify_reuse_candidates",
+      "select_specialist_domains",
+      "propose_execution_order"
+    ],
+    "must_consume_feasibility_verdict": true,
+    "must_emit": "solution_graph"
+  },
+  "recursive_specialization": {
+    "rule": "any sufficiently complex node may be reclassified and decomposed recursively",
+    "levels": [
+      "project",
+      "deliverable",
+      "module",
+      "submodule",
+      "domain",
+      "capability"
+    ],
+    "classification_dimensions": [
+      "deliverable_class",
+      "archetype",
+      "technical_domain",
+      "capability"
+    ],
+    "inheritance": "global_constraints_plus_local_specialization",
+    "shared_components": "represented_once_and_referenced_by_graph",
+    "tree_for_functional_structure_graph_for_dependencies": true,
+    "head_arm_model": "technical domains use HEAD_PLUS_ARM; higher levels use specialist head plus composition blueprint"
+  },
+  "artifact_fabric": {
+    "bidirectional_chat_api": true,
+    "input_types": [
+      "documents",
+      "images",
+      "photos",
+      "video",
+      "audio",
+      "source_code",
+      "archives",
+      "datasets",
+      "logs",
+      "binaries",
+      "configuration",
+      "other_governed_files"
+    ],
+    "output_types": [
+      "documents",
+      "images",
+      "video",
+      "source_code",
+      "archives",
+      "reports",
+      "binaries",
+      "packages",
+      "configuration",
+      "test_evidence",
+      "other_governed_files"
+    ],
+    "metadata": [
+      "artifact_id",
+      "filename",
+      "mime_type",
+      "size",
+      "sha256",
+      "origin",
+      "owner",
+      "project_id",
+      "conversation_id",
+      "created_at",
+      "classification",
+      "security_state",
+      "version",
+      "parent_artifact"
+    ],
+    "reference_scheme": "artifact://",
+    "persistent_across_conversations": true,
+    "security": [
+      "integrity_hash",
+      "sandbox_for_untrusted_content",
+      "permission_check",
+      "no_automatic_execution_on_upload",
+      "provenance",
+      "size_policy",
+      "content_classification"
+    ],
+    "large_artifact_policy": "route metadata and derived representations by default; stream or materialize only required ranges"
+  },
+  "resource_aware_parallel_orchestrator": {
+    "goal": "minimize total project elapsed time without resource saturation or contract violations",
+    "dependency_aware": true,
+    "contract_first_parallelism": true,
+    "adaptive_concurrency": true,
+    "resource_dimensions": [
+      "cpu",
+      "ram",
+      "gpu",
+      "storage_io",
+      "network",
+      "thermal_or_host_health"
+    ],
+    "safety_reserve_required": true,
+    "features": [
+      "critical_path_priority",
+      "dynamic_worker_budget",
+      "work_stealing",
+      "backpressure",
+      "suspend_or_defer_noncritical_tasks",
+      "resource_rebalancing",
+      "integration_barriers",
+      "fail_closed_on_dependency_uncertainty"
+    ],
+    "no_fixed_max_workers_as_single_policy": true
+  },
+  "virtual_device_os_lab": {
+    "purpose": "reproducible build, compatibility, integration and validation environments for target operating systems and device classes",
+    "host_roles": {
+      "qnap_nas": {
+        "preferred_roles": [
+          "vm_image_store",
+          "snapshot_store",
+          "lightweight_x86_vm_host",
+          "linux_unix_windows_compatibility_lab",
+          "isolated_test_environments"
+        ],
+        "not_authoritative_for": [
+          "modern_gpu_workloads",
+          "ios_native_build",
+          "macos_native_build",
+          "nested_hardware_accelerated_android_emulator"
+        ],
+        "resource_policy": "admission controlled by Infrastructure Feasibility Auditor and Resource-Aware Parallel Orchestrator"
+      },
+      "vps": {
+        "preferred_roles": [
+          "linux_containers",
+          "linux_builds",
+          "service_integration_tests",
+          "lightweight_headless_validation"
+        ],
+        "nested_virtualization_assumption": false
+      },
+      "apple_native_runner": {
+        "required_for": [
+          "native_ios_build",
+          "xcode_ios_simulator",
+          "native_macos_build_and_validation"
+        ],
+        "may_be_attached_later": true,
+        "automatic_paid_cloud_use": false
+      },
+      "physical_device_pool": {
+        "recommended_for": [
+          "final_mobile_validation",
+          "hardware_specific_features",
+          "camera_sensors_bluetooth_nfc_biometrics",
+          "real_performance_and_power_checks"
+        ],
+        "optional_until_project_requires_it": true
+      }
+    },
+    "target_families": [
+      "windows",
+      "linux",
+      "freebsd_and_unix_like",
+      "android",
+      "ios",
+      "macos",
+      "embedded_linux",
+      "web_runtime"
+    ],
+    "image_management": [
+      "versioned_base_images",
+      "immutable_golden_images",
+      "project_overlays",
+      "snapshots",
+      "restore_points",
+      "checksum_verification",
+      "expiry_and_refresh_policy"
+    ],
+    "validation_matrix": "selected dynamically from project target platforms and supported versions"
+  },
+  "governance": {
+    "guardian_required": true,
+    "sentinel_required": true,
+    "stop_required": true,
+    "universal_materialization_gate_applies": true,
+    "canonical_component_registry_applies": true,
+    "no_self_promotion": true,
+    "no_automatic_external_spend": true
+  }
+}

@@ -1,13 +1,13 @@
 {
   "schema": "chacha.dev/autonomy-gap-roadmap/v1",
   "scope": "chacha-dev-only",
-  "updated_at": "2026-10-03T18:08:20Z",
-  "score_percent": 73,
+  "updated_at": "2026-10-03T19:13:04Z",
+  "score_percent": 69,
   "score_label": "Couverture de la feuille de route autonomie",
   "counts": {
     "GREEN": 3,
     "ORANGE": 9,
-    "RED": 1
+    "RED": 2
   },
   "legend": {
     "GREEN": "Terminé et actif",
@@ -84,8 +84,8 @@
       "label": "Intelligence multi-spécialiste par domaine",
       "status": "ORANGE",
       "progress": 35,
-      "state": "TWO_AXIS_SPECIALIZATION_FOUNDATION_SHADOW_DESIGNED",
-      "evidence": "Specialization Fabric est désormais défini sur deux axes complémentaires : spécialistes techniques horizontaux Tête+Bras et spécialistes verticaux par archétype d’application. Six archétypes canoniques initiaux composent les domaines existants sans dupliquer leurs Bras ; les archétypes rares restent éphémères jusqu’à preuves projet/benchmark. Technology Watch revalide les deux axes, Logicien devient spécialiste transversal logique/algorithmes/mathématiques sans autorité finale, et le Cockpit doit exposer les progressions domaine + archétype + readiness croisée. Fondation shadow 8/8 PASS ; runtime spécialisé et Foundry materialization restent à construire."
+      "state": "TWO_AXIS_FOUNDATION_PLUS_RECURSIVE_REQUIREMENTS_DEFINED",
+      "evidence": "Specialization Fabric est désormais défini sur deux axes complémentaires : spécialistes techniques horizontaux Tête+Bras et spécialistes verticaux par archétype d’application. Six archétypes canoniques initiaux composent les domaines existants sans dupliquer leurs Bras ; les archétypes rares restent éphémères jusqu’à preuves projet/benchmark. Technology Watch revalide les deux axes, Logicien devient spécialiste transversal logique/algorithmes/mathématiques sans autorité finale, et le Cockpit doit exposer les progressions domaine + archétype + readiness croisée. Fondation shadow 8/8 PASS ; runtime spécialisé et Foundry materialization restent à construire. Exigence supérieure ajoutée : classification Livrable → Archétype → Module/Sous-module → Domaine → Capacité, avec reclassification récursive par nœud et graphe de dépendances ; exigences définies mais runtime non encore matérialisé."
     },
     {
       "id": "persistent-missions",
@@ -118,6 +118,14 @@
       "progress": 25,
       "state": "NON_PROUVÉ",
       "evidence": "Rollback et STOP existent ; haute disponibilité actif/passif et reprise complète d’infrastructure ne sont pas encore prouvées."
+    },
+    {
+      "id": "creation-runtime-fabric",
+      "label": "Chaîne de création multimodale, parallèle & multi-OS",
+      "status": "RED",
+      "progress": 15,
+      "state": "REQUIREMENTS_DEFINED_NOT_RUNTIME_PROVEN",
+      "evidence": "Cahier des charges V1 défini : audit préalable de faisabilité infrastructure, Solution Composer, spécialisation récursive, Artifact Fabric bidirectionnelle, orchestration parallèle adaptative et Virtual Device & OS Lab multi-plateformes. Aucun runtime de ces nouvelles briques n’est encore qualifié."
     }
   ]
 }
