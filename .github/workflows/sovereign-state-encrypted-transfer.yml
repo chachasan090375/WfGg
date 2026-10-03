@@ -1,0 +1,58 @@
+name: Sovereign State Encrypted Transfer
+on:
+  push:
+    branches:
+      - sovereign-state-transfer-20261003
+permissions:
+  actions: read
+  contents: write
+jobs:
+  encrypt-transfer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download exact authoritative export artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/sovereign-export
+          gh run download 37155998096 --repo "$GITHUB_REPOSITORY" --name sovereign-state-d1-authoritative-export --dir /tmp/sovereign-export
+          find /tmp/sovereign-export -maxdepth 1 -type f -print | sort
+      - name: Verify source export contract and package
+        run: |
+          set -euo pipefail
+          test -s /tmp/sovereign-export/chacha-dev-guardian.sql
+          test -s /tmp/sovereign-export/chacha-dev-sentinel.sql
+          test -s /tmp/sovereign-export/chacha-dev-assurance-exchange.sql
+          test -s /tmp/sovereign-export/chacha-dev-learning-relay.sql
+          (cd /tmp/sovereign-export && sha256sum -c *.sql.sha256)
+          tar -C /tmp/sovereign-export -cJf /tmp/sovereign-state-d1-export.tar.xz .
+      - name: Encrypt to VPS-only ephemeral certificate
+        run: |
+          set -euo pipefail
+          openssl cms -encrypt -binary -aes256 -outform DER \
+            -in /tmp/sovereign-state-d1-export.tar.xz \
+            -out /tmp/sovereign-state-d1-export.cms \
+            dev-hub/evidence/sovereign-state-transfer-cert-20261003.pem
+          sha256sum /tmp/sovereign-state-d1-export.cms > /tmp/sovereign-state-d1-export.cms.sha256
+          printf '%s\n' \
+            '{"schema":"chacha.dev/sovereign-state-encrypted-transfer/v1","source_run_id":37155998096,"plaintext_committed":false,"private_key_exported":false,"automatic_external_spend_eur":0}' \
+            > /tmp/transfer-manifest.json
+      - name: Publish ciphertext-only transfer branch
+        run: |
+          set -euo pipefail
+          mkdir /tmp/out && cd /tmp/out
+          git init -q
+          git config user.name 'ChaCha DEV Transfer'
+          git config user.email 'chacha-dev@local.invalid'
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          cp /tmp/sovereign-state-d1-export.cms .
+          cp /tmp/sovereign-state-d1-export.cms.sha256 .
+          cp /tmp/transfer-manifest.json .
+          git add .
+          git commit -qm 'chore(state): publish encrypted sovereign transfer artifact'
+          git push -f origin "HEAD:refs/heads/${OUT_BRANCH}"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          OUT_BRANCH: sovereign-state-transfer-output-20261003
