@@ -1,0 +1,22 @@
+{
+  "schema": "chacha.dev/resource-host-pool/v1",
+  "hosts": [
+    {
+      "host_id": "chacha-vps-current",
+      "health": "PASS",
+      "roles": [
+        "build",
+        "linux",
+        "headless"
+      ],
+      "usable_capacity": {
+        "cpu_cores": 1.5,
+        "ram_gib": 1.3454,
+        "gpu_vram_gib": 0.0,
+        "storage_io_units": 0,
+        "network_mbps": 0
+      },
+      "source": "infrastructure-feasibility-vps-reference-pilot-2026-10-03"
+    }
+  ]
+}

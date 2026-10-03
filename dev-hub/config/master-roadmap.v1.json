@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-03T20:36:47Z",
+  "updated_at": "2026-10-03T20:39:04Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -292,7 +292,7 @@
     {
       "id": "parallel-execution",
       "priority": "P0",
-      "state": "REQUIREMENTS_DEFINED_RUNTIME_MISSING",
+      "state": "SHADOW_PLANNER_IMPLEMENTED_LOCAL_QUALIFICATION_PASS",
       "includes": [
         "Execution Planner",
         "task DAG",
@@ -433,7 +433,8 @@
       "order": 6,
       "id": "RESOURCE_AWARE_EXECUTION",
       "action": "Activate executable DAG/adaptive parallelism only after stable solution/interface contracts and specialist resolution exist.",
-      "state": "PENDING"
+      "state": "SHADOW_PLANNER_IMPLEMENTED_LOCAL_QUALIFICATION_PASS_D1_EXTERNAL_ATTESTATION_DEFERRED",
+      "evidence": "Resource-Aware Parallel Orchestrator implemented as planning-only component. 11/11 deterministic tests cover dependency waves, integration barriers, resource serialization, unstable interface contracts, critical-path priority, multi-host placement, live pressure, oversized tasks and DAG cycles. Real VPS pilot using audited safe capacity plans API + backend + documentation concurrently (3 tasks), then integration and verification barriers. UMG PASS; no execution/production authority or spend."
     },
     {
       "order": 7,
