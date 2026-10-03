@@ -1,0 +1,34 @@
+{
+  "schema": "chacha.dev/creation-runtime-e2e-shadow/v1",
+  "status": "BLOCKED",
+  "project_id": "pilot-retail-suite",
+  "artifact_ref_count": 0,
+  "feasibility": "NOT_FIT",
+  "recursive_nodes": 5,
+  "specialist_cells": 17,
+  "foundry_gaps": 5,
+  "execution_tasks": 7,
+  "parallel_waves": 5,
+  "max_parallel_tasks_planned": 2,
+  "os_routes": 1,
+  "blockers": [
+    "INFRASTRUCTURE_NOT_FIT",
+    "FOUNDRY_GAPS_UNRESOLVED",
+    "INFRASTRUCTURE_FEASIBILITY_BLOCKS_EXECUTION"
+  ],
+  "task_execution_performed": false,
+  "vm_creation_performed": false,
+  "foundry_invoked": false,
+  "production_mutation": false,
+  "automatic_external_spend_eur": 0,
+  "receipts": [
+    "/opt/chacha-dev/runtime/e2e-creation-shadow-blocked/01-feasibility.json",
+    "/opt/chacha-dev/runtime/e2e-creation-shadow-blocked/02-composition.json",
+    "/opt/chacha-dev/runtime/e2e-creation-shadow-blocked/03-recursive-specialization.json",
+    "/opt/chacha-dev/runtime/e2e-creation-shadow-blocked/04-specialists.json",
+    "/opt/chacha-dev/runtime/e2e-creation-shadow-blocked/05-execution-plan.json",
+    "/opt/chacha-dev/runtime/e2e-creation-shadow-blocked/06-parallel-plan.json",
+    "/opt/chacha-dev/runtime/e2e-creation-shadow-blocked/07-os-lab-plan.json"
+  ],
+  "observed_at": "2026-10-03T20:45:35Z"
+}

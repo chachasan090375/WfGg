@@ -1,0 +1,18 @@
+{
+  "schema": "chacha.dev/target-platform-matrix/v1",
+  "matrix_id": "e2e-fit-linux-web",
+  "targets": [
+    {
+      "target_id": "linux-build",
+      "family": "linux",
+      "version": "current-supported",
+      "purpose": "build"
+    },
+    {
+      "target_id": "web-runtime",
+      "family": "web_runtime",
+      "version": "current",
+      "purpose": "compatibility_test"
+    }
+  ]
+}

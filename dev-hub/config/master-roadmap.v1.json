@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-04T16:31:00Z",
+  "updated_at": "2026-10-04T16:35:00Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -482,7 +482,7 @@
       "id": "END_TO_END_CREATION_RUNTIME",
       "action": "Bind request/files -> feasibility -> composition -> recursive specialist execution -> target validation -> Guardian/Sentinel -> downloadable artifacts; validate with heterogeneous pilot projects.",
       "state": "E2E_SHADOW_PLAN_READY_LOCAL_PASS",
-      "evidence": "End-to-end shadow harness binds artifact refs -> infrastructure feasibility -> Solution Composer -> recursive specialization -> specialist cell resolution -> atomic Execution Planner -> resource-aware parallel planner -> OS/device lab. FIT API+backend pilot: 1 attached artifact, feasibility FIT, 3 recursive nodes, 9 specialist cells, 0 Foundry gaps, 5 atomic tasks, API+backend parallel after contract stabilization, Linux/Web targets ready, no blockers. Negative mixed pilot fails closed on NOT_FIT infrastructure + 5 Foundry gaps. 5/5 E2E tests PASS; no task execution, VM creation, Foundry invocation, production mutation or spend."
+      "evidence": "Historical E2E runtime delta reconciled onto functional line with current Ordre 4 Solution Composer contract preserved and artifact_refs added; current-line qualification pending."
     },
     {
       "order": 9,
@@ -901,7 +901,7 @@
         "phase": "F07",
         "id": "END_TO_END_CREATION_RUNTIME",
         "priority": "P0",
-        "state": "SHADOW_PLAN_PASS_TO_RECONCILE",
+        "state": "CURRENT_LINE_RECONCILED_PENDING_LOCAL_QUALIFICATION",
         "depends_on": [
           "F02",
           "F03",
@@ -923,7 +923,8 @@
           "target validation",
           "assurance",
           "artifacts"
-        ]
+        ],
+        "reconciled_parent": "be107028e3080edd877bf40f6bf18f4f8c36b65c"
       },
       {
         "phase": "F08",
