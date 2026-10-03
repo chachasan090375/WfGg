@@ -350,6 +350,62 @@ async function actionLease(event,env,current){
   return {severity:"INFO",reason_codes:[]};
 }
 
+export function validateExpiredActionReconciliation(p,row,alert,remediation,role){
+  if(!p||p.schema!=="chacha.dev/action-lease-reconciliation-request/v1")return {ok:false,reason:"RECONCILIATION_SCHEMA_INVALID"};
+  if(String(p.reconciler_actor||"")!=="guardian-action-state-reconciler")return {ok:false,reason:"RECONCILER_ACTOR_INVALID"};
+  if(!role||!allows(arr(role.allowed_actions_json),"RECONCILE_ACTION_STATE"))return {ok:false,reason:"RECONCILER_CONTRACT_DENIES_ACTION"};
+  if(!row)return {ok:false,reason:"ACTION_LEASE_NOT_FOUND"};
+  if(String(row.status||"")!=="EXPIRED")return {ok:false,reason:"ACTION_LEASE_NOT_EXPIRED"};
+  const id=p.original_identity&&typeof p.original_identity==="object"?p.original_identity:{};
+  for(const key of ["actor","subject_role","action","permission","project_id","run_id"]){
+    if(String(row[key]||"")!==String(id[key]||""))return {ok:false,reason:"ORIGINAL_ACTION_IDENTITY_DRIFT:"+key};
+  }
+  const aid=String(row.action_id||""),expectedAlert="lease-expired-"+aid,expectedDirective="remed-"+expectedAlert;
+  if(String(p.action_id||"")!==aid)return {ok:false,reason:"ACTION_ID_MISMATCH"};
+  if(String(p.source_alert_id||"")!==expectedAlert)return {ok:false,reason:"SOURCE_ALERT_ID_MISMATCH"};
+  if(String(p.remediation_directive_id||"")!==expectedDirective)return {ok:false,reason:"REMEDIATION_DIRECTIVE_ID_MISMATCH"};
+  let alertRules=[];try{alertRules=arr(alert&&alert.reason_codes_json);}catch{alertRules=[];}
+  if(!alert||String(alert.status||"")!=="OPEN"||!alertRules.includes("POST_ACTION_MISSING"))return {ok:false,reason:"SOURCE_ALERT_NOT_OPEN_POST_MISSING"};
+  if(!remediation||!["OPEN","DELIVERED"].includes(String(remediation.status||""))||String(remediation.required_action||"")!=="RECONCILE_ACTION_STATE")return {ok:false,reason:"REMEDIATION_NOT_RECONCILABLE"};
+  const e=p.evidence&&typeof p.evidence==="object"?p.evidence:{};
+  if(e.final_state_verified!==true)return {ok:false,reason:"FINAL_STATE_NOT_VERIFIED"};
+  if(!["COMPLETED","NOOP","ROLLED_BACK"].includes(String(e.original_action_outcome||"")))return {ok:false,reason:"ORIGINAL_ACTION_OUTCOME_INVALID"};
+  if(e.action_reexecuted!==false)return {ok:false,reason:"ACTION_REPLAY_FORBIDDEN"};
+  if(!Array.isArray(e.sources)||!e.sources.length)return {ok:false,reason:"RECONCILIATION_EVIDENCE_SOURCES_MISSING"};
+  for(const src of e.sources){if(!src||!/^sha256:[a-f0-9]{64}$/.test(String(src.digest||"")))return {ok:false,reason:"RECONCILIATION_EVIDENCE_DIGEST_INVALID"};}
+  if(String(row.permission||"")==="destructive-operation"&&e.human_approval_verified!==true)return {ok:false,reason:"DESTRUCTIVE_HUMAN_APPROVAL_EVIDENCE_MISSING"};
+  if(!/^sha256:[a-f0-9]{64}$/.test(String(p.evidence_digest||"")))return {ok:false,reason:"EVIDENCE_DIGEST_INVALID"};
+  return {ok:true,reason:"PASS"};
+}
+
+async function reconcileExpiredActionLease(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  const actionId=String(p.action_id||""),alertId=String(p.source_alert_id||""),directiveId=String(p.remediation_directive_id||"");
+  const role=await contractById(env,"role:guardian-action-state-reconciler");
+  const row=actionId?await env.DB.prepare("SELECT * FROM action_leases WHERE action_id=?1").bind(actionId).first():null;
+  const alert=alertId?await env.DB.prepare("SELECT * FROM guardian_alerts WHERE alert_id=?1").bind(alertId).first():null;
+  const remediation=directiveId?await env.DB.prepare("SELECT * FROM remediation_directives WHERE directive_id=?1").bind(directiveId).first():null;
+  const validation=validateExpiredActionReconciliation(p,row,alert,remediation,role);
+  if(!validation.ok)return json({schema:"chacha.dev/action-lease-reconciliation-result/v1",status:"BLOCK",reason:validation.reason,direct_mutation:false,original_action_reexecuted:false},409);
+  const computed="sha256:"+await sha256Hex(stable(p.evidence));
+  if(computed!==String(p.evidence_digest))return json({schema:"chacha.dev/action-lease-reconciliation-result/v1",status:"BLOCK",reason:"EVIDENCE_DIGEST_MISMATCH",direct_mutation:false,original_action_reexecuted:false},409);
+  const existing=await env.DB.prepare("SELECT * FROM action_lease_reconciliations WHERE action_id=?1").bind(actionId).first();
+  if(existing){
+    if(String(existing.evidence_digest)!==computed)return json({schema:"chacha.dev/action-lease-reconciliation-result/v1",status:"BLOCK",reason:"ACTION_ALREADY_RECONCILED_WITH_DIFFERENT_EVIDENCE"},409);
+    return json({schema:"chacha.dev/action-lease-reconciliation-result/v1",status:"PASS",receipt_id:existing.receipt_id,action_id:actionId,idempotent:true,original_action_reexecuted:false,canonical_emergency_stop_mutated:false,platform_release_mutated:false});
+  }
+  const receiptId="lease-reconcile-"+(await sha256Hex(actionId+"\n"+computed)).slice(0,32);
+  await env.DB.prepare(`INSERT INTO action_lease_reconciliations(receipt_id,action_id,reconciler_actor,source_alert_id,remediation_directive_id,evidence_digest,evidence_json,reconciled_at,result) VALUES(?1,?2,?3,?4,?5,?6,?7,datetime('now'),'PASS')`).bind(receiptId,actionId,String(p.reconciler_actor),alertId,directiveId,computed,stable(p.evidence)).run();
+  await env.DB.prepare("UPDATE action_leases SET closed_at=datetime('now'),status='CLOSED',last_verdict='PASS' WHERE action_id=?1 AND status='EXPIRED'").bind(actionId).run();
+  await env.DB.prepare("UPDATE remediation_directives SET status='APPLIED',applied_at=datetime('now'),resolution_evidence_json=?2 WHERE directive_id=?1 AND status IN ('OPEN','DELIVERED')").bind(directiveId,stable({source:"expired-action-lease-reconciliation",receipt_id:receiptId,evidence_digest:computed,original_action_reexecuted:false})).run();
+  await env.DB.prepare("UPDATE remediation_holds SET active=0,cleared_at=datetime('now') WHERE directive_id=?1 AND active=1").bind(directiveId).run();
+  await env.DB.prepare("UPDATE guardian_alerts SET status='ACKED' WHERE alert_id=?1 AND status='OPEN'").bind(alertId).run();
+  const resolvedDependencies=await resolveSatisfiedRemediationDependencies(env);
+  return json({schema:"chacha.dev/action-lease-reconciliation-result/v1",status:"PASS",receipt_id:receiptId,action_id:actionId,evidence_digest:computed,lease_terminal_state:"CLOSED",post_action_fabricated:false,original_action_reexecuted:false,canonical_emergency_stop_mutated:false,platform_release_mutated:false,resolved_dependency_remediations:resolvedDependencies,direct_mutation_scope:"GUARDIAN_GOVERNANCE_STATE_ONLY",automatic_external_spend_eur:0});
+}
+
 function remediationPlan(reasons,severity,payload){
   const rs=(reasons||[]).map(String);
   let requiredAction="RELOAD_CONTRACT_AND_REPLAN";
@@ -407,6 +463,19 @@ async function createRemediation(env,{alertId,eventId,severity,reasons,payload})
     ).bind(holdKey,directiveId,plan.target_actor,plan.target_role,plan.project_id,plan.run_id,String(severity)).run();
   }
   return directiveId;
+}
+
+async function reactivateAppliedRemediation(env,directiveId){
+  if(!directiveId)return false;
+  const row=await env.DB.prepare("SELECT status FROM remediation_directives WHERE directive_id=?1").bind(String(directiveId)).first();
+  if(!row||String(row.status||"")!=="APPLIED")return false;
+  await env.DB.prepare(
+    "UPDATE remediation_directives SET status='OPEN',attempt_count=0,delivered_at=NULL,applied_at=NULL,resolution_evidence_json=NULL,created_at=datetime('now') WHERE directive_id=?1 AND status='APPLIED'"
+  ).bind(String(directiveId)).run();
+  await env.DB.prepare(
+    "UPDATE remediation_holds SET active=1,cleared_at=NULL WHERE directive_id=?1"
+  ).bind(String(directiveId)).run();
+  return true;
 }
 
 async function resolveSatisfiedRemediationDependencies(env){
@@ -776,6 +845,22 @@ async function readbackFunctionalContractPin(req,env){
   });
 }
 
+export function normalizeFunctionalContractCriteria(criteria,allowLegacyPinnedId=false){
+  if(!Array.isArray(criteria))return {ok:false,error:"functional_contract_criteria_invalid",criteria:[],legacy_alias_count:0};
+  const ids=new Set(),normalized=[];let legacyAliasCount=0;
+  for(const criterion of criteria){
+    const canonical=String(criterion&&criterion.criterion_id||"").trim();
+    const legacy=String(criterion&&criterion.id||"").trim();
+    if(canonical&&legacy&&canonical!==legacy)return {ok:false,error:"functional_contract_criterion_id_ambiguous",criteria:[],legacy_alias_count:legacyAliasCount};
+    const cid=canonical||(allowLegacyPinnedId?legacy:"");
+    if(!cid)return {ok:false,error:"functional_contract_criterion_id_invalid",criteria:[],legacy_alias_count:legacyAliasCount};
+    if(ids.has(cid))return {ok:false,error:"functional_contract_criterion_id_duplicate",criterion_id:cid,criteria:[],legacy_alias_count:legacyAliasCount};
+    ids.add(cid);if(!canonical&&legacy)legacyAliasCount++;
+    normalized.push({...criterion,criterion_id:cid});
+  }
+  return {ok:true,criteria:normalized,legacy_alias_count:legacyAliasCount};
+}
+
 async function functionalAcceptance(req,env){
   const body=await req.text();
   const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
@@ -792,6 +877,20 @@ async function functionalAcceptance(req,env){
   const pinned=await env.DB.prepare(
     "SELECT contract_id,contract_digest FROM project_functional_contracts WHERE project_id=?1"
   ).bind(projectId).first();
+  const exactPinnedContract=Boolean(pinned&&String(pinned.contract_id)===contractId&&String(pinned.contract_digest)===contractDigest);
+  const normalizedContract=normalizeFunctionalContractCriteria(contract.criteria,exactPinnedContract);
+  if(!normalizedContract.ok)return json({error:normalizedContract.error,criterion_id:normalizedContract.criterion_id||undefined},400);
+  const contractCriteria=normalizedContract.criteria;
+  const legacyPinnedCriterionAliases=Number(normalizedContract.legacy_alias_count||0);
+  const acceptanceCriteria=Array.isArray(acceptance.criteria)?acceptance.criteria:null;
+  if(!acceptanceCriteria)return json({error:"acceptance_criteria_invalid"},400);
+  const acceptanceCriterionIds=new Set();
+  for(const criterion of acceptanceCriteria){
+    const cid=String(criterion&&criterion.criterion_id||"").trim();
+    if(!cid)return json({error:"acceptance_criterion_id_invalid"},400);
+    if(acceptanceCriterionIds.has(cid))return json({error:"acceptance_criterion_id_duplicate",criterion_id:cid},400);
+    acceptanceCriterionIds.add(cid);
+  }
   const reasons=[];
   let severity="INFO";
   if(!pinned){
@@ -803,9 +902,8 @@ async function functionalAcceptance(req,env){
       severity="CRITICAL";reasons.push("FUNCTIONAL_CONTRACT_DRIFT");
     }
   }
-  const amap=new Map((Array.isArray(acceptance.criteria)?acceptance.criteria:[])
-    .filter(x=>x&&x.criterion_id).map(x=>[String(x.criterion_id),x]));
-  const required=(Array.isArray(contract.criteria)?contract.criteria:[]).filter(x=>x&&x.required!==false);
+  const amap=new Map(acceptanceCriteria.map(x=>[String(x.criterion_id),x]));
+  const required=contractCriteria.filter(x=>x&&x.required!==false);
   let passed=0;
   for(const criterion of required){
     const cid=String(criterion.criterion_id||"");
@@ -826,8 +924,9 @@ async function functionalAcceptance(req,env){
       (receipt_id,project_id,revision,contract_id,contract_digest,verdict,reason_codes_json,required_criteria_count,passed_required_criteria_count,created_at)
       VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,datetime('now'))`
   ).bind(receiptId,projectId,revision,contractId,contractDigest,verdict,JSON.stringify(reasons),required.length,passed).run();
-  const resolvedFunctionalDriftRemediations=verdict==="PASS"
-    ?await resolveFunctionalContractDriftRemediations(env,{projectId,revision,receiptId,contractId,contractDigest}):0;
+  // Evaluation is side-effect free with respect to remediation/holds/alerts.
+  // Remediation application is a separate, explicitly authorized lifecycle event.
+  const resolvedFunctionalDriftRemediations=0;
   let directiveId=null;
   if(verdict!=="PASS"){
     directiveId=await createAlert(env,{
@@ -847,9 +946,25 @@ async function functionalAcceptance(req,env){
     functional_scope_only:true,direct_application_mutation:false,
     central_orchestrator_owns_remediation:true,
     resolved_functional_contract_drift_remediations:resolvedFunctionalDriftRemediations,
+    legacy_pinned_criterion_aliases:legacyPinnedCriterionAliases,
+    legacy_pinned_contract_compatibility:legacyPinnedCriterionAliases>0,
     assurance_exchange_delivery:exchangeDelivery,
     checked_at:new Date().toISOString()
   },verdict==="PASS"?200:409);
+}
+
+async function applyFunctionalRemediation(req,env){
+  const body=await req.text();
+  const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
+  let p;try{p=JSON.parse(body);}catch{return json({error:"invalid_json"},400);}
+  if(p.schema!=="chacha.dev/guardian-functional-remediation-apply-request/v1")return json({error:"remediation_apply_schema_invalid"},400);
+  const receiptId=String(p.guardian_functional_receipt_id||"");
+  if(!receiptId||p.explicit_apply_authorization!==true)return json({error:"explicit_apply_authorization_required"},403);
+  const row=await env.DB.prepare("SELECT project_id,revision,contract_id,contract_digest,verdict FROM functional_acceptance_receipts WHERE receipt_id=?1").bind(receiptId).first();
+  if(!row)return json({error:"guardian_functional_receipt_unknown"},404);
+  if(String(row.verdict)!=="PASS")return json({error:"guardian_functional_receipt_not_pass"},409);
+  const resolved=await resolveFunctionalContractDriftRemediations(env,{projectId:String(row.project_id),revision:String(row.revision),receiptId,contractId:String(row.contract_id),contractDigest:String(row.contract_digest)});
+  return json({schema:"chacha.dev/guardian-functional-remediation-apply-receipt/v1",status:"APPLIED",guardian_functional_receipt_id:receiptId,resolved_remediations:resolved,explicit_apply_authorization:true,direct_application_mutation:false,canonical_emergency_stop_mutated:false,applied_at:new Date().toISOString()});
 }
 
 async function dualReleaseGate(req,env){
@@ -1070,6 +1185,26 @@ async function resolveCoverageRemediations(env,activeComponentIds,snapshotId){
   return resolved;
 }
 
+async function resolveOrphanCoverageAlerts(env,activeComponentIds){
+  const active=new Set((activeComponentIds||[]).map(String));
+  if(!active.size)return 0;
+  const rows=(await env.DB.prepare(
+    `SELECT alert_id FROM guardian_alerts WHERE status='OPEN'
+      AND (alert_id LIKE 'coverage-missing-%' OR alert_id LIKE 'coverage-inactive-%' OR alert_id LIKE 'coverage-stale-%')
+      ORDER BY created_at ASC`
+  ).all()).results||[];
+  let resolved=0;
+  for(const row of rows){
+    const aid=String(row.alert_id||"");
+    const componentId=["coverage-missing-","coverage-inactive-","coverage-stale-"]
+      .reduce((v,p)=>v||(aid.startsWith(p)?aid.slice(p.length):""),"");
+    if(!componentId||!active.has(componentId))continue;
+    await env.DB.prepare("UPDATE guardian_alerts SET status='ACKED' WHERE alert_id=?1 AND status='OPEN'").bind(aid).run();
+    resolved++;
+  }
+  return resolved;
+}
+
 async function coverage(req,env){
   const body=await req.text();
   const auth=await requireCentral(req,env,body);if(!auth.ok)return auth.response;
@@ -1081,7 +1216,7 @@ async function coverage(req,env){
   const got=new Map(components.filter(x=>x&&x.component_id).map(x=>[String(x.component_id),x]));
   const expected=(await env.DB.prepare("SELECT * FROM expected_components ORDER BY component_id").all()).results||[];
   const missing=[],inactive=[],unknown=[];
-  let severity="INFO",resolvedRemediations=0;
+  let severity="INFO",resolvedRemediations=0,resolvedAlerts=0;
   for(const e of expected){
     const c=got.get(String(e.component_id));
     if(!c){
@@ -1112,13 +1247,14 @@ async function coverage(req,env){
   }
   const activeIds=components.filter(x=>x&&x.component_id&&x.hook_active===true).map(x=>String(x.component_id));
   resolvedRemediations=await resolveCoverageRemediations(env,activeIds,snapshotId);
+  resolvedAlerts=await resolveOrphanCoverageAlerts(env,activeIds);
   for(const id of got.keys())if(!expected.some(e=>String(e.component_id)===id))unknown.push(id);
   if(unknown.length&&order("WARNING")>order(severity))severity="WARNING";
   const verdict=verdictFromSeverity(severity);
   return json({schema:"chacha.dev/guardian-coverage-verdict/v1",snapshot_id:snapshotId,verdict,severity,
     expected_count:expected.length,reported_count:components.length,missing,inactive,unknown,
     coverage_ratio:expected.length?Number(((expected.length-missing.length-inactive.length)/expected.length).toFixed(4)):1,
-    resolved_remediations:resolvedRemediations,
+    resolved_remediations:resolvedRemediations,resolved_alerts:resolvedAlerts,
     checked_at:new Date().toISOString()},["PASS","WARNING"].includes(verdict)?200:409);
 }
 
@@ -1201,9 +1337,10 @@ async function sweep(env){
   ).all()).results||[];
   for(const row of stale){
     staleCoverageCount++;
-    await createAlert(env,{alertId:"coverage-stale-"+String(row.component_id),eventId:"coverage-sweep",
+    const directiveId=await createAlert(env,{alertId:"coverage-stale-"+String(row.component_id),eventId:"coverage-sweep",
       severity:String(row.criticality),summary:"Guardian coverage stale: "+String(row.component_id),
       reasons:["COVERAGE_HEARTBEAT_STALE"],payload:row});
+    await reactivateAppliedRemediation(env,directiveId);
   }
   return {expired_action_leases:expiredCount,stale_coverage_components:staleCoverageCount};
 }
@@ -1296,6 +1433,7 @@ export default {
       dynamic_component_policy_escalation_allowed:false,tunnel_required:false,action_lease_protocol:true,
       task_contract_binding_protocol:true,task_contract_identity_lease:true,coverage_watch:true,
       authenticated_watchdog_sweep:true,scheduled_watchdog:true,
+      expired_action_lease_reconciliation:true,action_replay_forbidden:true,
       corrective_enforcement:true,remediation_holds:true,remediation_retry_limit:3,
       production_learning_anomaly_bridge:true,production_anomaly_direct_mutation:false,
       central_memory_assimilation_evidence_required:true,component_confidence_evidence_required:true,contextual_memory_recall_evidence_required:true,
@@ -1320,6 +1458,7 @@ export default {
     if(req.method==="POST"&&u.pathname==="/v1/project-events")return await projectEvents(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/functional-contracts/readback")return await readbackFunctionalContractPin(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/functional-acceptance")return await functionalAcceptance(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/functional-remediation/apply")return await applyFunctionalRemediation(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/final-review")return await finalAgentReview(req,env);
     if(req.method==="GET"&&u.pathname.startsWith("/v1/final-reviews/"))
       return await publicFinalAgentReview(req,env,decodeURIComponent(u.pathname.slice("/v1/final-reviews/".length)));
@@ -1333,6 +1472,7 @@ export default {
     if(req.method==="POST"&&u.pathname==="/v1/dynamic-components/readback")return await readbackDynamicComponentContract(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/coverage")return await coverage(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/watchdog/sweep")return await watchdogSweep(req,env);
+    if(req.method==="POST"&&u.pathname==="/v1/action-leases/reconcile-expired")return await reconcileExpiredActionLease(req,env);
     if(req.method==="GET"&&u.pathname==="/v1/remediations")return await remediations(req,env);
     if(req.method==="POST"&&u.pathname==="/v1/remediations/delivered")return await markRemediationsDelivered(req,env);
     if(req.method==="GET"&&u.pathname==="/v1/alerts")return await alerts(req,env);

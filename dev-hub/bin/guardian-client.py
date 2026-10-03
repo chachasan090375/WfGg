@@ -165,6 +165,21 @@ def watchdog_sweep(policy_path:Path)->int:
     print(json.dumps(x,ensure_ascii=False))
     return 0 if status==200 and x.get("status")=="PASS" else 30
 
+def reconcile_action_state(policy_path:Path,request_path:Path)->int:
+    _,url,key=policy_values(policy_path)
+    if not key.is_file():return 30
+    payload=load(request_path)
+    body=json.dumps(payload,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
+    try:
+        status,x=http_json(signed_request("POST",url+"/v1/action-leases/reconcile-expired",key,body))
+    except Exception as exc:
+        print(json.dumps({"schema":"chacha.dev/guardian-client-result/v1","status":"UNAVAILABLE","reason":str(exc)[:300]}))
+        return 30
+    print(json.dumps(x,ensure_ascii=False))
+    if status==200 and x.get("status")=="PASS":return 0
+    if status==409 and x.get("status")=="BLOCK":return 20
+    return 30
+
 def coverage(policy_path:Path,snapshot:Path)->int:
     _,url,key=policy_values(policy_path)
     if not key.is_file():return 30
@@ -278,6 +293,21 @@ def functional_acceptance(policy_path:Path,project_id:str,revision:str,contract:
     if x.get("verdict")=="CRITICAL":return 21
     return 30
 
+def functional_remediation_apply(policy_path:Path,functional_receipt_id:str,explicit_apply_authorization:bool)->int:
+    _,url,key=policy_values(policy_path)
+    if not key.is_file():return 30
+    payload={"schema":"chacha.dev/guardian-functional-remediation-apply-request/v1",
+             "guardian_functional_receipt_id":functional_receipt_id,
+             "explicit_apply_authorization":bool(explicit_apply_authorization)}
+    body=json.dumps(payload,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
+    try:
+        status,x=http_json(signed_request("POST",url+"/v1/functional-remediation/apply",key,body))
+    except Exception as exc:
+        print(json.dumps({"schema":"chacha.dev/guardian-client-result/v1","status":"UNAVAILABLE","reason":str(exc)[:300]}))
+        return 30
+    print(json.dumps(x,ensure_ascii=False))
+    return 0 if status==200 and x.get("status")=="APPLIED" else 20 if status in {403,404,409} else 30
+
 def dual_release_gate(policy_path:Path,project_id:str,revision:str,functional_receipt_id:str,sentinel_receipt_id:str)->int:
     _,url,key=policy_values(policy_path)
     if not key.is_file():return 30
@@ -323,13 +353,16 @@ def main()->int:
     md=sub.add_parser("mark-remediations-delivered");md.add_argument("--directive-id",action="append",required=True)
     ra=sub.add_parser("report-anomaly");ra.add_argument("--anomaly",type=Path,required=True)
     v=sub.add_parser("coverage");v.add_argument("--snapshot",type=Path,required=True)
+    ral=sub.add_parser("reconcile-action-state");ral.add_argument("--request",type=Path,required=True)
     r=sub.add_parser("register-contract");r.add_argument("--contract",type=Path,required=True)
     rc=sub.add_parser("register-component-contract");rc.add_argument("--contract",type=Path,required=True)
     rr=sub.add_parser("readback-contract");rr.add_argument("--contract",type=Path,required=True)
     rrc=sub.add_parser("readback-component-contract");rrc.add_argument("--contract",type=Path,required=True)
     pi=sub.add_parser("register-project-assurance-identity");pi.add_argument("--registration",type=Path,required=True)
+    fcr=sub.add_parser("functional-contract-readback");fcr.add_argument("--project-id",required=True)
     fa=sub.add_parser("functional-acceptance");fa.add_argument("--project-id",required=True);fa.add_argument("--revision",required=True)
     fa.add_argument("--contract",type=Path,required=True);fa.add_argument("--acceptance",type=Path,required=True)
+    fra=sub.add_parser("functional-remediation-apply");fra.add_argument("--guardian-functional-receipt-id",required=True);fra.add_argument("--explicit-apply-authorization",action="store_true")
     dg=sub.add_parser("dual-release-gate");dg.add_argument("--project-id",required=True);dg.add_argument("--revision",required=True)
     fr=sub.add_parser("final-review");fr.add_argument("--project-id",required=True);fr.add_argument("--revision",required=True)
     fr.add_argument("--compromise-digest",required=True);fr.add_argument("--source-receipt-id",required=True)
@@ -343,6 +376,7 @@ def main()->int:
     if args.cmd=="mark-remediations-delivered":return mark_remediations_delivered(args.policy,args.directive_id)
     if args.cmd=="report-anomaly":return report_anomaly(args.policy,args.anomaly)
     if args.cmd=="coverage":return coverage(args.policy,args.snapshot)
+    if args.cmd=="reconcile-action-state":return reconcile_action_state(args.policy,args.request)
     if args.cmd=="register-contract":return register_contract(args.policy,args.contract)
     if args.cmd=="register-component-contract":return register_component_contract(args.policy,args.contract)
     if args.cmd=="readback-contract":return readback_contract(args.policy,args.contract)
@@ -350,6 +384,7 @@ def main()->int:
     if args.cmd=="register-project-assurance-identity":return register_project_assurance_identity(args.policy,args.registration)
     if args.cmd=="functional-contract-readback":return functional_contract_readback(args.policy,args.project_id)
     if args.cmd=="functional-acceptance":return functional_acceptance(args.policy,args.project_id,args.revision,args.contract,args.acceptance)
+    if args.cmd=="functional-remediation-apply":return functional_remediation_apply(args.policy,args.guardian_functional_receipt_id,args.explicit_apply_authorization)
     if args.cmd=="dual-release-gate":return dual_release_gate(args.policy,args.project_id,args.revision,args.guardian_functional_receipt_id,args.sentinel_technical_receipt_id)
     if args.cmd=="final-review":return final_review(args.policy,args.project_id,args.revision,args.compromise_digest,args.source_receipt_id,args.implementation_verified)
     if args.cmd=="watchdog-sweep":return watchdog_sweep(args.policy)
