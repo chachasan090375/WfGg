@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-04T16:03:00Z",
+  "updated_at": "2026-10-04T16:15:00Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -744,8 +744,8 @@
   "functional_execution_order_v2": {
     "schema": "chacha.dev/master-roadmap-functional-execution-order/v2",
     "authority": "PRIMARY_CURRENT_EXECUTION_VIEW",
-    "ordering_principle": "Hard functional dependency and core safety determine order. Historical train numbering never determines current execution order. Reuse qualified shadow work and unchanged evidence; do not rebuild unchanged scope.",
-    "current_focus": "F01_PROMOTION_TRANSACTION_CONTINUITY_PROMOTION_GATE_WITH_F02_F03_SHADOW_QUALIFICATION_RUNNING",
+    "ordering_principle": "Hard functional dependency and core safety determine order. Solution Graph compilation precedes resource-aware scheduling. Historical train numbering/build order never determines current execution order. Reuse qualified shadow work; do not rebuild unchanged scope.",
+    "current_focus": "F01_PROMOTION_GATE_WITH_F02_F03_QUALIFIED_AND_F04_EXECUTION_PLANNER_SHADOW_RECONCILIATION",
     "phases": [
       {
         "phase": "F00",
@@ -833,12 +833,33 @@
       },
       {
         "phase": "F04",
+        "id": "EXECUTION_PLANNER",
+        "priority": "P0",
+        "state": "CURRENT_LINE_RECONCILED_PENDING_LOCAL_QUALIFICATION",
+        "depends_on": [
+          "F02",
+          "F03"
+        ],
+        "reconciled_parent": "4a5c4e9d21267da2fb6886432cdaa6b62646e8ee",
+        "reuse_asset": {
+          "sha": "14320470bacd42a8dcb95329523da76a1018a960",
+          "tree": "0d7a5787ba30abd860c87b884d288bb292850268"
+        },
+        "includes": [
+          "compile Solution Graph into atomic task DAG",
+          "dependency edges",
+          "interface contracts",
+          "blocked/unresolved-node fail-closed planning"
+        ],
+        "exit_gate": "Current-line local qualification + UMG + exact-SHA CI."
+      },
+      {
+        "phase": "F05",
         "id": "RESOURCE_AWARE_EXECUTION_PLANNER",
         "priority": "P0",
         "state": "SHADOW_LOCAL_PASS_TO_RECONCILE",
         "depends_on": [
-          "F02",
-          "F03"
+          "F04"
         ],
         "reuse_asset": {
           "sha": "920c926b96191cac795d52da4ef99d1ff0514820",
@@ -853,12 +874,12 @@
         ]
       },
       {
-        "phase": "F05",
+        "phase": "F06",
         "id": "VIRTUAL_OS_DEVICE_LAB",
         "priority": "P1",
         "state": "SHADOW_REAL_QNAP_INVENTORY_PASS_TO_RECONCILE",
         "depends_on": [
-          "F00"
+          "F02"
         ],
         "reuse_asset": {
           "sha": "2f245cc0d99b0e017fcea8c63ddef910b1329530",
@@ -872,7 +893,7 @@
         ]
       },
       {
-        "phase": "F06",
+        "phase": "F07",
         "id": "END_TO_END_CREATION_RUNTIME",
         "priority": "P0",
         "state": "SHADOW_PLAN_PASS_TO_RECONCILE",
@@ -880,7 +901,8 @@
           "F02",
           "F03",
           "F04",
-          "F05"
+          "F05",
+          "F06"
         ],
         "reuse_asset": {
           "sha": "cdb122852e9ba03fd421f7038afb9b1605db3340",
@@ -899,12 +921,12 @@
         ]
       },
       {
-        "phase": "F07",
+        "phase": "F08",
         "id": "IMPROVEMENT_INTELLIGENCE_AND_AUTONOMOUS_FACTORY",
         "priority": "P1",
         "state": "EXACT_SHA_QUALIFIED_SHADOW_TO_RECONCILE",
         "depends_on": [
-          "F06"
+          "F07"
         ],
         "reuse_asset": {
           "sha": "bee13c9fab8c3f07bc987c642cbcc602d8539474"
@@ -918,12 +940,12 @@
         ]
       },
       {
-        "phase": "F08",
+        "phase": "F09",
         "id": "PLUGIN_AND_UPDATE_LIFECYCLE",
         "priority": "P1",
         "state": "EXACT_SHA_QUALIFIED_SHADOW_TO_RECONCILE",
         "depends_on": [
-          "F07"
+          "F08"
         ],
         "reuse_asset": {
           "sha": "ae002f634a5b15794dbd1433c9cb056b90049e23",
@@ -938,12 +960,12 @@
         ]
       },
       {
-        "phase": "F09",
+        "phase": "F10",
         "id": "CONSULTANT_PROJECT_TENANCY",
         "priority": "P1",
         "state": "EXACT_SHA_QUALIFIED_SHADOW_TO_RECONCILE",
         "depends_on": [
-          "F06"
+          "F07"
         ],
         "reuse_asset": {
           "sha": "eb8614ef2484473a4627bbab1125b75d89a17196",
@@ -957,13 +979,13 @@
         ]
       },
       {
-        "phase": "F10",
+        "phase": "F11",
         "id": "RESILIENCE_AND_RECONSTRUCTIBILITY",
         "priority": "P1",
         "state": "REAL_NAS_RESTORE_PASS_SHADOW_TO_RECONCILE",
         "depends_on": [
           "F01",
-          "F06"
+          "F07"
         ],
         "reuse_asset": {
           "sha": "2bd4ed32a067d8ff270f320cfb99c1a54a8a9b85",
@@ -978,7 +1000,7 @@
         ]
       },
       {
-        "phase": "F11",
+        "phase": "F12",
         "id": "REMOTE_MCP_PRIVATE_OPERATOR_ROUTE",
         "priority": "P1",
         "state": "SOURCE_CONVERGED_RUNTIME_UNMATERIALIZED",
@@ -997,12 +1019,12 @@
         ]
       },
       {
-        "phase": "F12",
+        "phase": "F13",
         "id": "NATIVE_LOCAL_AND_HA_DEEPENING",
         "priority": "P2",
         "state": "SOURCE_CONVERGED_NON_MUTATING",
         "depends_on": [
-          "F10"
+          "F11"
         ],
         "reuse_asset": {
           "sha": "8b0f0a01e1b2e028adefa0c13f2807912d73452f",
@@ -1028,7 +1050,14 @@
       "STOP",
       "zero automatic external spend"
     ],
-    "anti_replay": "Reuse exact-SHA/materially unchanged proofs. Requalify only changed scope or cumulative production-derived candidates."
+    "anti_replay": "Reuse exact-SHA/materially unchanged proofs. Requalify only changed scope or cumulative production-derived candidates.",
+    "superseded_shadow_experiments": [
+      {
+        "branch": "roadmap-functional-f04-resource-aware-20261004",
+        "candidate_sha": "027b348e70ed799bde1831654f8c3986b9712afe",
+        "reason": "Resource-aware reconciliation was started before Execution Planner was restored as an explicit upstream dependency. Keep proof, do not promote this ordering; rebuild the resource-aware train after F04 Execution Planner."
+      }
+    ]
   },
   "historical_train_catalog": {
     "authority": "dev-hub/config/master-roadmap-train-history.v1.json",
