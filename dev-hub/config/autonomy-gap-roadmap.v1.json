@@ -2,11 +2,11 @@
   "schema": "chacha.dev/autonomy-gap-roadmap/v1",
   "scope": "chacha-dev-only",
   "updated_at": "2026-09-28T20:12:50Z",
-  "score_percent": 73,
+  "score_percent": 71,
   "score_label": "Couverture de la feuille de route autonomie",
   "counts": {
     "GREEN": 3,
-    "ORANGE": 6,
+    "ORANGE": 7,
     "RED": 2
   },
   "legend": {
@@ -70,6 +70,14 @@
       "progress": 35,
       "state": "MANQUE_IMPORTANT",
       "evidence": "Fallback multi-provider partiel ; absence de fallback local durable capable de maintenir l’intelligence quand tous les quotas externes sont épuisés."
+    },
+    {
+      "id": "cognitive-memory-fabric",
+      "label": "Cognitive Runtime mutualisé & mémoire agents",
+      "status": "ORANGE",
+      "progress": 50,
+      "state": "FABRIC_FOUNDATION_ROUTER_CURATOR_SHADOW_READY",
+      "evidence": "Fondation Cognitive Memory Fabric construite au-dessus des briques existantes sans réimplémenter Qwen : contrat unifié, Memory Router déterministe et Memory Curator déterministe en shadow/advisory-only ; réutilisation de central-memory assimilation/recall, learning fabric et provider native-local existant. Restent à matérialiser la persistance par agent, Historical Memory Bootstrap et le tiering exécutoire VPS HOT + NAS LONG_TERM."
     },
     {
       "id": "persistent-missions",
