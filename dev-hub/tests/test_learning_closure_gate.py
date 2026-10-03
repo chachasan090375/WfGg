@@ -15,6 +15,12 @@ def test_gap_holds():assert m.gate(policy,coverage(gap_count=1,coverage_percent=
 def test_advisory_not_terminal():assert m.gate(policy,coverage(status='PASS_WITH_ADVISORY',missing_context_count=1),route(),confidence())['status']=='HOLD'
 def test_mutation_authority_holds():assert m.gate(policy,coverage(),route(router_mutation_authorized=True),confidence())['status']=='HOLD'
 def test_confidence_needs_three_verified():assert m.gate(policy,coverage(),route(),confidence(entries=[{'state':'VERIFIED'}]))['status']=='HOLD'
+
+def lineage(**kw):
+    x={'schema':'chacha.dev/learning-lineage-cutover-gate/v1','status':'PASS','historical_missing_quarantined':122,'missing_after_cutover':0,'invalid_timestamp_events':0};x.update(kw);return x
+def test_advisory_with_valid_cutover_passes():assert m.gate(policy,coverage(status='PASS_WITH_ADVISORY',missing_context_count=122),route(),confidence(),lineage())['status']=='PASS'
+def test_cutover_missing_after_holds():assert m.gate(policy,coverage(status='PASS_WITH_ADVISORY',missing_context_count=122),route(),confidence(),lineage(missing_after_cutover=1))['status']=='HOLD'
+
 if __name__=='__main__':
     for n,f in sorted(globals().items()):
         if n.startswith('test_'):f();print(n+'=PASS')
