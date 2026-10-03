@@ -1,0 +1,152 @@
+{
+  "schema": "chacha.dev/application-archetype-specialization/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "purpose": "Specialize application conception by product archetype without duplicating technical domain specialists.",
+  "canonical_domain_catalog": "dev-hub/config/domain-orchestration.v1.json",
+  "canonical_memory_fabric": "dev-hub/config/cognitive-memory-fabric.v1.json",
+  "principles": {
+    "archetype_is_composition_specialist": true,
+    "archetype_does_not_duplicate_domain_arms": true,
+    "archetype_selects_and_weights_domain_cells": true,
+    "technical_domain_specialists_remain_canonical": true,
+    "common_archetypes_are_persistent": true,
+    "rare_archetypes_are_ephemeral_until_proven": true,
+    "foundries_materialize_blueprints_not_parallel_memory_fabrics": true,
+    "technology_watch_revalidates_archetype_practices": true,
+    "logician_challenges_complex_reasoning_and_cross_domain_tradeoffs": true,
+    "guardian_and_sentinel_remain_applicable": true,
+    "automatic_external_spend_eur": 0
+  },
+  "memory": {
+    "namespace_template": "specialist:archetype:{archetype_id}",
+    "stores": [
+      "reference_knowledge",
+      "validated_patterns",
+      "anti_patterns",
+      "architecture_compositions",
+      "quality_models",
+      "performance_models",
+      "security_models",
+      "testing_strategies",
+      "release_practices",
+      "incidents_and_failures",
+      "project_feedback",
+      "benchmark_evidence",
+      "uncertainties"
+    ],
+    "raw_internet_dump_forbidden": true,
+    "provenance_required": true,
+    "confidence_required": true,
+    "last_revalidation_required": true
+  },
+  "archetypes": {
+    "game_realtime": {
+      "persistent": true,
+      "domain_weights": {
+        "product": 10,
+        "development": 20,
+        "data-backend": 10,
+        "ui-layout": 10,
+        "graphics": 15,
+        "animation": 10,
+        "cybersecurity": 5,
+        "qa": 10,
+        "platform-release": 5,
+        "assembly": 5
+      }
+    },
+    "business_management": {
+      "persistent": true,
+      "domain_weights": {
+        "product": 15,
+        "development": 15,
+        "data-backend": 20,
+        "ui-layout": 10,
+        "cybersecurity": 15,
+        "qa": 10,
+        "recovery": 5,
+        "platform-release": 5,
+        "assembly": 5
+      }
+    },
+    "system_infrastructure": {
+      "persistent": true,
+      "domain_weights": {
+        "product": 5,
+        "development": 15,
+        "data-backend": 10,
+        "cybersecurity": 20,
+        "qa": 10,
+        "platform-release": 15,
+        "recovery": 15,
+        "assembly": 10
+      }
+    },
+    "consumer_application": {
+      "persistent": true,
+      "domain_weights": {
+        "product": 15,
+        "development": 20,
+        "data-backend": 10,
+        "ui-layout": 15,
+        "graphics": 10,
+        "cybersecurity": 10,
+        "qa": 10,
+        "publication": 5,
+        "assembly": 5
+      }
+    },
+    "data_ai_automation": {
+      "persistent": true,
+      "domain_weights": {
+        "product": 10,
+        "development": 15,
+        "data-backend": 25,
+        "cybersecurity": 10,
+        "qa": 10,
+        "knowledge-research": 15,
+        "platform-release": 5,
+        "recovery": 5,
+        "assembly": 5
+      }
+    },
+    "creative_media_interactive": {
+      "persistent": true,
+      "domain_weights": {
+        "product": 10,
+        "development": 10,
+        "ui-layout": 15,
+        "graphics": 20,
+        "animation": 20,
+        "data-backend": 5,
+        "cybersecurity": 5,
+        "qa": 5,
+        "publication": 5,
+        "assembly": 5
+      }
+    }
+  },
+  "dynamic_archetype_foundry": {
+    "enabled_shadow_only": true,
+    "initial_state": "EPHEMERAL_ARCHETYPE_PROFILE",
+    "minimum_accepted_projects_for_persistence": 3,
+    "benchmark_pass_required": true,
+    "trusted_memory_records_required": 25,
+    "technology_watch_revalidation_required": true,
+    "logician_falsification_required": true,
+    "human_or_central_governed_adoption_required": true,
+    "self_promotion_forbidden": true
+  },
+  "authority": {
+    "execution_authority": false,
+    "architecture_final_authority": false,
+    "production_authority": false,
+    "permission_expansion_authority": false,
+    "route_authority": false
+  },
+  "activation": {
+    "production_activation_authorized": false,
+    "shadow_only": true
+  }
+}
