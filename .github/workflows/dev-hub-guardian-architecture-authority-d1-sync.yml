@@ -1,0 +1,244 @@
+name: ChaCha DEV Guardian architecture authority D1 sync
+
+on:
+  push:
+    branches:
+      - 'production-guardian-architecture-authority-sync-*'
+    paths:
+      - '.chacha-approvals/guardian-architecture-authority/*.json'
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Resolve explicit architecture authority approval
+        id: approval
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find .chacha-approvals/guardian-architecture-authority -maxdepth 1 -type f -name '*.json' 2>/dev/null | sort)
+          test "${#files[@]}" = 1
+          FILE="${files[0]}"
+          python3 - "$FILE" "$GITHUB_OUTPUT" <<'PY'
+          import json,re,sys
+          x=json.load(open(sys.argv[1],encoding='utf-8'))
+          assert x.get('schema')=='chacha.dev/production-approval/v1',x
+          assert x.get('scope')=='guardian-architecture-authority-d1-sync',x
+          assert x.get('approved') is True and x.get('approved_by')=='operator',x
+          rev=str(x.get('revision') or ''); tree=str(x.get('tree') or '')
+          assert rev=='f58d76f034b7e5ec423e312d78f8ca92b8d92111',x
+          assert tree=='87de54fa109fe106f081dc62b79a74337f52caa8',x
+          assert x.get('contract_ids')==['component:central-orchestrator','role:architecture-decision-council'],x
+          for k in ['worker_deploy','platform_current_switch','functional_remediation_apply','action_lease_reconciliation_apply','native_local_activation','ha_failover']:
+              assert x.get(k) is False,(k,x)
+          with open(sys.argv[2],'a') as f:
+              f.write('revision='+rev+'\n');f.write('tree='+tree+'\n')
+          print('CHACHA_DEV_GUARDIAN_ARCH_AUTH_APPROVAL=PASS')
+          PY
+
+      - name: Checkout exact approved revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          REV='${{ steps.approval.outputs.revision }}'
+          TREE='${{ steps.approval.outputs.tree }}'
+          git fetch --depth=1 origin "$REV"
+          git checkout --detach "$REV"
+          test "$(git rev-parse HEAD)" = "$REV"
+          test "$(git rev-parse HEAD^{tree})" = "$TREE"
+          python3 -m json.tool dev-hub/config/guardian-role-contracts.v1.json >/dev/null
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_architecture_authority_propagation.py
+          echo CHACHA_DEV_GUARDIAN_ARCH_AUTH_EXACT_CANDIDATE=PASS
+
+      - name: Require exact-revision Sentinel attestation
+        env:
+          REVISION: ${{ steps.approval.outputs.revision }}
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request,urllib.error
+          token=os.environ.get('CF_API_TOKEN','').strip(); aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          if not token: raise SystemExit('MISSING_SECRET=CLOUDFLARE_API_TOKEN')
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url,method='GET',body=None):
+              data=None if body is None else json.dumps(body).encode()
+              req=urllib.request.Request(url,headers=headers,method=method,data=data)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode('utf-8','replace')
+                  try:p=json.loads(raw)
+                  except Exception:p={'raw':raw[:500]}
+                  return e.code,p
+          if not aid:
+              st,p=call('https://api.cloudflare.com/client/v4/accounts?per_page=50'); rows=(p.get('result') or []) if st==200 else []
+              if len(rows)!=1: raise SystemExit('ACCOUNT_RESOLUTION_FAILED')
+              aid=rows[0]['id']
+          st,p=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-sentinel'))
+          db=next((x for x in (p.get('result') or []) if x.get('name')=='chacha-dev-sentinel'),None)
+          if st!=200 or not db: raise SystemExit('SENTINEL_D1_MISSING')
+          url=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{db['uuid']}/query"
+          sql="SELECT repository,revision,workflow_name,conclusion FROM technical_workflow_attestations WHERE repository=?1 AND revision=?2 AND workflow_name=?3 AND conclusion='PASS' LIMIT 1"
+          st,p=call(url,'POST',{'sql':sql,'params':[os.environ['GITHUB_REPOSITORY'],os.environ['REVISION'],'ChaCha DEV Sentinel technical assurance']})
+          rows=[]
+          for block in p.get('result') or []: rows.extend(block.get('results') or [])
+          if st!=200 or not p.get('success') or len(rows)!=1: raise SystemExit('SENTINEL_EXACT_HEAD_ATTESTATION_MISSING')
+          print('CHACHA_DEV_GUARDIAN_ARCH_AUTH_SENTINEL_EXACT_SHA=PASS')
+          PY
+
+      - name: Resolve Guardian D1 target
+        id: cf
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request
+          token=os.environ['CF_API_TOKEN']; aid=os.environ.get('CF_ACCOUNT_ID','').strip(); headers={'Authorization':'Bearer '+token}
+          def call(url):
+              req=urllib.request.Request(url,headers=headers)
+              with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+          if not aid:
+              st,p=call('https://api.cloudflare.com/client/v4/accounts?per_page=50'); rows=p.get('result') or []
+              if len(rows)!=1: raise SystemExit('ACCOUNT_RESOLUTION_FAILED')
+              aid=rows[0]['id']
+          st,p=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-guardian'))
+          db=next((x for x in (p.get('result') or []) if x.get('name')=='chacha-dev-guardian'),None)
+          if st!=200 or not db: raise SystemExit('GUARDIAN_D1_MISSING')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('account_id='+aid+'\n');f.write('database_id='+db['uuid']+'\n')
+          print('CHACHA_DEV_GUARDIAN_ARCH_AUTH_D1_TARGET=PASS')
+          PY
+
+      - name: Prepare Wrangler D1 contract
+        run: |
+          set -euo pipefail
+          cat > .wrangler-guardian-arch-auth.jsonc <<EOF
+          {
+            "name": "chacha-dev-guardian",
+            "main": "dev-hub/guardian/worker.js",
+            "compatibility_date": "2026-09-24",
+            "d1_databases": [{"binding":"DB","database_name":"chacha-dev-guardian","database_id":"${{ steps.cf.outputs.database_id }}"}]
+          }
+          EOF
+
+      - name: Capture exact two-row rollback snapshot
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --json --config=.wrangler-guardian-arch-auth.jsonc --command="SELECT * FROM role_contracts WHERE contract_id IN ('component:central-orchestrator','role:architecture-decision-council') ORDER BY contract_id;" > /tmp/guardian-arch-auth-before.json
+          python3 - <<'PY'
+          import json
+          raw=json.load(open('/tmp/guardian-arch-auth-before.json')); rows=[]
+          def walk(v):
+              if isinstance(v,dict):
+                  if isinstance(v.get('results'),list): rows.extend(v['results'])
+                  for z in v.values(): walk(z)
+              elif isinstance(v,list):
+                  for z in v: walk(z)
+          walk(raw)
+          ids=[r.get('contract_id') for r in rows]
+          expected=['component:central-orchestrator','role:architecture-decision-council']
+          if sorted(ids)!=sorted(expected) or len(rows)!=2: raise SystemExit('D1_ROLE_SNAPSHOT_NOT_EXACT_TWO')
+          open('/tmp/guardian-arch-auth-snapshot.json','w').write(json.dumps(rows,indent=2)+'\n')
+          q=lambda s:"'"+str(s).replace("'","''")+"'"
+          sql=[]
+          for r in rows:
+              cols=['contract_id','kind','allowed_actions_json','forbidden_actions_json','allowed_permissions_json','required_evidence_json','unknown_role','source_digest','updated_at']
+              vals=[q(r[c]) if c not in {'unknown_role'} else str(int(r.get(c) or 0)) for c in cols]
+              sql.append("INSERT INTO role_contracts("+','.join(cols)+") VALUES("+','.join(vals)+") ON CONFLICT(contract_id) DO UPDATE SET kind=excluded.kind,allowed_actions_json=excluded.allowed_actions_json,forbidden_actions_json=excluded.forbidden_actions_json,allowed_permissions_json=excluded.allowed_permissions_json,required_evidence_json=excluded.required_evidence_json,unknown_role=excluded.unknown_role,source_digest=excluded.source_digest,updated_at=excluded.updated_at;")
+          open('/tmp/guardian-arch-auth-rollback.sql','w').write('\n'.join(sql)+'\n')
+          print('CHACHA_DEV_GUARDIAN_ARCH_AUTH_SNAPSHOT=PASS')
+          print('ROLE_CONTRACT_ROWS_SNAPSHOTTED=2')
+          PY
+
+      - name: Persist rollback evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: guardian-architecture-authority-rollback-${{ steps.approval.outputs.revision }}
+          path: |
+            /tmp/guardian-arch-auth-before.json
+            /tmp/guardian-arch-auth-snapshot.json
+            /tmp/guardian-arch-auth-rollback.sql
+          retention-days: 30
+
+      - name: Execute exact two-row architecture authority sync
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          D1_MUTATED=0
+          rollback() {
+            set +e
+            if [[ "$D1_MUTATED" = 1 ]]; then
+              npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --file=/tmp/guardian-arch-auth-rollback.sql --config=.wrangler-guardian-arch-auth.jsonc
+            fi
+            echo CHACHA_DEV_GUARDIAN_ARCH_AUTH_AUTOMATIC_ROLLBACK=PASS
+          }
+          trap rollback ERR
+
+          python3 - <<'PY'
+          import hashlib,json
+          roles=json.load(open('dev-hub/config/guardian-role-contracts.v1.json',encoding='utf-8'))
+          wanted=['component:central-orchestrator','role:architecture-decision-council']
+          rows=[]; sql=[]
+          stable=lambda v:json.dumps(v,separators=(',',':'),sort_keys=True)
+          q=lambda s:"'"+str(s).replace("'","''")+"'"
+          for cid in wanted:
+              role=next(x for x in roles['contracts'] if x['contract_id']==cid)
+              allowed=list(role.get('allowed_actions') or []); forbidden=list(role.get('forbidden_actions') or [])
+              if 'FINAL_ARCHITECTURE_DECISION' in allowed: raise SystemExit('FINAL_ARCHITECTURE_DECISION_STILL_ALLOWED:'+cid)
+              if 'FINAL_ARCHITECTURE_DECISION' not in forbidden: raise SystemExit('FINAL_ARCHITECTURE_DECISION_NOT_FORBIDDEN:'+cid)
+              if 'REPORT_ARCHITECTURE_RECOMMENDATION' not in allowed: raise SystemExit('RECOMMENDATION_ACTION_MISSING:'+cid)
+              digest=hashlib.sha256(stable(role).encode()).hexdigest()
+              rows.append({'contract_id':cid,'source_digest':digest})
+              vals=[q(cid),q(role.get('kind','role')),q(stable(allowed)),q(stable(forbidden)),q(stable(role.get('allowed_permissions',[]))),q(stable(role.get('required_evidence',[]))),str(1 if role.get('unknown_role') else 0),q(digest),"datetime('now')"]
+              sql.append("INSERT INTO role_contracts(contract_id,kind,allowed_actions_json,forbidden_actions_json,allowed_permissions_json,required_evidence_json,unknown_role,source_digest,updated_at) VALUES("+','.join(vals)+") ON CONFLICT(contract_id) DO UPDATE SET kind=excluded.kind,allowed_actions_json=excluded.allowed_actions_json,forbidden_actions_json=excluded.forbidden_actions_json,allowed_permissions_json=excluded.allowed_permissions_json,required_evidence_json=excluded.required_evidence_json,unknown_role=excluded.unknown_role,source_digest=excluded.source_digest,updated_at=datetime('now');")
+          open('/tmp/guardian-arch-auth-sync.sql','w').write('\n'.join(sql)+'\n')
+          open('/tmp/guardian-arch-auth-digests.json','w').write(json.dumps(rows,indent=2)+'\n')
+          PY
+          D1_MUTATED=1
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --file=/tmp/guardian-arch-auth-sync.sql --config=.wrangler-guardian-arch-auth.jsonc
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --json --config=.wrangler-guardian-arch-auth.jsonc --command="SELECT contract_id,allowed_actions_json,forbidden_actions_json,source_digest FROM role_contracts WHERE contract_id IN ('component:central-orchestrator','role:architecture-decision-council') ORDER BY contract_id;" > /tmp/guardian-arch-auth-after.json
+          python3 - <<'PY'
+          import json
+          raw=json.load(open('/tmp/guardian-arch-auth-after.json')); rows=[]
+          def walk(v):
+              if isinstance(v,dict):
+                  if isinstance(v.get('results'),list): rows.extend(v['results'])
+                  for z in v.values(): walk(z)
+              elif isinstance(v,list):
+                  for z in v: walk(z)
+          walk(raw)
+          exp={x['contract_id']:x['source_digest'] for x in json.load(open('/tmp/guardian-arch-auth-digests.json'))}
+          if len(rows)!=2 or set(r.get('contract_id') for r in rows)!=set(exp): raise SystemExit('READBACK_NOT_EXACT_TWO_ROWS')
+          for r in rows:
+              allowed=json.loads(r.get('allowed_actions_json') or '[]'); forbidden=json.loads(r.get('forbidden_actions_json') or '[]'); cid=r['contract_id']
+              if r.get('source_digest')!=exp[cid]: raise SystemExit('SOURCE_DIGEST_MISMATCH:'+cid)
+              if 'FINAL_ARCHITECTURE_DECISION' in allowed: raise SystemExit('FINAL_DECISION_STILL_ALLOWED:'+cid)
+              if 'FINAL_ARCHITECTURE_DECISION' not in forbidden: raise SystemExit('FINAL_DECISION_NOT_FORBIDDEN:'+cid)
+              if 'REPORT_ARCHITECTURE_RECOMMENDATION' not in allowed: raise SystemExit('RECOMMENDATION_MISSING:'+cid)
+          print('CHACHA_DEV_GUARDIAN_ARCHITECTURE_AUTHORITY_D1_SYNC=PASS')
+          print('ROLE_CONTRACT_ROWS_MUTATED=2')
+          print('WORKER_DEPLOY=NO')
+          print('PLATFORM_CURRENT_SWITCH=NO')
+          print('FUNCTIONAL_REMEDIATION_APPLIED=NO')
+          print('ACTION_LEASE_RECONCILIATION_APPLIED=NO')
+          print('NATIVE_LOCAL_ACTIVATION=NO')
+          print('AUTOMATIC_EXTERNAL_SPEND_EUR=0')
+          PY
+          trap - ERR
