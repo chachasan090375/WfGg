@@ -1,0 +1,12 @@
+{
+  "schema":"chacha.dev/sovereign-state-fabric/v1",
+  "version":"1.0.0",
+  "state":"SHADOW_LOCAL",
+  "purpose":"Remove SaaS database quota from ChaCha DEV governance critical path while preserving Guardian/Sentinel logic and fail-closed governance.",
+  "authority_model":{"current":"D1_PRIMARY","candidate":"LOCAL_SQLITE_PRIMARY","nas":"IMMUTABLE_BACKUP_AND_RECOVERY","d1_future":"OPTIONAL_MIRROR"},
+  "backends":{"local_sqlite":{"root":"/opt/chacha-dev/runtime/sovereign-state","journal_mode":"WAL","synchronous":"FULL","busy_timeout_ms":5000},"nas":{"role":"CREATE_ONLY_SNAPSHOT_ARCHIVE","readback_required":true},"d1":{"role_after_cutover":"OPTIONAL_SHADOW_OR_OFFSITE_MIRROR","quota_must_not_block_local_primary":true}},
+  "migration_phases":["LOCAL_SHADOW_BOOTSTRAP","D1_EXPORT_IMPORT","READ_PARITY","DUAL_REQUEST_PARITY","D1_PRIMARY_LOCAL_SHADOW","LOCAL_PRIMARY_D1_SHADOW","LOCAL_PRIMARY_NAS_BACKUP","D1_OPTIONAL"],
+  "cutover_requirements":["all_migrations_digest_verified","active_identity_parity","static_contract_parity","dynamic_contract_parity","open_action_lease_parity","remediation_parity","alert_parity","functional_receipt_parity","project_identity_parity","final_review_parity","representative_guardian_verdict_parity","nas_consistent_snapshot_readback","rollback_plan_verified","guardian_and_sentinel_exact_sha_pass","explicit_human_promotion_approval"],
+  "rules":{"reuse_same_guardian_worker_source":true,"no_guardian_logic_fork":true,"single_writer_default":true,"local_primary_survives_d1_quota_exhaustion":true,"no_automatic_paid_upgrade":true,"no_automatic_external_spend":true,"production_activation_authorized":false},
+  "automatic_external_spend_eur":0
+}

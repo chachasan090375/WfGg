@@ -1,0 +1,63 @@
+name: ChaCha DEV Sovereign State Hotfix Qualification
+on:
+  push:
+    branches:
+      - sovereign-state-hotfix-prod
+      - sovereign-state-hotfix-qualification
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Exact production ancestry
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor d84d389b74b5efe5e368f3d1c4851214d0ecc4fc HEAD
+      - name: Sovereign state contract suite
+        run: |
+          set -euo pipefail
+          node dev-hub/tests/test_d1_sqlite_binding_contract.mjs
+          for t in \
+            dev-hub/tests/test_sovereign_state_fabric.py \
+            dev-hub/tests/test_sovereign_state_cutover_gate.py \
+            dev-hub/tests/test_sovereign_state_guardian_client_quota_decoupling.py \
+            dev-hub/tests/test_sovereign_state_multi_service_contract.py \
+            dev-hub/tests/test_sovereign_state_authority_resolver.py \
+            dev-hub/tests/test_sovereign_state_hotfix_contract.py \
+            dev-hub/tests/test_sovereign_state_runtime_routing.py \
+            dev-hub/tests/test_v831_safe_autonomous_resilience_and_continuation.py \
+            dev-hub/tests/test_v805_direct_operator_network_resilience.py; do
+              PYTHONPATH=dev-hub/bin python3 "$t"
+          done
+      - name: Static safety
+        run: |
+          set -euo pipefail
+          python3 -m py_compile \
+            dev-hub/bin/sovereign-state-cutover-controller.py \
+            dev-hub/bin/sovereign_state_authority.py \
+            dev-hub/bin/guardian-client.py \
+            dev-hub/bin/sentinel-client.py \
+            dev-hub/bin/assurance-exchange-client.py \
+            dev-hub/bin/central-learning-relay-puller.py \
+            dev-hub/bin/cockpit-state.py
+          node --check dev-hub/bin/d1-worker-local-runtime.mjs
+          test "$(git status --porcelain)" = ""
+      - name: Qualification receipt
+        run: |
+          echo "SOVEREIGN_STATE_HOTFIX_QUALIFICATION=PASS"
+          echo "PRODUCTION_BASE=d84d389b74b5efe5e368f3d1c4851214d0ecc4fc"
+          echo "HEAD=$(git rev-parse HEAD)"
+          echo "TREE=$(git rev-parse HEAD^{tree})"
+          echo "DEFAULT_AUTHORITY=D1_REMOTE"
+          echo "LOCAL_CUTOVER_REQUIRES_HUMAN_APPROVAL=YES"
+          echo "AUTOMATIC_EXTERNAL_SPEND_EUR=0"

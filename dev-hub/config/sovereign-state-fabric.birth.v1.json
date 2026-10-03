@@ -1,0 +1,14 @@
+{
+  "schema":"chacha.dev/component-birth-candidate/v1",
+  "component_id":"sovereign-state-fabric",
+  "project_id":"chacha-dev-platform",
+  "materialization_gate_required":true,
+  "governance_class":"CORE_PLATFORM_COMPONENT",
+  "owner_foundry":"branch-foundry",
+  "purpose":"Local quota-independent canonical state plane with SQLite primary candidate, immutable NAS recovery and optional D1 mirror.",
+  "scope":"PLATFORM",
+  "permissions":["read","workspace-write-shadow-only"],
+  "lifecycle":"DESIGN->SHADOW->IMPORT_PARITY->DUAL_PARITY->LOCAL_PRIMARY_PILOT->HUMAN_PROMOTION",
+  "production_activation_authorized":false,
+  "automatic_external_spend_eur":0
+}

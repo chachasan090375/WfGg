@@ -1,0 +1,32 @@
+{
+  "schema": "chacha.dev/nas-readback-adapter-policy/v1",
+  "version": "1.0.0",
+  "provider_id": "nas-readback",
+  "adapter_id": "nas-readback-adapter",
+  "nas": {
+    "host": "chachanas",
+    "root": "/share/CACHEDEV1_DATA/ChaCha-DEV-HUB",
+    "allowed_prefixes": [
+      "knowledge/cognitive-memory-shadow/",
+      "knowledge/cognitive-memory/agents/",
+      "knowledge/sovereign-state-shadow/",
+      "knowledge/sovereign-state-candidate/"
+    ]
+  },
+  "workspace": {
+    "allowed_roots": [
+      "/tmp",
+      "/opt/chacha-dev/runtime/pilots/cognitive-memory-fabric"
+    ],
+    "overwrite_allowed": false,
+    "active_memory_restore_forbidden": true
+  },
+  "integrity": {
+    "expected_sha256_required": true,
+    "remote_sha256_required": true,
+    "local_sha256_required": true,
+    "maximum_bytes": 268435456
+  },
+  "automatic_external_spend_eur": 0,
+  "production_activation_authorized": false
+}

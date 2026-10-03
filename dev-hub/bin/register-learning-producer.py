@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse,base64,hashlib,json,subprocess,tempfile,time,urllib.error,urllib.parse,urllib.request
 from pathlib import Path
 from typing import Any
+import sovereign_state_authority as ssa
 
 DEFAULT_RELAY="https://chacha-dev-learning-relay.chachasan090375.workers.dev"
 DEFAULT_KEY=Path("/opt/chacha-dev/runtime/secrets/central-learning-key.pem")
@@ -29,12 +30,12 @@ def request_message(method,url,ts,body=b""):
     return (ts+"\n"+method+"\n"+path+"\n").encode()+body
 def main():
     ap=argparse.ArgumentParser();ap.add_argument("--enrollment",type=Path,required=True)
-    ap.add_argument("--relay-url",default=DEFAULT_RELAY);ap.add_argument("--central-key",type=Path,default=DEFAULT_KEY)
+    ap.add_argument("--relay-url");ap.add_argument("--central-key",type=Path,default=DEFAULT_KEY)
     a=ap.parse_args();x=load(a.enrollment)
     if x.get("schema")!="chacha.dev/learning-producer-enrollment/v1":raise SystemExit("LEARNING_PRODUCER_ENROLLMENT_SCHEMA_INVALID")
     if x.get("role")!="PRODUCER" or x.get("private_key_exported") is not False:raise SystemExit("LEARNING_PRODUCER_ENROLLMENT_INVALID")
     body=json.dumps({k:x[k] for k in ("key_id","role","public_key_spki_b64","project_id","deployment_id")},separators=(",",":")).encode()
-    url=a.relay_url.rstrip("/")+"/v1/central/identities";ts=now_iso()
+    url=(a.relay_url or ssa.endpoint("learning-relay")).rstrip("/")+"/v1/central/identities";ts=now_iso()
     req=urllib.request.Request(url,data=body,method="POST",headers={
       "Content-Type":"application/json","Accept":"application/json","X-ChaCha-Key-Id":key_id(a.central_key),
       "X-ChaCha-Timestamp":ts,"X-ChaCha-Signature":sign(a.central_key,request_message("POST",url,ts,body)),

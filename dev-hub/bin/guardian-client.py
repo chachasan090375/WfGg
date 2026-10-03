@@ -4,6 +4,7 @@ import argparse,base64,hashlib,json,subprocess,tempfile,time,urllib.error,urllib
 from pathlib import Path
 from typing import Any
 import d1_quota_circuit as d1qc
+import sovereign_state_authority as ssa
 
 DEFAULT_POLICY=Path("/opt/chacha-dev/platform/current/dev-hub/config/guardian-runtime-policy.v1.json")
 MAX_RESPONSE=2*1024*1024
@@ -51,8 +52,13 @@ def signed_request(method:str,url:str,private_key:Path,body:bytes=b"")->urllib.r
     if method.upper()!="GET":headers["Content-Type"]="application/json"
     return urllib.request.Request(url,data=(body if method.upper()!="GET" else None),headers=headers,method=method.upper())
 
+def _d1_quota_applies(req:urllib.request.Request)->bool:
+    host=(urllib.parse.urlsplit(req.full_url).hostname or "").lower()
+    # Local Sovereign State endpoints must never be blocked by a SaaS D1 quota circuit.
+    return host not in {"127.0.0.1","localhost","::1"}
+
 def http_json(req:urllib.request.Request,timeout:int=20)->tuple[int,dict[str,Any]]:
-    blocked=d1qc.unavailable_payload("guardian-client")
+    blocked=d1qc.unavailable_payload("guardian-client") if _d1_quota_applies(req) else None
     if blocked:return 503,blocked
     try:
         with urllib.request.urlopen(req,timeout=timeout) as r:
@@ -69,7 +75,7 @@ def http_json(req:urllib.request.Request,timeout:int=20)->tuple[int,dict[str,Any
 
 def policy_values(policy_path:Path):
     p=load(policy_path)
-    url=str(p["external_url"]).rstrip("/")
+    url=ssa.endpoint("guardian")
     key=Path(p["private_key"])
     return p,url,key
 
@@ -164,6 +170,21 @@ def watchdog_sweep(policy_path:Path)->int:
         return 30
     print(json.dumps(x,ensure_ascii=False))
     return 0 if status==200 and x.get("status")=="PASS" else 30
+
+def reconcile_action_state(policy_path:Path,request_path:Path)->int:
+    _,url,key=policy_values(policy_path)
+    if not key.is_file():return 30
+    payload=load(request_path)
+    body=json.dumps(payload,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()
+    try:
+        status,x=http_json(signed_request("POST",url+"/v1/action-leases/reconcile-expired",key,body))
+    except Exception as exc:
+        print(json.dumps({"schema":"chacha.dev/guardian-client-result/v1","status":"UNAVAILABLE","reason":str(exc)[:300]}))
+        return 30
+    print(json.dumps(x,ensure_ascii=False))
+    if status==200 and x.get("status")=="PASS":return 0
+    if status==409 and x.get("status")=="BLOCK":return 20
+    return 30
 
 def coverage(policy_path:Path,snapshot:Path)->int:
     _,url,key=policy_values(policy_path)
@@ -310,6 +331,7 @@ def main()->int:
     md=sub.add_parser("mark-remediations-delivered");md.add_argument("--directive-id",action="append",required=True)
     ra=sub.add_parser("report-anomaly");ra.add_argument("--anomaly",type=Path,required=True)
     v=sub.add_parser("coverage");v.add_argument("--snapshot",type=Path,required=True)
+    ral=sub.add_parser("reconcile-action-state");ral.add_argument("--request",type=Path,required=True)
     r=sub.add_parser("register-contract");r.add_argument("--contract",type=Path,required=True)
     rc=sub.add_parser("register-component-contract");rc.add_argument("--contract",type=Path,required=True)
     rr=sub.add_parser("readback-contract");rr.add_argument("--contract",type=Path,required=True)
@@ -330,6 +352,7 @@ def main()->int:
     if args.cmd=="mark-remediations-delivered":return mark_remediations_delivered(args.policy,args.directive_id)
     if args.cmd=="report-anomaly":return report_anomaly(args.policy,args.anomaly)
     if args.cmd=="coverage":return coverage(args.policy,args.snapshot)
+    if args.cmd=="reconcile-action-state":return reconcile_action_state(args.policy,args.request)
     if args.cmd=="register-contract":return register_contract(args.policy,args.contract)
     if args.cmd=="register-component-contract":return register_component_contract(args.policy,args.contract)
     if args.cmd=="readback-contract":return readback_contract(args.policy,args.contract)
