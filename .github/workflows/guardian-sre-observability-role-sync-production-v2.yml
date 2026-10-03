@@ -1,0 +1,256 @@
+name: Guardian SRE observability role sync production v2
+
+on:
+  push:
+    branches:
+      - production-guardian-sre-role-sync-61847f8e-v2
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    env:
+      EXPECTED_CANDIDATE: 61847f8ed8d366c7a467de9b52c50028e1e0dc18
+      EXPECTED_TREE: 17ff7216911d84b816c36b928a53bf931d8c2f88
+      TARGET_CONTRACT: role:sre-observability-engineer
+      EXPECTED_DIGEST: 4abf3d4bf59f9ab75650c9a08668901ef463246953820635eda14e58f39ea31e
+      FUNCTIONAL_ALERT: functional-guardian-func-dec5fdd67a52486f9c9e056664222591
+      SRE_ALERT_1: alert-gov-0356805f35ee4124883b2eacbd45cf04
+      SRE_ALERT_2: alert-gov-f56f51a00a084bc987f4dca2ba06175a
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Resolve explicit operator approval
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import glob,json,os
+          fs=glob.glob('.chacha-approvals/guardian-contracts/sre-observability-61847f8e-v2.json')
+          assert len(fs)==1,fs
+          x=json.load(open(fs[0],encoding='utf-8'))
+          assert x['schema']=='chacha.dev/production-approval/v1'
+          assert x['scope']=='guardian-sre-observability-role-sync'
+          assert x['approved'] is True and x['approved_by']=='operator'
+          assert x['candidate_revision']==os.environ['EXPECTED_CANDIDATE']
+          assert x['candidate_tree']==os.environ['EXPECTED_TREE']
+          assert x['contract_id']==os.environ['TARGET_CONTRACT']
+          assert x['contract_source_digest']==os.environ['EXPECTED_DIGEST']
+          assert x['allowed_mutation']=='UPSERT_SINGLE_ROLE_CONTRACT'
+          assert x['retry_after_precondition_failure_without_mutation'] is True
+          for k in ['snapshot_required','readback_required','automatic_rollback_required']:
+              assert x[k] is True,(k,x)
+          for k in ['sre_alert_terminalization','action_lease_mutation','functional_remediation_apply','worker_deploy','platform_current_switch','remote_mcp_activation','native_local_qwen_activation','guardian_latch_clear','other_guardian_contract_mutation']:
+              assert x[k] is False,(k,x)
+          print('CHACHA_DEV_GUARDIAN_SRE_ROLE_OPERATOR_APPROVAL=PASS')
+          PY
+
+      - name: Verify exact candidate and extract single contract
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin "$EXPECTED_CANDIDATE"
+          test "$(git rev-parse "$EXPECTED_CANDIDATE")" = "$EXPECTED_CANDIDATE"
+          test "$(git rev-parse "$EXPECTED_CANDIDATE^{tree}")" = "$EXPECTED_TREE"
+          git show "$EXPECTED_CANDIDATE:dev-hub/config/guardian-role-contracts.v1.json" > /tmp/role-contracts.json
+          python3 - <<'PY'
+          import hashlib,json,os
+          x=json.load(open('/tmp/role-contracts.json',encoding='utf-8'))
+          rows=[c for c in x['contracts'] if c.get('contract_id')==os.environ['TARGET_CONTRACT']]
+          assert len(rows)==1,rows
+          c=rows[0]
+          assert c['kind']=='role'
+          assert c['allowed_actions']==['DISPATCH_TASK','REPORT_PLAN']
+          assert c['allowed_permissions']==['read','plan']
+          assert c['required_evidence']==[]
+          assert c['authority_scope']=='PLANNING_ONLY'
+          required_forbidden={'PRODUCTION_DEPLOY','PROMOTE_COMPONENT','MUTATE_RUNTIME','MUTATE_APPLICATION','CHANGE_CURRENT_RELEASE','DELETE_RELEASE','MODIFY_GUARDIAN_CONTRACTS','EXPAND_PERMISSIONS','FINAL_ARCHITECTURE_DECISION','MODIFY_ROUTE_AUTHORITY_POLICY','BYPASS_CANONICAL_ROUTE','EXPAND_ROUTE_AUTHORITY'}
+          assert set(c['forbidden_actions'])==required_forbidden,c
+          raw=json.dumps(c,sort_keys=True,separators=(',',':'))
+          dig=hashlib.sha256(raw.encode()).hexdigest()
+          assert dig==os.environ['EXPECTED_DIGEST'],(dig,os.environ['EXPECTED_DIGEST'])
+          json.dump(c,open('/tmp/expected-contract.json','w'),sort_keys=True,separators=(',',':'))
+          print('CHACHA_DEV_GUARDIAN_SRE_ROLE_SOURCE=PASS')
+          print('CONTRACT_DIGEST='+dig)
+          PY
+
+      - name: Require exact-revision Sentinel attestation and resolve Guardian D1
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.parse,urllib.request
+          token=os.environ['CF_API_TOKEN']; aid=os.environ.get('CF_ACCOUNT_ID','').strip()
+          h={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url,method='GET',body=None):
+              data=None if body is None else json.dumps(body).encode()
+              with urllib.request.urlopen(urllib.request.Request(url,headers=h,method=method,data=data),timeout=30) as r:return json.load(r)
+          if not aid:
+              rows=call('https://api.cloudflare.com/client/v4/accounts?per_page=50').get('result') or []; assert len(rows)==1; aid=rows[0]['id']
+          sdbs=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-sentinel')).get('result') or []
+          sdb=next(x for x in sdbs if x.get('name')=='chacha-dev-sentinel')
+          surl=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{sdb['uuid']}/query"
+          sql="SELECT repository,revision,workflow_name,workflow_run_id,audit_digest,conclusion FROM technical_workflow_attestations WHERE repository=?1 AND revision=?2 AND workflow_name=?3 AND conclusion='PASS' LIMIT 1"
+          p=call(surl,'POST',{'sql':sql,'params':['chachasan090375/WfGg',os.environ['EXPECTED_CANDIDATE'],'ChaCha DEV Sentinel technical assurance']})
+          rows=[]
+          for b in p.get('result') or []: rows.extend(b.get('results') or [])
+          assert len(rows)==1,rows
+          gdbs=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-guardian')).get('result') or []
+          gdb=next(x for x in gdbs if x.get('name')=='chacha-dev-guardian')
+          open('/tmp/guardian-target.json','w').write(json.dumps({'account_id':aid,'database_id':gdb['uuid']},sort_keys=True))
+          print('CHACHA_DEV_GUARDIAN_SRE_ROLE_SENTINEL_ATTESTATION=PASS')
+          print('SENTINEL_AUDIT_DIGEST='+str(rows[0]['audit_digest']))
+          print('CHACHA_DEV_GUARDIAN_SRE_ROLE_D1_TARGET=PASS')
+          PY
+
+      - name: Capture pre-mutation D1 snapshot
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.request
+          token=os.environ['CF_API_TOKEN']; target=json.load(open('/tmp/guardian-target.json'))
+          h={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          url=f"https://api.cloudflare.com/client/v4/accounts/{target['account_id']}/d1/database/{target['database_id']}/query"
+          def q(sql,params=None):
+              body={'sql':sql}
+              if params is not None: body['params']=params
+              data=json.dumps(body).encode()
+              with urllib.request.urlopen(urllib.request.Request(url,headers=h,method='POST',data=data),timeout=30) as r:p=json.load(r)
+              assert p.get('success') is True,p
+              out=[]
+              for b in p.get('result') or []: out.extend(b.get('results') or [])
+              return out
+          roles=q('SELECT * FROM role_contracts ORDER BY contract_id')
+          assert [x for x in roles if x.get('contract_id')==os.environ['TARGET_CONTRACT']]==[]
+          alerts=q('SELECT alert_id,status FROM guardian_alerts WHERE alert_id IN (?1,?2,?3) ORDER BY alert_id',[os.environ['FUNCTIONAL_ALERT'],os.environ['SRE_ALERT_1'],os.environ['SRE_ALERT_2']])
+          amap={x['alert_id']:x['status'] for x in alerts}
+          assert amap.get(os.environ['FUNCTIONAL_ALERT'])=='OPEN',amap
+          assert amap.get(os.environ['SRE_ALERT_1'])=='OPEN',amap
+          assert amap.get(os.environ['SRE_ALERT_2'])=='OPEN',amap
+          remeds=q('SELECT directive_id,source_alert_id,status,applied_at,resolution_evidence_json FROM remediation_directives WHERE source_alert_id IN (?1,?2,?3) ORDER BY directive_id',[os.environ['FUNCTIONAL_ALERT'],os.environ['SRE_ALERT_1'],os.environ['SRE_ALERT_2']])
+          holds=q('SELECT hold_key,directive_id,active,cleared_at FROM remediation_holds WHERE directive_id IN (SELECT directive_id FROM remediation_directives WHERE source_alert_id=?1) ORDER BY hold_key',[os.environ['FUNCTIONAL_ALERT']])
+          leases=q('SELECT status,COUNT(*) AS n FROM action_leases GROUP BY status ORDER BY status')
+          for path,obj in [('/tmp/roles-before.json',roles),('/tmp/protected-alerts-before.json',alerts),('/tmp/protected-remeds-before.json',remeds),('/tmp/functional-hold-before.json',holds),('/tmp/action-leases-before.json',leases)]:
+              json.dump(obj,open(path,'w'),sort_keys=True,indent=2)
+          open('/tmp/rollback.sql','w').write("DELETE FROM role_contracts WHERE contract_id='role:sre-observability-engineer' AND source_digest='"+os.environ['EXPECTED_DIGEST']+"';\n")
+          json.dump({'role_count_before':len(roles),'target_absent':True,'functional_hold_rows':len(holds),'protected_alerts':amap},open('/tmp/preconditions.json','w'),sort_keys=True,indent=2)
+          print('CHACHA_DEV_GUARDIAN_SRE_ROLE_PRECONDITIONS=PASS')
+          print('ROLE_COUNT_BEFORE='+str(len(roles)))
+          print('FUNCTIONAL_HOLD_ROWS='+str(len(holds)))
+          PY
+
+      - name: Persist rollback evidence before mutation
+        uses: actions/upload-artifact@v4
+        with:
+          name: guardian-sre-role-sync-v2-rollback
+          path: |
+            /tmp/roles-before.json
+            /tmp/protected-alerts-before.json
+            /tmp/protected-remeds-before.json
+            /tmp/functional-hold-before.json
+            /tmp/action-leases-before.json
+            /tmp/preconditions.json
+            /tmp/rollback.sql
+            /tmp/expected-contract.json
+            /tmp/guardian-target.json
+          retention-days: 30
+
+      - name: Upsert exact SRE role and verify with automatic rollback
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,urllib.request,traceback
+          token=os.environ['CF_API_TOKEN']; target=json.load(open('/tmp/guardian-target.json'))
+          h={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          url=f"https://api.cloudflare.com/client/v4/accounts/{target['account_id']}/d1/database/{target['database_id']}/query"
+          def q(sql,params=None):
+              body={'sql':sql}
+              if params is not None: body['params']=params
+              data=json.dumps(body).encode()
+              with urllib.request.urlopen(urllib.request.Request(url,headers=h,method='POST',data=data),timeout=30) as r:p=json.load(r)
+              assert p.get('success') is True,p
+              out=[]
+              for b in p.get('result') or []: out.extend(b.get('results') or [])
+              return out
+          c=json.load(open('/tmp/expected-contract.json'))
+          before=json.load(open('/tmp/roles-before.json'))
+          alerts_before=json.load(open('/tmp/protected-alerts-before.json'))
+          remeds_before=json.load(open('/tmp/protected-remeds-before.json'))
+          holds_before=json.load(open('/tmp/functional-hold-before.json'))
+          leases_before=json.load(open('/tmp/action-leases-before.json'))
+          j=lambda v:json.dumps(v,sort_keys=True,separators=(',',':'))
+          mutated=False
+          try:
+              sql=('INSERT INTO role_contracts(contract_id,kind,allowed_actions_json,forbidden_actions_json,allowed_permissions_json,required_evidence_json,unknown_role,source_digest,updated_at) VALUES(?1,?2,?3,?4,?5,?6,0,?7,datetime(\'now\')) ON CONFLICT(contract_id) DO UPDATE SET kind=excluded.kind,allowed_actions_json=excluded.allowed_actions_json,forbidden_actions_json=excluded.forbidden_actions_json,allowed_permissions_json=excluded.allowed_permissions_json,required_evidence_json=excluded.required_evidence_json,unknown_role=excluded.unknown_role,source_digest=excluded.source_digest,updated_at=datetime(\'now\')')
+              q(sql,[c['contract_id'],c['kind'],j(c['allowed_actions']),j(c['forbidden_actions']),j(c['allowed_permissions']),j(c['required_evidence']),os.environ['EXPECTED_DIGEST']])
+              mutated=True
+              after=q('SELECT * FROM role_contracts ORDER BY contract_id')
+              alerts_after=q('SELECT alert_id,status FROM guardian_alerts WHERE alert_id IN (?1,?2,?3) ORDER BY alert_id',[os.environ['FUNCTIONAL_ALERT'],os.environ['SRE_ALERT_1'],os.environ['SRE_ALERT_2']])
+              remeds_after=q('SELECT directive_id,source_alert_id,status,applied_at,resolution_evidence_json FROM remediation_directives WHERE source_alert_id IN (?1,?2,?3) ORDER BY directive_id',[os.environ['FUNCTIONAL_ALERT'],os.environ['SRE_ALERT_1'],os.environ['SRE_ALERT_2']])
+              holds_after=q('SELECT hold_key,directive_id,active,cleared_at FROM remediation_holds WHERE directive_id IN (SELECT directive_id FROM remediation_directives WHERE source_alert_id=?1) ORDER BY hold_key',[os.environ['FUNCTIONAL_ALERT']])
+              leases_after=q('SELECT status,COUNT(*) AS n FROM action_leases GROUP BY status ORDER BY status')
+              target_id=os.environ['TARGET_CONTRACT']
+              assert [x for x in after if x.get('contract_id')!=target_id]==[x for x in before if x.get('contract_id')!=target_id],'OTHER_ROLE_CONTRACT_CHANGED'
+              row=[x for x in after if x.get('contract_id')==target_id]
+              assert len(row)==1,row
+              row=row[0]
+              assert row['kind']==c['kind']
+              assert json.loads(row['allowed_actions_json'])==c['allowed_actions']
+              assert json.loads(row['forbidden_actions_json'])==c['forbidden_actions']
+              assert json.loads(row['allowed_permissions_json'])==c['allowed_permissions']
+              assert json.loads(row['required_evidence_json'])==c['required_evidence']
+              assert int(row.get('unknown_role') or 0)==0
+              assert row['source_digest']==os.environ['EXPECTED_DIGEST']
+              assert len(after)==len(before)+1,(len(before),len(after))
+              assert alerts_after==alerts_before,(alerts_before,alerts_after)
+              assert remeds_after==remeds_before,(remeds_before,remeds_after)
+              assert holds_after==holds_before,(holds_before,holds_after)
+              assert leases_after==leases_before,(leases_before,leases_after)
+              for path,obj in [('/tmp/roles-after.json',after),('/tmp/protected-alerts-after.json',alerts_after),('/tmp/protected-remeds-after.json',remeds_after),('/tmp/functional-hold-after.json',holds_after),('/tmp/action-leases-after.json',leases_after)]:
+                  json.dump(obj,open(path,'w'),sort_keys=True,indent=2)
+              print('CHACHA_DEV_GUARDIAN_SRE_ROLE_READBACK=PASS')
+              print('OTHER_ROLE_CONTRACTS_UNTOUCHED=YES')
+              print('SRE_ALERTS_UNTOUCHED=YES')
+              print('ACTION_LEASES_UNTOUCHED=YES')
+              print('FUNCTIONAL_REMEDIATION_UNTOUCHED=YES')
+              print('GUARDIAN_LATCH_PROJECTION_UNTOUCHED=YES')
+              print('CONTRACT_DIGEST='+row['source_digest'])
+          except Exception:
+              traceback.print_exc()
+              if mutated:
+                  q('DELETE FROM role_contracts WHERE contract_id=?1 AND source_digest=?2',[os.environ['TARGET_CONTRACT'],os.environ['EXPECTED_DIGEST']])
+                  rolled=q('SELECT * FROM role_contracts ORDER BY contract_id')
+                  json.dump(rolled,open('/tmp/roles-rollback.json','w'),sort_keys=True,indent=2)
+                  assert rolled==before,'ROLLBACK_MISMATCH'
+                  print('CHACHA_DEV_GUARDIAN_SRE_ROLE_AUTOMATIC_ROLLBACK=PASS')
+              raise
+          PY
+          echo CHACHA_DEV_GUARDIAN_SRE_ROLE_SYNC=PASS
+          echo WORKER_DEPLOY=NO
+          echo PLATFORM_CURRENT_SWITCH=NO
+          echo REMOTE_MCP_ACTIVATION=NO
+          echo NATIVE_LOCAL_QWEN_ACTIVATION=NO
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+
+      - name: Persist post-mutation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: guardian-sre-role-sync-v2-after
+          path: |
+            /tmp/roles-after.json
+            /tmp/roles-rollback.json
+            /tmp/protected-alerts-after.json
+            /tmp/protected-remeds-after.json
+            /tmp/functional-hold-after.json
+            /tmp/action-leases-after.json
+          retention-days: 30
+          if-no-files-found: ignore
