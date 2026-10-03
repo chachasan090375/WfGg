@@ -1,12 +1,12 @@
 {
   "schema": "chacha.dev/autonomy-gap-roadmap/v1",
   "scope": "chacha-dev-only",
-  "updated_at": "2026-10-03T10:45:00Z",
-  "score_percent": 73,
+  "updated_at": "2026-10-03T17:30:00Z",
+  "score_percent": 70,
   "score_label": "Couverture de la feuille de route autonomie",
   "counts": {
     "GREEN": 3,
-    "ORANGE": 8,
+    "ORANGE": 9,
     "RED": 1
   },
   "legend": {
@@ -78,6 +78,14 @@
       "progress": 70,
       "state": "NAS_TIERING_SHADOW_PROVEN",
       "evidence": "Cognitive Memory Fabric fédère les briques existantes : Memory Router/Curator, persistance SQLite par agent et bootstrap historique 1157/1157. Le tiering VPS HOT vers NAS LONG_TERM est maintenant prouvé en shadow : publication create-only via nas-ssh-adapter, readback séparé read-only avec SHA-256 obligatoire, restore isolé SQLite PASS. Native Local/Qwen reste advisory-only et non activé ; restent l’intégration runtime gouvernée, la réplication programmée et l’activation production séparée."
+    },
+    {
+      "id": "multi-specialist-intelligence",
+      "label": "Intelligence multi-spécialiste par domaine",
+      "status": "ORANGE",
+      "progress": 25,
+      "state": "SPECIALIST_MEMORY_POLICY_SHADOW_DESIGNED",
+      "evidence": "Domain Orchestration, Agent Foundry, Technology Watch et Dark Intelligence fournissent déjà les briques de collecte/routage. Une politique Specialist Knowledge Plane est maintenant dessinée : namespaces mémoire par domaine, provenance/fraîcheur/corroboration obligatoires, dark sources uniquement après dossier corroboré, score d’expertise mesurable et aucune extension de permissions. Restent la construction des corpus spécialisés, leur alimentation continue, les benchmarks/certifications par domaine et l’intégration runtime des agents."
     },
     {
       "id": "persistent-missions",

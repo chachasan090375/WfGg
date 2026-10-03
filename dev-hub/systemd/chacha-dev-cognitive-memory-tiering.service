@@ -1,0 +1,15 @@
+[Unit]
+Description=ChaCha DEV Cognitive Memory Fabric tiering shadow scheduler
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+Environment=PYTHONPATH=/opt/chacha-dev/platform/current/dev-hub/bin
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/cognitive-memory-tiering.py --policy /opt/chacha-dev/platform/current/dev-hub/config/cognitive-memory-fabric.v1.json --trigger INTERVAL --shadow-execute
+NoNewPrivileges=true
+PrivateTmp=true
+MemoryMax=192M
+TasksMax=24

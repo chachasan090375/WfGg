@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/cognitive-memory-fabric-policy/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "scope": "PLATFORM_GLOBAL",
   "existing_sources": {
     "central_memory_snapshot": "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json",
@@ -70,7 +70,21 @@
     "expected_sha256_required": true,
     "restore_mode": "DISPOSABLE_WORKSPACE_ONLY",
     "active_memory_restore_authorized": false,
-    "production_activation_authorized": false
+    "production_activation_authorized": false,
+    "schedule_mode": "INTERVAL_PLUS_EVENTS",
+    "interval_seconds": 10800,
+    "material_change_required": true,
+    "event_triggers": [
+      "MISSION_ACCEPTED_COMPLETE",
+      "MEMORY_PROMOTED_TRUSTED",
+      "REUSABLE_ARCHITECTURE_CONSOLIDATED",
+      "AGENT_SPECIALIST_CORPUS_UPDATED"
+    ],
+    "hot_purge_automatic": false,
+    "hot_demote_automatic": false,
+    "readback_after_publish_required": true,
+    "restore_probe_interval_cycles": 8,
+    "tiering_ledger": "/opt/chacha-dev/runtime/knowledge/cognitive-memory-tiering-ledger.json"
   },
   "historical_bootstrap": {
     "source": "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json",
@@ -78,5 +92,6 @@
     "writes_performed": false,
     "raw_user_content_import_forbidden": true,
     "secret_material_import_forbidden": true
-  }
+  },
+  "specialist_memory_policy": "dev-hub/config/domain-specialist-memory.v1.json"
 }

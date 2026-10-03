@@ -1,0 +1,13 @@
+[Unit]
+Description=ChaCha DEV Cognitive Memory Fabric 3h tiering schedule
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=3h
+AccuracySec=2min
+RandomizedDelaySec=5min
+Persistent=true
+Unit=chacha-dev-cognitive-memory-tiering.service
+
+[Install]
+WantedBy=timers.target
