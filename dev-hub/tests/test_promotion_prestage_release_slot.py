@@ -37,6 +37,48 @@ with tempfile.TemporaryDirectory() as td:
  assert rows[r3]['action']=='KEEP' and rows[r2]['action']=='KEEP' and rows[r1]['action']=='RETIRE',rows
  assert staged['selected_rollback_revisions']==[r2],staged
  print('CHACHA_DEV_PROMOTION_PRESTAGE_SLOT_RESERVATION=PASS')
+
+
+# Active release metadata from newer promotions may carry rollback_path without rollback_revision.
+# The declared rollback path must remain protected and win the single staging rollback slot.
+with tempfile.TemporaryDirectory() as td:
+ t=Path(td);platform=t/'platform';rels=platform/'releases';rels.mkdir(parents=True);runtime=t/'runtime';runtime.mkdir()
+ r1='1'*40;r2='2'*40;r3='3'*40;cand='4'*40
+ p1=release(rels,'20260101-'+r1,r1);p2=release(rels,'20260201-'+r2,r2);p3=release(rels,'20260301-'+r3,r3)
+ save(p3/'.release-preparation.json',{'version':'1.0.0','rollback_path':str(p2.resolve())})
+ (platform/'current').symlink_to(p3,target_is_directory=True)
+ for i,r in enumerate((r1,r2),1):
+  save(runtime/'release-gates'/f'g{i}'/'install-pass.json',{'revision':r,'status':'PASS','direct_operator_health':'PASS','guardian_realtime':'PASS','observed_at':f'2026-0{i}-01T00:00:00Z'})
+ policy={'physical_release_retention':{'rollback_slots':2,'max_physical_releases_after_consolidation':3,'rollback_selection_strategy':'MOST_RECENT_STRONGLY_VERIFIED_DISTINCT_REVISIONS','runtime_evidence_root':str(runtime),'verification_evidence_root':str(t/'evidence'),'protect_declared_active_release_rollback':True}}
+ staged=ic.build_plan(platform,policy,t/'evidence',cand,'sha256:'+'b'*64)
+ rows={x['revision']:x for x in staged['rows']}
+ assert staged['declared_rollback_revision']==r2,staged
+ assert staged['declared_rollback_protected'] is True,staged
+ assert staged['selected_rollback_revisions']==[r2],staged
+ assert rows[r2]['action']=='KEEP' and rows[r2]['reason']=='DECLARED_ROLLBACK',rows
+ assert rows[r1]['action']=='RETIRE',rows
+ print('CHACHA_DEV_PROMOTION_ROLLBACK_PATH_PROTECTION=PASS')
+
+
+# Historical runtime gate files may be pruned, but a prior finalized governed promotion
+# remains durable proof that a physical release is a valid rollback candidate.
+with tempfile.TemporaryDirectory() as td:
+ t=Path(td);platform=t/'platform';rels=platform/'releases';rels.mkdir(parents=True);runtime=t/'runtime';runtime.mkdir()
+ r1='1'*40;r2='2'*40;r3='3'*40;cand='4'*40
+ p1=release(rels,'20260101-'+r1,r1);p2=release(rels,'20260201-'+r2,r2);p3=release(rels,'20260301-'+r3,r3)
+ save(p1/'.release-preparation.json',{'version':'1.0.0','promotion_acceptance_status':'PASS','promotion_final_verification':'PASS'})
+ save(p2/'.release-preparation.json',{'version':'1.0.0','promotion_acceptance_status':'PASS','promotion_final_verification':'PASS'})
+ save(p3/'.release-preparation.json',{'version':'1.0.0','rollback_path':str(p2.resolve()),'promotion_acceptance_status':'PASS','promotion_final_verification':'PASS'})
+ (platform/'current').symlink_to(p3,target_is_directory=True)
+ policy={'physical_release_retention':{'rollback_slots':2,'max_physical_releases_after_consolidation':3,'rollback_selection_strategy':'MOST_RECENT_STRONGLY_VERIFIED_DISTINCT_REVISIONS','runtime_evidence_root':str(runtime),'verification_evidence_root':str(t/'evidence'),'protect_declared_active_release_rollback':True}}
+ staged=ic.build_plan(platform,policy,t/'evidence',cand,'sha256:'+'c'*64)
+ rows={x['revision']:x for x in staged['rows']}
+ assert staged['declared_rollback_protected'] is True,staged
+ assert staged['selected_rollback_revisions']==[r2],staged
+ assert rows[r2]['reason']=='DECLARED_ROLLBACK' and rows[r1]['action']=='RETIRE',rows
+ assert staged['architecture_council_final_authority'] is False
+ assert staged['architecture_council_recommendation_authority'] is True
+ print('CHACHA_DEV_PROMOTION_FINALIZED_RELEASE_ROLLBACK_EVIDENCE=PASS')
  # Candidate must not exist before reservation plan.
  release(rels,'20260401-'+cand,cand)
  expect(lambda:ic.build_plan(platform,policy,t/'evidence',cand,'sha256:'+'a'*64),'PROMOTION_STAGING_CANDIDATE_ALREADY_MATERIALIZED')

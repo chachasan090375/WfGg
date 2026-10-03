@@ -163,7 +163,18 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
         prep=active/".release-preparation.json"
         if prep.is_file():
             try:
-                candidate=str(load(prep).get("rollback_revision") or "").lower().strip()
+                prep_meta=load(prep)
+                candidate=str(prep_meta.get("rollback_revision") or "").lower().strip()
+                if not candidate:
+                    rollback_path_raw=str(prep_meta.get("rollback_path") or "").strip()
+                    if rollback_path_raw:
+                        rollback_path=Path(rollback_path_raw)
+                        try:
+                            rollback_path.resolve().relative_to(releases_root.resolve())
+                        except (ValueError,FileNotFoundError):
+                            rollback_path=None
+                        if rollback_path is not None and rollback_path.is_dir():
+                            candidate=str(revision_of(rollback_path) or "").lower().strip()
                 if len(candidate)==40 and all(ch in "0123456789abcdef" for ch in candidate) and candidate!=str(active_revision or "").lower():
                     declared_rollback_revision=candidate
             except Exception:
@@ -187,6 +198,19 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
     evidence_root=evidence_root or Path(str(retention.get("verification_evidence_root") or "/opt/chacha-dev/evidence"))
     runtime_root=Path(str(retention.get("runtime_evidence_root") or "/opt/chacha-dev/runtime"))
     strong_ranks=strong_installed_revision_ranks(runtime_root)
+    # A physical release that previously completed a governed production promotion is also
+    # strong rollback evidence. This keeps historical rollback proofs durable even after
+    # older runtime release-gate files have been pruned.
+    for row in rows:
+        rev=str(row.get("revision") or "").lower()
+        prep_path=Path(str(row.get("path") or ""))/".release-preparation.json"
+        if len(rev)!=40 or not prep_path.is_file():continue
+        try: prior=load(prep_path)
+        except Exception:continue
+        final=str(prior.get("promotion_final_verification") or "").upper()
+        acceptance=str(prior.get("promotion_acceptance_status") or "").upper()
+        if acceptance=="PASS" and final.startswith("PASS"):
+            strong_ranks[rev]=max(strong_ranks.get(rev,0.0),_evidence_epoch(prior,prep_path))
     legacy_ranks=verified_revision_ranks(evidence_root)
     verified_ranks=dict(strong_ranks)
     verified=set(verified_ranks)
@@ -260,7 +284,7 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
       "git_history_preserved":True,"remote_branch_deletion":False,
       "canonical_observation_bus_rewrite":False,"benchmark_evidence_mutation":False,
       "active_self_mutation":False,"self_promotion":False,"permission_expansion":False,
-      "architecture_council_final_authority":True,"automatic_external_spend_eur":0
+      "architecture_council_final_authority":False,"architecture_council_recommendation_authority":True,"automatic_external_spend_eur":0
     }
 
 def apply_plan(plan:dict[str,Any],policy:dict[str,Any],approval:Path|None,archive:Path,explicit:bool)->dict[str,Any]:
