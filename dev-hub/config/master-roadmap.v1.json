@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-03T20:13:52Z",
+  "updated_at": "2026-10-03T20:24:24Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -261,7 +261,7 @@
     {
       "id": "specialist-intelligence",
       "priority": "P0",
-      "state": "SHADOW_FOUNDATION_PARTIAL",
+      "state": "RECURSIVE_SHADOW_FOUNDATION_IMPLEMENTED",
       "includes": [
         "Cognitive Memory Fabric",
         "Head+Arm domains",
@@ -412,7 +412,8 @@
       "order": 3,
       "id": "RECURSIVE_SPECIALIZATION_FOUNDATION",
       "action": "Migrate 673a5a9f from 2D to recursive specialization and converge onto production-derived CMF baseline; qualify before runtime routing.",
-      "state": "PENDING"
+      "state": "SHADOW_FOUNDATION_IMPLEMENTED_PENDING_EXACT_SHA_CI",
+      "evidence": "Recursive Specialization Fabric V2 implemented over preserved 2D Head+Arm/archetype foundation: deliverable taxonomy, recursive project→deliverable→module→submodule→domain→capability classification, ownership tree + dependency DAG, shared-component reuse, inherited constraints, uncertainty shadow route, recursion/cycle guards, UMG birth-contract check and mixed-project shadow pilot."
     },
     {
       "order": 4,

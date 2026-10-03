@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "chacha.dev/recursive-specialization-node/v1",
+  "title": "Recursive Specialization Solution Graph",
+  "type": "object",
+  "required": [
+    "schema",
+    "project_id",
+    "nodes"
+  ],
+  "properties": {
+    "schema": {
+      "const": "chacha.dev/recursive-specialization-graph/v1"
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "items": {
+        "type": "object",
+        "required": [
+          "node_id",
+          "node_kind",
+          "classification"
+        ],
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "parent_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "node_kind": {
+            "enum": [
+              "project",
+              "deliverable",
+              "module",
+              "submodule",
+              "domain",
+              "capability"
+            ]
+          },
+          "classification": {
+            "type": "object",
+            "properties": {
+              "deliverable_class": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "archetype": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "subtype": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "secondary": {
+                "type": "array"
+              }
+            },
+            "required": [
+              "confidence"
+            ]
+          },
+          "constraints_local": {
+            "type": "object"
+          },
+          "constraint_overrides": {
+            "type": "object"
+          },
+          "non_overridable_constraints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "domain_requirements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "capability_requirements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "shared_component_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
