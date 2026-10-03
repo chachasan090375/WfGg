@@ -1,0 +1,22 @@
+{
+  "schema": "chacha.dev/production-approval/v1",
+  "scope": "guardian-coverage-alignment-production",
+  "approved": true,
+  "approved_by": "operator",
+  "candidate_revision": "f58d76f034b7e5ec423e312d78f8ca92b8d92111",
+  "active_production_revision": "3d403f60fe1a5c836b6fb84ddef24b7d74378307",
+  "dry_run_digest": "sha256:0713bda01fecd04f990cae4306b71dc26b157a801666da5394a381433b4497e4",
+  "expected_component_upsert": ["governed-platform-promotion"],
+  "expected_component_delete": ["guardian-action-state-reconciler"],
+  "retain_without_change": ["role:guardian-action-state-reconciler", "action_lease_reconciliations", "guardian-worker-reconciliation-route"],
+  "worker_deploy": false,
+  "platform_current_switch": false,
+  "native_local_activation": false,
+  "guardian_latch_clear": false,
+  "functional_remediation_apply": false,
+  "coverage_alert_cleanup": false,
+  "manual_heartbeat_trigger": false,
+  "wait_for_existing_heartbeat_timer": true,
+  "destructive_cleanup": false,
+  "approval_basis": "operator Go immediately after exact bounded Guardian expected_components alignment dry-run"
+}
