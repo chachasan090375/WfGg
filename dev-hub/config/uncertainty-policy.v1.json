@@ -30,7 +30,9 @@
     "functional_preference_is_underdetermined": true,
     "irreversible_choice_requires_owner": true,
     "sensitive_approval_boundary": true,
-    "self_resolution_exhausted": true
+    "self_resolution_exhausted": true,
+    "route_or_authority_change": true,
+    "security_governance_boundary_change": true
   },
   "never_ask_human_for": [
     "tool-choice",

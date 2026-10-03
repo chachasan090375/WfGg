@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/operator-directive-registry-policy/v1",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "purpose": "Persist operator structural rules independently of any conversation and propagate them into ChaCha DEV governance.",
   "principles": {
     "operator_structural_rules_are_persistent": true,
@@ -212,6 +212,41 @@
       ],
       "backfill_required": true,
       "source_candidate_id": "opdir-candidate-9318f7bd633f423c9b715e1668891502"
+    },
+    {
+      "directive_id": "opdir-canonical-route-authority",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "SAFETY_GOVERNANCE",
+      "status": "ACTIVE",
+      "normalized_requirement": "Every functional, remote, fallback and technical execution path must match the canonical route-authority contract; unknown routes fail closed and no fallback may expand authority or bypass Guardian, Sentinelle or STOP.",
+      "required_sinks": [
+        "canonical-route-authority",
+        "direct-operator",
+        "remote-operator",
+        "central-orchestrator",
+        "scheduler",
+        "run-controller",
+        "guardian",
+        "sentinel",
+        "all-foundries",
+        "release-qualification"
+      ],
+      "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-route-fallback-no-authority-expansion",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "SAFETY_GOVERNANCE",
+      "status": "ACTIVE",
+      "normalized_requirement": "A fallback route is permitted only when predeclared and policy-compatible, preserves or reduces permissions, and never converts a security or policy denial into an alternate execution path.",
+      "required_sinks": [
+        "canonical-route-authority",
+        "capability-registry",
+        "execution-scheduler",
+        "provider-resolver",
+        "guardian"
+      ],
+      "backfill_required": true
     }
   ],
   "runtime": {

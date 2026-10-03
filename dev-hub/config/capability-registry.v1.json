@@ -4,7 +4,10 @@
     "provider_selection": "best-fit-with-fallback",
     "production_change_requires_approval": true,
     "record_provider_for_consequential_decisions": true,
-    "health_required_for_execution": true
+    "health_required_for_execution": true,
+    "canonical_route_authority_required": true,
+    "fallback_cannot_expand_authority": true,
+    "policy_denied_never_falls_back": true
   },
   "capabilities": {
     "source-control": {
@@ -119,6 +122,7 @@
           "cost_class": "low",
           "scope": "public-web",
           "fallback": [
+            "exa-mcp",
             "github"
           ]
         },
@@ -373,7 +377,9 @@
           "health": "runtime-check",
           "cost_class": "free",
           "scope": "vps",
-          "fallback": []
+          "fallback": [
+            "unitypy"
+          ]
         },
         {
           "id": "unitypy",
@@ -969,7 +975,9 @@
           "health": "runtime",
           "cost_class": "free",
           "scope": "test-preview-readonly",
-          "fallback": []
+          "fallback": [
+            "chacha-dev-architect"
+          ]
         },
         {
           "id": "chacha-dev-architect",
@@ -1478,6 +1486,32 @@
           "health": "platform-health",
           "cost_class": "local",
           "scope": "workspace",
+          "fallback": []
+        }
+      ]
+    },
+    "remote-governed-read": {
+      "class": "control",
+      "providers": [
+        {
+          "id": "chacha-remote-operator-mcp",
+          "status": "PILOT",
+          "health": "runtime-check",
+          "cost_class": "owned-zero-incremental",
+          "scope": "bounded-remote-read",
+          "fallback": []
+        }
+      ]
+    },
+    "remote-functional-build-intent": {
+      "class": "control",
+      "providers": [
+        {
+          "id": "chacha-remote-operator-mcp",
+          "status": "PILOT",
+          "health": "runtime-check",
+          "cost_class": "owned-zero-incremental",
+          "scope": "functional-build-handoff",
           "fallback": []
         }
       ]

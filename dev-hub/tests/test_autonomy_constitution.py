@@ -6,7 +6,7 @@ def run(*a):return subprocess.run([str(x) for x in a],text=True,stdout=subproces
 class ConstitutionTest(unittest.TestCase):
  def test_active_repository_passes(self):
   with tempfile.TemporaryDirectory() as t:
-   out=Path(t)/"out.json";p=run(TOOL,"--repo-root",ROOT,"--config",CFG,"--output",out);self.assertEqual(p.returncode,0,p.stdout);x=json.loads(out.read_text());self.assertEqual(x["status"],"PASS");self.assertEqual(x["clause_count"],15);self.assertEqual(x["blocked_count"],0)
+   out=Path(t)/"out.json";p=run(TOOL,"--repo-root",ROOT,"--config",CFG,"--output",out);self.assertEqual(p.returncode,0,p.stdout);x=json.loads(out.read_text());self.assertEqual(x["status"],"PASS");self.assertEqual(x["clause_count"],22);self.assertEqual(x["blocked_count"],0)
  def test_authoritative_source_drift_blocks(self):
   with tempfile.TemporaryDirectory() as t:
    tmp=Path(t)/"repo";shutil.copytree(ROOT/"dev-hub/config",tmp/"dev-hub/config")

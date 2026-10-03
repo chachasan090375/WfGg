@@ -92,10 +92,10 @@ def common_birth(name:str,row:dict[str,Any],policy:dict[str,Any],role_contract:d
       "version_or_fingerprint":digest({"name":name,"class":gclass,"sources":row.get("sources") or [],"metadata":meta}),
       "purpose":"Governed ChaCha DEV component: "+name,"scope":scope,
       "permissions":permissions or ["class-default-least-privilege"],
-      "budget_policy":"ZERO_INCREMENTAL_COST_DEFAULT","health_contract":"CLASS_DEFAULT_HEALTH",
-      "observability":"CANONICAL_REGISTRY_AND_CLASS_TELEMETRY","lifecycle":"ACTIVE",
-      "termination_policy":"RETIRE_VIA_INTENDANT","retention_policy":"CLASS_DEFAULT_RETENTION",
-      "purge_policy":"UNIVERSAL_HYGIENE","rollback_policy":"ROLLBACK_REQUIRED_WHEN_MATERIAL",
+      "budget_policy":"ZERO_INCREMENTAL_COST_DEFAULT","health_contract":meta.get("health_contract") or "CLASS_DEFAULT_HEALTH",
+      "observability":"CANONICAL_REGISTRY_AND_CLASS_TELEMETRY","lifecycle":meta.get("lifecycle") or "ACTIVE",
+      "termination_policy":meta.get("termination_policy") or "RETIRE_VIA_INTENDANT","retention_policy":meta.get("retention_policy") or "CLASS_DEFAULT_RETENTION",
+      "purge_policy":meta.get("purge_policy") or "UNIVERSAL_HYGIENE","rollback_policy":meta.get("rollback_policy") or "ROLLBACK_REQUIRED_WHEN_MATERIAL",
       "provenance":list(row.get("sources") or []),"compatibility":"RELEASE_QUALIFICATION_REQUIRED",
       "operator_directives":{"active_global_ids":list(directives.get("active_global_ids") or []),
                              "active_global_digest":directives.get("active_global_digest")},
@@ -173,6 +173,27 @@ def build_registry(repo:Path,policy:dict[str,Any])->dict[str,Any]:
         add_row(rows,source_row(name,gclass,policy,"guardian-role-contracts",
                                 {"scope":"PLATFORM","contract_id":contract.get("contract_id")}))
 
+    # Project-owned persistent runtimes are canonical inventory sources through their
+    # materialization manifests. This is generic and intentionally not provider-specific.
+    for path in sorted((repo/"dev-hub/projects").glob("*/runtime.materialization.v1.json")):
+        manifest=load(path,{})
+        if manifest.get("materialization_gate_required") is not True:
+            continue
+        name=str(manifest.get("component_id") or "").strip()
+        gclass=str(manifest.get("governance_class") or "").strip()
+        if not name or not gclass:
+            raise ValueError("PROJECT_RUNTIME_MANIFEST_IDENTITY_REQUIRED:"+str(path))
+        scope=str(manifest.get("scope") or "PROJECT").upper()
+        project_id=path.parent.name if scope=="PROJECT" else None
+        row=source_row(name,gclass,policy,"project-runtime-materialization",
+                       {"scope":scope,"project_id":project_id,"manifest":str(path.relative_to(repo)),
+                        "health_contract":manifest.get("health_contract"),"lifecycle":manifest.get("lifecycle"),
+                        "termination_policy":manifest.get("termination_policy"),"retention_policy":manifest.get("retention_policy"),
+                        "purge_policy":manifest.get("purge_policy"),"rollback_policy":manifest.get("rollback_policy")})
+        active=bool((manifest.get("activation") or {}).get("production_active"))
+        row["canonical_status"]="ACTIVE" if active else "REGISTERED_PENDING_ACTIVATION"
+        add_row(rows,row)
+
     objreg=load(repo/"dev-hub/config/object-registry.v1.json",{})
     for obj in objreg.get("objects") or []:
         if not isinstance(obj,dict):continue
@@ -204,7 +225,7 @@ def build_registry(repo:Path,policy:dict[str,Any])->dict[str,Any]:
             if scope=="PROJECT":caps=project_agents.get((str(project_id),name),caps)
             row["fleet_projection"]={"agent_id":name,"scope":scope,"project_id":project_id,
                                      "source":"canonical-component-registry","capabilities":caps}
-        row["canonical_status"]="ACTIVE"
+        row.setdefault("canonical_status","ACTIVE")
         row["automatic_external_spend_eur"]=0
     ordered=sorted(rows.values(),key=lambda x:str(x.get("component_id")))
     class_counts={}
