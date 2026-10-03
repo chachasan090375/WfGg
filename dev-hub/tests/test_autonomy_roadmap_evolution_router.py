@@ -16,26 +16,28 @@ with tempfile.TemporaryDirectory(prefix="roadmap-evolution-router-") as td:
     rt=Path(td)
     plan=router.build_plan(road,policy,canonical)
     assert plan["routing_complete"] is True,plan
-    assert plan["request_count"]==7,plan
+    expected_requests=sum(1 for g in road["gaps"] if g["status"] in policy["eligible_statuses"] and policy["rules"][g["id"]]["mode"]!="HUMAN_BOUNDARY")
+    assert plan["request_count"]==expected_requests,plan
     assert plan["closed_count"]==3,plan
     assert plan["human_boundary_count"]==1,plan
     assert plan["blocked_count"]==0,plan
     bygap={x["roadmap_gap_id"]:x for x in plan["requests"]}
     assert bygap["provider-independence"]["candidate_owner"]=="capability-foundry",bygap["provider-independence"]
     assert all(x["candidate_owner"]=="branch-foundry" for k,x in bygap.items() if k!="provider-independence")
+    assert bygap["cognitive-memory-fabric"]["component_id"]=="core:learning-fabric",bygap["cognitive-memory-fabric"]
     assert bygap["constitution"]["routing_mode"]=="GOVERNED_REASSESS",bygap["constitution"]
     assert plan["human_boundaries"][0]["gap_id"]=="resilience-ha",plan["human_boundaries"]
     assert all(x["direct_component_mutation"] is False and x["self_promotion"] is False for x in plan["requests"])
     first=router.apply_plan(rt,policy,plan)
-    assert first["managed_request_file_count"]==7,first
-    assert len(first["written_files"])==7,first
+    assert first["managed_request_file_count"]==expected_requests,first
+    assert len(first["written_files"])==expected_requests,first
     second=router.apply_plan(rt,policy,plan)
-    assert len(second["unchanged_files"])==7 and not second["written_files"],second
+    assert len(second["unchanged_files"])==expected_requests and not second["written_files"],second
     road2=copy.deepcopy(road)
     next(x for x in road2["gaps"] if x["id"]=="learning").update({"status":"GREEN","progress":100})
     plan2=router.build_plan(road2,policy,canonical)
     third=router.apply_plan(rt,policy,plan2)
-    assert plan2["request_count"]==6,plan2
+    assert plan2["request_count"]==expected_requests-1,plan2
     assert any("learning" in x for x in third["removed_stale_files"]),third
     bad=copy.deepcopy(policy);bad["rules"]["learning"]={"mode":"AUTO_REASSESS","component_id":"core:not-real"}
     blocked=router.build_plan(road,bad,canonical)
