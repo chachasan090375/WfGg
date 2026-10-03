@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/cognitive-memory-fabric-policy/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scope": "PLATFORM_GLOBAL",
   "existing_sources": {
     "central_memory_snapshot": "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.json",
@@ -58,6 +58,18 @@
     "raw_content_storage_forbidden": true,
     "content_digest_required": true,
     "evidence_refs_required": true,
+    "production_activation_authorized": false
+  },
+  "tiering": {
+    "hot_tier": "VPS",
+    "long_term_tier": "NAS",
+    "publish_adapter": "nas-ssh-adapter",
+    "readback_adapter": "nas-readback-adapter",
+    "production_remote_prefix": "knowledge/cognitive-memory/agents/",
+    "shadow_remote_prefix": "knowledge/cognitive-memory-shadow/",
+    "expected_sha256_required": true,
+    "restore_mode": "DISPOSABLE_WORKSPACE_ONLY",
+    "active_memory_restore_authorized": false,
     "production_activation_authorized": false
   },
   "historical_bootstrap": {
