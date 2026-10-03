@@ -1,0 +1,270 @@
+name: Guardian coverage alignment production
+
+on:
+  push:
+    branches:
+      - 'production-guardian-coverage-alignment-*'
+    paths:
+      - '.chacha-approvals/guardian-coverage-alignment/*.json'
+
+permissions:
+  contents: read
+
+env:
+  EXPECTED_CANDIDATE: f58d76f034b7e5ec423e312d78f8ca92b8d92111
+  EXPECTED_ACTIVE_PRODUCTION: 3d403f60fe1a5c836b6fb84ddef24b7d74378307
+  EXPECTED_DRY_RUN_DIGEST: sha256:0713bda01fecd04f990cae4306b71dc26b157a801666da5394a381433b4497e4
+  EXPECTED_PLATFORM_RUN: '37119281591'
+
+jobs:
+  align:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Resolve explicit operator approval
+        id: approval
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find .chacha-approvals/guardian-coverage-alignment -maxdepth 1 -type f -name '*.json' | sort)
+          test "${#files[@]}" = 1
+          FILE="${files[0]}"
+          python3 - "$FILE" "$GITHUB_OUTPUT" <<'PY2'
+          import json,re,sys
+          x=json.load(open(sys.argv[1],encoding='utf-8'))
+          assert x.get('schema')=='chacha.dev/production-approval/v1',x
+          assert x.get('scope')=='guardian-coverage-alignment-production',x
+          assert x.get('approved') is True and x.get('approved_by')=='operator',x
+          rev=str(x.get('candidate_revision') or '')
+          prod=str(x.get('active_production_revision') or '')
+          assert rev=='f58d76f034b7e5ec423e312d78f8ca92b8d92111' and re.fullmatch(r'[0-9a-f]{40}',rev),x
+          assert prod=='3d403f60fe1a5c836b6fb84ddef24b7d74378307' and re.fullmatch(r'[0-9a-f]{40}',prod),x
+          assert x.get('dry_run_digest')=='sha256:0713bda01fecd04f990cae4306b71dc26b157a801666da5394a381433b4497e4',x
+          assert x.get('expected_component_upsert')==['governed-platform-promotion'],x
+          assert x.get('expected_component_delete')==['guardian-action-state-reconciler'],x
+          assert x.get('retain_without_change')==['role:guardian-action-state-reconciler','action_lease_reconciliations','guardian-worker-reconciliation-route'],x
+          for k in ['worker_deploy','platform_current_switch','native_local_activation','guardian_latch_clear','functional_remediation_apply','coverage_alert_cleanup','manual_heartbeat_trigger','destructive_cleanup']:
+              assert x.get(k) is False,(k,x)
+          assert x.get('wait_for_existing_heartbeat_timer') is True,x
+          with open(sys.argv[2],'a') as f:
+              f.write('revision='+rev+'\n')
+          print('CHACHA_DEV_GUARDIAN_COVERAGE_OPERATOR_APPROVAL=PASS')
+          PY2
+
+      - name: Checkout exact approved candidate
+        run: |
+          set -euo pipefail
+          REV='${{ steps.approval.outputs.revision }}'
+          git fetch --depth=1 origin "$REV"
+          git checkout --detach "$REV"
+          test "$(git rev-parse HEAD)" = "$EXPECTED_CANDIDATE"
+          python3 - <<'PY2'
+          import hashlib,json
+          x=json.load(open('dev-hub/config/guardian-coverage-manifest.v1.json'))
+          rows={r['component_id']:r for r in x['expected_components']}
+          assert len(rows)==58,len(rows)
+          for cid in ['governed-platform-promotion','guardian-action-state-reconciler','guardian-critical-state-reconciler']:
+              assert cid in rows,cid
+          r=rows['governed-platform-promotion']
+          stable=json.dumps(r,sort_keys=True,separators=(',',':'))
+          assert hashlib.sha256(stable.encode()).hexdigest()=='ce37d4a92dce6dffa990448f3acda3504be88264140776f41243037d0625270e',r
+          print('CHACHA_DEV_GUARDIAN_COVERAGE_SOURCE_MANIFEST=PASS')
+          PY2
+
+      - name: Require exact-revision Sentinel attestation and platform qualification
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY2'
+          import json,os,urllib.parse,urllib.request,urllib.error
+          token=os.environ['CF_API_TOKEN']; aid=os.environ.get('CF_ACCOUNT_ID','').strip(); rev=os.environ['EXPECTED_CANDIDATE']
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(url,method='GET',body=None,headers_=None):
+              data=None if body is None else json.dumps(body).encode(); req=urllib.request.Request(url,headers=headers_ or headers,method=method,data=data)
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.loads(r.read())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode('utf-8','replace')
+                  try:p=json.loads(raw)
+                  except Exception:p={'raw':raw[:500]}
+                  return e.code,p
+          if not aid:
+              st,p=call('https://api.cloudflare.com/client/v4/accounts?per_page=50'); rows=(p.get('result') or []) if st==200 else []
+              if len(rows)!=1: raise SystemExit('ACCOUNT_RESOLUTION_FAILED')
+              aid=rows[0]['id']
+          st,p=call('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-sentinel'))
+          db=next((x for x in (p.get('result') or []) if x.get('name')=='chacha-dev-sentinel'),None)
+          if st!=200 or not db: raise SystemExit('SENTINEL_D1_MISSING')
+          url=f"https://api.cloudflare.com/client/v4/accounts/{aid}/d1/database/{db['uuid']}/query"
+          sql="SELECT revision,conclusion FROM technical_workflow_attestations WHERE repository=?1 AND revision=?2 AND workflow_name=?3 AND conclusion='PASS' LIMIT 1"
+          st,p=call(url,'POST',{'sql':sql,'params':[os.environ['GITHUB_REPOSITORY'],rev,'ChaCha DEV Sentinel technical assurance']})
+          rows=[]
+          for b in p.get('result') or []: rows.extend(b.get('results') or [])
+          if st!=200 or not p.get('success') or len(rows)!=1: raise SystemExit('SENTINEL_EXACT_SHA_ATTESTATION_MISSING')
+          gh={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'}
+          st,p=call('https://api.github.com/repos/'+os.environ['GITHUB_REPOSITORY']+'/actions/runs/'+os.environ['EXPECTED_PLATFORM_RUN'],headers_=gh)
+          if st!=200 or p.get('head_sha')!=rev or p.get('conclusion')!='success' or p.get('name')!='ChaCha DEV platform qualification': raise SystemExit('PLATFORM_QUALIFICATION_EXACT_SHA_MISSING')
+          print('CHACHA_DEV_GUARDIAN_COVERAGE_SENTINEL_EXACT_SHA=PASS')
+          print('CHACHA_DEV_GUARDIAN_COVERAGE_PLATFORM_EXACT_SHA=PASS')
+          PY2
+
+      - name: Resolve Guardian D1 target
+        id: cf
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY2'
+          import json,os,urllib.parse,urllib.request
+          token=os.environ['CF_API_TOKEN']; aid=os.environ.get('CF_ACCOUNT_ID','').strip(); h={'Authorization':'Bearer '+token}
+          def get(url):
+              with urllib.request.urlopen(urllib.request.Request(url,headers=h),timeout=30) as r:return r.status,json.loads(r.read())
+          if not aid:
+              st,p=get('https://api.cloudflare.com/client/v4/accounts?per_page=50'); rows=p.get('result') or []
+              if len(rows)!=1: raise SystemExit('ACCOUNT_RESOLUTION_FAILED')
+              aid=rows[0]['id']
+          st,p=get('https://api.cloudflare.com/client/v4/accounts/'+aid+'/d1/database?name='+urllib.parse.quote('chacha-dev-guardian'))
+          db=next((x for x in (p.get('result') or []) if x.get('name')=='chacha-dev-guardian'),None)
+          if st!=200 or not db: raise SystemExit('GUARDIAN_D1_MISSING')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('account_id='+aid+'\n'); f.write('database_id='+db['uuid']+'\n')
+          print('CHACHA_DEV_GUARDIAN_COVERAGE_TARGET=PASS')
+          PY2
+
+      - name: Prepare D1-only Wrangler contract
+        run: |
+          cat > .wrangler-guardian-coverage-align.jsonc <<EOF
+          {"name":"chacha-dev-guardian","main":"dev-hub/guardian/worker.js","compatibility_date":"2026-09-24","d1_databases":[{"binding":"DB","database_name":"chacha-dev-guardian","database_id":"${{ steps.cf.outputs.database_id }}"}]}
+          EOF
+
+      - name: Capture rollback snapshot and enforce preconditions
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --config=.wrangler-guardian-coverage-align.jsonc --json --command="SELECT * FROM expected_components ORDER BY component_id;" > /tmp/coverage-expected-before.json
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --config=.wrangler-guardian-coverage-align.jsonc --json --command="SELECT * FROM coverage_heartbeats WHERE component_id IN ('guardian-action-state-reconciler','guardian-critical-state-reconciler','governed-platform-promotion') ORDER BY component_id;" > /tmp/coverage-heartbeats-before.json
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --config=.wrangler-guardian-coverage-align.jsonc --json --command="SELECT * FROM guardian_alerts WHERE alert_id IN ('coverage-missing-guardian-action-state-reconciler','coverage-stale-guardian-action-state-reconciler') ORDER BY alert_id;" > /tmp/coverage-alerts-before.json
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --config=.wrangler-guardian-coverage-align.jsonc --json --command="SELECT * FROM remediation_directives WHERE source_alert_id IN ('coverage-missing-guardian-action-state-reconciler','coverage-stale-guardian-action-state-reconciler') ORDER BY directive_id;" > /tmp/coverage-remediations-before.json
+          python3 - <<'PY2'
+          import json
+          def rows(path):
+              raw=json.load(open(path)); out=[]
+              def walk(v):
+                  if isinstance(v,dict):
+                      if isinstance(v.get('results'),list): out.extend(v['results'])
+                      for z in v.values(): walk(z)
+                  elif isinstance(v,list):
+                      for z in v: walk(z)
+              walk(raw); return out
+          before=rows('/tmp/coverage-expected-before.json')
+          ids={r.get('component_id') for r in before}
+          if len(before)!=56: raise SystemExit('EXPECTED_COMPONENT_PRECOUNT_CHANGED:'+str(len(before)))
+          if 'guardian-action-state-reconciler' not in ids: raise SystemExit('RECONCILER_EXPECTATION_ALREADY_ABSENT')
+          if 'governed-platform-promotion' in ids: raise SystemExit('GOVERNED_PROMOTION_ALREADY_PRESENT')
+          if 'guardian-critical-state-reconciler' in ids: raise SystemExit('CRITICAL_STATE_RECONCILER_UNEXPECTEDLY_PRESENT')
+          row=next(r for r in before if r.get('component_id')=='guardian-action-state-reconciler')
+          q=lambda s:"'"+str(s).replace("'","''")+"'"
+          cols=['component_id','role','kind','enforcement_point','criticality','source_digest','updated_at']
+          vals=[q(row.get(c,'')) for c in cols]
+          sql=["DELETE FROM expected_components WHERE component_id='governed-platform-promotion';",
+               'INSERT INTO expected_components('+','.join(cols)+') VALUES('+','.join(vals)+') ON CONFLICT(component_id) DO UPDATE SET role=excluded.role,kind=excluded.kind,enforcement_point=excluded.enforcement_point,criticality=excluded.criticality,source_digest=excluded.source_digest,updated_at=excluded.updated_at;']
+          open('/tmp/coverage-align-rollback.sql','w').write('\n'.join(sql)+'\n')
+          print('CHACHA_DEV_GUARDIAN_COVERAGE_PRECONDITIONS=PASS')
+          print('EXPECTED_COMPONENTS_BEFORE=56')
+          PY2
+
+      - name: Persist pre-mutation rollback evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: guardian-coverage-alignment-rollback-0713bda
+          path: |
+            /tmp/coverage-expected-before.json
+            /tmp/coverage-heartbeats-before.json
+            /tmp/coverage-alerts-before.json
+            /tmp/coverage-remediations-before.json
+            /tmp/coverage-align-rollback.sql
+          retention-days: 30
+
+      - name: Execute bounded expected_components alignment with automatic rollback
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ steps.cf.outputs.account_id }}
+        run: |
+          set -euo pipefail
+          MUTATED=0
+          rollback() {
+            set +e
+            if [[ "$MUTATED" = 1 ]]; then
+              npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --file=/tmp/coverage-align-rollback.sql --config=.wrangler-guardian-coverage-align.jsonc
+            fi
+            echo CHACHA_DEV_GUARDIAN_COVERAGE_AUTOMATIC_ROLLBACK=PASS
+          }
+          trap rollback ERR
+          cat > /tmp/coverage-align-apply.sql <<'SQL'
+          INSERT INTO expected_components(component_id,role,kind,enforcement_point,criticality,source_digest,updated_at)
+          VALUES('governed-platform-promotion','governed-platform-promotion','controller','single-writer-lease+approved-platform-promotion-transaction','CRITICAL','ce37d4a92dce6dffa990448f3acda3504be88264140776f41243037d0625270e',datetime('now'))
+          ON CONFLICT(component_id) DO UPDATE SET role=excluded.role,kind=excluded.kind,enforcement_point=excluded.enforcement_point,criticality=excluded.criticality,source_digest=excluded.source_digest,updated_at=datetime('now');
+          DELETE FROM expected_components WHERE component_id='guardian-action-state-reconciler';
+          SQL
+          MUTATED=1
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --file=/tmp/coverage-align-apply.sql --config=.wrangler-guardian-coverage-align.jsonc
+          npx --yes wrangler@4.45.0 d1 execute chacha-dev-guardian --remote --config=.wrangler-guardian-coverage-align.jsonc --json --command="SELECT * FROM expected_components ORDER BY component_id;" > /tmp/coverage-expected-after.json
+          python3 - <<'PY2'
+          import json
+          def rows(path):
+              raw=json.load(open(path)); out=[]
+              def walk(v):
+                  if isinstance(v,dict):
+                      if isinstance(v.get('results'),list): out.extend(v['results'])
+                      for z in v.values(): walk(z)
+                  elif isinstance(v,list):
+                      for z in v: walk(z)
+              walk(raw); return out
+          after=rows('/tmp/coverage-expected-after.json'); ids={r.get('component_id') for r in after}
+          manifest=json.load(open('dev-hub/config/guardian-coverage-manifest.v1.json'))
+          candidate_ids={r['component_id'] for r in manifest['expected_components']}
+          expected=candidate_ids-{'guardian-action-state-reconciler','guardian-critical-state-reconciler'}
+          if len(after)!=56 or ids!=expected: raise SystemExit('POSTCONDITION_COMPONENT_SET_MISMATCH')
+          if 'guardian-action-state-reconciler' in ids: raise SystemExit('RECONCILER_EXPECTATION_STILL_PRESENT')
+          if 'guardian-critical-state-reconciler' in ids: raise SystemExit('CRITICAL_STATE_RECONCILER_PRESEEDED')
+          row=next((r for r in after if r.get('component_id')=='governed-platform-promotion'),None)
+          if not row: raise SystemExit('GOVERNED_PROMOTION_NOT_RESTORED')
+          assert row.get('role')=='governed-platform-promotion',row
+          assert row.get('kind')=='controller',row
+          assert row.get('enforcement_point')=='single-writer-lease+approved-platform-promotion-transaction',row
+          assert row.get('criticality')=='CRITICAL',row
+          assert row.get('source_digest')=='ce37d4a92dce6dffa990448f3acda3504be88264140776f41243037d0625270e',row
+          print('CHACHA_DEV_GUARDIAN_COVERAGE_D1_READBACK=PASS')
+          print('EXPECTED_COMPONENTS_AFTER=56')
+          print('RECONCILER_EXPECTATION_PRESENT=NO')
+          print('GOVERNED_PLATFORM_PROMOTION_PRESENT=YES')
+          PY2
+          trap - ERR
+          echo CHACHA_DEV_GUARDIAN_COVERAGE_ALIGNMENT=PASS
+          echo EXPECTED_COMPONENT_ROWS_MUTATED=2
+          echo ROLE_CONTRACT_MUTATION=NO
+          echo ACTION_LEASE_RECONCILIATION_TABLE_MUTATION=NO
+          echo COVERAGE_ALERT_CLEANUP=NO
+          echo FUNCTIONAL_REMEDIATION_APPLIED=NO
+          echo GUARDIAN_LATCH_CLEAR=NO
+          echo WORKER_DEPLOY=NO
+          echo PLATFORM_CURRENT_SWITCH=NO
+          echo MANUAL_HEARTBEAT_TRIGGER=NO
+          echo AUTOMATIC_EXTERNAL_SPEND_EUR=0
+
+      - name: Persist post-mutation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: guardian-coverage-alignment-after-0713bda
+          path: /tmp/coverage-expected-after.json
+          retention-days: 30
