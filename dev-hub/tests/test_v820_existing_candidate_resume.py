@@ -39,9 +39,11 @@ with tempfile.TemporaryDirectory(prefix='v820-resume-test-',dir=str(base_root)) 
     assert plain['status']=='NOT_APPLICABLE',plain
 
 orchestrator=(ROOT/'dev-hub/bin/autonomous-project-orchestrator.py').read_text()
-controller=(ROOT/'dev-hub/bin/central-interface-controller.py').read_text()
+controller=(ROOT/'dev-hub/bin/central-interface-controller-core.py').read_text()
+wrapper=(ROOT/'dev-hub/bin/central-interface-controller.py').read_text()
 assert 'existing-candidate-resume.py' in orchestrator
 assert 'synthetic_project_created":False' in orchestrator
 assert 'prior_next=="EXISTING_CANDIDATE_RELEASE"' in controller
 assert 'CANDIDATE_PUBLICATION_REQUIRED' in controller
+assert 'governed-project-control.py' in wrapper
 print('CHACHA_DEV_V820_EXISTING_CANDIDATE_RESUME=PASS')

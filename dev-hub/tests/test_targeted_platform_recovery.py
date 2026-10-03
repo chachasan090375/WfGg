@@ -26,7 +26,8 @@ with tempfile.TemporaryDirectory(prefix="targeted-platform-recovery-") as raw:
     assert direct.targeted_platform_recovery("Réparer dor-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","chacha-dev-platform",rt) is None
 
 
-central=loadmod("targeted_recovery_central",ROOT/"dev-hub/bin/central-interface-controller.py")
+central=loadmod("targeted_recovery_central",ROOT/"dev-hub/bin/central-interface-controller-core.py")
+wrapper=loadmod("targeted_recovery_wrapper",ROOT/"dev-hub/bin/central-interface-controller.py")
 with tempfile.TemporaryDirectory(prefix="targeted-central-recovery-") as raw:
     rt=Path(raw);(rt/"direct-operator/responses").mkdir(parents=True)
     request_id="dor-fedcba9876543210fedcba9876543210"
@@ -48,6 +49,14 @@ with tempfile.TemporaryDirectory(prefix="targeted-central-recovery-") as raw:
     assert called["continue"] is True and called["orchestrate"] is False
     proof=got["decision"]["targeted_platform_recovery"]
     assert proof["target_request_id"]==request_id and proof["generic_bootstrap_replayed"] is False
+
+    # The public CLI is now a governed wrapper. Function-level recovery remains
+    # in the qualified core, while every CLI invocation must inject governed
+    # Project Control and must ignore any caller-supplied --project-control.
+    argv=wrapper.governed_argv(["--repo-root",str(ROOT),"--project-control","/tmp/forbidden","instruction","--intent",str(intent),"--output-dir",str(rt/"out"),"--output",str(rt/"receipt.json")])
+    assert Path(argv[1]).name=="central-interface-controller-core.py"
+    assert Path(argv[3]).name=="governed-project-control.py"
+    assert "/tmp/forbidden" not in argv
 
 src=(ROOT/"dev-hub/bin/direct-operator-service.py").read_text(encoding="utf-8")
 assert 'elif command=="INSTRUCTION" and recovery_target:' in src
