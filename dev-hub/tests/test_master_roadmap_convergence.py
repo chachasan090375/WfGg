@@ -6,8 +6,8 @@ M=json.loads((ROOT/"dev-hub/config/master-roadmap.v1.json").read_text())
 assert M["authority"]["autonomy_gap_roadmap_role"]=="DERIVED_SPECIALIZED_VIEW_ONLY"
 assert M["baseline"]["historical_unreconciled_candidate_is_descendant_of_current_production"] is False
 assert M["baseline"]["production_ancestry_reconciled"] is True
-assert M["baseline"]["production_sha"]=="7e7decc758217bb20c142a1bef6799fd70f796a4"
-assert M["baseline"]["production_tree"]=="f8889d725829588ae2787a4efa5976266a846401"
+assert M["baseline"]["production_sha"]=="7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb"
+assert M["baseline"]["production_tree"]=="281bae46faa86e587416a29b5109b481855d0541"
 by={x["id"]:x for x in M["legacy_audit"]}
 assert by["v5-reference-architecture"]["classification"]=="RETAIN_EXTEND"
 assert by["project-planner-v1"]["classification"]=="MIGRATE"

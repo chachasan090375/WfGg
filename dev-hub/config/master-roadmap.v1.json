@@ -15,7 +15,7 @@
   "baseline": {
     "production_sha": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb",
     "production_tree": "281bae46faa86e587416a29b5109b481855d0541",
-    "mandatory_rule": "Every future production candidate must descend from finalized production 7e7decc758217bb20c142a1bef6799fd70f796a4 and preserve LOCAL_SQLITE Sovereign authority, Canonical Path anti-loop governance, CMF safety invariants, recursive specialization, Infrastructure Feasibility/Solution Composer contracts, promotion single-writer governance, STOP and all materially newer production fixes.",
+    "mandatory_rule": "Every future production candidate must descend from finalized production 7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb and preserve LOCAL_SQLITE Sovereign authority, Canonical Path anti-loop governance, CMF safety invariants, recursive specialization, Infrastructure Feasibility/Solution Composer contracts, F01 promotion transaction continuity, STOP and all materially newer production fixes.",
     "historical_unreconciled_candidate_sha": "f3a7e86b1fe9e6c5b1cfa7699ae9103ddde1ed95",
     "historical_unreconciled_candidate_is_descendant_of_current_production": false,
     "production_ancestry_reconciled": true,
@@ -28,8 +28,8 @@
     "cognitive_memory_production_tree": "24f562a29d3318e9b42c51cb67c787260c77f4d5",
     "recursive_specialization_production_sha": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
     "recursive_specialization_production_tree": "49ff3069f5f76e8d69d8f735ff0bf8328a6e90d7",
-    "previous_finalized_baseline_sha": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
-    "previous_finalized_baseline_tree": "49ff3069f5f76e8d69d8f735ff0bf8328a6e90d7",
+    "previous_finalized_baseline_sha": "7e7decc758217bb20c142a1bef6799fd70f796a4",
+    "previous_finalized_baseline_tree": "f8889d725829588ae2787a4efa5976266a846401",
     "feasibility_solution_composer_production_sha": "7e7decc758217bb20c142a1bef6799fd70f796a4",
     "feasibility_solution_composer_production_tree": "f8889d725829588ae2787a4efa5976266a846401",
     "previous_production_sha": "7e7decc758217bb20c142a1bef6799fd70f796a4",
@@ -731,23 +731,23 @@
     "post_interrupt_production_baseline": "c514e1fe3a2b5976a729c7cebc4cfdff726a2369"
   },
   "current_runtime_state": {
-    "active_revision": "7e7decc758217bb20c142a1bef6799fd70f796a4",
-    "active_tree": "f8889d725829588ae2787a4efa5976266a846401",
-    "active_scope": "FEASIBILITY_AND_SOLUTION_COMPOSER",
+    "active_revision": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb",
+    "active_tree": "281bae46faa86e587416a29b5109b481855d0541",
+    "active_scope": "F01_PROMOTION_TRANSACTION_CONTINUITY",
     "activation_status": "PRODUCTION_ACTIVE_FINALIZED",
     "transaction_status": "FINALIZED",
-    "rollback_revision": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
-    "secondary_preserved_revision": "439db7584ab721d32b4e9e6bf89db5a63849ce93",
+    "rollback_revision": "7e7decc758217bb20c142a1bef6799fd70f796a4",
+    "secondary_preserved_revision": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
     "stop": false,
-    "controlled_cycle": "906->907 CONVERGED RESUME",
-    "automatic_timer_cycle": "907->908 CONVERGED RESUME",
-    "finalization_lease_id": "promotion-1ffc199701a54423bdab4c6ae5b71813"
+    "controlled_cycle": "925->926 CONVERGED RESUME",
+    "automatic_timer_cycle": "926->927 CONVERGED RESUME",
+    "finalization_lease_id": "promotion-23f0a18a875749ce9c13d9cd513f245e"
   },
   "functional_execution_order_v2": {
     "schema": "chacha.dev/master-roadmap-functional-execution-order/v2",
     "authority": "PRIMARY_CURRENT_EXECUTION_VIEW",
     "ordering_principle": "Hard functional dependency and core safety determine order. Historical train numbering never determines current execution order. Reuse qualified shadow work and unchanged evidence; do not rebuild unchanged scope.",
-    "current_focus": "F01_PROMOTION_TRANSACTION_CONTINUITY",
+    "current_focus": "F02_F03_ARTIFACT_SPECIALIST_CURRENT_LINE_RECONCILIATION",
     "phases": [
       {
         "phase": "F00",
