@@ -1,0 +1,28 @@
+{
+  "schema": "chacha.dev/current-line-reconciliation-evidence/v1",
+  "phase": "F09",
+  "status": "PASS",
+  "parent_revision": "065d96c538dd7001cd23b7841de705af802338fd",
+  "historical_sources": [
+    "eb8614ef2484473a4627bbab1125b75d89a17196",
+    "793ea0e6487c35b90986ff6555984430336ba0a0",
+    "ae002f634a5b15794dbd1433c9cb056b90049e23"
+  ],
+  "consultant_scope_included": false,
+  "tests": [
+    "update lifecycle PASS",
+    "plugin lifecycle PASS",
+    "CORE_LOCKED PASS",
+    "recipe preservation PASS",
+    "structural core uninstall BLOCKED",
+    "Direct Operator V805 PASS",
+    "Factory 5/5 PASS",
+    "directives PASS"
+  ],
+  "umg": [
+    "core:update-train-lifecycle PASS",
+    "core:plugin-center PASS"
+  ],
+  "production_activation": false,
+  "automatic_external_spend_eur": 0
+}

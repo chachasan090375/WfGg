@@ -1023,7 +1023,7 @@
         "phase": "F09",
         "id": "PLUGIN_AND_UPDATE_LIFECYCLE",
         "priority": "P1",
-        "state": "EXACT_SHA_QUALIFIED_SHADOW_TO_RECONCILE",
+        "state": "CURRENT_LINE_RECONCILED_LOCAL_AND_UMG_PASS_PENDING_EXACT_SHA_CI",
         "depends_on": [
           "F08"
         ],
@@ -1037,6 +1037,12 @@
           "disable/uninstall/reinstall",
           "CORE_LOCKED structural boundary",
           "Update Center"
+        ],
+        "reconciled_parent": "065d96c538dd7001cd23b7841de705af802338fd",
+        "qualification": "Update Train Lifecycle PASS; Plugin Center lifecycle/core-lock/recipe preservation PASS; Direct Operator V805 PASS; Factory 5/5 PASS; directives PASS; UMG CHECK-ONLY core:update-train-lifecycle and core:plugin-center PASS; Consultant intentionally excluded to F10.",
+        "umg_components": [
+          "core:update-train-lifecycle",
+          "core:plugin-center"
         ]
       },
       {
