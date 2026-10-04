@@ -1,0 +1,86 @@
+{
+  "schema": "chacha.dev/feasibility-solution-sovereign-shadow-pilot/v1",
+  "status": "PASS",
+  "generated_at": "2026-10-04T10:45:31.022638Z",
+  "production_base_revision": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
+  "production_base_tree": "49ff3069f5f76e8d69d8f735ff0bf8328a6e90d7",
+  "infrastructure_verdict": "NOT_FIT",
+  "hard_gaps": [
+    {
+      "dimension": "cpu_cores",
+      "required": 4.0,
+      "usable": 1.5
+    },
+    {
+      "dimension": "ram_gib",
+      "required": 8.0,
+      "usable": 1.345
+    }
+  ],
+  "usable_capacity": {
+    "cpu_cores": 1.5,
+    "ram_gib": 1.3454,
+    "storage_free_gib": 11.9119,
+    "gpu_vram_gib": 0.0,
+    "storage_iops": 0.0,
+    "network_mbps": 0.0
+  },
+  "target_infrastructure_architecture": {
+    "minimum_profile": {
+      "cpu_cores": 5.33,
+      "ram_gib": 11.43,
+      "storage_free_gib": 14.01,
+      "gpu_vram_gib": 0.0,
+      "storage_iops": 0.0,
+      "network_mbps": 0.0
+    },
+    "recommended_profile": {
+      "cpu_cores": 6.66,
+      "ram_gib": 14.29,
+      "storage_free_gib": 17.51,
+      "gpu_vram_gib": 0.0,
+      "storage_iops": 0.0,
+      "network_mbps": 0.0
+    },
+    "missing_components": [
+      {
+        "dimension": "cpu_cores",
+        "required": 4.0,
+        "usable": 1.5
+      },
+      {
+        "dimension": "ram_gib",
+        "required": 8.0,
+        "usable": 1.345
+      }
+    ],
+    "placement_policy": "select zero-incremental-cost existing hosts first; add runner only when a required platform/device class is unavailable",
+    "migration_path": [
+      "preserve current production",
+      "provision isolated target runner",
+      "qualify target capabilities",
+      "bind only after Guardian/Sentinel and human approval if material"
+    ],
+    "cost_boundary": "NO_AUTOMATIC_EXTERNAL_SPEND",
+    "risks": [
+      "capacity mismatch until target is provisioned",
+      "platform-specific runners may be required"
+    ]
+  },
+  "solution_status": "DESIGN_READY_EXECUTION_BLOCKED_INFRASTRUCTURE",
+  "solution_graph_node_count": 5,
+  "execution_blocked": true,
+  "execution_authority": false,
+  "production_authority": false,
+  "requires_recursive_specialization_resolution": true,
+  "automatic_external_spend_eur": 0,
+  "umg_checks": {
+    "infrastructure-feasibility-auditor": "PASS",
+    "solution-composer": "PASS"
+  },
+  "evidence_digests": {
+    "infrastructure-feasibility-vps-observation-2026-10-04.json": "sha256:6470a069c74315c553a78984aa82f9e288d59960cc7958a82e1a86c6adbcc07f",
+    "infrastructure-feasibility-vps-reference-pilot-2026-10-04.json": "sha256:d9a2770c507260fa4e108b6b7eec0998bc0c2d664ddfcddb48d4bc5c9a410e88",
+    "solution-composer-vps-not-fit-shadow-pilot-2026-10-04.json": "sha256:15b2815208e954b2b6d8135189b3c84e55f45eabbce84a5c3adead736c632cab"
+  }
+}

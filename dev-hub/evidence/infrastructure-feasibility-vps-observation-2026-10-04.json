@@ -1,0 +1,22 @@
+{
+  "infrastructure_id": "chacha-vps-observed-2026-10-04",
+  "cpu_cores": 2,
+  "ram_gib": 1.922,
+  "gpu_vram_gib": 0,
+  "storage_free_gib": 14.014,
+  "storage_iops": 0,
+  "network_mbps": 0,
+  "latency_ms": 0,
+  "os_families": [
+    "linux"
+  ],
+  "runtimes": [
+    "python",
+    "node"
+  ],
+  "virtualization": [],
+  "device_access": [],
+  "availability": "single-host",
+  "observed_at": "2026-10-04T10:44:04.641311Z",
+  "source": "local kernel/filesystem observation; logical runtime aliases normalized; unknown dimensions left zero"
+}
