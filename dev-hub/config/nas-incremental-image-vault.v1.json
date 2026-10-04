@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/nas-incremental-image-vault/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "mode": "SHADOW_READY",
   "purpose": "Keep reconstructible, versioned ChaCha DEV logical images on the 18 TB NAS volume using the 4 TB ChaCha persistence volume as source.",
   "nas_host": "chachanas",
@@ -21,7 +21,19 @@
       "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.db",
       "/opt/chacha-dev/runtime/knowledge/learning-deltas.db",
       "/opt/chacha-dev/runtime/agent-observation/observations.db"
-    ]
+    ],
+    "git_reconstruction_source": {
+      "mode": "DEDICATED_COMPLETE_BARE_REPOSITORY",
+      "path": "/opt/chacha-dev/runtime/nas-image-vault/git-reconstruction-source.git",
+      "remote_url": "git@github.com:chachasan090375/WfGg.git",
+      "active_branch": "chacha-active",
+      "fetch_exact_active_revision": true,
+      "require_non_shallow": true,
+      "fsck_required": true,
+      "bundle_clean_clone_probe_required": true,
+      "network_refresh_only_when_snapshot_required": true,
+      "production_workspace_may_remain_shallow": true
+    }
   },
   "snapshot": {
     "strategy": "RSYNC_HARDLINK_INCREMENTAL",
@@ -37,7 +49,9 @@
     "post_copy_rsync_dry_run_must_be_empty": true,
     "core_capsule_sha256_manifest_required": true,
     "restore_probe_required": true,
-    "image_status_required": "RESTORE_VERIFIED"
+    "image_status_required": "RESTORE_VERIFIED",
+    "clean_host_reconstruction_rehearsal_required": true,
+    "bundle_must_clone_on_empty_host": true
   },
   "retention": {
     "automatic_prune_enabled": false,

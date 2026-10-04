@@ -1,0 +1,95 @@
+{
+  "schema": "chacha.dev/clean-host-reconstruction-rehearsal/v1",
+  "status": "PASS",
+  "mode": "ISOLATED_NON_MUTATING",
+  "capsule": "backups/core-capsule/current",
+  "production_revision": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb",
+  "git_head": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb",
+  "manifest_hash_checks": [
+    {
+      "file": "WfGg.bundle",
+      "present": true,
+      "digest_match": true
+    },
+    {
+      "file": "active-release.tar.gz",
+      "present": true,
+      "digest_match": true
+    },
+    {
+      "file": "runtime-db/guardian.db",
+      "present": true,
+      "digest_match": true
+    },
+    {
+      "file": "runtime-db/sentinel.db",
+      "present": true,
+      "digest_match": true
+    },
+    {
+      "file": "runtime-db/assurance-exchange.db",
+      "present": true,
+      "digest_match": true
+    },
+    {
+      "file": "runtime-db/central-memory-assimilation.db",
+      "present": true,
+      "digest_match": true
+    },
+    {
+      "file": "runtime-db/learning-deltas.db",
+      "present": true,
+      "digest_match": true
+    },
+    {
+      "file": "runtime-db/observations.db",
+      "present": true,
+      "digest_match": true
+    }
+  ],
+  "git_bundle_verify": "PASS",
+  "git_clone_from_bundle": "PASS",
+  "git_bundle_branch": "chacha-active",
+  "git_head_reconstructed": "PASS",
+  "git_fsck": "PASS",
+  "release_archive_safe_extract": "PASS",
+  "release_archive_member_count": 1745,
+  "release_revision_verified": true,
+  "sqlite_integrity": [
+    {
+      "file": "runtime-db/guardian.db",
+      "integrity_check": "ok"
+    },
+    {
+      "file": "runtime-db/sentinel.db",
+      "integrity_check": "ok"
+    },
+    {
+      "file": "runtime-db/assurance-exchange.db",
+      "integrity_check": "ok"
+    },
+    {
+      "file": "runtime-db/central-memory-assimilation.db",
+      "integrity_check": "ok"
+    },
+    {
+      "file": "runtime-db/learning-deltas.db",
+      "integrity_check": "ok"
+    },
+    {
+      "file": "runtime-db/observations.db",
+      "integrity_check": "ok"
+    }
+  ],
+  "repo_file_count": 1673,
+  "release_file_count": 1654,
+  "systemd_started": false,
+  "current_link_modified": false,
+  "network_dependency_after_capsule_copy": false,
+  "automatic_external_spend_eur": 0,
+  "production_authority": false,
+  "capsule_source": "NAS_VAULT_IMAGE",
+  "nas_image_id": "20261004T191350Z",
+  "nas_image_path": "/share/CACHEDEV2_DATA/ChaCha-DEV-Image-Vault/images/20261004T191350Z",
+  "verified_at": "2026-10-04T19:15:01Z"
+}

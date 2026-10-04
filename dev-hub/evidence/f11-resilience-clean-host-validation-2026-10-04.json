@@ -1,0 +1,64 @@
+{
+  "schema": "chacha.dev/f11-resilience-clean-host-validation/v1",
+  "status": "PASS",
+  "observed_at": "2026-10-04T19:13:50Z",
+  "production_revision": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb",
+  "image": {
+    "image_id": "20261004T191350Z",
+    "path": "/share/CACHEDEV2_DATA/ChaCha-DEV-Image-Vault/images/20261004T191350Z",
+    "previous_image": "20261004T142200Z",
+    "file_count": 9954,
+    "logical_bytes": 3561126710,
+    "post_copy_diff_empty": true
+  },
+  "git_bundle": {
+    "source": "DEDICATED_COMPLETE_BARE_REPOSITORY",
+    "branch": "chacha-active",
+    "digest": "sha256:5bbfa4773f0a1f2a65a84823d8d7b930fa1b2e7ded99424a8d280827499d44d5",
+    "clean_clone_verified": true,
+    "restore_probe_clone": "PASS",
+    "restore_probe_fsck": "PASS"
+  },
+  "clean_host_reconstruction": {
+    "status": "PASS",
+    "git_clone_from_bundle": "PASS",
+    "git_fsck": "PASS",
+    "git_head": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb",
+    "release_revision_verified": true,
+    "sqlite_integrity": [
+      {
+        "file": "runtime-db/guardian.db",
+        "integrity_check": "ok"
+      },
+      {
+        "file": "runtime-db/sentinel.db",
+        "integrity_check": "ok"
+      },
+      {
+        "file": "runtime-db/assurance-exchange.db",
+        "integrity_check": "ok"
+      },
+      {
+        "file": "runtime-db/central-memory-assimilation.db",
+        "integrity_check": "ok"
+      },
+      {
+        "file": "runtime-db/learning-deltas.db",
+        "integrity_check": "ok"
+      },
+      {
+        "file": "runtime-db/observations.db",
+        "integrity_check": "ok"
+      }
+    ],
+    "repo_file_count": 1673,
+    "release_file_count": 1654,
+    "systemd_started": false,
+    "current_link_modified": false,
+    "network_dependency_after_capsule_copy": false
+  },
+  "periodic_snapshot_timer": false,
+  "destructive_delete": false,
+  "production_authority": false,
+  "automatic_external_spend_eur": 0
+}

@@ -25,10 +25,52 @@ def sqlite_backup(src:Path,dst:Path):
     s=sqlite3.connect(f'file:{src}?mode=ro',uri=True); d=sqlite3.connect(dst)
     with d: s.backup(d)
     d.execute('pragma integrity_check').fetchone(); d.close(); s.close()
+def ensure_complete_git_source(policy:dict,revision:str)->Path:
+    cfg=(policy.get('core_capsule') or {}).get('git_reconstruction_source') or {}
+    mirror=Path(str(cfg.get('path') or '/opt/chacha-dev/runtime/nas-image-vault/git-reconstruction-source.git'))
+    remote=str(cfg.get('remote_url') or '').strip()
+    branch=str(cfg.get('active_branch') or 'chacha-active').strip()
+    if not remote: raise RuntimeError('GIT_RECONSTRUCTION_REMOTE_REQUIRED')
+    if not mirror.is_dir():
+        mirror.parent.mkdir(parents=True,exist_ok=True)
+        q=run(['git','init','--bare','-q',str(mirror)],120)
+        if q.returncode: raise RuntimeError('GIT_RECONSTRUCTION_INIT_FAILED:'+str(q.stderr)[-500:])
+    remotes=run(['git','--git-dir',str(mirror),'remote'],60)
+    if remotes.returncode: raise RuntimeError('GIT_RECONSTRUCTION_REMOTE_LIST_FAILED')
+    if 'origin' in str(remotes.stdout).split():
+        q=run(['git','--git-dir',str(mirror),'remote','set-url','origin',remote],60)
+    else:
+        q=run(['git','--git-dir',str(mirror),'remote','add','origin',remote],60)
+    if q.returncode: raise RuntimeError('GIT_RECONSTRUCTION_REMOTE_CONFIG_FAILED:'+str(q.stderr)[-500:])
+    ref='refs/heads/'+branch
+    q=run(['git','--git-dir',str(mirror),'fetch','--force','--no-tags','origin',revision+':'+ref],900)
+    if q.returncode: raise RuntimeError('GIT_RECONSTRUCTION_FETCH_FAILED:'+str(q.stderr)[-500:])
+    shallow=run(['git','--git-dir',str(mirror),'rev-parse','--is-shallow-repository'],60)
+    if shallow.returncode or str(shallow.stdout).strip().lower()!='false': raise RuntimeError('GIT_RECONSTRUCTION_SOURCE_NOT_COMPLETE')
+    q=run(['git','--git-dir',str(mirror),'cat-file','-e',revision+'^{commit}'],60)
+    if q.returncode: raise RuntimeError('GIT_RECONSTRUCTION_REVISION_MISSING:'+revision)
+    q=run(['git','--git-dir',str(mirror),'fsck','--full','--no-dangling'],300)
+    if q.returncode: raise RuntimeError('GIT_RECONSTRUCTION_FSCK_FAILED:'+str(q.stderr)[-500:])
+    return mirror
+
+def validate_bundle_clean_clone(bundle:Path,revision:str,tmp:Path,branch:str='chacha-active')->None:
+    clone=tmp/'bundle-clone-probe'
+    q=run(['git','clone','-q','-b',branch,str(bundle),str(clone)],300)
+    if q.returncode: raise RuntimeError('GIT_BUNDLE_CLEAN_CLONE_FAILED:'+str(q.stderr)[-500:])
+    q=run(['git','-C',str(clone),'rev-parse','HEAD'],60)
+    if q.returncode or str(q.stdout).strip()!=revision: raise RuntimeError('GIT_BUNDLE_CLONED_REVISION_MISMATCH')
+    q=run(['git','-C',str(clone),'fsck','--full','--no-dangling'],300)
+    if q.returncode: raise RuntimeError('GIT_BUNDLE_CLEAN_CLONE_FSCK_FAILED:'+str(q.stderr)[-500:])
+
 def build_capsule(repo:Path,policy:dict,tmp:Path)->dict:
     c=tmp/'core-capsule'; c.mkdir(parents=True)
-    bundle=c/'WfGg.bundle'; p=run(['git','-C',str(repo),'bundle','create',str(bundle),'--all'],900)
+    revision=active_revision()
+    cfg=(policy.get('core_capsule') or {}).get('git_reconstruction_source') or {}
+    branch=str(cfg.get('active_branch') or 'chacha-active')
+    git_source=ensure_complete_git_source(policy,revision)
+    bundle=c/'WfGg.bundle'; p=run(['git','--git-dir',str(git_source),'bundle','create',str(bundle),'refs/heads/'+branch],900)
     if p.returncode: raise RuntimeError('GIT_BUNDLE_FAILED:'+str(p.stderr)[-500:])
+    validate_bundle_clean_clone(bundle,revision,tmp,branch)
     rel=Path(active_release()); tar=c/'active-release.tar.gz'
     with tarfile.open(tar,'w:gz') as tf: tf.add(rel,arcname=rel.name,recursive=True)
     dbs=[]
@@ -38,7 +80,7 @@ def build_capsule(repo:Path,policy:dict,tmp:Path)->dict:
         dst=c/'runtime-db'/src.name
         sqlite_backup(src,dst); dbs.append({'source':raw,'file':str(dst.relative_to(c)),'sha256':sha(dst)})
     files={'WfGg.bundle':sha(bundle),'active-release.tar.gz':sha(tar)}
-    manifest={'schema':'chacha.dev/core-capsule-manifest/v1','created_at':iso(),'production_revision':active_revision(),'active_release':str(rel),'git_head':run(['git','-C',str(repo),'rev-parse','HEAD']).stdout.strip(),'files':files,'runtime_databases':dbs,'secrets_included':False}
+    manifest={'schema':'chacha.dev/core-capsule-manifest/v1','created_at':iso(),'production_revision':revision,'active_release':str(rel),'git_head':revision,'git_bundle_branch':branch,'git_reconstruction_source':'DEDICATED_COMPLETE_BARE_REPOSITORY','git_bundle_clean_clone_verified':True,'files':files,'runtime_databases':dbs,'secrets_included':False}
     (c/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
     manifest['manifest_sha256']=sha(c/'manifest.json')
     return manifest
@@ -73,13 +115,26 @@ def restore_probe(host:str,image_path:str,tmp:Path)->dict:
         proc=run(['/usr/bin/rsync','-a',src,str(dst)],900)
         if proc.returncode: raise RuntimeError('RESTORE_PROBE_RSYNC_FAILED:'+rel+':'+str(proc.stderr)[-300:])
     manifest=json.loads((probe/'manifest.json').read_text())
-    if manifest.get('production_revision')!=active_revision(): raise RuntimeError('RESTORE_PROBE_REVISION_MISMATCH')
-    gb=run(['git','bundle','verify',str(probe/'WfGg.bundle')],120)
+    revision=str(manifest.get('production_revision') or '')
+    if revision!=active_revision(): raise RuntimeError('RESTORE_PROBE_REVISION_MISMATCH')
+    if sha(probe/'WfGg.bundle')!=(manifest.get('files') or {}).get('WfGg.bundle'): raise RuntimeError('RESTORE_PROBE_BUNDLE_DIGEST_MISMATCH')
+    verify_repo=probe/'verify-repo'; verify_repo.mkdir()
+    init=run(['git','init','-q',str(verify_repo)],60)
+    if init.returncode: raise RuntimeError('RESTORE_PROBE_VERIFY_REPO_INIT_FAILED')
+    gb=run(['git','-C',str(verify_repo),'bundle','verify',str(probe/'WfGg.bundle')],120)
     if gb.returncode: raise RuntimeError('RESTORE_PROBE_GIT_BUNDLE_INVALID:'+str(gb.stderr)[-300:])
+    branch=str(manifest.get('git_bundle_branch') or 'chacha-active')
+    clone=probe/'clone'
+    gc=run(['git','clone','-q','-b',branch,str(probe/'WfGg.bundle'),str(clone)],300)
+    if gc.returncode: raise RuntimeError('RESTORE_PROBE_GIT_CLONE_FAILED:'+str(gc.stderr)[-300:])
+    head=run(['git','-C',str(clone),'rev-parse','HEAD'],60)
+    if head.returncode or str(head.stdout).strip()!=revision: raise RuntimeError('RESTORE_PROBE_GIT_HEAD_MISMATCH')
+    fsck=run(['git','-C',str(clone),'fsck','--full','--no-dangling'],300)
+    if fsck.returncode: raise RuntimeError('RESTORE_PROBE_GIT_FSCK_FAILED:'+str(fsck.stderr)[-300:])
     db=sqlite3.connect(f"file:{probe/'guardian.db'}?mode=ro",uri=True)
     integrity=db.execute('pragma integrity_check').fetchone()[0]; db.close()
     if integrity!='ok': raise RuntimeError('RESTORE_PROBE_SQLITE_INVALID')
-    return {'status':'PASS','git_bundle_verify':'PASS','sqlite_integrity':'ok','production_revision':manifest.get('production_revision')}
+    return {'status':'PASS','git_bundle_verify':'PASS','git_clean_clone':'PASS','git_fsck':'PASS','sqlite_integrity':'ok','production_revision':revision}
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument('--policy',type=Path,required=True);ap.add_argument('--repo-root',type=Path,required=True);ap.add_argument('--mode',choices=['plan','snapshot'],default='plan');ap.add_argument('--dirty-marker',type=Path);ap.add_argument('--output',type=Path,required=True);a=ap.parse_args()
