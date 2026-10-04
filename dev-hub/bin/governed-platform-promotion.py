@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,hashlib,json,os,re,shlex,sys,tempfile,time,urllib.parse,urllib.request
+import argparse,hashlib,json,os,re,shlex,subprocess,sys,tempfile,time,urllib.parse,urllib.request
 from pathlib import Path
 from typing import Any
 
@@ -102,6 +102,42 @@ def canonical_emergency_state(release_root:Path)->tuple[Path,Path]:
     if not state.is_file():raise ValueError('EMERGENCY_STATE_FILE_MISSING:'+str(state))
     return state,config_path
 
+SOVEREIGN_UNITS={
+  'assurance-exchange':'chacha-dev-sovereign-assurance-exchange.service',
+  'sentinel':'chacha-dev-sovereign-sentinel.service',
+  'learning-relay':'chacha-dev-sovereign-learning-relay.service',
+  'guardian':'chacha-dev-sovereign-guardian.service'
+}
+
+def sovereign_runtime_refresh(runtime_root:Path)->dict[str,Any]:
+    auth=runtime_root/'sovereign-state/authority.json'
+    if not auth.is_file():return {'status':'PASS','mode':'D1_REMOTE','refreshed':False,'reason':'AUTHORITY_FILE_ABSENT_DEFAULT_REMOTE'}
+    cfg=load(auth);mode=str(cfg.get('mode') or '')
+    if mode!='LOCAL_SQLITE':return {'status':'PASS','mode':mode or 'D1_REMOTE','refreshed':False,'reason':'LOCAL_AUTHORITY_INACTIVE'}
+    services=cfg.get('services') or {}
+    if set(services)!=set(SOVEREIGN_UNITS):raise ValueError('SOVEREIGN_LOCAL_SERVICE_SET_INVALID')
+    for svc in SOVEREIGN_UNITS:
+        if not loopback_url(str(services.get(svc) or '')):raise ValueError('SOVEREIGN_LOCAL_ENDPOINT_NOT_LOOPBACK:'+svc)
+    restarted=[]
+    for svc,unit in SOVEREIGN_UNITS.items():
+        p=subprocess.run(['/usr/bin/systemctl','restart',unit],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=45)
+        if p.returncode!=0:raise ValueError('SOVEREIGN_SERVICE_RESTART_FAILED:'+svc+':'+(p.stderr or '')[-300:])
+        restarted.append(unit)
+    health={}
+    for svc in SOVEREIGN_UNITS:
+        url=str(services[svc]).rstrip('/')+'/__sovereign/healthz';last=''
+        for i in range(1,31):
+            try:
+                with urllib.request.urlopen(url,timeout=4) as r:
+                    x=json.loads(r.read() or b'{}')
+                    if r.status==200 and x.get('status')=='ok' and x.get('state_backend')=='SQLITE_LOCAL':
+                        health[svc]=x;break
+                    last='NON_PASS_HEALTH'
+            except Exception as e:last=type(e).__name__
+            if i<30:time.sleep(.2)
+        if svc not in health:raise ValueError('SOVEREIGN_SERVICE_HEALTH_FAILED:'+svc+':'+last)
+    return {'status':'PASS','mode':'LOCAL_SQLITE','refreshed':True,'restarted_units':restarted,'health':health}
+
 def atomic_current_switch(current:Path,target:Path,lease_id:str)->None:
     current=current.absolute();target=target.resolve();tmp=current.with_name(current.name+'.promotion-'+lease_id)
     tmp.unlink(missing_ok=True);os.symlink(str(target),str(tmp),target_is_directory=True);os.replace(tmp,current)
@@ -121,12 +157,24 @@ def activate(release_root:Path,current:Path,runtime_root:Path,receipt:Path,promo
     mutated=before!=release_root
     if mutated:atomic_current_switch(current,release_root,str(lx['lease_id']))
     if current.resolve(strict=True)!=release_root:raise ValueError('CURRENT_SWITCH_VERIFICATION_FAILED')
+    try:
+        sovereign=sovereign_runtime_refresh(runtime_root)
+    except Exception as exc:
+        if mutated:
+            atomic_current_switch(current,rollback,str(lx['lease_id']))
+            restore_error=None
+            try:sovereign_runtime_refresh(runtime_root)
+            except Exception as restore_exc:restore_error=str(restore_exc)
+            if restore_error:raise ValueError('SOVEREIGN_RUNTIME_REFRESH_FAILED_ROLLBACK_DEGRADED:'+str(exc)+':RESTORE:'+restore_error)
+            raise ValueError('SOVEREIGN_RUNTIME_REFRESH_FAILED_ROLLBACK_COMPLETE:'+str(exc))
+        raise ValueError('SOVEREIGN_RUNTIME_REFRESH_FAILED:'+str(exc))
     now=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())
     meta.update({'activation_status':'ACTIVE','activated_at':now,'promotion_id':promotion_id,'promotion_lease_id':lx['lease_id'],
-      'promotion_owner':lx['owner'],'current_switch_controller':'governed-platform-promotion','automatic_external_spend_eur':0})
+      'promotion_owner':lx['owner'],'current_switch_controller':'governed-platform-promotion','sovereign_runtime_refresh':sovereign,'automatic_external_spend_eur':0})
     atomic_json(release_root/'.release-preparation.json',meta)
     out=ptx.bind_receipt(lx,{'schema':SCHEMA,'phase':'ACTIVATE','status':'PASS','candidate_revision':meta['candidate_revision'],
-      'candidate_tree':meta['candidate_tree'],'previous_release':str(before),'active_release':str(release_root),'current_release_mutated':mutated})
+      'candidate_tree':meta['candidate_tree'],'previous_release':str(before),'active_release':str(release_root),'current_release_mutated':mutated,
+      'sovereign_runtime_refresh':sovereign})
     ptx.write_once_json(receipt,out);return out
 
 def seal_assurance(kind:str,source:Path,receipt:Path,runtime_root:Path,promotion_id:str,lease_token:str,candidate_revision:str)->dict[str,Any]:
