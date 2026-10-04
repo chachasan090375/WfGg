@@ -88,7 +88,9 @@ with tempfile.TemporaryDirectory() as td:
     assert a['status']=='PASS' and current.resolve()==rel.resolve(),a
     ev=a['exact_git_release_verification']
     assert ev['status']=='PASS' and ev['checked_blobs']==ev['tracked_blob_count'] and ev['mismatch_count']==0,ev
+    bg=a['python_bytecode_guard']; assert bg['status']=='PASS' and bg['protected_python_unit_count']==0,bg
     print('CHACHA_DEV_EXACT_GIT_ACTIVATE_GATE=PASS')
+    print('CHACHA_DEV_ACTIVATE_PYTHON_BYTECODE_GUARD=PASS')
 
 policy=json.load(open(ROOT/'dev-hub/config/platform-promotion-transaction.v1.json'))
 assert policy['invariants']['release_payload_must_match_exact_candidate_git_blobs_before_activate'] is True

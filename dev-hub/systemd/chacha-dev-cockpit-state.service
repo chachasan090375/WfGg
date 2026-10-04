@@ -5,6 +5,7 @@ Wants=network-online.target
 ConditionPathExists=/opt/chacha-dev/platform/current/dev-hub/bin/cockpit-state.py
 
 [Service]
+Environment=PYTHONDONTWRITEBYTECODE=1
 Type=simple
 User=root
 Group=root

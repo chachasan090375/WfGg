@@ -9,6 +9,7 @@ if str(HERE) not in sys.path:sys.path.insert(0,str(HERE))
 import promotion_transaction as ptx
 import promotion_cycle_evidence as pce
 import exact_git_release as egr
+import release_runtime_immutability as rri
 
 SCHEMA='chacha.dev/governed-platform-promotion/v2'
 ASSURANCE_SCHEMA='chacha.dev/promotion-bound-assurance/v1'
@@ -167,6 +168,7 @@ def activate(release_root:Path,current:Path,runtime_root:Path,receipt:Path,promo
     release_count=sum(1 for p in release_root.parent.iterdir() if p.is_dir() and (p/'.revision').is_file())
     if release_count>3:raise ValueError('RELEASE_RETENTION_OVERAGE_PRE_ACTIVATION')
     if before not in {rollback,release_root}:raise ValueError('ACTIVE_CURRENT_NOT_ROLLBACK_OR_CANDIDATE')
+    bytecode_guard=rri.ensure_python_release_guard(release_root)
     mutated=before!=release_root
     if mutated:atomic_current_switch(current,release_root,str(lx['lease_id']))
     if current.resolve(strict=True)!=release_root:raise ValueError('CURRENT_SWITCH_VERIFICATION_FAILED')
@@ -187,7 +189,7 @@ def activate(release_root:Path,current:Path,runtime_root:Path,receipt:Path,promo
     atomic_json(release_root/'.release-preparation.json',meta)
     out=ptx.bind_receipt(lx,{'schema':SCHEMA,'phase':'ACTIVATE','status':'PASS','candidate_revision':meta['candidate_revision'],
       'candidate_tree':meta['candidate_tree'],'previous_release':str(before),'active_release':str(release_root),'current_release_mutated':mutated,
-      'exact_git_release_verification':exact_git,'sovereign_runtime_refresh':sovereign})
+      'exact_git_release_verification':exact_git,'python_bytecode_guard':bytecode_guard,'sovereign_runtime_refresh':sovereign})
     ptx.write_once_json(receipt,out);return out
 
 def seal_assurance(kind:str,source:Path,receipt:Path,runtime_root:Path,promotion_id:str,lease_token:str,candidate_revision:str)->dict[str,Any]:

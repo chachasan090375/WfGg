@@ -214,6 +214,20 @@
         "release-qualification"
       ],
       "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-immutable-release-runtime",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "SAFETY_GOVERNANCE",
+      "status": "ACTIVE",
+      "normalized_requirement": "Runtime execution must never create Python bytecode or other mutable cache payload inside a materialized platform release. Every Python systemd unit executing from /opt/chacha-dev/platform/current must disable bytecode writes, and platform ACTIVATE must enforce live systemd drop-ins before current can switch.",
+      "required_sinks": [
+        "platform-promotion-transaction",
+        "sentinel",
+        "release-qualification",
+        "all-foundries"
+      ],
+      "backfill_required": true
     }
   ],
   "runtime": {
@@ -225,15 +239,15 @@
   "automatic_external_spend_eur": 0,
   "intake_classification": {
     "high_confidence_phrases": [
-      "\u00e0 partir de maintenant",
-      "d\u00e9sormais",
+      "à partir de maintenant",
+      "désormais",
       "tous les agents",
       "toutes les applications",
       "tous les composants",
       "les futurs agents",
       "les futurs composants",
       "aucun composant",
-      "je veux que le syst\u00e8me"
+      "je veux que le système"
     ],
     "structural_terms": [
       "architecture",
@@ -249,7 +263,7 @@
       "guardian",
       "sentinel",
       "plateforme",
-      "syst\u00e8me",
+      "système",
       "systeme"
     ],
     "global_quantifiers": [

@@ -2,6 +2,7 @@
 Description=ChaCha DEV Agent Observation Bus Health
 After=network-online.target
 [Service]
+Environment=PYTHONDONTWRITEBYTECODE=1
 Type=oneshot
 User=root
 WorkingDirectory=/opt/chacha-dev/platform/current

@@ -5,6 +5,7 @@ Wants=network-online.target
 ConditionPathExists=/opt/chacha-dev/platform/current/dev-hub/bin/autonomy-loop-runner.py
 
 [Service]
+Environment=PYTHONDONTWRITEBYTECODE=1
 Type=oneshot
 User=root
 Group=root

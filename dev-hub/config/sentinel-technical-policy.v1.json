@@ -21,7 +21,8 @@
     "release-revision-match",
     "promotion-single-writer-immutable-receipts",
     "promotion-prestage-release-slot-reservation",
-    "promotion-exact-git-release-before-activate"
+    "promotion-exact-git-release-before-activate",
+    "immutable-release-python-runtime"
   ],
   "advisory_checks": [
     "long-lines",
@@ -102,6 +103,11 @@
     },
     {
       "path": "dev-hub/tests/test_exact_git_release_materialization.py",
+      "blocking": true,
+      "scope": "platform-promotion"
+    },
+    {
+      "path": "dev-hub/tests/test_release_runtime_immutability.py",
       "blocking": true,
       "scope": "platform-promotion"
     }

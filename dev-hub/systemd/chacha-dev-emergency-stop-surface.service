@@ -4,6 +4,7 @@ After=network.target
 ConditionPathExists=/opt/chacha-dev/platform/current/dev-hub/bin/emergency-stop-surface.py
 
 [Service]
+Environment=PYTHONDONTWRITEBYTECODE=1
 Type=simple
 User=root
 Group=root

@@ -5,6 +5,7 @@ Wants=network-online.target tailscaled.service
 ConditionPathExists=/opt/chacha-dev/platform/current/dev-hub/bin/direct-operator-service.py
 
 [Service]
+Environment=PYTHONDONTWRITEBYTECODE=1
 Type=simple
 User=root
 Group=root

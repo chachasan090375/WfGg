@@ -4,6 +4,7 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
+Environment=PYTHONDONTWRITEBYTECODE=1
 Type=oneshot
 User=root
 Group=root
