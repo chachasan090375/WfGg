@@ -1,0 +1,13 @@
+{
+  "schema":"chacha.dev/component-birth-candidate/v1",
+  "component_id":"creation-runtime-fabric",
+  "materialization_gate_required":true,
+  "governance_class":"CORE_PLATFORM_COMPONENT",
+  "owner_foundry":"branch-foundry",
+  "purpose":"Compose governed creation capabilities into an end-to-end functional-request-to-deliverable runtime without direct production authority.",
+  "scope":"PLATFORM",
+  "permissions":["read","plan","workspace-write-shadow-only"],
+  "lifecycle":"DESIGN->SHADOW->QUALIFY->PILOT->HUMAN_PROMOTION",
+  "production_activation_authorized":false,
+  "automatic_external_spend_eur":0
+}
