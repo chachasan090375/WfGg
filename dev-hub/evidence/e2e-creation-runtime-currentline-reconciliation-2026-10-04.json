@@ -1,0 +1,15 @@
+{
+  "schema": "chacha.dev/e2e-creation-runtime-currentline-reconciliation/v1",
+  "status": "PASS",
+  "parent_revision": "be107028e3080edd877bf40f6bf18f4f8c36b65c",
+  "historical_source_revision": "cdb122852e9ba03fd421f7038afb9b1605db3340",
+  "merge_note": "Preserved current Ordre 4 Solution Composer fields and added artifact_refs required by E2E runtime.",
+  "tests": {
+    "creation_runtime_e2e": "5/5 PASS",
+    "feasibility_solution_composer": "13/13 PASS",
+    "master_roadmap": "PASS"
+  },
+  "task_execution": false,
+  "production_mutation": false,
+  "automatic_external_spend_eur": 0
+}
