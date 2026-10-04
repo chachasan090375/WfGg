@@ -792,14 +792,20 @@ class Handler(BaseHTTPRequestHandler):
                 return self.json(503,{"schema":"chacha.dev/cockpit-update-center/v1","status":"UNAVAILABLE","items":[]})
             life=load(self.st.runtime/"update-center"/"lifecycle.json",{"items":{}})
             life_rows=life.get("items") if isinstance(life.get("items"),dict) else {}
-            seen=set()
+            seen=set();rebuildable={"RECIPE_ONLY","RECIPE_SEALED","UNINSTALLED_RECIPE_ONLY"};legacy_shelved={"SHELVED","SHELVED_RECIPE_ONLY"}
             for row in payload.get("items") or []:
                 tid=str(row.get("train_id") or "");seen.add(tid);lr=life_rows.get(tid) if isinstance(life_rows.get(tid),dict) else None
-                if lr: row.update({"state":lr.get("state") or row.get("state"),"shelved_reason":lr.get("shelved_reason"),"recipe_digest":lr.get("recipe_digest"),"reactivation_available":lr.get("reactivation_available") is True,"physical_train_present":lr.get("physical_train_present",True)})
-                row["shelf_allowed"]=str(row.get("state") or "") not in {"ACTIVE","PROMOTION_REQUESTED","PROMOTED","SHELVED","SHELVED_RECIPE_ONLY"}
+                if lr:
+                    row.update({"state":lr.get("state") or row.get("state"),"recipe_digest":lr.get("recipe_digest"),"rebuild_available":lr.get("rebuild_available") is True,"physical_train_present":lr.get("physical_train_present",False),"reproducibility_status":lr.get("reproducibility_status") or "UNKNOWN","cache_is_source_of_truth":lr.get("cache_is_source_of_truth",False)})
+                    if lr.get("shelved_reason"):row["legacy_shelved_reason"]=lr.get("shelved_reason")
+                state=str(row.get("state") or "")
+                row["rebuild_available"]=bool(row.get("rebuild_available") or state in rebuildable or state in legacy_shelved)
+                row["legacy_shelf_allowed"]=False
+                if state in rebuildable: row["production_ready"]=False;row["human_promotion_button_enabled"]=False
             for tid,lr in life_rows.items():
                 if tid in seen or not isinstance(lr,dict):continue
-                payload.setdefault("items",[]).append({"train_id":tid,"title":lr.get("title") or tid,"state":lr.get("state"),"functional_summary":lr.get("functional_summary"),"platform_value":lr.get("platform_value"),"recipe_digest":lr.get("recipe_digest"),"shelved_reason":lr.get("shelved_reason"),"reactivation_available":lr.get("reactivation_available") is True,"physical_train_present":lr.get("physical_train_present",False),"production_ready":False,"human_promotion_button_enabled":False,"shelf_allowed":False})
+                state=str(lr.get("state") or "")
+                payload.setdefault("items",[]).append({"train_id":tid,"title":lr.get("title") or tid,"state":state,"functional_summary":lr.get("functional_summary"),"platform_value":lr.get("platform_value"),"recipe_digest":lr.get("recipe_digest"),"rebuild_available":bool(lr.get("rebuild_available") or state in rebuildable or state in legacy_shelved),"physical_train_present":lr.get("physical_train_present",False),"reproducibility_status":lr.get("reproducibility_status") or "UNKNOWN","legacy_shelved_reason":lr.get("shelved_reason"),"production_ready":False,"human_promotion_button_enabled":False,"legacy_shelf_allowed":False})
             payload["production_authority"]=False
             return self.json(200,payload)
         if path=="/api/v1/plugins":

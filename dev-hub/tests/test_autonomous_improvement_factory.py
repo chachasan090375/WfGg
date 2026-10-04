@@ -24,8 +24,9 @@ report=obs.assess(dossier(m),policy);q=fac.build_queue(report,json.loads((CFG/'a
 print('test_factory_build_queue_has_no_production_authority=PASS')
 # Cockpit and Direct Operator expose update center, buttons go through governed BUILD intent.
 ui=(ROOT/'direct-operator-ui/index.html').read_text();svc=(BIN/'direct-operator-service.py').read_text();
-for token in ['🔄 Mises à jour','Lancer toutes les mises à jour compatibles','Mise en production','updatePromotionIntent','/api/v1/update-center']:
+for token in ['🔄 Mises à jour','Reconstruire et installer toutes les mises à jour compatibles','Reconstruire et mettre en production','rebuildPromotionIntent','/api/v1/update-center']:
  assert token in ui or token in svc,token
 assert 'direct current switch' not in ui.lower()
+factory_policy=json.loads((CFG/'autonomous-improvement-factory.v1.json').read_text());assert factory_policy['cockpit_update_center']['recipe_first_default'] is True and factory_policy['cockpit_update_center']['qualified_train_default_state']=='RECIPE_ONLY'
 print('test_cockpit_update_center_contract=PASS')
 print('CHACHA_DEV_AUTONOMOUS_IMPROVEMENT_FACTORY_TESTS=5/5 PASS')

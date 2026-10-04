@@ -52,16 +52,19 @@
   "train_states": [
     "DISCOVERED",
     "VALUE_GATE_PASS",
-    "BUILDING",
+    "BUILDING_SHADOW",
     "QUALIFYING",
+    "RECIPE_SEALED",
+    "RECIPE_ONLY",
+    "REBUILD_REQUESTED",
+    "REBUILDING",
+    "REPRODUCIBILITY_VERIFIED",
+    "STAGING",
     "READY_FOR_HUMAN_PROMOTION",
     "BLOCKED",
     "REJECTED",
     "PROMOTION_REQUESTED",
     "PROMOTED",
-    "SHELVED",
-    "SHELVED_RECIPE_ONLY",
-    "REHYDRATION_REQUESTED",
     "SUPERSEDED"
   ],
   "cockpit_update_center": {
@@ -72,18 +75,21 @@
     "value_explanation_required": true,
     "risk_and_rollback_required": true,
     "license_and_provenance_required": true,
-    "per_train_button": "Mise en production",
-    "batch_button": "Lancer toutes les mises à jour compatibles",
+    "per_train_button": "Reconstruire et mettre en production",
+    "batch_button": "Reconstruire et installer toutes les mises à jour compatibles",
     "batch_requires_dependency_dag": true,
     "conflicting_trains_never_parallelized": true,
     "human_click_starts_governed_promotion_only": true,
     "direct_current_switch_from_ui": false,
-    "shelf_button": "Mettre de côté",
-    "rehydrate_button": "Réactiver / reconstruire",
-    "shelved_section": "Mises de côté",
     "shelf_requires_sealed_recipe": true,
     "physical_retirement_is_separate_governed_action": true,
-    "recipe_survives_physical_retirement": true
+    "recipe_survives_physical_retirement": true,
+    "recipe_first_default": true,
+    "qualified_train_default_state": "RECIPE_ONLY",
+    "durable_pre_release_artifact_default": false,
+    "rebuild_before_promotion_required": true,
+    "reproducibility_verification_required": true,
+    "content_addressed_cache_allowed": true
   },
   "anti_bloat": {
     "novelty_only_train_forbidden": true,
@@ -111,5 +117,12 @@
     "install_build_on_demand": true,
     "plugin_center_registration_required": true,
     "core_locked_components_never_pluginized": true
+  },
+  "artifact_retention": {
+    "pre_release": "EPHEMERAL_OR_CONTENT_ADDRESSED_CACHE",
+    "active_release": "PROTECTED",
+    "rollback_release": "PROTECTED",
+    "cache_is_not_source_of_truth": true,
+    "recipe_and_git_are_reconstruction_authority": true
   }
 }

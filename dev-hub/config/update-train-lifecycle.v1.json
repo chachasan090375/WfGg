@@ -1,16 +1,19 @@
 {
   "schema": "chacha.dev/update-train-lifecycle/v1",
-  "version": "1.0.0",
-  "mode": "GOVERNED_REHYDRATABLE_ARCHIVE",
+  "version": "1.1.0",
+  "mode": "RECIPE_FIRST_BUILD_ON_DEMAND",
   "states": [
     "DISCOVERED",
-    "BUILDING",
+    "BUILDING_SHADOW",
     "QUALIFYING",
+    "RECIPE_SEALED",
+    "RECIPE_ONLY",
+    "REBUILD_REQUESTED",
+    "REBUILDING",
+    "REPRODUCIBILITY_VERIFIED",
+    "STAGING",
     "READY_FOR_HUMAN_PROMOTION",
     "ACTIVE",
-    "SHELVED",
-    "SHELVED_RECIPE_ONLY",
-    "REHYDRATION_REQUESTED",
     "SUPERSEDED",
     "BLOCKED"
   ],
@@ -31,17 +34,27 @@
       "qualification_refs",
       "build_route",
       "changed_paths",
-      "artifact_digests"
+      "artifact_digests",
+      "dependency_lock_digest",
+      "build_environment_digest",
+      "sbom_digest",
+      "reproducibility_mode"
     ],
     "source_history_preserved": true,
-    "git_commit_required": true
+    "git_commit_required": true,
+    "normal_terminal_pre_install_state": "RECIPE_ONLY",
+    "reproducibility_modes": [
+      "BINARY_EXACT",
+      "FUNCTIONAL_DETERMINISTIC"
+    ],
+    "dependency_versions_must_be_locked": true,
+    "build_environment_must_be_fingerprinted": true,
+    "sbom_required": true
   },
   "shelving": {
-    "never_means_delete_history": true,
-    "active_train_requires_governed_rollback_or_deactivation": true,
-    "unpromoted_train_can_be_shelved_without_production_mutation": true,
-    "reason_required": true,
-    "reactivation_available": true
+    "legacy_compatibility_only": true,
+    "normal_flow_uses_recipe_only_without_manual_shelving": true,
+    "never_means_delete_history": true
   },
   "physical_retirement": {
     "allowed_only_after_recipe_sealed": true,
@@ -55,26 +68,60 @@
     "physical_retirement_does_not_delete_recipe_or_git": true
   },
   "rehydration": {
+    "legacy_name_only": "Use rebuild request for new trains",
     "reconstruct_from_recipe_and_exact_git": true,
     "revalidate_current_policy_and_dependencies": true,
-    "exact_sha_qualification_reused_only_when_scope_and_sha_unchanged": true,
     "production_promotion_requires_new_current_human_gate": true
   },
   "cockpit": {
     "sections": [
-      "PRÊTES",
+      "À_RECONSTRUIRE",
+      "EN_RECONSTRUCTION",
+      "PRÊTES_POUR_GATE_HUMAIN",
       "ACTIVES",
-      "MISES_DE_COTE",
       "SUPERSEDEES"
     ],
-    "shelve_button": "Mettre de côté",
-    "rehydrate_button": "Réactiver / reconstruire",
+    "primary_button": "Reconstruire et mettre en production",
+    "batch_button": "Reconstruire et installer toutes les mises à jour compatibles",
     "show_recipe_summary": true,
-    "show_retirement_state": true
+    "show_reproducibility_state": true,
+    "show_cache_state": true,
+    "legacy_shelved_items_remain_visible": true
   },
   "automatic_external_spend_eur": 0,
   "runtime": {
     "registry": "/opt/chacha-dev/runtime/update-center/lifecycle.json",
     "recipes": "/opt/chacha-dev/runtime/update-center/recipes"
+  },
+  "legacy_states": [
+    "SHELVED",
+    "SHELVED_RECIPE_ONLY",
+    "REHYDRATION_REQUESTED"
+  ],
+  "artifact_policy": {
+    "pre_release_build_artifacts_are_ephemeral": true,
+    "durable_shadow_train_artifact_default": false,
+    "normal_state_after_qualification_and_recipe_seal": "RECIPE_ONLY",
+    "content_addressed_cache_allowed": true,
+    "cache_is_optimization_not_recovery_dependency": true,
+    "cache_objects_keyed_by_digest": true,
+    "active_release_protected": true,
+    "rollback_release_protected": true,
+    "physical_release_retirement_still_requires_intendant_guardian_and_explicit_human_approval": true
+  },
+  "rebuild": {
+    "button_semantics": "REBUILD_VERIFY_STAGE_REQUEST_PROMOTION",
+    "reconstruct_from_exact_git": true,
+    "dependency_lock_must_match_recipe": true,
+    "build_environment_digest_must_match_recipe": true,
+    "current_policy_and_dependency_revalidation_required": true,
+    "no_production_authority": true,
+    "human_promotion_gate_required_after_rebuild": true
+  },
+  "reproducibility": {
+    "binary_exact_when_recipe_mode_binary_exact": true,
+    "functional_deterministic_fallback_requires_source_tree_dependency_lock_build_environment_sbom_and_tests": true,
+    "mismatch_state": "BLOCKED",
+    "promotion_on_mismatch_forbidden": true
   }
 }
