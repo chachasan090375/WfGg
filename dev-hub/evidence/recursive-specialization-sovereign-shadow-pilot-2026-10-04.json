@@ -1,0 +1,43 @@
+{
+  "schema": "chacha.dev/recursive-specialization-sovereign-shadow-pilot/v1",
+  "status": "PASS",
+  "generated_at": "2026-10-04T09:49:54Z",
+  "production_base_revision": "439db7584ab721d32b4e9e6bf89db5a63849ce93",
+  "production_base_tree": "24f562a29d3318e9b42c51cb67c787260c77f4d5",
+  "project_id": "pilot-mixed-management-suite",
+  "node_count": 5,
+  "root_nodes": [
+    "root"
+  ],
+  "shared_component_reuse": {
+    "identity-api": [
+      "management",
+      "training-game",
+      "documentation"
+    ]
+  },
+  "blockers": [],
+  "warnings": [],
+  "production_activation": false,
+  "execution_authority": false,
+  "automatic_external_spend_eur": 0,
+  "umg_check": {
+    "schema": "chacha.dev/universal-materialization-gate-receipt/v1",
+    "status": "PASS",
+    "registered": false,
+    "check_only": true,
+    "component_id": "core:recursive-specialization-router",
+    "birth_contract_complete": true,
+    "automatic_external_spend_eur": 0
+  },
+  "invariants": {
+    "independent_module_reclassification": true,
+    "shared_component_not_cloned": true,
+    "constraint_inheritance": true,
+    "dependency_dag_valid": true,
+    "uncertainty_shadow_route": true,
+    "recursion_guard": true,
+    "no_permission_expansion": true
+  },
+  "router_output_sha256": "sha256:25f654a3360c34782a6fdbcb942131e9bd62aeee0d7bb865723df2e8ef2dbaad"
+}
