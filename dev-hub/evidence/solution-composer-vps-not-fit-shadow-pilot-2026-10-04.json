@@ -2,6 +2,12 @@
   "schema": "chacha.dev/solution-composition/v1",
   "status": "DESIGN_READY_EXECUTION_BLOCKED_INFRASTRUCTURE",
   "project_id": "pilot-retail-suite",
+  "feasibility_ref": {
+    "schema": "chacha.dev/infrastructure-feasibility-report/v1",
+    "infrastructure_id": "chacha-vps-observed-2026-10-04",
+    "requirements_id": "reference-mixed-creation-workload",
+    "verdict": "NOT_FIT"
+  },
   "feasibility_verdict": "NOT_FIT",
   "design_infrastructure": "target_infrastructure_architecture",
   "target_infrastructure_architecture": {
@@ -190,12 +196,79 @@
       "documentation"
     ]
   },
+  "specialist_assignments": [
+    {
+      "node_id": "solution-root",
+      "required_domains": [
+        "product",
+        "development",
+        "qa"
+      ],
+      "assignment_mode": "CAPABILITY_RESOLUTION_PENDING"
+    },
+    {
+      "node_id": "gestion",
+      "required_domains": [
+        "product",
+        "data-backend",
+        "ui-layout",
+        "cybersecurity"
+      ],
+      "assignment_mode": "CAPABILITY_RESOLUTION_PENDING"
+    },
+    {
+      "node_id": "formation-ludique",
+      "required_domains": [
+        "development",
+        "graphics",
+        "animation",
+        "data-backend"
+      ],
+      "assignment_mode": "CAPABILITY_RESOLUTION_PENDING"
+    },
+    {
+      "node_id": "documentation",
+      "required_domains": [
+        "documentation",
+        "knowledge-research",
+        "translation",
+        "publication"
+      ],
+      "assignment_mode": "CAPABILITY_RESOLUTION_PENDING"
+    },
+    {
+      "node_id": "reporting",
+      "required_domains": [
+        "data-backend",
+        "ui-layout"
+      ],
+      "assignment_mode": "CAPABILITY_RESOLUTION_PENDING"
+    }
+  ],
+  "create_vs_reuse": {
+    "policy": "REUSE_BEFORE_BUILD",
+    "reuse": {
+      "identity-api": [
+        "gestion",
+        "formation-ludique",
+        "documentation"
+      ]
+    },
+    "create_or_compose_nodes": [
+      "gestion",
+      "formation-ludique",
+      "documentation",
+      "reporting"
+    ]
+  },
   "execution_blocked": true,
+  "foundry_execution_requested": false,
+  "foundry_execution_authorized": false,
   "requires_recursive_specialization_resolution": true,
   "requires_logician_challenge": true,
   "requires_guardian_sentinel_before_production": true,
   "production_authority": false,
   "execution_authority": false,
   "automatic_external_spend_eur": 0,
-  "composed_at": "2026-10-04T10:44:27Z"
+  "composed_at": "2026-10-04T11:18:58Z"
 }

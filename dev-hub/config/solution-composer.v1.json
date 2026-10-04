@@ -3,13 +3,34 @@
   "version": "1.0.0",
   "scope": "PLATFORM_GLOBAL_SHADOW",
   "persistent_head": true,
-  "mandatory_input": ["normalized_functional_intent", "infrastructure_feasibility_report", "recursive_specialization_policy"],
-  "responsibilities": ["conceptualize_request", "select_deliverable_class", "select_archetype", "decompose_modules", "define_data_ownership", "define_interfaces", "define_dependencies", "inherit_constraints", "identify_reuse_candidates", "identify_specialist_domains", "emit_solution_graph"],
+  "mandatory_input": [
+    "normalized_functional_intent",
+    "infrastructure_feasibility_report",
+    "recursive_specialization_policy"
+  ],
+  "responsibilities": [
+    "conceptualize_request",
+    "select_deliverable_class",
+    "select_archetype",
+    "decompose_modules",
+    "define_data_ownership",
+    "define_interfaces",
+    "define_dependencies",
+    "inherit_constraints",
+    "identify_reuse_candidates",
+    "identify_specialist_domains",
+    "emit_solution_graph",
+    "bind_feasibility_reference",
+    "emit_specialist_assignment_requirements",
+    "emit_create_vs_reuse_decisions"
+  ],
   "not_fit_policy": "DESIGN_AGAINST_TARGET_ARCHITECTURE_BUT_BLOCK_EXECUTION_UNTIL_PROVISIONED",
   "reuse_before_build": true,
   "logician_challenge_required_before_release_plan": true,
   "architecture_council_recommendation_only": true,
   "production_authority": false,
   "execution_authority": false,
-  "automatic_external_spend_eur": 0
+  "automatic_external_spend_eur": 0,
+  "feasibility_reference_required": true,
+  "foundry_execution_authority": false
 }

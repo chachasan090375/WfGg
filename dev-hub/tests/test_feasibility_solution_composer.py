@@ -63,6 +63,14 @@ def test_interfaces_dependencies_and_data_ownership_are_explicit():
  f=A.audit(infra(),req(),FP);out=C.compose(intent(),f,SP);rows={x['node_id']:x for x in out['solution_graph']['nodes']}
  assert rows['formation-ludique']['dependencies']==['gestion'];assert rows['gestion']['data_ownership']==['stores','users'];assert out['interfaces'][0]['contract']=='user-and-progress-v1'
 
+def test_composer_emits_feasibility_trace_specialists_reuse_and_never_executes_foundry():
+ f=A.audit(infra(),req(),FP);out=C.compose(intent(),f,SP)
+ assert out['feasibility_ref']['infrastructure_id']=='fixture' and out['feasibility_ref']['requirements_id']=='r'
+ assignments={x['node_id']:x for x in out['specialist_assignments']};assert 'data-backend' in assignments['gestion']['required_domains']
+ assert set(out['create_vs_reuse']['reuse']['identity-api'])=={'gestion','formation-ludique','documentation'}
+ assert set(out['create_vs_reuse']['create_or_compose_nodes'])=={'gestion','formation-ludique','documentation','reporting'}
+ assert out['foundry_execution_requested'] is False and out['foundry_execution_authorized'] is False
+
 def test_no_execution_or_production_authority_and_no_spend():
  f=A.audit(infra(),req(),FP);out=C.compose(intent(),f,SP);assert out['execution_authority'] is False and out['production_authority'] is False and out['automatic_external_spend_eur']==0
  assert SP['architecture_council_recommendation_only'] is True and SP['logician_challenge_required_before_release_plan'] is True
