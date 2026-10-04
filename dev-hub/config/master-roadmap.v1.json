@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-04T14:58:06Z",
+  "updated_at": "2026-10-04T15:24:00Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -859,5 +859,11 @@
     "current_authority": "LOCAL_SQLITE",
     "d1_fallback_state": "RETAINED_STALE_REVERSE_SYNC_REQUIRED_BEFORE_AUTHORITY_RESTORE",
     "post_interrupt_production_baseline": "c514e1fe3a2b5976a729c7cebc4cfdff726a2369"
+  },
+  "historical_train_catalog": {
+    "authority": "dev-hub/config/master-roadmap-train-history.v1.json",
+    "purpose": "Canonical chronological release-train history. Current convergence orders must never replace or truncate this history.",
+    "numbering_warning": "HISTORICAL_RELEASE_TRAIN_NUMBERS_ARE_DISTINCT_FROM_CURRENT_MASTER_CONVERGENCE_ORDER_NUMBERS",
+    "history_must_be_append_only_except_governed_correction": true
   }
 }
