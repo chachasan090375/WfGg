@@ -1,0 +1,24 @@
+{
+  "automatic_external_spend_eur": 0,
+  "blockers": [
+    "PLATFORM_REVISION_MISMATCH"
+  ],
+  "failover_performed": false,
+  "platform_revision": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb",
+  "primary_node_id": "chachavps",
+  "production_activation_authorized": false,
+  "schema": "chacha.dev/ha-standby-rehearsal/v1",
+  "simulated_steps": [
+    "verify-primary-health",
+    "verify-standby-checkpoint",
+    "verify-fencing",
+    "verify-single-writer",
+    "simulate-primary-loss",
+    "simulate-standby-readiness",
+    "simulate-rollback-path",
+    "assert-no-writer-switch"
+  ],
+  "standby_node_id": "chachanas",
+  "status": "BLOCK",
+  "writer_switch_performed": false
+}

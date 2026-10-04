@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-04T19:22:19Z",
+  "updated_at": "2026-10-04T19:27:37Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -812,7 +812,7 @@
     "schema": "chacha.dev/master-roadmap-functional-execution-order/v2",
     "authority": "PRIMARY_CURRENT_EXECUTION_VIEW",
     "ordering_principle": "Hard functional dependency and core safety determine order: artifacts/specialists -> execution DAG -> resource-aware scheduling -> target OS/device validation -> E2E runtime -> extensibility/access/resilience/remote/HA. Historical train numbering never determines current execution order. Reuse qualified shadow work and unchanged evidence; do not rebuild unchanged scope.",
-    "current_focus": "F12_REMOTE_MCP_PRIVATE_OPERATOR_CURRENT_LINE",
+    "current_focus": "F13_NATIVE_LOCAL_HA_CURRENT_LINE_RECONCILIATION",
     "phases": [
       {
         "phase": "F00",
@@ -1110,7 +1110,7 @@
         "phase": "F12",
         "id": "REMOTE_MCP_PRIVATE_OPERATOR_ROUTE",
         "priority": "P1",
-        "state": "SOURCE_RECONCILED_DISABLED_BY_DEFAULT_PENDING_EXACT_SHA_CI",
+        "state": "EXACT_SHA_TRIPLE_QUALIFIED_SHADOW",
         "depends_on": [
           "F11"
         ],
@@ -1132,15 +1132,19 @@
         "secure_tunnel_materialized": false,
         "public_ingress_forbidden": true,
         "automatic_external_spend_eur": 0,
-        "specialized_remote_operator_ci_required": true
+        "specialized_remote_operator_ci_required": true,
+        "qualified_sha": "aebc7acc3d86c25bc2c2567a855f6bd2a76ff697",
+        "qualified_tree": "8a4fe919b0c96811b84cc9e7668be6fbb8faac88",
+        "sentinel": "PASS",
+        "platform_qualification": "PASS",
+        "remote_operator_qualification": "PASS"
       },
       {
         "phase": "F13",
         "id": "NATIVE_LOCAL_AND_HA_DEEPENING",
         "priority": "P2",
-        "state": "SOURCE_CONVERGED_NON_MUTATING",
+        "state": "RESOURCE_READY_RUNTIME_OFF_HA_READINESS_STALE_BLOCKED_PENDING_EXACT_SHA_CI",
         "depends_on": [
-          "F11",
           "F12"
         ],
         "reuse_asset": {
@@ -1152,7 +1156,21 @@
           "resource admission",
           "HA standby/failover",
           "disaster recovery"
-        ]
+        ],
+        "production_parent_sha": "aebc7acc3d86c25bc2c2567a855f6bd2a76ff697",
+        "current_production_revision": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb",
+        "native_local_resource_admission": "PASS",
+        "native_local_available_memory_mb": 1120,
+        "native_local_free_disk_mb": 13372,
+        "native_local_cpu_count": 2,
+        "native_local_runtime_active": false,
+        "native_local_model_present": false,
+        "native_local_activation_authorized": false,
+        "ha_rehearsal": "BLOCK",
+        "ha_blocker": "PLATFORM_REVISION_MISMATCH",
+        "ha_failover_performed": false,
+        "ha_writer_switch_performed": false,
+        "automatic_external_spend_eur": 0
       }
     ],
     "cross_cutting": [

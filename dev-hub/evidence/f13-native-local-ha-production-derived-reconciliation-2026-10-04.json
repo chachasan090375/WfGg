@@ -1,0 +1,50 @@
+{
+  "schema": "chacha.dev/f13-native-local-ha-production-derived-reconciliation/v1",
+  "status": "PASS_WITH_HA_BLOCKED_FAIL_CLOSED",
+  "observed_at": "2026-10-04T19:27:37Z",
+  "parent_f12_sha": "aebc7acc3d86c25bc2c2567a855f6bd2a76ff697",
+  "production_revision": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb",
+  "native_local": {
+    "resource_admission": {
+      "schema": "chacha.dev/native-local-resource-admission/v1",
+      "status": "PASS",
+      "reasons": [],
+      "snapshot": {
+        "available_memory_mb": 1120,
+        "free_disk_mb": 13372,
+        "cpu_count": 2,
+        "load1": 0.150390625
+      },
+      "memory_required_with_headroom_mb": 896,
+      "disk_required_with_headroom_mb": 2688,
+      "fallback_required": false,
+      "production_activation_authorized": false,
+      "automatic_external_spend_eur": 0
+    },
+    "runtime_state": {
+      "schema": "chacha.dev/native-local-live-state/v1",
+      "status": "OBSERVED",
+      "observed_at": "2026-10-04T19:26:46Z",
+      "production_revision": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb",
+      "service_active": false,
+      "service_state": "inactive",
+      "service_enabled": false,
+      "current_target": null,
+      "llama_process_present": true,
+      "model_files_present": false,
+      "sample_model_files": [],
+      "production_activation_authorized": false,
+      "automatic_external_spend_eur": 0
+    }
+  },
+  "ha": {
+    "status": "BLOCK",
+    "blockers": [
+      "PLATFORM_REVISION_MISMATCH"
+    ],
+    "failover_performed": false,
+    "writer_switch_performed": false
+  },
+  "production_activation_authorized": false,
+  "automatic_external_spend_eur": 0
+}
