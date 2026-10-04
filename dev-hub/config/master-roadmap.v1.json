@@ -747,7 +747,7 @@
     "schema": "chacha.dev/master-roadmap-functional-execution-order/v2",
     "authority": "PRIMARY_CURRENT_EXECUTION_VIEW",
     "ordering_principle": "Hard functional dependency and core safety determine order: artifacts/specialists -> execution DAG -> resource-aware scheduling -> target OS/device validation -> E2E runtime -> extensibility/access/resilience/remote/HA. Historical train numbering never determines current execution order. Reuse qualified shadow work and unchanged evidence; do not rebuild unchanged scope.",
-    "current_focus": "F06_VIRTUAL_OS_DEVICE_LAB_CURRENT_LINE_RECONCILIATION",
+    "current_focus": "F07_END_TO_END_CREATION_RUNTIME_CURRENT_LINE_RECONCILIATION",
     "phases": [
       {
         "phase": "F00",
@@ -883,7 +883,7 @@
         "phase": "F06",
         "id": "VIRTUAL_OS_DEVICE_LAB",
         "priority": "P1",
-        "state": "LOCAL_QUALIFICATION_PASS_PENDING_EXACT_SHA_CI",
+        "state": "EXACT_SHA_QUALIFIED_SHADOW",
         "depends_on": [
           "F05"
         ],
@@ -897,13 +897,15 @@
           "immutable image policy",
           "fail-closed unsupported targets"
         ],
-        "production_parent_sha": "5af2e52fdd79235c65a70154e2594bc18fc8fb02"
+        "production_parent_sha": "5af2e52fdd79235c65a70154e2594bc18fc8fb02",
+        "qualified_sha": "7616e30a9a49ce42c89db2f058b5141400e1a39d",
+        "qualified_tree": "49cf39eeaac6f4491c6d0d79d3880777a6ded115"
       },
       {
         "phase": "F07",
         "id": "END_TO_END_CREATION_RUNTIME",
         "priority": "P0",
-        "state": "SHADOW_PLAN_PASS_TO_RECONCILE",
+        "state": "LOCAL_QUALIFICATION_PASS_PENDING_EXACT_SHA_CI",
         "depends_on": [
           "F02",
           "F03",
@@ -925,7 +927,8 @@
           "target validation",
           "assurance",
           "artifacts"
-        ]
+        ],
+        "production_parent_sha": "7616e30a9a49ce42c89db2f058b5141400e1a39d"
       },
       {
         "phase": "F08",
