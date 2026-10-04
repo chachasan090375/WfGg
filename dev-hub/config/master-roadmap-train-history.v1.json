@@ -1,0 +1,141 @@
+{
+  "schema": "chacha.dev/master-roadmap-train-history/v1",
+  "version": "1.0.0",
+  "updated_at": "2026-10-04T15:24:00Z",
+  "authority": "CANONICAL_CHRONOLOGICAL_HISTORY",
+  "numbering_rule": "Historical release-train numbers are independent from current Master Roadmap convergence order numbers.",
+  "retention_rule": "Never drop a historical train because its capabilities were absorbed, superseded or re-expressed in a newer roadmap. Preserve state, purpose, lineage and resolution.",
+  "eras": [
+    {
+      "id": "release-train-lineage-20261001-02",
+      "label": "Roadmap release trains prepared before the Sovereign D1-independence interrupt",
+      "trains": [
+        {
+          "train": 1,
+          "train_id": "roadmap-train-20261001-01",
+          "state": "PROMOTED_FINALIZED",
+          "promoted_revision": "5ab8da4639916a6dfc9bdae462340360c3f7412d",
+          "promoted_tree": "1c65920e4e6785d7fdcecc9cecd2289b5a4d781d",
+          "capabilities": ["release-train-v1", "autonomy-constitution-v1", "persistent-missions-v1", "learning-coverage-v1", "human-remediation-plans-v1", "foundry-self-evolution-v1", "local-cognitive-fallback-v1", "ha-readiness-v1", "platform-pilot-guardian-action-id-v1"],
+          "promotion_evidence": "/opt/chacha-dev/runtime/release-trains/roadmap-train-20261001-01/promotion-5ab8da46/promotion-finalize.json"
+        },
+        {
+          "train": 2,
+          "train_id": "roadmap-train-20261001-02",
+          "state": "PROMOTED_FINALIZED",
+          "promoted_revision": "1b826fe9eb6db8c0e101a1691e965c8ca2b32d51",
+          "promoted_tree": "22e64f9e961a85658493fbd80eb279d7be92b9c1",
+          "capabilities": ["promotion-cycle-evidence-v1", "roadmap-live-reassessment-v1"],
+          "promotion_evidence": "/opt/chacha-dev/runtime/release-trains/roadmap-train-20261001-02/promotion-1b826fe9/promotion-finalize.json"
+        },
+        {
+          "train": 3,
+          "train_id": "roadmap-train-20261001-03",
+          "state": "PROMOTED_FINALIZED_ANCESTOR_OF_CURRENT_LINE",
+          "promoted_revision": "3d403f60fe1a5c836b6fb84ddef24b7d74378307",
+          "promoted_tree": "79e564e995709ae7212c46e976d51f291726bbf1",
+          "capabilities": ["adaptive-cognitive-routing-v1", "ha-standby-topology-v1", "roadmap-train03-live-reassessment-v1"],
+          "notes": ["Adaptive cognitive catalog work, LiteLLM/Portkey discovery fixtures and HA/NAS evidence remain preserved in the train runtime even where not promoted as independent commits."],
+          "promotion_evidence": "/opt/chacha-dev/runtime/release-trains/roadmap-train-20261001-03/promotion-3d403f60-retry2/promotion-finalize.json"
+        },
+        {
+          "train": 4,
+          "train_id": "roadmap-train-20261001-04",
+          "state": "QUALIFIED_HOLD_NOT_PROMOTED",
+          "qualified_revision": "3197446894758202d9f879f881fda4f8a61f980f",
+          "qualified_tree": "540fd19279e8c4d3deb1361da74e186ec2d76949",
+          "capabilities": ["local-cognitive-runtime-v1", "local-cognitive-runtime-lifecycle-v1", "guardian-critical-state-reconciliation-v1", "guardian-expired-action-lease-reconciliation-v1", "guardian-coverage-proof-integrity-v1"],
+          "historical_blocker": "External assurance / D1-dependent governance path prevented governed promotion. Do not replay unchanged proofs; reconcile capabilities onto current line."
+        },
+        {
+          "train": 5,
+          "train_id": "roadmap-train-20261002-05",
+          "state": "PREPARED_SHADOW_NOT_PROMOTED",
+          "depends_on_train": "roadmap-train-20261001-04",
+          "historical_base_revision": "3197446894758202d9f879f881fda4f8a61f980f",
+          "capabilities": ["guardian-governed-deploy-transaction-v1", "guardian-action-evidence-continuity-v1", "native-local-resource-admission-v1", "adaptive-model-registry-v1", "native-local-shadow-soak-v1", "adaptive-output-budgeting-v1"],
+          "historical_blocker": "Train 04 dependency was never promoted. Train 05 remained preparation/shadow and must be reconciled, not implicitly activated."
+        },
+        {
+          "train": 6,
+          "train_id": "roadmap-train-20261002-06",
+          "state": "PREPARED_REBASE_REQUIRED_LATER_ABSORBED",
+          "capabilities": ["cognitive-route-outcome-learning-v1", "model-capability-confidence-v1", "persistent-mission-goal-monitor-v1", "roadmap-live-score-reconciler-v1"],
+          "current_resolution": "REABSORBED_CURRENT_PRODUCTION_DERIVED_LINE"
+        },
+        {
+          "train": 7,
+          "train_id": "roadmap-train-20261002-07",
+          "state": "PREPARED_REBASE_REQUIRED_LATER_ABSORBED",
+          "purpose": "live platform maturity reconciliation, stale/error progress recovery, persistent mission scheduling bridge lineage, roadmap release-train planning",
+          "current_resolution": "REABSORBED_CURRENT_PRODUCTION_DERIVED_LINE"
+        },
+        {
+          "train": 8,
+          "train_id": "roadmap-train-20261002-08",
+          "state": "PREPARED_REBASE_REQUIRED_LATER_ABSORBED",
+          "purpose": "safe incident remediation routing, Foundry shadow graduation, constitution drift watch, non-mutating HA standby rehearsal",
+          "current_resolution": "REABSORBED_CURRENT_PRODUCTION_DERIVED_LINE"
+        },
+        {
+          "train": 9,
+          "train_id": "roadmap-train-20261002-09",
+          "state": "PREPARED_REBASE_REQUIRED_LATER_ABSORBED",
+          "purpose": "durable autonomy evidence publishing, roadmap live evidence stages, platform maturity live source/scorecard",
+          "current_resolution": "REABSORBED_CURRENT_PRODUCTION_DERIVED_LINE"
+        },
+        {
+          "train": 10,
+          "train_id": "roadmap-train-20261002-10",
+          "state": "PREPARED_REBASE_REQUIRED_LATER_ABSORBED_OR_SUPERSEDED",
+          "purpose": "closure pilots for safe remediation, Foundry graduation, persistent mission E2E and real roadmap-train planning",
+          "current_resolution": "REABSORBED_CURRENT_PRODUCTION_DERIVED_LINE"
+        },
+        {
+          "train": 11,
+          "train_id": "roadmap-train-20261002-11",
+          "state": "PREPARED_REBASE_REQUIRED_LATER_ABSORBED",
+          "purpose": "learning closure, self-evolution closure, constitution closure and terminal evidence bundle",
+          "historical_blocker": "Learning PASS_WITH_ADVISORY / terminal bundle HOLD pending missing learning_context lineage; later closed by Train 12.",
+          "current_resolution": "REABSORBED_CURRENT_PRODUCTION_DERIVED_LINE"
+        },
+        {
+          "train": 12,
+          "train_id": "roadmap-train-20261002-12",
+          "state": "CONVOY_CLOSURE_PASS_NOT_INDIVIDUALLY_PROMOTED",
+          "purpose": "append-only learning-context forensic lineage closure and terminal bundle completion without historical ledger mutation",
+          "closure_result": "Learning v2 PASS, coverage 100%, blockers empty, terminal evidence ready; convoy qualified but not promoted.",
+          "convoy_closure_revision": "d0e3283efc677ef359006ea6632f125820597730",
+          "current_resolution": "REABSORBED_CURRENT_PRODUCTION_DERIVED_LINE"
+        }
+      ]
+    },
+    {
+      "id": "post-convoy-convergence-before-sovereign-cutover",
+      "label": "Convergence trains created after the blocked convoy and before/through Sovereign cutover",
+      "trains": [
+        {
+          "train": 13,
+          "train_id": "roadmap-master-train-20261003-13-native-local-ha-convergence",
+          "state": "SOURCE_CONVERGED_NON_MUTATING",
+          "revision": "8b0f0a01e1b2e028adefa0c13f2807912d73452f",
+          "purpose": "Converge Native Local and HA side tracks without activating them."
+        },
+        {
+          "train": 14,
+          "train_id": "roadmap-master-train-20261003-14-sovereign-state-fabric",
+          "state": "SOVEREIGN_INTERRUPT_COMPLETED_AND_MASTER_LINE_RESUMED",
+          "revision": "3cfd4442f43eb3adb65ff341c92ec9846d5f0d2b",
+          "purpose": "Remove Cloudflare D1 quota from the critical governance path, switch authority to LOCAL_SQLITE with NAS recovery, retain D1 as stale fallback until reverse-sync parity."
+        }
+      ]
+    }
+  ],
+  "convoy_05_12_convergence": {
+    "converged_baseline_revision": "f58d76f034b7e5ec423e312d78f8ca92b8d92111",
+    "convoy_closure_revision": "d0e3283efc677ef359006ea6632f125820597730",
+    "individual_promotions": false,
+    "anti_replay": "Do not replay historical trains 06-12. Preserve their evidence and qualify only materially changed current-line scope."
+  },
+  "automatic_external_spend_eur": 0
+}

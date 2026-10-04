@@ -37,10 +37,13 @@ def capture(runtime_root:Path,promotion_id:str,lease_token:str,candidate_revisio
     ptx.write_once_json(output.resolve(),out)
     return out
 
-def require(path:Path,phase:str,lx:dict[str,Any],candidate_revision:str)->dict[str,Any]:
+def require(path:Path,phase:str,lx:dict[str,Any],candidate_revision:str,runtime_root:Path|None=None)->dict[str,Any]:
     x=load(path.resolve())
     if x.get("schema")!=SCHEMA or x.get("status")!="PASS" or x.get("phase")!=phase:raise ValueError("CYCLE_EVIDENCE_INVALID:"+phase)
-    if x.get("candidate_revision")!=candidate_revision or x.get("promotion_lease_id")!=lx.get("lease_id"):raise ValueError("CYCLE_EVIDENCE_SCOPE_MISMATCH:"+phase)
+    if runtime_root is None:
+        if x.get("candidate_revision")!=candidate_revision or x.get("promotion_lease_id")!=lx.get("lease_id"):raise ValueError("CYCLE_EVIDENCE_SCOPE_MISMATCH:"+phase)
+    else:
+        ptx.require_receipt_binding(runtime_root.resolve(),x,lx,candidate_revision,"CYCLE_EVIDENCE_"+phase)
     before=int(x.get("counter_before"));after=int(x.get("counter_after"))
     if after!=before+1:raise ValueError("CYCLE_EVIDENCE_COUNTER_INVALID:"+phase)
     if phase=="TIMER" and not str(x.get("trigger") or "").strip():raise ValueError("TIMER_TRIGGER_REQUIRED")

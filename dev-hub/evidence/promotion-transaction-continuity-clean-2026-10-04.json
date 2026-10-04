@@ -1,0 +1,32 @@
+{
+  "schema": "chacha.dev/promotion-transaction-continuity-clean-train-evidence/v1",
+  "status": "PASS",
+  "production_parent_revision": "7e7decc758217bb20c142a1bef6799fd70f796a4",
+  "production_parent_tree": "f8889d725829588ae2787a4efa5976266a846401",
+  "scope": "F01_PROMOTION_TRANSACTION_CONTINUITY",
+  "functional_changes": [
+    "same-owner recovery only",
+    "root lease lineage",
+    "monotonic recovery generation",
+    "ancestor immutable receipt acceptance only within same promotion/revision lineage",
+    "finalize after recovery without replaying unchanged evidence",
+    "readiness receipts bind exact candidate revision"
+  ],
+  "tests": {
+    "governed_platform_promotion": "PASS",
+    "promotion_cycle_evidence": "PASS",
+    "sovereign_runtime_refresh": "PASS",
+    "operator_directive_propagation": "PASS",
+    "historical_train_catalog": "PASS",
+    "functional_roadmap": "PASS",
+    "master_roadmap_convergence": "PASS"
+  },
+  "negative_tests": {
+    "recovery_owner_change": "BLOCKED",
+    "scope_change": "BLOCKED",
+    "revision_change": "BLOCKED",
+    "receipt_outside_lease_lineage": "BLOCKED_BY_CONTRACT"
+  },
+  "production_mutation": false,
+  "automatic_external_spend_eur": 0
+}

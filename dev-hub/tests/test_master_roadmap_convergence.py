@@ -6,8 +6,8 @@ M=json.loads((ROOT/"dev-hub/config/master-roadmap.v1.json").read_text())
 assert M["authority"]["autonomy_gap_roadmap_role"]=="DERIVED_SPECIALIZED_VIEW_ONLY"
 assert M["baseline"]["historical_unreconciled_candidate_is_descendant_of_current_production"] is False
 assert M["baseline"]["production_ancestry_reconciled"] is True
-assert M["baseline"]["production_sha"]=="b21470ca1041e1ec4850f2ef8ad466c469cfe26f"
-assert M["baseline"]["production_tree"]=="49ff3069f5f76e8d69d8f735ff0bf8328a6e90d7"
+assert M["baseline"]["production_sha"]=="7e7decc758217bb20c142a1bef6799fd70f796a4"
+assert M["baseline"]["production_tree"]=="f8889d725829588ae2787a4efa5976266a846401"
 by={x["id"]:x for x in M["legacy_audit"]}
 assert by["v5-reference-architecture"]["classification"]=="RETAIN_EXTEND"
 assert by["project-planner-v1"]["classification"]=="MIGRATE"
@@ -23,7 +23,7 @@ rec={x["id"]:x for x in M["production_convergence_order"]}
 assert rec["STRUCTURAL_GOVERNANCE_CONVERGENCE"]["state"]=="PRODUCTION_ACTIVE_FINALIZED"
 assert rec["COGNITIVE_MEMORY"]["state"]=="PRODUCTION_ACTIVE_FINALIZED"
 assert rec["RECURSIVE_SPECIALIZATION_FOUNDATION"]["state"]=="PRODUCTION_ACTIVE_FINALIZED"
-assert rec["FEASIBILITY_AND_SOLUTION_COMPOSER"]["state"]=="SOVEREIGN_DESCENDANT_LOCAL_QUALIFICATION_PASS_PENDING_EXACT_SHA_CI"
+assert rec["FEASIBILITY_AND_SOLUTION_COMPOSER"]["state"]=="PRODUCTION_ACTIVE_FINALIZED"
 assert rec["ARTIFACT_AND_SPECIALIST_BINDING_PARALLEL_BUILD"]["state"].startswith("SHADOW_IMPLEMENTED_LOCAL_QUALIFICATION_PASS")
 assert rec["RESOURCE_AWARE_EXECUTION"]["state"]=="EXECUTION_DAG_PLUS_RESOURCE_PLANNER_SHADOW_IMPLEMENTED_LOCAL_PASS"
 assert rec["VIRTUAL_OS_DEVICE_LAB"]["state"]=="SHADOW_PLANNER_IMPLEMENTED_REAL_QNAP_INVENTORY_PASS"

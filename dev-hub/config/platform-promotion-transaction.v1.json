@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/platform-promotion-transaction-policy/v1",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "scope": "PLATFORM_GLOBAL",
   "purpose": "Make platform promotion single-writer, lease-bound, crash-recoverable and receipt-immutable.",
   "invariants": {
@@ -22,7 +22,11 @@
     "candidate_materialization_must_not_raise_physical_release_count_above_limit": true,
     "activation_fails_closed_on_release_retention_overage": true,
     "guardian_pre_mode": "CANONICAL_ORCHESTRATOR_PROMOTION_PRE",
-    "direct_guardian_production_deploy_probe_is_not_canonical_promotion_pre": true
+    "direct_guardian_production_deploy_probe_is_not_canonical_promotion_pre": true,
+    "expired_lease_recovery_requires_same_owner": true,
+    "recovered_lease_preserves_root_lineage": true,
+    "immutable_receipts_from_ancestor_lease_remain_valid_only_within_same_promotion_and_candidate_revision": true,
+    "recovery_must_not_require_evidence_replay_when_source_receipts_and_digests_are_unchanged": true
   },
   "runtime": {
     "root": "/opt/chacha-dev/runtime/platform-promotion",
@@ -84,5 +88,16 @@
     "activation_authority": "lease-bound-governed-platform-promotion",
     "direct_production_deploy_probe_is_diagnostic_only": true,
     "reason": "Guardian production-deploy dual assurance requires post-activation functional evidence and is not the canonical pre-activation promotion gate."
+  },
+  "recovery_continuity": {
+    "root_lease_id_persistent": true,
+    "recovery_generation_monotonic": true,
+    "ancestor_binding_source": "append-only promotion ledger",
+    "owner_change_on_recovery": "FORBIDDEN",
+    "promotion_id_change_on_recovery": "FORBIDDEN",
+    "candidate_revision_change_on_recovery": "FORBIDDEN",
+    "receipt_replay_required": false,
+    "receipt_mutation_allowed": false,
+    "security_rule": "Only an expired ACTIVE lease may be recovered. A recovered lease may consume immutable receipts bound to its own ancestor lease IDs only when promotion_id and exact candidate revision remain unchanged."
   }
 }

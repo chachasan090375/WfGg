@@ -2,17 +2,20 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-04T11:18:58Z",
+  "updated_at": "2026-10-04T15:55:00Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
     "project_roadmaps_role": "CONSUMER_PROJECTS_AND_VALIDATION_TRACKS",
-    "history_must_not_be_discarded_without_supersession_evidence": true
+    "history_must_not_be_discarded_without_supersession_evidence": true,
+    "historical_train_catalog": "dev-hub/config/master-roadmap-train-history.v1.json",
+    "current_execution_order": "functional_execution_order_v2",
+    "production_convergence_order_role": "LEGACY_EVIDENCE_VIEW_RETAINED_NOT_CURRENT_EXECUTION_AUTHORITY"
   },
   "baseline": {
-    "production_sha": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
-    "production_tree": "49ff3069f5f76e8d69d8f735ff0bf8328a6e90d7",
-    "mandatory_rule": "Every future production candidate must remain descendant of Recursive Specialization Foundation / Sovereign production b21470ca1041e1ec4850f2ef8ad466c469cfe26f, preserve LOCAL_SQLITE authority routing, Sovereign rollback floor, Canonical Path anti-loop governance, CMF safety invariants, recursive specialization no-authority constraints and all materially newer production fixes before qualification.",
+    "production_sha": "7e7decc758217bb20c142a1bef6799fd70f796a4",
+    "production_tree": "f8889d725829588ae2787a4efa5976266a846401",
+    "mandatory_rule": "Every future production candidate must descend from finalized production 7e7decc758217bb20c142a1bef6799fd70f796a4 and preserve LOCAL_SQLITE Sovereign authority, Canonical Path anti-loop governance, CMF safety invariants, recursive specialization, Infrastructure Feasibility/Solution Composer contracts, promotion single-writer governance, STOP and all materially newer production fixes.",
     "historical_unreconciled_candidate_sha": "f3a7e86b1fe9e6c5b1cfa7699ae9103ddde1ed95",
     "historical_unreconciled_candidate_is_descendant_of_current_production": false,
     "production_ancestry_reconciled": true,
@@ -24,7 +27,11 @@
     "cognitive_memory_production_sha": "439db7584ab721d32b4e9e6bf89db5a63849ce93",
     "cognitive_memory_production_tree": "24f562a29d3318e9b42c51cb67c787260c77f4d5",
     "recursive_specialization_production_sha": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
-    "recursive_specialization_production_tree": "49ff3069f5f76e8d69d8f735ff0bf8328a6e90d7"
+    "recursive_specialization_production_tree": "49ff3069f5f76e8d69d8f735ff0bf8328a6e90d7",
+    "previous_finalized_baseline_sha": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
+    "previous_finalized_baseline_tree": "49ff3069f5f76e8d69d8f735ff0bf8328a6e90d7",
+    "feasibility_solution_composer_production_sha": "7e7decc758217bb20c142a1bef6799fd70f796a4",
+    "feasibility_solution_composer_production_tree": "f8889d725829588ae2787a4efa5976266a846401"
   },
   "classification_values": [
     "RETAIN",
@@ -446,8 +453,8 @@
       "order": 4,
       "id": "FEASIBILITY_AND_SOLUTION_COMPOSER",
       "action": "Qualify the Infrastructure Feasibility Auditor + Solution Composer descendant of b21470ca, then promote only under a separate human gate.",
-      "state": "SOVEREIGN_DESCENDANT_LOCAL_QUALIFICATION_PASS_PENDING_EXACT_SHA_CI",
-      "evidence": "Current-line implementation remains descendant of production b21470ca. Historical local proofs reused: Creation Runtime fabric PASS, Feasibility/Solution Composer 11/11 PASS, recursive 12/12 PASS, 2D 8/8 PASS, UMG check-only PASS for both core components. Fresh 2026-10-04 VPS feasibility remains NOT_FIT at usable 1.5 CPU / 1.3454 GiB RAM / 11.9119 GiB storage for the 4 CPU / 8 GiB workload. Fresh Composer pilot on the same acquired report PASS with mandatory feasibility_ref, target-architecture design, execution_blocked=true, recursive 5-node graph, explicit interfaces/data ownership, specialist assignment requirements, create-vs-reuse decisions, Foundry execution requested=false/authorized=false, execution/production authority=false, automatic external spend 0 EUR. Exact-SHA Sentinel + Platform Qualification pending."
+      "state": "PRODUCTION_ACTIVE_FINALIZED",
+      "evidence": "Exact SHA 7e7decc758217bb20c142a1bef6799fd70f796a4 tree f8889d725829588ae2787a4efa5976266a846401 ACTIVE and FINALIZED. Platform Qualification 37198505468 PASS; Sentinel 37198505490 PASS; Guardian PRE/POST PASS; Direct Operator and four Sovereign LOCAL_SQLITE services healthy; STOP=false; controlled 906->907 and natural timer 907->908 CONVERGED/RESUME. Lost activation lease token was recovered canonically after expiry with same promotion/revision/owner; ACTIVATE recovery was idempotent and FINALIZE PASS under lease promotion-1ffc199701a54423bdab4c6ae5b71813."
     },
     {
       "order": 5,
@@ -720,5 +727,303 @@
     "current_authority": "LOCAL_SQLITE",
     "d1_fallback_state": "RETAINED_STALE_REVERSE_SYNC_REQUIRED_BEFORE_AUTHORITY_RESTORE",
     "post_interrupt_production_baseline": "c514e1fe3a2b5976a729c7cebc4cfdff726a2369"
+  },
+  "current_runtime_state": {
+    "active_revision": "7e7decc758217bb20c142a1bef6799fd70f796a4",
+    "active_tree": "f8889d725829588ae2787a4efa5976266a846401",
+    "active_scope": "FEASIBILITY_AND_SOLUTION_COMPOSER",
+    "activation_status": "PRODUCTION_ACTIVE_FINALIZED",
+    "transaction_status": "FINALIZED",
+    "rollback_revision": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
+    "secondary_preserved_revision": "439db7584ab721d32b4e9e6bf89db5a63849ce93",
+    "stop": false,
+    "controlled_cycle": "906->907 CONVERGED RESUME",
+    "automatic_timer_cycle": "907->908 CONVERGED RESUME",
+    "finalization_lease_id": "promotion-1ffc199701a54423bdab4c6ae5b71813"
+  },
+  "functional_execution_order_v2": {
+    "schema": "chacha.dev/master-roadmap-functional-execution-order/v2",
+    "authority": "PRIMARY_CURRENT_EXECUTION_VIEW",
+    "ordering_principle": "Hard functional dependency and core safety determine order. Historical train numbering never determines current execution order. Reuse qualified shadow work and unchanged evidence; do not rebuild unchanged scope.",
+    "current_focus": "F01_PROMOTION_TRANSACTION_CONTINUITY",
+    "phases": [
+      {
+        "phase": "F00",
+        "id": "FOUNDATION_AND_SOVEREIGN_BASELINE",
+        "priority": "P0",
+        "state": "PRODUCTION_ESTABLISHED",
+        "depends_on": [],
+        "includes": [
+          "Structural Governance",
+          "Canonical Path anti-loop",
+          "LOCAL_SQLITE Sovereign authority",
+          "Cognitive Memory Fabric",
+          "Recursive Specialization",
+          "Infrastructure Feasibility Auditor",
+          "Solution Composer"
+        ],
+        "production_revision": "7e7decc758217bb20c142a1bef6799fd70f796a4",
+        "exit_gate": "SATISFIED"
+      },
+      {
+        "phase": "F01",
+        "id": "PROMOTION_TRANSACTION_CONTINUITY",
+        "priority": "P0",
+        "state": "CLEAN_PRODUCTION_DERIVED_DEVELOPMENT_LOCAL_PASS_PENDING_EXACT_SHA_CI",
+        "depends_on": [
+          "F00"
+        ],
+        "includes": [
+          "same-owner expired lease recovery",
+          "root lease lineage",
+          "ancestor immutable receipt binding",
+          "finalize-after-recovery without evidence replay",
+          "single-writer preservation"
+        ],
+        "exit_gate": "Exact-SHA Sentinel + Platform Qualification PASS, then separate human-governed production promotion."
+      },
+      {
+        "phase": "F02",
+        "id": "ARTIFACT_FABRIC_AND_PROJECT_BINDING",
+        "priority": "P0",
+        "state": "QUALIFIED_SHADOW_ASSET_TO_RECONCILE",
+        "depends_on": [
+          "F01"
+        ],
+        "reuse_asset": {
+          "sha": "924b7c17e08fafe8470a9255af4159d71c81ea21",
+          "tree": "d2ac81c4af1b4572e4aa6efac9d06b747a176dc5"
+        },
+        "includes": [
+          "bidirectional chat files",
+          "content-addressed artifact storage",
+          "project/operator binding",
+          "generated artifact publishing",
+          "non-executable upload default"
+        ]
+      },
+      {
+        "phase": "F03",
+        "id": "SPECIALIST_CELL_AND_CAPABILITY_RESOLUTION",
+        "priority": "P0",
+        "state": "QUALIFIED_SHADOW_ASSET_TO_RECONCILE",
+        "depends_on": [
+          "F01"
+        ],
+        "reuse_asset": {
+          "sha": "924b7c17e08fafe8470a9255af4159d71c81ea21",
+          "tree": "d2ac81c4af1b4572e4aa6efac9d06b747a176dc5"
+        },
+        "includes": [
+          "specialist cell resolver",
+          "canonical capability reuse",
+          "Foundry only for gaps",
+          "recursive module/domain/capability binding"
+        ]
+      },
+      {
+        "phase": "F04",
+        "id": "RESOURCE_AWARE_EXECUTION_PLANNER",
+        "priority": "P0",
+        "state": "SHADOW_LOCAL_PASS_TO_RECONCILE",
+        "depends_on": [
+          "F02",
+          "F03"
+        ],
+        "reuse_asset": {
+          "sha": "920c926b96191cac795d52da4ef99d1ff0514820",
+          "tree": "e4c20a763166dadf2ad498b28d5beff94ce1e8ac"
+        },
+        "includes": [
+          "atomic task DAG",
+          "dependency waves",
+          "resource budgets",
+          "isolated parallel lanes",
+          "integration barriers"
+        ]
+      },
+      {
+        "phase": "F05",
+        "id": "VIRTUAL_OS_DEVICE_LAB",
+        "priority": "P1",
+        "state": "SHADOW_REAL_QNAP_INVENTORY_PASS_TO_RECONCILE",
+        "depends_on": [
+          "F00"
+        ],
+        "reuse_asset": {
+          "sha": "2f245cc0d99b0e017fcea8c63ddef910b1329530",
+          "tree": "c2141ea5113664da42705baa23af02d59aafdead"
+        },
+        "includes": [
+          "target-platform matrix",
+          "VPS/QNAP runners",
+          "immutable image policy",
+          "fail-closed unsupported targets"
+        ]
+      },
+      {
+        "phase": "F06",
+        "id": "END_TO_END_CREATION_RUNTIME",
+        "priority": "P0",
+        "state": "SHADOW_PLAN_PASS_TO_RECONCILE",
+        "depends_on": [
+          "F02",
+          "F03",
+          "F04",
+          "F05"
+        ],
+        "reuse_asset": {
+          "sha": "cdb122852e9ba03fd421f7038afb9b1605db3340",
+          "tree": "0e4c938925ff92da9d1433e594d62ad626e4e218"
+        },
+        "includes": [
+          "request/files",
+          "feasibility",
+          "solution graph",
+          "specialists",
+          "task DAG",
+          "resource planner",
+          "target validation",
+          "assurance",
+          "artifacts"
+        ]
+      },
+      {
+        "phase": "F07",
+        "id": "IMPROVEMENT_INTELLIGENCE_AND_AUTONOMOUS_FACTORY",
+        "priority": "P1",
+        "state": "EXACT_SHA_QUALIFIED_SHADOW_TO_RECONCILE",
+        "depends_on": [
+          "F06"
+        ],
+        "reuse_asset": {
+          "sha": "bee13c9fab8c3f07bc987c642cbcc602d8539474"
+        },
+        "includes": [
+          "multi-agent signal synthesis",
+          "value/coherence gate",
+          "open-source/license gate",
+          "automatic governed shadow package generation",
+          "Living White Paper"
+        ]
+      },
+      {
+        "phase": "F08",
+        "id": "PLUGIN_AND_UPDATE_LIFECYCLE",
+        "priority": "P1",
+        "state": "EXACT_SHA_QUALIFIED_SHADOW_TO_RECONCILE",
+        "depends_on": [
+          "F07"
+        ],
+        "reuse_asset": {
+          "sha": "ae002f634a5b15794dbd1433c9cb056b90049e23",
+          "tree": "838487b2bbd12750d25cc4b90e2715101b35dccb"
+        },
+        "includes": [
+          "recipe-first packages",
+          "build-on-demand",
+          "disable/uninstall/reinstall",
+          "CORE_LOCKED structural boundary",
+          "Update Center"
+        ]
+      },
+      {
+        "phase": "F09",
+        "id": "CONSULTANT_PROJECT_TENANCY",
+        "priority": "P1",
+        "state": "EXACT_SHA_QUALIFIED_SHADOW_TO_RECONCILE",
+        "depends_on": [
+          "F06"
+        ],
+        "reuse_asset": {
+          "sha": "eb8614ef2484473a4627bbab1125b75d89a17196",
+          "tree": "e5e1f4ca7b76e5bf18a0cbff840985c2db1b2bf5"
+        },
+        "includes": [
+          "isolated guest projects",
+          "consultant may build own apps",
+          "core read/mutation forbidden",
+          "private job/session scope"
+        ]
+      },
+      {
+        "phase": "F10",
+        "id": "RESILIENCE_AND_RECONSTRUCTIBILITY",
+        "priority": "P1",
+        "state": "REAL_NAS_RESTORE_PASS_SHADOW_TO_RECONCILE",
+        "depends_on": [
+          "F01",
+          "F06"
+        ],
+        "reuse_asset": {
+          "sha": "2bd4ed32a067d8ff270f320cfb99c1a54a8a9b85",
+          "tree": "ed683540e91648fe2a4d0fd59c3010c1e5c6be9b"
+        },
+        "includes": [
+          "event-driven NAS image vault",
+          "Core Capsule",
+          "restore verification",
+          "recipe-first rebuild",
+          "clean-host reconstruction target"
+        ]
+      },
+      {
+        "phase": "F11",
+        "id": "REMOTE_MCP_PRIVATE_OPERATOR_ROUTE",
+        "priority": "P1",
+        "state": "SOURCE_CONVERGED_RUNTIME_UNMATERIALIZED",
+        "depends_on": [
+          "F01"
+        ],
+        "reuse_asset": {
+          "sha": "b0b9c2f6d6b24508b69cc65bf7efec915e2fa1fd",
+          "tree": "07be68eaab8cfded916a6432056c234b50d7437b"
+        },
+        "includes": [
+          "private Remote MCP",
+          "capability/policy gate",
+          "Guardian/Sentinel/STOP",
+          "zero-incremental-cost priority route"
+        ]
+      },
+      {
+        "phase": "F12",
+        "id": "NATIVE_LOCAL_AND_HA_DEEPENING",
+        "priority": "P2",
+        "state": "SOURCE_CONVERGED_NON_MUTATING",
+        "depends_on": [
+          "F10"
+        ],
+        "reuse_asset": {
+          "sha": "8b0f0a01e1b2e028adefa0c13f2807912d73452f",
+          "tree": "254bfd5c78cc2a05324e46efe59d0fa3df324a2b"
+        },
+        "includes": [
+          "Native Local provider independence",
+          "resource admission",
+          "HA standby/failover",
+          "disaster recovery"
+        ]
+      }
+    ],
+    "cross_cutting": [
+      "Guardian",
+      "Sentinel",
+      "Bastion",
+      "Logicien",
+      "UMG",
+      "CCR",
+      "Technology Watch",
+      "Dark Intelligence",
+      "STOP",
+      "zero automatic external spend"
+    ],
+    "anti_replay": "Reuse exact-SHA/materially unchanged proofs. Requalify only changed scope or cumulative production-derived candidates."
+  },
+  "historical_train_catalog": {
+    "authority": "dev-hub/config/master-roadmap-train-history.v1.json",
+    "purpose": "Canonical chronological release-train history. Current functional execution order must never replace or truncate this history.",
+    "numbering_warning": "HISTORICAL_RELEASE_TRAIN_NUMBERS_ARE_DISTINCT_FROM_CURRENT_FUNCTIONAL_EXECUTION_PHASES",
+    "history_must_be_append_only_except_governed_correction": true
   }
 }
