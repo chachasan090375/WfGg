@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-04T16:00:00Z",
+  "updated_at": "2026-10-04T16:03:00Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -460,8 +460,8 @@
       "order": 5,
       "id": "ARTIFACT_AND_SPECIALIST_BINDING_PARALLEL_BUILD",
       "action": "Develop Artifact Fabric and Specialist Cell/Foundry binding in parallel on isolated worktrees; serialize production promotion after each exact-SHA qualification.",
-      "state": "CURRENT_LINE_RECONCILED_PENDING_LOCAL_QUALIFICATION",
-      "evidence": "Historical artifact/specialist commit 924b7c17e08fafe8470a9255af4159d71c81ea21 reconciled onto functional F01 candidate 7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb; qualification pending."
+      "state": "SHADOW_IMPLEMENTED_LOCAL_QUALIFICATION_PASS_CURRENT_LINE_RECONCILED_UMG_PASS_PENDING_EXACT_SHA_CI",
+      "evidence": "Artifact Fabric 9/9 PASS; Specialist Resolver 9/9 PASS; Direct Operator V803/V804/V805 PASS; UMG CHECK core:artifact-fabric PASS and core:specialist-cell-resolver PASS; parent F01 exact SHA 7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb is Sentinel/Platform Qualification PASS."
     },
     {
       "order": 6,
@@ -745,7 +745,7 @@
     "schema": "chacha.dev/master-roadmap-functional-execution-order/v2",
     "authority": "PRIMARY_CURRENT_EXECUTION_VIEW",
     "ordering_principle": "Hard functional dependency and core safety determine order. Historical train numbering never determines current execution order. Reuse qualified shadow work and unchanged evidence; do not rebuild unchanged scope.",
-    "current_focus": "F01_PROMOTION_TRANSACTION_CONTINUITY",
+    "current_focus": "F01_PROMOTION_TRANSACTION_CONTINUITY_PROMOTION_GATE_WITH_F02_F03_SHADOW_QUALIFICATION_RUNNING",
     "phases": [
       {
         "phase": "F00",
@@ -769,7 +769,7 @@
         "phase": "F01",
         "id": "PROMOTION_TRANSACTION_CONTINUITY",
         "priority": "P0",
-        "state": "CLEAN_PRODUCTION_DERIVED_DEVELOPMENT_LOCAL_PASS_PENDING_EXACT_SHA_CI",
+        "state": "EXACT_SHA_CI_PASS_AWAITING_HUMAN_PRODUCTION_PROMOTION",
         "depends_on": [
           "F00"
         ],
@@ -780,13 +780,19 @@
           "finalize-after-recovery without evidence replay",
           "single-writer preservation"
         ],
-        "exit_gate": "Exact-SHA Sentinel + Platform Qualification PASS, then separate human-governed production promotion."
+        "exit_gate": "Exact-SHA Sentinel + Platform Qualification PASS, then separate human-governed production promotion.",
+        "qualified_candidate": {
+          "sha": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb",
+          "tree": "281bae46faa86e587416a29b5109b481855d0541",
+          "sentinel_run": 37214860695,
+          "platform_qualification_run": 37214860703
+        }
       },
       {
         "phase": "F02",
         "id": "ARTIFACT_FABRIC_AND_PROJECT_BINDING",
         "priority": "P0",
-        "state": "CURRENT_LINE_RECONCILED_PENDING_LOCAL_QUALIFICATION",
+        "state": "CURRENT_LINE_RECONCILED_LOCAL_AND_UMG_PASS_PENDING_EXACT_SHA_CI",
         "depends_on": [
           "F01"
         ],
@@ -801,13 +807,14 @@
           "generated artifact publishing",
           "non-executable upload default"
         ],
-        "reconciled_parent": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb"
+        "reconciled_parent": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb",
+        "umg_check": "PASS"
       },
       {
         "phase": "F03",
         "id": "SPECIALIST_CELL_AND_CAPABILITY_RESOLUTION",
         "priority": "P0",
-        "state": "CURRENT_LINE_RECONCILED_PENDING_LOCAL_QUALIFICATION",
+        "state": "CURRENT_LINE_RECONCILED_LOCAL_AND_UMG_PASS_PENDING_EXACT_SHA_CI",
         "depends_on": [
           "F01"
         ],
@@ -821,7 +828,8 @@
           "Foundry only for gaps",
           "recursive module/domain/capability binding"
         ],
-        "reconciled_parent": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb"
+        "reconciled_parent": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb",
+        "umg_check": "PASS"
       },
       {
         "phase": "F04",

@@ -1,0 +1,22 @@
+{
+  "schema": "chacha.dev/artifact-specialist-currentline-reconciliation/v1",
+  "status": "PASS",
+  "parent_f01_revision": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb",
+  "historical_source_revision": "924b7c17e08fafe8470a9255af4159d71c81ea21",
+  "reconciliation": "CHERRY_PICK_FUNCTIONAL_DELTA_ON_CURRENT_LINE_WITH_MASTER_ROADMAP_AUTHORITY_PRESERVED",
+  "tests": {
+    "artifact_fabric": "9/9 PASS",
+    "specialist_cell_resolver": "9/9 PASS",
+    "direct_operator_v803": "PASS",
+    "direct_operator_v804": "PASS",
+    "direct_operator_v805": "PASS",
+    "operator_directives": "PASS",
+    "master_roadmap": "PASS"
+  },
+  "umg": {
+    "core:artifact-fabric": "CHECK_ONLY_PASS",
+    "core:specialist-cell-resolver": "CHECK_ONLY_PASS"
+  },
+  "production_activation_authorized": false,
+  "automatic_external_spend_eur": 0
+}
