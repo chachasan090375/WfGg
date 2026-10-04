@@ -1,0 +1,9 @@
+[Unit]
+Description=ChaCha DEV NAS Image Vault on meaningful platform change
+
+[Path]
+PathExists=/opt/chacha-dev/runtime/nas-image-vault/dirty.json
+Unit=chacha-dev-nas-incremental-image-vault.service
+
+[Install]
+WantedBy=multi-user.target

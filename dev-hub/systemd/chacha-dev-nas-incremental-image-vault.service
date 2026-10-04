@@ -6,7 +6,7 @@ Wants=network-online.target
 [Service]
 Type=oneshot
 User=root
-ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/nas_incremental_image_vault.py --policy /opt/chacha-dev/platform/current/dev-hub/config/nas-incremental-image-vault.v1.json --repo-root /opt/chacha-dev/projects/wfgg/workspace --mode snapshot --output /opt/chacha-dev/runtime/nas-image-vault/latest.json
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/bin/nas_incremental_image_vault.py --policy /opt/chacha-dev/platform/current/dev-hub/config/nas-incremental-image-vault.v1.json --repo-root /opt/chacha-dev/projects/wfgg/workspace --mode snapshot --dirty-marker /opt/chacha-dev/runtime/nas-image-vault/dirty.json --output /opt/chacha-dev/runtime/nas-image-vault/latest.json
 Nice=10
 IOSchedulingClass=best-effort
 IOSchedulingPriority=7
