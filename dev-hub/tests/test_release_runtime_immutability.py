@@ -16,6 +16,29 @@ missing=[p.name for p in units if not rri.native_guard(p.read_text())]
 assert not missing,missing
 print('CHACHA_DEV_IMMUTABLE_RELEASE_NATIVE_SYSTEMD_GUARDS=PASS')
 
+# Every direct production entrypoint importing sovereign/quota modules self-disables bytecode before local imports.
+entrypoints=[]
+for p in sorted(BIN.glob('*.py')):
+    text=p.read_text()
+    if 'import sovereign_state_authority' in text or 'import d1_quota_circuit' in text:
+        entrypoints.append(p)
+        guard=text.find('sys.dont_write_bytecode=True')
+        local=min([i for i in (text.find('import sovereign_state_authority'),text.find('import d1_quota_circuit')) if i>=0])
+        assert guard>=0 and guard<local,p.name
+assert entrypoints
+print('CHACHA_DEV_IMMUTABLE_RELEASE_DIRECT_ENTRYPOINT_GUARDS=PASS')
+
+# Dynamic proof: a direct release-local Guardian client invocation must not create bytecode even without env guards.
+with tempfile.TemporaryDirectory() as td:
+    t=Path(td)
+    for name in ('guardian-client.py','d1_quota_circuit.py','sovereign_state_authority.py'):
+        (t/name).write_bytes((BIN/name).read_bytes())
+    env={'PATH':'/usr/bin:/bin'}
+    cp=subprocess.run(['/usr/bin/python3',str(t/'guardian-client.py'),'-h'],env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=True)
+    assert 'usage:' in cp.stdout.lower()
+    assert not list(t.rglob('*.pyc')) and not list(t.rglob('__pycache__'))
+    print('CHACHA_DEV_IMMUTABLE_RELEASE_DIRECT_CLIENT_NO_PYC=PASS')
+
 with tempfile.TemporaryDirectory() as td:
     t=Path(td); rel=t/'release'; unitsdir=rel/'dev-hub/systemd'; unitsdir.mkdir(parents=True)
     u=unitsdir/'chacha-dev-test.service'
@@ -40,6 +63,7 @@ with tempfile.TemporaryDirectory() as td:
 policy=json.load(open(ROOT/'dev-hub/config/platform-promotion-transaction.v1.json'))
 assert policy['invariants']['python_runtime_must_not_write_bytecode_into_release'] is True
 assert policy['invariants']['python_platform_current_units_require_bytecode_guard'] is True
+assert policy['invariants']['direct_python_entrypoints_importing_sovereign_modules_must_disable_bytecode_before_import'] is True
 ops=json.load(open(ROOT/'dev-hub/config/operator-directives.v1.json'))
 d=next(x for x in ops['directives'] if x['directive_id']=='opdir-immutable-release-runtime')
 assert d['status']=='ACTIVE' and d['scope']=='PLATFORM_GLOBAL' and d['backfill_required'] is True

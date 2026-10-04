@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import sys
+sys.dont_write_bytecode=True
 import copy,datetime,json,os,subprocess,time,urllib.request
 from pathlib import Path
 import roadmap_live_reassessment as rlr

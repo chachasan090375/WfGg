@@ -31,7 +31,8 @@
     "tracked_git_payload_mutation_after_materialization_forbidden": true,
     "release_envelope_may_not_shadow_tracked_git_paths": true,
     "python_runtime_must_not_write_bytecode_into_release": true,
-    "python_platform_current_units_require_bytecode_guard": true
+    "python_platform_current_units_require_bytecode_guard": true,
+    "direct_python_entrypoints_importing_sovereign_modules_must_disable_bytecode_before_import": true
   },
   "runtime": {
     "root": "/opt/chacha-dev/runtime/platform-promotion",
