@@ -1,0 +1,14 @@
+{
+  "schema": "chacha.dev/guardian-cron-quiesce/v1",
+  "status": "PASS",
+  "script": "chacha-dev-guardian",
+  "before": [
+    {
+      "cron": "* * * * *"
+    }
+  ],
+  "after": [],
+  "worker_code_mutated": false,
+  "d1_mutated": false,
+  "automatic_external_spend_eur": 0
+}

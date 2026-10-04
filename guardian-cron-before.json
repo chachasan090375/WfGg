@@ -1,0 +1,10 @@
+{
+  "schema": "chacha.dev/guardian-cron-snapshot/v1",
+  "script": "chacha-dev-guardian",
+  "schedules": [
+    {
+      "cron": "* * * * *"
+    }
+  ],
+  "automatic_external_spend_eur": 0
+}
