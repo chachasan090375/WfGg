@@ -1,0 +1,24 @@
+{
+  "schema": "chacha.dev/current-line-reconciliation-evidence/v1",
+  "phase": "F08",
+  "status": "PASS",
+  "parent_revision": "c257db360b2301172e05f25441a07b3b4be6732a",
+  "reused_shadow_revision": "bee13c9fab8c3f07bc987c642cbcc602d8539474",
+  "tests": {
+    "technology_self_benchmark": "5/5 PASS",
+    "autonomous_improvement_factory": "5/5 PASS",
+    "improvement_intelligence": "3/3 PASS",
+    "improvement_cycle": "PASS",
+    "living_whitepaper": "PASS",
+    "observation_bus_regression": "PASS",
+    "operator_directives": "PASS"
+  },
+  "umg_check_only": [
+    "core:technology-self-benchmark-observer",
+    "core:autonomous-improvement-factory",
+    "core:improvement-intelligence-fabric",
+    "core:living-whitepaper"
+  ],
+  "production_activation": false,
+  "automatic_external_spend_eur": 0
+}

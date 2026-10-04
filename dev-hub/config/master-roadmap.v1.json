@@ -996,7 +996,7 @@
         "phase": "F08",
         "id": "IMPROVEMENT_INTELLIGENCE_AND_AUTONOMOUS_FACTORY",
         "priority": "P1",
-        "state": "EXACT_SHA_QUALIFIED_SHADOW_TO_RECONCILE",
+        "state": "CURRENT_LINE_RECONCILED_LOCAL_AND_UMG_PASS_PENDING_EXACT_SHA_CI",
         "depends_on": [
           "F07"
         ],
@@ -1009,6 +1009,14 @@
           "open-source/license gate",
           "automatic governed shadow package generation",
           "Living White Paper"
+        ],
+        "reconciled_parent": "c257db360b2301172e05f25441a07b3b4be6732a",
+        "qualification": "Self benchmark 5/5 PASS; Improvement Factory 5/5 PASS; Improvement Intelligence 3/3 PASS; cycle PASS; Living White Paper PASS; Observation Bus regression PASS; four UMG CHECK-ONLY PASS; zero spend.",
+        "umg_components": [
+          "core:technology-self-benchmark-observer",
+          "core:autonomous-improvement-factory",
+          "core:improvement-intelligence-fabric",
+          "core:living-whitepaper"
         ]
       },
       {
