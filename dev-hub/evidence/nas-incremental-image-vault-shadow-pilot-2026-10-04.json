@@ -1,0 +1,68 @@
+{
+  "schema": "chacha.dev/nas-incremental-image-vault-shadow-pilot/v1",
+  "status": "PASS",
+  "date": "2026-10-04",
+  "nas_inventory": {
+    "source": {
+      "volume": "CACHEDEV1",
+      "disk": "sdb",
+      "capacity_tb": 4,
+      "vg": "vg288",
+      "role": "ChaCha DEV persistence source"
+    },
+    "vault": {
+      "volume": "CACHEDEV2",
+      "disk": "sda",
+      "capacity_tb": 18,
+      "vg": "vg289",
+      "role": "versioned logical image vault"
+    },
+    "volumes_mutual_raid": false
+  },
+  "first_image": {
+    "image_id": "20261004T141924Z",
+    "path": "/share/CACHEDEV2_DATA/ChaCha-DEV-Image-Vault/images/20261004T141924Z",
+    "previous_image": null,
+    "file_count": 9945,
+    "logical_bytes": 3478432090,
+    "post_copy_diff_empty": true
+  },
+  "incremental_image": {
+    "image_id": "20261004T142200Z",
+    "path": "/share/CACHEDEV2_DATA/ChaCha-DEV-Image-Vault/images/20261004T142200Z",
+    "previous_image": "20261004T141924Z",
+    "file_count": 9954,
+    "logical_bytes": 3560323566,
+    "post_copy_diff_empty": true
+  },
+  "restore_probe": {
+    "status": "PASS",
+    "git_bundle_verify": "PASS",
+    "sqlite_integrity": "ok",
+    "production_revision": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f"
+  },
+  "core_capsule": {
+    "production_revision": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
+    "git_head": "eb8614ef2484473a4627bbab1125b75d89a17196",
+    "secrets_included": false,
+    "runtime_database_count": 6
+  },
+  "storage_observation": {
+    "vault_physical_human": "3.5G",
+    "first_image_physical_human": "3.3G",
+    "second_incremental_unique_human": "158M",
+    "logical_generation_count": 2
+  },
+  "umg_check": {
+    "schema": "chacha.dev/universal-materialization-gate-receipt/v1",
+    "status": "PASS",
+    "registered": false,
+    "check_only": true,
+    "component_id": "core:nas-incremental-image-vault",
+    "birth_contract_complete": true,
+    "automatic_external_spend_eur": 0
+  },
+  "automatic_prune_enabled": false,
+  "production_activation_authorized": false,
+  "automatic_external_spend_eur": 0
+}

@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-04T13:55:00Z",
+  "updated_at": "2026-10-04T14:20:00Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -393,10 +393,28 @@
         "backup/restore",
         "standby",
         "HA",
-        "disaster recovery"
+        "disaster recovery",
+        "incremental NAS image vault"
       ],
       "blocking_for_full_creation_runtime": false,
-      "evidence": "HA profile/builder/rehearsal match f58d terminal paths. Existing runtime readiness is PASS only for 3d403f60; rehearsal against current production d84d389b blocks on PLATFORM_REVISION_MISMATCH with no writer switch or failover."
+      "evidence": "HA profile/builder/rehearsal match f58d terminal paths. Existing runtime readiness is PASS only for 3d403f60; rehearsal against current production d84d389b blocks on PLATFORM_REVISION_MISMATCH with no writer switch or failover. NAS image-vault subworkstream now tracks versioned 4TB→18TB logical backups independently from HA failover."
+    },
+    {
+      "id": "nas-incremental-image-vault",
+      "priority": "P1",
+      "state": "SHADOW_REAL_NAS_INCREMENTAL_RESTORE_PASS",
+      "includes": [
+        "4TB CACHEDEV1 ChaCha persistence as source",
+        "18TB CACHEDEV2 logical image vault",
+        "core capsule with Git bundle and active release",
+        "SQLite backup API for critical runtime databases",
+        "rsync hard-link incremental images",
+        "post-copy source/image equivalence check",
+        "restore verification",
+        "Intendant-governed retention"
+      ],
+      "blocking_for_full_creation_runtime": false,
+      "evidence": "2026-10-04 real NAS pilot PASS: source CACHEDEV1 4TB/sdb/vg288 -> vault CACHEDEV2 18TB/sda/vg289. First image 20261004T141924Z; second hard-link image 20261004T142200Z references first. Source/image rsync diff empty. Restore probe pulled Git bundle + guardian SQLite back from 18TB: git bundle verify PASS, SQLite integrity_check ok. Two logical generations consume ~3.5G physical; second incremental unique footprint ~158M. Core capsule excludes secrets. Automatic prune and production activation remain false."
     },
     {
       "id": "autonomy",
