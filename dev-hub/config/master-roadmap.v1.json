@@ -747,7 +747,7 @@
     "schema": "chacha.dev/master-roadmap-functional-execution-order/v2",
     "authority": "PRIMARY_CURRENT_EXECUTION_VIEW",
     "ordering_principle": "Hard functional dependency and core safety determine order: artifacts/specialists -> execution DAG -> resource-aware scheduling -> target OS/device validation -> E2E runtime -> extensibility/access/resilience/remote/HA. Historical train numbering never determines current execution order. Reuse qualified shadow work and unchanged evidence; do not rebuild unchanged scope.",
-    "current_focus": "F04_EXECUTION_PLANNER_CURRENT_LINE_RECONCILIATION",
+    "current_focus": "F05_RESOURCE_AWARE_SCHEDULER_CURRENT_LINE_RECONCILIATION",
     "phases": [
       {
         "phase": "F00",
@@ -835,7 +835,7 @@
         "phase": "F04",
         "id": "EXECUTION_PLANNER",
         "priority": "P0",
-        "state": "CURRENT_LINE_RECONCILED_LOCAL_QUALIFICATION_PASS_PENDING_EXACT_SHA_CI",
+        "state": "EXACT_SHA_QUALIFIED_SHADOW",
         "depends_on": [
           "F02",
           "F03"
@@ -851,13 +851,15 @@
           "planning-only execution contract",
           "no direct production mutation"
         ],
-        "production_parent_sha": "7242c922cbad726a8ee8222c4b03da2d44aa3b14"
+        "production_parent_sha": "7242c922cbad726a8ee8222c4b03da2d44aa3b14",
+        "qualified_sha": "a414320c5856162b556c8744fd07e51800d06479",
+        "qualified_tree": "3e77e3457764a526ac82a5af57427c9cc2e1967b"
       },
       {
         "phase": "F05",
         "id": "RESOURCE_AWARE_SCHEDULER",
         "priority": "P0",
-        "state": "SHADOW_LOCAL_PASS_TO_RECONCILE",
+        "state": "LOCAL_QUALIFICATION_PASS_PENDING_EXACT_SHA_CI",
         "depends_on": [
           "F04"
         ],
@@ -872,7 +874,8 @@
           "isolated parallel lanes",
           "backpressure",
           "integration barriers"
-        ]
+        ],
+        "production_parent_sha": "a414320c5856162b556c8744fd07e51800d06479"
       },
       {
         "phase": "F06",
