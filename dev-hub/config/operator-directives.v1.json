@@ -226,6 +226,39 @@
         "progress-reporting"
       ],
       "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-federated-improvement-intelligence-living-whitepaper",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "AUTONOMY_EVOLUTION",
+      "status": "ACTIVE",
+      "normalized_requirement": "All authorized ChaCha DEV observation, assurance, intelligence, learning, benchmark and operator-directive agents must contribute evidence to one federated Improvement Intelligence Fabric. No single collector owns platform evolution. Signals are normalized, deduplicated, corroborated and value-gated; novelty alone never justifies a train. Only the central orchestrator may hand an approved improvement axis to the Creation Runtime/Foundries. Open-source reuse is permitted only when provenance and license obligations are compatible; otherwise rebuild the mechanism. Every promoted platform update refreshes a living white paper covering runtime-observed architecture, functional rationale, limitations, roadmap, competitive comparison, business model and valuation scenarios. The Direct Operator Cockpit exposes governed Update Center and White Paper entry points. Production remains human-gated.",
+      "required_sinks": [
+        "improvement-intelligence-fabric",
+        "technology-watch",
+        "dark-intelligence",
+        "technology-truth-scoring",
+        "guardian",
+        "sentinel",
+        "bastion",
+        "intendant",
+        "fleet-observatory",
+        "assurance",
+        "learning-relay",
+        "cognitive-memory-fabric",
+        "logician",
+        "architecture-council",
+        "central-orchestrator",
+        "creation-runtime-fabric",
+        "all-foundries",
+        "universal-materialization-gate",
+        "canonical-component-registry",
+        "direct-operator-cockpit",
+        "governed-platform-promotion",
+        "release-qualification",
+        "progress-reporting"
+      ],
+      "backfill_required": true
     }
   ],
   "runtime": {

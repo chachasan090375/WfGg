@@ -415,17 +415,67 @@
     {
       "id": "technology-self-benchmark-observer",
       "priority": "P1",
-      "state": "SHADOW_IMPLEMENTED_LOCAL_PASS_UMG_CHECK_PASS_PENDING_EXACT_SHA_CI",
+      "state": "SHADOW_EXACT_SHA_CI_PASS",
       "includes": [
         "external mechanism watch",
         "evidence scoring",
         "negative knowledge",
         "local comparative benchmark gate",
-        "no-code-harvest",
+        "license-aware open-source reuse gate",
         "out-of-band advisory boundary"
       ],
       "blocking_for_full_creation_runtime": false,
-      "evidence": "Technology Watch self-comparison lane created as out-of-band advisory observer; no production/execution/Foundry authority, no source-code harvesting, zero automatic external spend. External mechanisms cannot exceed WATCH until a local measured comparison exists."
+      "evidence": "Self-benchmark observer exact-SHA cdbd63e8926b69ed1182ab5d1fd44f9c284c0ad8; Sentinel run 37199554513 PASS; Platform Qualification run 37199554414 PASS. Observer has no direct build or production authority."
+    },
+    {
+      "id": "autonomous-improvement-factory",
+      "priority": "P1",
+      "state": "SHADOW_IMPLEMENTED_LOCAL_PASS",
+      "includes": [
+        "global utility gate",
+        "reuse-before-rebuild strategy",
+        "license/provenance/SBOM gate",
+        "Creation Runtime + Foundry handoff",
+        "Cockpit Update Center",
+        "dependency/conflict-aware batch promotion request"
+      ],
+      "blocking_for_full_creation_runtime": false,
+      "evidence": "Factory targeted tests 5/5 PASS. Production authority false; UI starts governed promotion intent only."
+    },
+    {
+      "id": "improvement-intelligence-fabric",
+      "priority": "P1",
+      "state": "SHADOW_IMPLEMENTED_LOCAL_PASS",
+      "includes": [
+        "Agent Observation Bus federation",
+        "Technology Watch",
+        "competitive watch",
+        "Technology Truth",
+        "Dark Intelligence corroboration",
+        "Guardian/Sentinel/Bastion/Intendant/runtime evidence",
+        "cross-source deduplication",
+        "global value scoring",
+        "canonical platform reassessment routing"
+      ],
+      "blocking_for_full_creation_runtime": false,
+      "evidence": "Fabric tests 3/3 PASS; verified Bus signal -> governed platform reassessment PASS; Dark Intelligence alone cannot authorize candidate; novelty-without-value rejected; no execution/production authority."
+    },
+    {
+      "id": "living-whitepaper",
+      "priority": "P1",
+      "state": "SHADOW_IMPLEMENTED_LOCAL_PASS",
+      "includes": [
+        "runtime-vs-config-vs-roadmap truth separation",
+        "multi-level SVG architecture maps",
+        "functional and technical module catalog",
+        "competitor baseline",
+        "business plan",
+        "valuation scenarios",
+        "Cockpit Livre blanc entry",
+        "non-blocking refresh after finalized promotion"
+      ],
+      "blocking_for_full_creation_runtime": false,
+      "evidence": "Living whitepaper generator PASS; current runtime preview generated with production b21470ca, LOCAL_SQLITE authority and five core services ACTIVE. Governed promotion V2 regression PASS after refresh hook."
     }
   ],
   "production_convergence_order": [

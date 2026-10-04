@@ -77,6 +77,7 @@ def assess(dossier:dict[str,Any],policy:dict[str,Any])->dict[str,Any]:
         row={
           'mechanism_id':m.get('mechanism_id'),'capability':m.get('capability'),'origin':origin,'recommendation':cls,
           'title':m.get('title'),'functional_summary':m.get('functional_summary'),'platform_value':m.get('platform_value') or m.get('value_dimensions'),
+          'target_component_id':m.get('target_component_id') or 'central-orchestrator','candidate_owner':m.get('candidate_owner') or 'branch-foundry',
           'dependencies':m.get('dependencies') or [],'conflicts':m.get('conflicts') or [],'source_refs':m.get('source_refs') or [],
           'evidence_score':evidence,'maturity_score':maturity,'external_measured_score':external,'internal_measured_score':internal,
           'advantage_points':advantage,'comparison_measured':comparison_measured,'global_value_score':float(m.get('global_value_score') or 0),

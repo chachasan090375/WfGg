@@ -1,0 +1,26 @@
+{
+  "schema": "chacha.dev/living-whitepaper/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "formats": ["HTML", "JSON_SNAPSHOT"],
+  "runtime_output_root": "/opt/chacha-dev/runtime/whitepaper/current",
+  "cockpit": {"icon":"📘", "label":"Livre blanc", "path":"/whitepaper/current"},
+  "sections_required": [
+    "executive_summary", "current_state", "functional_architecture", "technical_architecture",
+    "multi_level_maps", "governance_and_safety", "improvement_intelligence", "module_catalog",
+    "competitive_landscape", "business_plan", "valuation_scenarios", "risks_and_limitations",
+    "roadmap", "evidence_and_provenance"
+  ],
+  "refresh_triggers": [
+    "PROMOTION_FINALIZED", "MASTER_ROADMAP_CHANGED", "ARCHITECTURE_CHANGED", "COMPETITIVE_BASELINE_REFRESHED"
+  ],
+  "promotion_refresh": {"required": true, "failure_blocks_promotion": false, "failure_must_be_recorded": true},
+  "principles": {
+    "runtime_observed_state_has_priority_over_stale_config": true,
+    "declared_config_and_target_roadmap_are_labeled_separately": true,
+    "financial_values_are_scenarios_not_appraisal": true,
+    "competitor_claims_require_source_urls": true,
+    "automatic_external_spend_eur": 0
+  },
+  "automatic_external_spend_eur": 0
+}

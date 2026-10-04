@@ -772,6 +772,18 @@ class Handler(BaseHTTPRequestHandler):
                 return self.json(503,{"schema":"chacha.dev/cockpit-update-center/v1","status":"UNAVAILABLE","items":[]})
             payload["production_authority"]=False
             return self.json(200,payload)
+        if path=="/api/v1/whitepaper":
+            q=self.st.runtime/"whitepaper"/"current"/"metadata.json"
+            if not q.is_file(): return self.json(200,{"schema":"chacha.dev/living-whitepaper-snapshot/v1","status":"NOT_GENERATED"})
+            try:return self.json(200,load(q))
+            except Exception:return self.json(503,{"schema":"chacha.dev/living-whitepaper-snapshot/v1","status":"UNAVAILABLE"})
+        if path in {"/whitepaper/current","/whitepaper/current/","/whitepaper/current/index.html"}:
+            target=(self.st.runtime/"whitepaper"/"current"/"index.html").resolve()
+            root=(self.st.runtime/"whitepaper"/"current").resolve()
+            try:target.relative_to(root)
+            except ValueError:return self.json(403,{"status":"FORBIDDEN"})
+            if not target.is_file():return self.json(404,{"status":"WHITEPAPER_NOT_GENERATED"})
+            raw=target.read_bytes();self.send_response(200);self.send_header("Content-Type","text/html; charset=utf-8");self.send_header("Content-Length",str(len(raw)));self.send_header("Cache-Control","no-store");self.send_header("X-Content-Type-Options","nosniff");self.end_headers();self.wfile.write(raw);return
         if path=="/api/v1/app-config":
             return self.json(200,self.st.effective_live_shell_config())
         if path=="/api/v1/native-update":

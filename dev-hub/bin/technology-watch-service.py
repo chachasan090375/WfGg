@@ -8,6 +8,7 @@ import technology_truth_scoring as tts
 import technology_core_watch as tcw
 import technology_self_benchmark_observer as tsbo
 import autonomous_improvement_factory as aif
+import improvement_intelligence_fabric as iif
 import universal_learning_runtime as ulr
 
 def save(path:Path,value)->None:
@@ -112,8 +113,12 @@ def main():
         dossier=json.loads(a.dossier.read_text(encoding="utf-8"))
         report=tsbo.assess(dossier,observer_policy)
         a.output_dir.mkdir(parents=True,exist_ok=True)
-        save(a.output_dir/"observer-report.json",report)
-        queue=aif.build_queue(report,factory_policy)
+        observer_path=a.output_dir/"observer-report.json";save(observer_path,report)
+        intelligence_policy=json.loads((root/"dev-hub/config/improvement-intelligence-fabric.v1.json").read_text(encoding="utf-8"))
+        signals=iif.canonical_signal(report,observer_path,intelligence_policy)
+        synthesis=iif.synthesize(signals,intelligence_policy)
+        save(a.output_dir/"improvement-intelligence-synthesis.json",synthesis)
+        queue=aif.build_queue(synthesis,factory_policy)
         save(a.output_dir/"update-center-queue.json",queue)
         if a.runtime_root:
             runtime=a.runtime_root.resolve(); inbox=runtime/"autonomous-improvement"/"inbox"; inbox.mkdir(parents=True,exist_ok=True)
