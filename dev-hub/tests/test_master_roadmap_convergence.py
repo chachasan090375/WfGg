@@ -6,6 +6,8 @@ M=json.loads((ROOT/"dev-hub/config/master-roadmap.v1.json").read_text())
 assert M["authority"]["autonomy_gap_roadmap_role"]=="DERIVED_SPECIALIZED_VIEW_ONLY"
 assert M["baseline"]["historical_unreconciled_candidate_is_descendant_of_current_production"] is False
 assert M["baseline"]["production_ancestry_reconciled"] is True
+assert M["baseline"]["production_sha"]=="cf08380e2ce6ab7ef5b2e8290aaca58be302fb1d"
+assert M["baseline"]["production_tree"]=="627cc0a4f9bcb33a004e35c95cf02a50e733ddcf"
 by={x["id"]:x for x in M["legacy_audit"]}
 assert by["v5-reference-architecture"]["classification"]=="RETAIN_EXTEND"
 assert by["project-planner-v1"]["classification"]=="MIGRATE"
@@ -18,6 +20,8 @@ assert by["remote-operator-mcp"]["classification"]=="PARALLEL_TRACK"
 assert by["autonomy-gap-roadmap"]["decision"].find("derived view")>=0
 assert by["wfgg-radar-and-other-product-projects"]["classification"]=="VALIDATION_PROJECT_ONLY"
 rec={x["id"]:x for x in M["production_convergence_order"]}
+assert rec["STRUCTURAL_GOVERNANCE_CONVERGENCE"]["state"]=="PRODUCTION_ACTIVE_FINALIZED"
+assert rec["COGNITIVE_MEMORY"]["state"]=="SOVEREIGN_DESCENDANT_LOCAL_BUNDLE_PASS_PENDING_EXACT_SHA_CI"
 assert rec["RECURSIVE_SPECIALIZATION_FOUNDATION"]["state"]=="SHADOW_FOUNDATION_IMPLEMENTED_PENDING_EXACT_SHA_CI"
 assert rec["FEASIBILITY_AND_SOLUTION_COMPOSER"]["state"]=="SHADOW_IMPLEMENTED_PENDING_EXACT_SHA_CI"
 assert rec["ARTIFACT_AND_SPECIALIST_BINDING_PARALLEL_BUILD"]["state"].startswith("SHADOW_IMPLEMENTED_LOCAL_QUALIFICATION_PASS")

@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-04T08:24:00Z",
+  "updated_at": "2026-10-04T09:11:00Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -10,15 +10,17 @@
     "history_must_not_be_discarded_without_supersession_evidence": true
   },
   "baseline": {
-    "production_sha": "c514e1fe3a2b5976a729c7cebc4cfdff726a2369",
-    "production_tree": "17493215a7b019a7486b06b39931ded13e996f72",
-    "mandatory_rule": "Every future production candidate must remain descendant of Guardian Safety V4 Sovereign production c514e1fe3a2b5976a729c7cebc4cfdff726a2369, preserve LOCAL_SQLITE authority routing, Sovereign rollback floor and all materially newer production fixes before qualification.",
+    "production_sha": "cf08380e2ce6ab7ef5b2e8290aaca58be302fb1d",
+    "production_tree": "627cc0a4f9bcb33a004e35c95cf02a50e733ddcf",
+    "mandatory_rule": "Every future production candidate must remain descendant of Structural Governance / Canonical Path Sovereign production cf08380e2ce6ab7ef5b2e8290aaca58be302fb1d, preserve LOCAL_SQLITE authority routing, Sovereign rollback floor, Canonical Path anti-loop governance and all materially newer production fixes before qualification.",
     "historical_unreconciled_candidate_sha": "f3a7e86b1fe9e6c5b1cfa7699ae9103ddde1ed95",
     "historical_unreconciled_candidate_is_descendant_of_current_production": false,
     "production_ancestry_reconciled": true,
     "baseline_reconciliation_merge_sha": "af82b3b4",
     "structural_convergence_merge_sha": "c881cbe14e39ef1f55312350b1dfc5c223e1a57e",
-    "converged_candidate_branch": "master-roadmap-production-derived-v1"
+    "converged_candidate_branch": "master-roadmap-production-derived-v1",
+    "structural_governance_production_sha": "cf08380e2ce6ab7ef5b2e8290aaca58be302fb1d",
+    "structural_governance_production_tree": "627cc0a4f9bcb33a004e35c95cf02a50e733ddcf"
   },
   "classification_values": [
     "RETAIN",
@@ -411,22 +413,23 @@
     {
       "order": 0,
       "id": "BASELINE_RECONCILIATION",
-      "action": "Preserve current Sovereign Guardian Safety V4 production c514e1fe... as the baseline for every future candidate; no candidate may regress LOCAL_SQLITE authority, Sovereign rollback floor or promotion-safety fixes.",
-      "state": "PRODUCTION_BASELINE_GUARDIAN_SAFETY_V4_SOVEREIGN_ACTIVE",
-      "evidence": "Guardian Safety V4 promotion FINALIZED/PASS on c514e1fe3a2b5976a729c7cebc4cfdff726a2369; rollback 0dd17183..., LOCAL_SQLITE 4/4 healthy, Guardian/Sentinel POST PASS, controlled 864→865 and timer 865→866."
+      "action": "Preserve current Structural Governance / Canonical Path Sovereign production cf08380e... as the baseline for every future candidate; no candidate may regress LOCAL_SQLITE authority, Sovereign rollback floor, Canonical Path anti-loop routing or promotion-safety fixes.",
+      "state": "PRODUCTION_BASELINE_STRUCTURAL_GOVERNANCE_SOVEREIGN_ACTIVE",
+      "evidence": "Structural Governance promotion FINALIZED/PASS on cf08380e2ce6ab7ef5b2e8290aaca58be302fb1d; rollback c514e1fe..., secondary Sovereign archive 0dd17183..., LOCAL_SQLITE 4/4 healthy, Guardian/Sentinel POST PASS, controlled 869→870 and real timer 870→871."
     },
     {
       "order": 1,
       "id": "STRUCTURAL_GOVERNANCE_CONVERGENCE",
       "action": "Converge structural-architecture-gates e0de6300 (including enhanced Canonical Path and persistent mission wiring) onto the production-derived line; qualify and promote as a small reversible train.",
-      "state": "SOVEREIGN_DESCENDANT_SHADOW_REBUILT_LOCAL_PASS_PENDING_EXACT_SHA_CI",
-      "evidence": "Structural/Canonical Path delta rebuilt as direct descendant of c514e1fe. Canonical Path 27/27 PASS, persistent missions and structural gate PASS, Sovereign V4 safeguards retained. Historical Council-final-authority drift corrected: Council recommendation/admissibility only; Central Orchestrator final decider; Logicien falsification only. Exact-SHA CI pending."
+      "state": "PRODUCTION_ACTIVE_FINALIZED",
+      "evidence": "Production ACTIVE cf08380e2ce6ab7ef5b2e8290aaca58be302fb1d tree 627cc0a4f9bcb33a004e35c95cf02a50e733ddcf. Exact-SHA Sentinel run 37188836998 SUCCESS and Platform Qualification run 37188838837 SUCCESS. Canonical Path 27/27 PASS, Master Roadmap embedded, LOCAL_SQLITE retained, Guardian/Sentinel POST PASS, Direct Operator readiness PASS, controlled 869→870 and timer 870→871, lease FINALIZED."
     },
     {
       "order": 2,
       "id": "COGNITIVE_MEMORY",
       "action": "Reconcile qualified CMF 4968c020 onto the new production-derived line; reuse unchanged evidence, rerun only changed-scope qualification, then promote if separately approved.",
-      "state": "PENDING"
+      "state": "SOVEREIGN_DESCENDANT_LOCAL_BUNDLE_PASS_PENDING_EXACT_SHA_CI",
+      "evidence": "CMF original qualified lineage 812154fd→c9a23118→f8bfb1bc→9a547adc→4968c020 reconciled onto direct cf08380e descendant without reactivating Native Local/Qwen. Current Sovereign NAS readback allowlist retained as strict superset. CMF focused tests PASS: foundation 7/7, persistence 6/6, NAS readback 7/7, tiering schedule 5/5, domain specialist memory 7/7, runtime integration 4/4; roadmap, Master Roadmap, Guardian coverage, Sovereign promotion safeguards and Canonical Path 27/27 regressions PASS. Production activation remains NO; exact-SHA CI required on sealed descendant."
     },
     {
       "order": 3,
