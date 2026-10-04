@@ -148,6 +148,14 @@ def refresh_living_whitepaper(release_root:Path,runtime_root:Path)->dict[str,Any
     except Exception as exc:
         return {'status':'WARNING','blocking':False,'reason':type(exc).__name__+':'+str(exc)[:300]}
 
+def mark_nas_image_vault_dirty(runtime_root:Path,candidate_revision:str,reason:str='PLATFORM_PROMOTION_FINALIZED')->dict[str,Any]:
+    try:
+        p=runtime_root/'nas-image-vault'/'dirty.json'; p.parent.mkdir(parents=True,exist_ok=True)
+        atomic_json(p,{'schema':'chacha.dev/nas-image-vault-dirty/v1','status':'DIRTY','reason':reason,'production_revision':candidate_revision,'marked_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'automatic_external_spend_eur':0})
+        return {'status':'DIRTY','path':str(p),'blocking':False}
+    except Exception as exc:
+        return {'status':'WARNING','blocking':False,'reason':type(exc).__name__+':'+str(exc)[:300]}
+
 def atomic_current_switch(current:Path,target:Path,lease_id:str)->None:
     current=current.absolute();target=target.resolve();tmp=current.with_name(current.name+'.promotion-'+lease_id)
     tmp.unlink(missing_ok=True);os.symlink(str(target),str(tmp),target_is_directory=True);os.replace(tmp,current)
@@ -249,7 +257,7 @@ def finalize(release_root:Path,current:Path,runtime_root:Path,receipt:Path,guard
     atomic_json(p,meta)
     out=ptx.bind_receipt(lx,{'schema':SCHEMA,'phase':'FINALIZE','status':'PASS','candidate_revision':meta['candidate_revision'],
       'promotion_acceptance_status':'PASS','promotion_final_verification':'PASS','current_release_mutated':False})
-    ptx.write_once_json(receipt,out);ptx.release(runtime_root,lease_token,promotion_id,meta['candidate_revision'],'FINALIZED');return out
+    ptx.write_once_json(receipt,out);ptx.release(runtime_root,lease_token,promotion_id,meta['candidate_revision'],'FINALIZED');mark_nas_image_vault_dirty(runtime_root,meta['candidate_revision']);return out
 
 def rollback(release_root:Path,current:Path,runtime_root:Path,receipt:Path,promotion_id:str,lease_token:str,reason:str)->dict[str,Any]:
     release_root=release_root.resolve();p=release_root/'.release-preparation.json';meta=load(p);validate_preparation(meta)

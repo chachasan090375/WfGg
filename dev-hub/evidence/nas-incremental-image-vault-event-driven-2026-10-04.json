@@ -1,0 +1,15 @@
+{
+  "schema": "chacha.dev/nas-incremental-image-vault-event-driven-pilot/v1",
+  "status": "PASS",
+  "observed_at": "2026-10-04T14:30:00Z",
+  "fixed_periodic_timer_removed": true,
+  "trigger_mode": "EVENT_DRIVEN_DIRTY_MARKER",
+  "promotion_finalize_marks_dirty": true,
+  "unchanged_revision_returns_no_change": true,
+  "unchanged_revision_creates_snapshot": false,
+  "failure_preserves_dirty_marker": true,
+  "success_clears_dirty_marker": true,
+  "application_build_alone_marks_dirty": false,
+  "automatic_external_spend_eur": 0,
+  "production_activation_authorized": false
+}

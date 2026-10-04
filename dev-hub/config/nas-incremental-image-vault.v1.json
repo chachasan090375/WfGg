@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/nas-incremental-image-vault/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "mode": "SHADOW_READY",
   "purpose": "Keep reconstructible, versioned ChaCha DEV logical images on the 18 TB NAS volume using the 4 TB ChaCha persistence volume as source.",
   "nas_host": "chachanas",
@@ -50,15 +50,24 @@
     "prune_requires_intendant_plan": true,
     "destructive_prune_requires_guardian_and_human_gate": true
   },
-  "cadence_target": {
-    "incremental_minutes": 30,
-    "daily_portable_archive": true
-  },
   "authority": {
     "production_activation": false,
     "nas_source_mutation": "CORE_CAPSULE_ONLY",
     "nas_vault_write": true,
     "destructive_delete": false
   },
-  "automatic_external_spend_eur": 0
+  "automatic_external_spend_eur": 0,
+  "trigger_policy": {
+    "mode": "EVENT_DRIVEN_DIRTY_MARKER",
+    "periodic_snapshot_timer": false,
+    "dirty_marker": "/opt/chacha-dev/runtime/nas-image-vault/dirty.json",
+    "events": [
+      "PLATFORM_PROMOTION_FINALIZED",
+      "MANUAL_RECOVERY_POINT"
+    ],
+    "application_build_alone_marks_dirty": false,
+    "unchanged_production_revision_skips_snapshot": true,
+    "failure_preserves_dirty_marker": true,
+    "success_clears_dirty_marker": true
+  }
 }
