@@ -1,0 +1,170 @@
+{
+  "schema": "chacha.dev/improvement-intelligence-fabric/v1",
+  "version": "1.0.0",
+  "scope": "PLATFORM_GLOBAL",
+  "mode": "FEDERATED_EVIDENCE_SYNTHESIS",
+  "purpose": "Fuse verified signals from every authorized ChaCha DEV observation and assurance source into globally useful improvement axes without granting any source build or production authority.",
+  "principles": {
+    "all_agents_keep_independent_roles": true,
+    "no_single_observer_owns_platform_evolution": true,
+    "central_orchestrator_owns_improvement_handoff": true,
+    "evidence_before_idea": true,
+    "global_utility_before_build": true,
+    "novelty_is_not_value": true,
+    "contradictions_are_preserved_until_resolved": true,
+    "negative_knowledge_is_retained": true,
+    "duplicate_signals_are_clustered_not_counted_twice": true,
+    "production_authority": false,
+    "automatic_external_spend_eur": 0
+  },
+  "authorized_sources": [
+    "agent-observation-bus",
+    "architecture-council",
+    "assurance-exchange",
+    "autonomy-core-supervisor",
+    "bastion",
+    "benchmark-fabric",
+    "central-orchestrator",
+    "cognitive-memory-fabric",
+    "competitive-watch",
+    "curator",
+    "dark-intelligence",
+    "ergonomist",
+    "fleet-observatory",
+    "guardian",
+    "intendant",
+    "learning-relay",
+    "logician",
+    "operator-directives",
+    "production-lineage-feedback",
+    "project-control",
+    "recovery-orchestrator",
+    "run-controller",
+    "runtime-telemetry",
+    "sentinel",
+    "seven-agent-final-compromise-controller",
+    "technology-truth",
+    "technology-watch",
+    "verification-broker"
+  ],
+  "source_classes": {
+    "external_market": [
+      "technology-watch",
+      "competitive-watch"
+    ],
+    "external_untrusted": [
+      "dark-intelligence"
+    ],
+    "verified_truth": [
+      "technology-truth"
+    ],
+    "runtime_assurance": [
+      "guardian",
+      "sentinel",
+      "bastion",
+      "assurance-exchange"
+    ],
+    "runtime_efficiency": [
+      "intendant",
+      "fleet-observatory",
+      "runtime-telemetry"
+    ],
+    "learning": [
+      "learning-relay",
+      "cognitive-memory-fabric",
+      "production-lineage-feedback"
+    ],
+    "architecture": [
+      "architecture-council",
+      "logician"
+    ],
+    "experience": [
+      "ergonomist",
+      "curator"
+    ],
+    "human_authority": [
+      "operator-directives"
+    ],
+    "benchmark": [
+      "benchmark-fabric"
+    ],
+    "execution_runtime": [
+      "autonomy-core-supervisor",
+      "central-orchestrator",
+      "recovery-orchestrator",
+      "run-controller"
+    ],
+    "verification_runtime": [
+      "agent-observation-bus",
+      "project-control",
+      "seven-agent-final-compromise-controller",
+      "verification-broker"
+    ]
+  },
+  "normalization": {
+    "required_fields": [
+      "signal_id",
+      "source_agent",
+      "capability",
+      "claim",
+      "evidence_refs"
+    ],
+    "provenance_required": true,
+    "confidence_required": true,
+    "source_timestamp_required": true,
+    "raw_dark_source_never_fact": true,
+    "technology_truth_must_reference_verification_receipt": true
+  },
+  "fusion": {
+    "cluster_key_order": [
+      "capability",
+      "mechanism_id",
+      "claim_fingerprint"
+    ],
+    "independence_graph_required": true,
+    "same_owner_sources_do_not_multiply_independence": true,
+    "minimum_distinct_source_classes_for_high_confidence": 2,
+    "dark_intelligence_requires_independent_corroboration": true,
+    "runtime_failure_signal_may_open_local_improvement_without_external_corroboration": true,
+    "conflicting_high_confidence_signals_route_to_logician": true
+  },
+  "utility_gate": {
+    "minimum_global_value_score": 65,
+    "minimum_supported_dimensions": 1,
+    "architecture_fit_required": true,
+    "material_gain_required_for_duplicate_capability": true,
+    "maximum_maintenance_debt_score": 60,
+    "dimensions": {
+      "autonomy": 20,
+      "reliability": 20,
+      "security": 15,
+      "performance": 15,
+      "cost_efficiency": 10,
+      "maintainability": 10,
+      "user_experience": 10
+    }
+  },
+  "outputs": [
+    "IGNORE",
+    "WATCH",
+    "BENCHMARK_REQUIRED",
+    "IMPROVEMENT_CANDIDATE",
+    "CONTRADICTION_REVIEW"
+  ],
+  "handoff": {
+    "target": "central-orchestrator",
+    "schema": "chacha.dev/improvement-request/v1",
+    "logician_falsification_required": true,
+    "architecture_council_review_required": true,
+    "reuse_and_license_gate_required": true,
+    "creation_runtime_fabric_required": true,
+    "foundry_execution_requires_governed_request": true,
+    "production_promotion_requires_human_gate": true
+  },
+  "runtime": {
+    "signal_inbox": "/opt/chacha-dev/runtime/improvement-intelligence/signals",
+    "synthesis": "/opt/chacha-dev/runtime/improvement-intelligence/current/synthesis.json",
+    "improvement_requests": "/opt/chacha-dev/runtime/autonomous-improvement/inbox"
+  },
+  "automatic_external_spend_eur": 0
+}

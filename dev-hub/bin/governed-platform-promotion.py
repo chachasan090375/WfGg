@@ -151,6 +151,16 @@ def sovereign_runtime_refresh(runtime_root:Path)->dict[str,Any]:
         if svc not in health:raise ValueError('SOVEREIGN_SERVICE_HEALTH_FAILED:'+svc+':'+last)
     return {'status':'PASS','mode':'LOCAL_SQLITE','refreshed':True,'restarted_units':restarted,'health':health}
 
+def refresh_living_whitepaper(release_root:Path,runtime_root:Path)->dict[str,Any]:
+    script=release_root/'dev-hub/bin/living_whitepaper_generator.py'
+    if not script.is_file():return {'status':'NOT_AVAILABLE','blocking':False}
+    try:
+        p=subprocess.run([sys.executable,str(script),'--repo-root',str(release_root),'--runtime-root',str(runtime_root)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,timeout=90,check=False)
+        return {'status':'PASS' if p.returncode==0 else 'WARNING','blocking':False,'returncode':p.returncode,
+                'stdout_tail':(p.stdout or '')[-1000:],'stderr_tail':(p.stderr or '')[-1000:]}
+    except Exception as exc:
+        return {'status':'WARNING','blocking':False,'reason':type(exc).__name__+':'+str(exc)[:300]}
+
 def atomic_current_switch(current:Path,target:Path,lease_id:str)->None:
     current=current.absolute();target=target.resolve();tmp=current.with_name(current.name+'.promotion-'+lease_id)
     tmp.unlink(missing_ok=True);os.symlink(str(target),str(tmp),target_is_directory=True);os.replace(tmp,current)
@@ -242,7 +252,8 @@ def finalize(release_root:Path,current:Path,runtime_root:Path,receipt:Path,guard
     if release_count>3:raise ValueError('RELEASE_RETENTION_OVERAGE')
     if timer_before<controlled_after:raise ValueError('AUTONOMY_CYCLE_ORDER_INVALID')
     now=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime());sentinel_payload=sp['payload'];guardian_payload=gp['payload']
-    meta.update({'promotion_acceptance_status':'PASS','guardian_post_action':'PASS','guardian_post_event_id':guardian_payload.get('event_id'),
+    whitepaper_refresh=refresh_living_whitepaper(release_root,runtime_root)
+    meta.update({'living_whitepaper_refresh':whitepaper_refresh,'promotion_acceptance_status':'PASS','guardian_post_action':'PASS','guardian_post_event_id':guardian_payload.get('event_id'),
       'sentinel_post_activation_verdict':'PASS','sentinel_post_activation_receipt_id':sentinel_payload.get('receipt_id'),'direct_operator_status':'PASS',
       'release_retention_count':release_count,'controlled_cycle_status':'CONVERGED','controlled_cycle_next_state':'RESUME',
       'controlled_cycle_before':controlled_before,'controlled_cycle_after':controlled_after,'controlled_cycle_run_id':cr.get('run_id'),'controlled_cycle_evidence_digest':cr.get('binding_digest'),

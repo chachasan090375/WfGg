@@ -1,0 +1,13 @@
+{
+  "schema": "chacha.dev/component-birth-candidate/v1",
+  "component_id": "living-whitepaper",
+  "materialization_gate_required": true,
+  "governance_class": "CORE_PLATFORM_COMPONENT",
+  "owner_foundry": "branch-foundry",
+  "purpose": "Generate a continuously refreshed, evidence-labelled functional, technical and business white paper for ChaCha DEV.",
+  "scope": "PLATFORM",
+  "permissions": ["read", "workspace-write-shadow-only"],
+  "lifecycle": "DESIGN->SHADOW->QUALIFY->PILOT->HUMAN_PROMOTION",
+  "production_activation_authorized": false,
+  "automatic_external_spend_eur": 0
+}

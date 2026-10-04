@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/operator-directive-registry-policy/v1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "purpose": "Persist operator structural rules independently of any conversation and propagate them into ChaCha DEV governance.",
   "principles": {
     "operator_structural_rules_are_persistent": true,
@@ -226,6 +226,68 @@
         "sentinel",
         "release-qualification",
         "all-foundries"
+      ],
+      "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-autonomous-improvement-factory",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "AUTONOMY_EVOLUTION",
+      "status": "ACTIVE",
+      "normalized_requirement": "ChaCha DEV must continuously convert only evidence-backed and globally useful competitive, Technology Watch and verified Technology Truth improvements into governed shadow update trains. Internal reuse is preferred; compatible open-source code may be reused with provenance, license, attribution, copyleft/patent and SBOM obligations; otherwise ChaCha reconstructs the mechanism itself. Plugins/connectors are fallback-only when an owned implementation is not reasonably feasible. Novelty alone never justifies a component. Every train must demonstrate measurable platform value and architectural fit before build. Qualified trains appear in the Cockpit Update Center with functional/value/risk/license/dependency explanations. The operator may request one or all compatible promotions; UI actions only start the governed promotion pipeline and never bypass Guardian, Sentinel, UMG, CCR, rollback, exact-SHA qualification or human production authority.",
+      "required_sinks": [
+        "technology-watch",
+        "technology-truth-scoring",
+        "technology-self-benchmark-observer",
+        "logician",
+        "architecture-council",
+        "reuse-memory",
+        "central-orchestrator",
+        "creation-runtime-fabric",
+        "all-foundries",
+        "universal-materialization-gate",
+        "canonical-component-registry",
+        "guardian",
+        "sentinel",
+        "fleet-observatory",
+        "assurance",
+        "lifecycle",
+        "direct-operator-cockpit",
+        "release-qualification",
+        "progress-reporting"
+      ],
+      "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-federated-improvement-intelligence-living-whitepaper",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "AUTONOMY_EVOLUTION",
+      "status": "ACTIVE",
+      "normalized_requirement": "All authorized ChaCha DEV observation, assurance, intelligence, learning, benchmark and operator-directive agents must contribute evidence to one federated Improvement Intelligence Fabric. No single collector owns platform evolution. Signals are normalized, deduplicated, corroborated and value-gated; novelty alone never justifies a train. Only the central orchestrator may hand an approved improvement axis to the Creation Runtime/Foundries. Open-source reuse is permitted only when provenance and license obligations are compatible; otherwise rebuild the mechanism. Every promoted platform update refreshes a living white paper covering runtime-observed architecture, functional rationale, limitations, roadmap, competitive comparison, business model and valuation scenarios. The Direct Operator Cockpit exposes governed Update Center and White Paper entry points. Production remains human-gated.",
+      "required_sinks": [
+        "improvement-intelligence-fabric",
+        "technology-watch",
+        "dark-intelligence",
+        "technology-truth-scoring",
+        "guardian",
+        "sentinel",
+        "bastion",
+        "intendant",
+        "fleet-observatory",
+        "assurance",
+        "learning-relay",
+        "cognitive-memory-fabric",
+        "logician",
+        "architecture-council",
+        "central-orchestrator",
+        "creation-runtime-fabric",
+        "all-foundries",
+        "universal-materialization-gate",
+        "canonical-component-registry",
+        "direct-operator-cockpit",
+        "governed-platform-promotion",
+        "release-qualification",
+        "progress-reporting"
       ],
       "backfill_required": true
     }

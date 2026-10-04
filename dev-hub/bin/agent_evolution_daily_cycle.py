@@ -14,6 +14,7 @@ import platform_component_evolution_controller as pcec
 import agent_verified_evidence_backfill as aveb
 import canonical_component_registry as ccr
 import autonomy_roadmap_evolution_router as arer
+import improvement_intelligence_cycle as iic
 def load(p:Path)->dict[str,Any]:
     x=json.loads(p.read_text(encoding="utf-8"))
     if not isinstance(x,dict):raise ValueError("JSON_ROOT_NOT_OBJECT:"+str(p))
@@ -73,6 +74,8 @@ def main()->int:
     save(canonical_path,canonical)
     roadmap_routing=arer.route(root,runtime,canonical)
     save(runtime/"platform-evolution/roadmap-routing-latest.json",roadmap_routing)
+    improvement_intelligence=iic.run(root,runtime)
+    save(runtime/"improvement-intelligence/current/cycle-latest.json",improvement_intelligence)
     backfill=aveb.run(runtime,fp,load(cfg/"agent-observation-bus.v1.json"),routing,seven,[project],False)
     save(ae/"verified-evidence-backfill-latest.json",backfill)
     report=afo.build_report(root,runtime,fp,ep,routing,seven,[project],canonical);save(ae/"fleet-observatory-latest.json",report)
@@ -158,6 +161,10 @@ def main()->int:
       "event_request_count":len(requests),"scheduled_action_count":len(scheduled),
       "roadmap_evolution_request_count":roadmap_routing.get("request_count"),"roadmap_evolution_human_boundary_count":roadmap_routing.get("human_boundary_count"),
       "roadmap_evolution_blocked_count":roadmap_routing.get("blocked_count"),"roadmap_evolution_routing_complete":roadmap_routing.get("routing_complete"),
+      "improvement_intelligence_signal_count":improvement_intelligence.get("signal_count"),
+      "improvement_intelligence_axis_count":improvement_intelligence.get("axis_count"),
+      "improvement_candidate_count":improvement_intelligence.get("improvement_candidate_count"),
+      "improvement_reassessment_created_count":improvement_intelligence.get("new_reassessment_request_count"),
       "platform_event_request_count":len(platform_requests),"platform_routed_action_count":len(platform_actions),
       "platform_blocked_request_count":len(platform_blocked),
       "platform_reassessment_routing_complete":platform_idx["routing_complete"],

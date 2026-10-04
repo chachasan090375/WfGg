@@ -1,6 +1,7 @@
 {
   "schema": "chacha.dev/technology-core-watch/v1",
-  "version": "1.13.0",
+
+  "version": "1.15.0",
   "purpose": "Continuously monitor the technology health and debt of ChaCha DEV itself.",
   "components": [
     {
@@ -227,6 +228,32 @@
       "id": "governed-platform-promotion",
       "class": "execution-governance",
       "criticality": "critical"
+
+    },
+    {
+      "id": "technology-self-benchmark-observer",
+      "class": "observability-evolution",
+      "criticality": "high"
+    },
+    {
+      "id": "autonomous-improvement-factory",
+      "class": "factory",
+      "criticality": "critical"
+    },
+    {
+      "id": "cockpit-update-center",
+      "class": "verification",
+      "criticality": "high"
+    },
+    {
+      "id": "improvement-intelligence-fabric",
+      "class": "observability-evolution",
+      "criticality": "critical"
+    },
+    {
+      "id": "living-whitepaper",
+      "class": "observability-evolution",
+      "criticality": "high"
     }
   ],
   "watch_dimensions": [
@@ -244,7 +271,12 @@
     "schema-compatibility",
     "observation-integrity",
     "instrumentation-drift",
-    "event-delivery-latency"
+
+    "event-delivery-latency",
+    "external-mechanism-gap",
+    "improvement-intelligence-drift",
+    "architecture-documentation-drift",
+    "cross-agent-evidence-divergence"
   ],
   "debt_thresholds": {
     "watch": 20,
