@@ -1,0 +1,31 @@
+{
+  "schema": "chacha.dev/promotion-transaction-continuity-shadow-evidence/v1",
+  "status": "PASS",
+  "candidate_base": "b43d97fa486f5485963c96e2cd5fba284175107c",
+  "scope": [
+    "same-owner expired lease recovery",
+    "root lease lineage",
+    "ancestor immutable receipt acceptance within exact promotion/revision",
+    "finalize without evidence replay",
+    "functional roadmap v2"
+  ],
+  "tests": {
+    "governed_platform_promotion": "PASS",
+    "promotion_cycle_evidence": "PASS",
+    "sovereign_runtime_refresh": "PASS",
+    "operator_directives": "PASS",
+    "master_roadmap_functional_order": "PASS",
+    "historical_train_catalog": "PASS",
+    "master_roadmap_convergence": "PASS"
+  },
+  "security_invariants": {
+    "owner_change_on_recovery": "BLOCKED",
+    "promotion_scope_change": "BLOCKED",
+    "candidate_revision_change": "BLOCKED",
+    "non_lineage_receipt": "BLOCKED_BY_CONTRACT",
+    "immutable_receipt_rewrite": false,
+    "automatic_external_spend_eur": 0
+  },
+  "production_mutation": false,
+  "automatic_external_spend_eur": 0
+}

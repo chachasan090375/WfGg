@@ -2,12 +2,14 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-04T15:24:00Z",
+  "updated_at": "2026-10-04T15:42:00Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
     "project_roadmaps_role": "CONSUMER_PROJECTS_AND_VALIDATION_TRACKS",
-    "history_must_not_be_discarded_without_supersession_evidence": true
+    "history_must_not_be_discarded_without_supersession_evidence": true,
+    "current_execution_order": "functional_execution_order_v2",
+    "production_convergence_order_role": "LEGACY_EVIDENCE_VIEW_RETAINED_NOT_CURRENT_EXECUTION_AUTHORITY"
   },
   "baseline": {
     "production_sha": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
@@ -585,8 +587,8 @@
       "order": 4,
       "id": "FEASIBILITY_AND_SOLUTION_COMPOSER",
       "action": "Qualify the Infrastructure Feasibility Auditor + Solution Composer descendant of b21470ca, then promote only under a separate human gate.",
-      "state": "SOVEREIGN_DESCENDANT_LOCAL_QUALIFICATION_PASS_PENDING_EXACT_SHA_CI",
-      "evidence": "Current-line implementation remains descendant of production b21470ca. Historical local proofs reused: Creation Runtime fabric PASS, Feasibility/Solution Composer 11/11 PASS, recursive 12/12 PASS, 2D 8/8 PASS, UMG check-only PASS for both core components. Fresh 2026-10-04 VPS feasibility remains NOT_FIT at usable 1.5 CPU / 1.3454 GiB RAM / 11.9119 GiB storage for the 4 CPU / 8 GiB workload. Fresh Composer pilot on the same acquired report PASS with mandatory feasibility_ref, target-architecture design, execution_blocked=true, recursive 5-node graph, explicit interfaces/data ownership, specialist assignment requirements, create-vs-reuse decisions, Foundry execution requested=false/authorized=false, execution/production authority=false, automatic external spend 0 EUR. Exact-SHA Sentinel + Platform Qualification pending."
+      "state": "ACTIVE_POST_VERIFICATION_PASS_PENDING_TRANSACTION_FINALIZE",
+      "evidence": "Exact candidate 7e7decc758217bb20c142a1bef6799fd70f796a4 tree f8889d725829588ae2787a4efa5976266a846401 is current/ACTIVE. Exact-SHA Sentinel run 37198505490 and Platform Qualification run 37198505468 PASS; Direct Operator and four Sovereign LOCAL_SQLITE services healthy; STOP=false; controlled cycle 906->907 RESUME, natural timer 907->908 RESUME, Guardian POST PASS. FINALIZE remains pending only because the activation wrapper lost the live lease token; no rollback is indicated. Controlled expired-lease recovery is the canonical next action."
     },
     {
       "order": 5,
@@ -865,5 +867,270 @@
     "purpose": "Canonical chronological release-train history. Current convergence orders must never replace or truncate this history.",
     "numbering_warning": "HISTORICAL_RELEASE_TRAIN_NUMBERS_ARE_DISTINCT_FROM_CURRENT_MASTER_CONVERGENCE_ORDER_NUMBERS",
     "history_must_be_append_only_except_governed_correction": true
+  },
+  "functional_execution_order_v2": {
+    "schema": "chacha.dev/master-roadmap-functional-execution-order/v2",
+    "authority": "PRIMARY_CURRENT_EXECUTION_VIEW",
+    "ordering_principle": "Order by hard functional dependency and core safety, never by discovery date or historical train number. Reuse already-qualified shadow work; do not rebuild unchanged scope.",
+    "current_focus": "F01_PROMOTION_TRANSACTION_CONTINUITY",
+    "phases": [
+      {
+        "phase": "F00",
+        "id": "FOUNDATION_AND_SOVEREIGN_BASELINE",
+        "priority": "P0",
+        "state": "PRODUCTION_ESTABLISHED",
+        "depends_on": [],
+        "includes": [
+          "structural governance",
+          "LOCAL_SQLITE sovereign authority",
+          "Canonical Path anti-loop",
+          "Cognitive Memory Fabric",
+          "Recursive Specialization"
+        ],
+        "exit_gate": "Already satisfied; preserve as rollback/safety floor."
+      },
+      {
+        "phase": "F01",
+        "id": "PROMOTION_TRANSACTION_CONTINUITY",
+        "priority": "P0",
+        "state": "SHADOW_LOCAL_PASS_PENDING_EXACT_SHA_CI",
+        "depends_on": [
+          "F00"
+        ],
+        "includes": [
+          "expired-lease recovery continuity",
+          "same-owner recovery",
+          "receipt lineage binding",
+          "finalize-after-recovery without evidence replay",
+          "single-writer preservation"
+        ],
+        "exit_gate": "Exact-SHA Sentinel + Platform Qualification PASS and recovery pilot proves old immutable receipts remain valid only inside the same promotion/revision/lease lineage."
+      },
+      {
+        "phase": "F02",
+        "id": "FEASIBILITY_AND_SOLUTION_COMPOSER_FINALIZATION",
+        "priority": "P0",
+        "state": "ACTIVE_POST_VERIFICATION_PASS_PENDING_CANONICAL_FINALIZE",
+        "depends_on": [
+          "F01 for future safety; current Order 4 may finalize with existing governed recovery once its lease expires"
+        ],
+        "includes": [
+          "Infrastructure Feasibility Auditor",
+          "Solution Composer",
+          "recursive Solution Graph"
+        ],
+        "exit_gate": "Order 4 lease FINALIZED, roadmap baseline reconciled to active exact SHA."
+      },
+      {
+        "phase": "F03",
+        "id": "ARTIFACT_FABRIC_AND_PROJECT_BINDING",
+        "priority": "P0",
+        "state": "SHADOW_LOCAL_PASS_REUSE",
+        "depends_on": [
+          "F02"
+        ],
+        "includes": [
+          "Artifact Fabric",
+          "chat upload/download",
+          "content addressing",
+          "project bindings",
+          "generated artifact publishing"
+        ],
+        "exit_gate": "Current-line reconciliation + exact-SHA CI + governed pilot."
+      },
+      {
+        "phase": "F04",
+        "id": "SPECIALIST_CELL_AND_CAPABILITY_RESOLUTION",
+        "priority": "P0",
+        "state": "SHADOW_LOCAL_PASS_REUSE",
+        "depends_on": [
+          "F02"
+        ],
+        "includes": [
+          "specialist cell resolver",
+          "canonical capability reuse",
+          "Foundry gaps only",
+          "recursive module/domain/capability binding"
+        ],
+        "exit_gate": "No unresolved authority ambiguity; Foundry only for genuine gaps."
+      },
+      {
+        "phase": "F05",
+        "id": "RESOURCE_AWARE_EXECUTION_PLANNER",
+        "priority": "P0",
+        "state": "SHADOW_LOCAL_PASS_REUSE",
+        "depends_on": [
+          "F03",
+          "F04"
+        ],
+        "includes": [
+          "atomic task DAG",
+          "dependency waves",
+          "resource budgets",
+          "isolated parallel mutation lanes",
+          "integration barriers"
+        ],
+        "exit_gate": "Real shadow pilot on current VPS + exact-SHA qualification."
+      },
+      {
+        "phase": "F06",
+        "id": "VIRTUAL_OS_DEVICE_LAB",
+        "priority": "P1",
+        "state": "SHADOW_REAL_QNAP_INVENTORY_PASS_REUSE",
+        "depends_on": [
+          "F02"
+        ],
+        "includes": [
+          "target-platform matrix",
+          "VPS/QNAP runners",
+          "immutable image policy",
+          "fail-closed missing-native-target handling"
+        ],
+        "exit_gate": "Current target inventory attested; no automatic VM/provisioning spend."
+      },
+      {
+        "phase": "F07",
+        "id": "END_TO_END_CREATION_RUNTIME",
+        "priority": "P0",
+        "state": "SHADOW_PLAN_PASS_REUSE",
+        "depends_on": [
+          "F03",
+          "F04",
+          "F05",
+          "F06"
+        ],
+        "includes": [
+          "request/files -> feasibility -> solution graph -> specialists -> task DAG -> resource planner -> target validation -> assurance -> artifacts"
+        ],
+        "exit_gate": "Heterogeneous real pilots complete without hidden manual technical routing."
+      },
+      {
+        "phase": "F08",
+        "id": "IMPROVEMENT_INTELLIGENCE_AND_AUTONOMOUS_FACTORY",
+        "priority": "P1",
+        "state": "SHADOW_EXACT_SHA_QUALIFIED_REUSE",
+        "depends_on": [
+          "F07"
+        ],
+        "includes": [
+          "multi-agent observation synthesis",
+          "value/coherence gate",
+          "open-source reuse/license gate",
+          "rebuild-vs-reuse",
+          "automatic shadow train generation"
+        ],
+        "exit_gate": "Improvement signals produce governed shadow packages, never self-promote."
+      },
+      {
+        "phase": "F09",
+        "id": "PLUGIN_AND_UPDATE_LIFECYCLE",
+        "priority": "P1",
+        "state": "SHADOW_EXACT_SHA_QUALIFIED_REUSE",
+        "depends_on": [
+          "F08"
+        ],
+        "includes": [
+          "recipe-first plugin packages",
+          "build-on-demand",
+          "disable/uninstall/reinstall",
+          "CORE_LOCKED structural promotion boundary",
+          "Update Center"
+        ],
+        "exit_gate": "Platform plugins removable without core regression; merged structural core updates never uninstallable as plugins."
+      },
+      {
+        "phase": "F10",
+        "id": "CONSULTANT_PROJECT_TENANCY_AND_PRODUCT_SURFACES",
+        "priority": "P1",
+        "state": "SHADOW_EXACT_SHA_QUALIFIED_REUSE",
+        "depends_on": [
+          "F07"
+        ],
+        "includes": [
+          "project-scoped consultant builds",
+          "core internals denied",
+          "private job/session scope",
+          "Living White Paper",
+          "cockpit role separation"
+        ],
+        "exit_gate": "External user can build an isolated application without reading or mutating ChaCha core internals."
+      },
+      {
+        "phase": "F11",
+        "id": "RESILIENCE_AND_RECONSTRUCTIBILITY",
+        "priority": "P1",
+        "state": "SHADOW_REAL_NAS_RESTORE_PASS_REUSE",
+        "depends_on": [
+          "F01",
+          "F07"
+        ],
+        "includes": [
+          "event-driven NAS image vault",
+          "Core Capsule",
+          "restore verification",
+          "recipe-first rebuild",
+          "clean-host reconstruction target"
+        ],
+        "exit_gate": "Restore and clean-host reconstruction proven from authoritative source/recipes without D1 dependency."
+      },
+      {
+        "phase": "F12",
+        "id": "REMOTE_MCP_PRIVATE_OPERATOR_ROUTE",
+        "priority": "P1",
+        "state": "SOURCE_CONVERGED_RUNTIME_UNMATERIALIZED",
+        "depends_on": [
+          "F01"
+        ],
+        "includes": [
+          "private Remote MCP",
+          "capability/policy gate",
+          "Guardian/Sentinel/STOP",
+          "zero-incremental-cost priority route"
+        ],
+        "exit_gate": "Private runtime materialized and piloted; no public ingress."
+      },
+      {
+        "phase": "F13",
+        "id": "NATIVE_LOCAL_AND_HA_DEEPENING",
+        "priority": "P2",
+        "state": "SOURCE_CONVERGED_NON_MUTATING",
+        "depends_on": [
+          "F11"
+        ],
+        "includes": [
+          "Native Local provider independence",
+          "resource admission",
+          "HA standby/failover",
+          "disaster recovery"
+        ],
+        "exit_gate": "Resource/maturity gates PASS before model start or failover authority."
+      }
+    ],
+    "cross_cutting": [
+      "Guardian",
+      "Sentinel",
+      "Bastion",
+      "Logicien",
+      "UMG",
+      "CCR",
+      "Technology Watch",
+      "Dark Intelligence",
+      "Improvement Intelligence",
+      "Living White Paper",
+      "zero automatic external spend",
+      "STOP"
+    ],
+    "anti_replay": "Reuse exact-SHA and materially unchanged proofs. Requalify only changed scope or cumulative current-line candidates."
+  },
+  "current_runtime_state": {
+    "active_revision": "7e7decc758217bb20c142a1bef6799fd70f796a4",
+    "active_tree": "f8889d725829588ae2787a4efa5976266a846401",
+    "active_scope": "FEASIBILITY_AND_SOLUTION_COMPOSER",
+    "activation_status": "ACTIVE_POST_VERIFICATION_PASS",
+    "transaction_status": "PENDING_FINALIZE_AFTER_LEASE_RECOVERY",
+    "last_finalized_baseline_revision": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
+    "rollback_revision": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
+    "stop": false,
+    "note": "ACTIVE current is healthy but is not called FINALIZED until the governed promotion transaction reaches terminal FINALIZE."
   }
 }

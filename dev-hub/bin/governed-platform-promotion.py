@@ -87,7 +87,7 @@ def wait_ready(url:str,attempts:int,delay:float,timeout:float,receipt:Path,runti
                 body=r.read();payload=json.loads(body or b'{}')
                 if r.status==200 and payload.get('status')=='PASS':
                     lx=lease(runtime_root,lease_token,promotion_id,candidate_revision,'READINESS_PASS')
-                    out=ptx.bind_receipt(lx,{'schema':SCHEMA,'phase':'READINESS','status':'PASS','url':url,'attempt':i,'payload':payload})
+                    out=ptx.bind_receipt(lx,{'schema':SCHEMA,'phase':'READINESS','status':'PASS','candidate_revision':candidate_revision,'url':url,'attempt':i,'payload':payload})
                     ptx.write_once_json(receipt,out);return out
                 errors.append('NON_PASS_RESPONSE')
         except Exception as e:errors.append(type(e).__name__)
@@ -205,10 +205,13 @@ def seal_assurance(kind:str,source:Path,receipt:Path,runtime_root:Path,promotion
       'source_path':str(source.resolve()),'source_digest':digest(source.resolve()),'payload':payload})
     ptx.write_once_json(receipt,out);return out
 
-def require_bound_assurance(path:Path,kind:str,lx:dict[str,Any],candidate_revision:str)->dict[str,Any]:
+def require_bound_assurance(path:Path,kind:str,lx:dict[str,Any],candidate_revision:str,runtime_root:Path|None=None)->dict[str,Any]:
     x=load(path)
     if x.get('schema')!=ASSURANCE_SCHEMA or x.get('status')!='PASS' or x.get('kind')!=kind:raise ValueError('BOUND_ASSURANCE_INVALID:'+kind)
-    if x.get('candidate_revision')!=candidate_revision or x.get('promotion_lease_id')!=lx.get('lease_id'):raise ValueError('BOUND_ASSURANCE_SCOPE_MISMATCH:'+kind)
+    if runtime_root is None:
+        if x.get('candidate_revision')!=candidate_revision or x.get('promotion_lease_id')!=lx.get('lease_id'):raise ValueError('BOUND_ASSURANCE_SCOPE_MISMATCH:'+kind)
+    else:
+        ptx.require_receipt_binding(runtime_root.resolve(),x,lx,candidate_revision,'BOUND_ASSURANCE_'+kind.upper().replace('-','_'))
     p=x.get('payload') or {}
     if p.get('verdict')!='PASS':raise ValueError('BOUND_ASSURANCE_NON_PASS:'+kind)
     if kind=='sentinel-post' and p.get('revision')!=candidate_revision:raise ValueError('SENTINEL_POST_EXACT_SHA_REQUIRED')
@@ -226,13 +229,15 @@ def finalize(release_root:Path,current:Path,runtime_root:Path,receipt:Path,guard
     release_root=release_root.resolve();p=release_root/'.release-preparation.json';meta=load(p);validate_preparation(meta)
     lx=lease(runtime_root,lease_token,promotion_id,meta['candidate_revision'],'FINALIZE')
     if current.resolve()!=release_root:raise ValueError('ACTIVE_CURRENT_EXACT_REQUIRED')
-    if meta.get('activation_status')!='ACTIVE' or meta.get('promotion_lease_id')!=lx.get('lease_id'):raise ValueError('ACTIVE_METADATA_LEASE_REQUIRED')
-    gp=require_bound_assurance(guardian_post,'guardian-post',lx,meta['candidate_revision'])
-    sp=require_bound_assurance(sentinel_post,'sentinel-post',lx,meta['candidate_revision'])
+    if meta.get('activation_status')!='ACTIVE':raise ValueError('ACTIVE_METADATA_REQUIRED')
+    ptx.require_receipt_binding(runtime_root.resolve(),meta,lx,meta['candidate_revision'],'ACTIVE_METADATA')
+    gp=require_bound_assurance(guardian_post,'guardian-post',lx,meta['candidate_revision'],runtime_root)
+    sp=require_bound_assurance(sentinel_post,'sentinel-post',lx,meta['candidate_revision'],runtime_root)
     rd=load(readiness)
-    if rd.get('status')!='PASS' or rd.get('phase')!='READINESS' or rd.get('promotion_lease_id')!=lx.get('lease_id'):raise ValueError('READINESS_BOUND_PASS_REQUIRED')
-    cr=pce.require(controlled_cycle_receipt,'CONTROLLED',lx,meta['candidate_revision'])
-    tr=pce.require(timer_cycle_receipt,'TIMER',lx,meta['candidate_revision'])
+    if rd.get('status')!='PASS' or rd.get('phase')!='READINESS':raise ValueError('READINESS_BOUND_PASS_REQUIRED')
+    ptx.require_receipt_binding(runtime_root.resolve(),rd,lx,meta['candidate_revision'],'READINESS')
+    cr=pce.require(controlled_cycle_receipt,'CONTROLLED',lx,meta['candidate_revision'],runtime_root)
+    tr=pce.require(timer_cycle_receipt,'TIMER',lx,meta['candidate_revision'],runtime_root)
     controlled_before=int(cr['counter_before']);controlled_after=int(cr['counter_after'])
     timer_before=int(tr['counter_before']);timer_after=int(tr['counter_after'])
     emergency,emergency_config=canonical_emergency_state(release_root);stop=load(emergency)

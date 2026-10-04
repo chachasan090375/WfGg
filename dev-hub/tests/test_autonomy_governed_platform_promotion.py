@@ -94,9 +94,37 @@ with tempfile.TemporaryDirectory() as td:
 with tempfile.TemporaryDirectory() as td:
  runtime=Path(td)/'runtime';runtime.mkdir();acq=ptx.acquire(runtime,'promotion-recover','owner-a','a'*40,300)
  lp=ptx.runtime_paths(runtime)['lease'];x=json.load(open(lp));x['expires_epoch']=time.time()-1;save(lp,x)
- rec=ptx.recover(runtime,'promotion-recover','owner-b','a'*40,acq['lease_id'],300)
- assert rec['status']=='PASS' and rec['lease_id']!=acq['lease_id'] and ptx.public_status(runtime)['recovered_from_lease_id']==acq['lease_id']
+ expect(lambda:ptx.recover(runtime,'promotion-recover','owner-b','a'*40,acq['lease_id'],300),'RECOVERY_OWNER_MISMATCH')
+ rec=ptx.recover(runtime,'promotion-recover','owner-a','a'*40,acq['lease_id'],300)
+ st=ptx.public_status(runtime)
+ assert rec['status']=='PASS' and rec['lease_id']!=acq['lease_id'] and st['recovered_from_lease_id']==acq['lease_id']
+ assert st['root_lease_id']==acq['lease_id'] and st['recovery_generation']==1
+ assert ptx.lease_lineage(runtime,rec['lease_id'])==[rec['lease_id'],acq['lease_id']]
  print('CHACHA_DEV_PROMOTION_EXPIRED_LEASE_RECOVERY=PASS')
+ print('CHACHA_DEV_PROMOTION_RECOVERY_SAME_OWNER_ONLY=PASS')
+
+with tempfile.TemporaryDirectory() as td:
+ t=Path(td);runtime=t/'runtime';runtime.mkdir();rel=t/'release';old=t/'old';rel.mkdir();old.mkdir();current=t/'current';current.symlink_to(old,target_is_directory=True)
+ (rel/'dev-hub/config').mkdir(parents=True);save(rel/'.release-preparation.json',base_meta(old));stop=t/'stop.json';save(stop,{'active':False});save(rel/'dev-hub/config/emergency-stop.v1.json',{'schema':'chacha.dev/emergency-stop/v1','state_file':str(stop)})
+ acq=ptx.acquire(runtime,'promotion-recovery-finalize','owner-a','a'*40,300);token=acq['lease_token'];old_lx=ptx.assert_owner(runtime,token,'promotion-recovery-finalize','a'*40,'TEST')
+ gpp.activate(rel,current,runtime,t/'activate.json','promotion-recovery-finalize',token)
+ guardian_src=t/'guardian-source.json';sentinel_src=t/'sentinel-source.json'
+ save(guardian_src,{'schema':'chacha.dev/guardian-verdict/v3','verdict':'PASS','event_id':'g-post','stop_recommended':False})
+ save(sentinel_src,{'schema':'chacha.dev/sentinel-technical-receipt/v1','verdict':'PASS','revision':'a'*40,'receipt_id':'s-post'})
+ guardian=t/'guardian-bound.json';sentinel=t/'sentinel-bound.json'
+ gpp.seal_assurance('guardian-post',guardian_src,guardian,runtime,'promotion-recovery-finalize',token,'a'*40)
+ gpp.seal_assurance('sentinel-post',sentinel_src,sentinel,runtime,'promotion-recovery-finalize',token,'a'*40)
+ ready=t/'ready.json';save(ready,ptx.bind_receipt(old_lx,{'schema':gpp.SCHEMA,'phase':'READINESS','status':'PASS','candidate_revision':'a'*40,'url':'http://127.0.0.1/ready','attempt':1,'payload':{'status':'PASS'}}))
+ run={'status':'CONVERGED','next_state':'RESUME','run_id':'r1','direct_mutation_by_supervisor':False,'automatic_external_spend_eur':0}
+ save(t/'controlled.json',run);save(t/'timer.json',dict(run,run_id='r2'))
+ controlled=t/'controlled-cycle.json';timer=t/'timer-cycle.json'
+ pce.capture(runtime,'promotion-recovery-finalize',token,'a'*40,'CONTROLLED',t/'controlled.json',10,11,controlled)
+ pce.capture(runtime,'promotion-recovery-finalize',token,'a'*40,'TIMER',t/'timer.json',11,12,timer,'SYSTEMD_TIMER')
+ lp=ptx.runtime_paths(runtime)['lease'];x=json.load(open(lp));x['expires_epoch']=time.time()-1;save(lp,x)
+ rec=ptx.recover(runtime,'promotion-recovery-finalize','owner-a','a'*40,acq['lease_id'],300);new_token=rec['lease_token']
+ out=gpp.finalize(rel,current,runtime,t/'final-after-recovery.json',guardian,sentinel,ready,controlled,timer,2,'promotion-recovery-finalize',new_token)
+ assert out['status']=='PASS' and ptx.public_status(runtime)['status']=='FINALIZED'
+ print('CHACHA_DEV_PROMOTION_FINALIZE_AFTER_LEASE_RECOVERY_WITHOUT_EVIDENCE_REPLAY=PASS')
 
 source=(BIN/'governed-platform-promotion.py').read_text();tx=(BIN/'promotion_transaction.py').read_text()
 for marker in ('lease-acquire','lease-recover','seal-assurance','IMMUTABLE_RECEIPT_ALREADY_EXISTS','promotion_lease_id','atomic_current_switch'):

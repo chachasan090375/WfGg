@@ -96,7 +96,7 @@ def acquire(runtime_root:Path,promotion_id:str,owner:str,candidate_revision:str,
         x={'schema':LEASE_SCHEMA,'status':'ACTIVE','lease_id':lease_id,'promotion_id':promotion_id,'owner':owner,
            'candidate_revision':candidate_revision,'acquired_at':iso(now),'renewed_at':iso(now),'expires_at':iso(now+ttl),
            'expires_epoch':now+ttl,'ttl_seconds':ttl,'token_sha256':token_hash,'recovered_from_lease_id':None,
-           'automatic_external_spend_eur':0}
+           'root_lease_id':lease_id,'recovery_generation':0,'automatic_external_spend_eur':0}
         atomic_json(paths['lease'],x);_append(paths,{'event':'LEASE_ACQUIRED','lease_id':lease_id,'promotion_id':promotion_id,'owner':owner,'candidate_revision':candidate_revision})
     return {'schema':SCHEMA,'status':'PASS','phase':'LEASE_ACQUIRE','lease_id':lease_id,'promotion_id':promotion_id,'owner':owner,
             'candidate_revision':candidate_revision,'lease_token':token,'expires_at':x['expires_at'],'automatic_external_spend_eur':0}
@@ -108,13 +108,16 @@ def recover(runtime_root:Path,promotion_id:str,owner:str,candidate_revision:str,
         if old.get('lease_id')!=previous_lease_id:raise ValueError('RECOVERY_PREVIOUS_LEASE_MISMATCH')
         if old.get('status')!='ACTIVE' or not _expired(old,now):raise ValueError('RECOVERY_REQUIRES_EXPIRED_ACTIVE_LEASE')
         if old.get('promotion_id')!=promotion_id or old.get('candidate_revision')!=candidate_revision:raise ValueError('RECOVERY_SCOPE_MISMATCH')
+        if old.get('owner')!=owner:raise ValueError('RECOVERY_OWNER_MISMATCH')
         lease_id='promotion-'+uuid.uuid4().hex
+        root_lease_id=str(old.get('root_lease_id') or old.get('lease_id') or previous_lease_id)
+        recovery_generation=int(old.get('recovery_generation') or 0)+1
         x={'schema':LEASE_SCHEMA,'status':'ACTIVE','lease_id':lease_id,'promotion_id':promotion_id,'owner':owner,
            'candidate_revision':candidate_revision,'acquired_at':iso(now),'renewed_at':iso(now),'expires_at':iso(now+ttl),
            'expires_epoch':now+ttl,'ttl_seconds':ttl,'token_sha256':token_hash,'recovered_from_lease_id':previous_lease_id,
-           'automatic_external_spend_eur':0}
+           'root_lease_id':root_lease_id,'recovery_generation':recovery_generation,'automatic_external_spend_eur':0}
         atomic_json(paths['lease'],x);_append(paths,{'event':'LEASE_RECOVERED','lease_id':lease_id,'previous_lease_id':previous_lease_id,
-          'promotion_id':promotion_id,'owner':owner,'candidate_revision':candidate_revision})
+          'root_lease_id':root_lease_id,'recovery_generation':recovery_generation,'promotion_id':promotion_id,'owner':owner,'candidate_revision':candidate_revision})
     return {'schema':SCHEMA,'status':'PASS','phase':'LEASE_RECOVER','lease_id':lease_id,'promotion_id':promotion_id,'owner':owner,
             'candidate_revision':candidate_revision,'lease_token':token,'expires_at':x['expires_at'],'automatic_external_spend_eur':0}
 
@@ -144,6 +147,33 @@ def release(runtime_root:Path,lease_token:str,promotion_id:str,candidate_revisio
     return {'schema':SCHEMA,'status':'PASS','phase':'LEASE_RELEASE','lease_id':cur.get('lease_id'),'terminal_status':terminal_status,
             'automatic_external_spend_eur':0}
 
+
+def lease_lineage(runtime_root:Path,current_lease_id:str)->list[str]:
+    """Return current lease followed by its recovered ancestors, newest to oldest."""
+    with locked(runtime_root) as paths:
+        parent:dict[str,str]={}
+        if paths['ledger'].is_file():
+            for raw in paths['ledger'].read_text(encoding='utf-8').splitlines():
+                if not raw.strip():continue
+                try:row=json.loads(raw)
+                except Exception:continue
+                if row.get('event')=='LEASE_RECOVERED' and row.get('lease_id') and row.get('previous_lease_id'):
+                    parent[str(row['lease_id'])]=str(row['previous_lease_id'])
+        chain=[];seen=set();cur=str(current_lease_id or '')
+        while cur and cur not in seen:
+            chain.append(cur);seen.add(cur);cur=parent.get(cur,'')
+        return chain
+
+def require_receipt_binding(runtime_root:Path,receipt:dict[str,Any],lease:dict[str,Any],candidate_revision:str,label:str)->None:
+    bound_revision=receipt.get('candidate_revision')
+    if bound_revision not in (None,'') and bound_revision!=candidate_revision:raise ValueError(label+'_REVISION_MISMATCH')
+    if receipt.get('promotion_id')!=lease.get('promotion_id'):raise ValueError(label+'_PROMOTION_ID_MISMATCH')
+    bound=str(receipt.get('promotion_lease_id') or '')
+    if not bound:raise ValueError(label+'_LEASE_BINDING_MISSING')
+    if bound not in lease_lineage(runtime_root,str(lease.get('lease_id') or '')):
+        raise ValueError(label+'_LEASE_LINEAGE_MISMATCH')
+
 def bind_receipt(lease:dict[str,Any],payload:dict[str,Any])->dict[str,Any]:
-    return {**payload,'promotion_lease_id':lease.get('lease_id'),'promotion_id':lease.get('promotion_id'),
+    return {**payload,'promotion_lease_id':lease.get('lease_id'),'promotion_lease_root_id':lease.get('root_lease_id') or lease.get('lease_id'),
+            'promotion_lease_recovery_generation':int(lease.get('recovery_generation') or 0),'promotion_id':lease.get('promotion_id'),
             'promotion_owner':lease.get('owner'),'automatic_external_spend_eur':0}
