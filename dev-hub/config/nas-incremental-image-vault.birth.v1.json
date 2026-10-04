@@ -1,0 +1,16 @@
+{
+  "schema": "chacha.dev/component-birth-candidate/v1",
+  "component_id": "nas-incremental-image-vault",
+  "materialization_gate_required": true,
+  "governance_class": "CORE_PLATFORM_COMPONENT",
+  "owner_foundry": "branch-foundry",
+  "purpose": "Keep reconstructible, versioned ChaCha DEV logical images on the 18 TB NAS volume using the 4 TB ChaCha persistence volume as source.",
+  "scope": "PLATFORM",
+  "permissions": [
+    "read",
+    "workspace-write-shadow-only"
+  ],
+  "lifecycle": "DESIGN->SHADOW->QUALIFY->PILOT->HUMAN_PROMOTION",
+  "production_activation_authorized": false,
+  "automatic_external_spend_eur": 0
+}
