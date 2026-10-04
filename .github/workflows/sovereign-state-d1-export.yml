@@ -95,3 +95,5 @@ jobs:
             /tmp/sovereign-d1-export/*.sql.sha256
           if-no-files-found: error
           retention-days: 1
+
+# post-phase-a authoritative refresh 2026-10-04T05:49Z
