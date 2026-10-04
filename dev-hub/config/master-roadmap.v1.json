@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-04T16:29:00Z",
+  "updated_at": "2026-10-04T16:31:00Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -880,7 +880,7 @@
         "phase": "F06",
         "id": "VIRTUAL_OS_DEVICE_LAB",
         "priority": "P1",
-        "state": "CURRENT_LINE_RECONCILED_PENDING_LOCAL_QUALIFICATION",
+        "state": "CURRENT_LINE_RECONCILED_LOCAL_AND_UMG_PASS_PENDING_EXACT_SHA_CI",
         "depends_on": [
           "F02"
         ],
@@ -894,7 +894,8 @@
           "immutable image policy",
           "fail-closed unsupported targets"
         ],
-        "reconciled_parent": "4ee2d6a92bf79f841fad77e8591db0323cb5783b"
+        "reconciled_parent": "4ee2d6a92bf79f841fad77e8591db0323cb5783b",
+        "umg_check": "PASS"
       },
       {
         "phase": "F07",
