@@ -747,7 +747,7 @@
     "schema": "chacha.dev/master-roadmap-functional-execution-order/v2",
     "authority": "PRIMARY_CURRENT_EXECUTION_VIEW",
     "ordering_principle": "Hard functional dependency and core safety determine order: artifacts/specialists -> execution DAG -> resource-aware scheduling -> target OS/device validation -> E2E runtime -> extensibility/access/resilience/remote/HA. Historical train numbering never determines current execution order. Reuse qualified shadow work and unchanged evidence; do not rebuild unchanged scope.",
-    "current_focus": "F05_RESOURCE_AWARE_SCHEDULER_CURRENT_LINE_RECONCILIATION",
+    "current_focus": "F06_VIRTUAL_OS_DEVICE_LAB_CURRENT_LINE_RECONCILIATION",
     "phases": [
       {
         "phase": "F00",
@@ -859,7 +859,7 @@
         "phase": "F05",
         "id": "RESOURCE_AWARE_SCHEDULER",
         "priority": "P0",
-        "state": "LOCAL_QUALIFICATION_PASS_PENDING_EXACT_SHA_CI",
+        "state": "EXACT_SHA_QUALIFIED_SHADOW",
         "depends_on": [
           "F04"
         ],
@@ -875,13 +875,15 @@
           "backpressure",
           "integration barriers"
         ],
-        "production_parent_sha": "a414320c5856162b556c8744fd07e51800d06479"
+        "production_parent_sha": "a414320c5856162b556c8744fd07e51800d06479",
+        "qualified_sha": "5af2e52fdd79235c65a70154e2594bc18fc8fb02",
+        "qualified_tree": "fc49adbc70948505c337bdf5f10096acb5f0d275"
       },
       {
         "phase": "F06",
         "id": "VIRTUAL_OS_DEVICE_LAB",
         "priority": "P1",
-        "state": "SHADOW_REAL_QNAP_INVENTORY_PASS_TO_RECONCILE",
+        "state": "LOCAL_QUALIFICATION_PASS_PENDING_EXACT_SHA_CI",
         "depends_on": [
           "F05"
         ],
@@ -894,7 +896,8 @@
           "VPS/QNAP runners",
           "immutable image policy",
           "fail-closed unsupported targets"
-        ]
+        ],
+        "production_parent_sha": "5af2e52fdd79235c65a70154e2594bc18fc8fb02"
       },
       {
         "phase": "F07",
