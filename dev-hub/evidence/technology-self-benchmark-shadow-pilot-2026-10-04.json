@@ -1,0 +1,111 @@
+{
+  "schema": "chacha.dev/technology-self-benchmark-report/v1",
+  "status": "PASS",
+  "observer_role": "OUT_OF_BAND_ADVISORY",
+  "mechanisms": [
+    {
+      "mechanism_id": "task-progress-dual-ledger",
+      "capability": "long-horizon-orchestration",
+      "recommendation": "WATCH",
+      "evidence_score": 90.0,
+      "maturity_score": 80.0,
+      "external_measured_score": 0.0,
+      "internal_measured_score": 0.0,
+      "advantage_points": 0.0,
+      "comparison_measured": false,
+      "reason_codes": [
+        "LOCAL_COMPARATIVE_BENCHMARK_REQUIRED"
+      ],
+      "source_code_ingestion": false,
+      "source_code_copy": false,
+      "automatic_external_spend_eur": 0
+    },
+    {
+      "mechanism_id": "out-of-band-agent-watchdog",
+      "capability": "agent-safety",
+      "recommendation": "WATCH",
+      "evidence_score": 95.0,
+      "maturity_score": 85.0,
+      "external_measured_score": 0.0,
+      "internal_measured_score": 0.0,
+      "advantage_points": 0.0,
+      "comparison_measured": false,
+      "reason_codes": [
+        "LOCAL_COMPARATIVE_BENCHMARK_REQUIRED"
+      ],
+      "source_code_ingestion": false,
+      "source_code_copy": false,
+      "automatic_external_spend_eur": 0
+    },
+    {
+      "mechanism_id": "outcome-aware-model-routing",
+      "capability": "adaptive-model-routing",
+      "recommendation": "WATCH",
+      "evidence_score": 90.0,
+      "maturity_score": 80.0,
+      "external_measured_score": 0.0,
+      "internal_measured_score": 0.0,
+      "advantage_points": 0.0,
+      "comparison_measured": false,
+      "reason_codes": [
+        "LOCAL_COMPARATIVE_BENCHMARK_REQUIRED"
+      ],
+      "source_code_ingestion": false,
+      "source_code_copy": false,
+      "automatic_external_spend_eur": 0
+    },
+    {
+      "mechanism_id": "agent-readiness-outcome-analytics",
+      "capability": "fleet-effectiveness",
+      "recommendation": "WATCH",
+      "evidence_score": 85.0,
+      "maturity_score": 75.0,
+      "external_measured_score": 0.0,
+      "internal_measured_score": 0.0,
+      "advantage_points": 0.0,
+      "comparison_measured": false,
+      "reason_codes": [
+        "LOCAL_COMPARATIVE_BENCHMARK_REQUIRED"
+      ],
+      "source_code_ingestion": false,
+      "source_code_copy": false,
+      "automatic_external_spend_eur": 0
+    },
+    {
+      "mechanism_id": "automatic-paid-provider-default",
+      "capability": "routing",
+      "recommendation": "IGNORE",
+      "evidence_score": 95.0,
+      "maturity_score": 95.0,
+      "external_measured_score": 95.0,
+      "internal_measured_score": 50.0,
+      "advantage_points": 45.0,
+      "comparison_measured": true,
+      "reason_codes": [
+        "GOVERNANCE_OR_COST_INCOMPATIBLE"
+      ],
+      "source_code_ingestion": false,
+      "source_code_copy": false,
+      "automatic_external_spend_eur": 0
+    }
+  ],
+  "negative_knowledge": [
+    {
+      "mechanism_id": "automatic-paid-provider-default",
+      "evidence_signature": "sha256:dbcac179730be6f19a1f8260a6675ef80bc0e2283f1e4c6b2d9dd18f8249ae95",
+      "reason_codes": [
+        "GOVERNANCE_OR_COST_INCOMPATIBLE"
+      ],
+      "reconsider_only_on_material_new_evidence": true
+    }
+  ],
+  "technology_watch_decision_authority": false,
+  "logician_falsification_required": true,
+  "architecture_council_review_required": true,
+  "production_authority": false,
+  "execution_authority": false,
+  "foundry_execution_authorized": false,
+  "guardian_preserved": true,
+  "sentinel_preserved": true,
+  "automatic_external_spend_eur": 0
+}

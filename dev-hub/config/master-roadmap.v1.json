@@ -418,6 +418,21 @@
         "persistent missions"
       ],
       "blocking_for_full_creation_runtime": false
+    },
+    {
+      "id": "technology-self-benchmark-observer",
+      "priority": "P1",
+      "state": "SHADOW_IMPLEMENTED_LOCAL_PASS_UMG_CHECK_PASS_PENDING_EXACT_SHA_CI",
+      "includes": [
+        "external mechanism watch",
+        "evidence scoring",
+        "negative knowledge",
+        "local comparative benchmark gate",
+        "no-code-harvest",
+        "out-of-band advisory boundary"
+      ],
+      "blocking_for_full_creation_runtime": false,
+      "evidence": "Technology Watch self-comparison lane created as out-of-band advisory observer; no production/execution/Foundry authority, no source-code harvesting, zero automatic external spend. External mechanisms cannot exceed WATCH until a local measured comparison exists."
     }
   ],
   "production_convergence_order": [

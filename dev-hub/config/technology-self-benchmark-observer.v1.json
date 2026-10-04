@@ -1,0 +1,63 @@
+{
+  "schema": "chacha.dev/technology-self-benchmark-observer/v1",
+  "version": "1.0.0",
+  "scope": "CHACHA_DEV_PLATFORM_CORE",
+  "mode": "EXTERNAL_READ_ONLY_ADVISORY",
+  "owner_agent": "technology-watch",
+  "logical_placement": "OUT_OF_BAND_OBSERVER",
+  "purpose": "Continuously compare ChaCha DEV mechanisms with externally demonstrated agentic-software mechanisms and surface only evidence-backed gaps or superior patterns.",
+  "principles": {
+    "mechanism_learning_only": true,
+    "source_code_harvest": false,
+    "source_code_copy": false,
+    "vendor_lock_in_forbidden": true,
+    "official_sources_first": true,
+    "independent_corroboration_preferred": true,
+    "negative_knowledge_persisted": true,
+    "material_change_required_before_reconsidering_rejected_pattern": true,
+    "zero_incremental_cost_first": true,
+    "automatic_external_spend_eur": 0
+  },
+  "inputs": [
+    "canonical-component-registry",
+    "master-roadmap",
+    "technology-core-watch",
+    "agent-benchmark-evidence",
+    "external-mechanism-dossiers"
+  ],
+  "outputs": [
+    "IGNORE",
+    "WATCH",
+    "BENCHMARK",
+    "PILOT_CANDIDATE"
+  ],
+  "thresholds": {
+    "minimum_evidence_score_for_benchmark": 70,
+    "minimum_advantage_points": 10,
+    "minimum_maturity_score": 60,
+    "minimum_evidence_score_for_pilot": 85,
+    "minimum_advantage_points_for_pilot": 20
+  },
+  "governance": {
+    "recommendations_only": true,
+    "production_authority": false,
+    "execution_authority": false,
+    "foundry_execution_authorized": false,
+    "permission_expansion": false,
+    "logician_falsification_required": true,
+    "architecture_council_review_required": true,
+    "guardian_preserved": true,
+    "sentinel_preserved": true
+  },
+  "cadence": {
+    "light_scan": "DAILY",
+    "deep_comparative_review": "WEEKLY",
+    "recheck_on_material_external_change": true,
+    "recheck_on_material_internal_change": true
+  },
+  "anti_loop": {
+    "rejected_pattern_replayed_without_new_evidence": false,
+    "same_source_same_claim_recounted": false,
+    "same_mechanism_same_evidence_rebenchmarked": false
+  }
+}

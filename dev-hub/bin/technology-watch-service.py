@@ -6,6 +6,7 @@ import technology_watch_runtime as tw
 import technology_watch_logician as twl
 import technology_truth_scoring as tts
 import technology_core_watch as tcw
+import technology_self_benchmark_observer as tsbo
 import universal_learning_runtime as ulr
 
 def save(path:Path,value)->None:
@@ -26,6 +27,9 @@ def main():
     e.add_argument("--dossier",type=Path,required=True)
     e.add_argument("--source-reputation",type=Path)
     e.add_argument("--output-dir",type=Path,required=True)
+    so=sub.add_parser("self-observe")
+    so.add_argument("--dossier",type=Path,required=True)
+    so.add_argument("--output",type=Path,required=True)
     cw=sub.add_parser("core-watch")
     cw.add_argument("--signals",type=Path)
     cw.add_argument("--output",type=Path,required=True)
@@ -88,6 +92,14 @@ def main():
         print(json.dumps(receipt,indent=2,ensure_ascii=False))
         print("CHACHA_DEV_V645_TECHNOLOGY_WATCH_EVALUATION=PASS")
         print("CHACHA_DEV_V645_LOGICIAN_DECISION_AUTHORITY=NO")
+        return
+    if a.cmd=="self-observe":
+        policy=json.loads((root/"dev-hub/config/technology-self-benchmark-observer.v1.json").read_text(encoding="utf-8"))
+        dossier=json.loads(a.dossier.read_text(encoding="utf-8"))
+        out=tsbo.assess(dossier,policy); save(a.output,out)
+        print(json.dumps(out,indent=2,ensure_ascii=False))
+        print("CHACHA_DEV_TECHNOLOGY_SELF_BENCHMARK=PASS")
+        print("CHACHA_DEV_SELF_OBSERVER_PRODUCTION_AUTHORITY=NO")
         return
     inventory=json.loads((root/"dev-hub/config/technology-core-watch.v1.json").read_text(encoding="utf-8"))
     signals=json.loads(a.signals.read_text(encoding="utf-8")) if a.signals and a.signals.is_file() else {}
