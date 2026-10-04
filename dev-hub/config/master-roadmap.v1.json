@@ -812,7 +812,7 @@
     "schema": "chacha.dev/master-roadmap-functional-execution-order/v2",
     "authority": "PRIMARY_CURRENT_EXECUTION_VIEW",
     "ordering_principle": "Hard functional dependency and core safety determine order: artifacts/specialists -> execution DAG -> resource-aware scheduling -> target OS/device validation -> E2E runtime -> extensibility/access/resilience/remote/HA. Historical train numbering never determines current execution order. Reuse qualified shadow work and unchanged evidence; do not rebuild unchanged scope.",
-    "current_focus": "F09_PLUGIN_UPDATE_LIFECYCLE_CURRENT_LINE_RECONCILIATION",
+    "current_focus": "F10_CONSULTANT_PROJECT_TENANCY_CURRENT_LINE_RECONCILIATION",
     "phases": [
       {
         "phase": "F00",
@@ -1023,7 +1023,7 @@
         "phase": "F09",
         "id": "PLUGIN_AND_UPDATE_LIFECYCLE",
         "priority": "P1",
-        "state": "RECIPE_FIRST_LOCAL_QUALIFICATION_PASS_PENDING_EXACT_SHA_CI",
+        "state": "EXACT_SHA_QUALIFIED_SHADOW",
         "depends_on": [
           "F08"
         ],
@@ -1041,13 +1041,15 @@
         "production_parent_sha": "057d965c1bb0bd9cf6309caa96d82e343cf24b56",
         "recipe_first": true,
         "normal_preinstall_state": "RECIPE_ONLY",
-        "rebuild_reproducibility_required": true
+        "rebuild_reproducibility_required": true,
+        "qualified_sha": "1849a51e45a1bab85dde825b1c7dc4ba7b161764",
+        "qualified_tree": "c07ba001d01a381e771bf12d7f7b9e33b11d1f09"
       },
       {
         "phase": "F10",
         "id": "CONSULTANT_PROJECT_TENANCY",
         "priority": "P1",
-        "state": "CURRENT_LINE_RECONCILED_LOCAL_PASS_PENDING_EXACT_SHA_CI",
+        "state": "LOCAL_QUALIFICATION_PASS_PENDING_EXACT_SHA_CI",
         "depends_on": [
           "F07"
         ],
@@ -1062,7 +1064,11 @@
           "private job/session scope"
         ],
         "reconciled_parent": "7077dd43aef3e9d53385f8bcee7e086d3e3b724a",
-        "qualification": "Consultant role PASS: may converse and build only own guest projects; core/agents/infrastructure internal Q&A and mutation blocked server-side; own jobs/artifacts isolated; global session/progress/update/plugin/cockpit views hidden/forbidden; Living White Paper is platform view; Artifact Fabric 9/9, Plugin/Update lifecycle, Direct Operator V805 and directives regressions PASS."
+        "qualification": "Consultant role PASS: may converse and build only own guest projects; core/agents/infrastructure internal Q&A and mutation blocked server-side; own jobs/artifacts isolated; global session/progress/update/plugin/cockpit views hidden/forbidden; Living White Paper is platform view; Artifact Fabric 9/9, Plugin/Update lifecycle, Direct Operator V805 and directives regressions PASS.",
+        "production_parent_sha": "1849a51e45a1bab85dde825b1c7dc4ba7b161764",
+        "backend_information_boundary_verified": true,
+        "project_build_allowed": true,
+        "platform_query_and_mutation_forbidden": true
       },
       {
         "phase": "F11",
