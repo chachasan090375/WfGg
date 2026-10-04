@@ -41,7 +41,7 @@ def register(reg:dict[str,Any],manifest:dict[str,Any],state='QUALIFIED_RECIPE_ON
 def request(reg:dict[str,Any],pid:str,action:str,policy:dict[str,Any])->dict[str,Any]:
     row=(reg.get('items') or {}).get(pid)
     if not isinstance(row,dict): raise ValueError('PLUGIN_NOT_FOUND')
-    if row.get('plugin_class')=='CORE_LOCKED': raise ValueError('CORE_LOCKED_LIFECYCLE_ACTION_FORBIDDEN')
+    if row.get('plugin_class')=='CORE_LOCKED' or row.get('state')=='MERGED_INTO_CORE_LOCKED': raise ValueError('CORE_LOCKED_LIFECYCLE_ACTION_FORBIDDEN')
     action=action.upper();states={
       'INSTALL':({'QUALIFIED_RECIPE_ONLY','UNINSTALLED_RECIPE_ONLY','DISABLED'},'INSTALL_REQUESTED'),
       'DISABLE':({'ACTIVE'},'DISABLE_REQUESTED'),

@@ -16,6 +16,10 @@ except ValueError as e: assert 'CORE_LOCKED' in str(e)
 print('CHACHA_DEV_PLUGIN_CENTER_LIFECYCLE=PASS')
 print('CHACHA_DEV_PLUGIN_CENTER_CORE_LOCKED=PASS')
 print('CHACHA_DEV_PLUGIN_CENTER_RECIPE_PRESERVATION=PASS')
+merged={**reg};merged['items']=dict(reg['items']);merged['items']['adaptive-model-router']=dict(reg['items']['adaptive-model-router']);merged['items']['adaptive-model-router']['state']='MERGED_INTO_CORE_LOCKED'
+try: pc.request(merged,'adaptive-model-router','UNINSTALL',p);raise AssertionError('core-merged plugin must block')
+except ValueError as e: assert 'CORE_LOCKED' in str(e)
+print('CHACHA_DEV_STRUCTURAL_CORE_UPDATE_UNINSTALL=BLOCKED_AS_REQUIRED')
 print('CHACHA_DEV_PLUGIN_CENTER_AUTOMATIC_EXTERNAL_SPEND_EUR=0')
 
 # Autonomous improvement Factory must package eligible improvements as plugins by default.
