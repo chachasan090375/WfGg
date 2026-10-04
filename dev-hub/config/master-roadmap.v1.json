@@ -812,7 +812,7 @@
     "schema": "chacha.dev/master-roadmap-functional-execution-order/v2",
     "authority": "PRIMARY_CURRENT_EXECUTION_VIEW",
     "ordering_principle": "Hard functional dependency and core safety determine order: artifacts/specialists -> execution DAG -> resource-aware scheduling -> target OS/device validation -> E2E runtime -> extensibility/access/resilience/remote/HA. Historical train numbering never determines current execution order. Reuse qualified shadow work and unchanged evidence; do not rebuild unchanged scope.",
-    "current_focus": "F08_IMPROVEMENT_INTELLIGENCE_FACTORY_CURRENT_LINE_RECONCILIATION",
+    "current_focus": "F09_PLUGIN_UPDATE_LIFECYCLE_CURRENT_LINE_RECONCILIATION",
     "phases": [
       {
         "phase": "F00",
@@ -1001,7 +1001,7 @@
         "phase": "F08",
         "id": "IMPROVEMENT_INTELLIGENCE_AND_AUTONOMOUS_FACTORY",
         "priority": "P1",
-        "state": "LOCAL_QUALIFICATION_PASS_PENDING_EXACT_SHA_CI",
+        "state": "PRODUCTION_ACTIVE_FINALIZED",
         "depends_on": [
           "F07"
         ],
@@ -1015,13 +1015,15 @@
           "automatic governed shadow package generation",
           "Living White Paper"
         ],
-        "production_parent_sha": "7878dfbfdf680c40a7f9e553b0275a662903e170"
+        "production_parent_sha": "7878dfbfdf680c40a7f9e553b0275a662903e170",
+        "qualified_sha": "f43f26447447a98a11356d7672d395cc555fa641",
+        "qualified_tree": "4911fd6c119808af69a99dace782b9422745fd7c"
       },
       {
         "phase": "F09",
         "id": "PLUGIN_AND_UPDATE_LIFECYCLE",
         "priority": "P1",
-        "state": "EXACT_SHA_QUALIFIED_SHADOW_TO_RECONCILE",
+        "state": "RECIPE_FIRST_LOCAL_QUALIFICATION_PASS_PENDING_EXACT_SHA_CI",
         "depends_on": [
           "F08"
         ],
@@ -1035,7 +1037,11 @@
           "disable/uninstall/reinstall",
           "CORE_LOCKED structural boundary",
           "Update Center"
-        ]
+        ],
+        "production_parent_sha": "f43f26447447a98a11356d7672d395cc555fa641",
+        "recipe_first": true,
+        "normal_preinstall_state": "RECIPE_ONLY",
+        "rebuild_reproducibility_required": true
       },
       {
         "phase": "F10",

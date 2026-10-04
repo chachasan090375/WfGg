@@ -228,6 +228,7 @@
         "all-foundries"
       ],
       "backfill_required": true
+
     },
     {
       "directive_id": "opdir-autonomous-improvement-factory",
@@ -296,7 +297,7 @@
       "scope": "PLATFORM_GLOBAL",
       "category": "LIFECYCLE_GOVERNANCE",
       "status": "ACTIVE",
-      "normalized_requirement": "Every ChaCha DEV update train must have a sealed reproducible recipe. A train may be shelved without losing Git history, evidence, dependencies or reconstruction instructions. Shelved trains remain visible in Update Center and may be rehydrated after current-policy revalidation. Physical retirement is a separate Intendant-governed destructive action: never active, rollback or leased material; Guardian destructive PRE and explicit human approval are mandatory. Recipe and Git history survive physical retirement.",
+      "normalized_requirement": "Every ChaCha DEV update train must use Recipe First / Build On Demand. After shadow build and qualification, seal an exact reproducible recipe and make RECIPE_ONLY the normal durable pre-install state; pre-release build artifacts are ephemeral or optional content-addressed cache only. The recipe must bind exact Git source/tree, dependency lock, build-environment fingerprint, SBOM, evidence, qualifications and artifact/functional reproducibility mode. An install request means rebuild from the sealed recipe, verify reproducibility, then stage for the existing human-governed promotion pipeline. Any reproducibility mismatch blocks promotion. ACTIVE and rollback releases remain physically protected; their retirement is a separate Intendant-governed destructive action with Guardian destructive PRE and explicit human approval. Legacy SHELVED/rehydration states remain readable only for backward compatibility. Recipe, Git history and evidence survive every pre-release artifact purge.",
       "required_sinks": [
         "lifecycle",
         "intendant",
@@ -308,7 +309,8 @@
         "release-qualification",
         "progress-reporting"
       ],
-      "backfill_required": true
+      "backfill_required": true,
+      "legacy_identifier_retained": true
     }
   ],
   "runtime": {
