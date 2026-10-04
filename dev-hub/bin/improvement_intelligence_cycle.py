@@ -27,10 +27,23 @@ def run(repo:Path,runtime:Path)->dict[str,Any]:
     for e in events:
         signals+=iif.canonical_signal(e,Path('agent-observation-bus:'+str(e.get('event_id') or 'event')),ip)
     inbox=runtime/'improvement-intelligence/signals'
+    seen_files=set()
     if inbox.is_dir():
         for p in sorted(inbox.glob('*.json')):
-            try:signals+=iif.canonical_signal(load(p),p,ip)
+            try:signals+=iif.canonical_signal(load(p),p,ip);seen_files.add(str(p.resolve()))
             except Exception:continue
+    runtime_cfg=ip.get('runtime') or {};source_files=[]
+    for pattern in runtime_cfg.get('source_globs') or []:
+        pattern=str(pattern)
+        parts=Path(pattern).parts
+        if Path(pattern).is_absolute() or '..' in parts:continue
+        for p in runtime.glob(pattern):
+            if p.is_file() and str(p.resolve()) not in seen_files:source_files.append(p)
+    source_files=sorted({str(p.resolve()):p for p in source_files}.values(),key=lambda p:p.stat().st_mtime,reverse=True)[:int(runtime_cfg.get('max_source_files_per_cycle') or 100)]
+    ingested=0;source_errors=[]
+    for p in source_files:
+        try:signals+=iif.canonical_signal(load(p),p,ip);ingested+=1
+        except Exception as exc:source_errors.append({'source':str(p),'reason':type(exc).__name__+':'+str(exc)[:160]})
     synthesis=iif.synthesize(signals,ip);save(runtime/'improvement-intelligence/current/synthesis.json',synthesis)
     queue=aif.build_queue(synthesis,fp);save(runtime/'update-center/queue.json',queue)
     registry=ccr.build_registry(repo,load(cfg/'canonical-component-registry.v1.json'))
@@ -49,7 +62,8 @@ def run(repo:Path,runtime:Path)->dict[str,Any]:
         }
         path=outq/(req['request_id']+'.json')
         if not path.exists():save(path,req);created.append(str(path))
-    return {'schema':'chacha.dev/improvement-intelligence-cycle/v1','status':'PASS','observation_event_count':len(events),
+    return {'schema':'chacha.dev/improvement-intelligence-cycle/v1','status':'PASS' if not source_errors else 'WARNING','observation_event_count':len(events),
+            'runtime_source_file_count':len(source_files),'runtime_source_ingested_count':ingested,'runtime_source_errors':source_errors,
             'signal_count':len(signals),'axis_count':synthesis.get('axis_count'),'improvement_candidate_count':sum(1 for x in synthesis.get('items') or [] if x.get('improvement_request_authorized') is True),
             'new_reassessment_request_count':len(created),'created_requests':created,'update_center_item_count':len(queue.get('items') or []),
             'direct_component_mutation':False,'self_promotion':False,'production_authority':False,'automatic_external_spend_eur':0}

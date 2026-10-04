@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/improvement-intelligence-fabric/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scope": "PLATFORM_GLOBAL",
   "mode": "FEDERATED_EVIDENCE_SYNTHESIS",
   "purpose": "Fuse verified signals from every authorized ChaCha DEV observation and assurance source into globally useful improvement axes without granting any source build or production authority.",
@@ -164,7 +164,16 @@
   "runtime": {
     "signal_inbox": "/opt/chacha-dev/runtime/improvement-intelligence/signals",
     "synthesis": "/opt/chacha-dev/runtime/improvement-intelligence/current/synthesis.json",
-    "improvement_requests": "/opt/chacha-dev/runtime/autonomous-improvement/inbox"
+    "improvement_requests": "/opt/chacha-dev/runtime/autonomous-improvement/inbox",
+    "source_globs": [
+      "technology-watch/*/evaluation*/technology-truth-score.json",
+      "technology-watch/*/technology-truth-score.json",
+      "dark-intelligence/*/technology-watch/technology-truth-score.json",
+      "agent-evolution/benchmark-run-latest.json"
+    ],
+    "max_source_files_per_cycle": 100,
+    "source_roots_are_runtime_relative": true,
+    "worktrees_and_release_archives_excluded": true
   },
   "automatic_external_spend_eur": 0
 }

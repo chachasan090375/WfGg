@@ -102,7 +102,7 @@ def canonical_signal(raw:dict[str,Any],origin:Path,policy:dict[str,Any])->list[d
           'confidence':raw.get('technical_truth_score',0),'evidence_refs':[str(origin)],'source_timestamp':now(),
           'provenance_verified':True,'verification_receipt':str(origin),'architecture_fit':float(raw.get('architecture_fit_score') or 0)>=65,
           # Truth is evidence quality, not global product value. Value stays zero until a comparison/utility signal exists.
-          'global_value_score':0,'value_dimensions':{},'recommendation':rec,'runtime_local_signal':False,
+          'global_value_score':None,'value_dimensions':{},'recommendation':rec,'runtime_local_signal':False,
           'target_component_id':'central-orchestrator','candidate_owner':'branch-foundry'
         }]
     elif schema in {'chacha.dev/guardian-verdict/v3','chacha.dev/sentinel-technical-receipt/v1'}:
@@ -166,9 +166,14 @@ def value_score(rows:list[dict[str,Any]],policy:dict[str,Any])->tuple[float,dict
     return round(clamp(weighted),2),{k:round(v,2) for k,v in dims.items()}
 
 def synthesize(signals:list[dict[str,Any]],policy:dict[str,Any])->dict[str,Any]:
-    groups={}
+    groups={};order=list((policy.get('fusion') or {}).get('cluster_key_order') or ['capability','mechanism_id','claim_fingerprint'])
     for s in signals:
-        key=str(s.get('mechanism_id') or s.get('capability') or s.get('claim_fingerprint'))
+        key=''
+        for field in order:
+            value=s.get(str(field))
+            if value not in (None,''):
+                key=str(value);break
+        if not key:key=str(s.get('claim_fingerprint') or s.get('signal_id') or 'unknown')
         groups.setdefault(key,[]).append(s)
     items=[]
     u=policy.get('utility_gate') or {}; minv=float(u.get('minimum_global_value_score') or 65)
