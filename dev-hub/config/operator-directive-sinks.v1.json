@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/operator-directive-sink-catalog/v1",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "sinks": {
     "canonical-component-registry": [
       "dev-hub/bin/canonical_component_registry.py",
@@ -85,6 +85,42 @@
     "lifecycle": [
       "dev-hub/config/lifecycle.v1.json",
       "dev-hub/bin/lifecycle-engine.py"
+    ],
+    "architecture-council": [
+      "dev-hub/bin/architecture-decision-council.py",
+      "dev-hub/config/architecture-decision-council.v1.json"
+    ],
+    "central-orchestrator": [
+      "dev-hub/bin/autonomous-project-orchestrator.py",
+      "dev-hub/bin/central-interface-controller.py"
+    ],
+    "creation-runtime-fabric": [
+      "dev-hub/config/creation-runtime-fabric.v1.json"
+    ],
+    "direct-operator-cockpit": [
+      "dev-hub/bin/direct-operator-service.py",
+      "dev-hub/direct-operator-ui/index.html"
+    ],
+    "logician": [
+      "dev-hub/bin/technology_watch_logician.py",
+      "dev-hub/config/technology-watch-logician.v1.json"
+    ],
+    "reuse-memory": [
+      "dev-hub/bin/reusable-branch-registry.py",
+      "dev-hub/bin/reusable-architecture-registry.py",
+      "dev-hub/config/reusable-architecture-memory.v1.json"
+    ],
+    "technology-self-benchmark-observer": [
+      "dev-hub/bin/technology_self_benchmark_observer.py",
+      "dev-hub/config/technology-self-benchmark-observer.v1.json"
+    ],
+    "technology-truth-scoring": [
+      "dev-hub/bin/technology_truth_scoring.py",
+      "dev-hub/config/technology-truth-scoring.v1.json"
+    ],
+    "technology-watch": [
+      "dev-hub/bin/technology-watch-service.py",
+      "dev-hub/config/technology-watch-runtime.v1.json"
     ]
   },
   "automatic_external_spend_eur": 0
