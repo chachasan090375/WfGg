@@ -13,7 +13,68 @@
     "login_header": "Tailscale-User-Login",
     "authorized_users_file": "/opt/chacha-dev/runtime/secrets/direct-operator-authorized-users.json",
     "fail_closed_if_identity_missing": true,
-    "backend_must_bind_loopback": true
+    "backend_must_bind_loopback": true,
+    "role_map_supported": true,
+    "default_legacy_role": "OWNER",
+    "roles": {
+      "OWNER": {
+        "read": true,
+        "conversation": true,
+        "build": true,
+        "production_approval_identity": true
+      },
+      "CONSULTANT": {
+        "read": true,
+        "conversation": true,
+        "research": true,
+        "build": true,
+        "stop": false,
+        "mutation": true,
+        "mutation_scope": "OWN_PROJECTS_ONLY",
+        "platform_scope": false,
+        "core_scope": false,
+        "agent_scope": false,
+        "operator_directive_intake": false,
+        "improvement_signal_authority": false,
+        "production_approval_identity": false,
+        "allowed_channels": [
+          "CONVERSATION",
+          "BUILD"
+        ],
+        "forbidden_projects": [
+          "chacha-dev-platform"
+        ],
+        "project_namespace": "guest/{identity}/",
+        "may_create_projects": true,
+        "may_promote_platform": false,
+        "platform_read_scope": "WHITEPAPER_AND_PUBLIC_STATUS_ONLY",
+        "core_questions_allowed": false,
+        "infrastructure_questions_allowed": false,
+        "internal_agents_questions_allowed": false,
+        "runtime_paths_visible": false,
+        "governance_internals_visible": false,
+        "security_internals_visible": false,
+        "secrets_visible": false,
+        "allowed_platform_views": [
+          "WHITEPAPER",
+          "PUBLIC_HEALTH_SUMMARY"
+        ]
+      }
+    },
+    "guest_default_role": "CONSULTANT",
+    "shared_user_least_privilege_required": true,
+    "consultant_requests_excluded_from_platform_evolution": true,
+    "consultant_cannot_modify_core_agents_or_platform": true,
+    "consultant_information_boundary": {
+      "whitepaper_is_authoritative_public_platform_document": true,
+      "platform_internal_q_and_a_forbidden": true,
+      "detailed_infrastructure_disclosure_forbidden": true,
+      "internal_agent_inventory_disclosure_forbidden": true,
+      "runtime_paths_disclosure_forbidden": true,
+      "security_and_governance_internals_disclosure_forbidden": true,
+      "project_build_q_and_a_allowed": true,
+      "own_project_q_and_a_allowed": true
+    }
   },
   "transport": {
     "public_funnel_forbidden": true,
@@ -181,5 +242,6 @@
     "raw_upload_endpoint": "/api/v1/artifacts",
     "download_endpoint_prefix": "/api/v1/artifacts/",
     "execution_on_upload": false
-  }
+  },
+  "consultant_access_policy": "dev-hub/config/consultant-access.v1.json"
 }

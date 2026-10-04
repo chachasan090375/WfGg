@@ -302,6 +302,24 @@
         "progress-reporting"
       ],
       "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-project-scoped-consultant-access",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "ACCESS_GOVERNANCE",
+      "status": "ACTIVE",
+      "normalized_requirement": "External consultants use individual authenticated identities and may converse with ChaCha and build only inside their own guest project namespace. They have no access to the ChaCha DEV platform project, core, agents, Foundries, Guardian/Sentinel controls, STOP, platform updates or production authority. They may not query ChaCha DEV internals; the Living White Paper is the only authorized platform document. Global session/progress, internal receipts, runtime paths, Technology Watch and central memory are not exposed. Consultant requests never become operator structural directives or platform improvement signals.",
+      "required_sinks": [
+        "direct-operator",
+        "conversation-channel",
+        "central-orchestrator",
+        "all-foundries",
+        "guardian",
+        "sentinel",
+        "release-qualification",
+        "progress-reporting"
+      ],
+      "backfill_required": true
     }
   ],
   "runtime": {

@@ -43,6 +43,21 @@ def normalize(text:str)->str:
     t=re.sub(r"[\s!?.,;:]+$","",text.strip().casefold())
     return {"allo":"STATUS","go":"CONTINUE","stop":"STOP"}.get(t,"INSTRUCTION")
 
+def consultant_platform_question_forbidden(text:str)->bool:
+    t=str(text or "").casefold()
+    core_terms=(
+      "chacha dev","chachadev","noyau","core","infrastructure","infra","architecture interne",
+      "vps","nas","cloudflare","github","tailscale","guardian","sentinelle","sentinel","bastion",
+      "intendant","foundry","agent interne","agents internes","cerveau central","central brain",
+      "runtime","service systemd","sqlite","lease","rollback","promotion","umg","ccr","direct operator",
+      "dark intelligence","technology watch","learning relay","assurance exchange","scheduler","run controller",
+      "secret","token","credential","clé","clef","mot de passe","path","chemin /opt/chacha-dev"
+    )
+    own_project_terms=("mon projet","mon application","mon app","ce projet","cette application","dans mon espace")
+    if any(x in t for x in own_project_terms) and not any(x in t for x in ("chacha dev","chachadev","noyau","infrastructure chacha","agents chacha")):
+        return False
+    return any(x in t for x in core_terms)
+
 def transient_project(value:Any)->bool:
     v=str(value or "")
     return v.startswith("human-interface-request-") or v.startswith("dor-")
@@ -117,6 +132,10 @@ def decode_identity(v:str)->str:
 def authorized_users(path:Path)->set[str]:
     x=load(path,{"authorized_logins":[]})
     return {str(v).strip().casefold() for v in x.get("authorized_logins") or [] if str(v).strip()}
+def authorization_record(login:str,policy:dict[str,Any])->dict[str,Any]:
+    auth=policy.get("authentication") or {}; data=load(Path(str(auth.get("authorized_users_file") or "")),{"authorized_logins":[]})
+    roles=data.get("roles") if isinstance(data.get("roles"),dict) else {}; role=str(roles.get(login) or auth.get("default_legacy_role") or "OWNER").upper()
+    spec=(auth.get("roles") or {}).get(role) or {}; return {"login":login,"role":role,"permissions":spec}
 def operator_from_headers(headers:Any,policy:dict[str,Any])->str|None:
     auth=policy.get("authentication") or {};name=str(auth.get("login_header") or "Tailscale-User-Login")
     raw=str(headers.get(name) or "").strip()
@@ -425,11 +444,11 @@ class State:
                       "text_digest":text_digest,"artifact_digest":artifact_digest,"artifact_ids":artifact_ids,"created_at":now_iso()})
             return jid,True
 
-    def process_conversation(self,jid:str,text:str,project:str,operator:str,artifact_ids:list[str]|None=None)->None:
+    def process_conversation(self,jid:str,text:str,project:str,operator:str,artifact_ids:list[str]|None=None,role:str="OWNER")->None:
         project=stable_project(project,str(self.policy.get("default_project") or "chacha-dev-platform"))
         request_id="dor-"+uuid.uuid4().hex
         work=self.root/"requests"/request_id;work.mkdir(parents=True,exist_ok=True)
-        directive_intake=self.capture_operator_directive(text,project,operator,request_id,work)
+        directive_intake=self.capture_operator_directive(text,project,operator,request_id,work) if role!="CONSULTANT" else {"schema":"chacha.dev/operator-directive-intake-receipt/v1","status":"NOT_APPLICABLE","request_id":request_id,"project_id":project,"automatic_external_spend_eur":0}
         self.set_job(jid,state="CONVERSATION_ROUTING",request_id=request_id,command="CONVERSATION",
                      project_id=project,channel="CONVERSATION")
         self.progress.begin(request_id,"ChaCha te répond ✨",project)
@@ -474,26 +493,39 @@ class State:
                 }
             else:
                 research_path=work/"research.json"
-                if subroute=="RESEARCH":
-                    rr=run([sys.executable,str(self.research_broker),"--query",text,
-                            "--snapshot",str(self.technology_watch_snapshot),"--output",str(research_path)],60)
-                    if rr.returncode!=0 or not research_path.is_file():
-                        atomic(research_path,{"schema":"chacha.dev/read-only-research-brief/v1","status":"UNAVAILABLE",
-                          "query":text,"results":[],"read_only":True,"fresh_refresh_triggered":False,
-                          "general_web_provider":"UNBOUND","automatic_external_spend_eur":0})
                 advisory_path=work/"advisory.json"
-                advisory_cmd=[sys.executable,str(self.advisory_bus),"--query",text,
-                  "--memory",str(self.central_memory_snapshot),"--human-db",str(self.human_behavior_db),
-                  "--output",str(advisory_path)]
-                if research_path.is_file():advisory_cmd.extend(["--research",str(research_path)])
-                ap=run(advisory_cmd,60)
-                if ap.returncode!=0 or not advisory_path.is_file():
-                    atomic(advisory_path,{"schema":"chacha.dev/conversation-advisory-brief/v1","status":"UNAVAILABLE",
-                      "query":text,"read_only":True,"memory":{"status":"UNAVAILABLE","items":[]},
-                      "human_behavior_center":{"status":"UNAVAILABLE"},"research":{"status":"UNAVAILABLE"},
+                if role=="CONSULTANT":
+                    atomic(research_path,{"schema":"chacha.dev/read-only-research-brief/v1","status":"ISOLATED",
+                      "query":text,"results":[],"read_only":True,"platform_sources_exposed":False,
+                      "technology_watch_exposed":False,"central_memory_exposed":False,
+                      "general_web_provider":"UNBOUND","automatic_external_spend_eur":0})
+                    atomic(advisory_path,{"schema":"chacha.dev/conversation-advisory-brief/v1","status":"ISOLATED",
+                      "query":text,"read_only":True,"memory":{"status":"FORBIDDEN","items":[]},
+                      "human_behavior_center":{"status":"NOT_EXPOSED"},"research":{"status":"ISOLATED"},
+                      "information_boundary":"WHITEPAPER_AND_OWN_PROJECTS_ONLY",
                       "authorities":{"decision_authority":False,"execution_authority":False,
                         "mutation_authority":False,"scheduler_called":False,"run_controller_called":False,
                         "foundry_called":False},"automatic_external_spend_eur":0})
+                else:
+                    if subroute=="RESEARCH":
+                        rr=run([sys.executable,str(self.research_broker),"--query",text,
+                                "--snapshot",str(self.technology_watch_snapshot),"--output",str(research_path)],60)
+                        if rr.returncode!=0 or not research_path.is_file():
+                            atomic(research_path,{"schema":"chacha.dev/read-only-research-brief/v1","status":"UNAVAILABLE",
+                              "query":text,"results":[],"read_only":True,"fresh_refresh_triggered":False,
+                              "general_web_provider":"UNBOUND","automatic_external_spend_eur":0})
+                    advisory_cmd=[sys.executable,str(self.advisory_bus),"--query",text,
+                      "--memory",str(self.central_memory_snapshot),"--human-db",str(self.human_behavior_db),
+                      "--output",str(advisory_path)]
+                    if research_path.is_file():advisory_cmd.extend(["--research",str(research_path)])
+                    ap=run(advisory_cmd,60)
+                    if ap.returncode!=0 or not advisory_path.is_file():
+                        atomic(advisory_path,{"schema":"chacha.dev/conversation-advisory-brief/v1","status":"UNAVAILABLE",
+                          "query":text,"read_only":True,"memory":{"status":"UNAVAILABLE","items":[]},
+                          "human_behavior_center":{"status":"UNAVAILABLE"},"research":{"status":"UNAVAILABLE"},
+                          "authorities":{"decision_authority":False,"execution_authority":False,
+                            "mutation_authority":False,"scheduler_called":False,"run_controller_called":False,
+                            "foundry_called":False},"automatic_external_spend_eur":0})
 
                 reasoner_path=work/"conversation-response.json"
                 cmd=[sys.executable,str(self.conversation_reasoner),"--text",text,
@@ -530,15 +562,16 @@ class State:
                 response["creation_brief"]=conversation["creation_brief"]
             response_path=self.responses/(safe_id(request_id)+".json");atomic(response_path,response)
             turn=self.append_turn(operator,response);response["conversation_turn_id"]=turn["turn_id"];atomic(response_path,response)
-            with self.lock:
-                sess=self.session();sess.update({
-                  "schema":"chacha.dev/direct-operator-session/v1","updated_at":now_iso(),
-                  "active_project":project,"active_channel":"CONVERSATION",
-                  "last_conversation_request_id":request_id,
-                  "last_conversation_response_path":str(response_path),
-                  "last_conversation_response_digest":fd(response_path),
-                  "last_operator":operator
-                });self.save_session(sess)
+            if role!="CONSULTANT":
+                with self.lock:
+                    sess=self.session();sess.update({
+                      "schema":"chacha.dev/direct-operator-session/v1","updated_at":now_iso(),
+                      "active_project":project,"active_channel":"CONVERSATION",
+                      "last_conversation_request_id":request_id,
+                      "last_conversation_response_path":str(response_path),
+                      "last_conversation_response_digest":fd(response_path),
+                      "last_operator":operator
+                    });self.save_session(sess)
             self.set_job(jid,state="COMPLETE",channel="CONVERSATION",subroute=subroute,
                          response=response,response_path=str(response_path))
             self.progress.complete("ChaCha a répondu ✨")
@@ -546,20 +579,20 @@ class State:
             self.progress.fail("ChaCha Conversation a rencontré un problème")
             self.set_job(jid,state="FAILED",channel="CONVERSATION",error=str(exc)[:2000])
 
-    def process(self,jid:str,text:str,project:str,operator:str,channel:str="BUILD",artifact_ids:list[str]|None=None)->None:
+    def process(self,jid:str,text:str,project:str,operator:str,channel:str="BUILD",artifact_ids:list[str]|None=None,role:str="OWNER")->None:
         channel=str(channel or "BUILD").upper()
         if channel=="CONVERSATION" and normalize(text)!="STOP":
-            return self.process_conversation(jid,text,project,operator,artifact_ids)
+            return self.process_conversation(jid,text,project,operator,artifact_ids,role)
         project=stable_project(project,str(self.policy.get("default_project") or "chacha-dev-platform"))
         request_id="dor-"+uuid.uuid4().hex
         command=normalize(text)
         recovery_target=targeted_platform_recovery(text,project,self.root,operator) if command=="INSTRUCTION" else None
         work=self.root/"requests"/request_id;work.mkdir(parents=True,exist_ok=True)
-        directive_intake=self.capture_operator_directive(text,project,operator,request_id,work) if command=="INSTRUCTION" else {"schema":"chacha.dev/operator-directive-intake-receipt/v1","status":"NOT_APPLICABLE","request_id":request_id,"project_id":project,"automatic_external_spend_eur":0}
+        directive_intake=self.capture_operator_directive(text,project,operator,request_id,work) if command=="INSTRUCTION" and role!="CONSULTANT" else {"schema":"chacha.dev/operator-directive-intake-receipt/v1","status":"NOT_APPLICABLE","request_id":request_id,"project_id":project,"automatic_external_spend_eur":0}
         intent={"schema":"chacha.dev/human-interface-intent/v1","request_id":request_id,"received_at":now_iso(),
           "source":"direct-operator","route":"CHACHA_DEV","command":command,"user_text":text,
           "project_id":project,"target_scope":"PLATFORM" if project=="chacha-dev-platform" else "PROJECT",
-          "interface_decision_authority":False,"operator_identity":operator}
+          "interface_decision_authority":False,"operator_identity":operator,"operator_role":role}
         artifact_meta=self.artifacts.validate_refs(list(artifact_ids or []),self.operator_key(operator),project)
         intent["artifact_refs"]=[{k:x.get(k) for k in ("artifact_id","filename","mime_type","size","sha256","origin","security_state","execution_allowed","version","parent_artifact")} for x in artifact_meta]
         if recovery_target:intent["recovery_target_request_id"]=recovery_target
@@ -732,12 +765,13 @@ class State:
             turn=self.append_turn(operator,response)
             response["conversation_turn_id"]=turn["turn_id"]
             atomic(response_path,response)
-            with self.lock:
-                s=self.session();s.update({"schema":"chacha.dev/direct-operator-session/v1","updated_at":now_iso(),
-                  "active_project":project,"active_channel":"BUILD","last_request_id":request_id,
-                  "last_response_path":str(response_path),"last_response_digest":fd(response_path),
-                  "last_build_response_path":str(response_path),"last_build_response_digest":fd(response_path),
-                  "last_command":command,"last_operator":operator});self.save_session(s)
+            if role!="CONSULTANT":
+                with self.lock:
+                    s=self.session();s.update({"schema":"chacha.dev/direct-operator-session/v1","updated_at":now_iso(),
+                      "active_project":project,"active_channel":"BUILD","last_request_id":request_id,
+                      "last_response_path":str(response_path),"last_response_digest":fd(response_path),
+                      "last_build_response_path":str(response_path),"last_build_response_digest":fd(response_path),
+                      "last_command":command,"last_operator":operator});self.save_session(s)
             self.set_job(jid,state="COMPLETE",response=response,response_path=str(response_path))
             final_status=str(response.get("status") or "UNKNOWN").upper()
             if final_status in {"SUCCESS","PASS","OK","COMPLETE"}:
@@ -749,6 +783,19 @@ class State:
         except Exception as exc:
             self.progress.fail("ChaCha a rencontré un problème")
             self.set_job(jid,state="FAILED",error=str(exc)[:2000])
+
+def consultant_job_view(job:dict[str,Any])->dict[str,Any]:
+    resp=job.get("response") if isinstance(job.get("response"),dict) else {}
+    cv=resp.get("conversation") if isinstance(resp.get("conversation"),dict) else {}
+    safe_resp={
+      "status":resp.get("status"),"message":resp.get("message") or cv.get("message"),
+      "conversation":{"message":cv.get("message"),"status":cv.get("status"),"kind":cv.get("kind")},
+      "submitted_user_message":resp.get("submitted_user_message"),"submitted_at":resp.get("submitted_at"),
+      "project_id":resp.get("project_id"),"session_project_id":resp.get("session_project_id"),
+      "channel":resp.get("channel")
+    }
+    return {"state":job.get("state"),"channel":job.get("channel"),"project_id":job.get("project_id"),
+      "response":safe_resp,"error":"BUILD_FAILED" if job.get("state")=="FAILED" else None}
 
 class Handler(BaseHTTPRequestHandler):
     server_version="ChaChaDirectOperator/1.0"
@@ -768,6 +815,16 @@ class Handler(BaseHTTPRequestHandler):
         if path=="/healthz":return self.json(200,{"status":"PASS","component":"direct-operator","bind":"loopback"})
         identity=self.auth()
         if not identity:return
+        authz=authorization_record(identity,self.st.policy)
+        if path=="/api/v1/whoami": return self.json(200,{"status":"PASS","identity":identity,"role":authz["role"],"permissions":authz["permissions"]})
+        if authz["role"]=="CONSULTANT":
+            consultant_allowed={"/api/v1/whoami","/api/v1/conversation","/api/v1/human-profile","/api/v1/personas","/api/v1/whitepaper","/api/v1/artifacts"}
+            consultant_job=path.startswith("/api/v1/jobs/")
+            consultant_artifact=path.startswith("/api/v1/artifacts/")
+            if path.startswith("/api/v1/") and path not in consultant_allowed and not consultant_job and not consultant_artifact:
+                return self.json(403,{"status":"FORBIDDEN","reason":"CONSULTANT_PLATFORM_INFORMATION_BOUNDARY","public_document":"/whitepaper/current"})
+            if path=="/cockpit.json" or path.startswith("/native-updates/"):
+                return self.json(403,{"status":"FORBIDDEN","reason":"CONSULTANT_PLATFORM_INFORMATION_BOUNDARY","public_document":"/whitepaper/current"})
         if path=="/api/v1/session":
             return self.json(200,self.st.session_view())
         if path=="/api/v1/conversation":
@@ -844,7 +901,12 @@ class Handler(BaseHTTPRequestHandler):
         if path.startswith("/api/v1/jobs/"):
             jid=path.rsplit("/",1)[-1];p=self.st.job_path(jid)
             if not p.is_file():return self.json(404,{"status":"NOT_FOUND"})
-            job=load(p);job["progress"]=self.st.progress.snapshot();return self.json(200,job)
+            job=load(p)
+            if authz["role"]=="CONSULTANT":
+                if str(job.get("operator") or "").casefold()!=identity.casefold():
+                    return self.json(403,{"status":"FORBIDDEN","reason":"CONSULTANT_JOB_OWNERSHIP_REQUIRED"})
+                return self.json(200,consultant_job_view(job))
+            job["progress"]=self.st.progress.snapshot();return self.json(200,job)
         if path.startswith("/native-updates/"):
             rel_apk=path[len("/native-updates/"):]
             if not rel_apk or "/" in rel_apk or "\\" in rel_apk or not rel_apk.endswith(".apk"):
@@ -873,13 +935,20 @@ class Handler(BaseHTTPRequestHandler):
         identity=self.auth()
         if not identity:return
         path=urlparse(self.path).path
+        authz=authorization_record(identity,self.st.policy)
         if path=="/api/v1/artifacts":
             try:n=int(self.headers.get("Content-Length") or 0)
             except Exception:n=0
             filename=str(self.headers.get("X-Artifact-Filename") or "").strip()
             if not filename:return self.json(400,{"status":"ARTIFACT_FILENAME_REQUIRED"})
-            s=self.st.session();default_project=str(self.st.policy.get("default_project") or "chacha-dev-platform")
-            project=stable_project(self.headers.get("X-Artifact-Project") or s.get("active_project"),default_project)
+            default_project=str(self.st.policy.get("default_project") or "chacha-dev-platform")
+            if authz["role"]=="CONSULTANT":
+                raw_project=str(self.headers.get("X-Artifact-Project") or "").strip();owner_prefix="guest/"+safe_id(identity)+"/"
+                if raw_project.startswith("guest/") and not raw_project.startswith(owner_prefix):
+                    return self.json(403,{"status":"FORBIDDEN","reason":"CONSULTANT_PROJECT_OWNERSHIP_REQUIRED"})
+                project=raw_project if raw_project.startswith(owner_prefix) else owner_prefix+safe_id(raw_project or "workspace")
+            else:
+                sess=self.st.session();project=stable_project(self.headers.get("X-Artifact-Project") or sess.get("active_project"),default_project)
             try:meta=self.st.artifacts.ingest_stream(self.rfile,n,filename,str(self.headers.get("Content-Type") or "application/octet-stream"),self.st.operator_key(identity),project,"user-upload",str(self.headers.get("X-Artifact-Parent") or "").strip() or None)
             except ArtifactError as e:return self.json(413 if str(e)=="ARTIFACT_TOO_LARGE" else 400,{"status":str(e)})
             return self.json(201,meta)
@@ -902,21 +971,34 @@ class Handler(BaseHTTPRequestHandler):
         text=str(body.get("text") or "").strip()
         if not text:return self.json(400,{"status":"TEXT_REQUIRED"})
         channel=str(body.get("channel") or ((self.st.policy.get("dual_channel") or {}).get("default_api_channel")) or "BUILD").upper()
+        role=authz["role"]
+        if role=="CONSULTANT" and consultant_platform_question_forbidden(text):
+            return self.json(403,{"status":"FORBIDDEN","reason":"CONSULTANT_PLATFORM_INFORMATION_BOUNDARY","message":"Le Livre blanc est la seule source autorisée sur ChaCha DEV."})
+        if role=="CONSULTANT" and normalize(text) in {"STOP","STATUS","CONTINUE"}:
+            return self.json(403,{"status":"FORBIDDEN","reason":"CONSULTANT_PLATFORM_CONTROL_FORBIDDEN"})
         if channel not in {"CONVERSATION","BUILD"}:return self.json(400,{"status":"CHANNEL_INVALID"})
         artifact_ids=body.get("artifact_ids") or []
         if not isinstance(artifact_ids,list) or not all(isinstance(x,str) for x in artifact_ids):return self.json(400,{"status":"ARTIFACT_IDS_INVALID"})
         client_request_id=str(body.get("client_request_id") or "").strip()
         legacy_client_request_id=not bool(client_request_id)
         if legacy_client_request_id:client_request_id="legacy-"+uuid.uuid4().hex
-        s=self.st.session()
         default_project=str(self.st.policy.get("default_project") or "chacha-dev-platform")
-        project=stable_project(body.get("project") or s.get("active_project"),default_project)
+        if role=="CONSULTANT":
+            raw_project=str(body.get("project") or "").strip();owner_prefix="guest/"+safe_id(identity)+"/"
+            if raw_project.startswith("guest/") and not raw_project.startswith(owner_prefix):
+                return self.json(403,{"status":"FORBIDDEN","reason":"CONSULTANT_PROJECT_OWNERSHIP_REQUIRED"})
+            project=raw_project if raw_project.startswith(owner_prefix) else owner_prefix+safe_id(raw_project or "workspace")
+            structural_cues=("modifie chacha dev","modifier chacha dev","change chacha dev","noyau chacha","core chacha","agent chacha","agents chacha","architecture chacha","mise en production chacha","update chacha","promotion chacha")
+            if any(c in text.casefold() for c in structural_cues):
+                return self.json(403,{"status":"FORBIDDEN","reason":"CONSULTANT_PLATFORM_MUTATION_FORBIDDEN"})
+        else:
+            sess=self.st.session();project=stable_project(body.get("project") or sess.get("active_project"),default_project)
         try:
             jid,created=self.st.accept_intent(text,project,identity,client_request_id,channel,artifact_ids)
         except ValueError as e:return self.json(400,{"status":str(e)})
         except RuntimeError as e:return self.json(409,{"status":str(e)})
         if created:
-            threading.Thread(target=self.st.process,args=(jid,text,project,identity,channel,artifact_ids),daemon=True).start()
+            threading.Thread(target=self.st.process,args=(jid,text,project,identity,channel,artifact_ids,role),daemon=True).start()
         state=load(self.st.job_path(jid)).get("state") or "QUEUED"
         self.json(202,{"status":"ACCEPTED","job_id":jid,"state":state,"project_id":project,
                        "channel":channel,"client_request_id":client_request_id,"artifact_ids":artifact_ids,"deduplicated":not created,
