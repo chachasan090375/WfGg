@@ -1,0 +1,90 @@
+{
+  "schema": "chacha.dev/technology-self-benchmark-source-catalog/v1",
+  "version": "1.0.0",
+  "source_code_ingestion": false,
+  "targets": [
+    {
+      "id": "factory",
+      "official": "https://factory.ai/",
+      "watch": [
+        "model-routing",
+        "mission-control",
+        "agent-readiness",
+        "persistent-agent-computers",
+        "full-sdlc-autonomy",
+        "self-improving-software-factory"
+      ]
+    },
+    {
+      "id": "openhands",
+      "official": "https://www.openhands.dev/",
+      "watch": [
+        "model-agnostic-self-hosting",
+        "large-codebase-dependency-mapping",
+        "parallel-agent-orchestration",
+        "secure-sandbox-runtime"
+      ]
+    },
+    {
+      "id": "cognition-devin",
+      "official": "https://cognition.ai/",
+      "watch": [
+        "long-horizon-software-engineering",
+        "enterprise-maintenance-automation",
+        "delegated-engineering"
+      ]
+    },
+    {
+      "id": "replit-agent",
+      "official": "https://replit.com/",
+      "watch": [
+        "plan-while-building",
+        "parallel-task-forks",
+        "human-creative-control",
+        "integrated-build-run-ship"
+      ]
+    },
+    {
+      "id": "github-copilot-agents",
+      "official": "https://docs.github.com/en/copilot/",
+      "watch": [
+        "plan-mode",
+        "subagents",
+        "custom-specialists",
+        "cloud-agent-delegation"
+      ]
+    },
+    {
+      "id": "microsoft-magentic-one",
+      "official": "https://microsoft.github.io/autogen/",
+      "watch": [
+        "task-ledger",
+        "progress-ledger",
+        "stall-detection",
+        "replanning",
+        "orchestrator-specialist-team"
+      ]
+    },
+    {
+      "id": "langgraph",
+      "official": "https://www.langchain.com/langgraph",
+      "watch": [
+        "durable-execution",
+        "human-in-loop",
+        "hierarchical-agent-flows",
+        "persistent-memory"
+      ]
+    },
+    {
+      "id": "nvidia-open-agent-safety",
+      "official": "https://developer.nvidia.com/",
+      "watch": [
+        "out-of-band-agent-governance",
+        "sandbox-policy-enforcement",
+        "independent-watchdog",
+        "zero-trust-agent-runtime"
+      ]
+    }
+  ],
+  "automatic_external_spend_eur": 0
+}
