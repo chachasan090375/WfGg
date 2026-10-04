@@ -82,12 +82,26 @@ def restore_probe(host:str,image_path:str,tmp:Path)->dict:
     return {'status':'PASS','git_bundle_verify':'PASS','sqlite_integrity':'ok','production_revision':manifest.get('production_revision')}
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument('--policy',type=Path,required=True);ap.add_argument('--repo-root',type=Path,required=True);ap.add_argument('--mode',choices=['plan','snapshot'],default='plan');ap.add_argument('--output',type=Path,required=True);a=ap.parse_args()
+    ap=argparse.ArgumentParser(); ap.add_argument('--policy',type=Path,required=True);ap.add_argument('--repo-root',type=Path,required=True);ap.add_argument('--mode',choices=['plan','snapshot'],default='plan');ap.add_argument('--dirty-marker',type=Path);ap.add_argument('--output',type=Path,required=True);a=ap.parse_args()
     pol=load(a.policy); host=pol['nas_host']; stamp=now(); result={'schema':'chacha.dev/nas-incremental-image-vault-receipt/v1','status':'PLAN','observed_at':iso(),'source_root':pol['source_root'],'vault_root':pol['vault_root'],'production_revision':active_revision(),'automatic_external_spend_eur':0}
     if a.mode=='snapshot':
-        with tempfile.TemporaryDirectory(prefix='chacha-core-capsule-') as td:
-            cap=build_capsule(a.repo_root,pol,Path(td)); publish_capsule(host,pol['source_root'],Path(td)/'core-capsule',pol['core_capsule']['source_path']); img=snapshot(host,pol['source_root'],pol['vault_root'],stamp); probe=restore_probe(host,img['path'],Path(td))
-        result.update({'status':'RESTORE_VERIFIED','core_capsule':cap,'image':img,'restore_probe':probe,'production_activation_authorized':False})
+        marker={}
+        if a.dirty_marker and a.dirty_marker.is_file():
+            try: marker=json.loads(a.dirty_marker.read_text())
+            except Exception: marker={'status':'DIRTY','reason':'UNPARSEABLE_MARKER'}
+        prior={}
+        if a.output.is_file():
+            try: prior=json.loads(a.output.read_text())
+            except Exception: prior={}
+        marker_revision=str(marker.get('production_revision') or '')
+        if marker and marker_revision and marker_revision==active_revision() and str(prior.get('production_revision') or '')==active_revision() and prior.get('status')=='RESTORE_VERIFIED' and not marker.get('force'):
+            result.update({'status':'NO_CHANGE','trigger':marker,'snapshot_created':False,'production_activation_authorized':False})
+        else:
+            with tempfile.TemporaryDirectory(prefix='chacha-core-capsule-') as td:
+                cap=build_capsule(a.repo_root,pol,Path(td)); publish_capsule(host,pol['source_root'],Path(td)/'core-capsule',pol['core_capsule']['source_path']); img=snapshot(host,pol['source_root'],pol['vault_root'],stamp); probe=restore_probe(host,img['path'],Path(td))
+            result.update({'status':'RESTORE_VERIFIED','trigger':marker or {'reason':'MANUAL'},'core_capsule':cap,'image':img,'restore_probe':probe,'snapshot_created':True,'production_activation_authorized':False})
+        if a.dirty_marker and a.dirty_marker.exists() and result['status'] in {'RESTORE_VERIFIED','NO_CHANGE'}:
+            a.dirty_marker.unlink()
     a.output.parent.mkdir(parents=True,exist_ok=True); a.output.write_text(json.dumps(result,indent=2)+'\n')
     print('CHACHA_DEV_NAS_INCREMENTAL_IMAGE_VAULT='+result['status']); print('PRODUCTION_REVISION='+result['production_revision']); print('AUTOMATIC_EXTERNAL_SPEND_EUR=0')
 if __name__=='__main__':main()
