@@ -310,6 +310,48 @@
       ],
       "backfill_required": true,
       "legacy_identifier_retained": true
+    },
+    {
+      "directive_id": "opdir-modular-plugin-capability-lifecycle",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "LIFECYCLE_GOVERNANCE",
+      "status": "ACTIVE",
+      "normalized_requirement": "Capabilities created from technology, competitive, dark-intelligence or other improvement signals are packaged as recipe-first PLATFORM_PLUGIN components by default, not fused into the core. Every plugin has a sealed manifest, exact source, permissions, dependency/conflict graph, qualification evidence and rollback contract. Install rebuilds and verifies on demand. Disable must precede uninstall and platform health must be verified. Uninstall removes runtime material only; recipe, Git, evidence and persistent data survive by default. Persistent-data deletion is a separate destructive gate. Core authority components remain CORE_LOCKED and cannot be disabled or uninstalled through Plugin Center. Core mutation is exceptional and requires Architecture Council justification. If a capability is explicitly approved and promoted as a structural core update, it leaves plugin lifecycle permanently: record MERGED_INTO_CORE_LOCKED, expose no disable/uninstall/reinstall action, and evolve it only through a new governed core train, governed supersession or governed release rollback.",
+      "required_sinks": [
+        "plugin-center",
+        "improvement-intelligence-fabric",
+        "technology-watch",
+        "dark-intelligence",
+        "central-orchestrator",
+        "architecture-council",
+        "all-foundries",
+        "lifecycle",
+        "intendant",
+        "guardian",
+        "sentinel",
+        "direct-operator-cockpit",
+        "release-qualification",
+        "progress-reporting"
+      ],
+      "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-project-scoped-consultant-access",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "ACCESS_GOVERNANCE",
+      "status": "ACTIVE",
+      "normalized_requirement": "External consultants use individual authenticated identities and may converse with ChaCha and build only inside their own guest project namespace. They have no access to the ChaCha DEV platform project, core, agents, Foundries, Guardian/Sentinel controls, STOP, platform updates or production authority. They may not query ChaCha DEV internals; the Living White Paper is the only authorized platform document. Global session/progress, internal receipts, runtime paths, Technology Watch and central memory are not exposed. Consultant requests never become operator structural directives or platform improvement signals.",
+      "required_sinks": [
+        "direct-operator",
+        "conversation-channel",
+        "central-orchestrator",
+        "all-foundries",
+        "guardian",
+        "sentinel",
+        "release-qualification",
+        "progress-reporting"
+      ],
+      "backfill_required": true
     }
   ],
   "runtime": {
