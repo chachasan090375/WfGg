@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/sentinel-technical-policy/v1",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "scope": "PLATFORM_GLOBAL",
   "principles": {
     "external_technical_assurance": true,
@@ -20,7 +20,8 @@
     "test-plan-execution",
     "release-revision-match",
     "promotion-single-writer-immutable-receipts",
-    "promotion-prestage-release-slot-reservation"
+    "promotion-prestage-release-slot-reservation",
+    "promotion-exact-git-release-before-activate"
   ],
   "advisory_checks": [
     "long-lines",
@@ -96,6 +97,11 @@
     },
     {
       "path": "dev-hub/tests/test_promotion_prestage_release_slot.py",
+      "blocking": true,
+      "scope": "platform-promotion"
+    },
+    {
+      "path": "dev-hub/tests/test_exact_git_release_materialization.py",
       "blocking": true,
       "scope": "platform-promotion"
     }

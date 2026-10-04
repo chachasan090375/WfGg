@@ -8,6 +8,7 @@ HERE=Path(__file__).resolve().parent
 if str(HERE) not in sys.path:sys.path.insert(0,str(HERE))
 import promotion_transaction as ptx
 import promotion_cycle_evidence as pce
+import exact_git_release as egr
 
 SCHEMA='chacha.dev/governed-platform-promotion/v2'
 ASSURANCE_SCHEMA='chacha.dev/promotion-bound-assurance/v1'
@@ -54,6 +55,16 @@ def validate_preparation(meta:dict[str,Any])->None:
 
 def lease(runtime_root:Path,lease_token:str,promotion_id:str,candidate_revision:str,phase:str):
     return ptx.assert_owner(runtime_root,lease_token,promotion_id,candidate_revision,phase,renew=True)
+
+def exact_release_verification(release_root:Path,meta:dict[str,Any])->dict[str,Any]:
+    raw=str(meta.get('source_git_root') or '').strip()
+    if not raw:raise ValueError('SOURCE_GIT_ROOT_REQUIRED_FOR_EXACT_RELEASE_VERIFICATION')
+    source=Path(raw)
+    out=egr.verify_release(release_root.resolve(),source,meta['candidate_revision'],meta['candidate_tree'])
+    if out.get('status')!='PASS':
+        reasons=','.join(out.get('reason_codes') or ['UNKNOWN'])
+        raise ValueError('EXACT_GIT_RELEASE_VERIFICATION_FAILED:'+reasons)
+    return out
 
 def prepare(candidate_root:Path,runtime_root:Path,receipt:Path,promotion_id:str,lease_token:str)->dict[str,Any]:
     candidate_root=candidate_root.resolve();runtime_root=runtime_root.resolve()
@@ -148,6 +159,7 @@ def atomic_current_switch(current:Path,target:Path,lease_id:str)->None:
 def activate(release_root:Path,current:Path,runtime_root:Path,receipt:Path,promotion_id:str,lease_token:str)->dict[str,Any]:
     release_root=release_root.resolve();meta=load(release_root/'.release-preparation.json');validate_preparation(meta)
     lx=lease(runtime_root,lease_token,promotion_id,meta['candidate_revision'],'ACTIVATE')
+    exact_git=exact_release_verification(release_root,meta)
     emergency,_=canonical_emergency_state(release_root)
     if load(emergency).get('active') is not False:raise ValueError('EMERGENCY_STOP_MUST_BE_CLEAR')
     rollback=Path(meta['rollback_path']).resolve();before=current.resolve(strict=True)
@@ -174,7 +186,7 @@ def activate(release_root:Path,current:Path,runtime_root:Path,receipt:Path,promo
     atomic_json(release_root/'.release-preparation.json',meta)
     out=ptx.bind_receipt(lx,{'schema':SCHEMA,'phase':'ACTIVATE','status':'PASS','candidate_revision':meta['candidate_revision'],
       'candidate_tree':meta['candidate_tree'],'previous_release':str(before),'active_release':str(release_root),'current_release_mutated':mutated,
-      'sovereign_runtime_refresh':sovereign})
+      'exact_git_release_verification':exact_git,'sovereign_runtime_refresh':sovereign})
     ptx.write_once_json(receipt,out);return out
 
 def seal_assurance(kind:str,source:Path,receipt:Path,runtime_root:Path,promotion_id:str,lease_token:str,candidate_revision:str)->dict[str,Any]:

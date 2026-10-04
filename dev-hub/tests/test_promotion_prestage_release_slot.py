@@ -7,6 +7,7 @@ def loadmod(name,path):
  s=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
 ic=loadmod('ic',BIN/'intendant-platform-consolidator.py')
 gpp=loadmod('gpp',BIN/'governed-platform-promotion.py')
+gpp.exact_release_verification=lambda release_root,meta:{'schema':'chacha.dev/exact-git-release-verification/v1','status':'PASS','test_stub':True,'automatic_external_spend_eur':0}
 
 def save(p,x):p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(x)+'\n')
 def release(root,name,rev,version='1.0.0',rollback_revision=''):

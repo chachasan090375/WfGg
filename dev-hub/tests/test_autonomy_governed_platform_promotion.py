@@ -7,6 +7,8 @@ ROOT=Path(__file__).resolve().parents[2];BIN=ROOT/'dev-hub/bin'
 sys.path.insert(0,str(BIN))
 spec=importlib.util.spec_from_file_location('gpp',BIN/'governed-platform-promotion.py')
 gpp=importlib.util.module_from_spec(spec);spec.loader.exec_module(gpp)
+gpp.exact_release_verification=lambda release_root,meta:{'schema':'chacha.dev/exact-git-release-verification/v1','status':'PASS','checked_blobs':0,'test_stub':True,'automatic_external_spend_eur':0}
+
 import promotion_transaction as ptx
 import promotion_cycle_evidence as pce
 
