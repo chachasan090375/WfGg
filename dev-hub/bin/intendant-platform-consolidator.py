@@ -126,6 +126,23 @@ def sovereign_release_compatible(release:Path|None)->bool:
     ]
     return all(x.is_file() for x in required)
 
+def historical_archive_class(release:Path)->str:
+    prep=release/".release-preparation.json"
+    if not prep.is_file():return "UNFINALIZED_OR_UNKNOWN"
+    try:x=load(prep)
+    except Exception:return "UNFINALIZED_OR_UNKNOWN"
+    activation=str(x.get("activation_status") or "").upper()
+    acceptance=str(x.get("promotion_acceptance_status") or "").upper()
+    final=str(x.get("promotion_final_verification") or "").upper()
+    if activation=="ROLLED_BACK" or acceptance=="ROLLED_BACK" or bool(x.get("rollback_reason")):
+        return "ROLLED_BACK_OR_FAILED"
+    if acceptance=="PASS" and final.startswith("PASS"):
+        return "FINALIZED_PASS"
+    return "UNFINALIZED_OR_UNKNOWN"
+
+def historical_archive_priority(release:Path)->int:
+    return {"ROLLED_BACK_OR_FAILED":0,"UNFINALIZED_OR_UNKNOWN":1,"FINALIZED_PASS":2}[historical_archive_class(release)]
+
 def strong_installed_revision_ranks(runtime_root:Path)->dict[str,float]:
     out={}
     gates=runtime_root/"release-gates"
@@ -256,7 +273,7 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
     verified=set(verified_ranks)
     selected=[];seen=set();all_candidates=[]
     declared_rollback_protected=False
-    if bool(retention.get("protect_declared_active_release_rollback",True)) and declared_rollback_revision:
+    if effective_slots>0 and bool(retention.get("protect_declared_active_release_rollback",True)) and declared_rollback_revision:
         hit=latest_for_revision(rows,declared_rollback_revision)
         rank=max(float(strong_ranks.get(declared_rollback_revision,0.0)),float(legacy_ranks.get(declared_rollback_revision,0.0)))
         if hit is not None and rank>0:
@@ -292,10 +309,12 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
     for hit in selected[:effective_slots]:
         protected_paths.add(hit["path"])
         reasons.setdefault(hit["path"],"VERIFIED_ROLLBACK")
+    for row in rows:
+        row["historical_archive_class"]=historical_archive_class(Path(str(row.get("path") or "")))
     archive_selected=[]
     if historical_archive_slots>0:
         candidates=[r for r in rows if r["path"]!=active_path and r["path"] not in protected_paths]
-        for row in sorted(candidates,key=lambda x:(float(x.get("acquired_epoch") or 0),str(x.get("revision") or "")),reverse=True)[:historical_archive_slots]:
+        for row in sorted(candidates,key=lambda x:(historical_archive_priority(Path(str(x.get("path") or ""))),float(x.get("acquired_epoch") or 0),str(x.get("revision") or "")),reverse=True)[:historical_archive_slots]:
             archive_selected.append(row);protected_paths.add(row["path"]);reasons[row["path"]]="HISTORICAL_ARCHIVE_NOT_ROLLBACK_ELIGIBLE"
     missing_rollbacks=0 if (staging and sovereign_local_primary and future_rollback_revision) else max(0,effective_slots-len(selected))
     for row in rows:
@@ -327,6 +346,7 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
       "sovereign_local_primary_rollback_floor_enforced":sovereign_local_primary,
       "future_candidate_rollback_revision":future_rollback_revision or None,
       "historical_archive_revisions":[str(x.get("revision") or "") for x in archive_selected],
+      "historical_archive_selection_policy":"PREFER_FINALIZED_PASS_OVER_UNKNOWN_OVER_ROLLED_BACK_OR_FAILED",
       "selected_rollback_revisions":[str(x.get("revision") or "") for x in selected[:effective_slots]],
       "selected_rollback_evidence_epochs":[verified_ranks.get(str(x.get("revision") or "").lower(),0.0) for x in selected[:effective_slots]],
       "selected_rollback_versions":[str(x.get("version") or "") for x in selected[:effective_slots]],

@@ -105,9 +105,48 @@ with tempfile.TemporaryDirectory() as td:
  assert current.resolve()==old.resolve()
  print('CHACHA_DEV_PROMOTION_OVERAGE_BLOCKS_BEFORE_CURRENT_SWITCH=PASS')
 
+
+# LOCAL_SQLITE staging must preserve a successfully finalized historical release ahead of a rolled-back/failed release.
+with tempfile.TemporaryDirectory() as td:
+ t=Path(td);platform=t/'platform';rels=platform/'releases';rels.mkdir(parents=True);runtime=t/'runtime';runtime.mkdir()
+ f05='5'*40;f06='6'*40;failed='7'*40;cand='8'*40
+ p05=release(rels,'20260101-'+f05,f05);p06=release(rels,'20260201-'+f06,f06);p07=release(rels,'20260301-'+failed,failed)
+ def sovereign_compatible(p):
+  for rel in (
+   'dev-hub/bin/sovereign_state_authority.py','dev-hub/bin/d1-worker-local-runtime.mjs',
+   'dev-hub/config/sovereign-state-authority.local.v1.json',
+   'dev-hub/systemd/chacha-dev-sovereign-guardian.service','dev-hub/systemd/chacha-dev-sovereign-sentinel.service',
+   'dev-hub/systemd/chacha-dev-sovereign-assurance-exchange.service','dev-hub/systemd/chacha-dev-sovereign-learning-relay.service'):
+   q=p/rel;q.parent.mkdir(parents=True,exist_ok=True);q.write_text('fixture\n')
+ sovereign_compatible(p05);sovereign_compatible(p06)
+ save(p05/'.release-preparation.json',{'version':'1.0.0','activation_status':'ACTIVE','promotion_acceptance_status':'PASS','promotion_final_verification':'PASS'})
+ save(p06/'.release-preparation.json',{'version':'1.0.0','rollback_path':str(p05.resolve()),'activation_status':'ACTIVE','promotion_acceptance_status':'PASS','promotion_final_verification':'PASS'})
+ save(p07/'.release-preparation.json',{'version':'1.0.0','activation_status':'ROLLED_BACK','promotion_acceptance_status':'ROLLED_BACK','promotion_final_verification':'PASS','rollback_reason':'INTEGRITY_FAILURE'})
+ (platform/'current').symlink_to(p06,target_is_directory=True)
+ save(runtime/'sovereign-state/authority.json',{'schema':'chacha.dev/sovereign-state-authority/v1','mode':'LOCAL_SQLITE'})
+ pol=json.load(open(ROOT/'dev-hub/config/platform-consolidation.v1.json'))
+ pol['physical_release_retention']['runtime_evidence_root']=str(runtime)
+ pol['physical_release_retention']['verification_evidence_root']=str(t/'evidence')
+ staged=ic.build_plan(platform,pol,t/'evidence',cand,'sha256:'+'d'*64)
+ rows={x['revision']:x for x in staged['rows']}
+ assert staged['future_candidate_rollback_revision']==f06,staged
+ assert staged['declared_rollback_revision']==f05,staged
+ assert staged['declared_rollback_protected'] is False,staged
+ assert staged['historical_archive_revisions']==[f05],staged
+ assert rows[f05]['action']=='KEEP' and rows[f05]['reason']=='HISTORICAL_ARCHIVE_NOT_ROLLBACK_ELIGIBLE',rows
+ assert rows[f05]['historical_archive_class']=='FINALIZED_PASS',rows
+ assert rows[failed]['action']=='RETIRE' and rows[failed]['reason']=='SUPERSEDED_PHYSICAL_RELEASE',rows
+ assert rows[failed]['historical_archive_class']=='ROLLED_BACK_OR_FAILED',rows
+ assert staged['historical_archive_selection_policy']=='PREFER_FINALIZED_PASS_OVER_UNKNOWN_OVER_ROLLED_BACK_OR_FAILED'
+ print('CHACHA_DEV_PROMOTION_SOVEREIGN_ARCHIVE_PREFERS_FINALIZED_PASS=PASS')
+
 policy=json.load(open(ROOT/'dev-hub/config/platform-promotion-transaction.v1.json'))
 assert policy['invariants']['pre_materialization_release_slot_reservation_required_when_release_count_at_limit'] is True
 assert policy['invariants']['activation_fails_closed_on_release_retention_overage'] is True
+consolidation=json.load(open(ROOT/'dev-hub/config/platform-consolidation.v1.json'))
+assert consolidation['invariants']['declared_rollback_protected_flag_requires_actual_physical_protection'] is True
+assert consolidation['invariants']['rolled_back_or_failed_release_must_not_be_preferred_as_historical_archive'] is True
+assert consolidation['physical_release_retention']['historical_archive_selection_policy']=='PREFER_FINALIZED_PASS_OVER_UNKNOWN_OVER_ROLLED_BACK_OR_FAILED'
 assert policy['guardian_pre_contract']['canonical_permission']=='workspace-write'
 assert policy['guardian_pre_contract']['direct_production_deploy_probe_is_diagnostic_only'] is True
 print('CHACHA_DEV_PROMOTION_PRESTAGE_POLICY=PASS')

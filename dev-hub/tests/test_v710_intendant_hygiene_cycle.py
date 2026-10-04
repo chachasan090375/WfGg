@@ -113,6 +113,8 @@ with tempfile.TemporaryDirectory(prefix="v710-hygiene-") as td:
     cp["physical_release_retention"]["fallback_verified_rollback_revisions"]=[v700,v663]
     cp_path=td/"consolidation.json";save(cp_path,cp)
     runtime=td/"runtime";(runtime/"guardian").mkdir(parents=True);save(runtime/"guardian/coverage-latest.json",{"all_hooks_active":True})
+    # Keep this fixture hermetic: rollback selection must never depend on the VPS live Sovereign authority state.
+    cp["physical_release_retention"]["runtime_evidence_root"]=str(runtime);save(cp_path,cp)
     hp2=json.loads(json.dumps(hygiene));hp2["scheduler"]["state_file"]=str(runtime/"intendant/state.json")
     hp2["scheduler"]["report_dir"]=str(runtime/"intendant/reports");hp2["scheduler"]["latest_report"]=str(runtime/"intendant/latest.json")
     hp2["scheduler"]["lock_file"]=str(runtime/"intendant/hygiene.lock")

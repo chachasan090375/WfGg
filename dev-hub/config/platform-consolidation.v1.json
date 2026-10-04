@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/platform-consolidation-policy/v1",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "target_platform_version": "CURRENT_ACTIVE_RELEASE",
   "owner_agent": "intendant",
   "purpose": [
@@ -20,7 +20,9 @@
     "sentinel_required": true,
     "architecture_council_final_authority": true,
     "automatic_external_spend_eur": 0,
-    "declared_active_release_rollback_must_be_retained": true
+    "declared_active_release_rollback_must_be_retained": true,
+    "declared_rollback_protected_flag_requires_actual_physical_protection": true,
+    "rolled_back_or_failed_release_must_not_be_preferred_as_historical_archive": true
   },
   "runtime_release_compilation": {
     "exclude_globs": [
@@ -71,7 +73,9 @@
     "protect_declared_active_release_rollback": true,
     "sovereign_local_primary_rollback_floor_enforced": true,
     "sovereign_staging_active_release_is_candidate_rollback": true,
-    "pre_sovereign_release_may_be_retained_as_archive_but_not_rollback": true
+    "pre_sovereign_release_may_be_retained_as_archive_but_not_rollback": true,
+    "historical_archive_selection_policy": "PREFER_FINALIZED_PASS_OVER_UNKNOWN_OVER_ROLLED_BACK_OR_FAILED",
+    "rolled_back_or_failed_archive_priority": "LOWEST"
   },
   "source_retirement": {
     "historical_v6_tests_and_docs_not_required_in_runtime_release": true,
