@@ -259,6 +259,25 @@
         "progress-reporting"
       ],
       "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-rehydratable-update-train-lifecycle",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "LIFECYCLE_GOVERNANCE",
+      "status": "ACTIVE",
+      "normalized_requirement": "Every ChaCha DEV update train must have a sealed reproducible recipe. A train may be shelved without losing Git history, evidence, dependencies or reconstruction instructions. Shelved trains remain visible in Update Center and may be rehydrated after current-policy revalidation. Physical retirement is a separate Intendant-governed destructive action: never active, rollback or leased material; Guardian destructive PRE and explicit human approval are mandatory. Recipe and Git history survive physical retirement.",
+      "required_sinks": [
+        "lifecycle",
+        "intendant",
+        "guardian",
+        "sentinel",
+        "central-orchestrator",
+        "all-foundries",
+        "direct-operator-cockpit",
+        "release-qualification",
+        "progress-reporting"
+      ],
+      "backfill_required": true
     }
   ],
   "runtime": {

@@ -1,0 +1,17 @@
+{
+  "schema": "chacha.dev/current-line-reconciliation-evidence/v1",
+  "phase": "F09-A",
+  "status": "PASS",
+  "parent_revision": "065d96c538dd7001cd23b7841de705af802338fd",
+  "source_revision": "eb8614ef2484473a4627bbab1125b75d89a17196",
+  "scope": "UPDATE_TRAIN_LIFECYCLE_ONLY_CONSULTANT_EXCLUDED",
+  "tests": [
+    "update lifecycle PASS",
+    "Direct Operator V805 PASS",
+    "Direct Operator V730 PASS",
+    "operator directives PASS"
+  ],
+  "umg_check": "core:update-train-lifecycle PASS CHECK-ONLY",
+  "production_activation": false,
+  "automatic_external_spend_eur": 0
+}

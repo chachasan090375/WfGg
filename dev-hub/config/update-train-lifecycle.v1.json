@@ -1,0 +1,80 @@
+{
+  "schema": "chacha.dev/update-train-lifecycle/v1",
+  "version": "1.0.0",
+  "mode": "GOVERNED_REHYDRATABLE_ARCHIVE",
+  "states": [
+    "DISCOVERED",
+    "BUILDING",
+    "QUALIFYING",
+    "READY_FOR_HUMAN_PROMOTION",
+    "ACTIVE",
+    "SHELVED",
+    "SHELVED_RECIPE_ONLY",
+    "REHYDRATION_REQUESTED",
+    "SUPERSEDED",
+    "BLOCKED"
+  ],
+  "recipe": {
+    "required": true,
+    "immutable_after_seal": true,
+    "required_fields": [
+      "train_id",
+      "source_revision",
+      "source_tree",
+      "parent_revision",
+      "functional_summary",
+      "platform_value",
+      "implementation_strategy",
+      "dependencies",
+      "conflicts",
+      "evidence_refs",
+      "qualification_refs",
+      "build_route",
+      "changed_paths",
+      "artifact_digests"
+    ],
+    "source_history_preserved": true,
+    "git_commit_required": true
+  },
+  "shelving": {
+    "never_means_delete_history": true,
+    "active_train_requires_governed_rollback_or_deactivation": true,
+    "unpromoted_train_can_be_shelved_without_production_mutation": true,
+    "reason_required": true,
+    "reactivation_available": true
+  },
+  "physical_retirement": {
+    "allowed_only_after_recipe_sealed": true,
+    "active_release_forbidden": true,
+    "rollback_anchor_forbidden": true,
+    "promotion_lease_forbidden": true,
+    "dependency_anchor_forbidden": true,
+    "intendant_plan_required": true,
+    "guardian_destructive_pre_required": true,
+    "explicit_human_destructive_approval_required": true,
+    "physical_retirement_does_not_delete_recipe_or_git": true
+  },
+  "rehydration": {
+    "reconstruct_from_recipe_and_exact_git": true,
+    "revalidate_current_policy_and_dependencies": true,
+    "exact_sha_qualification_reused_only_when_scope_and_sha_unchanged": true,
+    "production_promotion_requires_new_current_human_gate": true
+  },
+  "cockpit": {
+    "sections": [
+      "PRÊTES",
+      "ACTIVES",
+      "MISES_DE_COTE",
+      "SUPERSEDEES"
+    ],
+    "shelve_button": "Mettre de côté",
+    "rehydrate_button": "Réactiver / reconstruire",
+    "show_recipe_summary": true,
+    "show_retirement_state": true
+  },
+  "automatic_external_spend_eur": 0,
+  "runtime": {
+    "registry": "/opt/chacha-dev/runtime/update-center/lifecycle.json",
+    "recipes": "/opt/chacha-dev/runtime/update-center/recipes"
+  }
+}
