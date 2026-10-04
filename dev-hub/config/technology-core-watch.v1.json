@@ -299,5 +299,15 @@
     "guardian_authority_preserved": true,
     "sentinel_authority_preserved": true,
     "automatic_external_spend_eur": 0
-  }
+  },
+  "watch_items": [
+    {
+      "id": "nas-incremental-image-vault",
+      "class": "resilience",
+      "criticality": "high",
+      "mode": "SHADOW",
+      "signal": "backup freshness, restore verification, vault free space, source/vault identity",
+      "automatic_external_spend_eur": 0
+    }
+  ]
 }

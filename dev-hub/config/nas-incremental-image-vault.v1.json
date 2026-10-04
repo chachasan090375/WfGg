@@ -1,0 +1,64 @@
+{
+  "schema": "chacha.dev/nas-incremental-image-vault/v1",
+  "version": "1.0.0",
+  "mode": "SHADOW_READY",
+  "purpose": "Keep reconstructible, versioned ChaCha DEV logical images on the 18 TB NAS volume using the 4 TB ChaCha persistence volume as source.",
+  "nas_host": "chachanas",
+  "source_root": "/share/CACHEDEV1_DATA/ChaCha-DEV-HUB",
+  "vault_root": "/share/CACHEDEV2_DATA/ChaCha-DEV-Image-Vault",
+  "images_dir": "images",
+  "manifests_dir": "manifests",
+  "core_capsule": {
+    "source_path": "backups/core-capsule/current",
+    "git_bundle_required": true,
+    "active_release_archive_required": true,
+    "sqlite_backup_api_required": true,
+    "secrets_forbidden": true,
+    "runtime_databases": [
+      "/opt/chacha-dev/runtime/sovereign-state/primary/guardian.db",
+      "/opt/chacha-dev/runtime/sovereign-state/primary/sentinel.db",
+      "/opt/chacha-dev/runtime/sovereign-state/primary/assurance-exchange.db",
+      "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.db",
+      "/opt/chacha-dev/runtime/knowledge/learning-deltas.db",
+      "/opt/chacha-dev/runtime/agent-observation/observations.db"
+    ]
+  },
+  "snapshot": {
+    "strategy": "RSYNC_HARDLINK_INCREMENTAL",
+    "rsync_flags": [
+      "-aH",
+      "--numeric-ids"
+    ],
+    "previous_image_link_dest": true,
+    "atomic_publish": true,
+    "source_delete_propagation_to_history": false
+  },
+  "verification": {
+    "post_copy_rsync_dry_run_must_be_empty": true,
+    "core_capsule_sha256_manifest_required": true,
+    "restore_probe_required": true,
+    "image_status_required": "RESTORE_VERIFIED"
+  },
+  "retention": {
+    "automatic_prune_enabled": false,
+    "target_policy": {
+      "dense_hours": 48,
+      "daily_days": 30,
+      "weekly_weeks": 26,
+      "monthly_months": 24
+    },
+    "prune_requires_intendant_plan": true,
+    "destructive_prune_requires_guardian_and_human_gate": true
+  },
+  "cadence_target": {
+    "incremental_minutes": 30,
+    "daily_portable_archive": true
+  },
+  "authority": {
+    "production_activation": false,
+    "nas_source_mutation": "CORE_CAPSULE_ONLY",
+    "nas_vault_write": true,
+    "destructive_delete": false
+  },
+  "automatic_external_spend_eur": 0
+}

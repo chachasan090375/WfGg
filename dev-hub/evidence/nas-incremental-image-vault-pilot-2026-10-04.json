@@ -1,0 +1,63 @@
+{
+  "schema": "chacha.dev/nas-incremental-image-vault-receipt/v1",
+  "status": "RESTORE_VERIFIED",
+  "observed_at": "2026-10-04T14:19:24Z",
+  "source_root": "/share/CACHEDEV1_DATA/ChaCha-DEV-HUB",
+  "vault_root": "/share/CACHEDEV2_DATA/ChaCha-DEV-Image-Vault",
+  "production_revision": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
+  "automatic_external_spend_eur": 0,
+  "core_capsule": {
+    "schema": "chacha.dev/core-capsule-manifest/v1",
+    "created_at": "2026-10-04T14:19:34Z",
+    "production_revision": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
+    "active_release": "/opt/chacha-dev/platform/releases/20261004T103446Z-b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
+    "git_head": "eb8614ef2484473a4627bbab1125b75d89a17196",
+    "files": {
+      "WfGg.bundle": "sha256:7ff3a30775ce6c5072cbfb31485675c5dc71c152ad49d4c08651e61ea6151490",
+      "active-release.tar.gz": "sha256:49364a1536ce98a06ad4a367f5c14a2e1ba015271ee22c8ff6f37fed5020ad58"
+    },
+    "runtime_databases": [
+      {
+        "source": "/opt/chacha-dev/runtime/sovereign-state/primary/guardian.db",
+        "file": "runtime-db/guardian.db",
+        "sha256": "sha256:b980dc47323fad61d5f0f5bd4c4285320d1de89b9225b81899820cf8536f78d3"
+      },
+      {
+        "source": "/opt/chacha-dev/runtime/sovereign-state/primary/sentinel.db",
+        "file": "runtime-db/sentinel.db",
+        "sha256": "sha256:2011d9268a14fded6ef148c339580e57f925e9ac486da25dff746b2325039a29"
+      },
+      {
+        "source": "/opt/chacha-dev/runtime/sovereign-state/primary/assurance-exchange.db",
+        "file": "runtime-db/assurance-exchange.db",
+        "sha256": "sha256:f52d8e72aa6b700dcfd9a64d0b8faabb5a7ba85b5fc9fe87868116b4ff472bf2"
+      },
+      {
+        "source": "/opt/chacha-dev/runtime/knowledge/central-memory-assimilation.db",
+        "file": "runtime-db/central-memory-assimilation.db",
+        "sha256": "sha256:7fa9ba563243948565a5b12babd87834f4f072ee7ac91b01c884e204482e5688"
+      },
+      {
+        "source": "/opt/chacha-dev/runtime/knowledge/learning-deltas.db",
+        "file": "runtime-db/learning-deltas.db",
+        "sha256": "sha256:a0ac0fb15a282cdd372660f3bf98a547ec47cef35c4f487eae6b6f5ed14e4f65"
+      },
+      {
+        "source": "/opt/chacha-dev/runtime/agent-observation/observations.db",
+        "file": "runtime-db/observations.db",
+        "sha256": "sha256:e438037de2e0d1d78518c0162debc61e8c283d850d5d3f55e54782d673b232d0"
+      }
+    ],
+    "secrets_included": false,
+    "manifest_sha256": "sha256:eba37411e5ed38e2d980ac8413121581baddc680c6cd94c3d903d6bc05b2a52f"
+  },
+  "image": {
+    "image_id": "20261004T141924Z",
+    "path": "/share/CACHEDEV2_DATA/ChaCha-DEV-Image-Vault/images/20261004T141924Z",
+    "previous_image": null,
+    "file_count": 9945,
+    "logical_bytes": 3478432090,
+    "post_copy_diff_empty": true
+  },
+  "production_activation_authorized": false
+}
