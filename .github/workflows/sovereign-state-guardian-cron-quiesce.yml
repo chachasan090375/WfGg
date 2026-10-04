@@ -1,0 +1,57 @@
+name: Sovereign State Guardian Cron Quiesce
+on:
+  push:
+    branches: [sovereign-state-guardian-cron-quiesce-20261004]
+    paths: ['.github/workflows/sovereign-state-guardian-cron-quiesce.yml']
+permissions:
+  contents: write
+jobs:
+  quiesce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      SCRIPT_NAME: chacha-dev-guardian
+    steps:
+      - uses: actions/checkout@v4
+      - name: Snapshot and disable exact Guardian Cron Triggers
+        shell: python
+        run: |
+          import json,os,urllib.request,urllib.error,pathlib
+          token=os.environ['CF_API_TOKEN']; account=os.environ['CF_ACCOUNT_ID']; script=os.environ['SCRIPT_NAME']
+          base=f'https://api.cloudflare.com/client/v4/accounts/{account}/workers/scripts/{script}/schedules'
+          headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+          def call(method,body=None):
+              data=None if body is None else json.dumps(body).encode()
+              req=urllib.request.Request(base,headers=headers,method=method,data=data)
+              with urllib.request.urlopen(req,timeout=30) as r:return r.status,json.load(r)
+          status,before=call('GET')
+          if status!=200 or not before.get('success'): raise SystemExit('SCHEDULE_GET_FAILED')
+          schedules=(before.get('result') or {}).get('schedules') or []
+          if not schedules: raise SystemExit('NO_GUARDIAN_CRON_TO_QUIESCE')
+          restore=[{'cron':str(x['cron'])} for x in schedules]
+          pathlib.Path('/tmp/guardian-cron-before.json').write_text(json.dumps({'schema':'chacha.dev/guardian-cron-snapshot/v1','script':script,'schedules':restore,'automatic_external_spend_eur':0},indent=2)+'\n')
+          status,put=call('PUT',[])
+          if status!=200 or not put.get('success'): raise SystemExit('SCHEDULE_DISABLE_FAILED')
+          status,after=call('GET')
+          remaining=(after.get('result') or {}).get('schedules') or []
+          if status!=200 or not after.get('success') or remaining: raise SystemExit('SCHEDULE_DISABLE_READBACK_FAILED')
+          pathlib.Path('/tmp/guardian-cron-quiesce.json').write_text(json.dumps({'schema':'chacha.dev/guardian-cron-quiesce/v1','status':'PASS','script':script,'before':restore,'after':[],'worker_code_mutated':False,'d1_mutated':False,'automatic_external_spend_eur':0},indent=2)+'\n')
+          print('GUARDIAN_CRON_QUIESCE=PASS')
+          print('BEFORE='+json.dumps(restore,separators=(',',':')))
+          print('AFTER=[]')
+      - name: Publish restore receipt only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir /tmp/restore && cd /tmp/restore
+          git init -q
+          git config user.name 'ChaCha DEV Sovereign Cutover'
+          git config user.email 'chacha-dev@local.invalid'
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          cp /tmp/guardian-cron-before.json guardian-cron-before.json
+          cp /tmp/guardian-cron-quiesce.json guardian-cron-quiesce.json
+          git add . && git commit -qm 'chore(state): snapshot Guardian cron before sovereign cutover'
+          git push -f origin HEAD:refs/heads/sovereign-state-guardian-cron-restore-20261004
