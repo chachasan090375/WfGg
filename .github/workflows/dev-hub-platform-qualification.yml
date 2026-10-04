@@ -155,6 +155,11 @@ jobs:
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_critical_state_reconciliation.py
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_expired_action_lease_reconciliation.py
           PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_guardian_coverage_proof_integrity.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_sovereign_promotion_runtime_refresh.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_sovereign_cloud_guardian_fallback_quiescence.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_sovereign_state_runtime_routing.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_sovereign_state_guardian_client_quota_decoupling.py
+          PYTHONPATH=dev-hub/bin python3 dev-hub/tests/test_sovereign_state_authority_resolver.py
 
       - name: Stable platform qualification receipt
         run: |
