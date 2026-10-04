@@ -1,0 +1,9 @@
+{
+  "schema":"chacha.dev/currentline-reconciliation-evidence/v1",
+  "phase":"F13",
+  "parent_revision":"2dc62efc2163dd85dd6b3fd3e515470884a598dd",
+  "native_local":{"source_reconciled":true,"resource_admission":"PASS_LIVE","runtime_materialized":false,"model_materialized":false,"production_activation_authorized":false},
+  "ha":{"source_reconciled":true,"rehearsal_tests":"5/5 PASS","current_revision_readiness":"BLOCK_CURRENT_REVISION_EVIDENCE_MISSING","writer_switch_performed":false,"failover_performed":false,"failover_authorized":false},
+  "umg_check":"PASS",
+  "automatic_external_spend_eur":0
+}

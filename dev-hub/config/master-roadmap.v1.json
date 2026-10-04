@@ -1129,7 +1129,7 @@
         "phase": "F13",
         "id": "NATIVE_LOCAL_AND_HA_DEEPENING",
         "priority": "P2",
-        "state": "SOURCE_CONVERGED_NON_MUTATING",
+        "state": "CURRENT_LINE_NATIVE_SOURCE_RECONCILED_RESOURCE_PASS_RUNTIME_OFF_HA_READINESS_BLOCKED_PENDING_EXACT_SHA_CI",
         "depends_on": [
           "F11"
         ],
@@ -1142,7 +1142,15 @@
           "resource admission",
           "HA standby/failover",
           "disaster recovery"
-        ]
+        ],
+        "reconciled_parent": "2dc62efc2163dd85dd6b3fd3e515470884a598dd",
+        "native_local_resource_admission": "PASS_LIVE",
+        "native_local_runtime_materialized": false,
+        "ha_current_readiness": "BLOCK_CURRENT_REVISION_EVIDENCE_MISSING",
+        "ha_failover_performed": false,
+        "umg_check": "PASS",
+        "qualification": "Local runtime/lifecycle tests PASS; Native Local/HA convergence PASS; live VPS resource admission PASS; runtime/model absent; HA rehearsal source PASS but current-revision readiness evidence missing, therefore failover remains blocked and unauthorized.",
+        "production_activation_authorized": false
       }
     ],
     "cross_cutting": [

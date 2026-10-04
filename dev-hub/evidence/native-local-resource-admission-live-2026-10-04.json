@@ -1,0 +1,16 @@
+{
+  "schema": "chacha.dev/native-local-resource-admission/v1",
+  "status": "PASS",
+  "reasons": [],
+  "snapshot": {
+    "available_memory_mb": 941,
+    "free_disk_mb": 13771,
+    "cpu_count": 2,
+    "load1": 0.5146484375
+  },
+  "memory_required_with_headroom_mb": 896,
+  "disk_required_with_headroom_mb": 2688,
+  "fallback_required": false,
+  "production_activation_authorized": false,
+  "automatic_external_spend_eur": 0
+}

@@ -1,0 +1,13 @@
+{
+  "schema":"chacha.dev/ha-currentline-readiness-status/v1",
+  "platform_revision":"7e7decc758217bb20c142a1bef6799fd70f796a4",
+  "status":"BLOCK",
+  "blockers":["CURRENT_REVISION_READINESS_EVIDENCE_MISSING"],
+  "historical_rehearsal_revision":"d84d389b74b5efe5e368f3d1c4851214d0ecc4fc",
+  "historical_rehearsal_reusable_for_current_revision":false,
+  "writer_switch_performed":false,
+  "failover_performed":false,
+  "failover_authorized":false,
+  "production_activation_authorized":false,
+  "automatic_external_spend_eur":0
+}
