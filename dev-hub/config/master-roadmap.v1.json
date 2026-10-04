@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-04T16:06:00Z",
+  "updated_at": "2026-10-04T16:10:00Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -467,8 +467,8 @@
       "order": 6,
       "id": "RESOURCE_AWARE_EXECUTION",
       "action": "Activate executable DAG/adaptive parallelism only after stable solution/interface contracts and specialist resolution exist.",
-      "state": "CURRENT_LINE_RECONCILED_PENDING_LOCAL_QUALIFICATION",
-      "evidence": "Historical resource-aware planner commit 920c926b96191cac795d52da4ef99d1ff0514820 reconciled onto current functional line; qualification pending."
+      "state": "EXECUTION_DAG_PLUS_RESOURCE_PLANNER_SHADOW_IMPLEMENTED_LOCAL_PASS",
+      "evidence": "Current-line reconciliation of historical 920c926b complete; resource-aware orchestrator 11/11 PASS; UMG core:resource-aware-parallel-orchestrator CHECK_ONLY PASS; exact-SHA CI pending."
     },
     {
       "order": 7,
@@ -745,7 +745,7 @@
     "schema": "chacha.dev/master-roadmap-functional-execution-order/v2",
     "authority": "PRIMARY_CURRENT_EXECUTION_VIEW",
     "ordering_principle": "Hard functional dependency and core safety determine order. Historical train numbering never determines current execution order. Reuse qualified shadow work and unchanged evidence; do not rebuild unchanged scope.",
-    "current_focus": "F01_PROMOTION_TRANSACTION_CONTINUITY_PROMOTION_GATE_WITH_F02_F03_SHADOW_QUALIFICATION_RUNNING",
+    "current_focus": "F01_PROMOTION_GATE_WITH_F02_F03_QUALIFIED_AND_F04_SHADOW_QUALIFICATION_RUNNING",
     "phases": [
       {
         "phase": "F00",
@@ -792,7 +792,7 @@
         "phase": "F02",
         "id": "ARTIFACT_FABRIC_AND_PROJECT_BINDING",
         "priority": "P0",
-        "state": "CURRENT_LINE_RECONCILED_LOCAL_AND_UMG_PASS_PENDING_EXACT_SHA_CI",
+        "state": "CURRENT_LINE_EXACT_SHA_CI_PASS_AWAITING_UPSTREAM_PROMOTION_SEQUENCE",
         "depends_on": [
           "F01"
         ],
@@ -808,13 +808,19 @@
           "non-executable upload default"
         ],
         "reconciled_parent": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb",
-        "umg_check": "PASS"
+        "umg_check": "PASS",
+        "qualified_candidate": {
+          "sha": "4a5c4e9d21267da2fb6886432cdaa6b62646e8ee",
+          "tree": "9681e547ee6092a4f6a0804c43f4c907c1e287dc",
+          "sentinel_run": 37215029651,
+          "platform_qualification_run": 37215029590
+        }
       },
       {
         "phase": "F03",
         "id": "SPECIALIST_CELL_AND_CAPABILITY_RESOLUTION",
         "priority": "P0",
-        "state": "CURRENT_LINE_RECONCILED_LOCAL_AND_UMG_PASS_PENDING_EXACT_SHA_CI",
+        "state": "CURRENT_LINE_EXACT_SHA_CI_PASS_AWAITING_UPSTREAM_PROMOTION_SEQUENCE",
         "depends_on": [
           "F01"
         ],
@@ -829,13 +835,19 @@
           "recursive module/domain/capability binding"
         ],
         "reconciled_parent": "7160ef74c760d5d4b4e3d0f81af1a8c1d6d06ecb",
-        "umg_check": "PASS"
+        "umg_check": "PASS",
+        "qualified_candidate": {
+          "sha": "4a5c4e9d21267da2fb6886432cdaa6b62646e8ee",
+          "tree": "9681e547ee6092a4f6a0804c43f4c907c1e287dc",
+          "sentinel_run": 37215029651,
+          "platform_qualification_run": 37215029590
+        }
       },
       {
         "phase": "F04",
         "id": "RESOURCE_AWARE_EXECUTION_PLANNER",
         "priority": "P0",
-        "state": "CURRENT_LINE_RECONCILED_PENDING_LOCAL_QUALIFICATION",
+        "state": "CURRENT_LINE_RECONCILED_LOCAL_AND_UMG_PASS_PENDING_EXACT_SHA_CI",
         "depends_on": [
           "F02",
           "F03"
@@ -851,7 +863,8 @@
           "isolated parallel lanes",
           "integration barriers"
         ],
-        "reconciled_parent": "4a5c4e9d21267da2fb6886432cdaa6b62646e8ee"
+        "reconciled_parent": "4a5c4e9d21267da2fb6886432cdaa6b62646e8ee",
+        "umg_check": "PASS"
       },
       {
         "phase": "F05",
