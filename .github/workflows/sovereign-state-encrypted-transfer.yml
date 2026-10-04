@@ -25,8 +25,8 @@ jobs:
       - name: Download exact authoritative export artifact
         env:
           GH_TOKEN: ${{ github.token }}
-          ARTIFACT_ID: ${{ github.event.inputs.artifact_id || '11296531707' }}
-          ARTIFACT_SHA256: ${{ github.event.inputs.artifact_sha256 || '43771ae3c71b4d92d492c51c24893bd0f61712e74488ecefe400fc6d23d9daf5' }}
+          ARTIFACT_ID: ${{ github.event.inputs.artifact_id || '11296710923' }}
+          ARTIFACT_SHA256: ${{ github.event.inputs.artifact_sha256 || 'b58b6816cac986b8f64635d18a3277dbffbe7db1e834bb772503dfb88623bcac' }}
         run: |
           set -euo pipefail
           mkdir -p /tmp/sovereign-export
@@ -49,7 +49,7 @@ jobs:
           tar -C /tmp/sovereign-export -cJf /tmp/sovereign-state-d1-export.tar.xz .
       - name: Encrypt to VPS-only ephemeral certificate
         env:
-          SOURCE_RUN_ID: ${{ github.event.inputs.source_run_id || '37184449633' }}
+          SOURCE_RUN_ID: ${{ github.event.inputs.source_run_id || '37184530415' }}
         run: |
           set -euo pipefail
           openssl cms -encrypt -binary -aes256 -outform DER \
