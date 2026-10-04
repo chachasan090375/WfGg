@@ -102,5 +102,14 @@
     "improvement_intelligence_fabric_has_no_execution_authority": true,
     "central_orchestrator_is_only_build_handoff_authority": true
   },
-  "train_lifecycle_policy": "dev-hub/config/update-train-lifecycle.v1.json"
+  "train_lifecycle_policy": "dev-hub/config/update-train-lifecycle.v1.json",
+  "delivery_packaging": {
+    "default": "PLUGIN_PACKAGE",
+    "core_train": "EXCEPTION_REQUIRES_ARCHITECTURE_COUNCIL_JUSTIFICATION",
+    "plugin_manifest_required": true,
+    "recipe_first": true,
+    "install_build_on_demand": true,
+    "plugin_center_registration_required": true,
+    "core_locked_components_never_pluginized": true
+  }
 }

@@ -259,6 +259,11 @@
       "id": "update-train-lifecycle",
       "class": "execution-governance",
       "criticality": "high"
+    },
+    {
+      "component_id": "plugin-center",
+      "class": "execution-governance",
+      "criticality": "high"
     }
   ],
   "watch_dimensions": [
