@@ -1,0 +1,20 @@
+{
+  "schema":"chacha.dev/currentline-reconciliation-evidence/v1",
+  "phase":"F12",
+  "component_id":"core:chacha-remote-operator-current-line",
+  "parent_revision":"44177e91b431a68ce9f422717efc686da39a64fe",
+  "historical_source_commit":"a6135378c",
+  "historical_source_tree":"4da5979b0fa46ba5907a70cc26efe6a09da69417",
+  "current_source_tree":"4da5979b0fa46ba5907a70cc26efe6a09da69417",
+  "source_diff":"EMPTY",
+  "m2m_ingress_test":"7/7 PASS",
+  "umg_check":"PASS",
+  "m2m_ingress_enabled":false,
+  "runtime_secret_materialized":false,
+  "mcp_runtime_materialized":false,
+  "secure_tunnel_materialized":false,
+  "chatgpt_registration_complete":false,
+  "public_ingress_forbidden":true,
+  "production_activation_authorized":false,
+  "automatic_external_spend_eur":0
+}

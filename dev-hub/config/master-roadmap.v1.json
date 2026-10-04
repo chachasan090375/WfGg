@@ -1096,7 +1096,7 @@
         "phase": "F12",
         "id": "REMOTE_MCP_PRIVATE_OPERATOR_ROUTE",
         "priority": "P1",
-        "state": "SOURCE_CONVERGED_RUNTIME_UNMATERIALIZED",
+        "state": "CURRENT_LINE_SOURCE_RECONCILED_DISABLED_RUNTIME_UNMATERIALIZED_PENDING_EXACT_SHA_CI",
         "depends_on": [
           "F01"
         ],
@@ -1109,7 +1109,21 @@
           "capability/policy gate",
           "Guardian/Sentinel/STOP",
           "zero-incremental-cost priority route"
-        ]
+        ],
+        "reconciled_parent": "44177e91b431a68ce9f422717efc686da39a64fe",
+        "source_commit": "a6135378c",
+        "source_tree": "4da5979b0fa46ba5907a70cc26efe6a09da69417",
+        "m2m_commits": [
+          "4b49b3c203031fba832cf42bea7e60108dcf7968",
+          "3716550a5c31f92760c1e8cbd5cda8ab31929eca",
+          "04f2f39b26f172394e192f19095c568e187d8b9a",
+          "c2746147223e68b0854ce95710901f3ac99464bc",
+          "acecd45a0931344c6b65fe555c4cf2bca70795b6"
+        ],
+        "qualification": "Current-line convergence 7/7 PASS; source subtree identical to historical qualified source tree; UMG CHECK-ONLY PASS; ingress disabled; runtime secret/tunnel/ChatGPT registration absent; production activation forbidden; zero spend.",
+        "umg_check": "PASS",
+        "runtime_materialization": "NO",
+        "production_activation_authorized": false
       },
       {
         "phase": "F13",
