@@ -6,6 +6,7 @@ on:
       - 'dev-hub-v*'
       - 'roadmap-train-*'
       - 'roadmap-master-train-*'
+      - 'roadmap-functional-*'
   workflow_dispatch:
 
 permissions:

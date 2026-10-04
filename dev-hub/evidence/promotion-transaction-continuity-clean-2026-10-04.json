@@ -10,7 +10,8 @@
     "monotonic recovery generation",
     "ancestor immutable receipt acceptance only within same promotion/revision lineage",
     "finalize after recovery without replaying unchanged evidence",
-    "readiness receipts bind exact candidate revision"
+    "readiness receipts bind exact candidate revision",
+    "platform qualification workflow recognizes roadmap-functional-* branches"
   ],
   "tests": {
     "governed_platform_promotion": "PASS",
