@@ -58,7 +58,11 @@
     "BLOCKED",
     "REJECTED",
     "PROMOTION_REQUESTED",
-    "PROMOTED"
+    "PROMOTED",
+    "SHELVED",
+    "SHELVED_RECIPE_ONLY",
+    "REHYDRATION_REQUESTED",
+    "SUPERSEDED"
   ],
   "cockpit_update_center": {
     "icon": "🔄",
@@ -73,7 +77,13 @@
     "batch_requires_dependency_dag": true,
     "conflicting_trains_never_parallelized": true,
     "human_click_starts_governed_promotion_only": true,
-    "direct_current_switch_from_ui": false
+    "direct_current_switch_from_ui": false,
+    "shelf_button": "Mettre de côté",
+    "rehydrate_button": "Réactiver / reconstruire",
+    "shelved_section": "Mises de côté",
+    "shelf_requires_sealed_recipe": true,
+    "physical_retirement_is_separate_governed_action": true,
+    "recipe_survives_physical_retirement": true
   },
   "anti_bloat": {
     "novelty_only_train_forbidden": true,
@@ -91,5 +101,6 @@
     "all_observer_and_assurance_agents_publish_to_improvement_intelligence_fabric": true,
     "improvement_intelligence_fabric_has_no_execution_authority": true,
     "central_orchestrator_is_only_build_handoff_authority": true
-  }
+  },
+  "train_lifecycle_policy": "dev-hub/config/update-train-lifecycle.v1.json"
 }
