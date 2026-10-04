@@ -50,6 +50,7 @@ def validate_preparation(meta:dict[str,Any])->None:
     if meta.get('sentinel_exact_revision')!='PASS':raise ValueError('SENTINEL_EXACT_SHA_PASS_REQUIRED')
     rev=str(meta.get('candidate_revision') or '');tree=str(meta.get('candidate_tree') or '')
     if not SHA_RE.fullmatch(rev) or not SHA_RE.fullmatch(tree):raise ValueError('EXACT_SHA_TREE_REQUIRED')
+    if not str(meta.get('source_git_root') or '').strip():raise ValueError('SOURCE_GIT_ROOT_REQUIRED')
     rb=Path(str(meta.get('rollback_path') or ''))
     if not rb.is_dir():raise ValueError('ROLLBACK_PATH_REQUIRED')
 

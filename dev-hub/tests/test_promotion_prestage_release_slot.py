@@ -98,7 +98,7 @@ with tempfile.TemporaryDirectory() as td:
  t=Path(td);runtime=t/'runtime';runtime.mkdir();rels=t/'releases';rels.mkdir();old=rels/'old';old.mkdir();rel=rels/'candidate';rel.mkdir();o1=rels/'other1';o1.mkdir();o2=rels/'other2';o2.mkdir();current=t/'current';current.symlink_to(old,target_is_directory=True)
  for i,pth in enumerate((old,rel,o1,o2)): (pth/'.revision').write_text((str(i+1)*40)+'\n')
  (rel/'dev-hub/config').mkdir(parents=True);save(rel/'dev-hub/config/emergency-stop.v1.json',{'schema':'chacha.dev/emergency-stop/v1','state_file':str(t/'stop.json')});save(t/'stop.json',{'active':False})
- meta={'candidate_revision':'a'*40,'candidate_tree':'b'*40,'human_production_approval_present':True,'platform_qualification':'PASS','guardian_pre_action':'PASS','sentinel_exact_revision':'PASS','rollback_path':str(old),'automatic_external_spend_eur':0};save(rel/'.release-preparation.json',meta)
+ meta={'candidate_revision':'a'*40,'candidate_tree':'b'*40,'source_git_root':str(t),'human_production_approval_present':True,'platform_qualification':'PASS','guardian_pre_action':'PASS','sentinel_exact_revision':'PASS','rollback_path':str(old),'automatic_external_spend_eur':0};save(rel/'.release-preparation.json',meta)
  import promotion_transaction as ptx
  acq=ptx.acquire(runtime,'promotion-overage','owner','a'*40,300)
  expect(lambda:gpp.activate(rel,current,runtime,t/'activation.json','promotion-overage',acq['lease_token']),'RELEASE_RETENTION_OVERAGE_PRE_ACTIVATION')

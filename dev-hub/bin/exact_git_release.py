@@ -27,7 +27,7 @@ def git_tree(repo:Path,revision:str)->str:
     return str(git(repo,'rev-parse',revision+'^{tree}'))
 
 def tracked_entries(repo:Path,revision:str)->list[tuple[str,str,str,str]]:
-    raw=git(repo,'ls-tree','-rz','--full-tree',revision,binary=True)
+    raw=git(repo,'ls-tree','-r','-z','--full-tree',revision,binary=True)
     out=[]
     for rec in raw.split(b'\0'):
         if not rec:continue

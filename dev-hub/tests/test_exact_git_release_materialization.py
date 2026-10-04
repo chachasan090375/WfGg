@@ -39,6 +39,8 @@ with tempfile.TemporaryDirectory() as td:
     save(repo/'dev-hub/config/emergency-stop.v1.json',{'schema':'chacha.dev/emergency-stop/v1','state_file':str(stop)})
     (repo/'CHECKSUMS.sha256').write_text('canonical-checksum-manifest\n')
     (repo/'app.txt').write_text('exact payload\n')
+    (repo/'nested/deep').mkdir(parents=True)
+    (repo/'nested/deep/payload.txt').write_text('recursive payload\n')
     run('git','add','.',cwd=repo)
     run('git','commit','-q','-m','fixture exact release',cwd=repo)
     rev=run('git','rev-parse','HEAD',cwd=repo)
@@ -53,7 +55,14 @@ with tempfile.TemporaryDirectory() as td:
     assert m['status']=='PASS' and (rel/'CHECKSUMS.sha256').read_text()=='canonical-checksum-manifest\n',m
     v=egr.verify_release(rel,repo,rev,tree)
     assert v['status']=='PASS' and v['mismatch_count']==0 and v['missing_count']==0 and v['extra_payload_count']==0,v
+    assert v['checked_blobs']==v['tracked_blob_count'] and v['tracked_blob_count']>=4,v
+    assert (rel/'nested/deep/payload.txt').read_text()=='recursive payload\n'
     print('CHACHA_DEV_EXACT_GIT_MATERIALIZATION=PASS')
+
+    meta_now=json.load(open(rel/'.release-preparation.json'))
+    no_source=dict(meta_now);no_source.pop('source_git_root',None)
+    expect(lambda:gpp.validate_preparation(no_source),'SOURCE_GIT_ROOT_REQUIRED')
+    print('CHACHA_DEV_EXACT_GIT_PROVENANCE_REQUIRED=PASS')
 
     runtime=t/'runtime'
     runtime.mkdir()

@@ -13,7 +13,7 @@ import promotion_transaction as ptx
 import promotion_cycle_evidence as pce
 
 def save(p,obj):p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(obj)+'\n')
-def base_meta(rb):return {'candidate_revision':'a'*40,'candidate_tree':'b'*40,'human_production_approval_present':True,'platform_qualification':'PASS','guardian_pre_action':'PASS','sentinel_exact_revision':'PASS','rollback_path':str(rb),'automatic_external_spend_eur':0}
+def base_meta(rb):return {'candidate_revision':'a'*40,'candidate_tree':'b'*40,'source_git_root':str(rb.parent),'human_production_approval_present':True,'platform_qualification':'PASS','guardian_pre_action':'PASS','sentinel_exact_revision':'PASS','rollback_path':str(rb),'automatic_external_spend_eur':0}
 
 def expect(fn,needle):
  try:fn();raise AssertionError('expected failure '+needle)

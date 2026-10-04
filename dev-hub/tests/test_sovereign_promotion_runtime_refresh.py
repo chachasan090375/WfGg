@@ -35,7 +35,7 @@ print('CHACHA_DEV_PROMOTION_SOVEREIGN_LOCAL_REFRESH=PASS')
 with tempfile.TemporaryDirectory() as td:
  t=Path(td);runtime=t/'runtime';runtime.mkdir();rel=t/'release';old=t/'old';rel.mkdir();old.mkdir();cur=t/'current';cur.symlink_to(old,target_is_directory=True)
  (rel/'dev-hub/config').mkdir(parents=True);save(t/'stop.json',{'active':False});save(rel/'dev-hub/config/emergency-stop.v1.json',{'schema':'chacha.dev/emergency-stop/v1','state_file':str(t/'stop.json')})
- save(rel/'.release-preparation.json',{'candidate_revision':'a'*40,'candidate_tree':'b'*40,'human_production_approval_present':True,'platform_qualification':'PASS','guardian_pre_action':'PASS','sentinel_exact_revision':'PASS','rollback_path':str(old)})
+ save(rel/'.release-preparation.json',{'candidate_revision':'a'*40,'candidate_tree':'b'*40,'source_git_root':str(t),'human_production_approval_present':True,'platform_qualification':'PASS','guardian_pre_action':'PASS','sentinel_exact_revision':'PASS','rollback_path':str(old)})
  acq=ptx.acquire(runtime,'promotion-sovereign-fail','owner','a'*40,300);token=acq['lease_token'];calls=[0]
  oldrefresh=gpp.sovereign_runtime_refresh
  def flaky(_):
