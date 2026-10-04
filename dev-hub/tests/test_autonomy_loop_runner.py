@@ -4,6 +4,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];BIN=ROOT/'dev-hub/bin';CFG=ROOT/'dev-hub/config'
 sys.path.insert(0,str(BIN))
 import agent_fleet_observatory as afo
+import canonical_component_registry as ccr
 
 def load(p):return json.loads(Path(p).read_text())
 def save(p,x):p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(x,indent=2)+'\n')
@@ -18,6 +19,7 @@ with tempfile.TemporaryDirectory(prefix='autonomy-runner-') as raw:
  (platform/'current').symlink_to(active)
  save(runtime/'control/emergency-stop.json',{'schema':'chacha.dev/emergency-stop-state/v1','active':False})
  routing=load(CFG/'agent-routing.v1.json');seven=load(CFG/'seven-agent-final-compromise.v1.json');project=load(ROOT/'dev-hub/projects/wfgg-radar/project-agent-registry.v1.json')
+ canonical=ccr.build_registry(ROOT,load(CFG/'canonical-component-registry.v1.json'));expected_fleet_count=canonical['fleet_projection_count']
  old=afo.build_report(ROOT,runtime,load(CFG/'agent-fleet-observatory.v1.json'),load(CFG/'agent-evolution.v1.json'),routing,seven,[project])
  assert old['agent_count']==38,old['agent_count'];save(runtime/'agent-evolution/fleet-observatory-latest.json',old)
  calls=td/'systemctl-calls.txt';fake=td/'systemctl'
@@ -39,7 +41,7 @@ exit 7
  policy=td/'policy.json';save(policy,load(CFG/'autonomy-supervision.v1.json'))
  cmd=[sys.executable,str(BIN/'autonomy-loop-runner.py'),'--repo-root',str(ROOT),'--runtime-root',str(runtime),'--platform-root',str(platform),'--policy',str(policy),'--systemctl-bin',str(fake),'--test-mode']
  p=run(cmd);assert p.returncode==0,(p.stdout,p.stderr);assert 'CHACHA_DEV_AUTONOMY_LOOP=CONVERGED' in p.stdout,p.stdout
- assert load(runtime/'agent-evolution/fleet-observatory-latest.json')['agent_count']==40
+ assert load(runtime/'agent-evolution/fleet-observatory-latest.json')['agent_count']==expected_fleet_count
  rows=calls.read_text().splitlines();assert rows==['chacha-dev-agent-fleet-observatory.service'],rows
  # Second run sees a converged model and must not replay the verified owner action.
  p2=run(cmd);assert p2.returncode==0,(p2.stdout,p2.stderr);assert 'CHACHA_DEV_AUTONOMY_LOOP=CONVERGED' in p2.stdout,p2.stdout
@@ -70,6 +72,7 @@ with tempfile.TemporaryDirectory(prefix='autonomy-budget-') as raw:
   d=platform/'releases'/f'r{n}';d.mkdir();(d/'.revision').write_text(str(n)*40+'\n');active=active or d
  (platform/'current').symlink_to(active);save(runtime/'control/emergency-stop.json',{'active':False})
  routing=load(CFG/'agent-routing.v1.json');seven=load(CFG/'seven-agent-final-compromise.v1.json');project=load(ROOT/'dev-hub/projects/wfgg-radar/project-agent-registry.v1.json')
+ canonical=ccr.build_registry(ROOT,load(CFG/'canonical-component-registry.v1.json'));expected_fleet_count=canonical['fleet_projection_count']
  old=afo.build_report(ROOT,runtime,load(CFG/'agent-fleet-observatory.v1.json'),load(CFG/'agent-evolution.v1.json'),routing,seven,[project]);save(runtime/'agent-evolution/fleet-observatory-latest.json',old)
  calls=td/'calls';fake=td/'systemctl';fake.write_text(f'#!/bin/sh\necho "$2" >> "{calls}"\nexit 0\n');fake.chmod(0o755)
  pv=load(CFG/'autonomy-supervision.v1.json');pv['runtime']['retry_cooldown_seconds']=0;pv['runtime']['max_attempts_per_issue']=2;policy=td/'policy.json';save(policy,pv)

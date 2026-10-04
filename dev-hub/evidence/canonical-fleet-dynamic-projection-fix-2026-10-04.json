@@ -1,0 +1,11 @@
+{
+  "schema":"chacha.dev/regression-fix-evidence/v1",
+  "scope":"CANONICAL_FLEET_PROJECTION",
+  "cause":"Historical tests hardcoded fleet size 40; governed Remote MCP birth increased canonical fleet projection to 41.",
+  "fix":"Derive expected fleet count from canonical-component-registry fleet_required rows; Autonomy Loop uses the same canonical count.",
+  "canonical_fleet_projection_count":41,
+  "autonomy_core_invariants":"PASS",
+  "anti_version_coupling":"PASS",
+  "production_mutation":false,
+  "automatic_external_spend_eur":0
+}

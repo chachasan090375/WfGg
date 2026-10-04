@@ -11,7 +11,9 @@ def load(p): return json.loads(Path(p).read_text())
 reg_policy=load(ROOT/"dev-hub/config/canonical-component-registry.v1.json")
 canonical=ccr.build_registry(ROOT,reg_policy)
 assert canonical["component_count"]>=190,canonical["component_count"]
-assert canonical["fleet_projection_count"]==40,canonical["fleet_projection_count"]
+expected_fleet_count=sum(1 for row in canonical["components"] if row.get("fleet_required") is True)
+assert canonical["fleet_projection_count"]==expected_fleet_count,canonical["fleet_projection_count"]
+assert expected_fleet_count>=40,expected_fleet_count
 with tempfile.TemporaryDirectory() as td:
     runtime=Path(td)/"runtime"; runtime.mkdir()
     # Fleet projection itself must be canonical even when no historical runtime evidence exists.
@@ -22,7 +24,7 @@ with tempfile.TemporaryDirectory() as td:
       load(ROOT/"dev-hub/config/seven-agent-final-compromise.v1.json"),
       [load(ROOT/"dev-hub/projects/wfgg-radar/project-agent-registry.v1.json")],canonical)
     ids={x.get("agent_id") for x in report.get("agents") or []}
-    assert len(ids)==40,len(ids)
+    assert len(ids)==expected_fleet_count,(len(ids),expected_fleet_count)
     assert "conversation-reasoner" in ids,ids
     assert "human-behavior-center" in ids,ids
     # A compliant 3-release platform must reconcile without fleet drift or release overage.
