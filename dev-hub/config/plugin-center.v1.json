@@ -2,14 +2,24 @@
   "schema": "chacha.dev/plugin-center/v1",
   "version": "1.0.0",
   "mode": "SHADOW_RECIPE_FIRST_MODULAR_CAPABILITIES",
-  "classes": ["CORE_LOCKED", "PLATFORM_PLUGIN", "PROJECT_PLUGIN"],
+  "classes": [
+    "CORE_LOCKED",
+    "PLATFORM_PLUGIN",
+    "PROJECT_PLUGIN"
+  ],
   "default_for_external_improvement": "PLATFORM_PLUGIN",
   "core_locked": {
     "never_pluginized": true,
     "component_ids": [
-      "central-orchestrator", "guardian", "sentinel", "universal-materialization-gate",
-      "canonical-component-registry", "architecture-council", "emergency-stop",
-      "governed-platform-promotion", "intendant"
+      "central-orchestrator",
+      "guardian",
+      "sentinel",
+      "universal-materialization-gate",
+      "canonical-component-registry",
+      "architecture-council",
+      "emergency-stop",
+      "governed-platform-promotion",
+      "intendant"
     ],
     "uninstall_forbidden": true,
     "disable_forbidden": true,
@@ -18,9 +28,22 @@
   "manifest": {
     "schema": "chacha.dev/plugin-manifest/v1",
     "required_fields": [
-      "plugin_id", "title", "plugin_class", "version", "source_revision", "source_tree",
-      "functional_summary", "platform_value", "capabilities", "permissions", "dependencies",
-      "conflicts", "persistent_data", "recipe_digest", "qualification_refs", "rollback_contract"
+      "plugin_id",
+      "title",
+      "plugin_class",
+      "version",
+      "source_revision",
+      "source_tree",
+      "functional_summary",
+      "platform_value",
+      "capabilities",
+      "permissions",
+      "dependencies",
+      "conflicts",
+      "persistent_data",
+      "recipe_digest",
+      "qualification_refs",
+      "rollback_contract"
     ],
     "exact_source_required": true,
     "license_and_provenance_required": true,
@@ -28,7 +51,20 @@
     "automatic_external_spend_eur": 0
   },
   "lifecycle": {
-    "states": ["DISCOVERED", "BUILDING_SHADOW", "QUALIFIED_RECIPE_ONLY", "INSTALL_REQUESTED", "ACTIVE", "DISABLE_REQUESTED", "DISABLED", "UNINSTALL_REQUESTED", "UNINSTALLED_RECIPE_ONLY", "REINSTALL_REQUESTED", "BLOCKED"],
+    "states": [
+      "DISCOVERED",
+      "BUILDING_SHADOW",
+      "QUALIFIED_RECIPE_ONLY",
+      "INSTALL_REQUESTED",
+      "ACTIVE",
+      "DISABLE_REQUESTED",
+      "DISABLED",
+      "UNINSTALL_REQUESTED",
+      "UNINSTALLED_RECIPE_ONLY",
+      "REINSTALL_REQUESTED",
+      "BLOCKED",
+      "MERGED_INTO_CORE_LOCKED"
+    ],
     "install_means_rebuild_verify_then_activate": true,
     "disable_before_uninstall": true,
     "health_check_after_disable_required": true,
@@ -54,7 +90,12 @@
     "show_active": true,
     "show_disabled": true,
     "show_available_recipe_only": true,
-    "actions": ["Installer / reconstruire", "Désactiver", "Désinstaller", "Réinstaller"],
+    "actions": [
+      "Installer / reconstruire",
+      "Désactiver",
+      "Désinstaller",
+      "Réinstaller"
+    ],
     "core_locked_visible_but_actions_hidden": true
   },
   "authority": {
@@ -71,5 +112,20 @@
     "manifests": "/opt/chacha-dev/runtime/plugin-center/manifests",
     "recipes": "/opt/chacha-dev/runtime/update-center/recipes"
   },
-  "automatic_external_spend_eur": 0
+  "automatic_external_spend_eur": 0,
+  "core_absorption": {
+    "structural_core_update_is_not_a_plugin_after_governed_promotion": true,
+    "architecture_council_justification_required": true,
+    "promotion_must_be_exact_sha_guardian_sentinel_governed": true,
+    "post_promotion_registry_state": "MERGED_INTO_CORE_LOCKED",
+    "disable_from_plugin_center_forbidden": true,
+    "uninstall_from_plugin_center_forbidden": true,
+    "reinstall_from_plugin_center_forbidden": true,
+    "allowed_future_paths": [
+      "NEW_GOVERNED_CORE_TRAIN",
+      "GOVERNED_SUPERSESSION",
+      "GOVERNED_RELEASE_ROLLBACK"
+    ],
+    "historical_plugin_origin_may_remain_visible": true
+  }
 }

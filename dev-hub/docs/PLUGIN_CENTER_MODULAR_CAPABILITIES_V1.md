@@ -28,3 +28,6 @@ External novelty is never sufficient. An improvement must first pass the global-
 
 ## Storage model
 Plugins follow the same recipe-first principle as update trains. Runtime artifacts are disposable caches. The sealed recipe and exact Git lineage are the reconstruction authority.
+
+## Structural core absorption
+A capability may begin life as an experimental plugin, but an Architecture Council decision may determine that the mechanism belongs structurally in the ChaCha DEV core. After an exact-SHA Guardian/Sentinel governed core promotion, that capability is no longer a removable plugin. The Plugin Center may keep its origin record as `MERGED_INTO_CORE_LOCKED`, but exposes no Disable, Uninstall or Reinstall action. Future change is only a new governed core train, governed supersession, or release rollback.
