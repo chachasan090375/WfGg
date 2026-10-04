@@ -34,7 +34,10 @@ def build_queue(report:dict[str,Any],policy:dict[str,Any])->dict[str,Any]:
           'source_code_copy_allowed':m.get('source_code_copy_allowed') is True,
           'provenance_verified':m.get('provenance_verified') is True,'target_component_id':m.get('target_component_id') or 'central-orchestrator',
           'candidate_owner':m.get('candidate_owner') or 'branch-foundry','dependencies':m.get('dependencies') or [],'conflicts':m.get('conflicts') or [],
-          'build_route':policy.get('build_route') or [],'production_ready':False,'human_promotion_button_enabled':False,
+          'build_route':policy.get('build_route') or [],
+          'delivery_form':'PLUGIN_PACKAGE','plugin_id':'plugin-'+hashlib.sha256(mid.encode()).hexdigest()[:16],
+          'plugin_manifest_required':True,'plugin_center_registration_required':True,'recipe_first':True,
+          'core_mutation_exception':False,'production_ready':False,'human_promotion_button_enabled':False,
           'central_orchestrator_handoff_required':True,'automatic_external_spend_eur':0
         })
     return {'schema':'chacha.dev/cockpit-update-center/v1','status':'PASS','items':rows,
@@ -51,6 +54,8 @@ def reassessment_request(row:dict[str,Any])->dict[str,Any]:
       'functional_summary':row.get('functional_summary'),'platform_value':row.get('platform_value'),
       'source_strategy':row.get('source_strategy'),'license_spdx':row.get('license_spdx'),'provenance_verified':row.get('provenance_verified') is True,
       'dependencies':row.get('dependencies') or [],'conflicts':row.get('conflicts') or [],
+      'delivery_form':row.get('delivery_form') or 'PLUGIN_PACKAGE','plugin_id':row.get('plugin_id'),
+      'plugin_manifest_required':row.get('plugin_manifest_required') is True,'plugin_center_registration_required':True,'recipe_first':True,
       'direct_component_mutation':False,'self_promotion':False,'permission_expansion':False,
       'architecture_council_final_authority':True,'automatic_external_spend_eur':0}
 

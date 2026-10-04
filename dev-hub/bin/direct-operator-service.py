@@ -801,6 +801,18 @@ class Handler(BaseHTTPRequestHandler):
                 payload.setdefault("items",[]).append({"train_id":tid,"title":lr.get("title") or tid,"state":lr.get("state"),"functional_summary":lr.get("functional_summary"),"platform_value":lr.get("platform_value"),"recipe_digest":lr.get("recipe_digest"),"shelved_reason":lr.get("shelved_reason"),"reactivation_available":lr.get("reactivation_available") is True,"physical_train_present":lr.get("physical_train_present",False),"production_ready":False,"human_promotion_button_enabled":False,"shelf_allowed":False})
             payload["production_authority"]=False
             return self.json(200,payload)
+        if path=="/api/v1/plugins":
+            q=self.st.runtime/"plugin-center"/"registry.json"
+            if not q.is_file():
+                return self.json(200,{"schema":"chacha.dev/plugin-registry/v1","status":"PASS","items":[],"production_authority":False,"automatic_external_spend_eur":0})
+            try: reg=load(q)
+            except Exception: return self.json(503,{"schema":"chacha.dev/plugin-registry/v1","status":"UNAVAILABLE","items":[]})
+            rows=reg.get("items") if isinstance(reg.get("items"),dict) else {}
+            items=[]
+            for pid,row in sorted(rows.items()):
+                if not isinstance(row,dict): continue
+                x={**row};x.setdefault("plugin_id",pid);x["production_authority"]=False;items.append(x)
+            return self.json(200,{"schema":"chacha.dev/plugin-registry/v1","status":"PASS","items":items,"production_authority":False,"automatic_external_spend_eur":0})
         if path=="/api/v1/whitepaper":
             q=self.st.runtime/"whitepaper"/"current"/"metadata.json"
             if not q.is_file(): return self.json(200,{"schema":"chacha.dev/living-whitepaper-snapshot/v1","status":"NOT_GENERATED"})

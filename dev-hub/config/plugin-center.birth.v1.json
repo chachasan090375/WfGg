@@ -1,0 +1,24 @@
+{
+  "schema": "chacha.dev/component-birth-candidate/v1",
+  "component_id": "plugin-center",
+  "materialization_gate_required": true,
+  "governance_class": "CORE_PLATFORM_COMPONENT",
+  "owner_foundry": "branch-foundry",
+  "scope": "PLATFORM",
+  "permissions": [
+    "read",
+    "workspace-write"
+  ],
+  "production_permissions_allowed": false,
+  "destructive_permissions_allowed": false,
+  "capabilities": [
+    "plugin-registry",
+    "plugin-lifecycle-planning",
+    "recipe-rehydration-routing",
+    "dependency-safety"
+  ],
+  "guardian_required": true,
+  "sentinel_required": true,
+  "architecture_council_required": true,
+  "automatic_external_spend_eur": 0
+}
