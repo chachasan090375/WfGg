@@ -970,7 +970,7 @@
         "phase": "F07",
         "id": "END_TO_END_CREATION_RUNTIME",
         "priority": "P0",
-        "state": "EXACT_SHA_QUALIFIED_SHADOW",
+        "state": "PRODUCTION_ACTIVE_FINALIZED",
         "depends_on": [
           "F02",
           "F03",
@@ -994,8 +994,8 @@
           "artifacts"
         ],
         "production_parent_sha": "7616e30a9a49ce42c89db2f058b5141400e1a39d",
-        "qualified_sha": "d7010c1e49ecab91978d04571764cf5cc3166ec9",
-        "qualified_tree": "3517cf2e798ad9a4d2de54f7e32fd0a07025e20c"
+        "qualified_sha": "7878dfbfdf680c40a7f9e553b0275a662903e170",
+        "qualified_tree": "dcf897b0162cb63e060689dc28bd253161b389a6"
       },
       {
         "phase": "F08",
@@ -1015,7 +1015,7 @@
           "automatic governed shadow package generation",
           "Living White Paper"
         ],
-        "production_parent_sha": "d7010c1e49ecab91978d04571764cf5cc3166ec9"
+        "production_parent_sha": "7878dfbfdf680c40a7f9e553b0275a662903e170"
       },
       {
         "phase": "F09",
