@@ -1,0 +1,25 @@
+{
+  "schema": "chacha.dev/business-valuation-model/v1",
+  "version": "1.0.0",
+  "currency": "EUR",
+  "disclaimer": "Scenario model only; not an independent financial valuation or investment advice.",
+  "business_model": {
+    "positioning": "Governed autonomous software factory with model/provider independence and self-hosted control plane.",
+    "segments": ["advanced individual builders", "SMB product teams", "enterprise engineering/platform teams", "regulated or sovereignty-sensitive organizations"],
+    "revenue_options": [
+      {"id":"community","model":"open/self-hosted core","purpose":"adoption and ecosystem"},
+      {"id":"pro","model":"subscription","indicative_monthly_eur":"99-299","purpose":"individual power users and small teams"},
+      {"id":"team","model":"subscription + usage/support","indicative_monthly_eur":"499-1999","purpose":"multi-project teams"},
+      {"id":"enterprise","model":"annual platform/support/license","indicative_annual_eur":"20000-150000+","purpose":"governance, private deployment, support, compliance"}
+    ],
+    "economic_moats": ["governed autonomous lifecycle", "provider independence", "local/sovereign state", "multi-agent assurance", "continuous improvement intelligence", "evidence/rollback lineage", "zero-cost-first architecture"]
+  },
+  "valuation_scenarios": [
+    {"stage":"technology_asset_only","conditions":["repeatable install","clean IP/license chain","documented architecture","no external revenue required"],"indicative_range_eur":"300000-1500000","method":"replacement-cost floor plus strategic IP premium"},
+    {"stage":"validated_product_pilots","conditions":["3-5 external pilots","repeatable deployment","measured ROI","security/governance proof"],"indicative_range_eur":"2000000-8000000","method":"early-stage platform comparables and option value"},
+    {"stage":"early_revenue","conditions":["ARR around EUR 1M","strong growth","healthy retention","gross-margin visibility"],"indicative_range_eur":"8000000-20000000","method":"illustrative 8x-20x ARR"},
+    {"stage":"scale_revenue","conditions":["ARR around EUR 5M","enterprise references","high growth","repeatable GTM"],"indicative_range_eur":"40000000-100000000","method":"illustrative 8x-20x ARR"}
+  ],
+  "valuation_drivers": ["external paying customers", "ARR and growth", "retention", "gross margin after model/compute cost", "task success and autonomy rate", "security and governance quality", "model/provider switching cost", "deployment reproducibility", "IP/license cleanliness", "enterprise references"],
+  "automatic_external_spend_eur": 0
+}

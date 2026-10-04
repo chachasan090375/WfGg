@@ -1,0 +1,81 @@
+{
+  "schema": "chacha.dev/improvement-intelligence-whitepaper-shadow-pilot/v1",
+  "generated_at": "2026-10-04T12:22:22.430592+00:00",
+  "production_baseline": {
+    "revision": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
+    "current_path": "/opt/chacha-dev/platform/releases/20261004T103446Z-b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
+    "mutated": false
+  },
+  "order4_staging": {
+    "candidate_revision": "7e7decc758217bb20c142a1bef6799fd70f796a4",
+    "candidate_tree": "f8889d725829588ae2787a4efa5976266a846401",
+    "physical_materialization_verified_blobs": "1643/1643",
+    "canonical_prepare_sealed": false,
+    "activation_authorized": false,
+    "current_switch_performed": false,
+    "note": "Canonical PREPARE remains unsealed because the remote execution connector blocked secure lease-token passage; no bypass attempted."
+  },
+  "improvement_intelligence": {
+    "tests": "PASS",
+    "cross_agent_fusion": "PASS",
+    "dark_intelligence_independent_corroboration_required": true,
+    "novelty_only_rejected": true,
+    "agent_observation_bus_integration": "PASS",
+    "canonical_platform_reassessment_routing": "PASS",
+    "direct_build_authority": false,
+    "production_authority": false
+  },
+  "autonomous_improvement_factory": {
+    "targeted_tests": "5/5 PASS",
+    "open_source_license_gate": "PASS",
+    "production_authority": false
+  },
+  "living_whitepaper": {
+    "generator": "PASS",
+    "runtime_preview": {
+      "schema": "chacha.dev/living-whitepaper-snapshot/v1",
+      "status": "PASS",
+      "generated_at": "2026-10-04T12:14:37.887928+00:00",
+      "production_revision": "b21470ca1041e1ec4850f2ef8ad466c469cfe26f",
+      "source_revision": "7e48de2852d3b7f0763e7c353b0d418f992826c3",
+      "source_tree": "459e92e57f44529eecc9b5b4b7d9fd978467ace9",
+      "state_authority": "LOCAL_SQLITE",
+      "services": {
+        "chacha-dev-direct-operator.service": "ACTIVE",
+        "chacha-dev-sovereign-guardian.service": "ACTIVE",
+        "chacha-dev-sovereign-sentinel.service": "ACTIVE",
+        "chacha-dev-sovereign-assurance-exchange.service": "ACTIVE",
+        "chacha-dev-sovereign-learning-relay.service": "ACTIVE"
+      },
+      "release_count": 3,
+      "competitive_baseline_as_of": "2026-10-04",
+      "automatic_external_spend_eur": 0
+    },
+    "html_path": "/opt/chacha-dev/runtime/whitepaper/current/index.html",
+    "html_sha256": "sha256:77414f098753d6a9584a97cb5ad6d7efeb22b96dc2e56ade19321f60c28f7a8e",
+    "promotion_refresh_non_blocking": "PASS",
+    "cockpit_entry": "SHADOW_SOURCE_READY"
+  },
+  "umg_checks": {
+    "improvement_intelligence": {
+      "schema": "chacha.dev/universal-materialization-gate-receipt/v1",
+      "status": "PASS",
+      "registered": false,
+      "check_only": true,
+      "component_id": "core:improvement-intelligence-fabric",
+      "birth_contract_complete": true,
+      "automatic_external_spend_eur": 0
+    },
+    "living_whitepaper": {
+      "schema": "chacha.dev/universal-materialization-gate-receipt/v1",
+      "status": "PASS",
+      "registered": false,
+      "check_only": true,
+      "component_id": "core:living-whitepaper",
+      "birth_contract_complete": true,
+      "automatic_external_spend_eur": 0
+    }
+  },
+  "master_roadmap_convergence": "PASS",
+  "automatic_external_spend_eur": 0
+}
