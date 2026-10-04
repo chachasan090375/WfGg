@@ -93,7 +93,9 @@ def package_advice(memory_brief:dict[str,Any]|None,pkg:dict[str,Any])->dict[str,
         "memory_cannot_expand_capabilities":True,
         "memory_cannot_expand_permissions":True,
         "memory_cannot_skip_technology_watch":True,
-        "architecture_council_final_authority":True
+        "architecture_council_final_authority":False,
+        "architecture_council_recommendation_authority":True,
+        "central_orchestrator_is_final_decider":True
       },
       "automatic_external_spend_eur":0
     }
