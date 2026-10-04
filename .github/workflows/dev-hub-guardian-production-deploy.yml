@@ -153,7 +153,7 @@ jobs:
             "main": "dev-hub/guardian/worker.js",
             "compatibility_date": "2026-09-24",
             "workers_dev": true,
-            "triggers": {"crons": ["* * * * *"]},
+            "triggers": {"crons": []},
             "vars": {"SENTINEL_URL": "$SENTINEL_URL"},
             "services": [{"binding": "SENTINEL_SERVICE", "service": "chacha-dev-sentinel"}],
             "d1_databases": [{
