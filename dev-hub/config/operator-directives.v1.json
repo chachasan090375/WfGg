@@ -197,6 +197,35 @@
         "progress-reporting"
       ],
       "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-autonomous-improvement-factory",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "AUTONOMY_EVOLUTION",
+      "status": "ACTIVE",
+      "normalized_requirement": "ChaCha DEV must continuously convert only evidence-backed and globally useful competitive, Technology Watch and verified Technology Truth improvements into governed shadow update trains. Internal reuse is preferred; compatible open-source code may be reused with provenance, license, attribution, copyleft/patent and SBOM obligations; otherwise ChaCha reconstructs the mechanism itself. Plugins/connectors are fallback-only when an owned implementation is not reasonably feasible. Novelty alone never justifies a component. Every train must demonstrate measurable platform value and architectural fit before build. Qualified trains appear in the Cockpit Update Center with functional/value/risk/license/dependency explanations. The operator may request one or all compatible promotions; UI actions only start the governed promotion pipeline and never bypass Guardian, Sentinel, UMG, CCR, rollback, exact-SHA qualification or human production authority.",
+      "required_sinks": [
+        "technology-watch",
+        "technology-truth-scoring",
+        "technology-self-benchmark-observer",
+        "logician",
+        "architecture-council",
+        "reuse-memory",
+        "central-orchestrator",
+        "creation-runtime-fabric",
+        "all-foundries",
+        "universal-materialization-gate",
+        "canonical-component-registry",
+        "guardian",
+        "sentinel",
+        "fleet-observatory",
+        "assurance",
+        "lifecycle",
+        "direct-operator-cockpit",
+        "release-qualification",
+        "progress-reporting"
+      ],
+      "backfill_required": true
     }
   ],
   "runtime": {
@@ -208,15 +237,15 @@
   "automatic_external_spend_eur": 0,
   "intake_classification": {
     "high_confidence_phrases": [
-      "\u00e0 partir de maintenant",
-      "d\u00e9sormais",
+      "à partir de maintenant",
+      "désormais",
       "tous les agents",
       "toutes les applications",
       "tous les composants",
       "les futurs agents",
       "les futurs composants",
       "aucun composant",
-      "je veux que le syst\u00e8me"
+      "je veux que le système"
     ],
     "structural_terms": [
       "architecture",
@@ -232,7 +261,7 @@
       "guardian",
       "sentinel",
       "plateforme",
-      "syst\u00e8me",
+      "système",
       "systeme"
     ],
     "global_quantifiers": [

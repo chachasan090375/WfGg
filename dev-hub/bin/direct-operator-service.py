@@ -781,6 +781,16 @@ class Handler(BaseHTTPRequestHandler):
             return self.json(200,self.st.persona_catalog())
         if path=="/api/v1/progress":
             return self.json(200,self.st.progress.snapshot())
+        if path=="/api/v1/update-center":
+            q=self.st.runtime/"update-center"/"queue.json"
+            if not q.is_file():
+                return self.json(200,{"schema":"chacha.dev/cockpit-update-center/v1","status":"PASS","items":[],"production_authority":False,"automatic_external_spend_eur":0})
+            try:
+                payload=load(q)
+            except Exception:
+                return self.json(503,{"schema":"chacha.dev/cockpit-update-center/v1","status":"UNAVAILABLE","items":[]})
+            payload["production_authority"]=False
+            return self.json(200,payload)
         if path=="/api/v1/app-config":
             return self.json(200,self.st.effective_live_shell_config())
         if path=="/api/v1/native-update":
