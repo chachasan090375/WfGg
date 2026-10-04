@@ -1070,7 +1070,7 @@
         "phase": "F11",
         "id": "RESILIENCE_AND_RECONSTRUCTIBILITY",
         "priority": "P1",
-        "state": "REAL_NAS_RESTORE_PASS_SHADOW_TO_RECONCILE",
+        "state": "CURRENT_LINE_NAS_VAULT_RECONCILED_REAL_RESTORE_PASS_CLEAN_HOST_PENDING_EXACT_SHA_CI",
         "depends_on": [
           "F01",
           "F07"
@@ -1085,7 +1085,12 @@
           "restore verification",
           "recipe-first rebuild",
           "clean-host reconstruction target"
-        ]
+        ],
+        "reconciled_parent": "58dfe1af2cc656f26104b51b9be9becc79481455",
+        "umg_check": "PASS",
+        "qualification": "Event-driven vault tests PASS; real historical 4TB→18TB restore proof reused anti-replay; git bundle verify PASS; guardian SQLite integrity_check ok; clean-host full reconstruction remains a separate pending sub-gate.",
+        "clean_host_reconstruction_status": "PENDING",
+        "anti_replay": "Do not repeat real NAS pilot while source/config/digests are materially unchanged."
       },
       {
         "phase": "F12",

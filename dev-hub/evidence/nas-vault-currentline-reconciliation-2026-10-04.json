@@ -1,0 +1,20 @@
+{
+  "schema":"chacha.dev/currentline-reconciliation-evidence/v1",
+  "phase":"F11",
+  "component_id":"core:nas-incremental-image-vault",
+  "parent_revision":"58dfe1af2cc656f26104b51b9be9becc79481455",
+  "reused_real_pilot_evidence":[
+    "dev-hub/evidence/nas-incremental-image-vault-pilot-2026-10-04.json",
+    "dev-hub/evidence/nas-incremental-image-vault-incremental-restore-pilot-2026-10-04.json",
+    "dev-hub/evidence/nas-incremental-image-vault-event-driven-2026-10-04.json"
+  ],
+  "source":"/share/CACHEDEV1_DATA",
+  "destination":"/share/CACHEDEV2_DATA",
+  "real_restore_proof":"PASS_REUSED_UNCHANGED_SCOPE",
+  "event_driven_no_periodic_timer":true,
+  "duplicate_unchanged_digest_creates_image":false,
+  "umg_check":"PASS",
+  "production_activation_authorized":false,
+  "clean_host_full_reconstruction":"PENDING_SEPARATE_SUBGATE",
+  "automatic_external_spend_eur":0
+}
