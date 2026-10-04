@@ -420,7 +420,6 @@
         "persistent missions"
       ],
       "blocking_for_full_creation_runtime": false
-
     },
     {
       "id": "technology-self-benchmark-observer",
@@ -813,7 +812,7 @@
     "schema": "chacha.dev/master-roadmap-functional-execution-order/v2",
     "authority": "PRIMARY_CURRENT_EXECUTION_VIEW",
     "ordering_principle": "Hard functional dependency and core safety determine order: artifacts/specialists -> execution DAG -> resource-aware scheduling -> target OS/device validation -> E2E runtime -> extensibility/access/resilience/remote/HA. Historical train numbering never determines current execution order. Reuse qualified shadow work and unchanged evidence; do not rebuild unchanged scope.",
-    "current_focus": "F07_END_TO_END_CREATION_RUNTIME_CURRENT_LINE_RECONCILIATION",
+    "current_focus": "F08_IMPROVEMENT_INTELLIGENCE_FACTORY_CURRENT_LINE_RECONCILIATION",
     "phases": [
       {
         "phase": "F00",
@@ -971,7 +970,7 @@
         "phase": "F07",
         "id": "END_TO_END_CREATION_RUNTIME",
         "priority": "P0",
-        "state": "LOCAL_QUALIFICATION_PASS_PENDING_EXACT_SHA_CI",
+        "state": "EXACT_SHA_QUALIFIED_SHADOW",
         "depends_on": [
           "F02",
           "F03",
@@ -994,13 +993,15 @@
           "assurance",
           "artifacts"
         ],
-        "production_parent_sha": "7616e30a9a49ce42c89db2f058b5141400e1a39d"
+        "production_parent_sha": "7616e30a9a49ce42c89db2f058b5141400e1a39d",
+        "qualified_sha": "d7010c1e49ecab91978d04571764cf5cc3166ec9",
+        "qualified_tree": "3517cf2e798ad9a4d2de54f7e32fd0a07025e20c"
       },
       {
         "phase": "F08",
         "id": "IMPROVEMENT_INTELLIGENCE_AND_AUTONOMOUS_FACTORY",
         "priority": "P1",
-        "state": "EXACT_SHA_QUALIFIED_SHADOW_TO_RECONCILE",
+        "state": "LOCAL_QUALIFICATION_PASS_PENDING_EXACT_SHA_CI",
         "depends_on": [
           "F07"
         ],
@@ -1013,7 +1014,8 @@
           "open-source/license gate",
           "automatic governed shadow package generation",
           "Living White Paper"
-        ]
+        ],
+        "production_parent_sha": "d7010c1e49ecab91978d04571764cf5cc3166ec9"
       },
       {
         "phase": "F09",
