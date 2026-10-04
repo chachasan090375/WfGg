@@ -1,0 +1,89 @@
+{
+  "schema": "chacha.dev/autonomous-improvement-factory/v1",
+  "version": "1.0.0",
+  "mode": "SHADOW_AUTONOMOUS_TRAIN_BUILD",
+  "purpose": "Turn evidence-backed, globally useful improvements into governed ChaCha DEV update trains without production authority.",
+  "accepted_sources": [
+    "COMPETITIVE_WATCH",
+    "TECHNOLOGY_WATCH",
+    "TECHNOLOGY_TRUTH"
+  ],
+  "entry_requirements": {
+    "observer_recommendation": "PILOT_CANDIDATE",
+    "utility_gate_pass": true,
+    "provenance_verified": true,
+    "logician_falsification_pass": true,
+    "architecture_council_review_pass": true,
+    "zero_spend_or_human_spend_approval": true
+  },
+  "implementation_strategy_order": [
+    "INTERNAL_REUSE",
+    "OPEN_SOURCE_REUSE_IF_LICENSE_COMPATIBLE",
+    "OWNED_REIMPLEMENTATION",
+    "CONNECTOR_FALLBACK_IF_NO_REASONABLE_OWNED_PATH"
+  ],
+  "open_source_gate": {
+    "license_spdx_required": true,
+    "license_compatibility_required": true,
+    "license_text_retained": true,
+    "attribution_retained": true,
+    "notice_file_respected": true,
+    "copyleft_effect_assessed": true,
+    "patent_terms_assessed": true,
+    "source_provenance_digest_required": true,
+    "sbom_entry_required": true
+  },
+  "build_route": [
+    "central-orchestrator",
+    "creation-runtime-fabric",
+    "branch-foundry",
+    "agent-foundry",
+    "capability-foundry",
+    "artifact-fabric",
+    "sentinel",
+    "guardian"
+  ],
+  "build_authority": {
+    "shadow_workspace_write": true,
+    "production": false,
+    "activation": false,
+    "permission_expansion": false
+  },
+  "train_states": [
+    "DISCOVERED",
+    "VALUE_GATE_PASS",
+    "BUILDING",
+    "QUALIFYING",
+    "READY_FOR_HUMAN_PROMOTION",
+    "BLOCKED",
+    "REJECTED",
+    "PROMOTION_REQUESTED",
+    "PROMOTED"
+  ],
+  "cockpit_update_center": {
+    "icon": "🔄",
+    "label": "Mises à jour",
+    "show_only_governed_trains": true,
+    "functional_explanation_required": true,
+    "value_explanation_required": true,
+    "risk_and_rollback_required": true,
+    "license_and_provenance_required": true,
+    "per_train_button": "Mise en production",
+    "batch_button": "Lancer toutes les mises à jour compatibles",
+    "batch_requires_dependency_dag": true,
+    "conflicting_trains_never_parallelized": true,
+    "human_click_starts_governed_promotion_only": true,
+    "direct_current_switch_from_ui": false
+  },
+  "anti_bloat": {
+    "novelty_only_train_forbidden": true,
+    "duplicate_without_material_gain_forbidden": true,
+    "global_platform_value_required": true,
+    "rejected_idea_memory_required": true
+  },
+  "automatic_external_spend_eur": 0,
+  "runtime_paths": {
+    "improvement_inbox": "/opt/chacha-dev/runtime/autonomous-improvement/inbox",
+    "update_center_queue": "/opt/chacha-dev/runtime/update-center/queue.json"
+  }
+}

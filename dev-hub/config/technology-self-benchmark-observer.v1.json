@@ -1,18 +1,28 @@
 {
   "schema": "chacha.dev/technology-self-benchmark-observer/v1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
   "mode": "EXTERNAL_READ_ONLY_ADVISORY",
   "owner_agent": "technology-watch",
   "logical_placement": "OUT_OF_BAND_OBSERVER",
-  "purpose": "Continuously compare ChaCha DEV mechanisms with externally demonstrated agentic-software mechanisms and surface only evidence-backed gaps or superior patterns.",
+  "purpose": "Continuously compare ChaCha DEV with verified competitive, technology-watch and Technology Truth signals; surface only improvements that create measurable platform value.",
   "principles": {
-    "mechanism_learning_only": true,
-    "source_code_harvest": false,
-    "source_code_copy": false,
+    "mechanism_learning_allowed": true,
+    "open_source_code_reuse_allowed_when_license_compatible": true,
+    "license_compatibility_gate_required": true,
+    "source_provenance_required": true,
+    "license_obligations_and_attribution_required": true,
+    "copyleft_and_patent_terms_must_be_explicitly_assessed": true,
+    "rebuild_mechanism_when_code_reuse_is_not_compatible": true,
+    "plugin_or_connector_is_last_resort": true,
+    "plugin_or_connector_requires_native_or_owned_implementation_infeasible": true,
+    "novelty_alone_never_justifies_a_component": true,
+    "global_project_value_gate_required": true,
+    "reuse_before_build": true,
     "vendor_lock_in_forbidden": true,
     "official_sources_first": true,
     "independent_corroboration_preferred": true,
+    "technology_truth_verified_provenance_accepted": true,
     "negative_knowledge_persisted": true,
     "material_change_required_before_reconsidering_rejected_pattern": true,
     "zero_incremental_cost_first": true,
@@ -23,6 +33,9 @@
     "master-roadmap",
     "technology-core-watch",
     "agent-benchmark-evidence",
+    "competitive-watch-dossiers",
+    "technology-watch-dossiers",
+    "technology-truth-verified-dossiers",
     "external-mechanism-dossiers"
   ],
   "outputs": [
@@ -47,7 +60,11 @@
     "logician_falsification_required": true,
     "architecture_council_review_required": true,
     "guardian_preserved": true,
-    "sentinel_preserved": true
+    "sentinel_preserved": true,
+    "observer_never_builds_directly": true,
+    "improvement_request_handoff_to_central_orchestrator": true,
+    "autonomous_shadow_train_build_allowed_after_value_and_architecture_gates": true,
+    "human_production_gate_required": true
   },
   "cadence": {
     "light_scan": "DAILY",
@@ -59,5 +76,28 @@
     "rejected_pattern_replayed_without_new_evidence": false,
     "same_source_same_claim_recounted": false,
     "same_mechanism_same_evidence_rebenchmarked": false
-  }
+  },
+  "utility_gate": {
+    "minimum_global_value_score": 65,
+    "architecture_fit_required": true,
+    "material_gain_required_for_duplicate_capability": true,
+    "maximum_maintenance_debt_score": 50,
+    "accepted_value_dimensions": [
+      "autonomy",
+      "reliability",
+      "security",
+      "performance",
+      "cost-efficiency",
+      "maintainability",
+      "user-experience",
+      "capability-coverage"
+    ],
+    "novelty_score_has_no_positive_weight": true
+  },
+  "source_strategy_order": [
+    "INTERNAL_REUSE",
+    "OPEN_SOURCE_REUSE_IF_LICENSE_COMPATIBLE",
+    "OWNED_REIMPLEMENTATION",
+    "CONNECTOR_FALLBACK_IF_NO_REASONABLE_OWNED_PATH"
+  ]
 }

@@ -7,6 +7,7 @@ import technology_watch_logician as twl
 import technology_truth_scoring as tts
 import technology_core_watch as tcw
 import technology_self_benchmark_observer as tsbo
+import autonomous_improvement_factory as aif
 import universal_learning_runtime as ulr
 
 def save(path:Path,value)->None:
@@ -30,6 +31,10 @@ def main():
     so=sub.add_parser("self-observe")
     so.add_argument("--dossier",type=Path,required=True)
     so.add_argument("--output",type=Path,required=True)
+    si=sub.add_parser("self-improve")
+    si.add_argument("--dossier",type=Path,required=True)
+    si.add_argument("--output-dir",type=Path,required=True)
+    si.add_argument("--runtime-root",type=Path)
     cw=sub.add_parser("core-watch")
     cw.add_argument("--signals",type=Path)
     cw.add_argument("--output",type=Path,required=True)
@@ -100,6 +105,28 @@ def main():
         print(json.dumps(out,indent=2,ensure_ascii=False))
         print("CHACHA_DEV_TECHNOLOGY_SELF_BENCHMARK=PASS")
         print("CHACHA_DEV_SELF_OBSERVER_PRODUCTION_AUTHORITY=NO")
+        return
+    if a.cmd=="self-improve":
+        observer_policy=json.loads((root/"dev-hub/config/technology-self-benchmark-observer.v1.json").read_text(encoding="utf-8"))
+        factory_policy=json.loads((root/"dev-hub/config/autonomous-improvement-factory.v1.json").read_text(encoding="utf-8"))
+        dossier=json.loads(a.dossier.read_text(encoding="utf-8"))
+        report=tsbo.assess(dossier,observer_policy)
+        a.output_dir.mkdir(parents=True,exist_ok=True)
+        save(a.output_dir/"observer-report.json",report)
+        queue=aif.build_queue(report,factory_policy)
+        save(a.output_dir/"update-center-queue.json",queue)
+        if a.runtime_root:
+            runtime=a.runtime_root.resolve(); inbox=runtime/"autonomous-improvement"/"inbox"; inbox.mkdir(parents=True,exist_ok=True)
+            for row in queue.get("items") or []:
+                req={"schema":"chacha.dev/autonomous-improvement-request/v1","train_id":row.get("train_id"),"mechanism_id":row.get("mechanism_id"),
+                     "state":"REQUESTED_SHADOW_BUILD","functional_summary":row.get("functional_summary"),"platform_value":row.get("platform_value"),
+                     "source_strategy":row.get("source_strategy"),"license_spdx":row.get("license_spdx"),"dependencies":row.get("dependencies") or [],
+                     "conflicts":row.get("conflicts") or [],"production_authority":False,"automatic_external_spend_eur":0}
+                save(inbox/(str(row.get("train_id"))+".json"),req)
+            save(runtime/"update-center"/"queue.json",queue)
+        print(json.dumps(queue,indent=2,ensure_ascii=False))
+        print("CHACHA_DEV_AUTONOMOUS_IMPROVEMENT_HANDOFF=PASS")
+        print("CHACHA_DEV_AUTONOMOUS_IMPROVEMENT_PRODUCTION_AUTHORITY=NO")
         return
     inventory=json.loads((root/"dev-hub/config/technology-core-watch.v1.json").read_text(encoding="utf-8"))
     signals=json.loads(a.signals.read_text(encoding="utf-8")) if a.signals and a.signals.is_file() else {}
