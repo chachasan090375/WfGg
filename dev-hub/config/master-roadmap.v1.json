@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-04T16:15:00Z",
+  "updated_at": "2026-10-04T16:18:00Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -745,7 +745,7 @@
     "schema": "chacha.dev/master-roadmap-functional-execution-order/v2",
     "authority": "PRIMARY_CURRENT_EXECUTION_VIEW",
     "ordering_principle": "Hard functional dependency and core safety determine order. Solution Graph compilation precedes resource-aware scheduling. Historical train numbering/build order never determines current execution order. Reuse qualified shadow work; do not rebuild unchanged scope.",
-    "current_focus": "F01_PROMOTION_GATE_WITH_F02_F03_QUALIFIED_AND_F04_EXECUTION_PLANNER_SHADOW_RECONCILIATION",
+    "current_focus": "F01_PROMOTION_TRANSACTION_CONTINUITY_GATE_WITH_F02_F03_QUALIFIED_AND_F04_EXECUTION_PLANNER_SHADOW_RECONCILIATION",
     "phases": [
       {
         "phase": "F00",
@@ -835,7 +835,7 @@
         "phase": "F04",
         "id": "EXECUTION_PLANNER",
         "priority": "P0",
-        "state": "CURRENT_LINE_RECONCILED_PENDING_LOCAL_QUALIFICATION",
+        "state": "CURRENT_LINE_RECONCILED_LOCAL_AND_UMG_PASS_PENDING_EXACT_SHA_CI",
         "depends_on": [
           "F02",
           "F03"
@@ -851,7 +851,8 @@
           "interface contracts",
           "blocked/unresolved-node fail-closed planning"
         ],
-        "exit_gate": "Current-line local qualification + UMG + exact-SHA CI."
+        "exit_gate": "Current-line local qualification + UMG + exact-SHA CI.",
+        "umg_check": "PASS"
       },
       {
         "phase": "F05",
