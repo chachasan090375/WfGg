@@ -1,0 +1,56 @@
+{
+  "schema": "chacha.dev/consultant-access/v1",
+  "version": "1.0.0",
+  "mode": "PROJECT_SCOPED_EXTERNAL_BUILDER",
+  "purpose": "Allow an external consultant to use ChaCha DEV for isolated project creation without access to ChaCha DEV internals or platform mutation authority.",
+  "identity": {
+    "transport": "TAILSCALE_SERVE_IDENTITY",
+    "shared_credentials_forbidden": true,
+    "individual_identity_required": true,
+    "default_role": "CONSULTANT"
+  },
+  "network": {
+    "public_funnel_forbidden": true,
+    "share_single_vps_preferred": true,
+    "least_privilege_grant_required": true,
+    "direct_operator_port_only": 8443,
+    "ssh_forbidden": true,
+    "nas_forbidden": true,
+    "other_vps_services_forbidden": true
+  },
+  "project_scope": {
+    "namespace": "guest/{identity}/{project}",
+    "may_create_projects": true,
+    "may_build": true,
+    "may_modify_own_projects": true,
+    "may_read_own_jobs": true,
+    "may_read_own_conversation": true,
+    "cross_consultant_access": false
+  },
+  "platform_boundary": {
+    "platform_project_access": false,
+    "core_mutation": false,
+    "agent_mutation": false,
+    "foundry_mutation": false,
+    "guardian_sentinel_control": false,
+    "stop_control": false,
+    "platform_promotion": false,
+    "operator_directive_intake": false,
+    "improvement_signal_authority": false,
+    "platform_internal_q_and_a": false,
+    "allowed_platform_document": "LIVING_WHITEPAPER"
+  },
+  "information_boundary": {
+    "global_session_visible": false,
+    "global_progress_visible": false,
+    "update_center_visible": false,
+    "runtime_paths_visible": false,
+    "internal_receipts_visible": false,
+    "internal_evidence_refs_visible": false,
+    "technology_watch_context_visible": false,
+    "central_memory_context_visible": false,
+    "security_internals_visible": false
+  },
+  "production_authority": false,
+  "automatic_external_spend_eur": 0
+}

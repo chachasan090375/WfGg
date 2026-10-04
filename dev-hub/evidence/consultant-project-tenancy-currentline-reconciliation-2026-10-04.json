@@ -1,0 +1,30 @@
+{
+  "schema": "chacha.dev/current-line-reconciliation-evidence/v1",
+  "phase": "F10",
+  "status": "PASS",
+  "parent_revision": "7077dd43aef3e9d53385f8bcee7e086d3e3b724a",
+  "historical_source": "eb8614ef2484473a4627bbab1125b75d89a17196",
+  "boundary": {
+    "own_project_build": true,
+    "own_artifacts": true,
+    "own_jobs": true,
+    "platform_core_read": false,
+    "platform_core_mutation": false,
+    "internal_agents_read": false,
+    "platform_controls": false,
+    "operator_directive_intake": false,
+    "improvement_signal_authority": false,
+    "living_whitepaper_view": true,
+    "global_session_mutation": false
+  },
+  "tests": [
+    "consultant access PASS",
+    "Direct Operator V805 PASS",
+    "Artifact Fabric 9/9 PASS",
+    "Plugin Center PASS",
+    "Update Lifecycle PASS",
+    "operator directives PASS"
+  ],
+  "production_activation": false,
+  "automatic_external_spend_eur": 0
+}

@@ -1047,7 +1047,7 @@
         "phase": "F10",
         "id": "CONSULTANT_PROJECT_TENANCY",
         "priority": "P1",
-        "state": "EXACT_SHA_QUALIFIED_SHADOW_TO_RECONCILE",
+        "state": "CURRENT_LINE_RECONCILED_LOCAL_PASS_PENDING_EXACT_SHA_CI",
         "depends_on": [
           "F07"
         ],
@@ -1060,7 +1060,9 @@
           "consultant may build own apps",
           "core read/mutation forbidden",
           "private job/session scope"
-        ]
+        ],
+        "reconciled_parent": "7077dd43aef3e9d53385f8bcee7e086d3e3b724a",
+        "qualification": "Consultant role PASS: may converse and build only own guest projects; core/agents/infrastructure internal Q&A and mutation blocked server-side; own jobs/artifacts isolated; global session/progress/update/plugin/cockpit views hidden/forbidden; Living White Paper is platform view; Artifact Fabric 9/9, Plugin/Update lifecycle, Direct Operator V805 and directives regressions PASS."
       },
       {
         "phase": "F11",
