@@ -1,0 +1,33 @@
+{
+  "schema": "chacha.dev/update-lifecycle-consultant-access-shadow-pilot/v1",
+  "status": "PASS",
+  "generated_at": "2026-10-04T13:55:00Z",
+  "base_sha": "bee13c9fab8c3f07bc987c642cbcc602d8539474",
+  "base_tree": "43158f3bd7743270310a61adf42710886f0a7508",
+  "update_train_lifecycle": {
+    "targeted_tests": "PASS",
+    "umg_check": "PASS",
+    "physical_retirement_direct_authority": false,
+    "recipe_persists": true,
+    "rehydration_available": true
+  },
+  "consultant_access": {
+    "targeted_tests": "PASS",
+    "own_project_build_allowed": true,
+    "platform_project_access": false,
+    "core_agent_mutation": false,
+    "platform_internal_q_and_a": false,
+    "whitepaper_allowed": true,
+    "shared_credentials_forbidden": true
+  },
+  "regressions": {
+    "autonomous_improvement_factory": "5/5 PASS",
+    "direct_operator_v730": "PASS",
+    "direct_operator_v802": "PASS",
+    "direct_operator_v805": "PASS",
+    "operator_directives_compliance": "PASS"
+  },
+  "production_authority": false,
+  "automatic_external_spend_eur": 0,
+  "evidence_digest": "sha256:c3f9dc9a0c5cb6e0950ed7161b5d8bff2d24d710232646d8478e89658be5ceaf"
+}
