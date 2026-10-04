@@ -1,0 +1,75 @@
+{
+  "schema": "chacha.dev/plugin-center/v1",
+  "version": "1.0.0",
+  "mode": "SHADOW_RECIPE_FIRST_MODULAR_CAPABILITIES",
+  "classes": ["CORE_LOCKED", "PLATFORM_PLUGIN", "PROJECT_PLUGIN"],
+  "default_for_external_improvement": "PLATFORM_PLUGIN",
+  "core_locked": {
+    "never_pluginized": true,
+    "component_ids": [
+      "central-orchestrator", "guardian", "sentinel", "universal-materialization-gate",
+      "canonical-component-registry", "architecture-council", "emergency-stop",
+      "governed-platform-promotion", "intendant"
+    ],
+    "uninstall_forbidden": true,
+    "disable_forbidden": true,
+    "internal_query_boundary_preserved": true
+  },
+  "manifest": {
+    "schema": "chacha.dev/plugin-manifest/v1",
+    "required_fields": [
+      "plugin_id", "title", "plugin_class", "version", "source_revision", "source_tree",
+      "functional_summary", "platform_value", "capabilities", "permissions", "dependencies",
+      "conflicts", "persistent_data", "recipe_digest", "qualification_refs", "rollback_contract"
+    ],
+    "exact_source_required": true,
+    "license_and_provenance_required": true,
+    "sbom_required_when_external_code_is_reused": true,
+    "automatic_external_spend_eur": 0
+  },
+  "lifecycle": {
+    "states": ["DISCOVERED", "BUILDING_SHADOW", "QUALIFIED_RECIPE_ONLY", "INSTALL_REQUESTED", "ACTIVE", "DISABLE_REQUESTED", "DISABLED", "UNINSTALL_REQUESTED", "UNINSTALLED_RECIPE_ONLY", "REINSTALL_REQUESTED", "BLOCKED"],
+    "install_means_rebuild_verify_then_activate": true,
+    "disable_before_uninstall": true,
+    "health_check_after_disable_required": true,
+    "dependency_graph_check_required": true,
+    "uninstall_removes_runtime_artifact_not_recipe": true,
+    "persistent_data_preserved_by_default": true,
+    "persistent_data_delete_requires_separate_destructive_gate": true,
+    "git_history_preserved": true,
+    "recipe_preserved": true,
+    "reinstall_from_recipe_supported": true,
+    "production_mutation_requires_existing_governed_promotion": true
+  },
+  "factory": {
+    "external_improvement_default_delivery": "PLUGIN_PACKAGE",
+    "core_train_requires_architecture_council_justification": true,
+    "novelty_alone_never_justifies_plugin": true,
+    "global_platform_value_required": true,
+    "reuse_before_rebuild_preserved": true
+  },
+  "cockpit": {
+    "icon": "🧩",
+    "label": "Plugins",
+    "show_active": true,
+    "show_disabled": true,
+    "show_available_recipe_only": true,
+    "actions": ["Installer / reconstruire", "Désactiver", "Désinstaller", "Réinstaller"],
+    "core_locked_visible_but_actions_hidden": true
+  },
+  "authority": {
+    "plugin_center_direct_execution_authority": false,
+    "plugin_center_direct_production_authority": false,
+    "plugin_center_direct_destructive_authority": false,
+    "guardian_required": true,
+    "sentinel_required": true,
+    "human_gate_for_production_activation": true,
+    "intendant_required_for_physical_retirement": true
+  },
+  "runtime": {
+    "registry": "/opt/chacha-dev/runtime/plugin-center/registry.json",
+    "manifests": "/opt/chacha-dev/runtime/plugin-center/manifests",
+    "recipes": "/opt/chacha-dev/runtime/update-center/recipes"
+  },
+  "automatic_external_spend_eur": 0
+}

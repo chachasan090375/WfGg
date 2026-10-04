@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-04T14:20:00Z",
+  "updated_at": "2026-10-04T14:55:23Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -532,6 +532,23 @@
       ],
       "blocking_for_full_creation_runtime": false,
       "evidence": "Consultant access tests PASS plus Direct Operator V7.30/V8.02/V8.05 regressions PASS; global session/progress/update center/internal receipts are not exposed."
+    },
+    {
+      "id": "plugin-center-modular-capabilities",
+      "priority": "P1",
+      "state": "SHADOW_IMPLEMENTED_LOCAL_UMG_PASS_PENDING_EXACT_SHA_CI",
+      "includes": [
+        "recipe-first platform plugins",
+        "plugin manifest + dependency graph",
+        "disable-before-uninstall",
+        "runtime artifact removal with recipe/Git preservation",
+        "reinstall from exact recipe",
+        "cockpit Plugin Center",
+        "CORE_LOCKED non-removable boundary"
+      ],
+      "authority": "NO_DIRECT_PRODUCTION_OR_DESTRUCTIVE_AUTHORITY",
+      "automatic_external_spend_eur": 0,
+      "evidence": "plugin lifecycle PASS; CORE_LOCKED PASS; recipe preservation PASS; autonomous improvement default PLUGIN_PACKAGE PASS; Direct Operator regressions PASS; UMG CHECK-ONLY PASS core:plugin-center"
     }
   ],
   "production_convergence_order": [

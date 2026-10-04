@@ -1,0 +1,23 @@
+{
+  "schema": "chacha.dev/plugin-center-shadow-pilot/v1",
+  "status": "PASS",
+  "observed_at": "2026-10-04T14:55:23Z",
+  "component_id": "core:plugin-center",
+  "umg_check": "PASS",
+  "factory_default_delivery": "PLUGIN_PACKAGE",
+  "core_locked_disable": "BLOCKED_AS_REQUIRED",
+  "uninstall_contract": {
+    "disable_first": true,
+    "health_check_required": true,
+    "dependency_check_required": true,
+    "runtime_artifact_removal_only": true,
+    "recipe_preserved": true,
+    "git_preserved": true,
+    "persistent_data_preserved": true,
+    "persistent_data_delete_separate_destructive_gate": true
+  },
+  "cockpit_surface": "🧩 Plugins",
+  "production_authority": false,
+  "destructive_authority": false,
+  "automatic_external_spend_eur": 0
+}
