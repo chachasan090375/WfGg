@@ -1,0 +1,717 @@
+{
+  "schema": "chacha.dev/master-roadmap/v1",
+  "version": "1.0.0",
+  "scope": "CHACHA_DEV_PLATFORM_CORE",
+  "updated_at": "2026-10-04T08:24:00Z",
+  "authority": {
+    "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
+    "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
+    "project_roadmaps_role": "CONSUMER_PROJECTS_AND_VALIDATION_TRACKS",
+    "history_must_not_be_discarded_without_supersession_evidence": true
+  },
+  "baseline": {
+    "production_sha": "c514e1fe3a2b5976a729c7cebc4cfdff726a2369",
+    "production_tree": "17493215a7b019a7486b06b39931ded13e996f72",
+    "mandatory_rule": "Every future production candidate must remain descendant of Guardian Safety V4 Sovereign production c514e1fe3a2b5976a729c7cebc4cfdff726a2369, preserve LOCAL_SQLITE authority routing, Sovereign rollback floor and all materially newer production fixes before qualification.",
+    "historical_unreconciled_candidate_sha": "f3a7e86b1fe9e6c5b1cfa7699ae9103ddde1ed95",
+    "historical_unreconciled_candidate_is_descendant_of_current_production": false,
+    "production_ancestry_reconciled": true,
+    "baseline_reconciliation_merge_sha": "af82b3b4",
+    "structural_convergence_merge_sha": "c881cbe14e39ef1f55312350b1dfc5c223e1a57e",
+    "converged_candidate_branch": "master-roadmap-production-derived-v1"
+  },
+  "classification_values": [
+    "RETAIN",
+    "RETAIN_EXTEND",
+    "MIGRATE",
+    "SUPERSEDED_SEMANTICS_RETAINED",
+    "CONVERGE_BRANCH",
+    "PARALLEL_TRACK",
+    "VALIDATION_PROJECT_ONLY"
+  ],
+  "legacy_audit": [
+    {
+      "id": "v4.1-blueprint",
+      "source": "dev-hub/ARCHITECTURE_BLUEPRINT_V4_1.md@58adfa7c",
+      "classification": "SUPERSEDED_SEMANTICS_RETAINED",
+      "decision": "Do not restore the obsolete document as authority. Its product/frontend/backend/data/security/testing/build/release/operations/performance/docs/DX/storage checklist is subsumed and expanded by V5."
+    },
+    {
+      "id": "v5-reference-architecture",
+      "source": "dev-hub/docs/REFERENCE_ARCHITECTURE_V5.md",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Remain the architecture foundation: vendor-neutral capabilities, Manifest V3, 18 quality domains, evidence gates, storage tiers, golden paths and project/component model. Extend with multimodal artifacts, feasibility, recursive specialization, OS lab and resource-aware parallelism."
+    },
+    {
+      "id": "manifest-v3",
+      "source": "dev-hub/schemas/project-manifest-v3.schema.json",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as durable project contract; extend or companion-bind it to recursive Solution Graph nodes, artifact references, resource budgets and target-platform validation matrix."
+    },
+    {
+      "id": "capability-registry-provider-abstraction",
+      "source": "dev-hub/config/capability-registry.v1.json",
+      "classification": "RETAIN",
+      "decision": "Still canonical. Requirements request capabilities, not vendor names; provider selection remains replaceable, evidence-based and zero-cost-first."
+    },
+    {
+      "id": "golden-paths",
+      "source": "dev-hub/config/golden-paths.v1.json",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as reusable architecture-pattern library, not as the top-level classifier. Solution Composer may use/combine them after deliverable/archetype classification."
+    },
+    {
+      "id": "project-planner-v1",
+      "source": "dev-hub/docs/PROJECT_PLANNER_V1.md",
+      "classification": "MIGRATE",
+      "decision": "Evolve into Solution Composer. Preserve intent normalization, risk/unresolved-decision handling, Manifest generation and reuse-before-build. Add infrastructure feasibility pre-gate, recursive module decomposition and explicit dependency/interface graph."
+    },
+    {
+      "id": "technical-design-router-v1",
+      "source": "dev-hub/docs/TECHNICAL_DESIGN_ROUTING_V1.md",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as downstream technical-design boundary. It must consume Solution Graph nodes and route domain specialists after composition, rather than acting as the first decomposition layer."
+    },
+    {
+      "id": "lifecycle-evidence-v1",
+      "source": "dev-hub/docs/LIFECYCLE_ORCHESTRATION_V1.md",
+      "classification": "MIGRATE",
+      "decision": "Keep evidence-driven IDEA/DESIGN/READY/BUILD/VERIFY/PREVIEW/RELEASE/OPERATE/RETIRE semantics and human release boundaries. Replace global single-writer rule with isolated concurrent mutation lanes, scoped locks/contracts and merge barriers."
+    },
+    {
+      "id": "domain-orchestration-v6",
+      "source": "dev-hub/docs/DOMAIN_ORCHESTRATION_V6.md",
+      "classification": "MIGRATE",
+      "decision": "Keep domains, runtime provider resolution, Technology Watch and cross-domain review. Retire the invariant that Agent Foundry precedes every domain execution; Foundry becomes gap materializer after Solution Composer classification/reuse resolution. Old regression suite shows routing/Guardian contract drift and must be migrated."
+    },
+    {
+      "id": "foundry-family-v6x",
+      "source": "dev-hub/bin/agent-foundry-planner.py;dev-hub/bin/branch-foundry-planner.py;dev-hub/bin/capability-foundry.py",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep Agent/Branch/Capability Foundries. All new Heads, Arms, archetypes, adapters and runtime components inherit UMG/CCR/birth/lifecycle/evidence contracts."
+    },
+    {
+      "id": "architecture-governance",
+      "source": "dev-hub/config/architecture-decision-council.v1.json; Guardian; Sentinel; Logicien",
+      "classification": "RETAIN",
+      "decision": "Keep recommendation/falsification/verification separation. Architecture Council is advisory/recommendation authority, not production authority; Guardian/Sentinel gates remain mandatory."
+    },
+    {
+      "id": "object-factory-v770",
+      "source": "dev-hub/config/object-factory.v1.json",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as a specialized sub-factory for application-domain objects under Solution Composer nodes; reuse-before-build remains mandatory. Current focused test PASS."
+    },
+    {
+      "id": "human-conversation-v810",
+      "source": "dev-hub/docs/HUMAN_CONVERSATION_ARCHITECTURE_V810.md",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep lightweight human conversation channel, private timeline/profile and no technical authority. Extend with Artifact Fabric attachments, output artifacts, durable project bindings and future voice/TTS/barge-in where appropriate. Current focused test PASS."
+    },
+    {
+      "id": "domain-factory-atomic-capabilities-v818-v828",
+      "source": "dev-hub/bin/domain-factory-runner.py; capability atomic execution/runtime continuation",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as implementation substrate for specialist Arms and bounded capability execution. One older V8.22 test has expected-string drift in zero-cost attestation and needs regression-contract update, not removal of the feature."
+    },
+    {
+      "id": "universal-materialization-and-ccr",
+      "source": "dev-hub/bin/universal-materialization-gate.py;dev-hub/config/canonical-component-registry.v1.json",
+      "classification": "RETAIN",
+      "decision": "Remain mandatory birth and inventory authority for all evolvable components."
+    },
+    {
+      "id": "canonical-path-standalone",
+      "source": "origin/project-canonical-path-resolution-multi-agent@56321069",
+      "classification": "SUPERSEDED_SEMANTICS_RETAINED",
+      "decision": "Do not converge as an independent line. Its project is carried forward and enhanced in structural-architecture-gates-20261002."
+    },
+    {
+      "id": "structural-architecture-gates",
+      "source": "origin/structural-architecture-gates-20261002@e0de6300",
+      "classification": "CONVERGE_BRANCH",
+      "decision": "Still fully aligned and required: canonical route resolution, anti-parallel-route protection, durable mission owner resolution, Logicien falsification, runtime reconciliation and persistent mission bridges. Must be converged onto current production-derived baseline before creation runtime activation."
+    },
+    {
+      "id": "remote-operator-mcp",
+      "source": "origin/remote-operator-chatgpt-pilot-converged-v1@41b1864a",
+      "classification": "PARALLEL_TRACK",
+      "decision": "Still current. Own Remote MCP remains preferred future zero-incremental-cost remote route when policy/capabilities/Guardian/Sentinel/STOP/runtime health permit. It is not a prerequisite for Solution Composer but must be represented in the master roadmap and later converged onto current production."
+    },
+    {
+      "id": "android-direct-operator-live-interface",
+      "source": "V7.2-V8.x Direct Operator/Android widget/live sync lineage",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as operator surface. Creation runtime must expose project/artifact/progress state through the same authoritative interface rather than create a second UI authority."
+    },
+    {
+      "id": "autonomy-gap-roadmap",
+      "source": "dev-hub/config/autonomy-gap-roadmap.v1.json",
+      "classification": "RETAIN",
+      "decision": "Keep, but only as an autonomy-specific derived view. It must never again substitute for the complete product roadmap."
+    },
+    {
+      "id": "native-local-provider-independence",
+      "source": "local cognitive runtime/adaptive cognitive routing lineage",
+      "classification": "PARALLEL_TRACK",
+      "decision": "Keep zero-cost/advisory provider-independence track. It is not a blocker for the creation architecture; no activation until resource/maturity gates pass."
+    },
+    {
+      "id": "resilience-ha",
+      "source": "HA standby/readiness lineage",
+      "classification": "PARALLEL_TRACK",
+      "decision": "Keep as cross-cutting infrastructure workstream; rollback/STOP exist, full HA remains incomplete and should not be hidden by creation-roadmap progress."
+    },
+    {
+      "id": "cognitive-memory-fabric",
+      "source": "origin/cognitive-memory-runtime-integration-v1@4968c020",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as one canonical memory fabric for central and specialist Heads. Qualified shadow candidate remains non-production; no competing memory fabric."
+    },
+    {
+      "id": "specialization-fabric-2d",
+      "source": "origin/specialization-fabric-2d-v1@673a5a9f",
+      "classification": "MIGRATE",
+      "decision": "Keep Head+Arm and application-archetype composition concepts, but generalize from two axes to recursive hierarchy/graph: deliverable -> archetype -> module/submodule -> domain -> capability, with reclassification at every complex node."
+    },
+    {
+      "id": "creation-runtime-fabric",
+      "source": "dev-hub/config/creation-runtime-fabric.v1.json;dev-hub/docs/CHACHA_DEV_CREATION_RUNTIME_REQUIREMENTS_V1.md",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Current target contract: infrastructure feasibility, Solution Composer, recursive specialization, Artifact Fabric, resource-aware parallel orchestration and Virtual Device & OS Lab."
+    },
+    {
+      "id": "wfgg-radar-and-other-product-projects",
+      "source": "dev-hub/projects/*",
+      "classification": "VALIDATION_PROJECT_ONLY",
+      "decision": "Keep as consumer projects/pilots. Their feature backlog does not define ChaCha DEV core roadmap, but their evidence may prove core capabilities."
+    },
+    {
+      "id": "technology-watch-truth-scoring",
+      "source": "Technology Watch / V6.45+ lineage",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as cross-cutting discovery/revalidation plane for domains, archetypes, providers and OS/toolchain choices; novelty alone never authorizes adoption."
+    },
+    {
+      "id": "translation-localization-specialist",
+      "source": "V8.13 professional localization lineage",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep as a technical specialist domain/cell under recursive specialization, reusable by applications, documents, media and operator surfaces."
+    },
+    {
+      "id": "dark-intelligence-isolated-research",
+      "source": "V8.01 isolated Dark Intelligence lineage",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep only as isolated governed research capability with scored/reverified sources; it is not a general execution authority and is not a blocker for creation runtime."
+    },
+    {
+      "id": "embedded-assurance-agents",
+      "source": "V6.32-V6.36 project embedded assurance lineage",
+      "classification": "RETAIN_EXTEND",
+      "decision": "Keep lightweight Guardian/Sentinel/Bastion/Visual/Translation-style probes where useful, but bind them to project/module nodes and central authority rather than duplicate central agents."
+    }
+  ],
+  "workstreams": [
+    {
+      "id": "sovereign-state-fabric",
+      "priority": "P0",
+      "state": "LOCAL_PRIMARY_ACTIVE_PHASE_B_PASS",
+      "includes": [
+        "D1-compatible local SQLite binding",
+        "same Guardian worker source",
+        "local loopback Guardian runtime",
+        "D1 import",
+        "critical-table parity",
+        "dual-verdict parity",
+        "NAS create-only snapshot/readback",
+        "local-primary cutover gate",
+        "optional D1 mirror"
+      ],
+      "blocking_for_governed_production_progress": false,
+      "evidence": "Phase A production 0dd17183 exact; Phase B PASS. D1 writers quiesced, Guardian Cloud cron schedule_count=0, authoritative Export 9/10 digests identical for all four databases, fresh local import/parity PASS, four loopback services healthy, functional local writes PASS for Guardian/Sentinel/Assurance/Learning Relay, post-write NAS create-only snapshots/readback integrity PASS, STOP reset, 13 VPS timers restored. D1 retained but stale fallback; no automatic D1 rollback after local writes. Final receipt sha256:118c58189eea945a4562243d816cc2c35c688c27b0d2263cc2cbd6fdd9a160c6."
+    },
+    {
+      "id": "governance-control-plane",
+      "priority": "P0",
+      "state": "SOVEREIGN_DESCENDANT_STRUCTURAL_CANDIDATE_LOCAL_PASS_PENDING_EXACT_SHA_CI",
+      "includes": [
+        "Guardian",
+        "Sentinel",
+        "STOP",
+        "CCR",
+        "UMG",
+        "Architecture Council",
+        "Logicien",
+        "canonical routes",
+        "anti-loop",
+        "persistent missions"
+      ],
+      "blocking_for_full_creation_runtime": true
+    },
+    {
+      "id": "project-model-lifecycle",
+      "priority": "P0",
+      "state": "ACTIVE_NEEDS_PARALLELISM_MIGRATION",
+      "includes": [
+        "V5 18 architecture domains",
+        "Manifest V3",
+        "Lifecycle",
+        "Evidence Ledger",
+        "Golden Paths",
+        "Object Factory"
+      ],
+      "blocking_for_full_creation_runtime": true
+    },
+    {
+      "id": "solution-conception",
+      "priority": "P0",
+      "state": "E2E_SHADOW_PROVEN",
+      "includes": [
+        "Infrastructure Feasibility Auditor",
+        "Solution Composer",
+        "recursive classification",
+        "Solution Graph",
+        "interface/data ownership",
+        "constraint inheritance"
+      ],
+      "blocking_for_full_creation_runtime": true
+    },
+    {
+      "id": "specialist-intelligence",
+      "priority": "P0",
+      "state": "RECURSIVE_PLUS_SPECIALIST_RESOLUTION_SHADOW_IMPLEMENTED",
+      "includes": [
+        "Cognitive Memory Fabric",
+        "Head+Arm domains",
+        "archetype heads",
+        "recursive specialization",
+        "Technology Watch",
+        "Logicien cross-domain reasoning"
+      ],
+      "blocking_for_full_creation_runtime": true
+    },
+    {
+      "id": "artifact-fabric",
+      "priority": "P0",
+      "state": "SHADOW_IMPLEMENTED_LOCAL_QUALIFICATION_PASS",
+      "includes": [
+        "chat/API upload",
+        "chat/API output",
+        "artifact registry",
+        "versioning",
+        "sha256",
+        "provenance",
+        "sandbox",
+        "persistent project binding",
+        "large-file streaming/derived representations"
+      ],
+      "blocking_for_full_creation_runtime": true
+    },
+    {
+      "id": "parallel-execution",
+      "priority": "P0",
+      "state": "E2E_SHADOW_PROVEN",
+      "includes": [
+        "Execution Planner",
+        "task DAG",
+        "critical path",
+        "adaptive concurrency",
+        "resource budgets",
+        "work stealing",
+        "backpressure",
+        "integration barriers"
+      ],
+      "blocking_for_full_creation_runtime": true
+    },
+    {
+      "id": "virtual-os-device-lab",
+      "priority": "P1",
+      "state": "SHADOW_PLANNER_IMPLEMENTED_REAL_QNAP_INVENTORY_PASS",
+      "includes": [
+        "QNAP VM/image/snapshot roles",
+        "VPS Linux runners",
+        "Windows/Linux/Unix matrix",
+        "Android routing",
+        "Apple-native runner contract",
+        "physical device pool"
+      ],
+      "blocking_for_full_creation_runtime": true
+    },
+    {
+      "id": "conversation-operator-surface",
+      "priority": "P1",
+      "state": "ACTIVE_PARTIAL",
+      "includes": [
+        "Direct Operator",
+        "conversation timeline",
+        "dual channel",
+        "Android widget",
+        "live sync",
+        "progress",
+        "future voice",
+        "artifact UI"
+      ],
+      "blocking_for_full_creation_runtime": false
+    },
+    {
+      "id": "remote-mcp",
+      "priority": "P1",
+      "state": "SOURCE_CONVERGED_DISABLED_RUNTIME_UNMATERIALIZED",
+      "includes": [
+        "own Remote MCP",
+        "governed named operations",
+        "M2M ingress",
+        "future preferred zero-cost remote route"
+      ],
+      "blocking_for_full_creation_runtime": false
+    },
+    {
+      "id": "provider-independence-native-local",
+      "priority": "P2",
+      "state": "SOURCE_CONVERGED_RESOURCE_ADMISSION_PASS_RUNTIME_UNMATERIALIZED",
+      "includes": [
+        "adaptive cognitive routing",
+        "native local model",
+        "provider confidence/economics"
+      ],
+      "blocking_for_full_creation_runtime": false,
+      "evidence": "Native Local final source subset from historical Trains 04/05 is converged exactly to f58d terminal paths. Current VPS resource admission PASS, but service/current/model are absent and production_activation_authorized=false; advisory-only."
+    },
+    {
+      "id": "resilience-ha",
+      "priority": "P1",
+      "state": "PROFILE_CONVERGED_CURRENT_PRODUCTION_READINESS_STALE_BLOCKED",
+      "includes": [
+        "rollback",
+        "STOP",
+        "backup/restore",
+        "standby",
+        "HA",
+        "disaster recovery"
+      ],
+      "blocking_for_full_creation_runtime": false,
+      "evidence": "HA profile/builder/rehearsal match f58d terminal paths. Existing runtime readiness is PASS only for 3d403f60; rehearsal against current production d84d389b blocks on PLATFORM_REVISION_MISMATCH with no writer switch or failover."
+    },
+    {
+      "id": "autonomy",
+      "priority": "P1",
+      "state": "ACTIVE_PARTIAL",
+      "includes": [
+        "self-model",
+        "autonomy loop",
+        "roadmap gap view",
+        "incident remediation",
+        "self-evolution",
+        "persistent missions"
+      ],
+      "blocking_for_full_creation_runtime": false
+    }
+  ],
+  "production_convergence_order": [
+    {
+      "order": 0,
+      "id": "BASELINE_RECONCILIATION",
+      "action": "Preserve current Sovereign Guardian Safety V4 production c514e1fe... as the baseline for every future candidate; no candidate may regress LOCAL_SQLITE authority, Sovereign rollback floor or promotion-safety fixes.",
+      "state": "PRODUCTION_BASELINE_GUARDIAN_SAFETY_V4_SOVEREIGN_ACTIVE",
+      "evidence": "Guardian Safety V4 promotion FINALIZED/PASS on c514e1fe3a2b5976a729c7cebc4cfdff726a2369; rollback 0dd17183..., LOCAL_SQLITE 4/4 healthy, Guardian/Sentinel POST PASS, controlled 864→865 and timer 865→866."
+    },
+    {
+      "order": 1,
+      "id": "STRUCTURAL_GOVERNANCE_CONVERGENCE",
+      "action": "Converge structural-architecture-gates e0de6300 (including enhanced Canonical Path and persistent mission wiring) onto the production-derived line; qualify and promote as a small reversible train.",
+      "state": "SOVEREIGN_DESCENDANT_SHADOW_REBUILT_LOCAL_PASS_PENDING_EXACT_SHA_CI",
+      "evidence": "Structural/Canonical Path delta rebuilt as direct descendant of c514e1fe. Canonical Path 27/27 PASS, persistent missions and structural gate PASS, Sovereign V4 safeguards retained. Historical Council-final-authority drift corrected: Council recommendation/admissibility only; Central Orchestrator final decider; Logicien falsification only. Exact-SHA CI pending."
+    },
+    {
+      "order": 2,
+      "id": "COGNITIVE_MEMORY",
+      "action": "Reconcile qualified CMF 4968c020 onto the new production-derived line; reuse unchanged evidence, rerun only changed-scope qualification, then promote if separately approved.",
+      "state": "PENDING"
+    },
+    {
+      "order": 3,
+      "id": "RECURSIVE_SPECIALIZATION_FOUNDATION",
+      "action": "Migrate 673a5a9f from 2D to recursive specialization and converge onto production-derived CMF baseline; qualify before runtime routing.",
+      "state": "SHADOW_FOUNDATION_IMPLEMENTED_PENDING_EXACT_SHA_CI",
+      "evidence": "Recursive Specialization Fabric V2 implemented over preserved 2D Head+Arm/archetype foundation: deliverable taxonomy, recursive project→deliverable→module→submodule→domain→capability classification, ownership tree + dependency DAG, shared-component reuse, inherited constraints, uncertainty shadow route, recursion/cycle guards, UMG birth-contract check and mixed-project shadow pilot."
+    },
+    {
+      "order": 4,
+      "id": "FEASIBILITY_AND_SOLUTION_COMPOSER",
+      "action": "Build Infrastructure Feasibility Auditor + Solution Composer + Solution Graph first, because downstream work depends on their contracts.",
+      "state": "SHADOW_IMPLEMENTED_PENDING_EXACT_SHA_CI",
+      "evidence": "Infrastructure Feasibility Auditor + Solution Composer implemented. UMG birth checks PASS. Deterministic tests cover FIT/FIT_WITH_CONSTRAINTS/NOT_FIT, safety reserves, target architecture sizing, runtime aliases, mandatory feasibility evidence and heterogeneous module composition. Real VPS pilot correctly returns NOT_FIT for a 4 CPU / 8 GiB reference workload and Solution Composer designs against proposed target while execution remains blocked."
+    },
+    {
+      "order": 5,
+      "id": "ARTIFACT_AND_SPECIALIST_BINDING_PARALLEL_BUILD",
+      "action": "Develop Artifact Fabric and Specialist Cell/Foundry binding in parallel on isolated worktrees; serialize production promotion after each exact-SHA qualification.",
+      "state": "SHADOW_IMPLEMENTED_LOCAL_QUALIFICATION_PASS_D1_EXTERNAL_ATTESTATION_DEFERRED",
+      "evidence": "Artifact Fabric and Specialist Cell Resolver implemented on one cumulative production-derived line. Artifact API/chat upload+download, SHA256 content addressing, operator/project binding, generated output publishing and non-execution default pass 9/9 tests plus isolated readback/access-control pilot. Specialist resolver passes 9/9 tests; mixed solution pilot resolves 17 canonical cells, reuses 64 registered capabilities, identifies 5 planning-only capability Foundry gaps and invokes no Foundry. Direct Operator regressions pass. External exact-SHA CI intentionally deferred while D1 quota circuit is known open."
+    },
+    {
+      "order": 6,
+      "id": "RESOURCE_AWARE_EXECUTION",
+      "action": "Activate executable DAG/adaptive parallelism only after stable solution/interface contracts and specialist resolution exist.",
+      "state": "EXECUTION_DAG_PLUS_RESOURCE_PLANNER_SHADOW_IMPLEMENTED_LOCAL_PASS",
+      "evidence": "Resource-Aware Parallel Orchestrator implemented as planning-only component. 11/11 deterministic tests cover dependency waves, integration barriers, resource serialization, unstable interface contracts, critical-path priority, multi-host placement, live pressure, oversized tasks and DAG cycles. Real VPS pilot using audited safe capacity plans API + backend + documentation concurrently (3 tasks), then integration and verification barriers. UMG PASS; no execution/production authority or spend. Execution Planner now compiles Solution Graph + specialist resolution into atomic task DAGs: interface-contract tasks precede implementations, hard dependencies persist, one runtime capability per task, and integration/verification barriers are mandatory. 10/10 tests PASS; mixed real shadow project correctly blocks on unresolved Foundry gaps and NOT_FIT infrastructure."
+    },
+    {
+      "order": 7,
+      "id": "VIRTUAL_OS_DEVICE_LAB",
+      "action": "Converge QNAP/VPS/target-platform validation runners; can be developed in parallel with step 6 but production binding must respect feasibility/resource gates.",
+      "state": "SHADOW_PLANNER_IMPLEMENTED_REAL_QNAP_INVENTORY_PASS",
+      "evidence": "Virtual OS & Device Lab planner implemented with immutable/checksummed image policy and real read-only host inventory. ChaChaNas audit proves QNAP Virtualization Station/QKVM 4.1.0.338 enabled, VT-x/KVM/libvirtd active, 4 CPU threads, 7.663 GiB RAM, 4.522 GiB available at observation and zero defined VMs. Pilot routes Linux/Web to VPS; Windows/FreeBSD to QNAP host pending verified images; iOS/macOS/Android accelerated/hardware-specific validation fail closed on missing native/device runners. No VM created, no automatic provisioning or spend."
+    },
+    {
+      "order": 8,
+      "id": "END_TO_END_CREATION_RUNTIME",
+      "action": "Bind request/files -> feasibility -> composition -> recursive specialist execution -> target validation -> Guardian/Sentinel -> downloadable artifacts; validate with heterogeneous pilot projects.",
+      "state": "E2E_SHADOW_PLAN_READY_LOCAL_PASS",
+      "evidence": "End-to-end shadow harness binds artifact refs -> infrastructure feasibility -> Solution Composer -> recursive specialization -> specialist cell resolution -> atomic Execution Planner -> resource-aware parallel planner -> OS/device lab. FIT API+backend pilot: 1 attached artifact, feasibility FIT, 3 recursive nodes, 9 specialist cells, 0 Foundry gaps, 5 atomic tasks, API+backend parallel after contract stabilization, Linux/Web targets ready, no blockers. Negative mixed pilot fails closed on NOT_FIT infrastructure + 5 Foundry gaps. 5/5 E2E tests PASS; no task execution, VM creation, Foundry invocation, production mutation or spend."
+    },
+    {
+      "order": 9,
+      "id": "REMOTE_MCP_AND_OPERATOR_SURFACE_CONVERGENCE",
+      "action": "Converge remote MCP and enhanced chat/artifact/cockpit surfaces without making them prerequisites for core creation correctness.",
+      "state": "SOURCE_CONVERGED_DISABLED_RUNTIME_UNMATERIALIZED",
+      "evidence": "Historically qualified Remote Operator source and six M2M ingress commits converged unchanged onto current production-derived line. Source union exactly matches historical terminal 41b1864a; stdlib current-line HMAC/anti-replay/route/STOP governance tests 6/6 PASS; current UMG birth wrapper PASS check-only. Direct Operator artifact/chat surface is already implemented in current line. Machine ingress remains enabled=false; no runtime secret, MCP runtime, secure tunnel, ChatGPT registration or production activation; public ingress forbidden and spend=0."
+    },
+    {
+      "order": 10,
+      "id": "HA_AND_NATIVE_LOCAL_DEEPENING",
+      "action": "Continue HA and provider-independence tracks independently; neither may block safe core creation unless a target project explicitly requires them.",
+      "state": "CURRENT_LINE_CONVERGED_NON_MUTATING_LIMIT_REACHED",
+      "evidence": "Native Local source/policies converged from historical Trains 04/05; current VPS resource admission PASS but runtime/model/service remain unmaterialized and activation forbidden. HA source/profile already matched f58d; current readiness remains bound to 3d403f60 and rehearsal against d84d389b BLOCKS only on revision mismatch. No model start, checkpoint creation, writer switch, failover or spend performed."
+    }
+  ],
+  "obsolete_or_replaced_rules": [
+    {
+      "rule": "Agent Foundry precedes every domain execution",
+      "replacement": "Solution Composer/recursive classification -> reuse/capability resolution -> Foundry only for gaps or topology materialization"
+    },
+    {
+      "rule": "Only one write-capable specialist may mutate a project at a time",
+      "replacement": "Multiple isolated mutation lanes are allowed when dependency, file-scope and interface contracts prove independence; integration remains barriered and governed"
+    },
+    {
+      "rule": "Autonomy gap roadmap is the product roadmap",
+      "replacement": "Autonomy gap roadmap is a derived view of the master roadmap"
+    },
+    {
+      "rule": "Application archetype is the highest specialization class",
+      "replacement": "Deliverable classification sits above archetype and recursion applies at module/submodule level"
+    },
+    {
+      "rule": "D1 is a mandatory authoritative backend for Guardian availability",
+      "replacement": "Canonical State Adapter / Sovereign State Fabric: local SQLite primary candidate + NAS recovery; D1 becomes optional mirror after governed parity and human cutover."
+    }
+  ],
+  "historical_release_convoys": [
+    {
+      "id": "historical-roadmap-trains-06-12",
+      "scope": "PREPARED_NOT_INDIVIDUALLY_PROMOTED",
+      "historical_base": "3197446894758202d9f879f881fda4f8a61f980f",
+      "historical_status_before_convergence": "PREPARATION_REBASE_REQUIRED",
+      "individual_promotion_receipts": false,
+      "current_resolution": "REABSORBED_IN_CURRENT_PRODUCTION_DERIVED_LINE",
+      "converged_baseline_sha": "f58d76f034b7e5ec423e312d78f8ca92b8d92111",
+      "convoy_closure_sha": "d0e3283efc677ef359006ea6632f125820597730",
+      "converged_baseline_promoted": false,
+      "production_remains_independent_until_governed_promotion": true,
+      "trains": [
+        {
+          "train": 6,
+          "state": "ABSORBED_EXACTLY",
+          "purpose": "governed cognitive outcome learning, model capability confidence, persistent mission goal monitoring, evidence-backed roadmap score reconciliation",
+          "absorbed_commits": [
+            "3e48c9e4",
+            "372aac0c",
+            "91727b7a",
+            "adc63285"
+          ],
+          "current_line_state": "REABSORBED_CURRENT_PRODUCTION_DERIVED_LINE"
+        },
+        {
+          "train": 7,
+          "state": "ABSORBED_EXACTLY",
+          "purpose": "live platform maturity reconciliation, stale/error progress recovery, persistent mission scheduling bridge lineage, roadmap release-train planning",
+          "absorbed_commits": [
+            "f1a14ae2",
+            "07a3dce0",
+            "c9cbb02c"
+          ],
+          "note": "The earlier standalone scheduler-bridge candidate was later carried by richer persistent-mission/structural convergence rather than promoted as an isolated train.",
+          "current_line_state": "REABSORBED_CURRENT_PRODUCTION_DERIVED_LINE"
+        },
+        {
+          "train": 8,
+          "state": "ABSORBED_EXACTLY",
+          "purpose": "safe incident remediation routing, Foundry shadow graduation, constitution drift watch, non-mutating HA standby rehearsal",
+          "absorbed_commits": [
+            "5bcf603e",
+            "64be8e84",
+            "71ba2ec1",
+            "f59e553f"
+          ],
+          "current_line_state": "REABSORBED_CURRENT_PRODUCTION_DERIVED_LINE"
+        },
+        {
+          "train": 9,
+          "state": "ABSORBED_EXACTLY",
+          "purpose": "durable autonomy evidence publishing, roadmap live evidence stages, platform maturity live source/scorecard",
+          "absorbed_commits": [
+            "5aae3b55",
+            "a30efe6b",
+            "7e81efb5"
+          ],
+          "current_line_state": "REABSORBED_CURRENT_PRODUCTION_DERIVED_LINE"
+        },
+        {
+          "train": 10,
+          "state": "ABSORBED_EXACTLY_OR_SUPERSEDED_BY_RICHER_PROOF",
+          "purpose": "closure pilots for safe remediation, Foundry graduation, persistent mission E2E and real roadmap-train planning",
+          "absorbed_commits": [
+            "6a8b23c7",
+            "f282e014",
+            "4c5fbd03"
+          ],
+          "note": "Persistent-mission E2E proof was later superseded by the richer A→B→C→COMPLETE continuation/structural proof; capability retained.",
+          "current_line_state": "REABSORBED_CURRENT_PRODUCTION_DERIVED_LINE"
+        },
+        {
+          "train": 11,
+          "state": "ABSORBED_AND_SUPERSEDED_BY_RICHER_CLOSURE",
+          "purpose": "learning closure, self-evolution closure, constitution closure and terminal evidence bundle",
+          "absorbed_commits": [
+            "f760da61",
+            "b60fc8f3",
+            "cec7009e",
+            "9b5dd7e3"
+          ],
+          "historical_blocker": "Learning PASS_WITH_ADVISORY / terminal bundle HOLD pending missing learning_context lineage; later closed by Train 12.",
+          "current_line_state": "REABSORBED_CURRENT_PRODUCTION_DERIVED_LINE"
+        },
+        {
+          "train": 12,
+          "state": "ABSORBED_CLOSURE_PASS",
+          "purpose": "append-only learning-context forensic lineage closure and terminal bundle completion without historical ledger mutation",
+          "absorbed_commits": [
+            "c4d7d3ae",
+            "d0e3283e"
+          ],
+          "closure_result": "Learning v2 PASS, coverage 100%, blockers empty, terminal evidence ready; convoy qualified but not promoted.",
+          "current_line_state": "REABSORBED_CURRENT_PRODUCTION_DERIVED_LINE"
+        }
+      ],
+      "anti_replay_rule": "Trains 06-12 are now materially reabsorbed into the current production-derived candidate line. Do not replay historical commits or proofs unless their material scope changes; qualify the current cumulative line only.",
+      "current_line_convergence_evidence": "dev-hub/evidence/historical-trains-06-12-current-line-convergence-2026-10-03.json",
+      "final_touched_paths_match_convoy_closure": true,
+      "production_promotion_state": "NOT_PROMOTED_ON_CURRENT_LINE"
+    }
+  ],
+  "historical_release_trains": [
+    {
+      "id": "historical-roadmap-train-03",
+      "train_id": "roadmap-train-20261001-03",
+      "promotion_state": "PROMOTED_AND_ANCESTOR_OF_CURRENT_PRODUCTION",
+      "train_runtime_state": "OPEN_HISTORICAL_METADATA_BUT_PROMOTION_FINALIZED",
+      "base_revision": "1b826fe9eb6db8c0e101a1691e965c8ca2b32d51",
+      "promoted_revision": "3d403f60fe1a5c836b6fb84ddef24b7d74378307",
+      "promoted_tree": "79e564e995709ae7212c46e976d51f291726bbf1",
+      "activation_status": "ACTIVE_AT_PROMOTION_TIME",
+      "promotion_acceptance_status": "PASS",
+      "promotion_final_verification": "PASS",
+      "guardian_pre": "PASS",
+      "guardian_post": "PASS",
+      "sentinel_exact_sha": "PASS",
+      "platform_qualification": "PASS",
+      "controlled_cycle": "PASS",
+      "automatic_timer_cycle": "PASS",
+      "current_production_descends_from_train03": true,
+      "current_role": "HISTORICAL_PROMOTED_GIT_LINEAGE_PHYSICAL_RELEASE_RETIRED_2026_10_04",
+      "anti_replay_rule": "Do not re-promote or replay Train 03 proofs while its promoted SHA/tree/scope remain unchanged; current production already descends from it.",
+      "physical_release_state": "RETIRED_UNDER_EXPLICIT_GUARDIAN_SAFETY_V4_SLOT_APPROVAL",
+      "git_history_preserved": true
+    },
+    {
+      "id": "historical-roadmap-train-04",
+      "train_id": "roadmap-train-20261001-04",
+      "promotion_state": "NOT_PROMOTED",
+      "train_runtime_state": "OPEN",
+      "base_revision": "3d403f60fe1a5c836b6fb84ddef24b7d74378307",
+      "qualified_candidate_revision": "3197446894758202d9f879f881fda4f8a61f980f",
+      "qualified_candidate_tree": "540fd19279e8c4d3deb1361da74e186ec2d76949",
+      "historical_readiness": "HOLD",
+      "historical_readiness_state": "CANDIDATE_QUALIFIED_RECONCILIATION_READY_AWAITING_EXTERNAL_ASSURANCE_AND_GOVERNED_APPLY",
+      "production_mutation": false,
+      "reason_not_promoted": [
+        "external assurance not closed",
+        "Guardian action lease reconciliation pending governed apply",
+        "exact-SHA GitHub platform attestation pending at historical gate",
+        "explicit human production promotion approval missing"
+      ],
+      "capabilities_to_reconcile_not_rebuild": [
+        "local cognitive runtime",
+        "local cognitive lifecycle",
+        "Guardian critical-state reconciliation",
+        "Guardian expired-action-lease reconciliation",
+        "Guardian coverage proof integrity"
+      ],
+      "anti_replay": "Reuse qualified/materially unchanged capability evidence where still valid; migrate contracts to the current production-derived line and requalify only changed scope.",
+      "current_resolution": "NATIVE_LOCAL_RUNTIME_AND_LIFECYCLE_SOURCE_REABSORBED_CURRENT_LINE_RUNTIME_NOT_MATERIALIZED"
+    },
+    {
+      "id": "historical-roadmap-train-05",
+      "train_id": "roadmap-train-20261002-05",
+      "promotion_state": "NOT_PROMOTED",
+      "train_runtime_state": "OPEN_PREPARATION",
+      "base_revision": "3197446894758202d9f879f881fda4f8a61f980f",
+      "depends_on_train": "roadmap-train-20261001-04",
+      "depends_on_promotion": true,
+      "historical_preparation_state": "PREPARATION",
+      "production_mutation": false,
+      "reason_not_promoted": [
+        "Train 04 dependency was never promoted; Train 05 was prepared/shadow-qualified against the candidate lineage, not activated as production baseline."
+      ],
+      "capabilities_to_reconcile_not_rebuild": [
+        "Guardian governed deploy transaction",
+        "Guardian action evidence continuity",
+        "native-local resource admission",
+        "adaptive model registry",
+        "native-local shadow soak",
+        "adaptive output budgeting"
+      ],
+      "anti_replay": "Preserve real pilots and qualification evidence; do not activate Native Local implicitly. Reconcile onto the current production-derived line under current governance.",
+      "current_resolution": "NATIVE_LOCAL_ADMISSION_REGISTRY_SOAK_OUTPUT_BUDGET_REABSORBED_CURRENT_LINE_NO_ACTIVATION"
+    }
+  ],
+  "priority_interrupt": {
+    "id": "sovereign-state-d1-independence",
+    "state": "COMPLETED_MASTER_ROADMAP_RESUMED",
+    "reason": "D1 quota is a single external blocker for Guardian-governed promotions; remove SaaS quota from the critical governance path before resuming ordinary production convergence.",
+    "started_from_revision": "8b0f0a01e1b2e028adefa0c13f2807912d73452f",
+    "resume_master_roadmap_after": "SATISFIED_2026-10-04_SOVEREIGN_PHASE_B_PASS",
+    "resume_rule": "Resume from the first not-promoted current production-convergence train; do not replay already-acquired shadow/history proofs.",
+    "production_mutation": true,
+    "automatic_external_spend_eur": 0,
+    "evidence": "Sovereign Phase B completed: final export pair 9/10 identical on all four SQL digests after Guardian Cloud schedule_count=0; local import/parity, four service health, local functional writes and post-write NAS readback PASS; authority atomically switched to LOCAL_SQLITE; STOP reset; VPS timers restored. Final receipt sha256:118c58189eea945a4562243d816cc2c35c688c27b0d2263cc2cbd6fdd9a160c6.",
+    "compatibility_bridge_revision": "8c984ab17bf7911ea0537b6c755c2ad44337c969",
+    "cutover_protocol": [
+      "qualify and activate compatibility bridge",
+      "quiesce D1 writers",
+      "obtain two fresh read-only exports with identical digests",
+      "import all four authoritative databases",
+      "prove table/state parity and historical verdict parity",
+      "stage and health-check four loopback services",
+      "switch runtime authority atomically to LOCAL_SQLITE",
+      "run Guardian/Sentinel/post-cutover stability proof",
+      "resume Master Roadmap above the bridge rollback floor"
+    ],
+    "rollback_floor": "8c984ab17bf7911ea0537b6c755c2ad44337c969",
+    "rollback_below_bridge_after_local_writes_forbidden": true,
+    "current_authority": "LOCAL_SQLITE",
+    "d1_fallback_state": "RETAINED_STALE_REVERSE_SYNC_REQUIRED_BEFORE_AUTHORITY_RESTORE",
+    "post_interrupt_production_baseline": "c514e1fe3a2b5976a729c7cebc4cfdff726a2369"
+  }
+}

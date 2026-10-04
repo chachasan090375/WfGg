@@ -28,7 +28,10 @@ cloud=base['adapters']['cloudflare-pages-production-adapter']
 assert set(cloud['supports']) & set(policy['production_permissions'])
 
 # A quota-backed generative provider is never auto-enabled without a current zero-cost attestation.
-ok,blockers,profile=auto.eligibility('antigravity-adapter','antigravity',base,provisioning,policy)
+# Keep this fixture independent from any host-level attestation left by real provider probes.
+missing_policy=json.loads(json.dumps(policy))
+missing_policy['profiles']['antigravity-adapter']['zero_cost_attestation']='/definitely/missing/chacha-dev-antigravity-zero-cost.json'
+ok,blockers,profile=auto.eligibility('antigravity-adapter','antigravity',base,provisioning,missing_policy)
 assert ok is False,(ok,blockers)
 assert 'ZERO_COST_ATTESTATION_MISSING' in blockers,blockers
 assert 'AUTO_REMEDIATION_PROFILE_NOT_ENABLED' not in blockers,blockers

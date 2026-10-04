@@ -2,7 +2,7 @@
   "decision_authority": "technology-watch-agent",
   "owner_role": "logician",
   "principles": {
-    "architecture_council_final_authority": true,
+    "architecture_council_final_authority": false,
     "automatic_external_spend_eur": 0,
     "challenge_vendor_claims": true,
     "cheapest_high_information_test_first": true,
@@ -10,7 +10,8 @@
     "direct_mutation": false,
     "falsification_before_confirmation_bias": true,
     "observation_bus_cannot_self_validate_promotion": true,
-    "search_for_counterexamples": true
+    "search_for_counterexamples": true,
+    "architecture_council_recommendation_authority": true
   },
   "purpose": "Design falsification paths and adaptive verification strategies for Technology Watch without selecting technologies.",
   "schema": "chacha.dev/technology-watch-logician-policy/v1",
