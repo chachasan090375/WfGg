@@ -6,6 +6,7 @@ on:
       - project-chacha-remote-operator-mcp
       - 'dev-hub-v-remote-operator-*'
       - 'remote-operator-*'
+      - 'roadmap-functional-f12-*'
     paths:
       - 'dev-hub/projects/chacha-remote-operator/**'
       - 'dev-hub/lib/direct_operator_m2m_auth.py'

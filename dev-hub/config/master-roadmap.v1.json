@@ -2,7 +2,7 @@
   "schema": "chacha.dev/master-roadmap/v1",
   "version": "1.0.0",
   "scope": "CHACHA_DEV_PLATFORM_CORE",
-  "updated_at": "2026-10-04T19:16:19Z",
+  "updated_at": "2026-10-04T19:22:19Z",
   "authority": {
     "master_product_roadmap": "dev-hub/config/master-roadmap.v1.json",
     "autonomy_gap_roadmap_role": "DERIVED_SPECIALIZED_VIEW_ONLY",
@@ -812,7 +812,7 @@
     "schema": "chacha.dev/master-roadmap-functional-execution-order/v2",
     "authority": "PRIMARY_CURRENT_EXECUTION_VIEW",
     "ordering_principle": "Hard functional dependency and core safety determine order: artifacts/specialists -> execution DAG -> resource-aware scheduling -> target OS/device validation -> E2E runtime -> extensibility/access/resilience/remote/HA. Historical train numbering never determines current execution order. Reuse qualified shadow work and unchanged evidence; do not rebuild unchanged scope.",
-    "current_focus": "F11_RESILIENCE_CLEAN_HOST_RECONSTRUCTION_CURRENT_LINE",
+    "current_focus": "F12_REMOTE_MCP_PRIVATE_OPERATOR_CURRENT_LINE",
     "phases": [
       {
         "phase": "F00",
@@ -1076,7 +1076,7 @@
         "phase": "F11",
         "id": "RESILIENCE_AND_RECONSTRUCTIBILITY",
         "priority": "P1",
-        "state": "CLEAN_HOST_RECONSTRUCTION_PASS_PENDING_EXACT_SHA_CI",
+        "state": "EXACT_SHA_QUALIFIED_SHADOW",
         "depends_on": [
           "F10"
         ],
@@ -1102,15 +1102,17 @@
         "release_archive_reconstruction": "PASS",
         "sqlite_integrity_count": 6,
         "periodic_timer": false,
-        "trigger_mode": "EVENT_DRIVEN_DIRTY_MARKER"
+        "trigger_mode": "EVENT_DRIVEN_DIRTY_MARKER",
+        "qualified_sha": "71e6f1168ec64816684b0a91e8def3dc4ff01bbe",
+        "qualified_tree": "1c067ba772f25d0032e328c53d4317f3c34eb80a"
       },
       {
         "phase": "F12",
         "id": "REMOTE_MCP_PRIVATE_OPERATOR_ROUTE",
         "priority": "P1",
-        "state": "SOURCE_CONVERGED_RUNTIME_UNMATERIALIZED",
+        "state": "SOURCE_RECONCILED_DISABLED_BY_DEFAULT_PENDING_EXACT_SHA_CI",
         "depends_on": [
-          "F01"
+          "F11"
         ],
         "reuse_asset": {
           "sha": "b0b9c2f6d6b24508b69cc65bf7efec915e2fa1fd",
@@ -1121,7 +1123,16 @@
           "capability/policy gate",
           "Guardian/Sentinel/STOP",
           "zero-incremental-cost priority route"
-        ]
+        ],
+        "production_parent_sha": "71e6f1168ec64816684b0a91e8def3dc4ff01bbe",
+        "source_subtree": "4da5979b0fa46ba5907a70cc26efe6a09da69417",
+        "source_identical_to_historical_qualified": true,
+        "m2m_ingress_enabled": false,
+        "runtime_materialized": false,
+        "secure_tunnel_materialized": false,
+        "public_ingress_forbidden": true,
+        "automatic_external_spend_eur": 0,
+        "specialized_remote_operator_ci_required": true
       },
       {
         "phase": "F13",

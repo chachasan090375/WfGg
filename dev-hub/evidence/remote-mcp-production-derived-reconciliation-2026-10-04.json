@@ -1,0 +1,20 @@
+{
+  "schema": "chacha.dev/remote-mcp-production-derived-reconciliation/v1",
+  "status": "PASS",
+  "observed_at": "2026-10-04T19:23:41Z",
+  "parent_f11_sha": "71e6f1168ec64816684b0a91e8def3dc4ff01bbe",
+  "remote_operator_source_subtree": "4da5979b0fa46ba5907a70cc26efe6a09da69417",
+  "historical_qualified_source_subtree": "4da5979b0fa46ba5907a70cc26efe6a09da69417",
+  "source_identical_to_historical_qualified": true,
+  "current_line_tests": "7/7 PASS",
+  "umg_component": "core:chacha-remote-operator-current-line",
+  "umg_check": "PASS",
+  "canonical_fleet_projection": "PASS",
+  "autonomy_loop": "PASS",
+  "m2m_ingress_enabled": false,
+  "mcp_runtime_materialized": false,
+  "secure_tunnel_materialized": false,
+  "public_ingress_forbidden": true,
+  "production_activation_authorized": false,
+  "automatic_external_spend_eur": 0
+}
