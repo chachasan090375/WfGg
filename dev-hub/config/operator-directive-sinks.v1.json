@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/operator-directive-sink-catalog/v1",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "sinks": {
     "canonical-component-registry": [
       "dev-hub/bin/canonical_component_registry.py",
@@ -121,6 +121,33 @@
     "technology-watch": [
       "dev-hub/bin/technology-watch-service.py",
       "dev-hub/config/technology-watch-runtime.v1.json"
+    ],
+    "bastion": [
+      "dev-hub/bin/bastion-incident-response-controller.py",
+      "dev-hub/config/bastion-runtime-policy.v1.json",
+      "dev-hub/config/bastion-authority.v1.json"
+    ],
+    "cognitive-memory-fabric": [
+      "dev-hub/bin/cognitive-memory-router.py",
+      "dev-hub/config/cognitive-memory-fabric.v1.json"
+    ],
+    "dark-intelligence": [
+      "dev-hub/bin/dark-intelligence-agent.py",
+      "dev-hub/bin/dark-intelligence-pipeline.py"
+    ],
+    "governed-platform-promotion": [
+      "dev-hub/bin/governed-platform-promotion.py",
+      "dev-hub/config/platform-promotion-transaction.v1.json"
+    ],
+    "improvement-intelligence-fabric": [
+      "dev-hub/bin/improvement_intelligence_fabric.py",
+      "dev-hub/bin/improvement_intelligence_cycle.py",
+      "dev-hub/config/improvement-intelligence-fabric.v1.json"
+    ],
+    "learning-relay": [
+      "dev-hub/bin/central-learning-relay-puller.py",
+      "dev-hub/config/worker-learning-relay.v1.json",
+      "dev-hub/systemd/chacha-dev-sovereign-learning-relay.service"
     ]
   },
   "automatic_external_spend_eur": 0
