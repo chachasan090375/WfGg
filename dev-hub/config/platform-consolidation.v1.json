@@ -68,7 +68,10 @@
     "runtime_evidence_root": "/opt/chacha-dev/runtime",
     "strong_install_gate_glob": "release-gates/*-install-pass.json",
     "legacy_active_execution_glob": "intendant/work/*/release-execution.json",
-    "protect_declared_active_release_rollback": true
+    "protect_declared_active_release_rollback": true,
+    "sovereign_local_primary_rollback_floor_enforced": true,
+    "sovereign_staging_active_release_is_candidate_rollback": true,
+    "pre_sovereign_release_may_be_retained_as_archive_but_not_rollback": true
   },
   "source_retirement": {
     "historical_v6_tests_and_docs_not_required_in_runtime_release": true,

@@ -103,6 +103,29 @@ def verified_revision_ranks(evidence_root:Path)->dict[str,float]:
         if rank>out.get(rev,0.0):out[rev]=rank
     return out
 
+def sovereign_authority_mode(runtime_root:Path)->str:
+    p=runtime_root/"sovereign-state/authority.json"
+    if not p.is_file():return "D1_REMOTE"
+    try:
+        x=load(p)
+    except Exception:
+        return "UNKNOWN"
+    if x.get("schema")!="chacha.dev/sovereign-state-authority/v1":return "UNKNOWN"
+    return str(x.get("mode") or "UNKNOWN").upper()
+
+def sovereign_release_compatible(release:Path|None)->bool:
+    if release is None or not release.is_dir():return False
+    required=[
+      release/"dev-hub/bin/sovereign_state_authority.py",
+      release/"dev-hub/bin/d1-worker-local-runtime.mjs",
+      release/"dev-hub/config/sovereign-state-authority.local.v1.json",
+      release/"dev-hub/systemd/chacha-dev-sovereign-guardian.service",
+      release/"dev-hub/systemd/chacha-dev-sovereign-sentinel.service",
+      release/"dev-hub/systemd/chacha-dev-sovereign-assurance-exchange.service",
+      release/"dev-hub/systemd/chacha-dev-sovereign-learning-relay.service"
+    ]
+    return all(x.is_file() for x in required)
+
 def strong_installed_revision_ranks(runtime_root:Path)->dict[str,float]:
     out={}
     gates=runtime_root/"release-gates"
@@ -158,7 +181,12 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
             })
     active_path=str(active) if active else ""
     active_revision=revision_of(active) if active and active.is_dir() else ""
+    retention=policy.get("physical_release_retention") or {}
+    runtime_root=Path(str(retention.get("runtime_evidence_root") or "/opt/chacha-dev/runtime"))
+    sovereign_mode=sovereign_authority_mode(runtime_root)
+    sovereign_local_primary=sovereign_mode=="LOCAL_SQLITE"
     declared_rollback_revision=""
+    declared_rollback_ineligible_revision=""
     if active and active.is_dir():
         prep=active/".release-preparation.json"
         if prep.is_file():
@@ -176,14 +204,17 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
                         if rollback_path is not None and rollback_path.is_dir():
                             candidate=str(revision_of(rollback_path) or "").lower().strip()
                 if len(candidate)==40 and all(ch in "0123456789abcdef" for ch in candidate) and candidate!=str(active_revision or "").lower():
-                    declared_rollback_revision=candidate
+                    hit=latest_for_revision(rows,candidate)
+                    if sovereign_local_primary and (hit is None or not sovereign_release_compatible(Path(str(hit.get("path") or "")))):
+                        declared_rollback_ineligible_revision=candidate
+                    else:
+                        declared_rollback_revision=candidate
             except Exception:
                 declared_rollback_revision=""
     protected_paths=set()
     reasons={}
     if active:
         protected_paths.add(active_path);reasons[active_path]="ACTIVE_RELEASE"
-    retention=policy.get("physical_release_retention") or {}
     slots=int(retention.get("rollback_slots") or 2)
     staging_rev=str(promotion_staging_candidate_revision or "").lower().strip()
     staging=bool(staging_rev)
@@ -194,9 +225,18 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
         if not promotion_staging_approval_digest.startswith("sha256:"):raise ValueError("PROMOTION_STAGING_APPROVAL_DIGEST_REQUIRED")
         if slots<2:raise ValueError("PROMOTION_STAGING_REQUIRES_TWO_NORMAL_ROLLBACK_SLOTS")
     effective_slots=slots-1 if staging else slots
+    future_rollback_revision=""
+    historical_archive_slots=0
+    if staging and sovereign_local_primary:
+        if not sovereign_release_compatible(active):raise ValueError("SOVEREIGN_ACTIVE_RELEASE_NOT_ROLLBACK_COMPATIBLE")
+        # Once LOCAL_SQLITE has accepted writes, pre-Sovereign releases are not safe automatic rollbacks.
+        # The currently active Sovereign release becomes the candidate rollback after activation.
+        future_rollback_revision=str(active_revision or "").lower()
+        effective_slots=0
+        target_before=max(1,int(retention.get("max_physical_releases_after_consolidation") or 3)-1)
+        historical_archive_slots=max(0,target_before-1)  # active release already occupies one physical slot
     strategy=str(retention.get("rollback_selection_strategy") or "MOST_RECENT_VERIFIED_PRIOR_RELEASES")
     evidence_root=evidence_root or Path(str(retention.get("verification_evidence_root") or "/opt/chacha-dev/evidence"))
-    runtime_root=Path(str(retention.get("runtime_evidence_root") or "/opt/chacha-dev/runtime"))
     strong_ranks=strong_installed_revision_ranks(runtime_root)
     # A physical release that previously completed a governed production promotion is also
     # strong rollback evidence. This keeps historical rollback proofs durable even after
@@ -222,11 +262,12 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
         if hit is not None and rank>0:
             selected.append(hit);seen.add(declared_rollback_revision);verified_ranks[declared_rollback_revision]=rank
             reasons[hit["path"]]="DECLARED_ROLLBACK";declared_rollback_protected=True
-    if strategy in {"MOST_RECENT_VERIFIED_PRIOR_RELEASES","MOST_RECENT_STRONGLY_VERIFIED_DISTINCT_REVISIONS"}:
+    if effective_slots>0 and strategy in {"MOST_RECENT_VERIFIED_PRIOR_RELEASES","MOST_RECENT_STRONGLY_VERIFIED_DISTINCT_REVISIONS"}:
         for rev,rank in strong_ranks.items():
             if rev==str(active_revision or "").lower():continue
             hit=latest_for_revision(rows,rev)
             if hit is not None:
+                if sovereign_local_primary and not sovereign_release_compatible(Path(str(hit.get("path") or ""))):continue
                 all_candidates.append((float(hit.get("acquired_epoch") or 0),rank,rev,hit))
         for acquired,rank,rev,row in sorted(all_candidates,key=lambda x:(x[0],x[1],x[2]),reverse=True):
             if rev in seen:continue
@@ -237,19 +278,26 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
                 if rev==str(active_revision or "").lower() or rev in seen:continue
                 hit=latest_for_revision(rows,rev)
                 if hit is None:continue
+                if sovereign_local_primary and not sovereign_release_compatible(Path(str(hit.get("path") or ""))):continue
                 selected.append(hit);seen.add(rev);verified_ranks[rev]=rank
                 if len(selected)>=effective_slots:break
-    for rev in retention.get("fallback_verified_rollback_revisions") or []:
+    for rev in (retention.get("fallback_verified_rollback_revisions") or []) if effective_slots>0 else []:
         if len(selected)>=effective_slots:break
         rev=str(rev).lower()
         if rev==str(active_revision or "").lower() or rev in seen:continue
         hit=latest_for_revision(rows,rev)
         if hit and hit["path"]!=active_path:
+            if sovereign_local_primary and not sovereign_release_compatible(Path(str(hit.get("path") or ""))):continue
             selected.append(hit);seen.add(rev)
     for hit in selected[:effective_slots]:
         protected_paths.add(hit["path"])
         reasons.setdefault(hit["path"],"VERIFIED_ROLLBACK")
-    missing_rollbacks=max(0,effective_slots-len(selected))
+    archive_selected=[]
+    if historical_archive_slots>0:
+        candidates=[r for r in rows if r["path"]!=active_path and r["path"] not in protected_paths]
+        for row in sorted(candidates,key=lambda x:(float(x.get("acquired_epoch") or 0),str(x.get("revision") or "")),reverse=True)[:historical_archive_slots]:
+            archive_selected.append(row);protected_paths.add(row["path"]);reasons[row["path"]]="HISTORICAL_ARCHIVE_NOT_ROLLBACK_ELIGIBLE"
+    missing_rollbacks=0 if (staging and sovereign_local_primary and future_rollback_revision) else max(0,effective_slots-len(selected))
     for row in rows:
         if row["path"] in protected_paths:
             row["action"]="KEEP";row["reason"]=reasons[row["path"]]
@@ -274,6 +322,11 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
       "rollback_revision_must_differ_from_active":True,
       "declared_rollback_revision":declared_rollback_revision,
       "declared_rollback_protected":declared_rollback_protected,
+      "declared_rollback_ineligible_revision":declared_rollback_ineligible_revision or None,
+      "sovereign_authority_mode":sovereign_mode,
+      "sovereign_local_primary_rollback_floor_enforced":sovereign_local_primary,
+      "future_candidate_rollback_revision":future_rollback_revision or None,
+      "historical_archive_revisions":[str(x.get("revision") or "") for x in archive_selected],
       "selected_rollback_revisions":[str(x.get("revision") or "") for x in selected[:effective_slots]],
       "selected_rollback_evidence_epochs":[verified_ranks.get(str(x.get("revision") or "").lower(),0.0) for x in selected[:effective_slots]],
       "selected_rollback_versions":[str(x.get("version") or "") for x in selected[:effective_slots]],
