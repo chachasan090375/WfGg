@@ -1,0 +1,72 @@
+{
+  "schema": "chacha.dev/market-competitive-baseline/v1",
+  "as_of": "2026-10-04",
+  "sources_verified_public": true,
+  "competitors": [
+    {
+      "name": "Factory",
+      "category": "agent-native software factory",
+      "public_facts": ["Mission Control and automations", "automatic model routing", "Agent Readiness analytics", "$200M financing at $5B valuation announced 2026-09-15"],
+      "strengths_vs_chacha": ["commercial scale and enterprise adoption", "mature model routing and analytics", "large funded team"],
+      "chacha_potential_advantages": ["owned/local-first governance", "explicit independent Guardian/Sentinel model", "zero-spend-first and NAS/VPS sovereignty", "self-evolution pipeline under operator gates"],
+      "source_urls": ["https://www.factory.ai/", "https://factory.ai/news?category=partnership"]
+    },
+    {
+      "name": "Cognition / Devin",
+      "category": "autonomous software engineering platform",
+      "public_facts": ["autonomous end-to-end software engineering", "enterprise rollout with governance/plugins", "over $2B financing at $48B valuation announced 2026-09-08"],
+      "strengths_vs_chacha": ["market scale", "product maturity", "enterprise distribution and capital"],
+      "chacha_potential_advantages": ["transparent self-hosted control plane", "cross-agent evidence governance", "provider independence and local sovereign state"],
+      "source_urls": ["https://cognition.com/blog/series-e", "https://devin.ai/blog/governing-ai-agents-at-scale-with-blackrock"]
+    },
+    {
+      "name": "Replit Agent 4",
+      "category": "integrated AI application factory",
+      "public_facts": ["parallel agents/tasks", "plan-while-building", "shared Kanban and isolated task environments", "$400M financing at $9B valuation announced 2026-03-11"],
+      "strengths_vs_chacha": ["polished integrated UX", "fast parallel build workflow", "hosted deployment ecosystem"],
+      "chacha_potential_advantages": ["deeper governance separation", "self-hosted infrastructure freedom", "explicit component birth/retirement and evidence lineage"],
+      "source_urls": ["https://replit.com/blog/introducing-agent-4-built-for-creativity", "https://replit.com/blog/replit-raises-400-million-dollars"]
+    },
+    {
+      "name": "OpenHands",
+      "category": "open-source agent control plane",
+      "public_facts": ["open source core under MIT", "self-hosted/model-agnostic", "parallel agents and automation/control plane"],
+      "strengths_vs_chacha": ["large open-source community", "inspectable mature agent platform", "portable agent/runtime ecosystem"],
+      "chacha_potential_advantages": ["purpose-built MOA/MOE governance", "integrated self-improvement/value gating", "operator-centric production gates and infrastructure feasibility"],
+      "source_urls": ["https://www.openhands.dev/", "https://www.openhands.dev/product/"]
+    },
+    {
+      "name": "GitHub Copilot Agents",
+      "category": "developer agent orchestration",
+      "public_facts": ["custom agents", "sub-agent orchestration", "parallel Fleet mode", "cloud coding agent"],
+      "strengths_vs_chacha": ["native GitHub distribution", "developer adoption", "repo-centric integration"],
+      "chacha_potential_advantages": ["cross-provider and cross-infrastructure ownership", "central architecture council", "full platform lifecycle beyond repository tasks"],
+      "source_urls": ["https://docs.github.com/en/copilot/how-tos/copilot-sdk/features/custom-agents"]
+    },
+    {
+      "name": "Microsoft Magentic-One / AutoGen",
+      "category": "multi-agent orchestration",
+      "public_facts": ["lead orchestrator", "Task Ledger", "Progress Ledger", "replanning on stalled progress"],
+      "strengths_vs_chacha": ["clear multi-agent research architecture", "explicit progress/replanning pattern"],
+      "chacha_potential_advantages": ["full production governance and release lifecycle", "runtime infrastructure ownership", "component registry/materialization controls"],
+      "source_urls": ["https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/magentic-one.html"]
+    },
+    {
+      "name": "LangGraph / Deep Agents runtime",
+      "category": "durable agent runtime",
+      "public_facts": ["durable execution and checkpoints", "human-in-the-loop", "memory and observability", "long-running resumable agents"],
+      "strengths_vs_chacha": ["mature generic durable runtime primitives", "broad framework ecosystem"],
+      "chacha_potential_advantages": ["higher-level autonomous software factory specialization", "independent assurance agents", "integrated release/update governance"],
+      "source_urls": ["https://www.langchain.com/blog/runtime-behind-production-deep-agents", "https://www.langchain.com/langgraph"]
+    },
+    {
+      "name": "NVIDIA Open Agent Safety Platform",
+      "category": "agent safety/runtime boundary",
+      "public_facts": ["OpenShell runtime policy boundary", "Sentry out-of-band watchdog", "open platform announced 2026-09-28"],
+      "strengths_vs_chacha": ["hardware-backed safety architecture", "formal out-of-band monitoring reference design"],
+      "chacha_potential_advantages": ["software/hardware-agnostic governance", "broader software-factory lifecycle", "existing Guardian/Sentinel separation without special hardware dependency"],
+      "source_urls": ["https://investor.nvidia.com/news/press-release-details/2026/NVIDIA-Launches-Open-Agent-Safety-Platform-to-Secure-Agents-From-Testing-to-Deployment/default.aspx"]
+    }
+  ],
+  "automatic_external_spend_eur": 0
+}

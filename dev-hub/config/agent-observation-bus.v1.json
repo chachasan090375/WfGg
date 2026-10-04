@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/agent-observation-bus-policy/v1",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "purpose": "Collect evidence-backed agent observations at common ChaCha DEV boundaries and trigger reassessment without self-mutation.",
   "storage": {
     "database": "agent-observation/observations.db",
@@ -208,5 +208,19 @@
     "retroactive_reassessment": false,
     "production_truth": true,
     "idempotent_by_project_task": true
+  },
+  "consumers": [
+    "agent-evolution",
+    "improvement-intelligence-fabric"
+  ],
+  "improvement_intelligence": {
+    "enabled": true,
+    "consumer": "improvement-intelligence-fabric",
+    "consume_all_events": true,
+    "verified_runtime_events_have_local_fact_authority": true,
+    "observed_events_are_advisory": true,
+    "self_asserted_events_are_advisory_only": true,
+    "direct_build_authority": false,
+    "production_authority": false
   }
 }
