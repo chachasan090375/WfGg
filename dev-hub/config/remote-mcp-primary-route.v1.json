@@ -1,0 +1,72 @@
+{
+  "schema": "chacha.dev/remote-mcp-primary-route-policy/v1",
+  "version": "1.0.0",
+  "status": "ACTIVE",
+  "scope": "PLATFORM_GLOBAL",
+  "category": "REMOTE_ROUTE_GOVERNANCE",
+  "authority": "OPERATOR_STRUCTURAL_DIRECTIVE",
+  "purpose": "Make the proprietary ChaCha Remote MCP the default remote execution and inspection route for ChaCha DEV, with other remote channels restricted to governed fallback use.",
+  "invariant": {
+    "primary_route": "CHACHA_PROPRIETARY_REMOTE_MCP",
+    "primary_route_required_when_healthy_and_authorized": true,
+    "remote_desktop_commander_is_fallback_only": true,
+    "ssh_is_fallback_only": true,
+    "manual_termux_is_fallback_only": true,
+    "fallback_must_not_preempt_healthy_primary_route": true,
+    "fallback_requires_explicit_reason": true,
+    "automatic_external_spend_eur": 0
+  },
+  "fallback_allowed_only_if": [
+    "REMOTE_MCP_UNAVAILABLE",
+    "REMOTE_MCP_UNHEALTHY",
+    "REMOTE_MCP_CAPABILITY_MISSING_FOR_REQUEST",
+    "REMOTE_MCP_POLICY_DENIED",
+    "GUARDIAN_BLOCK",
+    "SENTINEL_BLOCK",
+    "STOP_ACTIVE",
+    "REMOTE_MCP_CONNECTION_FAILURE"
+  ],
+  "fallback_evidence_required": {
+    "record_primary_route_failure_or_ineligibility": true,
+    "record_selected_fallback_route": true,
+    "record_reason_code": true,
+    "record_timestamp": true
+  },
+  "routing_order": [
+    "CHACHA_PROPRIETARY_REMOTE_MCP",
+    "REMOTE_DESKTOP_COMMANDER_FALLBACK",
+    "SSH_OR_TERMUX_MANUAL_FALLBACK"
+  ],
+  "safety_constraints": {
+    "guardian_required": true,
+    "sentinel_required": true,
+    "stop_respected": true,
+    "capability_policy_required": true,
+    "no_authority_escalation": true,
+    "no_synthetic_pass": true,
+    "destructive_actions_keep_existing_human_gates": true
+  },
+  "required_sinks": [
+    "direct-operator",
+    "remote-operator-mcp",
+    "route-selector",
+    "run-controller",
+    "central-orchestrator",
+    "guardian",
+    "sentinel",
+    "canonical-component-registry",
+    "universal-materialization-gate",
+    "release-qualification",
+    "progress-reporting"
+  ],
+  "backfill_required": true,
+  "future_components_inherit": true,
+  "operator_intent": "Do not put Remote Desktop Commander, SSH or manual Termux ahead of the proprietary Remote MCP again. Remote MCP is the first-line remote route whenever it is healthy, authorized and capable.",
+  "application_state": {
+    "decided": true,
+    "persisted_in_repository": true,
+    "propagated_to_runtime": false,
+    "verified_active_in_runtime": false,
+    "note": "Persisted on a dedicated governance branch so the exact F10 candidate SHA and its existing qualifications remain unchanged. Runtime propagation must be performed without weakening or reordering this invariant."
+  }
+}
