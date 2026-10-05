@@ -1023,7 +1023,7 @@
         "phase": "F09",
         "id": "PLUGIN_AND_UPDATE_LIFECYCLE",
         "priority": "P1",
-        "state": "EXACT_SHA_QUALIFIED_SHADOW",
+        "state": "PRODUCTION_ACTIVE_FINALIZED",
         "depends_on": [
           "F08"
         ],
@@ -1042,8 +1042,8 @@
         "recipe_first": true,
         "normal_preinstall_state": "RECIPE_ONLY",
         "rebuild_reproducibility_required": true,
-        "qualified_sha": "1849a51e45a1bab85dde825b1c7dc4ba7b161764",
-        "qualified_tree": "c07ba001d01a381e771bf12d7f7b9e33b11d1f09"
+        "qualified_sha": "5902fec76c32232d6ca12d89ad15bb2fe44b3dbb",
+        "qualified_tree": "1a4d937a044672a3e7cd84da39821c73a76f49e0"
       },
       {
         "phase": "F10",
@@ -1065,7 +1065,7 @@
         ],
         "reconciled_parent": "7077dd43aef3e9d53385f8bcee7e086d3e3b724a",
         "qualification": "Consultant role PASS: may converse and build only own guest projects; core/agents/infrastructure internal Q&A and mutation blocked server-side; own jobs/artifacts isolated; global session/progress/update/plugin/cockpit views hidden/forbidden; Living White Paper is platform view; Artifact Fabric 9/9, Plugin/Update lifecycle, Direct Operator V805 and directives regressions PASS.",
-        "production_parent_sha": "1849a51e45a1bab85dde825b1c7dc4ba7b161764",
+        "production_parent_sha": "5902fec76c32232d6ca12d89ad15bb2fe44b3dbb",
         "backend_information_boundary_verified": true,
         "project_build_allowed": true,
         "platform_query_and_mutation_forbidden": true
