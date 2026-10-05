@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/platform-consolidation-policy/v1",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "target_platform_version": "CURRENT_ACTIVE_RELEASE",
   "owner_agent": "intendant",
   "purpose": [
@@ -23,7 +23,8 @@
     "declared_active_release_rollback_must_be_retained": true,
     "declared_rollback_protected_flag_requires_actual_physical_protection": true,
     "rolled_back_or_failed_release_must_not_be_preferred_as_historical_archive": true,
-    "latest_successful_finalize_supersedes_historical_rollback_marker_for_archive_classification": true
+    "latest_successful_finalize_supersedes_historical_rollback_marker_for_archive_classification": true,
+    "latest_governed_terminal_outcome_overrides_stale_release_preparation": true
   },
   "runtime_release_compilation": {
     "exclude_globs": [
@@ -76,7 +77,8 @@
     "sovereign_staging_active_release_is_candidate_rollback": true,
     "pre_sovereign_release_may_be_retained_as_archive_but_not_rollback": true,
     "historical_archive_selection_policy": "PREFER_FINALIZED_PASS_OVER_UNKNOWN_OVER_ROLLED_BACK_OR_FAILED",
-    "rolled_back_or_failed_archive_priority": "LOWEST"
+    "rolled_back_or_failed_archive_priority": "LOWEST",
+    "terminal_state_authority": "LATEST_GOVERNED_FINALIZE_OR_ROLLBACK_RECEIPT"
   },
   "source_retirement": {
     "historical_v6_tests_and_docs_not_required_in_runtime_release": true,

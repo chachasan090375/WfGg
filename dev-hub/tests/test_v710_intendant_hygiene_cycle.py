@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import hashlib,json,os,subprocess,sys,tempfile,time
+import hashlib,importlib.util,json,os,subprocess,sys,tempfile,time
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2];BIN=ROOT/"dev-hub/bin";CFG=ROOT/"dev-hub/config";SYSTEMD=ROOT/"dev-hub/systemd"
@@ -38,6 +38,25 @@ assert hygiene["invariants"]["source_code_auto_delete"] is False
 assert consolidation["execution"]["planner_owner"]=="intendant"
 assert consolidation["execution"]["physical_retirement_executor"]=="platform-hygiene-executor"
 assert consolidation["execution"]["intendant_direct_mutation"] is False
+assert consolidation["invariants"]["latest_governed_terminal_outcome_overrides_stale_release_preparation"] is True
+assert consolidation["physical_release_retention"]["terminal_state_authority"]=="LATEST_GOVERNED_FINALIZE_OR_ROLLBACK_RECEIPT"
+
+spec=importlib.util.spec_from_file_location("intendant_platform_consolidator",BIN/"intendant-platform-consolidator.py")
+mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod)
+with tempfile.TemporaryDirectory(prefix="terminal-release-state-") as td_terminal:
+    td_terminal=Path(td_terminal);platform_terminal=td_terminal/"platform";(platform_terminal/"releases").mkdir(parents=True)
+    rev_terminal="c"*40
+    rel_terminal=write_release(platform_terminal,"20261005T010000Z-"+rev_terminal,rev_terminal,"1.0.0")
+    save(rel_terminal/".release-preparation.json",{"candidate_revision":rev_terminal,"activation_status":"ROLLED_BACK","rollback_reason":"OLDER_FAILED_ATTEMPT"})
+    runtime_terminal=td_terminal/"runtime";attempt1=runtime_terminal/"promotions/attempt1";attempt2=runtime_terminal/"promotions/attempt2"
+    rollback=attempt1/"rollback-receipt.json";finalize=attempt2/"finalize-receipt.json"
+    save(rollback,{"phase":"ROLLBACK","status":"PASS","candidate_revision":rev_terminal})
+    save(finalize,{"phase":"FINALIZE","status":"PASS","candidate_revision":rev_terminal,"promotion_acceptance_status":"PASS","promotion_final_verification":"PASS"})
+    os.utime(rollback,(1000,1000));os.utime(finalize,(2000,2000))
+    assert mod.historical_archive_class(rel_terminal,runtime_terminal)=="FINALIZED_PASS"
+    rollback2=runtime_terminal/"promotions/attempt3/rollback-receipt.json"
+    save(rollback2,{"phase":"ROLLBACK","status":"PASS","candidate_revision":rev_terminal});os.utime(rollback2,(3000,3000))
+    assert mod.historical_archive_class(rel_terminal,runtime_terminal)=="ROLLED_BACK_OR_FAILED"
 contracts=guardian_contracts.get("contracts") or guardian_contracts.get("role_contracts") or []
 co=next(x for x in contracts if x["contract_id"]=="component:central-orchestrator")
 ph=next(x for x in contracts if x["contract_id"]=="role:platform-hygiene-executor")

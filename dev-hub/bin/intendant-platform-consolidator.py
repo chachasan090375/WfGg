@@ -126,7 +126,36 @@ def sovereign_release_compatible(release:Path|None)->bool:
     ]
     return all(x.is_file() for x in required)
 
-def historical_archive_class(release:Path)->str:
+def governed_terminal_release_state(runtime_root:Path,revision:str)->tuple[float,str]|None:
+    revision=str(revision or "").lower().strip()
+    if len(revision)!=40:return None
+    promotions=runtime_root/"promotions"
+    if not promotions.is_dir():return None
+    candidates=[]
+    for name in ("finalize-receipt.json","rollback-receipt.json"):
+        for receipt in promotions.rglob(name):
+            try:x=load(receipt)
+            except Exception:continue
+            if str(x.get("candidate_revision") or "").lower()!=revision:continue
+            if str(x.get("status") or "").upper()!="PASS":continue
+            phase=str(x.get("phase") or "").upper()
+            if phase=="FINALIZE":
+                acceptance=str(x.get("promotion_acceptance_status") or "").upper()
+                final=str(x.get("promotion_final_verification") or "").upper()
+                if acceptance!="PASS" or not final.startswith("PASS"):continue
+                klass="FINALIZED_PASS"
+            elif phase=="ROLLBACK":
+                klass="ROLLED_BACK_OR_FAILED"
+            else:
+                continue
+            candidates.append((_evidence_epoch(x,receipt),klass))
+    return max(candidates,key=lambda x:x[0]) if candidates else None
+
+def historical_archive_class(release:Path,runtime_root:Path|None=None)->str:
+    revision=revision_of(release)
+    if runtime_root is not None:
+        terminal=governed_terminal_release_state(runtime_root,revision)
+        if terminal is not None:return terminal[1]
     prep=release/".release-preparation.json"
     if not prep.is_file():return "UNFINALIZED_OR_UNKNOWN"
     try:x=load(prep)
@@ -140,8 +169,8 @@ def historical_archive_class(release:Path)->str:
         return "ROLLED_BACK_OR_FAILED"
     return "UNFINALIZED_OR_UNKNOWN"
 
-def historical_archive_priority(release:Path)->int:
-    return {"ROLLED_BACK_OR_FAILED":0,"UNFINALIZED_OR_UNKNOWN":1,"FINALIZED_PASS":2}[historical_archive_class(release)]
+def historical_archive_priority(release:Path,runtime_root:Path|None=None)->int:
+    return {"ROLLED_BACK_OR_FAILED":0,"UNFINALIZED_OR_UNKNOWN":1,"FINALIZED_PASS":2}[historical_archive_class(release,runtime_root)]
 
 def strong_installed_revision_ranks(runtime_root:Path)->dict[str,float]:
     out={}
@@ -264,6 +293,10 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
         if len(rev)!=40 or not prep_path.is_file():continue
         try: prior=load(prep_path)
         except Exception:continue
+        terminal=governed_terminal_release_state(runtime_root,rev)
+        if terminal is not None and terminal[1]=="FINALIZED_PASS":
+            strong_ranks[rev]=max(strong_ranks.get(rev,0.0),terminal[0])
+            continue
         final=str(prior.get("promotion_final_verification") or "").upper()
         acceptance=str(prior.get("promotion_acceptance_status") or "").upper()
         if acceptance=="PASS" and final.startswith("PASS"):
@@ -310,11 +343,11 @@ def build_plan(platform_root:Path,policy:dict[str,Any],evidence_root:Path|None=N
         protected_paths.add(hit["path"])
         reasons.setdefault(hit["path"],"VERIFIED_ROLLBACK")
     for row in rows:
-        row["historical_archive_class"]=historical_archive_class(Path(str(row.get("path") or "")))
+        row["historical_archive_class"]=historical_archive_class(Path(str(row.get("path") or "")),runtime_root)
     archive_selected=[]
     if historical_archive_slots>0:
         candidates=[r for r in rows if r["path"]!=active_path and r["path"] not in protected_paths]
-        for row in sorted(candidates,key=lambda x:(historical_archive_priority(Path(str(x.get("path") or ""))),float(x.get("acquired_epoch") or 0),str(x.get("revision") or "")),reverse=True)[:historical_archive_slots]:
+        for row in sorted(candidates,key=lambda x:(historical_archive_priority(Path(str(x.get("path") or "")),runtime_root),float(x.get("acquired_epoch") or 0),str(x.get("revision") or "")),reverse=True)[:historical_archive_slots]:
             archive_selected.append(row);protected_paths.add(row["path"]);reasons[row["path"]]="HISTORICAL_ARCHIVE_NOT_ROLLBACK_ELIGIBLE"
     missing_rollbacks=0 if (staging and sovereign_local_primary and future_rollback_revision) else max(0,effective_slots-len(selected))
     for row in rows:
