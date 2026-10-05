@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/operator-directive-registry-policy/v1",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "purpose": "Persist operator structural rules independently of any conversation and propagate them into ChaCha DEV governance.",
   "principles": {
     "operator_structural_rules_are_persistent": true,
@@ -220,7 +220,7 @@
       "scope": "PLATFORM_GLOBAL",
       "category": "SAFETY_GOVERNANCE",
       "status": "ACTIVE",
-      "normalized_requirement": "Runtime execution must never create Python bytecode or other mutable cache payload inside a materialized platform release. Every Python systemd unit executing from /opt/chacha-dev/platform/current must disable bytecode writes, and platform ACTIVATE must enforce live systemd drop-ins before current can switch. Any direct Python entrypoint that imports release-local sovereign/quota modules must disable bytecode writes before those imports, including governed post-activation clients executed outside systemd.",
+      "normalized_requirement": "Runtime execution must never create Python bytecode or other mutable cache payload inside a materialized platform release. Every Python systemd unit executing from /opt/chacha-dev/platform/current must disable bytecode writes, and platform ACTIVATE must enforce live systemd drop-ins before current can switch. Every Python entrypoint under dev-hub/bin that imports any release-local sibling module must disable bytecode writes before the first such import, including governed promotion, reconciliation, post-activation and ad-hoc execution paths outside systemd.",
       "required_sinks": [
         "platform-promotion-transaction",
         "sentinel",

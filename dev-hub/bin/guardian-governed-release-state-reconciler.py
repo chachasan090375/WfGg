@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+import sys
+sys.dont_write_bytecode=True
 import argparse,hashlib,json,subprocess,tempfile,time,urllib.request,sys
 from pathlib import Path
 from typing import Any

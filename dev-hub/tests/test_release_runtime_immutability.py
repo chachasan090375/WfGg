@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import importlib.util,json,subprocess,sys,tempfile
+import ast,importlib.util,json,subprocess,sys,tempfile,shutil
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]; BIN=ROOT/'dev-hub/bin'
 sys.path.insert(0,str(BIN))
@@ -16,19 +16,22 @@ missing=[p.name for p in units if not rri.native_guard(p.read_text())]
 assert not missing,missing
 print('CHACHA_DEV_IMMUTABLE_RELEASE_NATIVE_SYSTEMD_GUARDS=PASS')
 
-# Every direct production entrypoint importing sovereign/quota modules self-disables bytecode before local imports.
+# Every dev-hub/bin entrypoint importing a sibling Python module self-disables bytecode before the first local import.
+local_modules={p.stem for p in BIN.glob('*.py')}
 entrypoints=[]
 for p in sorted(BIN.glob('*.py')):
-    text=p.read_text()
-    if 'import sovereign_state_authority' in text or 'import d1_quota_circuit' in text:
+    text=p.read_text(); tree=ast.parse(text); local_lines=[]
+    for n in ast.walk(tree):
+        if isinstance(n,ast.Import) and any(a.name.split('.')[0] in local_modules for a in n.names): local_lines.append(n.lineno)
+        elif isinstance(n,ast.ImportFrom) and n.module and n.module.split('.')[0] in local_modules: local_lines.append(n.lineno)
+    if local_lines:
         entrypoints.append(p)
-        guard=text.find('sys.dont_write_bytecode=True')
-        local=min([i for i in (text.find('import sovereign_state_authority'),text.find('import d1_quota_circuit')) if i>=0])
-        assert guard>=0 and guard<local,p.name
-assert entrypoints
-print('CHACHA_DEV_IMMUTABLE_RELEASE_DIRECT_ENTRYPOINT_GUARDS=PASS')
+        guard_lines=[i for i,line in enumerate(text.splitlines(),1) if 'sys.dont_write_bytecode=True' in line]
+        assert guard_lines and min(guard_lines)<min(local_lines),p.name
+assert len(entrypoints)>=52,len(entrypoints)
+print('CHACHA_DEV_IMMUTABLE_RELEASE_ALL_LOCAL_IMPORT_ENTRYPOINT_GUARDS=PASS')
 
-# Dynamic proof: a direct release-local Guardian client invocation must not create bytecode even without env guards.
+# Dynamic proof: direct Guardian execution remains cache-free.
 with tempfile.TemporaryDirectory() as td:
     t=Path(td)
     for name in ('guardian-client.py','d1_quota_circuit.py','sovereign_state_authority.py'):
@@ -38,6 +41,17 @@ with tempfile.TemporaryDirectory() as td:
     assert 'usage:' in cp.stdout.lower()
     assert not list(t.rglob('*.pyc')) and not list(t.rglob('__pycache__'))
     print('CHACHA_DEV_IMMUTABLE_RELEASE_DIRECT_CLIENT_NO_PYC=PASS')
+
+# Dynamic proof for the exact post-FINALIZE incident: governed promotion and its four local imports create no bytecode.
+with tempfile.TemporaryDirectory() as td:
+    t=Path(td)
+    for name in ('governed-platform-promotion.py','promotion_transaction.py','promotion_cycle_evidence.py','exact_git_release.py','release_runtime_immutability.py'):
+        (t/name).write_bytes((BIN/name).read_bytes())
+    env={'PATH':'/usr/bin:/bin'}
+    cp=subprocess.run(['/usr/bin/python3',str(t/'governed-platform-promotion.py'),'-h'],env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=True)
+    assert 'usage:' in cp.stdout.lower()
+    assert not list(t.rglob('*.pyc')) and not list(t.rglob('__pycache__'))
+    print('CHACHA_DEV_IMMUTABLE_RELEASE_GOVERNED_PROMOTION_NO_PYC=PASS')
 
 with tempfile.TemporaryDirectory() as td:
     t=Path(td); rel=t/'release'; unitsdir=rel/'dev-hub/systemd'; unitsdir.mkdir(parents=True)
@@ -64,6 +78,7 @@ policy=json.load(open(ROOT/'dev-hub/config/platform-promotion-transaction.v1.jso
 assert policy['invariants']['python_runtime_must_not_write_bytecode_into_release'] is True
 assert policy['invariants']['python_platform_current_units_require_bytecode_guard'] is True
 assert policy['invariants']['direct_python_entrypoints_importing_sovereign_modules_must_disable_bytecode_before_import'] is True
+assert policy['invariants']['direct_python_entrypoints_importing_release_local_modules_must_disable_bytecode_before_import'] is True
 ops=json.load(open(ROOT/'dev-hub/config/operator-directives.v1.json'))
 d=next(x for x in ops['directives'] if x['directive_id']=='opdir-immutable-release-runtime')
 assert d['status']=='ACTIVE' and d['scope']=='PLATFORM_GLOBAL' and d['backfill_required'] is True

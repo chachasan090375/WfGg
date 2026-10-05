@@ -15,6 +15,8 @@ runtime execution fails closed when more than one distinct executable adapter
 would be required for a task.
 """
 from __future__ import annotations
+import sys
+sys.dont_write_bytecode=True
 
 import argparse
 import hashlib

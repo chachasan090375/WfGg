@@ -1,4 +1,6 @@
 from __future__ import annotations
+import sys
+sys.dont_write_bytecode=True
 import argparse,json,os,subprocess,sys
 from pathlib import Path
 from typing import Any

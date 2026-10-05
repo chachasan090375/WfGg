@@ -6,6 +6,8 @@ writes only admissible evidence into the lifecycle Evidence Ledger. A producer
 claim is never enough to create OK evidence.
 """
 from __future__ import annotations
+import sys
+sys.dont_write_bytecode=True
 
 import argparse
 import hashlib

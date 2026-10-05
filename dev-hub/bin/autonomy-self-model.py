@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+import sys
+sys.dont_write_bytecode=True
 import argparse,datetime,json,os,sqlite3
 from pathlib import Path
 from typing import Any

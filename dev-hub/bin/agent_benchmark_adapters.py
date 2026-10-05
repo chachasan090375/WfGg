@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+import sys
+sys.dont_write_bytecode=True
 import contextlib,copy,importlib.util,io,json,os,sqlite3,subprocess,sys,tempfile
 from pathlib import Path
 from typing import Any

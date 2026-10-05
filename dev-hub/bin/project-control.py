@@ -7,6 +7,8 @@ are serialized per project, recheck integrity, and delegate to specialist
 engines using structured argv without shell interpolation.
 """
 from __future__ import annotations
+import sys
+sys.dont_write_bytecode=True
 
 import argparse
 import copy
