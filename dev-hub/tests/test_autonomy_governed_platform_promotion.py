@@ -92,6 +92,12 @@ with tempfile.TemporaryDirectory() as td:
  rb=gpp.rollback(rel,current,runtime,t/'rollback.json','promotion-rollback',token,'TEST_FAILURE')
  assert rb['status']=='PASS' and current.resolve()==old.resolve() and ptx.public_status(runtime)['status']=='ROLLED_BACK'
  print('CHACHA_DEV_PROMOTION_ROLLBACK_LEASE_BOUND=PASS')
+ acq2=ptx.acquire(runtime,'promotion-retry','owner-a','a'*40,300);token2=acq2['lease_token']
+ gpp.activate(rel,current,runtime,t/'activate-retry.json','promotion-retry',token2)
+ retry_meta=json.load(open(rel/'.release-preparation.json'))
+ assert retry_meta['activation_status']=='ACTIVE' and 'rollback_reason' not in retry_meta and 'rolled_back_at' not in retry_meta,retry_meta
+ assert 'promotion_acceptance_status' not in retry_meta and 'promotion_final_verification' not in retry_meta,retry_meta
+ print('CHACHA_DEV_PROMOTION_RETRY_RESETS_TERMINAL_METADATA=PASS')
 
 with tempfile.TemporaryDirectory() as td:
  runtime=Path(td)/'runtime';runtime.mkdir();acq=ptx.acquire(runtime,'promotion-recover','owner-a','a'*40,300)

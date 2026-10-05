@@ -178,7 +178,7 @@
       "scope": "PLATFORM_GLOBAL",
       "category": "SAFETY_GOVERNANCE",
       "status": "ACTIVE",
-      "normalized_requirement": "Every ChaCha DEV platform promotion is owned by exactly one lease-bound writer; current switching and terminalization use governed-platform-promotion, promotion receipts are immutable/write-once, transaction history is append-only, expired ownership requires controlled same-owner recovery, and Reconciler/Intendant cannot mutate protected state concurrently. Recovery must preserve a root lease lineage and may reuse immutable receipts from ancestor leases only for the same promotion_id and exact candidate revision, without replaying materially unchanged evidence. Owner, promotion scope or candidate revision may never change during recovery. When physical release retention is already at its limit, Intendant must reserve one governed staging slot before candidate materialization, preserving active production and the primary rollback; activation fails closed if the physical release limit is exceeded.",
+      "normalized_requirement": "Every ChaCha DEV platform promotion is owned by exactly one lease-bound writer; current switching and terminalization use governed-platform-promotion, promotion receipts are immutable/write-once, transaction history is append-only, expired ownership requires controlled same-owner recovery, and Reconciler/Intendant cannot mutate protected state concurrently. Recovery must preserve a root lease lineage and may reuse immutable receipts from ancestor leases only for the same promotion_id and exact candidate revision, without replaying materially unchanged evidence. Owner, promotion scope or candidate revision may never change during recovery. When physical release retention is already at its limit, Intendant must reserve one governed staging slot before candidate materialization, preserving active production and the primary rollback; activation fails closed if the physical release limit is exceeded. A successful reactivation of a previously rolled-back physical release must reset stale terminal-attempt metadata before FINALIZE, and retention classification must prefer the latest successful FINALIZE state over historical rollback markers.",
       "required_sinks": [
         "platform-promotion-transaction",
         "canonical-component-registry",
@@ -228,7 +228,6 @@
         "all-foundries"
       ],
       "backfill_required": true
-
     },
     {
       "directive_id": "opdir-autonomous-improvement-factory",

@@ -140,12 +140,21 @@ with tempfile.TemporaryDirectory() as td:
  assert staged['historical_archive_selection_policy']=='PREFER_FINALIZED_PASS_OVER_UNKNOWN_OVER_ROLLED_BACK_OR_FAILED'
  print('CHACHA_DEV_PROMOTION_SOVEREIGN_ARCHIVE_PREFERS_FINALIZED_PASS=PASS')
 
+# A release successfully finalized after an earlier rollback must classify by its latest successful terminal state.
+with tempfile.TemporaryDirectory() as td:
+ p=Path(td)/'release';p.mkdir()
+ save(p/'.release-preparation.json',{'activation_status':'ACTIVE','promotion_acceptance_status':'PASS','promotion_final_verification':'PASS','rollback_reason':'OLD_FAILED_ATTEMPT','rolled_back_at':'2026-10-05T00:00:00Z'})
+ assert ic.historical_archive_class(p)=='FINALIZED_PASS'
+ print('CHACHA_DEV_PROMOTION_ARCHIVE_CLASS_LATEST_FINALIZE_WINS=PASS')
+
 policy=json.load(open(ROOT/'dev-hub/config/platform-promotion-transaction.v1.json'))
 assert policy['invariants']['pre_materialization_release_slot_reservation_required_when_release_count_at_limit'] is True
 assert policy['invariants']['activation_fails_closed_on_release_retention_overage'] is True
+assert policy['invariants']['successful_reactivation_resets_prior_terminal_attempt_metadata'] is True
 consolidation=json.load(open(ROOT/'dev-hub/config/platform-consolidation.v1.json'))
 assert consolidation['invariants']['declared_rollback_protected_flag_requires_actual_physical_protection'] is True
 assert consolidation['invariants']['rolled_back_or_failed_release_must_not_be_preferred_as_historical_archive'] is True
+assert consolidation['invariants']['latest_successful_finalize_supersedes_historical_rollback_marker_for_archive_classification'] is True
 assert consolidation['physical_release_retention']['historical_archive_selection_policy']=='PREFER_FINALIZED_PASS_OVER_UNKNOWN_OVER_ROLLED_BACK_OR_FAILED'
 assert policy['guardian_pre_contract']['canonical_permission']=='workspace-write'
 assert policy['guardian_pre_contract']['direct_production_deploy_probe_is_diagnostic_only'] is True

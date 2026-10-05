@@ -134,10 +134,10 @@ def historical_archive_class(release:Path)->str:
     activation=str(x.get("activation_status") or "").upper()
     acceptance=str(x.get("promotion_acceptance_status") or "").upper()
     final=str(x.get("promotion_final_verification") or "").upper()
-    if activation=="ROLLED_BACK" or acceptance=="ROLLED_BACK" or bool(x.get("rollback_reason")):
-        return "ROLLED_BACK_OR_FAILED"
     if acceptance=="PASS" and final.startswith("PASS"):
         return "FINALIZED_PASS"
+    if activation=="ROLLED_BACK" or acceptance=="ROLLED_BACK" or bool(x.get("rollback_reason")):
+        return "ROLLED_BACK_OR_FAILED"
     return "UNFINALIZED_OR_UNKNOWN"
 
 def historical_archive_priority(release:Path)->int:

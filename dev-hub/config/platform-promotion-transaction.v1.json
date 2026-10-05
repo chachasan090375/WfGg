@@ -33,7 +33,8 @@
     "python_runtime_must_not_write_bytecode_into_release": true,
     "python_platform_current_units_require_bytecode_guard": true,
     "direct_python_entrypoints_importing_sovereign_modules_must_disable_bytecode_before_import": true,
-    "direct_python_entrypoints_importing_release_local_modules_must_disable_bytecode_before_import": true
+    "direct_python_entrypoints_importing_release_local_modules_must_disable_bytecode_before_import": true,
+    "successful_reactivation_resets_prior_terminal_attempt_metadata": true
   },
   "runtime": {
     "root": "/opt/chacha-dev/runtime/platform-promotion",

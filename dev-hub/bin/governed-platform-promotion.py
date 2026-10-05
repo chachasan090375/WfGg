@@ -170,6 +170,19 @@ def atomic_current_switch(current:Path,target:Path,lease_id:str)->None:
     try:os.fsync(dfd)
     finally:os.close(dfd)
 
+RETRY_TERMINAL_METADATA_KEYS=(
+  'rollback_reason','rolled_back_at','promotion_acceptance_status','promotion_final_verification','promotion_final_verified_at',
+  'living_whitepaper_refresh','guardian_post_action','guardian_post_event_id','sentinel_post_activation_verdict',
+  'sentinel_post_activation_receipt_id','direct_operator_status','release_retention_count','controlled_cycle_status',
+  'controlled_cycle_next_state','controlled_cycle_before','controlled_cycle_after','controlled_cycle_run_id',
+  'controlled_cycle_evidence_digest','autonomy_timer_status','autonomy_timer_enabled','first_automatic_timer_cycle_before',
+  'first_automatic_timer_cycle_after','first_automatic_timer_cycle_status','first_automatic_timer_cycle_next_state',
+  'first_automatic_timer_run_id','first_automatic_timer_cycle_evidence_digest','stop_available'
+)
+
+def reset_previous_terminal_attempt(meta:dict[str,Any])->None:
+    for key in RETRY_TERMINAL_METADATA_KEYS:meta.pop(key,None)
+
 def activate(release_root:Path,current:Path,runtime_root:Path,receipt:Path,promotion_id:str,lease_token:str)->dict[str,Any]:
     release_root=release_root.resolve();meta=load(release_root/'.release-preparation.json');validate_preparation(meta)
     lx=lease(runtime_root,lease_token,promotion_id,meta['candidate_revision'],'ACTIVATE')
@@ -196,6 +209,7 @@ def activate(release_root:Path,current:Path,runtime_root:Path,receipt:Path,promo
             raise ValueError('SOVEREIGN_RUNTIME_REFRESH_FAILED_ROLLBACK_COMPLETE:'+str(exc))
         raise ValueError('SOVEREIGN_RUNTIME_REFRESH_FAILED:'+str(exc))
     now=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())
+    reset_previous_terminal_attempt(meta)
     meta.update({'activation_status':'ACTIVE','activated_at':now,'promotion_id':promotion_id,'promotion_lease_id':lx['lease_id'],
       'promotion_owner':lx['owner'],'current_switch_controller':'governed-platform-promotion','sovereign_runtime_refresh':sovereign,'automatic_external_spend_eur':0})
     atomic_json(release_root/'.release-preparation.json',meta)
@@ -253,6 +267,7 @@ def finalize(release_root:Path,current:Path,runtime_root:Path,receipt:Path,guard
     if stop.get('active') is not False:raise ValueError('EMERGENCY_STOP_MUST_BE_CLEAR')
     if release_count>3:raise ValueError('RELEASE_RETENTION_OVERAGE')
     if timer_before<controlled_after:raise ValueError('AUTONOMY_CYCLE_ORDER_INVALID')
+    if 'rollback_reason' in meta or 'rolled_back_at' in meta:raise ValueError('STALE_ROLLBACK_METADATA_FORBIDDEN')
     now=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime());sentinel_payload=sp['payload'];guardian_payload=gp['payload']
     whitepaper_refresh=refresh_living_whitepaper(release_root,runtime_root)
     meta.update({'living_whitepaper_refresh':whitepaper_refresh,'promotion_acceptance_status':'PASS','guardian_post_action':'PASS','guardian_post_event_id':guardian_payload.get('event_id'),

@@ -22,7 +22,8 @@
     "automatic_external_spend_eur": 0,
     "declared_active_release_rollback_must_be_retained": true,
     "declared_rollback_protected_flag_requires_actual_physical_protection": true,
-    "rolled_back_or_failed_release_must_not_be_preferred_as_historical_archive": true
+    "rolled_back_or_failed_release_must_not_be_preferred_as_historical_archive": true,
+    "latest_successful_finalize_supersedes_historical_rollback_marker_for_archive_classification": true
   },
   "runtime_release_compilation": {
     "exclude_globs": [
