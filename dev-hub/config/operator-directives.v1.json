@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/operator-directive-registry-policy/v1",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "purpose": "Persist operator structural rules independently of any conversation and propagate them into ChaCha DEV governance.",
   "principles": {
     "operator_structural_rules_are_persistent": true,
@@ -350,6 +350,26 @@
         "sentinel",
         "release-qualification",
         "progress-reporting"
+      ],
+      "backfill_required": true
+    },
+    {
+      "directive_id": "opdir-logician-memory-map-first-route",
+      "scope": "PLATFORM_GLOBAL",
+      "category": "ORCHESTRATION_EFFICIENCY",
+      "status": "ACTIVE",
+      "normalized_requirement": "Before starting a new diagnostic, search, reconstruction or recovery path, the central orchestrator must first consult the governed reasoning-and-memory route: Logician/logic-search, central-memory recall, reusable architecture memory and the knowledge-vault map. Existing evidence, receipts, exact-SHA qualifications, known-good recipes and mapped runtime knowledge must be reused whenever target, revision/tree, scope, state and evidence have not materially changed. Repeating an already acquired probe or rebuilding a known path without new material signal is forbidden. New probes are allowed only when the reasoning-and-memory route cannot resolve the next action or when a material state change invalidates prior evidence. Logician remains planning/falsification-only and has no production or mutation authority.",
+      "required_sinks": [
+        "central-orchestrator",
+        "direct-operator",
+        "run-controller",
+        "logician",
+        "logic-search",
+        "central-memory-recall",
+        "knowledge-vault-map",
+        "reuse-memory",
+        "cognitive-memory-fabric",
+        "release-qualification"
       ],
       "backfill_required": true
     }
