@@ -1403,7 +1403,8 @@
         "VERIFY_SERVICE_READINESS",
         "BIND_PROMOTION_ASSURANCE",
         "FINALIZE_PLATFORM_PROMOTION_RECEIPT",
-        "ROLLBACK_PLATFORM_RELEASE"
+        "ROLLBACK_PLATFORM_RELEASE",
+        "SUPERSEDE_EXPIRED_PLATFORM_PROMOTION"
       ],
       "forbidden_actions": [
         "DELETE_RELEASE",
@@ -1427,7 +1428,11 @@
         "guardian_pre_pass",
         "single_writer_promotion_lease",
         "immutable_receipts",
-        "automatic_external_spend_eur_zero"
+        "automatic_external_spend_eur_zero",
+        "expired_active_promotion_lease",
+        "active_current_exact",
+        "exact_successor_human_approval",
+        "no_current_mutation"
       ],
       "authority_scope": "EXACT_APPROVED_PLATFORM_PROMOTION_SINGLE_WRITER_ONLY"
     },
@@ -1442,7 +1447,8 @@
         "VERIFY_SERVICE_READINESS",
         "BIND_PROMOTION_ASSURANCE",
         "FINALIZE_PLATFORM_PROMOTION_RECEIPT",
-        "ROLLBACK_PLATFORM_RELEASE"
+        "ROLLBACK_PLATFORM_RELEASE",
+        "SUPERSEDE_EXPIRED_PLATFORM_PROMOTION"
       ],
       "forbidden_actions": [
         "DELETE_RELEASE",
@@ -1466,7 +1472,11 @@
         "guardian_pre_pass",
         "single_writer_promotion_lease",
         "immutable_receipts",
-        "automatic_external_spend_eur_zero"
+        "automatic_external_spend_eur_zero",
+        "expired_active_promotion_lease",
+        "active_current_exact",
+        "exact_successor_human_approval",
+        "no_current_mutation"
       ],
       "authority_scope": "EXACT_APPROVED_PLATFORM_PROMOTION_SINGLE_WRITER_ONLY"
     },
