@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/operator-directive-sink-catalog/v1",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "sinks": {
     "canonical-component-registry": [
       "dev-hub/bin/canonical_component_registry.py",
@@ -154,6 +154,20 @@
       "dev-hub/config/plugin-center.v1.json",
       "dev-hub/direct-operator-ui/index.html",
       "dev-hub/bin/direct-operator-service.py"
+    ],
+    "logic-search": [
+      "dev-hub/bin/logic-search-engine.py",
+      "dev-hub/config/logic-search.v1.json"
+    ],
+    "central-memory-recall": [
+      "dev-hub/bin/central-memory-recall.py",
+      "dev-hub/config/central-memory-recall.v1.json"
+    ],
+    "knowledge-vault-map": [
+      "dev-hub/bin/global-project-memory-index.py",
+      "dev-hub/bin/knowledge-compiler.py",
+      "dev-hub/config/knowledge-fabric.v1.json",
+      "dev-hub/config/reusable-architecture-memory.v1.json"
     ]
   },
   "automatic_external_spend_eur": 0
