@@ -1,0 +1,16 @@
+{
+  "schema": "chacha.dev/production-approval/v1",
+  "scope": "guardian-contracts-production",
+  "approved": true,
+  "approved_by": "operator",
+  "revision": "70cef39017d4730a3798244cc6c1fa2466ac73ca",
+  "purpose": "Activate the already-approved F11 remote-operator Guardian role contract so ChaCha Remote Operator can execute governed read-only MCP tools before the rest of F11 is promoted.",
+  "constraints": {
+    "semantic_contract_delta": "ADD_ONLY role:remote-operator-gateway-agent",
+    "no_other_guardian_contract_changes": true,
+    "guardian_bypass_forbidden": true,
+    "sentinel_bypass_forbidden": true,
+    "stop_respected": true,
+    "automatic_external_spend_eur": 0
+  }
+}
