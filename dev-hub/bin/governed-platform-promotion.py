@@ -296,6 +296,37 @@ def rollback(release_root:Path,current:Path,runtime_root:Path,receipt:Path,promo
       'rollback_release':str(rollback_path),'rollback_reason':reason,'current_release_mutated':before==release_root})
     ptx.write_once_json(receipt,out);ptx.release(runtime_root,lease_token,promotion_id,meta['candidate_revision'],'ROLLED_BACK');return out
 
+
+def supersede_expired_active_base(current:Path,runtime_root:Path,successor_approval:Path,guardian_event:Path,guardian_result:Path,receipt:Path)->dict[str,Any]:
+    if receipt.exists():raise ValueError('IMMUTABLE_RECEIPT_ALREADY_EXISTS:'+str(receipt))
+    current=current.resolve(strict=True);runtime_root=runtime_root.resolve()
+    revision=(current/'.revision').read_text(encoding='utf-8').strip()
+    tree=(current/'.tree').read_text(encoding='utf-8').strip()
+    meta=load(current/'.release-preparation.json')
+    if meta.get('activation_status') not in {'ACTIVE','ACTIVATED'}:raise ValueError('ACTIVE_BASE_METADATA_REQUIRED')
+    if str(meta.get('candidate_revision') or '')!=revision:raise ValueError('ACTIVE_BASE_REVISION_MISMATCH')
+    if str(meta.get('candidate_tree') or '')!=tree:raise ValueError('ACTIVE_BASE_TREE_MISMATCH')
+    lx=ptx.public_status(runtime_root)
+    if lx.get('status')!='EXPIRED':raise ValueError('EXPIRED_PROMOTION_LEASE_REQUIRED')
+    if lx.get('candidate_revision')!=revision:raise ValueError('EXPIRED_LEASE_ACTIVE_BASE_MISMATCH')
+    approval=load(successor_approval.resolve())
+    if approval.get('schema')!='chacha.dev/production-approval/v1':raise ValueError('SUCCESSOR_APPROVAL_SCHEMA_INVALID')
+    if approval.get('scope')!='platform-promotion-release-slot-reservation' or approval.get('approved') is not True:raise ValueError('SUCCESSOR_HUMAN_APPROVAL_REQUIRED')
+    successor_revision=str(approval.get('revision') or '');successor_tree=str(approval.get('tree') or '')
+    if not SHA_RE.fullmatch(successor_revision) or not SHA_RE.fullmatch(successor_tree):raise ValueError('SUCCESSOR_EXACT_SHA_TREE_REQUIRED')
+    if successor_revision==revision:raise ValueError('SUCCESSOR_MUST_DIFFER_FROM_ACTIVE_BASE')
+    event=load(guardian_event.resolve());result=load(guardian_result.resolve());evidence=event.get('evidence') or {}
+    if event.get('schema')!='chacha.dev/governance-action/v1' or event.get('phase')!='PRE_ACTION':raise ValueError('SUPERSESSION_GUARDIAN_EVENT_INVALID')
+    if event.get('actor')!='governed-platform-promotion' or event.get('subject_role')!='governed-platform-promotion':raise ValueError('SUPERSESSION_GUARDIAN_ACTOR_INVALID')
+    if event.get('action')!='SUPERSEDE_EXPIRED_PLATFORM_PROMOTION' or event.get('permission')!='production-deploy':raise ValueError('SUPERSESSION_GUARDIAN_ACTION_INVALID')
+    if evidence.get('human_approval') is not True or str(evidence.get('active_base_revision') or '')!=revision or str(evidence.get('successor_revision') or '')!=successor_revision:raise ValueError('SUPERSESSION_GUARDIAN_EVIDENCE_INVALID')
+    if str(result.get('action_id') or '')!=str(event.get('action_id') or '') or str(result.get('verdict') or '')!='PASS' or result.get('stop_recommended') is True:raise ValueError('SUPERSESSION_GUARDIAN_PASS_REQUIRED')
+    old_lease_id=str(lx.get('lease_id') or '');promotion_id=str(lx.get('promotion_id') or '');owner=str(lx.get('owner') or '')
+    rec=ptx.recover(runtime_root,promotion_id,owner,revision,old_lease_id,300)
+    released=ptx.release(runtime_root,str(rec.get('lease_token') or ''),promotion_id,revision,'SUPERSEDED')
+    out={'schema':SCHEMA,'phase':'SUPERSEDE_EXPIRED','status':'PASS','active_base_revision':revision,'active_base_tree':tree,'active_base_release':str(current),'successor_revision':successor_revision,'successor_tree':successor_tree,'expired_lease_id':old_lease_id,'recovered_lease_id':rec.get('lease_id'),'promotion_id':promotion_id,'terminal_status':released.get('terminal_status'),'current_release_mutated':False,'release_deleted':False,'guardian_action_id':result.get('action_id'),'automatic_external_spend_eur':0}
+    ptx.write_once_json(receipt,out);return out
+
 def main()->int:
     ap=argparse.ArgumentParser();sub=ap.add_subparsers(dest='cmd',required=True)
     a=sub.add_parser('lease-acquire');a.add_argument('--runtime-root',type=Path,required=True);a.add_argument('--promotion-id',required=True);a.add_argument('--owner',required=True);a.add_argument('--candidate-revision',required=True);a.add_argument('--ttl-seconds',type=int,default=1800)
@@ -307,6 +338,7 @@ def main()->int:
     p=sub.add_parser('seal-assurance');p.add_argument('--kind',choices=['guardian-post','sentinel-post'],required=True);p.add_argument('--source',type=Path,required=True);p.add_argument('--receipt',type=Path,required=True);p.add_argument('--runtime-root',type=Path,required=True);p.add_argument('--promotion-id',required=True);p.add_argument('--lease-token',required=True);p.add_argument('--candidate-revision',required=True)
     p=sub.add_parser('finalize');p.add_argument('--release-root',type=Path,required=True);p.add_argument('--current',type=Path,required=True);p.add_argument('--runtime-root',type=Path,required=True);p.add_argument('--receipt',type=Path,required=True);p.add_argument('--guardian-post',type=Path,required=True);p.add_argument('--sentinel-post',type=Path,required=True);p.add_argument('--readiness',type=Path,required=True);p.add_argument('--controlled-cycle-receipt',type=Path,required=True);p.add_argument('--timer-cycle-receipt',type=Path,required=True);p.add_argument('--release-count',type=int,required=True);p.add_argument('--promotion-id',required=True);p.add_argument('--lease-token',required=True)
     p=sub.add_parser('rollback');p.add_argument('--release-root',type=Path,required=True);p.add_argument('--current',type=Path,required=True);p.add_argument('--runtime-root',type=Path,required=True);p.add_argument('--receipt',type=Path,required=True);p.add_argument('--promotion-id',required=True);p.add_argument('--lease-token',required=True);p.add_argument('--reason',required=True)
+    p=sub.add_parser('supersede-expired');p.add_argument('--current',type=Path,required=True);p.add_argument('--runtime-root',type=Path,required=True);p.add_argument('--successor-approval',type=Path,required=True);p.add_argument('--guardian-event',type=Path,required=True);p.add_argument('--guardian-result',type=Path,required=True);p.add_argument('--receipt',type=Path,required=True)
     a=ap.parse_args()
     try:
         if a.cmd=='lease-acquire':out=ptx.acquire(a.runtime_root,a.promotion_id,a.owner,a.candidate_revision,a.ttl_seconds)
@@ -317,6 +349,7 @@ def main()->int:
         elif a.cmd=='activate':out=activate(a.release_root,a.current,a.runtime_root,a.receipt,a.promotion_id,a.lease_token)
         elif a.cmd=='seal-assurance':out=seal_assurance(a.kind,a.source,a.receipt,a.runtime_root,a.promotion_id,a.lease_token,a.candidate_revision)
         elif a.cmd=='rollback':out=rollback(a.release_root,a.current,a.runtime_root,a.receipt,a.promotion_id,a.lease_token,a.reason)
+        elif a.cmd=='supersede-expired':out=supersede_expired_active_base(a.current,a.runtime_root,a.successor_approval,a.guardian_event,a.guardian_result,a.receipt)
         else:out=finalize(a.release_root,a.current,a.runtime_root,a.receipt,a.guardian_post,a.sentinel_post,a.readiness,a.controlled_cycle_receipt,a.timer_cycle_receipt,a.release_count,a.promotion_id,a.lease_token)
         print(json.dumps(out,ensure_ascii=False));return 0
     except Exception as e:
