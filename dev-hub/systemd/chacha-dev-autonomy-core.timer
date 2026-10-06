@@ -8,7 +8,7 @@ OnUnitActiveSec=10min
 RandomizedDelaySec=30s
 AccuracySec=30s
 Persistent=true
-Unit=chacha-dev-autonomy-core.service
+Unit=chacha-dev-autonomy-core-timer.service
 
 [Install]
 WantedBy=timers.target

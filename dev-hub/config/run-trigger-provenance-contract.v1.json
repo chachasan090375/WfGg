@@ -1,0 +1,35 @@
+{
+  "schema": "chacha.dev/run-trigger-provenance-contract/v1",
+  "status": "ACTIVE_BY_DEFAULT",
+  "scope": "ALL_CURRENT_AND_FUTURE_RUN_PRODUCERS",
+  "required_trigger_kinds": [
+    "timer",
+    "manual",
+    "controlled",
+    "scheduler",
+    "resume"
+  ],
+  "canonical_run_field": "trigger",
+  "canonical_provenance_field": "trigger_provenance",
+  "invariants": {
+    "provenance_must_be_materialized_by_execution_envelope": true,
+    "post_hoc_evidence_fabrication_forbidden": true,
+    "guardian_bypass_forbidden": true,
+    "sentinel_bypass_forbidden": true,
+    "stop_bypass_forbidden": true,
+    "automatic_external_spend_eur": 0
+  },
+  "inheritance": {
+    "future_components": true,
+    "foundries": true,
+    "universal_materialization_gate": true,
+    "canonical_component_registry": true,
+    "guardian": true,
+    "sentinel": true,
+    "fleet_observatory": true,
+    "assurance": true,
+    "reconciler": true,
+    "intendant_hygiene_purge": true,
+    "lifecycle": true
+  }
+}
