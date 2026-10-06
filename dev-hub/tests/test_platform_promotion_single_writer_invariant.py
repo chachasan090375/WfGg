@@ -25,7 +25,7 @@ guard=load('guardian-role-contracts.v1.json')
 for cid in ('component:governed-platform-promotion','role:governed-platform-promotion'):
  c=next(x for x in guard['contracts'] if x['contract_id']==cid)
  assert 'ACTIVATE_PLATFORM_RELEASE' in c['allowed_actions'] and 'ROLLBACK_PLATFORM_RELEASE' in c['allowed_actions']
- assert 'SUPERSEDE_EXPIRED_PLATFORM_PROMOTION' in c['allowed_actions']
+ assert 'RECOVER_PROMOTION_LEASE' in c['allowed_actions']
  assert 'production-deploy' in c['allowed_permissions'] and 'OVERWRITE_PROMOTION_RECEIPT' in c['forbidden_actions']
  assert 'single_writer_promotion_lease' in c['required_evidence']
 print('CHACHA_DEV_PROMOTION_GUARDIAN_CONTRACT=PASS')
