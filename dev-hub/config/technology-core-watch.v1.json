@@ -1,7 +1,6 @@
 {
   "schema": "chacha.dev/technology-core-watch/v1",
-
-  "version": "1.15.0",
+  "version": "1.16.0",
   "purpose": "Continuously monitor the technology health and debt of ChaCha DEV itself.",
   "components": [
     {
@@ -228,7 +227,6 @@
       "id": "governed-platform-promotion",
       "class": "execution-governance",
       "criticality": "critical"
-
     },
     {
       "id": "technology-self-benchmark-observer",
@@ -264,6 +262,21 @@
       "component_id": "plugin-center",
       "class": "execution-governance",
       "criticality": "high"
+    },
+    {
+      "id": "remote-operator-gateway-agent",
+      "class": "execution",
+      "criticality": "critical"
+    },
+    {
+      "id": "autonomy-timer-trigger-wrapper",
+      "class": "execution",
+      "criticality": "critical"
+    },
+    {
+      "id": "chacha-dev-autonomy-core-timer",
+      "class": "surface",
+      "criticality": "critical"
     }
   ],
   "watch_dimensions": [
@@ -281,7 +294,6 @@
     "schema-compatibility",
     "observation-integrity",
     "instrumentation-drift",
-
     "event-delivery-latency",
     "external-mechanism-gap",
     "improvement-intelligence-drift",
