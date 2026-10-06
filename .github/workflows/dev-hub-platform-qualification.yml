@@ -2,11 +2,9 @@ name: ChaCha DEV platform qualification
 
 on:
   push:
-    branches:
-      - 'dev-hub-v*'
-      - 'roadmap-train-*'
-      - 'roadmap-master-train-*'
-      - 'roadmap-functional-*'
+    paths:
+      - 'dev-hub/**'
+      - '.github/workflows/dev-hub-platform-qualification.yml'
   workflow_dispatch:
 
 permissions:

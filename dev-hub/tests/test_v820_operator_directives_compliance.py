@@ -28,6 +28,54 @@ assert required.issubset(set(directives['active_global_ids']))
 canonical_policy=json.load(open(ROOT/'dev-hub/config/canonical-component-registry.v1.json'))
 registry=canon.build_registry(ROOT,canonical_policy)
 assert registry['birth_contract_complete'] is True
+
+# Permanent invariant:
+# material Guardian roles and new runtime components introduced by F11
+# must be born through the Canonical Component Registry.
+_registry_by_name={
+    str(row.get('name')):row
+    for row in registry['components']
+}
+
+_required_materialized_components={
+    'remote-operator-gateway-agent':'CORE_PLATFORM_COMPONENT',
+    'autonomy-timer-trigger-wrapper':'CORE_PLATFORM_COMPONENT',
+    'chacha-dev-autonomy-core-timer':'RUNTIME_INFRASTRUCTURE',
+}
+
+for _name,_class in _required_materialized_components.items():
+    assert _name in _registry_by_name,(
+        'CCR_COMPONENT_MISSING:'+_name
+    )
+    _row=_registry_by_name[_name]
+    assert _row['governance_class']==_class,(
+        'CCR_COMPONENT_CLASS_MISMATCH:'+_name
+    )
+    assert _row['birth_contract']['complete'] is True,(
+        'CCR_BIRTH_CONTRACT_INCOMPLETE:'+_name
+    )
+
+_remote=_registry_by_name['remote-operator-gateway-agent']
+assert (
+    _remote['birth_contract']['controls']['permissions']['value']
+    == ['read']
+), 'REMOTE_OPERATOR_LEAST_PRIVILEGE_NOT_PROPAGATED'
+
+_trigger_contract=json.load(open(
+    ROOT/'dev-hub/config/run-trigger-provenance-contract.v1.json'
+))
+assert (
+    _trigger_contract['schema']
+    == 'chacha.dev/run-trigger-provenance-contract/v1'
+)
+assert (
+    _trigger_contract['invariants']['guardian_bypass_forbidden']
+    is True
+)
+assert (
+    _trigger_contract['invariants']['sentinel_bypass_forbidden']
+    is True
+)
 assert registry['active_global_directive_digest']==directives['active_global_digest']
 assert registry['component_count']>=190
 for row in registry['components']:
