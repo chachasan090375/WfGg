@@ -134,6 +134,25 @@ with tempfile.TemporaryDirectory() as td:
  assert out['status']=='PASS' and ptx.public_status(runtime)['status']=='FINALIZED'
  print('CHACHA_DEV_PROMOTION_FINALIZE_AFTER_LEASE_RECOVERY_WITHOUT_EVIDENCE_REPLAY=PASS')
 
+
+with tempfile.TemporaryDirectory() as td:
+ t=Path(td);runtime=t/'runtime';runtime.mkdir();base=t/'base';base.mkdir();current=t/'current';current.symlink_to(base,target_is_directory=True)
+ (base/'.revision').write_text('a'*40+'\n');(base/'.tree').write_text('b'*40+'\n')
+ save(base/'.release-preparation.json',{'candidate_revision':'a'*40,'candidate_tree':'b'*40,'activation_status':'ACTIVE','human_production_approval_present':True,'platform_qualification':'PASS','guardian_pre_action':'PASS','sentinel_exact_revision':'PASS','rollback_path':str(base),'promotion_id':'promotion-stale-base','automatic_external_spend_eur':0})
+ acq=ptx.acquire(runtime,'promotion-stale-base','owner-a','a'*40,300)
+ lp=ptx.runtime_paths(runtime)['lease'];lx=json.load(open(lp));lx['expires_epoch']=time.time()-1;save(lp,lx)
+ approval=t/'successor-approval.json';save(approval,{'schema':'chacha.dev/production-approval/v1','scope':'platform-promotion-release-slot-reservation','approved':True,'approved_by':'operator','revision':'c'*40,'tree':'d'*40})
+ event=t/'guardian-pre-event.json';save(event,{'schema':'chacha.dev/governance-action/v1','event_id':'sup-pre','action_id':'sup-action','phase':'PRE_ACTION','actor':'governed-platform-promotion','subject_role':'governed-platform-promotion','action':'SUPERSEDE_EXPIRED_PLATFORM_PROMOTION','permission':'production-deploy','evidence':{'human_approval':True,'active_base_revision':'a'*40,'successor_revision':'c'*40}})
+ result=t/'guardian-pre-result.json';save(result,{'schema':'chacha.dev/guardian-verdict/v3','action_id':'sup-action','verdict':'PASS','stop_recommended':False})
+ receipt=t/'supersede.json'
+ out=gpp.supersede_expired_active_base(current,runtime,approval,event,result,receipt)
+ assert out['status']=='PASS' and out['terminal_status']=='SUPERSEDED',out
+ assert current.resolve()==base.resolve() and base.is_dir()
+ assert ptx.public_status(runtime)['status']=='SUPERSEDED'
+ assert out['current_release_mutated'] is False and out['release_deleted'] is False
+ print('CHACHA_DEV_PROMOTION_EXPIRED_ACTIVE_BASE_SUPERSESSION=PASS')
+
+
 source=(BIN/'governed-platform-promotion.py').read_text();tx=(BIN/'promotion_transaction.py').read_text()
 for marker in ('lease-acquire','lease-recover','seal-assurance','IMMUTABLE_RECEIPT_ALREADY_EXISTS','promotion_lease_id','atomic_current_switch'):
  assert marker in source or marker in tx,marker
