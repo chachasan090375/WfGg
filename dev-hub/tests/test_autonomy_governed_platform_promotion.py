@@ -142,7 +142,7 @@ with tempfile.TemporaryDirectory() as td:
  acq=ptx.acquire(runtime,'promotion-stale-base','owner-a','a'*40,300)
  lp=ptx.runtime_paths(runtime)['lease'];lx=json.load(open(lp));lx['expires_epoch']=time.time()-1;save(lp,lx)
  approval=t/'successor-approval.json';save(approval,{'schema':'chacha.dev/production-approval/v1','scope':'platform-promotion-release-slot-reservation','approved':True,'approved_by':'operator','revision':'c'*40,'tree':'d'*40})
- event=t/'guardian-pre-event.json';save(event,{'schema':'chacha.dev/governance-action/v1','event_id':'sup-pre','action_id':'sup-action','phase':'PRE_ACTION','actor':'governed-platform-promotion','subject_role':'governed-platform-promotion','action':'SUPERSEDE_EXPIRED_PLATFORM_PROMOTION','permission':'production-deploy','evidence':{'human_approval':True,'active_base_revision':'a'*40,'successor_revision':'c'*40}})
+ event=t/'guardian-pre-event.json';save(event,{'schema':'chacha.dev/governance-action/v1','event_id':'sup-pre','action_id':'sup-action','phase':'PRE_ACTION','actor':'governed-platform-promotion','subject_role':'governed-platform-promotion','action':'RECOVER_PROMOTION_LEASE','permission':'production-deploy','evidence':{'human_approval':True,'active_base_revision':'a'*40,'successor_revision':'c'*40,'recovery_outcome':'SUPERSEDED'}})
  result=t/'guardian-pre-result.json';save(result,{'schema':'chacha.dev/guardian-verdict/v3','action_id':'sup-action','verdict':'PASS','stop_recommended':False})
  receipt=t/'supersede.json'
  out=gpp.supersede_expired_active_base(current,runtime,approval,event,result,receipt)
