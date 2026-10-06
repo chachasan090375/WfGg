@@ -33,9 +33,18 @@ def test_reconciler_is_guardian_coverage_component():
     assert row["proof"]["marker"] in LATCH,row
 
 
-def test_release_train_branches_trigger_platform_qualification():
+def test_platform_qualification_is_capability_path_scoped():
     workflow=(ROOT/".github/workflows/dev-hub-platform-qualification.yml").read_text(encoding="utf-8")
-    assert "- 'roadmap-train-*'" in workflow
+    assert "- 'dev-hub/**'" in workflow
+    assert "- '.github/workflows/dev-hub-platform-qualification.yml'" in workflow
+    assert "workflow_dispatch:" in workflow
+    for legacy in (
+        "roadmap-train-*",
+        "roadmap-master-train-*",
+        "roadmap-functional-*",
+        "dev-hub-v*",
+    ):
+        assert legacy not in workflow
 
 
 if __name__ == "__main__":
