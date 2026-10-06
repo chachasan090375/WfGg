@@ -25,6 +25,20 @@ assert directives['active_global_directive_count']>=9
 required={'opdir-version-agnostic-runtime','opdir-universal-materialization',
           'opdir-canonical-inventory','opdir-universal-hygiene'}
 assert required.issubset(set(directives['active_global_ids']))
+assert 'opdir-logician-memory-map-first-route' in set(directives['active_global_ids'])
+_reasoning_rule=next(
+    x for x in policy['directives']
+    if x['directive_id']=='opdir-logician-memory-map-first-route'
+)
+assert _reasoning_rule['status']=='ACTIVE'
+assert _reasoning_rule['backfill_required'] is True
+for _sink in (
+    'central-orchestrator','direct-operator','run-controller','logician',
+    'logic-search','central-memory-recall','knowledge-vault-map',
+    'reuse-memory','cognitive-memory-fabric','release-qualification',
+):
+    assert _sink in _reasoning_rule['required_sinks'],_sink
+
 canonical_policy=json.load(open(ROOT/'dev-hub/config/canonical-component-registry.v1.json'))
 registry=canon.build_registry(ROOT,canonical_policy)
 assert registry['birth_contract_complete'] is True
@@ -85,6 +99,10 @@ for row in registry['components']:
     assert sorted(value['active_global_ids'])==sorted(directives['active_global_ids'])
 
 catalog=json.load(open(ROOT/'dev-hub/config/operator-directive-sinks.v1.json'))
+for _sink in ('logic-search','central-memory-recall','knowledge-vault-map'):
+    assert _sink in catalog['sinks'],_sink
+    assert catalog['sinks'][_sink],_sink
+
 report=impact.analyze(ROOT,directives,catalog)
 assert report['status']=='PASS',report
 assert report['missing_target_count']==0,report
