@@ -203,6 +203,8 @@
     "pre_materialization_retention_reservation": "REQUIRED_WHEN_PHYSICAL_RELEASE_COUNT_AT_LIMIT",
     "pre_materialization_retention_owner": "intendant",
     "activation_release_count_maximum": 3,
-    "guardian_pre_mode": "CANONICAL_ORCHESTRATOR_PROMOTION_PRE"
+    "guardian_pre_mode": "CANONICAL_ORCHESTRATOR_PROMOTION_PRE",
+    "superseded_terminal_state": "SUPERSEDED",
+    "expired_active_base_successor_supersession": "EXACT_APPROVED_SUCCESSOR_GUARDIAN_GATED"
   }
 }
