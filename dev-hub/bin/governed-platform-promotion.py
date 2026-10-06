@@ -318,8 +318,8 @@ def supersede_expired_active_base(current:Path,runtime_root:Path,successor_appro
     event=load(guardian_event.resolve());result=load(guardian_result.resolve());evidence=event.get('evidence') or {}
     if event.get('schema')!='chacha.dev/governance-action/v1' or event.get('phase')!='PRE_ACTION':raise ValueError('SUPERSESSION_GUARDIAN_EVENT_INVALID')
     if event.get('actor')!='governed-platform-promotion' or event.get('subject_role')!='governed-platform-promotion':raise ValueError('SUPERSESSION_GUARDIAN_ACTOR_INVALID')
-    if event.get('action')!='SUPERSEDE_EXPIRED_PLATFORM_PROMOTION' or event.get('permission')!='production-deploy':raise ValueError('SUPERSESSION_GUARDIAN_ACTION_INVALID')
-    if evidence.get('human_approval') is not True or str(evidence.get('active_base_revision') or '')!=revision or str(evidence.get('successor_revision') or '')!=successor_revision:raise ValueError('SUPERSESSION_GUARDIAN_EVIDENCE_INVALID')
+    if event.get('action')!='RECOVER_PROMOTION_LEASE' or event.get('permission')!='production-deploy':raise ValueError('SUPERSESSION_GUARDIAN_ACTION_INVALID')
+    if evidence.get('human_approval') is not True or str(evidence.get('active_base_revision') or '')!=revision or str(evidence.get('successor_revision') or '')!=successor_revision or str(evidence.get('recovery_outcome') or '')!='SUPERSEDED':raise ValueError('SUPERSESSION_GUARDIAN_EVIDENCE_INVALID')
     if str(result.get('action_id') or '')!=str(event.get('action_id') or '') or str(result.get('verdict') or '')!='PASS' or result.get('stop_recommended') is True:raise ValueError('SUPERSESSION_GUARDIAN_PASS_REQUIRED')
     old_lease_id=str(lx.get('lease_id') or '');promotion_id=str(lx.get('promotion_id') or '');owner=str(lx.get('owner') or '')
     rec=ptx.recover(runtime_root,promotion_id,owner,revision,old_lease_id,300)
