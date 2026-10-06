@@ -1,6 +1,6 @@
 {
   "schema": "chacha.dev/platform-promotion-transaction-policy/v1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "scope": "PLATFORM_GLOBAL",
   "purpose": "Make platform promotion single-writer, lease-bound, crash-recoverable and receipt-immutable.",
   "invariants": {
@@ -34,7 +34,10 @@
     "python_platform_current_units_require_bytecode_guard": true,
     "direct_python_entrypoints_importing_sovereign_modules_must_disable_bytecode_before_import": true,
     "direct_python_entrypoints_importing_release_local_modules_must_disable_bytecode_before_import": true,
-    "successful_reactivation_resets_prior_terminal_attempt_metadata": true
+    "successful_reactivation_resets_prior_terminal_attempt_metadata": true,
+    "expired_active_base_promotion_may_be_superseded_only_by_exact_approved_successor": true,
+    "superseding_expired_active_base_must_not_mutate_current_or_delete_release": true,
+    "superseding_expired_active_base_requires_guardian_pre_pass": true
   },
   "runtime": {
     "root": "/opt/chacha-dev/runtime/platform-promotion",
@@ -109,6 +112,15 @@
     "candidate_revision_change_on_recovery": "FORBIDDEN",
     "receipt_replay_required": false,
     "receipt_mutation_allowed": false,
-    "security_rule": "Only an expired ACTIVE lease may be recovered. A recovered lease may consume immutable receipts bound to its own ancestor lease IDs only when promotion_id and exact candidate revision remain unchanged."
+    "security_rule": "Only an expired ACTIVE lease may be recovered. A recovered lease may consume immutable receipts bound to its own ancestor lease IDs only when promotion_id and exact candidate revision remain unchanged.",
+    "active_base_supersession": {
+      "terminal_status": "SUPERSEDED",
+      "requires_expired_active_lease": true,
+      "requires_active_current_exact_revision": true,
+      "requires_exact_successor_human_approval": true,
+      "requires_guardian_pre_pass": true,
+      "current_mutation": false,
+      "release_deletion": false
+    }
   }
 }
