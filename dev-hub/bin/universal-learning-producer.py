@@ -8,7 +8,7 @@ from typing import Any
 import universal_learning_runtime as ul
 import sovereign_state_authority as ssa
 
-DEFAULT_RELAY="https://chacha-dev-learning-relay.chachasan090375.workers.dev"
+DEFAULT_RELAY="chacha-route://learning.relay"
 DEFAULT_INGEST=Path("/opt/chacha-dev/platform/current/dev-hub/bin/learning-delta-ingest.py")
 DEFAULT_DB=Path("/opt/chacha-dev/runtime/knowledge/learning-deltas.db")
 

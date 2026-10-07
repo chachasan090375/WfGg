@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 import sovereign_state_authority as ssa
 
-DEFAULT_RELAY="https://chacha-dev-learning-relay.chachasan090375.workers.dev"
+DEFAULT_RELAY="chacha-route://learning.relay"
 DEFAULT_KEY=Path("/opt/chacha-dev/runtime/secrets/central-learning-key.pem")
 
 def now_iso():return time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())

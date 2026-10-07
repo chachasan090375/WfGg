@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 REV="${WFGG_DEV_HUB_RADAR_ADAPTER_REV:-dev-hub-v5-radar-runtime-adapter-pilot-prep}"
-RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${REV}"
+RAW="chacha-route://provider.raw_githubusercontent_com"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 WORK="$(mktemp -d /tmp/chacha-radar-adapter-bootstrap.XXXXXX)"
 REPO="$WORK/repo"

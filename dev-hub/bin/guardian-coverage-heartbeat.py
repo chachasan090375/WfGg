@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+from canonical_route_runtime import resolve_path as canonical_route_path, resolve_value as canonical_route_value
 import argparse,hashlib,json,subprocess,time,uuid
 from pathlib import Path
 from typing import Any
 
 DEFAULT_ROOT=Path("/opt/chacha-dev/platform/current")
 DEFAULT_MANIFEST=DEFAULT_ROOT/"dev-hub/config/guardian-coverage-manifest.v1.json"
-DEFAULT_POLICY=DEFAULT_ROOT/"dev-hub/config/guardian-runtime-policy.v1.json"
-DEFAULT_CLIENT=DEFAULT_ROOT/"dev-hub/bin/guardian-client.py"
-DEFAULT_OUT=Path("/opt/chacha-dev/runtime/guardian/coverage-latest.json")
+DEFAULT_POLICY=canonical_route_path("intendant.authority", "guardian_policy")
+DEFAULT_CLIENT=canonical_route_path("intendant.authority", "guardian_client")
+DEFAULT_OUT=canonical_route_path("intendant.authority", "guardian_coverage")
 
 def load(path:Path)->dict[str,Any]:
     x=json.loads(path.read_text(encoding="utf-8"))

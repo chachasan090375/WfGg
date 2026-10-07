@@ -10,7 +10,7 @@
     "persistent_nas": {
       "provider": "nas",
       "host": "chachanas",
-      "root": "/share/CACHEDEV1_DATA/ChaCha-DEV-HUB",
+      "root": "chacha-route://knowledge.authoritative",
       "purpose": "authoritative persistent knowledge and project artifacts",
       "authoritative": true
     }

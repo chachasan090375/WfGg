@@ -1,0 +1,18 @@
+{
+  "schema": "chacha.dev/generated-route-projection-policy/v2",
+  "state": "CANDIDATE",
+  "source_of_truth": "CANONICAL_ROUTE_REGISTRY",
+  "materialization_boundary": "UNIVERSAL_MATERIALIZATION_GATE",
+  "rules": {
+    "consumer_owned_operational_routes": "FORBIDDEN",
+    "generated_concrete_routes": "NON_AUTHORITATIVE_PROJECTION_ONLY",
+    "every_generated_route_must_match_registry": true,
+    "every_generated_route_gets_provenance": true,
+    "provenance_must_include_registry_sha256": true,
+    "unknown_generated_route": "BLOCK",
+    "ambiguous_generated_route": "BLOCK",
+    "implicit_external_fallback": "FORBIDDEN",
+    "reverse_import_from_generated_output": "FORBIDDEN",
+    "promotion_requires_projection_gate_pass": true
+  }
+}

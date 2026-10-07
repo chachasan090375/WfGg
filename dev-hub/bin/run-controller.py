@@ -15,6 +15,7 @@ runtime execution fails closed when more than one distinct executable adapter
 would be required for a task.
 """
 from __future__ import annotations
+from canonical_route_runtime import resolve_path as canonical_route_path, resolve_value as canonical_route_value
 import sys
 sys.dont_write_bytecode=True
 
@@ -472,8 +473,8 @@ def guardian_gate(
     if not runtime_root.exists():
         return [], {"status": "NON_RUNTIME_TEST_BYPASS"}
 
-    client = release_local_path(cfg.get("client"), "dev-hub/bin/guardian-client.py")
-    guardian_policy = release_local_path(cfg.get("policy"), "dev-hub/config/guardian-runtime-policy.v1.json")
+    client = release_local_path(cfg.get("client"), canonical_route_value("intendant.authority", "guardian_client"))
+    guardian_policy = release_local_path(cfg.get("policy"), canonical_route_value("intendant.authority", "guardian_policy"))
     permission = str(((envelope.get("task") or {}).get("permission")) or "read")
     fail_closed = set(str(x) for x in (cfg.get("fail_closed_permissions") or []))
     context = envelope.get("policy_context") if isinstance(envelope.get("policy_context"), dict) else {}

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+from canonical_route_runtime import resolve_path as canonical_route_path, resolve_value as canonical_route_value
 import argparse,hashlib,json,os,subprocess,sys,time,urllib.parse,urllib.request,uuid
 from pathlib import Path
 from typing import Any
@@ -34,7 +35,7 @@ def workflow_success(runs:dict[str,Any],name:str,revision:str)->bool:
 def github_runs(repository:str,revision:str)->dict[str,Any]:
     q=urllib.parse.urlencode({"head_sha":revision,"per_page":100})
     req=urllib.request.Request(
-      "https://api.github.com/repos/"+repository+"/actions/runs?"+q,
+      "chacha-route://provider.api_github_com"+repository+"/actions/runs?"+q,
       headers={"User-Agent":"ChaCha-DEV-Source-Integration/1.0","Accept":"application/vnd.github+json"})
     with urllib.request.urlopen(req,timeout=20) as r:
         x=json.loads(r.read().decode("utf-8"))
@@ -148,8 +149,8 @@ def guardian_event(repo_root:Path,phase:str,plan:dict[str,Any],handoff:dict[str,
     ep.write_text(json.dumps(event,ensure_ascii=False)+"\n",encoding="utf-8")
     try:
         p=subprocess.run([
-          sys.executable,str(repo_root/"dev-hub/bin/guardian-client.py"),
-          "--policy",str(repo_root/"dev-hub/config/guardian-runtime-policy.v1.json"),
+          sys.executable,str(canonical_route_path("intendant.authority", "guardian_client")),
+          "--policy",str(canonical_route_path("intendant.authority", "guardian_policy")),
           "check","--event",str(ep)
         ],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=25)
     finally:

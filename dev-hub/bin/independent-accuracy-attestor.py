@@ -145,7 +145,7 @@ def fetch_github_json(url:str)->dict[str,Any]:
         return x
 
 def fetch_github_sources(repository:str,run_id:str)->tuple[dict[str,Any],dict[str,Any],dict[str,Any]]:
-    base=f"https://api.github.com/repos/{repository}/actions/runs/{run_id}"
+    base=f"chacha-route://provider.api_github_com"
     return fetch_github_json(base),fetch_github_json(base+"/jobs"),fetch_github_json(base+"/artifacts")
 
 def sentinel_case(run:Path,github_dir:Path|None,fetch_github:bool,source_dir:Path)->dict[str,Any]|None:

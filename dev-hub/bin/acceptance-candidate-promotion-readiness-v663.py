@@ -20,7 +20,7 @@ def now_iso()->str:return datetime.now(timezone.utc).isoformat().replace("+00:00
 def sha256(p:Path)->str:return "sha256:"+hashlib.sha256(p.read_bytes()).hexdigest()
 def github_runs(repository:str,revision:str)->dict[str,Any]:
     q=urllib.parse.urlencode({"head_sha":revision,"per_page":50})
-    url=f"https://api.github.com/repos/{repository}/actions/runs?{q}"
+    url=f"chacha-route://provider.api_github_com"
     req=urllib.request.Request(url,headers={"User-Agent":"ChaCha-DEV-V663-Readiness/1.0","Accept":"application/vnd.github+json"})
     with urllib.request.urlopen(req,timeout=20) as r:
         x=json.loads(r.read().decode("utf-8"))

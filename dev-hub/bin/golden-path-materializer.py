@@ -134,7 +134,7 @@ def preview_check(dist:Path,title:str)->dict[str,Any]:
         t=threading.Thread(target=server.serve_forever,daemon=True);t.start()
         try:
             started=time.monotonic()
-            with urlopen(f"http://127.0.0.1:{port}/",timeout=5) as r:
+            with urlopen(f"chacha-route://internal.127.0.0.1:{port}/",timeout=5) as r:
                 body=r.read().decode("utf-8","replace");status=r.status
             duration_ms=round((time.monotonic()-started)*1000,3)
         finally:

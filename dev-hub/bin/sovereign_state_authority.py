@@ -5,11 +5,11 @@ from pathlib import Path
 from typing import Any
 DEFAULT=Path('/opt/chacha-dev/runtime/sovereign-state/authority.json')
 REMOTE={
- 'guardian':'https://chacha-dev-guardian.chachasan090375.workers.dev',
- 'sentinel':'https://chacha-dev-sentinel.chachasan090375.workers.dev',
- 'assurance-exchange':'https://chacha-dev-assurance-exchange.chachasan090375.workers.dev',
- 'learning-relay':'https://chacha-dev-learning-relay.chachasan090375.workers.dev'}
-LOCAL={'guardian':'http://127.0.0.1:8871','sentinel':'http://127.0.0.1:8872','assurance-exchange':'http://127.0.0.1:8873','learning-relay':'http://127.0.0.1:8874'}
+ 'guardian':'chacha-route://guardian.authority',
+ 'sentinel':'chacha-route://sentinel.authority',
+ 'assurance-exchange':'chacha-route://assurance.exchange',
+ 'learning-relay':'chacha-route://learning.relay'}
+LOCAL={'guardian':'chacha-route://guardian.authority','sentinel':'chacha-route://sentinel.authority','assurance-exchange':'chacha-route://assurance.exchange','learning-relay':'chacha-route://learning.relay'}
 def load(path:Path|None=None)->dict[str,Any]:
  path=path or DEFAULT
  if not path.is_file():return {'schema':'chacha.dev/sovereign-state-authority/v1','mode':'D1_REMOTE','generation':0,'services':REMOTE,'fallback_services':LOCAL,'source':'DEFAULT_REMOTE'}

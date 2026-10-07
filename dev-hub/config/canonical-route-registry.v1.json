@@ -1,0 +1,1353 @@
+{
+  "schema": "chacha.dev/canonical-route-registry/v1",
+  "state": "CANDIDATE_NOT_ACTIVE",
+  "source_of_truth": "CANONICAL_COMPONENT_REGISTRY",
+  "projection_model": "CCR_CAPABILITY_DERIVED",
+  "source_revision": "70cef39017d4730a3798244cc6c1fa2466ac73ca",
+  "source_tree": "c961a249a3768ea6bf9909d4fa2f0c6eac911055",
+  "source_execution_plan_sha256": "b674e933ca545430aa806785cebc8b8e7eeb6205e1c3c1ea43b06bb0872a6e38",
+  "authority_mode": "LOCAL_SQLITE",
+  "routing_policy": {
+    "capability_first": true,
+    "consumer_owned_operational_routes_allowed": false,
+    "guardian_governed": true,
+    "sentinel_governed": true,
+    "stop_governed": true,
+    "fallback_explicit_only": true,
+    "unclassified_routes_selectable": false,
+    "sovereign_gap_routes_selectable": false
+  },
+  "routes": {
+    "assurance.exchange": {
+      "capability": "assurance.exchange",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:8873",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:8873",
+          "role": "LOCAL"
+        },
+        {
+          "value": "https://chacha-dev-assurance-exchange.chachasan090375.workers.dev",
+          "role": "EXTERNAL"
+        }
+      ],
+      "source_files": [
+        "/bin/sovereign_state_authority.py",
+        "/config/assurance-exchange-runtime-policy.v1.json",
+        "/config/project-embedded-assurance.v1.json",
+        "/config/sovereign-state-authority.local.v1.json",
+        "/config/sovereign-state-authority.remote.v1.json"
+      ],
+      "source_occurrences": 8,
+      "external_fallback_allowed": true
+    },
+    "bastion.authority": {
+      "capability": "bastion.authority",
+      "status": "BLOCKED_SOVEREIGN_GAP",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://chacha-dev-bastion.chachasan090375.workers.dev",
+          "role": "EXTERNAL"
+        }
+      ],
+      "source_files": [
+        "/config/bastion-runtime-policy.v1.json",
+        "/config/project-embedded-assurance.v1.json"
+      ],
+      "source_occurrences": 2,
+      "external_fallback_allowed": false
+    },
+    "curator.authority": {
+      "capability": "curator.authority",
+      "status": "BLOCKED_SOVEREIGN_GAP",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://chacha-dev-curator.chachasan090375.workers.dev",
+          "role": "EXTERNAL"
+        }
+      ],
+      "source_files": [
+        "/config/curator-runtime-policy.v1.json",
+        "/config/project-embedded-assurance.v1.json"
+      ],
+      "source_occurrences": 2,
+      "external_fallback_allowed": false
+    },
+    "guardian.authority": {
+      "capability": "guardian.authority",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:8871",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:8871",
+          "role": "LOCAL"
+        },
+        {
+          "value": "https://chacha-dev-guardian.chachasan090375.workers.dev",
+          "role": "EXTERNAL"
+        }
+      ],
+      "source_files": [
+        "/bin/install-v615-guardian-comparative-pilot.sh",
+        "/bin/install-v616-guardian-action-leases.sh",
+        "/bin/install-v617-dynamic-agent-role-contracts.sh",
+        "/bin/install-v618-dynamic-component-contracts.sh",
+        "/bin/install-v619-task-contract-binding.sh",
+        "/bin/install-v620-guardian-corrective-enforcement.sh",
+        "/bin/install-v621-universal-learning-loop.sh",
+        "/bin/install-v623-contextual-memory-recall.sh",
+        "/bin/install-v625-component-confidence.sh",
+        "/bin/sovereign_state_authority.py",
+        "/config/guardian-runtime-policy.v1.json",
+        "/config/project-embedded-assurance.v1.json",
+        "/config/sovereign-state-authority.local.v1.json",
+        "/config/sovereign-state-authority.remote.v1.json"
+      ],
+      "source_occurrences": 17,
+      "external_fallback_allowed": false
+    },
+    "intendant.authority": {
+      "capability": "intendant.authority",
+      "status": "BLOCKED_SOVEREIGN_GAP",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://chacha-dev-intendant.chachasan090375.workers.dev",
+          "role": "EXTERNAL"
+        }
+      ],
+      "source_files": [
+        "/config/intendant-runtime-policy.v1.json",
+        "/config/project-embedded-assurance.v1.json"
+      ],
+      "source_occurrences": 2,
+      "external_fallback_allowed": false
+    },
+    "internal.127.0.0.1": {
+      "capability": "internal.127.0.0.1",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1",
+          "role": "LOCAL"
+        }
+      ],
+      "source_files": [
+        "/bin/chrome-devtools-mcp-enable-readiness-ci.py",
+        "/bin/golden-path-materializer.py",
+        "/bin/install-central-learning-ingress.sh",
+        "/bin/playwright-mcp-legacy-compat-probe.py",
+        "/bin/playwright-mcp-pilot-probe.py",
+        "/bin/run-v64-runtime-pilot-via-chacha-dev.sh",
+        "/bin/sovereign-state-cutover-controller.py"
+      ],
+      "source_occurrences": 8,
+      "external_fallback_allowed": true
+    },
+    "internal.127.0.0.1_$EMERGENCY_SURFACE_PORT": {
+      "capability": "internal.127.0.0.1_$EMERGENCY_SURFACE_PORT",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:$EMERGENCY_SURFACE_PORT",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:$EMERGENCY_SURFACE_PORT",
+          "role": "LOCAL"
+        }
+      ],
+      "source_files": [
+        "/bin/run-v64-runtime-pilot-via-chacha-dev.sh"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": true
+    },
+    "internal.127.0.0.1_$EMERGENCY_SURFACE_PORT_": {
+      "capability": "internal.127.0.0.1_$EMERGENCY_SURFACE_PORT_",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:$EMERGENCY_SURFACE_PORT/",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:$EMERGENCY_SURFACE_PORT/",
+          "role": "LOCAL"
+        }
+      ],
+      "source_files": [
+        "/bin/run-v64-runtime-pilot-via-chacha-dev.sh"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": true
+    },
+    "internal.127.0.0.1_$PORT_healthz": {
+      "capability": "internal.127.0.0.1_$PORT_healthz",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:$PORT/healthz",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:$PORT/healthz",
+          "role": "LOCAL"
+        }
+      ],
+      "source_files": [
+        "/bin/install-central-learning-ingress.sh"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": true
+    },
+    "internal.127.0.0.1_20042_ready": {
+      "capability": "internal.127.0.0.1_20042_ready",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:20042/ready",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:20042/ready",
+          "role": "LOCAL"
+        }
+      ],
+      "source_files": [
+        "/bin/install-learning-edge-cloudflare.sh"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": true
+    },
+    "internal.127.0.0.1_8788": {
+      "capability": "internal.127.0.0.1_8788",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:8788",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:8788",
+          "role": "LOCAL"
+        }
+      ],
+      "source_files": [
+        "/bin/install-v730-direct-operator-android-widget.sh",
+        "/bin/install-v780-runtime-convergence.sh"
+      ],
+      "source_occurrences": 2,
+      "external_fallback_allowed": true
+    },
+    "internal.127.0.0.1_8790": {
+      "capability": "internal.127.0.0.1_8790",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:8790",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:8790",
+          "role": "LOCAL"
+        }
+      ],
+      "source_files": [
+        "/bin/run-radar-v6199-recover-stale-cycle66-via-chacha-dev.sh"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": true
+    },
+    "internal.127.0.0.1_8790}": {
+      "capability": "internal.127.0.0.1_8790}",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:8790}",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:8790}",
+          "role": "LOCAL"
+        }
+      ],
+      "source_files": [
+        "/bin/run-radar-v6199-recover-stale-cycle66-via-chacha-dev.sh"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": true
+    },
+    "internal.127.0.0.1_8791": {
+      "capability": "internal.127.0.0.1_8791",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:8791",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:8791",
+          "role": "LOCAL"
+        }
+      ],
+      "source_files": [
+        "/config/learning-edge.v1.json"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": true
+    },
+    "internal.127.0.0.1_8792": {
+      "capability": "internal.127.0.0.1_8792",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:8792",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:8792",
+          "role": "LOCAL"
+        }
+      ],
+      "source_files": [
+        "/bin/install-v730-direct-operator-android-widget.sh",
+        "/bin/install-v780-runtime-convergence.sh"
+      ],
+      "source_occurrences": 4,
+      "external_fallback_allowed": true
+    },
+    "internal.127.0.0.1_8792_api_v1_intent": {
+      "capability": "internal.127.0.0.1_8792_api_v1_intent",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:8792/api/v1/intent",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:8792/api/v1/intent",
+          "role": "LOCAL"
+        }
+      ],
+      "source_files": [
+        "/bin/install-v730-direct-operator-android-widget.sh",
+        "/bin/install-v780-runtime-convergence.sh"
+      ],
+      "source_occurrences": 4,
+      "external_fallback_allowed": true
+    },
+    "internal.127.0.0.1_8792_api_v1_jobs_": {
+      "capability": "internal.127.0.0.1_8792_api_v1_jobs_",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:8792/api/v1/jobs/",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:8792/api/v1/jobs/",
+          "role": "LOCAL"
+        }
+      ],
+      "source_files": [
+        "/bin/install-v730-direct-operator-android-widget.sh",
+        "/bin/install-v780-runtime-convergence.sh"
+      ],
+      "source_occurrences": 4,
+      "external_fallback_allowed": true
+    },
+    "internal.127.0.0.1_8792_healthz": {
+      "capability": "internal.127.0.0.1_8792_healthz",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:8792/healthz",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:8792/healthz",
+          "role": "LOCAL"
+        }
+      ],
+      "source_files": [
+        "/bin/guardian-governed-release-state-reconciler.py",
+        "/bin/install-v730-direct-operator-android-widget.sh",
+        "/bin/install-v780-runtime-convergence.sh"
+      ],
+      "source_occurrences": 3,
+      "external_fallback_allowed": true
+    },
+    "internal.127.0.0.1_v641-no-network-used": {
+      "capability": "internal.127.0.0.1_v641-no-network-used",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1/v641-no-network-used",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1/v641-no-network-used",
+          "role": "LOCAL"
+        }
+      ],
+      "source_files": [
+        "/bin/capability-build-loop.py"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": true
+    },
+    "internal.127.0.0.1_{port}": {
+      "capability": "internal.127.0.0.1_{port}",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:{port}",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:{port}",
+          "role": "LOCAL"
+        }
+      ],
+      "source_files": [
+        "/bin/chrome-devtools-mcp-enable-readiness-ci.py",
+        "/bin/playwright-mcp-legacy-compat-probe.py",
+        "/bin/playwright-mcp-pilot-probe.py"
+      ],
+      "source_occurrences": 3,
+      "external_fallback_allowed": true
+    },
+    "internal.127.0.0.1_{port}_": {
+      "capability": "internal.127.0.0.1_{port}_",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:{port}/",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:{port}/",
+          "role": "LOCAL"
+        }
+      ],
+      "source_files": [
+        "/bin/golden-path-materializer.py"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": true
+    },
+    "internal.127.0.0.1_{port}___sovereign_healthz": {
+      "capability": "internal.127.0.0.1_{port}___sovereign_healthz",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:{port}/__sovereign/healthz",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:{port}/__sovereign/healthz",
+          "role": "LOCAL"
+        }
+      ],
+      "source_files": [
+        "/bin/sovereign-state-cutover-controller.py"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": true
+    },
+    "knowledge.authoritative": {
+      "capability": "knowledge.authoritative",
+      "status": "CANDIDATE",
+      "primary": "/share/CACHEDEV1_DATA/ChaCha-DEV-HUB",
+      "candidates": [
+        {
+          "value": "/share/CACHEDEV1_DATA/ChaCha-DEV-HUB",
+          "role": "STORAGE"
+        },
+        {
+          "value": "/share/CACHEDEV1_DATA/ChaCha-DEV-HUB/",
+          "role": "STORAGE"
+        }
+      ],
+      "source_files": [
+        "/bin/collector-incremental-auto-watch.py",
+        "/bin/install-collector-incremental-auto-watch.sh",
+        "/bin/install-nas-ssh-adapter-pilot.sh",
+        "/bin/install-storage-governor-collector-master-pilot.sh",
+        "/bin/run-storage-governor-incremental-chain-pilot.sh",
+        "/bin/run-storage-restore-verifier-pilot.sh",
+        "/bin/run-v64-nas-persistence-resume.sh",
+        "/bin/run-v64-runtime-pilot-via-chacha-dev.sh",
+        "/config/nas-readback-adapter.v1.json",
+        "/config/recovery-drill.v1.json",
+        "/config/storage-tiers.v1.json"
+      ],
+      "source_occurrences": 11,
+      "external_fallback_allowed": true
+    },
+    "learning.relay": {
+      "capability": "learning.relay",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:8874",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:8874",
+          "role": "LOCAL"
+        },
+        {
+          "value": "https://chacha-dev-learning-relay.chachasan090375.workers.dev",
+          "role": "EXTERNAL"
+        }
+      ],
+      "source_files": [
+        "/bin/central-learning-relay-puller.py",
+        "/bin/install-central-learning-relay-puller.sh",
+        "/bin/install-v621-universal-learning-loop.sh",
+        "/bin/register-learning-producer.py",
+        "/bin/sovereign_state_authority.py",
+        "/bin/universal-learning-producer.py",
+        "/config/sovereign-state-authority.local.v1.json",
+        "/config/sovereign-state-authority.remote.v1.json"
+      ],
+      "source_occurrences": 11,
+      "external_fallback_allowed": true
+    },
+    "project.c132a897_wfgg_pages_dev": {
+      "capability": "project.c132a897_wfgg_pages_dev",
+      "status": "CANDIDATE",
+      "primary": "https://c132a897.wfgg.pages.dev",
+      "candidates": [
+        {
+          "value": "https://c132a897.wfgg.pages.dev",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/bin/cloudflare-pages-preview-contract-ok-validate.py"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": true
+    },
+    "project.deadbeef-wfgg-api_example_workers_dev": {
+      "capability": "project.deadbeef-wfgg-api_example_workers_dev",
+      "status": "EXTERNAL_ONLY",
+      "primary": "https://deadbeef-wfgg-api.example.workers.dev",
+      "candidates": [
+        {
+          "value": "https://deadbeef-wfgg-api.example.workers.dev",
+          "role": "EXTERNAL"
+        }
+      ],
+      "source_files": [
+        "/bin/cloudflare-pages-preview-contract-ok-validate.py"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": true
+    },
+    "project.feature-x_wfgg_pages_dev": {
+      "capability": "project.feature-x_wfgg_pages_dev",
+      "status": "CANDIDATE",
+      "primary": "https://feature-x.wfgg.pages.dev",
+      "candidates": [
+        {
+          "value": "https://feature-x.wfgg.pages.dev",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/bin/cloudflare-pages-preview-contract-ok-validate.py"
+      ],
+      "source_occurrences": 2,
+      "external_fallback_allowed": true
+    },
+    "project.wfgg-radar_chachasan090375_workers_dev": {
+      "capability": "project.wfgg-radar_chachasan090375_workers_dev",
+      "status": "EXTERNAL_ONLY",
+      "primary": "https://wfgg-radar.chachasan090375.workers.dev",
+      "candidates": [
+        {
+          "value": "https://wfgg-radar.chachasan090375.workers.dev",
+          "role": "EXTERNAL"
+        }
+      ],
+      "source_files": [
+        "/bin/run-radar-v6198-autopilot-production-activation-via-chacha-dev.sh",
+        "/bin/run-radar-v6198-postdeploy-smoke-e2e.sh",
+        "/bin/run-radar-v6199-autopilot-production-activation-via-chacha-dev.sh",
+        "/bin/run-radar-v6199-postdeploy-smoke-e2e.sh"
+      ],
+      "source_occurrences": 4,
+      "external_fallback_allowed": true
+    },
+    "project.wfgg_pages_dev": {
+      "capability": "project.wfgg_pages_dev",
+      "status": "CANDIDATE",
+      "primary": "https://wfgg.pages.dev",
+      "candidates": [
+        {
+          "value": "https://wfgg.pages.dev",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/bin/finalize-v639-post-release-operate.sh",
+        "/bin/resume-v639-release-to-operate.sh",
+        "/bin/run-v639-wfgg-real-production-pilot.sh",
+        "/config/cloudflare-pages-project-bindings.v1.json"
+      ],
+      "source_occurrences": 8,
+      "external_fallback_allowed": true
+    },
+    "provider.api_cloudflare_com": {
+      "capability": "provider.api_cloudflare_com",
+      "status": "CANDIDATE",
+      "primary": "https://api.cloudflare.com/client/v4/accounts/{aid}/pages/projects/{pname}",
+      "candidates": [
+        {
+          "value": "https://api.cloudflare.com/client/v4/accounts/{aid}/pages/projects/{pname}",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://api.cloudflare.com/client/v4/accounts/{aid}/pages/projects/{project}",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://api.cloudflare.com/client/v4/accounts/{aid}/pages/projects?per_page=100",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://api.cloudflare.com/client/v4/accounts/{q}/pages/projects?per_page=1",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://api.cloudflare.com/client/v4/accounts?per_page=50",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/bin/discover-v639-cloudflare-pages-targets.py",
+        "/bin/run-v639-wfgg-real-production-pilot.sh",
+        "/bin/verify-v639-cloudflare-pages-wfgg-target.py"
+      ],
+      "source_occurrences": 6,
+      "external_fallback_allowed": true
+    },
+    "provider.api_firecrawl_dev": {
+      "capability": "provider.api_firecrawl_dev",
+      "status": "CANDIDATE",
+      "primary": "https://api.firecrawl.dev/v2/search",
+      "candidates": [
+        {
+          "value": "https://api.firecrawl.dev/v2/search",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/config/dark-intelligence-firecrawl-fallback.v1.json"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": true
+    },
+    "provider.api_github_com": {
+      "capability": "provider.api_github_com",
+      "status": "CANDIDATE",
+      "primary": "https://api.github.com/repos/",
+      "candidates": [
+        {
+          "value": "https://api.github.com/repos/",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://api.github.com/repos/$REPO/actions/jobs/$JOB_ID/logs",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://api.github.com/repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://api.github.com/repos/$REPO/actions/runs?head_sha=$REV&per_page=100",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://api.github.com/repos/chachasan090375/WfGg/actions/runs?",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://api.github.com/repos/chachasan090375/WfGg/branches?per_page=100",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://api.github.com/repos/{repository}/actions/runs/{run_id}",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://api.github.com/repos/{repository}/actions/runs?{q}",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://api.github.com/repos/{repository}/commits/{commit_sha}/check-runs?per_page=100",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/bin/acceptance-candidate-promotion-readiness-v663.py",
+        "/bin/architecture-council-agent-candidate-review-v664.py",
+        "/bin/architecture-council-platform-component-review.py",
+        "/bin/architecture-council-platform-consolidation.py",
+        "/bin/independent-accuracy-attestor.py",
+        "/bin/install-v663-runtime-surface-instrumentation-readiness.sh",
+        "/bin/install-v664-real-instrumented-project-acceptance-review.sh",
+        "/bin/install-v700-consolidated-platform-baseline.sh",
+        "/bin/install-v710-intendant-hygiene-cycle.sh",
+        "/bin/install-v720-human-interface-gateway.sh",
+        "/bin/install-v730-direct-operator-android-widget.sh",
+        "/bin/install-v780-runtime-convergence.sh",
+        "/bin/intendant-hygiene-cycle.py",
+        "/bin/pilot-v639-cloudflare-pages-enablement-readiness.sh",
+        "/bin/platform-component-source-integration-executor.py",
+        "/bin/project-preview-pipeline.py",
+        "/bin/read-v639-cloudflare-pages-target-discovery.sh",
+        "/bin/verify-v639-cloudflare-pages-enabled-sync.sh"
+      ],
+      "source_occurrences": 20,
+      "external_fallback_allowed": true
+    },
+    "provider.codeload_github_com": {
+      "capability": "provider.codeload_github_com",
+      "status": "CANDIDATE",
+      "primary": "https://codeload.github.com/$REPO/tar.gz/$REV",
+      "candidates": [
+        {
+          "value": "https://codeload.github.com/$REPO/tar.gz/$REV",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://codeload.github.com/chachasan090375/WfGg/tar.gz/${REV}",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/bin/bootstrap-architecture-specialist-runtime.sh",
+        "/bin/enable-v639-cloudflare-pages-production-adapter.sh",
+        "/bin/install-central-learning-ingress.sh",
+        "/bin/install-central-learning-relay-puller.sh",
+        "/bin/install-emergency-control-bridge.sh",
+        "/bin/install-learning-edge-cloudflare.sh",
+        "/bin/install-v611-architecture-decision-council.sh",
+        "/bin/install-v612-reusable-branch-learning.sh",
+        "/bin/install-v613-reusable-architecture-memory.sh",
+        "/bin/install-v614-architecture-portfolio-optimizer.sh",
+        "/bin/install-v615-guardian-comparative-pilot.sh",
+        "/bin/install-v616-guardian-action-leases.sh",
+        "/bin/install-v617-dynamic-agent-role-contracts.sh",
+        "/bin/install-v618-dynamic-component-contracts.sh",
+        "/bin/install-v619-task-contract-binding.sh",
+        "/bin/install-v620-guardian-corrective-enforcement.sh",
+        "/bin/install-v621-universal-learning-loop.sh",
+        "/bin/install-v622-central-memory-assimilation.sh",
+        "/bin/install-v623-contextual-memory-recall.sh",
+        "/bin/install-v624-production-lineage-feedback.sh",
+        "/bin/install-v625-component-confidence.sh",
+        "/bin/install-v626-acceptance-confidence-loop.sh",
+        "/bin/install-v627-verified-evidence-learning.sh",
+        "/bin/install-v628-trusted-dispatch-lineage.sh",
+        "/bin/install-v629-memory-guided-foundry-planning.sh",
+        "/bin/install-v630-external-dual-assurance.sh",
+        "/bin/install-v631-assurance-exchange.sh",
+        "/bin/install-v632-project-embedded-assurance.sh",
+        "/bin/install-v633-five-agent-embedded-probes.sh",
+        "/bin/install-v634-logic-ux-challenge-loop.sh",
+        "/bin/install-v635-central-specialist-authorities.sh",
+        "/bin/install-v636-seven-agent-final-compromise.sh",
+        "/bin/install-v637-automatic-seven-agent-finalization.sh",
+        "/bin/install-v638-full-autonomous-golden-path.sh",
+        "/bin/install-v640-capability-foundry-auto-closure.sh",
+        "/bin/install-v641-capability-build-loop.sh",
+        "/bin/install-v642-durable-capability-adoption.sh",
+        "/bin/install-v643-multi-project-trust-graduation.sh",
+        "/bin/install-v644-trust-freshness-continuous-revalidation.sh",
+        "/bin/install-v645-technology-truth-scoring-core-watch.sh",
+        "/bin/install-v646-agent-evolution-continuous-optimization.sh",
+        "/bin/install-v647-agent-fleet-observatory.sh",
+        "/bin/install-v648-agent-observation-bus.sh",
+        "/bin/install-v649-assurance-agent-instrumentation.sh",
+        "/bin/install-v650-agent-benchmark-bus-self-evolution.sh",
+        "/bin/install-v650-agent-benchmark-shadow-evolution.sh",
+        "/bin/install-v651-executable-agent-benchmark-adapters.sh",
+        "/bin/install-v652-deep-assurance-calibration-second-wave.sh",
+        "/bin/install-v652-deep-assurance-second-wave.sh",
+        "/bin/install-v653-calibration-handoff-learning-third-wave.sh",
+        "/bin/install-v654-universal-evolution-governance.sh",
+        "/bin/install-v655-production-evidence-fifth-wave.sh",
+        "/bin/install-v656-sixth-adapter-production-weighted-maturity.sh",
+        "/bin/install-v657-seventh-adapter-authority-specialist.sh",
+        "/bin/install-v658-visual-content-project-radar.sh",
+        "/bin/install-v659-production-evidence-operational-maturity.sh",
+        "/bin/install-v660-independent-accuracy-attestation.sh",
+        "/bin/install-v661-real-world-evidence-isolated-candidate.sh",
+        "/bin/install-v662-remaining-real-world-acceptance-independent-pilot.sh",
+        "/bin/install-v663-runtime-surface-instrumentation-readiness.sh",
+        "/bin/install-v664-real-instrumented-project-acceptance-review.sh",
+        "/bin/install-v700-consolidated-platform-baseline.sh",
+        "/bin/install-v710-intendant-hygiene-cycle.sh",
+        "/bin/install-v720-human-interface-gateway.sh",
+        "/bin/install-v730-direct-operator-android-widget.sh",
+        "/bin/install-v780-runtime-convergence.sh",
+        "/bin/pilot-v639-cloudflare-pages-enablement-readiness.sh",
+        "/bin/pilot-v639-cloudflare-pages-production-adapter-runtime.sh",
+        "/bin/pilot-v639-controlled-production-handoff-dry-run.sh",
+        "/bin/run-collector-knowledge-v1-pilot-via-chacha-dev.sh",
+        "/bin/run-radar-autopilot-progress-diagnostic-e2e.sh",
+        "/bin/run-radar-census-frontier-diagnostic-e2e.sh",
+        "/bin/run-radar-cluster-catalog-probe-e2e.sh",
+        "/bin/run-radar-cluster-quality-diagnostic-e2e.sh",
+        "/bin/run-radar-control-plane-status-e2e.sh",
+        "/bin/run-radar-email-auth-runtime-diagnostic-e2e.sh",
+        "/bin/run-radar-history-performance-diagnostic-e2e.sh",
+        "/bin/run-radar-seed-scout-route-diagnostic-e2e.sh",
+        "/bin/run-radar-v61910-functional-partial-limit-pilot-via-chacha-dev.sh",
+        "/bin/run-radar-v61910-pilot-via-chacha-dev.sh",
+        "/bin/run-radar-v6192-pilot-via-chacha-dev.sh",
+        "/bin/run-radar-v6193-pilot-via-chacha-dev.sh",
+        "/bin/run-radar-v6193-production-sentinel-reconcile.sh",
+        "/bin/run-radar-v6194-pilot-via-chacha-dev.sh",
+        "/bin/run-radar-v6194-production-sentinel-reconcile.sh",
+        "/bin/run-radar-v6196-pilot-via-chacha-dev.sh",
+        "/bin/run-radar-v6196-production-sentinel-reconcile.sh",
+        "/bin/run-radar-v6196-sentinel-release-diagnostic-e2e.sh",
+        "/bin/run-radar-v6197-functional-stale-pilot-via-chacha-dev.sh",
+        "/bin/run-radar-v6197-pilot-via-chacha-dev.sh",
+        "/bin/run-radar-v6198-autopilot-production-activation-via-chacha-dev.sh",
+        "/bin/run-radar-v6198-enospc-recovery-via-chacha-dev.sh",
+        "/bin/run-radar-v6198-functional-terminalization-pilot-via-chacha-dev.sh",
+        "/bin/run-radar-v6198-pilot-via-chacha-dev.sh",
+        "/bin/run-radar-v6198-postdeploy-smoke-e2e.sh",
+        "/bin/run-radar-v6198-production-sentinel-reconcile.sh",
+        "/bin/run-radar-v6199-autopilot-production-activation-via-chacha-dev.sh",
+        "/bin/run-radar-v6199-functional-targeted-history-pilot-via-chacha-dev.sh",
+        "/bin/run-radar-v6199-pilot-via-chacha-dev.sh",
+        "/bin/run-radar-v6199-postdeploy-smoke-e2e.sh",
+        "/bin/run-radar-v6199-production-sentinel-reconcile.sh",
+        "/bin/run-radar-v6199-recover-stale-cycle66-via-chacha-dev.sh",
+        "/bin/run-radar-v624-messenger-pilot-via-chacha-dev.sh",
+        "/bin/run-technical-design-via-project-control.sh",
+        "/bin/run-v64-nas-persistence-resume.sh",
+        "/bin/run-v64-runtime-pilot-via-chacha-dev.sh",
+        "/bin/verify-v639-cloudflare-pages-enabled-sync.sh"
+      ],
+      "source_occurrences": 107,
+      "external_fallback_allowed": true
+    },
+    "provider.github_com": {
+      "capability": "provider.github_com",
+      "status": "CANDIDATE",
+      "primary": "https://github.com/ChromeDevTools/chrome-devtools-mcp",
+      "candidates": [
+        {
+          "value": "https://github.com/ChromeDevTools/chrome-devtools-mcp",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://github.com/ChromeDevTools/chrome-devtools-mcp/blob/chrome-devtools-mcp-v1.9.0/docs/configuration.md",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://github.com/ChromeDevTools/chrome-devtools-mcp/blob/chrome-devtools-mcp-v1.9.0/docs/tool-reference.md",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://github.com/microsoft/playwright-mcp",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/config/mcp-chrome-devtools-contract.v1.json",
+        "/config/mcp-playwright-contract.v1.json"
+      ],
+      "source_occurrences": 4,
+      "external_fallback_allowed": true
+    },
+    "provider.mcp_context7_com": {
+      "capability": "provider.mcp_context7_com",
+      "status": "CANDIDATE",
+      "primary": "https://mcp.context7.com/mcp",
+      "candidates": [
+        {
+          "value": "https://mcp.context7.com/mcp",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/bin/mcp-context7-contract-validate.py",
+        "/config/mcp-context7-contract.v1.json"
+      ],
+      "source_occurrences": 2,
+      "external_fallback_allowed": true
+    },
+    "provider.raw_githubusercontent_com": {
+      "capability": "provider.raw_githubusercontent_com",
+      "status": "CANDIDATE",
+      "primary": "https://raw.githubusercontent.com/chachasan090375/WfGg",
+      "candidates": [
+        {
+          "value": "https://raw.githubusercontent.com/chachasan090375/WfGg",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://raw.githubusercontent.com/chachasan090375/WfGg/",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://raw.githubusercontent.com/chachasan090375/WfGg/${ARTIFACT_REVISION}",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://raw.githubusercontent.com/chachasan090375/WfGg/${BRANCH}",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://raw.githubusercontent.com/chachasan090375/WfGg/${REV}",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://raw.githubusercontent.com/chachasan090375/WfGg/${SOURCE_REVISION}",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://raw.githubusercontent.com/chachasan090375/WfGg/chacha-emergency-control/dev-hub/control/emergency-stop-command.json}",
+          "role": "NETWORK"
+        },
+        {
+          "value": "https://raw.githubusercontent.com/chachasan090375/WfGg/radar-production-v1/radar-vps/release/SHA256SUMS",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/bin/emergency-control-bridge.py",
+        "/bin/install-collector-incremental-auto-watch.sh",
+        "/bin/install-collector-knowledge-adapter-pilot.sh",
+        "/bin/install-emergency-control-bridge.sh",
+        "/bin/install-nas-ssh-adapter-pilot.sh",
+        "/bin/install-radar-runtime-adapter-pilot.sh",
+        "/bin/install-storage-governor-collector-master-pilot.sh",
+        "/bin/install-technology-watch-runtime.sh",
+        "/bin/qualify-radar-runtime-adapter-enabled-readiness.sh",
+        "/bin/qualify-radar-runtime-adapter-pilot.sh",
+        "/bin/run-radar-v6198-production-sentinel-reconcile.sh",
+        "/bin/run-radar-v6199-production-sentinel-reconcile.sh",
+        "/bin/run-storage-governor-incremental-chain-pilot.sh",
+        "/bin/run-storage-governor-incremental-discovery-pilot.sh",
+        "/bin/run-storage-governor-incremental-plan-pilot.sh",
+        "/bin/run-storage-restore-verifier-pilot.sh"
+      ],
+      "source_occurrences": 17,
+      "external_fallback_allowed": true
+    },
+    "sentinel.authority": {
+      "capability": "sentinel.authority",
+      "status": "CANDIDATE",
+      "primary": "http://127.0.0.1:8872",
+      "candidates": [
+        {
+          "value": "http://127.0.0.1:8872",
+          "role": "LOCAL"
+        },
+        {
+          "value": "https://chacha-dev-sentinel.chachasan090375.workers.dev",
+          "role": "EXTERNAL"
+        }
+      ],
+      "source_files": [
+        "/bin/sovereign_state_authority.py",
+        "/config/project-embedded-assurance.v1.json",
+        "/config/sentinel-runtime-policy.v1.json",
+        "/config/sovereign-state-authority.local.v1.json",
+        "/config/sovereign-state-authority.remote.v1.json"
+      ],
+      "source_occurrences": 8,
+      "external_fallback_allowed": false
+    },
+    "storage.share_keyrings": {
+      "capability": "storage.share_keyrings",
+      "status": "CANDIDATE",
+      "primary": "/share/keyrings",
+      "candidates": [
+        {
+          "value": "/share/keyrings",
+          "role": "STORAGE"
+        }
+      ],
+      "source_files": [
+        "/bin/install-learning-edge-cloudflare.sh"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": true
+    },
+    "storage.share_keyrings_cloudflare_main.gpg": {
+      "capability": "storage.share_keyrings_cloudflare_main.gpg",
+      "status": "CANDIDATE",
+      "primary": "/share/keyrings/cloudflare-main.gpg",
+      "candidates": [
+        {
+          "value": "/share/keyrings/cloudflare-main.gpg",
+          "role": "STORAGE"
+        }
+      ],
+      "source_files": [
+        "/bin/install-learning-edge-cloudflare.sh"
+      ],
+      "source_occurrences": 3,
+      "external_fallback_allowed": true
+    },
+    "unclassified.04a206ac6593": {
+      "capability": "unclassified.04a206ac6593",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://www.langchain.com/langgraph",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/config/technology-self-benchmark-sources.v1.json"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.04dcb0156bc5": {
+      "capability": "unclassified.04dcb0156bc5",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://factory.ai/",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/config/technology-self-benchmark-sources.v1.json"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.06f45583e31b": {
+      "capability": "unclassified.06f45583e31b",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://c132a897.wfgg.pages.dev\\nBranch",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/bin/cloudflare-pages-preview-contract-ok-validate.py"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.12952dc3add0": {
+      "capability": "unclassified.12952dc3add0",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://*)",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/bin/install-learning-edge-cloudflare.sh"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.190c85837405": {
+      "capability": "unclassified.190c85837405",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://chachavps.tail3ab05a.ts.net:8445/chacha-jai-pete-v0.6.0-4fb319fcea6d.apk",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/config/android-migration-bootstrap.v1.json"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.32ec0766f131": {
+      "capability": "unclassified.32ec0766f131",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://chachavps.tail3ab05a.ts.net:8443",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/config/direct-operator.v1.json"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.359a2dd9e62f": {
+      "capability": "unclassified.359a2dd9e62f",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "http://${bind}:${port}${req.url||",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/bin/d1-worker-local-runtime.mjs"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.37473e575888": {
+      "capability": "unclassified.37473e575888",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://docs.github.com/en/copilot/",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/config/technology-self-benchmark-sources.v1.json"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.469a9d396658": {
+      "capability": "unclassified.469a9d396658",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://developer.nvidia.com/",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/config/technology-self-benchmark-sources.v1.json"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.5e05e5035378": {
+      "capability": "unclassified.5e05e5035378",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://cognition.ai/",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/config/technology-self-benchmark-sources.v1.json"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.74008387aa60": {
+      "capability": "unclassified.74008387aa60",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://www.openhands.dev/",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/config/technology-self-benchmark-sources.v1.json"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.7ad57fb29f5f": {
+      "capability": "unclassified.7ad57fb29f5f",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://pkg.cloudflare.com/cloudflared",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/bin/install-learning-edge-cloudflare.sh"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.9b54f6207807": {
+      "capability": "unclassified.9b54f6207807",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://pkg.cloudflare.com/cloudflare-main.gpg",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/bin/install-learning-edge-cloudflare.sh"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.a5d0bae7679e": {
+      "capability": "unclassified.a5d0bae7679e",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://playwright.dev/mcp/introduction",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/config/mcp-playwright-contract.v1.json"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.b8dc840fe342": {
+      "capability": "unclassified.b8dc840fe342",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://replit.com/",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/config/technology-self-benchmark-sources.v1.json"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.c963edede24a": {
+      "capability": "unclassified.c963edede24a",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://microsoft.github.io/autogen/",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/config/technology-self-benchmark-sources.v1.json"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.ceb6346b4150": {
+      "capability": "unclassified.ceb6346b4150",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://modelcontextprotocol.io",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/config/technology-radar-mcp-watch.v1.json"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.e26b56644536": {
+      "capability": "unclassified.e26b56644536",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://www.cloudflarestatus.com/api/v2/components.json",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/bin/qualify-cloudflare-pages-provider-health.py"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    },
+    "unclassified.fbe825d20145": {
+      "capability": "unclassified.fbe825d20145",
+      "status": "QUARANTINED_UNCLASSIFIED",
+      "primary": null,
+      "candidates": [
+        {
+          "value": "https://mcp.exa.ai/mcp",
+          "role": "NETWORK"
+        }
+      ],
+      "source_files": [
+        "/config/dark-intelligence-public-corroboration.v1.json"
+      ],
+      "source_occurrences": 1,
+      "external_fallback_allowed": false
+    }
+  },
+  "materialization_bindings": {
+    "schema": "chacha.dev/canonical-materialization-bindings/v1",
+    "authority": "CANONICAL_ROUTE_REGISTRY",
+    "generated_from_receipts": {
+      "functional_entrypoints": "bfb980e967401654c3ef479029c7e3f4c93fac51557f0f1eea131e17d22a879f",
+      "protocol_binding": "e782b71aa6824e305b33ffc9469796c59049a4d670ee935aafcf05dfe5efa22f",
+      "explicit_mapping": "d68c9908606610320bc52b636bfe4f8b32e5c45b3b4e891e86f04ee55188158e",
+      "intendant_dependency_trace": "2b11b2d062f2a70c3d8708add4a68e371e68362be65521ef94fc47e0bc60fcba",
+      "intendant_binding_closure": "33f889273326f6534dcd36bd63701fa6d64063d0bec167580c27814432ee4c07"
+    },
+    "entries": {
+      "curator.authority": {
+        "component": "curator",
+        "pattern": "SHARED_SPECIALIST_AUTHORITY_BY_CAPABILITY",
+        "backend": {
+          "source": "CANONICAL_COMPONENT_PATH",
+          "value": "bin/memory-curator.py"
+        },
+        "arguments": {
+          "policy": {
+            "source": "REQUEST_OR_CONTEXT"
+          },
+          "batch": {
+            "source": "REQUEST_SCOPED_ARTIFACT",
+            "value": "REQUEST_INPUT_TEMPFILE"
+          },
+          "output": {
+            "source": "REQUEST_SCOPED_ARTIFACT",
+            "value": "REQUEST_OUTPUT_TEMPFILE"
+          }
+        }
+      },
+      "intendant.authority": {
+        "component": "intendant",
+        "pattern": "SHARED_SPECIALIST_AUTHORITY_BY_CAPABILITY",
+        "backend": {
+          "source": "CANONICAL_COMPONENT_PATH",
+          "value": "bin/intendant-hygiene-cycle.py"
+        },
+        "arguments": {
+          "policy": {
+            "source": "REQUEST_OR_CONTEXT"
+          },
+          "council": {
+            "source": "CANONICAL_COMPONENT_PATH",
+            "value": "bin/architecture-decision-council.py"
+          },
+          "consolidation_policy": {
+            "source": "CANONICAL_COMPONENT_PATH",
+            "value": "config/platform-consolidation.v1.json"
+          },
+          "consolidator": {
+            "source": "CANONICAL_COMPONENT_PATH",
+            "value": "bin/intendant-platform-consolidator.py"
+          },
+          "guardian_client": {
+            "source": "CANONICAL_COMPONENT_PATH",
+            "value": "bin/guardian-client.py"
+          },
+          "guardian_coverage": {
+            "source": "RUNTIME_TEMPLATE",
+            "value": "/opt/chacha-dev/runtime/guardian/coverage-latest.json"
+          },
+          "guardian_policy": {
+            "source": "CANONICAL_COMPONENT_PATH",
+            "value": "config/guardian-runtime-policy.v1.json"
+          },
+          "hygiene_executor": {
+            "source": "CANONICAL_COMPONENT_PATH",
+            "value": "bin/central-platform-hygiene-executor.py"
+          }
+        }
+      },
+      "bastion.authority": {
+        "component": "bastion",
+        "pattern": "DEDICATED_SECURITY_AUTHORITY",
+        "backend": {
+          "source": "CANONICAL_COMPONENT_PATH",
+          "value": "bin/bastion-incident-response-controller.py"
+        },
+        "arguments": {}
+      }
+    }
+  }
+}

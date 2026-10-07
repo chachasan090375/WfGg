@@ -17,7 +17,7 @@ trap cleanup EXIT
 printf '%s' "$REV" | grep -Eq '^[0-9a-f]{40}$' || { echo "CHACHA_DEV_V67_INGRESS_INSTALL=BLOCKED reason=pinned_revision_required"; exit 2; }
 for cmd in curl tar python3 install ln systemctl; do command -v "$cmd" >/dev/null || { echo "CHACHA_DEV_V67_INGRESS_INSTALL=BLOCKED reason=missing_command:$cmd"; exit 2; }; done
 
-curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$ARCHIVE"
+curl -fsSL "chacha-route://provider.codeload_github_com" -o "$ARCHIVE"
 tar -xzf "$ARCHIVE" -C "$WORK"
 SRC="$(find "$WORK" -mindepth 1 -maxdepth 1 -type d -name 'WfGg-*' | head -1)"
 [ -d "$SRC/dev-hub" ] || { echo "CHACHA_DEV_V67_INGRESS_INSTALL=BLOCKED reason=archive_invalid"; exit 2; }
@@ -75,7 +75,7 @@ systemctl restart chacha-dev-central-learning-ingress.service
 
 READY=0
 for _ in {1..50}; do
-  if systemctl is-active --quiet chacha-dev-central-learning-ingress.service && curl -fsS "http://127.0.0.1:$PORT/healthz" >/dev/null 2>&1; then READY=1;break;fi
+  if systemctl is-active --quiet chacha-dev-central-learning-ingress.service && curl -fsS "chacha-route://internal.127.0.0.1:$PORT/healthz" >/dev/null 2>&1; then READY=1;break;fi
   sleep .2
 done
 if [ "$READY" != 1 ]; then

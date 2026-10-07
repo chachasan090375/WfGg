@@ -277,7 +277,7 @@ def wait_for_pages_check(binding: dict[str, Any], commit_sha: str, token: str, t
     app_slug = str(binding.get("github_app_slug") or "")
     if not repository or not name or not app_slug:
         raise SystemExit("PREVIEW_PIPELINE_PROJECT_BINDING_INVALID")
-    url = f"https://api.github.com/repos/{repository}/commits/{commit_sha}/check-runs?per_page=100"
+    url = f"chacha-route://provider.api_github_com"
     while time.monotonic() < deadline:
         req = Request(url, headers={"Accept": "application/vnd.github+json", "Authorization": f"Bearer {token}",
                                     "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "chacha-dev-hub-preview-pipeline"})

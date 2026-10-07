@@ -1,0 +1,22 @@
+[Unit]
+Description=ChaCha DEV Intendant governed hygiene cycle
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/opt/chacha-dev/platform/current/dev-hub/@@CHACHA_ROUTE:intendant.authority:backend@@
+
+[Service]
+Environment=PYTHONDONTWRITEBYTECODE=1
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/opt/chacha-dev/platform/current
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/@@CHACHA_ROUTE:intendant.authority:backend@@ --repo-root /opt/chacha-dev/platform/current --runtime-root /opt/chacha-dev/runtime --platform-root /opt/chacha-dev/platform --policy /opt/chacha-dev/platform/current/dev-hub/config/intendant-hygiene-cycle.v1.json --consolidation-policy /opt/chacha-dev/platform/current/dev-hub/@@CHACHA_ROUTE:intendant.authority:consolidation_policy@@ --guardian-client /opt/chacha-dev/platform/current/dev-hub/@@CHACHA_ROUTE:intendant.authority:guardian_client@@ --guardian-policy /opt/chacha-dev/platform/current/dev-hub/@@CHACHA_ROUTE:intendant.authority:guardian_policy@@ --guardian-coverage @@CHACHA_ROUTE:intendant.authority:guardian_coverage@@ --council /opt/chacha-dev/platform/current/dev-hub/bin/architecture-council-platform-consolidation.py --consolidator /opt/chacha-dev/platform/current/dev-hub/@@CHACHA_ROUTE:intendant.authority:consolidator@@ --hygiene-executor /opt/chacha-dev/platform/current/dev-hub/@@CHACHA_ROUTE:intendant.authority:hygiene_executor@@
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=false
+ReadOnlyPaths=/opt/chacha-dev/runtime/secrets/central-learning-key.pem
+ReadWritePaths=/opt/chacha-dev/runtime/intendant /opt/chacha-dev/platform/releases /opt/chacha-dev/runtime/tmp /tmp
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=192M
+TasksMax=48

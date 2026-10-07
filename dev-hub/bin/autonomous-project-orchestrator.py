@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+from canonical_route_runtime import resolve_path as canonical_route_path, resolve_value as canonical_route_value
 import sys
 sys.dont_write_bytecode=True
 
@@ -83,8 +84,8 @@ def configure_guardian(root:Path,out:Path):
     _GUARDIAN_CONTEXT.clear()
     _GUARDIAN_CONTEXT.update({
       "enabled":Path("/opt/chacha-dev/runtime").exists(),
-      "client":root/"dev-hub/bin/guardian-client.py",
-      "policy":root/"dev-hub/config/guardian-runtime-policy.v1.json",
+      "client":canonical_route_path("intendant.authority", "guardian_client"),
+      "policy":canonical_route_path("intendant.authority", "guardian_policy"),
       "event_dir":out/"guardian",
       "run_id":"bootstrap-"+uuid.uuid4().hex,
     })
@@ -474,8 +475,8 @@ def main():
     if bool(_GUARDIAN_CONTEXT.get("enabled")):
         run(bin_dir/"project-assurance-identity-manager.py",[
             "--project-id",pid,
-            "--guardian-client",bin_dir/"guardian-client.py",
-            "--guardian-policy",cfg/"guardian-runtime-policy.v1.json",
+            "--guardian-client",canonical_route_path("intendant.authority", "guardian_client"),
+            "--guardian-policy",canonical_route_path("intendant.authority", "guardian_policy"),
             "--sentinel-client",bin_dir/"sentinel-client.py",
             "--sentinel-policy",cfg/"sentinel-runtime-policy.v1.json",
             "--exchange-client",bin_dir/"assurance-exchange-client.py",
@@ -695,8 +696,8 @@ def main():
     contract_args=[
         "--agent-topology",agent_topology,
         "--output",agent_contracts,
-        "--client",bin_dir/"guardian-client.py",
-        "--policy",cfg/"guardian-runtime-policy.v1.json"
+        "--client",canonical_route_path("intendant.authority", "guardian_client"),
+        "--policy",canonical_route_path("intendant.authority", "guardian_policy")
     ]
     if bool(_GUARDIAN_CONTEXT.get("enabled")):
         contract_args+=["--register"]
@@ -874,8 +875,8 @@ def main():
         "--branch-topology",effective_branch_topology,
         "--capability-foundry",foundry_plan,
         "--output",component_contracts,
-        "--client",bin_dir/"guardian-client.py",
-        "--policy",cfg/"guardian-runtime-policy.v1.json"
+        "--client",canonical_route_path("intendant.authority", "guardian_client"),
+        "--policy",canonical_route_path("intendant.authority", "guardian_policy")
     ]
     if bool(_GUARDIAN_CONTEXT.get("enabled")):
         component_contract_args+=["--register"]

@@ -1,0 +1,73 @@
+{
+  "schema": "chacha.dev/canonical-route-projection-provenance/v1",
+  "manifest_sha256": "b33b78a8fd8229c35539d8a72385ec30d0a8f8df21f146a896850a9977b0ae15",
+  "resolver_sha256": "cfa4b780d0265124ee90454cf6d24a6f776723175ca96a59b37c5129525a20c7",
+  "targets": {
+    "config/autonomy-constitution.v1.json": {
+      "template": "projections/canonical-route/config/autonomy-constitution.v1.json.template",
+      "template_sha256": "7e28cc23ada9012fc2b103282c7a0f0f77b0784dbaa978cea644de4f3f240d0f",
+      "projected_sha256": "608bfcb75bea7594816ed4725f192092aae5e7c35d0919906854728460c0180d",
+      "authority": "CANONICAL_ROUTE_REGISTRY"
+    },
+    "config/guardian-coverage-manifest.v1.json": {
+      "template": "projections/canonical-route/config/guardian-coverage-manifest.v1.json.template",
+      "template_sha256": "428b37775cf59c5cbb8857ad18aae3719d35b3744acd2afc08b0ce714fa046f4",
+      "projected_sha256": "a859ea091a407635cf237bf228c04358370c50df186901fbe1e753f499765ace",
+      "authority": "CANONICAL_ROUTE_REGISTRY"
+    },
+    "config/intendant-hygiene-cycle.v1.json": {
+      "template": "projections/canonical-route/config/intendant-hygiene-cycle.v1.json.template",
+      "template_sha256": "9490f809820bd7c44e92b37448b2a76b3592e1cc09ab5cfe797fc98d05881e33",
+      "projected_sha256": "eaf592637f23eae50ee84d1654bd1f350d52976fa610ac796e0b84732745158c",
+      "authority": "CANONICAL_ROUTE_REGISTRY"
+    },
+    "config/operator-directive-sinks.v1.json": {
+      "template": "projections/canonical-route/config/operator-directive-sinks.v1.json.template",
+      "template_sha256": "71d19d61c3d37b234e7bbfe2213a72c8d081c5c710646c259813f82b7701e66f",
+      "projected_sha256": "99c54125b752b49c9e7899958dde985842fb604a333a71bef9780e38706eedc8",
+      "authority": "CANONICAL_ROUTE_REGISTRY"
+    },
+    "config/run-controller.v1.json": {
+      "template": "projections/canonical-route/config/run-controller.v1.json.template",
+      "template_sha256": "aebadf3b32c8f3a61e1e499c8ab2ee3710314fb33b12cc9aaa433d566084bd5b",
+      "projected_sha256": "8d9232396a842519af7728e90cbc232818e7b7ebd1d2c8dfe7e88b310be418dc",
+      "authority": "CANONICAL_ROUTE_REGISTRY"
+    },
+    "systemd/chacha-dev-bastion-incident-response.service": {
+      "template": "projections/canonical-route/systemd/chacha-dev-bastion-incident-response.service.template",
+      "template_sha256": "966d885a191d539d3fe4bd4dc15f1f299d4da261608b562480471072a1c4dd8c",
+      "projected_sha256": "a20f0776223511ad5327ac6f90972e797d42ef953f2fc3b594c0dd41512529e8",
+      "authority": "CANONICAL_ROUTE_REGISTRY"
+    },
+    "systemd/chacha-dev-guardian-alert-pull.service": {
+      "template": "projections/canonical-route/systemd/chacha-dev-guardian-alert-pull.service.template",
+      "template_sha256": "8caa20e49685f0dbb4eee0f357d8cb91e404d124377a8157aed68cf59d715de3",
+      "projected_sha256": "3e5d7981d49c17f0a56806940e1ae1429ad5db655572dcec6825329b12f9f84c",
+      "authority": "CANONICAL_ROUTE_REGISTRY"
+    },
+    "systemd/chacha-dev-guardian-coverage-heartbeat.service": {
+      "template": "projections/canonical-route/systemd/chacha-dev-guardian-coverage-heartbeat.service.template",
+      "template_sha256": "f15da586e048c51a3f4a98c4388c9bb1bbbc4aac12dc51bed0e1abba9082d581",
+      "projected_sha256": "32ae88ce7bb1bfffcb587b373594d18e549b520284710bbffd62fcd05e5391e9",
+      "authority": "CANONICAL_ROUTE_REGISTRY"
+    },
+    "systemd/chacha-dev-guardian-remediation.service": {
+      "template": "projections/canonical-route/systemd/chacha-dev-guardian-remediation.service.template",
+      "template_sha256": "c3da7f244439f124169a5ec94bf5d924bb86fb54df9a4dbdf79c384420ce64d3",
+      "projected_sha256": "183ce976287ba2e9541ccbd5ad5dda04875d0dbb2df42ae3f69adaf10c5f1dcf",
+      "authority": "CANONICAL_ROUTE_REGISTRY"
+    },
+    "systemd/chacha-dev-guardian-stop-latch-reconciliation.service": {
+      "template": "projections/canonical-route/systemd/chacha-dev-guardian-stop-latch-reconciliation.service.template",
+      "template_sha256": "d96d5be4101294ea578d9461c3d86d398dc9bb76224a681a20d5151852f76702",
+      "projected_sha256": "aeb1fb74348efaa2a6ac20f43783c192b5a852f7b30bf50e6035df61d4f3ae19",
+      "authority": "CANONICAL_ROUTE_REGISTRY"
+    },
+    "systemd/chacha-dev-intendant-hygiene.service": {
+      "template": "projections/canonical-route/systemd/chacha-dev-intendant-hygiene.service.template",
+      "template_sha256": "923904c5f5989bdf4a63e8eaefb2080ec3aa352474bcb737de06d7dad0b96f5a",
+      "projected_sha256": "2eb6a2bb597887743cf8d376be5648262ce721e298b81192561623f7d0f497ec",
+      "authority": "CANONICAL_ROUTE_REGISTRY"
+    }
+  }
+}

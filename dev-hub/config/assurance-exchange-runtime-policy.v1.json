@@ -2,7 +2,7 @@
   "schema": "chacha.dev/assurance-exchange-runtime-policy/v1",
   "version": "1.0.0",
   "scope": "PLATFORM_GLOBAL",
-  "external_url": "https://chacha-dev-assurance-exchange.chachasan090375.workers.dev",
+  "external_url": "chacha-route://assurance.exchange",
   "private_key": "/opt/chacha-dev/runtime/secrets/central-learning-key.pem",
   "poll_seconds": 30,
   "local_recommendation_dir": "/opt/chacha-dev/runtime/assurance-exchange/recommendations",

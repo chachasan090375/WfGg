@@ -12,6 +12,7 @@ must stop at AWAITING_APPROVAL. Only a separately supplied explicit human
 approval may resume the release.
 """
 from __future__ import annotations
+from canonical_route_runtime import resolve_path as canonical_route_path, resolve_value as canonical_route_value
 
 import argparse
 import hashlib
@@ -379,8 +380,8 @@ def external_source_receipts(repo:Path,project:str,revision:str,plan_dir:Path,ma
     av=load(acceptance)
     if av.get("accepted") is not True: raise SystemExit("V638_ACCEPTANCE_REJECTED")
 
-    gp=run([sys.executable,str(repo/"dev-hub/bin/guardian-client.py"),
-            "--policy",str(repo/"dev-hub/config/guardian-runtime-policy.v1.json"),
+    gp=run([sys.executable,str(canonical_route_path("intendant.authority", "guardian_client")),
+            "--policy",str(canonical_route_path("intendant.authority", "guardian_policy")),
             "functional-acceptance","--project-id",project,"--revision",revision,
             "--contract",str(contract_path),"--acceptance",str(acceptance)],cwd=repo,timeout=90)
     require_ok(gp,"V638_GUARDIAN_FUNCTIONAL_ACCEPTANCE")

@@ -48,7 +48,7 @@ done
 echo "CHACHA_DEV_V634_V633_BASELINE=PASS"
 
 stage fetch-pinned-release
-curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$WORK/repo.tgz"
+curl -fsSL "chacha-route://provider.codeload_github_com" -o "$WORK/repo.tgz"
 tar -xzf "$WORK/repo.tgz" -C "$WORK"
 SRC="$(find "$WORK" -mindepth 1 -maxdepth 1 -type d -name 'WfGg-*' | head -1)"
 [ -d "$SRC/dev-hub" ] || {

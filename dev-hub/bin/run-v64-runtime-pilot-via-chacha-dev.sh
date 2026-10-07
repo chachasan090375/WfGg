@@ -16,7 +16,7 @@ cleanup(){
 }
 trap cleanup EXIT
 
-curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$ARCHIVE"
+curl -fsSL "chacha-route://provider.codeload_github_com" -o "$ARCHIVE"
 mkdir -p "$RELEASE"
 tar -xzf "$ARCHIVE" -C "$WORK"
 SRC="$(find "$WORK" -mindepth 1 -maxdepth 1 -type d -name 'WfGg-*' | head -1)"
@@ -75,7 +75,7 @@ except Exception:
 PY
 )" || EMERGENCY_SURFACE_PORT=""
     if [[ "$EMERGENCY_SURFACE_PORT" =~ ^[0-9]+$ ]] \
-       && curl -fsS "http://127.0.0.1:$EMERGENCY_SURFACE_PORT/" >/dev/null 2>&1; then
+       && curl -fsS "chacha-route://internal.127.0.0.1:$EMERGENCY_SURFACE_PORT/" >/dev/null 2>&1; then
       EMERGENCY_SURFACE_READY=1
       break
     fi
@@ -88,7 +88,7 @@ if [ "$EMERGENCY_SURFACE_READY" != 1 ]; then
   echo "CHACHA_DEV_V64_RUNTIME_PILOT=BLOCKED reason=emergency_surface_not_ready"
   exit 2
 fi
-EMERGENCY_BASE_URL="http://127.0.0.1:$EMERGENCY_SURFACE_PORT"
+EMERGENCY_BASE_URL="chacha-route://internal.127.0.0.1:$EMERGENCY_SURFACE_PORT"
 echo "CHACHA_DEV_V64_EMERGENCY_DYNAMIC_ENDPOINT=PASS port=$EMERGENCY_SURFACE_PORT"
 test -s /opt/chacha-dev/runtime/technology-watch/optimizer-input.json
 echo "CHACHA_DEV_V64_EMERGENCY_SURFACE_READY=PASS"
@@ -146,7 +146,7 @@ print(n['remote'])
 PY
 )"
 printf '%s' "$REMOTE_REL" | grep -Eq '^[A-Za-z0-9._/-]+$'
-ssh -n -o BatchMode=yes -o ConnectTimeout=12 chachanas cat "/share/CACHEDEV1_DATA/ChaCha-DEV-HUB/$REMOTE_REL" >"$WORK/remote-experience.json"
+ssh -n -o BatchMode=yes -o ConnectTimeout=12 chachanas cat "chacha-route://knowledge.authoritative$REMOTE_REL" >"$WORK/remote-experience.json"
 python3 - "$WORK/experience.json" "$WORK/remote-experience.json" <<'PY'
 import json,sys
 a=json.load(open(sys.argv[1])); b=json.load(open(sys.argv[2])); assert a==b,(a,b)

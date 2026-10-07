@@ -13,9 +13,9 @@
     "node_requirement": "LTS",
     "supported_browser": "Google Chrome or Chrome for Testing",
     "technology_radar_tracks_releases": true,
-    "official_repository": "https://github.com/ChromeDevTools/chrome-devtools-mcp",
-    "official_configuration": "https://github.com/ChromeDevTools/chrome-devtools-mcp/blob/chrome-devtools-mcp-v1.9.0/docs/configuration.md",
-    "official_tool_reference": "https://github.com/ChromeDevTools/chrome-devtools-mcp/blob/chrome-devtools-mcp-v1.9.0/docs/tool-reference.md"
+    "official_repository": "chacha-route://provider.github_com",
+    "official_configuration": "chacha-route://provider.github_com",
+    "official_tool_reference": "chacha-route://provider.github_com"
   },
   "execution": {
     "pilot_surface": "github-actions-ephemeral",

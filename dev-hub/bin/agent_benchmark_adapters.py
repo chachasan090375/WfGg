@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+from canonical_route_runtime import resolve_path as canonical_route_path, resolve_value as canonical_route_value
 import sys
 sys.dont_write_bytecode=True
 import contextlib,copy,importlib.util,io,json,os,sqlite3,subprocess,sys,tempfile
@@ -19,7 +20,7 @@ def loadmod(name:str,path:Path):
 def guardian(repo:Path)->dict[str,Any]:
     sys.path.insert(0,str(repo/"dev-hub/bin"))
     import guardian_remediation_runtime as grr
-    policy=load(repo/"dev-hub/config/guardian-runtime-policy.v1.json")
+    policy=load(canonical_route_path("intendant.authority", "guardian_policy"))
     with tempfile.TemporaryDirectory(prefix="v651-guardian-") as td:
         idx=Path(td)/"index.json"
         idx.write_text(json.dumps({"schema":"chacha.dev/guardian-remediation-index/v1","items":[
@@ -76,7 +77,7 @@ def sentinel(repo:Path)->dict[str,Any]:
     }}
 
 def bastion(repo:Path)->dict[str,Any]:
-    mod=loadmod("v651_bastion",repo/"dev-hub/bin/bastion-incident-response-controller.py")
+    mod=loadmod("v651_bastion",canonical_route_path("bastion.authority", "backend"))
     policy=load(repo/"dev-hub/config/bastion-runtime-policy.v1.json")
     effects=[]
     mod.record_project_control=lambda kind,item: effects.append(("project-control",kind))

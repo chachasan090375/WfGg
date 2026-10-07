@@ -21,7 +21,7 @@ for cmd in curl python3 grep; do
 done
 mkdir -p "$WORK"
 
-API="https://api.github.com/repos/$REPO/actions/runs?head_sha=$REV&per_page=100"
+API="chacha-route://provider.api_github_com"
 READY=0
 RUN_ID=""
 for i in $(seq 1 80); do
@@ -56,7 +56,7 @@ done
 }
 
 curl -fsS -H "Accept: application/vnd.github+json" -H "User-Agent: ChaCha-DEV-V639" \
-  "https://api.github.com/repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100" \
+  "chacha-route://provider.api_github_com" \
   -o "$WORK/jobs.json"
 
 JOB_ID="$(python3 - "$WORK/jobs.json" <<'PY'
@@ -69,7 +69,7 @@ PY
 )"
 
 curl -fLsS -H "Accept: application/vnd.github+json" -H "User-Agent: ChaCha-DEV-V639" \
-  "https://api.github.com/repos/$REPO/actions/jobs/$JOB_ID/logs" \
+  "chacha-route://provider.api_github_com" \
   -o "$WORK/job.log"
 
 echo "CHACHA_DEV_V639_TARGET_DISCOVERY_RUN_ID=$RUN_ID"

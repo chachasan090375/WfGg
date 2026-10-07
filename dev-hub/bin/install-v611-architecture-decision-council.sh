@@ -33,7 +33,7 @@ done
 
 if [ -L "$CURRENT" ]; then PREVIOUS="$(readlink -f "$CURRENT" || true)"; fi
 
-curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$ARCHIVE"
+curl -fsSL "chacha-route://provider.codeload_github_com" -o "$ARCHIVE"
 tar -xzf "$ARCHIVE" -C "$WORK"
 SRC="$(find "$WORK" -mindepth 1 -maxdepth 1 -type d -name 'WfGg-*' | head -1)"
 [ -d "$SRC/dev-hub" ] || { echo "CHACHA_DEV_V611_INSTALL=BLOCKED reason=archive_invalid"; exit 2; }

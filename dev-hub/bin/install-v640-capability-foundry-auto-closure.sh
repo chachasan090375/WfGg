@@ -82,7 +82,7 @@ if [ -n "$SOURCE_ROOT" ]; then
 else
   command -v curl >/dev/null || { echo "CHACHA_DEV_V640_INSTALL=BLOCKED reason=curl_required_without_source_root"; exit 2; }
   command -v tar >/dev/null || { echo "CHACHA_DEV_V640_INSTALL=BLOCKED reason=tar_required_without_source_root"; exit 2; }
-  curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$WORK/repo.tar.gz"
+  curl -fsSL "chacha-route://provider.codeload_github_com" -o "$WORK/repo.tar.gz"
   mkdir -p "$WORK/src"
   tar -xzf "$WORK/repo.tar.gz" -C "$WORK/src" --strip-components=1
   SRC="$WORK/src"

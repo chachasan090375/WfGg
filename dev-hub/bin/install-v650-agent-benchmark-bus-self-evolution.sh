@@ -32,7 +32,7 @@ print("CHACHA_DEV_V650_V649_REAL_BASELINE=PASS")
 PY
 
 stage source-preflight
-if [ -n "$SOURCE_ROOT" ]; then SRC="$(readlink -f "$SOURCE_ROOT")"; else curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$WORK/repo.tar.gz"; mkdir -p "$WORK/src"; tar -xzf "$WORK/repo.tar.gz" -C "$WORK/src" --strip-components=1; SRC="$WORK/src"; fi
+if [ -n "$SOURCE_ROOT" ]; then SRC="$(readlink -f "$SOURCE_ROOT")"; else curl -fsSL "chacha-route://provider.codeload_github_com" -o "$WORK/repo.tar.gz"; mkdir -p "$WORK/src"; tar -xzf "$WORK/repo.tar.gz" -C "$WORK/src" --strip-components=1; SRC="$WORK/src"; fi
 for req in dev-hub/bin/agent_benchmark_harness.py dev-hub/bin/agent_observation_bus_health.py dev-hub/bin/agent_evolution_daily_cycle.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/config/agent-benchmark-harness.v1.json dev-hub/config/agent-observation-bus.v1.json dev-hub/tests/test_v650_agent_benchmark_harness.py dev-hub/tests/test_v650_observation_bus_self_evolution.py dev-hub/systemd/chacha-dev-agent-observation-bus-health.service dev-hub/systemd/chacha-dev-agent-observation-bus-health.timer; do [ -f "$SRC/$req" ] || { echo "CHACHA_DEV_V650_INSTALL=BLOCKED reason=missing:$req"; exit 2; }; done
 
 stage candidate-release

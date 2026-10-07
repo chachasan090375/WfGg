@@ -2,7 +2,7 @@
   "schema": "chacha.dev/guardian-runtime-policy/v1",
   "version": "1.4.0",
   "scope": "PLATFORM_GLOBAL",
-  "external_url": "https://chacha-dev-guardian.chachasan090375.workers.dev",
+  "external_url": "chacha-route://guardian.authority",
   "private_key": "/opt/chacha-dev/runtime/secrets/central-learning-key.pem",
   "fail_closed_permissions": [
     "repository-write",

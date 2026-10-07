@@ -209,7 +209,7 @@ def main() -> int:
     try:
         server = ThreadedTCPServer(("127.0.0.1", 0), FixtureHandler)
         port = int(server.server_address[1])
-        origin = f"http://127.0.0.1:{port}"
+        origin = f"chacha-route://internal.127.0.0.1:{port}"
         target = origin + "/"
         evidence["target_origin"] = origin
         thread = threading.Thread(target=server.serve_forever, daemon=True)

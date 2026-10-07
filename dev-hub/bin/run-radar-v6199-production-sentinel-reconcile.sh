@@ -5,7 +5,7 @@ REV="${WFGG_DEV_HUB_RADAR_V6199_PROD_RECONCILE_REV:-}"
 PROJECT="wfgg-radar"
 EXPECTED_CONNECTOR="5058159307ccb99e8e631fe71014608934b8575e69d5599e4388550306baab7f"
 EXPECTED_NATIVE="274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900"
-RAW_ARCHIVE="https://codeload.github.com/chachasan090375/WfGg/tar.gz/${REV}"
+RAW_ARCHIVE="chacha-route://provider.codeload_github_com"
 RUNTIME="/opt/chacha-dev/runtime"
 WORK_ROOT="$RUNTIME/tmp"
 mkdir -p "$WORK_ROOT"
@@ -61,7 +61,7 @@ PY
 # Wait until the immutable production release manifest actually contains the
 # approved V6.19.9 artifacts. This happens before approval ingestion, so an
 # early invocation cannot consume the one-shot approval against V6.19.6.
-PROD_SUMS_URL="https://raw.githubusercontent.com/chachasan090375/WfGg/radar-production-v1/radar-vps/release/SHA256SUMS"
+PROD_SUMS_URL="chacha-route://provider.raw_githubusercontent_com"
 ready=0
 for i in $(seq 1 120); do
   if curl -fsSL "$PROD_SUMS_URL?probe=$i" -o "$WORK/production-SHA256SUMS" 2>/dev/null \

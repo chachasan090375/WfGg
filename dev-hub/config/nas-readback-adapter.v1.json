@@ -5,7 +5,7 @@
   "adapter_id": "nas-readback-adapter",
   "nas": {
     "host": "chachanas",
-    "root": "/share/CACHEDEV1_DATA/ChaCha-DEV-HUB",
+    "root": "chacha-route://knowledge.authoritative",
     "allowed_prefixes": [
       "knowledge/cognitive-memory-shadow/",
       "knowledge/cognitive-memory/agents/",

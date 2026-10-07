@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 REV="${CHACHA_DEV_V639_REV:-}"
 PROJECT="v639-real-production-pilot-wfgg-20260923"
-TARGET_URL="https://wfgg.pages.dev"
+TARGET_URL="chacha-route://project.wfgg_pages_dev"
 ROOT="/opt/chacha-dev/platform/current"
 PC="$ROOT/dev-hub/bin/project-control.py"
 PC_POLICY="$ROOT/dev-hub/config/project-control.v1.json"
@@ -90,7 +90,7 @@ b=json.load(open(sys.argv[1],encoding="utf-8"))
 digest="sha256:"+hashlib.sha256(pathlib.Path(sys.argv[2]).read_bytes()).hexdigest()
 assert b["target"]["project"]=="wfgg",b
 assert b["target"]["branch"]=="main",b
-assert b["target"]["url"]=="https://wfgg.pages.dev",b
+assert b["target"]["url"]=="chacha-route://project.wfgg_pages_dev",b
 assert b["content_noop_verified"] is True,b
 assert digest==b["site_after"]["sha256"],(digest,b["site_after"]["sha256"])
 print("CHACHA_DEV_V639_FINAL_PRODUCTION_CONTENT_STABLE=PASS")

@@ -46,7 +46,7 @@ stage source-preflight
 if [ -n "$SOURCE_ROOT" ]; then
  SRC="$(readlink -f "$SOURCE_ROOT")"; [ -d "$SRC/dev-hub" ] || { echo "CHACHA_DEV_V649_INSTALL=BLOCKED reason=source_root_invalid"; exit 2; }
 else
- curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$WORK/repo.tar.gz"
+ curl -fsSL "chacha-route://provider.codeload_github_com" -o "$WORK/repo.tar.gz"
  mkdir -p "$WORK/src"; tar -xzf "$WORK/repo.tar.gz" -C "$WORK/src" --strip-components=1; SRC="$WORK/src"
 fi
 for req in  dev-hub/bin/agent_fleet_observatory.py  dev-hub/bin/agent_observation_bus.py  dev-hub/bin/agent_evolution_daily_cycle.py  dev-hub/bin/recovery-orchestrator.py  dev-hub/bin/autonomous-project-orchestrator.py  dev-hub/config/assurance-agent-instrumentation.v1.json  dev-hub/config/agent-fleet-observatory.v1.json  dev-hub/config/agent-observation-bus.v1.json  dev-hub/tests/test_v649_assurance_agent_instrumentation.py  dev-hub/tests/test_v648_agent_observation_bus.py  dev-hub/systemd/chacha-dev-agent-fleet-observatory.service  dev-hub/systemd/chacha-dev-agent-fleet-observatory.timer; do

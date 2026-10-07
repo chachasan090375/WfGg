@@ -7,7 +7,7 @@
   "provider": {
     "id": "firecrawl-keyless",
     "status": "PILOT",
-    "endpoint": "https://api.firecrawl.dev/v2/search",
+    "endpoint": "chacha-route://provider.api_firecrawl_dev",
     "authentication": "NONE",
     "api_key_required": false,
     "automatic_paid_upgrade_forbidden": true,

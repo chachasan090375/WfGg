@@ -4,7 +4,7 @@
   "adapter_id": "context7-mcp-adapter",
   "purpose": "read-only current library and framework documentation",
   "endpoint": {
-    "remote_url": "https://mcp.context7.com/mcp",
+    "remote_url": "chacha-route://provider.mcp_context7_com",
     "transport": "streamable-http",
     "protocol_baseline": "2026-07-28",
     "discovery_required": true,

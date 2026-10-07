@@ -18,7 +18,7 @@ def now_iso()->str:return datetime.now(timezone.utc).isoformat().replace("+00:00
 def github_runs(repository:str,revision:str)->dict[str,Any]:
     q=urllib.parse.urlencode({"head_sha":revision,"per_page":50})
     req=urllib.request.Request(
-      "https://api.github.com/repos/"+repository+"/actions/runs?"+q,
+      "chacha-route://provider.api_github_com"+repository+"/actions/runs?"+q,
       headers={"User-Agent":"ChaCha-DEV-Platform-Council/1.0","Accept":"application/vnd.github+json"})
     with urllib.request.urlopen(req,timeout=20) as r:x=json.loads(r.read().decode())
     if not isinstance(x,dict):raise ValueError("GITHUB_RUNS_INVALID")

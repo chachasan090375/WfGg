@@ -24,7 +24,7 @@ for cmd in curl tar python3 sha256sum; do
 done
 
 mkdir -p "$WORK/src" "$WORK/build"
-curl -fsSL "https://codeload.github.com/$REPO/tar.gz/$REV" -o "$WORK/source.tar.gz"
+curl -fsSL "chacha-route://provider.codeload_github_com" -o "$WORK/source.tar.gz"
 tar -xzf "$WORK/source.tar.gz" -C "$WORK/src" --strip-components=1
 SRC="$WORK/src"
 
@@ -123,7 +123,7 @@ print("CHACHA_DEV_V639_CF_PAGES_REAL_PRODUCTION_DEPLOYMENT_AUTHORIZED=NO")
 PY
 
 echo "CHACHA_DEV_V639_SYNC_STAGE=exact-head-ci"
-API="https://api.github.com/repos/$REPO/actions/runs?head_sha=$REV&per_page=100"
+API="chacha-route://provider.api_github_com"
 READY=0
 for i in $(seq 1 80); do
   curl -fsS -H "Accept: application/vnd.github+json" -H "User-Agent: ChaCha-DEV-V639" "$API" -o "$WORK/actions.json"

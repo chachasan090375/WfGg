@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 REV="${WFGG_DEV_HUB_RADAR_QUAL_REV:-}"
 RECEIPT="${1:-}"
-RAW_BASE="https://raw.githubusercontent.com/chachasan090375/WfGg"
+RAW_BASE="chacha-route://provider.raw_githubusercontent_com"
 OUT_ROOT="/opt/chacha-dev/runtime/adapter-promotions/radar-runtime-adapter"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 OUT="$OUT_ROOT/$STAMP"

@@ -9,7 +9,7 @@ RELEASE="$BASE/releases/$STAMP-$REV"
 WORK="$(mktemp -d /tmp/chacha-v617.XXXXXX)"
 ARCHIVE="$WORK/repo.tar.gz"
 PRIVATE_KEY="/opt/chacha-dev/runtime/secrets/central-learning-key.pem"
-GUARDIAN_URL="https://chacha-dev-guardian.chachasan090375.workers.dev"
+GUARDIAN_URL="chacha-route://guardian.authority"
 PREVIOUS=""
 
 cleanup(){ rm -rf "$WORK" 2>/dev/null || true; }
@@ -45,7 +45,7 @@ PY
 fi
 if [ -L "$CURRENT" ]; then PREVIOUS="$(readlink -f "$CURRENT" || true)"; fi
 
-curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$ARCHIVE"
+curl -fsSL "chacha-route://provider.codeload_github_com" -o "$ARCHIVE"
 tar -xzf "$ARCHIVE" -C "$WORK"
 SRC="$(find "$WORK" -mindepth 1 -maxdepth 1 -type d -name 'WfGg-*' | head -1)"
 [ -d "$SRC/dev-hub" ] || { echo "CHACHA_DEV_V617_INSTALL=BLOCKED reason=archive_invalid"; exit 2; }

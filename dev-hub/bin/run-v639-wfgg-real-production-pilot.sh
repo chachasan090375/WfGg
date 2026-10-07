@@ -10,7 +10,7 @@ set -Eeuo pipefail
 PROJECT_ID="v639-real-production-pilot-wfgg-20260923"
 TARGET_PROJECT="wfgg"
 TARGET_BRANCH="main"
-TARGET_URL="https://wfgg.pages.dev"
+TARGET_URL="chacha-route://project.wfgg_pages_dev"
 SOURCE_REVISION="1aeb46b9d745ace185455a2e776eacf3eae9c21d"
 EXPECTED_FRONTEND_TREE_SHA="497da306b47c4b2be8e10f40cbc0f99179f9f7d5"
 HUMAN_ACTOR="cedric"
@@ -101,7 +101,7 @@ project,branch,url,out=sys.argv[1:]
 aid=urllib.parse.quote(os.environ["CLOUDFLARE_ACCOUNT_ID"],safe="")
 pname=urllib.parse.quote(project,safe="")
 req=urllib.request.Request(
- f"https://api.cloudflare.com/client/v4/accounts/{aid}/pages/projects/{pname}",
+ f"chacha-route://provider.api_cloudflare_com",
  headers={"Authorization":"Bearer "+os.environ["CLOUDFLARE_PAGES_API_TOKEN"],
           "Accept":"application/json","User-Agent":"ChaCha-DEV-V639-RealPilot/1"},
  method="GET")
@@ -215,7 +215,7 @@ meta={
  "revision":"1aeb46b9d745ace185455a2e776eacf3eae9c21d",
  "build_directory":str(pathlib.Path(build).resolve()),
  "approval_receipt":approval,
- "canonical_url":"https://wfgg.pages.dev"
+ "canonical_url":"chacha-route://project.wfgg_pages_dev"
 }
 if previous:
     meta["previous_deployment_id"]=previous
@@ -302,7 +302,7 @@ project,previous,out=sys.argv[1:]
 aid=urllib.parse.quote(os.environ["CLOUDFLARE_ACCOUNT_ID"],safe="")
 pname=urllib.parse.quote(project,safe="")
 req=urllib.request.Request(
- f"https://api.cloudflare.com/client/v4/accounts/{aid}/pages/projects/{pname}",
+ f"chacha-route://provider.api_cloudflare_com",
  headers={"Authorization":"Bearer "+os.environ["CLOUDFLARE_PAGES_API_TOKEN"],
           "Accept":"application/json","User-Agent":"ChaCha-DEV-V639-RealPilot/1"})
 with urllib.request.urlopen(req,timeout=30) as r: p=json.loads(r.read())
@@ -389,7 +389,7 @@ def digest(p):
 value={
  "schema":"chacha.dev/v639-real-production-pilot-evidence/v1",
  "project":"v639-real-production-pilot-wfgg-20260923",
- "target":{"provider":"cloudflare-pages","project":"wfgg","branch":"main","url":"https://wfgg.pages.dev"},
+ "target":{"provider":"cloudflare-pages","project":"wfgg","branch":"main","url":"chacha-route://project.wfgg_pages_dev"},
  "source_revision":"1aeb46b9d745ace185455a2e776eacf3eae9c21d",
  "approved_frontend_tree_sha":"497da306b47c4b2be8e10f40cbc0f99179f9f7d5",
  "human_approval":{"id":"production-deployment","actor":"cedric",

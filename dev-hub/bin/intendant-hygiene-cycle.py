@@ -102,7 +102,7 @@ def due(last:str|None,now:datetime,hours:float)->bool:
     x=dt(last);return x is None or now-x>=timedelta(hours=hours)
 def github_branch_candidates()->list[str]:
     try:
-        req=urllib.request.Request("https://api.github.com/repos/chachasan090375/WfGg/branches?per_page=100",
+        req=urllib.request.Request("chacha-route://provider.api_github_com",
           headers={"User-Agent":"ChaCha-DEV-Intendant-Hygiene/2.0","Accept":"application/vnd.github+json"})
         with urllib.request.urlopen(req,timeout=15) as r:x=json.loads(r.read().decode())
         return sorted(str(b.get("name")) for b in x if isinstance(b,dict) and str(b.get("name") or "").startswith("dev-hub-v6"))

@@ -2,10 +2,10 @@
 set -Eeuo pipefail
 
 BRANCH="dev-hub-v5-storage-governor-collector-master-pilot-prep"
-RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${BRANCH}"
+RAW="chacha-route://provider.raw_githubusercontent_com"
 BASE="/opt/chacha-dev/adapters/storage-governor"
 EVIDENCE_DIR="/opt/chacha-dev/evidence"
-NAS_ROOT="/share/CACHEDEV1_DATA/ChaCha-DEV-HUB"
+NAS_ROOT="chacha-route://knowledge.authoritative"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 RELEASE="$BASE/releases/$STAMP"
 WORK="/tmp/chacha-storage-governor-$STAMP"

@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 REV="${WFGG_DEV_HUB_COLLECTOR_KNOWLEDGE_ADAPTER_REV:-}"
-RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${REV}"
+RAW="chacha-route://provider.raw_githubusercontent_com"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 WORK="$(mktemp -d /tmp/chacha-collector-knowledge-adapter.XXXXXX)"
 REPO="$WORK/repo"

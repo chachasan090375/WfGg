@@ -93,7 +93,7 @@ if [ -n "$SOURCE_ROOT" ]; then
   SRC="$(readlink -f "$SOURCE_ROOT")"
   [ -d "$SRC/dev-hub" ] || exit 2
 else
-  curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$WORK/repo.tar.gz"
+  curl -fsSL "chacha-route://provider.codeload_github_com" -o "$WORK/repo.tar.gz"
   mkdir -p "$WORK/src"
   tar -xzf "$WORK/repo.tar.gz" -C "$WORK/src" --strip-components=1
   SRC="$WORK/src"
@@ -123,7 +123,7 @@ python3 - "$REV" <<'PY'
 import json,sys,urllib.parse,urllib.request
 rev=sys.argv[1]
 q=urllib.parse.urlencode({"head_sha":rev,"per_page":50})
-url="https://api.github.com/repos/chachasan090375/WfGg/actions/runs?"+q
+url="chacha-route://provider.api_github_com"+q
 req=urllib.request.Request(url,headers={"User-Agent":"ChaCha-DEV-V663-Installer/1.0","Accept":"application/vnd.github+json"})
 with urllib.request.urlopen(req,timeout=20) as r:x=json.loads(r.read().decode())
 need={

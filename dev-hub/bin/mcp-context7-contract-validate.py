@@ -30,7 +30,7 @@ def main():
         fail("adapter_id")
 
     endpoint = contract.get("endpoint", {})
-    if endpoint.get("remote_url") != "https://mcp.context7.com/mcp":
+    if endpoint.get("remote_url") != "chacha-route://provider.mcp_context7_com":
         fail("remote_url")
     if endpoint.get("transport") != "streamable-http":
         fail("transport")

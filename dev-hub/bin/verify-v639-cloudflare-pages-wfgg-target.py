@@ -75,7 +75,7 @@ def main()->int:
     aid=urllib.parse.quote(account,safe="")
     project=urllib.parse.quote(expected_project,safe="")
     status,payload=request_json(
-        f"https://api.cloudflare.com/client/v4/accounts/{aid}/pages/projects/{project}",
+        f"chacha-route://provider.api_cloudflare_com",
         token
     )
     if status!=200 or payload.get("success") is not True:

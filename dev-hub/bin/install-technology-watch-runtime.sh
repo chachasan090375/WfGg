@@ -6,7 +6,7 @@ if ! printf '%s' "$REV" | grep -Eq '^[0-9a-f]{40}$'; then
   echo "CHACHA_TECHNOLOGY_WATCH_INSTALL=BLOCKED reason=pinned_revision_required"
   exit 2
 fi
-RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${REV}"
+RAW="chacha-route://provider.raw_githubusercontent_com"
 BASE="/opt/chacha-dev/platform"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 RELEASE="$BASE/releases/$STAMP-$REV"

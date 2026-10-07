@@ -28,7 +28,7 @@ printf '%s' "$REV" | grep -Eq '^[0-9a-f]{40}$' || exit 2
 echo "CHACHA_DEV_V633_V632_BASELINE=PASS"
 
 stage fetch-release
-curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$WORK/repo.tgz"
+curl -fsSL "chacha-route://provider.codeload_github_com" -o "$WORK/repo.tgz"
 tar -xzf "$WORK/repo.tgz" -C "$WORK"
 SRC="$(find "$WORK" -mindepth 1 -maxdepth 1 -type d -name 'WfGg-*' | head -1)"
 mkdir -p "$RELEASE"

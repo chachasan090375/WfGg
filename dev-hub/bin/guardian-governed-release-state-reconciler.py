@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+from canonical_route_runtime import resolve_path as canonical_route_path, resolve_value as canonical_route_value
 import sys
 sys.dont_write_bytecode=True
 import argparse,hashlib,json,subprocess,tempfile,time,urllib.request,sys
@@ -69,10 +70,10 @@ def active_attestation(platform:Path,runtime:Path,health_url:str)->dict[str,Any]
 def main()->int:
     ap=argparse.ArgumentParser()
     ap.add_argument('--platform-root',type=Path,default=PLATFORM);ap.add_argument('--runtime-root',type=Path,default=RUNTIME)
-    ap.add_argument('--guardian-client',type=Path,default=CURRENT/'dev-hub/bin/guardian-client.py')
-    ap.add_argument('--guardian-policy',type=Path,default=CURRENT/'dev-hub/config/guardian-runtime-policy.v1.json')
+    ap.add_argument('--guardian-client',type=Path,default=canonical_route_path("intendant.authority", "guardian_client"))
+    ap.add_argument('--guardian-policy',type=Path,default=canonical_route_path("intendant.authority", "guardian_policy"))
     ap.add_argument('--core-reconciler',type=Path,default=CURRENT/'dev-hub/bin/release_state_reconciler.py')
-    ap.add_argument('--health-url',default='http://127.0.0.1:8792/healthz')
+    ap.add_argument('--health-url',default='chacha-route://internal.127.0.0.1_8792_healthz')
     ap.add_argument('--output',type=Path,default=RUNTIME/'release-state-reconciliation/latest.json')
     a=ap.parse_args(); platform=a.platform_root.resolve();runtime=a.runtime_root.resolve()
     att=active_attestation(platform,runtime,a.health_url)

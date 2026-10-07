@@ -30,7 +30,7 @@ for cmd in curl tar python3 ln readlink grep find sha256sum; do command -v "$cmd
 echo "CHACHA_DEV_V636_V635_BASELINE=PASS"
 
 stage fetch-release
-curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$WORK/repo.tgz"
+curl -fsSL "chacha-route://provider.codeload_github_com" -o "$WORK/repo.tgz"
 tar -xzf "$WORK/repo.tgz" -C "$WORK"
 SRC="$(find "$WORK" -mindepth 1 -maxdepth 1 -type d -name 'WfGg-*' | head -1)"
 [ -d "$SRC/dev-hub" ] || exit 2

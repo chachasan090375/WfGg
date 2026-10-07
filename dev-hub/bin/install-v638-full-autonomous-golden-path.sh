@@ -72,7 +72,7 @@ mkdir -p "$WORK" "$RUN_ROOT" "$KEY_DIR" /opt/chacha-dev/evidence
 chmod 0700 "$KEY_DIR"
 
 stage_set fetch-pinned-release
-curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$WORK/repo.tgz"
+curl -fsSL "chacha-route://provider.codeload_github_com" -o "$WORK/repo.tgz"
 tar -xzf "$WORK/repo.tgz" -C "$WORK"
 SRC="$(find "$WORK" -mindepth 1 -maxdepth 1 -type d -name 'WfGg-*' | head -1)"
 [ -d "$SRC/dev-hub" ] || { echo "CHACHA_DEV_V638_INSTALL=BLOCKED reason=archive_invalid"; exit 2; }

@@ -64,7 +64,7 @@ if [ -n "$SOURCE_ROOT" ]; then
   SRC="$(readlink -f "$SOURCE_ROOT")"
   [ -d "$SRC/dev-hub" ] || { echo "CHACHA_DEV_V654_INSTALL=BLOCKED reason=source_root_invalid"; exit 2; }
 else
-  curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$WORK/repo.tar.gz"
+  curl -fsSL "chacha-route://provider.codeload_github_com" -o "$WORK/repo.tar.gz"
   mkdir -p "$WORK/src";tar -xzf "$WORK/repo.tar.gz" -C "$WORK/src" --strip-components=1
   SRC="$WORK/src"
 fi

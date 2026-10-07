@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+from canonical_route_runtime import resolve_path as canonical_route_path, resolve_value as canonical_route_value
 import sys
 sys.dont_write_bytecode=True
 import argparse,json,os,subprocess,sys,tempfile,uuid
@@ -75,8 +76,8 @@ def architecture_memory_package(candidate:dict[str,Any],domain:str,caps:list[str
 def guardian_subcomponent(root:Path,subject_role:str,task_kind:str,phase:str,action_id:str,output:Path|None=None)->None:
     if not Path("/opt/chacha-dev/runtime").exists():
         return
-    client=root/"dev-hub/bin/guardian-client.py"
-    policy=root/"dev-hub/config/guardian-runtime-policy.v1.json"
+    client=canonical_route_path("intendant.authority", "guardian_client")
+    policy=canonical_route_path("intendant.authority", "guardian_policy")
     if not client.is_file() or not policy.is_file():
         raise RuntimeError("GUARDIAN_SUBCOMPONENT_UNAVAILABLE:CLIENT_OR_POLICY_MISSING")
     event={

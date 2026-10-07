@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+from canonical_route_runtime import resolve_path as canonical_route_path, resolve_value as canonical_route_value
 import argparse,hashlib,json,os,subprocess,sys,time,uuid
 from pathlib import Path
 from typing import Any
@@ -28,8 +29,8 @@ def unit_name(run_id:str,variant:str)->str:
 def guardian_event(repo_root:Path,output_dir:Path,phase:str,evidence:dict[str,Any])->dict[str,Any]:
     if not Path("/opt/chacha-dev/runtime").exists():
         return {"status":"NON_RUNTIME_TEST_BYPASS"}
-    client=repo_root/"dev-hub/bin/guardian-client.py"
-    policy=repo_root/"dev-hub/config/guardian-runtime-policy.v1.json"
+    client=canonical_route_path("intendant.authority", "guardian_client")
+    policy=canonical_route_path("intendant.authority", "guardian_policy")
     if not client.is_file() or not policy.is_file():
         return {"status":"UNAVAILABLE"}
     event={

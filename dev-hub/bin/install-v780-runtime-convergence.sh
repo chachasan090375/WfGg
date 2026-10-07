@@ -158,7 +158,7 @@ stage source
 if [ -n "$SOURCE_ROOT" ]; then
   SRC="$(readlink -f "$SOURCE_ROOT")"
 else
-  curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$WORK/repo.tar.gz"
+  curl -fsSL "chacha-route://provider.codeload_github_com" -o "$WORK/repo.tar.gz"
   mkdir -p "$WORK/src"; tar -xzf "$WORK/repo.tar.gz" -C "$WORK/src" --strip-components=1
   SRC="$WORK/src"
 fi
@@ -198,7 +198,7 @@ python3 - "$REV" <<'PY'
 import json,sys,urllib.parse,urllib.request
 rev=sys.argv[1]
 q=urllib.parse.urlencode({"head_sha":rev,"per_page":60})
-req=urllib.request.Request("https://api.github.com/repos/chachasan090375/WfGg/actions/runs?"+q,
+req=urllib.request.Request("chacha-route://provider.api_github_com"+q,
  headers={"User-Agent":"ChaCha-DEV-V780-Installer/1.0","Accept":"application/vnd.github+json"})
 with urllib.request.urlopen(req,timeout=20) as r:x=json.loads(r.read().decode())
 need={
@@ -310,7 +310,7 @@ SERVICE_INSTALLED=1
 systemctl is-active --quiet chacha-dev-direct-operator.service
 ready=0
 for _ in $(seq 1 40); do
-  if curl -fsS --max-time 2 http://127.0.0.1:8792/healthz >"$WORK/health.json" 2>/dev/null; then
+  if curl -fsS --max-time 2 chacha-route://internal.127.0.0.1_8792_healthz >"$WORK/health.json" 2>/dev/null; then
     ready=1
     break
   fi
@@ -331,15 +331,15 @@ PY
 stage private-tailscale-serve
 before="$(tailscale serve status 2>/dev/null || true)"
 printf '%s\n' "$before" >"$WORK/tailscale-before.txt"
-tailscale serve --bg --https=8443 http://127.0.0.1:8792 >"$WORK/tailscale-serve.out" 2>"$WORK/tailscale-serve.err"
+tailscale serve --bg --https=8443 chacha-route://internal.127.0.0.1_8792 >"$WORK/tailscale-serve.out" 2>"$WORK/tailscale-serve.err"
 SERVE_CONFIGURED=1
 after="$(tailscale serve status 2>/dev/null || true)"
 printf '%s\n' "$after" >"$WORK/tailscale-after.txt"
 grep -Fq ':8443' "$WORK/tailscale-after.txt"
-grep -Fq 'http://127.0.0.1:8792' "$WORK/tailscale-after.txt"
+grep -Fq 'chacha-route://internal.127.0.0.1_8792' "$WORK/tailscale-after.txt"
 # Existing public Radar Funnel must remain present on 443.
 grep -Fq 'Funnel on' "$WORK/tailscale-after.txt"
-grep -Fq 'http://127.0.0.1:8788' "$WORK/tailscale-after.txt"
+grep -Fq 'chacha-route://internal.127.0.0.1_8788' "$WORK/tailscale-after.txt"
 if grep -Fq ':8445' "$WORK/tailscale-before.txt"; then
   grep -Fq ':8445' "$WORK/tailscale-after.txt"
   echo "CHACHA_DEV_V780_NATIVE_UPDATE_SURFACE_PRESERVED=YES"
@@ -360,7 +360,7 @@ import json,sys
 print(json.load(open(sys.argv[1]))["authorized_logins"][0])
 PY
 )"
-curl -fsS -H "Tailscale-User-Login: $LOGIN" -H 'Content-Type: application/json'   --data '{"text":"Allo","project":"chacha-dev-platform"}'   http://127.0.0.1:8792/api/v1/intent >"$WORK/accepted.json"
+curl -fsS -H "Tailscale-User-Login: $LOGIN" -H 'Content-Type: application/json'   --data '{"text":"Allo","project":"chacha-dev-platform"}'   chacha-route://internal.127.0.0.1_8792_api_v1_intent >"$WORK/accepted.json"
 JOB="$(python3 - "$WORK/accepted.json" <<'PY'
 import json,sys
 x=json.load(open(sys.argv[1]));assert x["status"]=="ACCEPTED",x;print(x["job_id"])
@@ -369,7 +369,7 @@ PY
 python3 - "$LOGIN" "$JOB" "$WORK/status-job.json" <<'PY'
 import json,sys,time,urllib.request
 login,job,out=sys.argv[1:]
-url="http://127.0.0.1:8792/api/v1/jobs/"+job
+url="chacha-route://internal.127.0.0.1_8792_api_v1_jobs_"+job
 for _ in range(180):
     req=urllib.request.Request(url,headers={"Tailscale-User-Login":login})
     with urllib.request.urlopen(req,timeout=10) as r:x=json.loads(r.read())
@@ -395,7 +395,7 @@ python3 - "$LOGIN" "$TEXT" "$WORK/accepted-instruction.json" <<'PY'
 import json,sys,urllib.request
 login,text,out=sys.argv[1:]
 body=json.dumps({"text":text,"project":"chacha-dev-platform"}).encode()
-req=urllib.request.Request("http://127.0.0.1:8792/api/v1/intent",data=body,method="POST",
+req=urllib.request.Request("chacha-route://internal.127.0.0.1_8792_api_v1_intent",data=body,method="POST",
  headers={"Tailscale-User-Login":login,"Content-Type":"application/json"})
 with urllib.request.urlopen(req,timeout=10) as r:x=json.loads(r.read())
 open(out,"w").write(json.dumps(x,indent=2)+"\n")
@@ -408,7 +408,7 @@ PY
 python3 - "$LOGIN" "$JOB2" "$WORK/instruction-job.json" <<'PY'
 import json,sys,time,urllib.request
 login,job,out=sys.argv[1:]
-url="http://127.0.0.1:8792/api/v1/jobs/"+job
+url="chacha-route://internal.127.0.0.1_8792_api_v1_jobs_"+job
 for _ in range(900):
     req=urllib.request.Request(url,headers={"Tailscale-User-Login":login})
     with urllib.request.urlopen(req,timeout=10) as r:x=json.loads(r.read())

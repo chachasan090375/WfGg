@@ -12,7 +12,7 @@ WORK="$(mktemp -d /tmp/chacha-v64-nas-resume.XXXXXX)"
 ARCHIVE="$WORK/repo.tar.gz"
 trap 'rm -rf "$WORK" 2>/dev/null || true' EXIT
 
-curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$ARCHIVE"
+curl -fsSL "chacha-route://provider.codeload_github_com" -o "$ARCHIVE"
 tar -xzf "$ARCHIVE" -C "$WORK"
 SRC="$(find "$WORK" -mindepth 1 -maxdepth 1 -type d -name 'WfGg-*' | head -1)"
 [ -d "$SRC/dev-hub" ] || { echo "CHACHA_DEV_V64_NAS_RESUME=BLOCKED reason=archive_invalid"; exit 2; }
@@ -42,7 +42,7 @@ PY
 )"
 printf '%s' "$REMOTE_REL" | grep -Eq '^[A-Za-z0-9._/-]+$'
 
-ssh -n -o BatchMode=yes -o ConnectTimeout=12 chachanas   cat "/share/CACHEDEV1_DATA/ChaCha-DEV-HUB/$REMOTE_REL" >"$WORK/remote-experience.json"
+ssh -n -o BatchMode=yes -o ConnectTimeout=12 chachanas   cat "chacha-route://knowledge.authoritative$REMOTE_REL" >"$WORK/remote-experience.json"
 
 python3 - "$WORK/experience.json" "$WORK/remote-experience.json" <<'PY'
 import json,sys

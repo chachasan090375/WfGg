@@ -25,7 +25,7 @@ def backup(src:Path,dst:Path):
  if not integrity(tmp):raise RuntimeError('PRIMARY_SQLITE_INTEGRITY_FAILED:'+dst.name)
  os.replace(tmp,dst)
 def health(name,port):
- with urllib.request.urlopen(f'http://127.0.0.1:{port}/__sovereign/healthz',timeout=4) as r:x=json.loads(r.read())
+ with urllib.request.urlopen(f'chacha-route://internal.127.0.0.1:{port}/__sovereign/healthz',timeout=4) as r:x=json.loads(r.read())
  if r.status!=200 or x.get('status')!='ok' or x.get('state_backend')!='SQLITE_LOCAL':raise RuntimeError('LOCAL_HEALTH_FAILED:'+name)
  return x
 def approval_ok(p:Path,revision:str):

@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 BRANCH="dev-hub-v5-storage-governor-incremental-discovery"
-RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${BRANCH}"
+RAW="chacha-route://provider.raw_githubusercontent_com"
 BASE="/opt/chacha-dev/adapters/storage-governor"
 EVIDENCE_DIR="/opt/chacha-dev/evidence"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"

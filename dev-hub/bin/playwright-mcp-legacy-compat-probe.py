@@ -172,7 +172,7 @@ def main() -> int:
     try:
         web = Server(("127.0.0.1", 0), Handler)
         port = int(web.server_address[1])
-        origin = f"http://127.0.0.1:{port}"
+        origin = f"chacha-route://internal.127.0.0.1:{port}"
         evidence["target_origin"] = origin
         threading.Thread(target=web.serve_forever, daemon=True).start()
 

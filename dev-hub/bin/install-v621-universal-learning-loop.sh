@@ -10,8 +10,8 @@ WORK="$(mktemp -d /tmp/chacha-v621.XXXXXX)"
 ARCHIVE="$WORK/repo.tar.gz"
 PRIVATE_KEY="/opt/chacha-dev/runtime/secrets/central-learning-key.pem"
 PILOT_PRODUCER_KEY="/opt/chacha-dev/runtime/secrets/v621-pilot-learning-producer.pem"
-GUARDIAN_URL="https://chacha-dev-guardian.chachasan090375.workers.dev"
-RELAY_URL="https://chacha-dev-learning-relay.chachasan090375.workers.dev"
+GUARDIAN_URL="chacha-route://guardian.authority"
+RELAY_URL="chacha-route://learning.relay"
 PREVIOUS=""
 STAGE="bootstrap"
 
@@ -56,7 +56,7 @@ PY
 fi
 if [ -L "$CURRENT" ]; then PREVIOUS="$(readlink -f "$CURRENT" || true)"; fi
 
-curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$ARCHIVE"
+curl -fsSL "chacha-route://provider.codeload_github_com" -o "$ARCHIVE"
 tar -xzf "$ARCHIVE" -C "$WORK"
 SRC="$(find "$WORK" -mindepth 1 -maxdepth 1 -type d -name 'WfGg-*' | head -1)"
 [ -d "$SRC/dev-hub" ] || { echo "CHACHA_DEV_V621_INSTALL=BLOCKED reason=archive_invalid"; exit 2; }

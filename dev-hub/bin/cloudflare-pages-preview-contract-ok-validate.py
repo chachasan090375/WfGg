@@ -39,10 +39,10 @@ path = ROOT/'dev-hub/adapters/cloudflare-pages-adapter.py'
 spec = importlib.util.spec_from_file_location('cfpages_adapter', path)
 mod = importlib.util.module_from_spec(spec); assert spec and spec.loader; spec.loader.exec_module(mod)
 
-summary = """Preview URL: https://c132a897.wfgg.pages.dev\nBranch Preview URL: https://feature-x.wfgg.pages.dev"""
+summary = """Preview URL: https://c132a897.wfgg.pages.dev\nBranch Preview URL: chacha-route://project.feature-x_wfgg_pages_dev"""
 immutable, alias = mod.parse_preview_urls(summary, 'wfgg')
-assert immutable == 'https://c132a897.wfgg.pages.dev'
-assert alias == 'https://feature-x.wfgg.pages.dev'
+assert immutable == 'chacha-route://project.c132a897_wfgg_pages_dev'
+assert alias == 'chacha-route://project.feature-x_wfgg_pages_dev'
 
 check = {
   'id': 123,
@@ -61,7 +61,7 @@ worker = {
   'status': 'completed',
   'conclusion': 'success',
   'app': {'slug':'cloudflare-workers-and-pages'},
-  'output': {'summary':'Preview URL: https://deadbeef-wfgg-api.example.workers.dev'},
+  'output': {'summary':'Preview URL: chacha-route://project.deadbeef-wfgg-api_example_workers_dev'},
 }
 selected, got_url, got_alias = mod.matching_check([worker, check], b, 'a'*40)
 assert selected and selected['id'] == 123

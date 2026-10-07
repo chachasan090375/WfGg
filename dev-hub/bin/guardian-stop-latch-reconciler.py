@@ -1,4 +1,5 @@
 from __future__ import annotations
+from canonical_route_runtime import resolve_path as canonical_route_path, resolve_value as canonical_route_value
 import argparse, hashlib, json, os, subprocess, sys, time
 from pathlib import Path
 from typing import Any
@@ -6,9 +7,9 @@ from typing import Any
 SCHEMA = "chacha.dev/guardian-stop-latch-reconciliation/v1"
 LATCH_SCHEMA = "chacha.dev/guardian-stop-required/v1"
 CANONICAL_STOP = Path("/opt/chacha-dev/runtime/control/emergency-stop.json")
-DEFAULT_POLICY = Path("/opt/chacha-dev/platform/current/dev-hub/config/guardian-runtime-policy.v1.json")
+DEFAULT_POLICY = canonical_route_path("intendant.authority", "guardian_policy")
 DEFAULT_CONFIG = Path("/opt/chacha-dev/platform/current/dev-hub/config/guardian-stop-latch-reconciliation.v1.json")
-DEFAULT_CLIENT = Path("/opt/chacha-dev/platform/current/dev-hub/bin/guardian-client.py")
+DEFAULT_CLIENT = canonical_route_path("intendant.authority", "guardian_client")
 COVERAGE_MARKER = "CHACHA_DEV_GUARDIAN_CRITICAL_STATE_RECONCILIATION=PASS"
 
 

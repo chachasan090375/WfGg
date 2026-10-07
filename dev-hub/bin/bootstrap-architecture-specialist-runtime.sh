@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 REV="${WFGG_DEV_HUB_ARCHITECT_REV:-}"
-RAW_ARCHIVE="https://codeload.github.com/chachasan090375/WfGg/tar.gz/${REV}"
+RAW_ARCHIVE="chacha-route://provider.codeload_github_com"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 WORK="$(mktemp -d /tmp/chacha-architect-bootstrap.XXXXXX)"
 ARCHIVE="$WORK/repo.tar.gz"

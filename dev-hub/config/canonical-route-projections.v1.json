@@ -1,0 +1,216 @@
+{
+  "schema": "chacha.dev/canonical-route-projections/v1",
+  "registry": "config/canonical-route-registry.v1.json",
+  "resolver": "bin/canonical-materialization-resolver.py",
+  "authority": "CANONICAL_ROUTE_REGISTRY",
+  "generated_outputs_are_authoritative": false,
+  "entries": [
+    {
+      "target": "config/autonomy-constitution.v1.json",
+      "template": "projections/canonical-route/config/autonomy-constitution.v1.json.template",
+      "kind": "JSON",
+      "bindings": [
+        {
+          "route": "intendant.authority",
+          "binding": "guardian_policy",
+          "token": "@@CHACHA_ROUTE:intendant.authority:guardian_policy@@"
+        }
+      ]
+    },
+    {
+      "target": "config/guardian-coverage-manifest.v1.json",
+      "template": "projections/canonical-route/config/guardian-coverage-manifest.v1.json.template",
+      "kind": "JSON",
+      "bindings": [
+        {
+          "route": "intendant.authority",
+          "binding": "council",
+          "token": "@@CHACHA_ROUTE:intendant.authority:council@@"
+        }
+      ]
+    },
+    {
+      "target": "config/intendant-hygiene-cycle.v1.json",
+      "template": "projections/canonical-route/config/intendant-hygiene-cycle.v1.json.template",
+      "kind": "JSON",
+      "bindings": [
+        {
+          "route": "intendant.authority",
+          "binding": "hygiene_executor",
+          "token": "@@CHACHA_ROUTE:intendant.authority:hygiene_executor@@"
+        }
+      ]
+    },
+    {
+      "target": "config/operator-directive-sinks.v1.json",
+      "template": "projections/canonical-route/config/operator-directive-sinks.v1.json.template",
+      "kind": "JSON",
+      "bindings": [
+        {
+          "route": "bastion.authority",
+          "binding": "backend",
+          "token": "@@CHACHA_ROUTE:bastion.authority:backend@@"
+        },
+        {
+          "route": "intendant.authority",
+          "binding": "backend",
+          "token": "@@CHACHA_ROUTE:intendant.authority:backend@@"
+        },
+        {
+          "route": "intendant.authority",
+          "binding": "council",
+          "token": "@@CHACHA_ROUTE:intendant.authority:council@@"
+        },
+        {
+          "route": "intendant.authority",
+          "binding": "hygiene_executor",
+          "token": "@@CHACHA_ROUTE:intendant.authority:hygiene_executor@@"
+        }
+      ]
+    },
+    {
+      "target": "config/run-controller.v1.json",
+      "template": "projections/canonical-route/config/run-controller.v1.json.template",
+      "kind": "JSON",
+      "bindings": [
+        {
+          "route": "intendant.authority",
+          "binding": "guardian_client",
+          "token": "@@CHACHA_ROUTE:intendant.authority:guardian_client@@"
+        },
+        {
+          "route": "intendant.authority",
+          "binding": "guardian_policy",
+          "token": "@@CHACHA_ROUTE:intendant.authority:guardian_policy@@"
+        }
+      ]
+    },
+    {
+      "target": "systemd/chacha-dev-bastion-incident-response.service",
+      "template": "projections/canonical-route/systemd/chacha-dev-bastion-incident-response.service.template",
+      "kind": "SYSTEMD",
+      "bindings": [
+        {
+          "route": "bastion.authority",
+          "binding": "backend",
+          "token": "@@CHACHA_ROUTE:bastion.authority:backend@@"
+        }
+      ]
+    },
+    {
+      "target": "systemd/chacha-dev-guardian-alert-pull.service",
+      "template": "projections/canonical-route/systemd/chacha-dev-guardian-alert-pull.service.template",
+      "kind": "SYSTEMD",
+      "bindings": [
+        {
+          "route": "intendant.authority",
+          "binding": "guardian_client",
+          "token": "@@CHACHA_ROUTE:intendant.authority:guardian_client@@"
+        },
+        {
+          "route": "intendant.authority",
+          "binding": "guardian_policy",
+          "token": "@@CHACHA_ROUTE:intendant.authority:guardian_policy@@"
+        }
+      ]
+    },
+    {
+      "target": "systemd/chacha-dev-guardian-coverage-heartbeat.service",
+      "template": "projections/canonical-route/systemd/chacha-dev-guardian-coverage-heartbeat.service.template",
+      "kind": "SYSTEMD",
+      "bindings": [
+        {
+          "route": "intendant.authority",
+          "binding": "guardian_client",
+          "token": "@@CHACHA_ROUTE:intendant.authority:guardian_client@@"
+        },
+        {
+          "route": "intendant.authority",
+          "binding": "guardian_coverage",
+          "token": "@@CHACHA_ROUTE:intendant.authority:guardian_coverage@@"
+        },
+        {
+          "route": "intendant.authority",
+          "binding": "guardian_policy",
+          "token": "@@CHACHA_ROUTE:intendant.authority:guardian_policy@@"
+        }
+      ]
+    },
+    {
+      "target": "systemd/chacha-dev-guardian-remediation.service",
+      "template": "projections/canonical-route/systemd/chacha-dev-guardian-remediation.service.template",
+      "kind": "SYSTEMD",
+      "bindings": [
+        {
+          "route": "intendant.authority",
+          "binding": "guardian_client",
+          "token": "@@CHACHA_ROUTE:intendant.authority:guardian_client@@"
+        },
+        {
+          "route": "intendant.authority",
+          "binding": "guardian_policy",
+          "token": "@@CHACHA_ROUTE:intendant.authority:guardian_policy@@"
+        }
+      ]
+    },
+    {
+      "target": "systemd/chacha-dev-guardian-stop-latch-reconciliation.service",
+      "template": "projections/canonical-route/systemd/chacha-dev-guardian-stop-latch-reconciliation.service.template",
+      "kind": "SYSTEMD",
+      "bindings": [
+        {
+          "route": "intendant.authority",
+          "binding": "guardian_client",
+          "token": "@@CHACHA_ROUTE:intendant.authority:guardian_client@@"
+        },
+        {
+          "route": "intendant.authority",
+          "binding": "guardian_policy",
+          "token": "@@CHACHA_ROUTE:intendant.authority:guardian_policy@@"
+        }
+      ]
+    },
+    {
+      "target": "systemd/chacha-dev-intendant-hygiene.service",
+      "template": "projections/canonical-route/systemd/chacha-dev-intendant-hygiene.service.template",
+      "kind": "SYSTEMD",
+      "bindings": [
+        {
+          "route": "intendant.authority",
+          "binding": "backend",
+          "token": "@@CHACHA_ROUTE:intendant.authority:backend@@"
+        },
+        {
+          "route": "intendant.authority",
+          "binding": "consolidation_policy",
+          "token": "@@CHACHA_ROUTE:intendant.authority:consolidation_policy@@"
+        },
+        {
+          "route": "intendant.authority",
+          "binding": "consolidator",
+          "token": "@@CHACHA_ROUTE:intendant.authority:consolidator@@"
+        },
+        {
+          "route": "intendant.authority",
+          "binding": "guardian_client",
+          "token": "@@CHACHA_ROUTE:intendant.authority:guardian_client@@"
+        },
+        {
+          "route": "intendant.authority",
+          "binding": "guardian_coverage",
+          "token": "@@CHACHA_ROUTE:intendant.authority:guardian_coverage@@"
+        },
+        {
+          "route": "intendant.authority",
+          "binding": "guardian_policy",
+          "token": "@@CHACHA_ROUTE:intendant.authority:guardian_policy@@"
+        },
+        {
+          "route": "intendant.authority",
+          "binding": "hygiene_executor",
+          "token": "@@CHACHA_ROUTE:intendant.authority:hygiene_executor@@"
+        }
+      ]
+    }
+  ]
+}

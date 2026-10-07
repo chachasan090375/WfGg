@@ -6,7 +6,7 @@ PROJECT="wfgg-radar"
 PRODUCTION_REV="b46e0c325eb116ac308ccc4136d7ad4aee0d9d7c"
 EXPECTED_CONNECTOR="fb21a02feeaaa6a7013cf4e17c77bbb033a30a4bce021066fd947fc665360a9b"
 EXPECTED_NATIVE="274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900"
-RAW_ARCHIVE="https://codeload.github.com/chachasan090375/WfGg/tar.gz/${REV}"
+RAW_ARCHIVE="chacha-route://provider.codeload_github_com"
 RUNTIME="/opt/chacha-dev/runtime"
 WORK_ROOT="$RUNTIME/tmp"
 mkdir -p "$WORK_ROOT"
@@ -163,7 +163,7 @@ print('COLLECTOR_MUTATION='+('YES' if d.get('collector_mutation') else 'NO'))
 PY
 
 # Cloudflare production smoke: health + immutable UI markers only.
-RADAR_URL="https://wfgg-radar.chachasan090375.workers.dev"
+RADAR_URL="chacha-route://project.wfgg-radar_chachasan090375_workers_dev"
 for i in $(seq 1 12); do
   if curl -fsSL "$RADAR_URL/api/health?postdeploy=$REV-$i" -o "$WORK/health.json" && \
      python3 - "$WORK/health.json" <<'PY'

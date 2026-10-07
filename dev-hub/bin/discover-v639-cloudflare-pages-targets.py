@@ -54,14 +54,14 @@ def resolve_account(token:str,account_ids:list[str])->tuple[str,str]:
     for aid in account_ids:
         q=urllib.parse.quote(aid,safe="")
         status,payload=request_json(
-            f"https://api.cloudflare.com/client/v4/accounts/{q}/pages/projects?per_page=1",
+            f"chacha-route://provider.api_cloudflare_com",
             token
         )
         if status==200 and payload.get("success") is True:
             return aid,"provided-secret"
 
     status,payload=request_json(
-        "https://api.cloudflare.com/client/v4/accounts?per_page=50",
+        "chacha-route://provider.api_cloudflare_com",
         token
     )
     rows=(payload.get("result") or []) if status==200 and payload.get("success") is True else []
@@ -170,7 +170,7 @@ def main()->int:
 
     aid=urllib.parse.quote(account_id,safe="")
     status,payload=request_json(
-        f"https://api.cloudflare.com/client/v4/accounts/{aid}/pages/projects?per_page=100",
+        f"chacha-route://provider.api_cloudflare_com",
         chosen_token
     )
     if status!=200 or payload.get("success") is not True:

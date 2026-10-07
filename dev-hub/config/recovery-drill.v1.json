@@ -12,7 +12,7 @@
   },
   "forbidden_runtime_prefixes": [
     "/opt/chacha-dev/runtime",
-    "/share/CACHEDEV1_DATA/ChaCha-DEV-HUB"
+    "chacha-route://knowledge.authoritative"
   ],
   "repository_paths": {
     "control_plane_policy": "dev-hub/config/control-plane-state.v1.json",

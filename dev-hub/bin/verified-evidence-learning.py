@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+from canonical_route_runtime import resolve_path as canonical_route_path, resolve_value as canonical_route_value
 import sys
 sys.dont_write_bytecode=True
 import argparse,fcntl,hashlib,json,os,subprocess,tempfile,uuid
@@ -46,8 +47,8 @@ def guardian_check(repo_root:Path,phase:str,action_id:str,evidence:dict[str,Any]
     if os.environ.get("CHACHA_DEV_TEST_GUARDIAN_BYPASS")=="1":
         return {"status":"EXPLICIT_SEMANTIC_TEST_BYPASS"}
     if not Path("/opt/chacha-dev/runtime").exists():return {"status":"NON_RUNTIME_TEST_BYPASS"}
-    client=repo_root/"dev-hub/bin/guardian-client.py"
-    policy=repo_root/"dev-hub/config/guardian-runtime-policy.v1.json"
+    client=canonical_route_path("intendant.authority", "guardian_client")
+    policy=canonical_route_path("intendant.authority", "guardian_policy")
     if not client.is_file() or not policy.is_file():raise RuntimeError("GUARDIAN_UNAVAILABLE")
     event={"schema":"chacha.dev/governance-action/v1","event_id":"gov-"+uuid.uuid4().hex,
            "action_id":action_id,"phase":phase,"actor":"verified-evidence-learning",

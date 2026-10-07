@@ -17,7 +17,7 @@ from typing import Any
 COMMAND_SCHEMA = "chacha.dev/emergency-stop-command/v1"
 STATE_SCHEMA = "chacha.dev/emergency-control-bridge-state/v1"
 DEFAULT_COMMAND_URL = (
-    "https://raw.githubusercontent.com/chachasan090375/WfGg/"
+    "chacha-route://provider.raw_githubusercontent_com"
     "chacha-emergency-control/dev-hub/control/emergency-stop-command.json"
 )
 DEFAULT_STATE = Path("/opt/chacha-dev/runtime/control/emergency-control-bridge.json")

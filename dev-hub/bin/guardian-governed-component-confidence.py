@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+from canonical_route_runtime import resolve_path as canonical_route_path, resolve_value as canonical_route_value
 import json,subprocess,tempfile,time
 from pathlib import Path
 
 CURRENT=Path("/opt/chacha-dev/platform/current")
-POLICY=CURRENT/"dev-hub/config/guardian-runtime-policy.v1.json"
-CLIENT=CURRENT/"dev-hub/bin/guardian-client.py"
+POLICY=canonical_route_path("intendant.authority", "guardian_policy")
+CLIENT=canonical_route_path("intendant.authority", "guardian_client")
 ENGINE=CURRENT/"dev-hub/bin/component-confidence-engine.py"
 OUT=Path("/opt/chacha-dev/runtime/knowledge/component-confidence.json")
 

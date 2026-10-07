@@ -43,7 +43,7 @@ NAS_ADAPTER=Path(os.environ.get(
 ))
 COLLECTOR_DB=Path(os.environ.get("WFGG_COLLECTOR_DB","/opt/wfgg-collector/data/collector.db"))
 NAS_HOST=os.environ.get("CHACHA_NAS_HOST","chachanas")
-NAS_ROOT=os.environ.get("CHACHA_NAS_ROOT","/share/CACHEDEV1_DATA/ChaCha-DEV-HUB")
+NAS_ROOT=os.environ.get("CHACHA_NAS_ROOT","chacha-route://knowledge.authoritative")
 EVIDENCE=Path(os.environ.get(
     "CHACHA_INCREMENTAL_WATCH_EVIDENCE",
     "/opt/chacha-dev/evidence/collector-incremental-auto-watch-last.json",

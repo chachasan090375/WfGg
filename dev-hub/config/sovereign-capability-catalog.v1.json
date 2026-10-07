@@ -1,0 +1,69 @@
+{
+  "schema": "chacha.dev/sovereign-capability-catalog/v2",
+  "state": "CANDIDATE",
+  "authority": "CANONICAL_ROUTE_REGISTRY",
+  "local_authority_manifest": "/opt/chacha-dev/runtime/worktrees/canonical-routing-candidate-70cef390/dev-hub/config/sovereign-state-authority.local.v1.json",
+  "derivation": [
+    "LOCAL_AUTHORITY_ENDPOINT_CORRELATION",
+    "REGISTRY_SOVEREIGN_GAP_DISCOVERY"
+  ],
+  "fixed_component_inventory_allowed": false,
+  "services": {
+    "assurance-exchange": {
+      "component": "assurance-exchange",
+      "required": true,
+      "sovereign_state": "LOCAL_PRIMARY",
+      "local_primary": "chacha-route://assurance.exchange",
+      "route_key": "assurance.exchange",
+      "route_status": "CANDIDATE"
+    },
+    "bastion": {
+      "component": "bastion",
+      "required": true,
+      "sovereign_state": "LOCAL_PRIMARY_NOT_MATERIALIZED",
+      "local_primary": null,
+      "route_key": "bastion.authority",
+      "route_status": "BLOCKED_SOVEREIGN_GAP"
+    },
+    "curator": {
+      "component": "curator",
+      "required": true,
+      "sovereign_state": "LOCAL_PRIMARY_NOT_MATERIALIZED",
+      "local_primary": null,
+      "route_key": "curator.authority",
+      "route_status": "BLOCKED_SOVEREIGN_GAP"
+    },
+    "guardian": {
+      "component": "guardian",
+      "required": true,
+      "sovereign_state": "LOCAL_PRIMARY",
+      "local_primary": "chacha-route://guardian.authority",
+      "route_key": "guardian.authority",
+      "route_status": "CANDIDATE"
+    },
+    "intendant": {
+      "component": "intendant",
+      "required": true,
+      "sovereign_state": "LOCAL_PRIMARY_NOT_MATERIALIZED",
+      "local_primary": null,
+      "route_key": "intendant.authority",
+      "route_status": "BLOCKED_SOVEREIGN_GAP"
+    },
+    "learning-relay": {
+      "component": "learning-relay",
+      "required": true,
+      "sovereign_state": "LOCAL_PRIMARY",
+      "local_primary": "chacha-route://learning.relay",
+      "route_key": "learning.relay",
+      "route_status": "CANDIDATE"
+    },
+    "sentinel": {
+      "component": "sentinel",
+      "required": true,
+      "sovereign_state": "LOCAL_PRIMARY",
+      "local_primary": "chacha-route://sentinel.authority",
+      "route_key": "sentinel.authority",
+      "route_status": "CANDIDATE"
+    }
+  }
+}

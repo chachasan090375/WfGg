@@ -2,10 +2,10 @@
 set -Eeuo pipefail
 
 SOURCE_REVISION="ed5957a410d03a60c5a2a7525e0968174d62f677"
-RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${SOURCE_REVISION}"
+RAW="chacha-route://provider.raw_githubusercontent_com"
 BASE="/opt/chacha-dev/adapters/storage-governor"
 EVIDENCE_DIR="/opt/chacha-dev/evidence"
-NAS_ROOT="/share/CACHEDEV1_DATA/ChaCha-DEV-HUB"
+NAS_ROOT="chacha-route://knowledge.authoritative"
 CHAIN_ROOT="$NAS_ROOT/projects/wfgg/backups/collector-chain"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 RELEASE="$BASE/releases/$STAMP"

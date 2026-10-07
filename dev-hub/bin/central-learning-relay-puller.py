@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 import sovereign_state_authority as ssa
 
-DEFAULT_RELAY_URL="https://chacha-dev-learning-relay.chachasan090375.workers.dev"
+DEFAULT_RELAY_URL="chacha-route://learning.relay"
 DEFAULT_PRIVATE_KEY=Path("/opt/chacha-dev/runtime/secrets/central-learning-key.pem")
 DEFAULT_INGEST=Path("/opt/chacha-dev/learning-relay/current/learning-delta-ingest.py")
 DEFAULT_DB=Path("/opt/chacha-dev/runtime/knowledge/learning-deltas.db")

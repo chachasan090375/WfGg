@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 REV="${CHACHA_DEV_EMERGENCY_BRIDGE_REV:-}"
-COMMAND_URL="${CHACHA_DEV_EMERGENCY_COMMAND_URL:-https://raw.githubusercontent.com/chachasan090375/WfGg/chacha-emergency-control/dev-hub/control/emergency-stop-command.json}"
+COMMAND_URL="${CHACHA_DEV_EMERGENCY_COMMAND_URL:-chacha-route://provider.raw_githubusercontent_com"
 BASE="/opt/chacha-dev/emergency-bridge"
 CURRENT="$BASE/current"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
@@ -21,7 +21,7 @@ for cmd in curl tar python3 install ln systemctl; do
   command -v "$cmd" >/dev/null || { echo "CHACHA_DEV_EMERGENCY_BRIDGE_INSTALL=BLOCKED reason=missing_command:$cmd"; exit 2; }
 done
 
-curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$ARCHIVE"
+curl -fsSL "chacha-route://provider.codeload_github_com" -o "$ARCHIVE"
 tar -xzf "$ARCHIVE" -C "$WORK"
 SRC="$(find "$WORK" -mindepth 1 -maxdepth 1 -type d -name 'WfGg-*' | head -1)"
 [ -d "$SRC/dev-hub" ] || { echo "CHACHA_DEV_EMERGENCY_BRIDGE_INSTALL=BLOCKED reason=archive_invalid"; exit 2; }

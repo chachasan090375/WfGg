@@ -1,0 +1,689 @@
+{
+  "schema": "chacha.dev/guardian-coverage-manifest/v1",
+  "version": "3.9.0",
+  "scope": "PLATFORM_GLOBAL",
+  "heartbeat_max_age_seconds": 900,
+  "action_lease_default_seconds": 300,
+  "expected_components": [
+    {
+      "component_id": "central-orchestrator",
+      "role": "orchestrator",
+      "kind": "orchestrator",
+      "enforcement_point": "autonomous-project-orchestrator.guardian_stage",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "guardian_stage("
+      }
+    },
+    {
+      "component_id": "specification-compiler",
+      "role": "specification-compiler",
+      "kind": "component",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "BLOCK",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "specification-compiler.py"
+      }
+    },
+    {
+      "component_id": "functional-intent-orchestrator",
+      "role": "orchestrator",
+      "kind": "orchestrator",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "functional-intent-orchestrator.py"
+      }
+    },
+    {
+      "component_id": "project-factory",
+      "role": "project-factory",
+      "kind": "foundry",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "BLOCK",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "project-factory.py"
+      }
+    },
+    {
+      "component_id": "agent-foundry",
+      "role": "agent-foundry",
+      "kind": "foundry",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "agent-foundry-planner.py"
+      }
+    },
+    {
+      "component_id": "agent-contract-registry",
+      "role": "agent-contract-registry",
+      "kind": "registry",
+      "enforcement_point": "central-orchestrator-wrapper+guardian-dynamic-registration",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "agent-role-contract-manager.py"
+      }
+    },
+    {
+      "component_id": "branch-foundry",
+      "role": "branch-foundry",
+      "kind": "foundry",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "branch-foundry-planner.py"
+      }
+    },
+    {
+      "component_id": "capability-foundry",
+      "role": "capability-foundry",
+      "kind": "foundry",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "capability-foundry.py"
+      }
+    },
+    {
+      "component_id": "production-lineage-feedback",
+      "role": "production-lineage-feedback",
+      "kind": "memory-reconciler",
+      "enforcement_point": "guardian-governed-production-lineage-feedback",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/guardian-governed-production-lineage-feedback.py",
+        "marker": "CHACHA_DEV_V624_GUARDIAN_GOVERNED_FEEDBACK"
+      }
+    },
+    {
+      "component_id": "component-confidence-engine",
+      "role": "component-confidence-engine",
+      "kind": "memory-advisor",
+      "enforcement_point": "guardian-governed-component-confidence",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/component-confidence-engine.py",
+        "marker": "CHACHA_DEV_V625_COMPONENT_CONFIDENCE=PASS"
+      }
+    },
+    {
+      "component_id": "central-memory-recall",
+      "role": "central-memory-recall",
+      "kind": "memory-advisor",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "central-memory-recall.py"
+      }
+    },
+    {
+      "component_id": "architecture-decision-council",
+      "role": "architecture-decision-council",
+      "kind": "orchestrator",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "@@CHACHA_ROUTE:intendant.authority:council@@"
+      }
+    },
+    {
+      "component_id": "architecture-portfolio-optimizer",
+      "role": "architecture-portfolio-optimizer",
+      "kind": "orchestrator",
+      "enforcement_point": "architecture-decision-council-subprocess",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/@@CHACHA_ROUTE:intendant.authority:council@@",
+        "marker": "guardian_subcomponent(root,\"architecture-portfolio-optimizer\""
+      }
+    },
+    {
+      "component_id": "comparative-pilot",
+      "role": "comparative-pilot",
+      "kind": "orchestrator",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "architecture-comparative-pilot.py"
+      }
+    },
+    {
+      "component_id": "capsule-scheduler",
+      "role": "capsule-scheduler",
+      "kind": "scheduler",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "capsule-scheduler.py"
+      }
+    },
+    {
+      "component_id": "technology-watch",
+      "role": "technology-watch",
+      "kind": "observer",
+      "enforcement_point": "technology_watch_runtime.guardian",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/technology_watch_runtime.py",
+        "marker": "_guardian_observe_consult"
+      }
+    },
+    {
+      "component_id": "run-controller",
+      "role": "orchestrator",
+      "kind": "dispatcher",
+      "enforcement_point": "run-controller.guardian_gate",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/run-controller.py",
+        "marker": "guardian_gate("
+      }
+    },
+    {
+      "component_id": "class:dynamic-agents",
+      "role": "__agent__",
+      "kind": "dynamic-class",
+      "enforcement_point": "run-controller-owner-role",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/run-controller.py",
+        "marker": "owner_role"
+      }
+    },
+    {
+      "component_id": "class:registered-adapters",
+      "role": "adapter",
+      "kind": "dynamic-class",
+      "enforcement_point": "run-controller-adapter-contract",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/run-controller.py",
+        "marker": "ADAPTER_PERMISSION_UNSUPPORTED"
+      }
+    },
+    {
+      "component_id": "component-contract-registry",
+      "role": "component-contract-registry",
+      "kind": "registry",
+      "enforcement_point": "central-orchestrator-wrapper+guardian-dynamic-component-registration",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "component-role-contract-manager.py"
+      }
+    },
+    {
+      "component_id": "task-contract-binder",
+      "role": "task-contract-binder",
+      "kind": "binder",
+      "enforcement_point": "task-graph-to-execution-plan",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/task-contract-binder.py",
+        "marker": "CHACHA_DEV_TASK_CONTRACT_BINDING=PASS"
+      }
+    },
+    {
+      "component_id": "guardian-remediation-controller",
+      "role": "guardian-remediation-controller",
+      "kind": "controller",
+      "enforcement_point": "guardian-remediation-timer+signed-external-directives",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/guardian-remediation-controller.py",
+        "marker": "CHACHA_DEV_GUARDIAN_REMEDIATION_PULL=PASS"
+      }
+    },
+    {
+      "component_id": "guardian-critical-state-reconciler",
+      "role": "guardian-critical-state-reconciler",
+      "kind": "controller",
+      "enforcement_point": "guardian-stop-latch-reconciliation-timer+guardian-worker-coverage-reconciliation",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/guardian-stop-latch-reconciler.py",
+        "marker": "CHACHA_DEV_GUARDIAN_CRITICAL_STATE_RECONCILIATION=PASS"
+      }
+    },
+    {
+      "component_id": "universal-learning-producer",
+      "role": "universal-learning-producer",
+      "kind": "learning-plane",
+      "enforcement_point": "central-orchestrator+run-controller+technology-watch+remote-producer-contract",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/universal-learning-producer.py",
+        "marker": "chacha.dev/universal-learning-flush/v1"
+      }
+    },
+    {
+      "component_id": "production-anomaly-guardian-bridge",
+      "role": "runtime-monitor",
+      "kind": "feedback-controller",
+      "enforcement_point": "learning-anomaly-queue+external-guardian",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/production-anomaly-guardian-bridge.py",
+        "marker": "CHACHA_DEV_PRODUCTION_ANOMALY_GUARDIAN_BRIDGE=PASS"
+      }
+    },
+    {
+      "component_id": "acceptance-confidence-bridge",
+      "role": "acceptance-confidence-bridge",
+      "kind": "learning-bridge",
+      "enforcement_point": "acceptance-engine",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/acceptance-confidence-bridge.py",
+        "marker": "CHACHA_DEV_V626_ACCEPTANCE_CONFIDENCE_BRIDGE=PASS"
+      }
+    },
+    {
+      "component_id": "verified-evidence-learning",
+      "role": "verified-evidence-learning",
+      "kind": "learning-reconciler",
+      "enforcement_point": "evidence-ledger-reconciler",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/verified-evidence-learning.py",
+        "marker": "CHACHA_DEV_V627_VERIFIED_EVIDENCE_LEARNING=PASS"
+      }
+    },
+    {
+      "component_id": "logician",
+      "role": "logician",
+      "kind": "internal-advisor",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "logic-search-engine.py"
+      }
+    },
+    {
+      "component_id": "ergonomist",
+      "role": "ergonomist",
+      "kind": "internal-advisor",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "ux-planning-engine.py"
+      }
+    },
+    {
+      "component_id": "multi-agent-compromise-engine",
+      "role": "orchestrator",
+      "kind": "decision-synthesis",
+      "enforcement_point": "central-orchestrator-wrapper",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-project-orchestrator.py",
+        "marker": "multi-agent-compromise-engine.py"
+      }
+    },
+    {
+      "component_id": "compromise-release-gate",
+      "role": "compromise-release-gate",
+      "kind": "release-gate",
+      "enforcement_point": "release-finalization",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/compromise-release-gate.py",
+        "marker": "CHACHA_DEV_COMPROMISE_RELEASE_GATE"
+      }
+    },
+    {
+      "component_id": "curator-central-authority",
+      "role": "curator",
+      "kind": "external-authority",
+      "enforcement_point": "specialist-review",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/curator/worker.js",
+        "marker": "role:\"curator\""
+      }
+    },
+    {
+      "component_id": "bastion-central-authority",
+      "role": "bastion",
+      "kind": "external-authority",
+      "enforcement_point": "security-incident-and-review",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bastion/worker.js",
+        "marker": "role:\"bastion\""
+      }
+    },
+    {
+      "component_id": "intendant-central-authority",
+      "role": "intendant",
+      "kind": "external-authority",
+      "enforcement_point": "specialist-review",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/intendant/worker.js",
+        "marker": "role:\"intendant\""
+      }
+    },
+    {
+      "component_id": "internal-final-review",
+      "role": "orchestrator",
+      "kind": "post-implementation-review",
+      "enforcement_point": "final-compromise",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/internal-final-review.py",
+        "marker": "POST_IMPLEMENTATION_SECOND_READ"
+      }
+    },
+    {
+      "component_id": "seven-agent-final-compromise-controller",
+      "role": "orchestrator",
+      "kind": "final-delivery-gate",
+      "enforcement_point": "preview-to-release",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/seven-agent-final-compromise-controller.py",
+        "marker": "CHACHA_DEV_V636_SEVEN_AGENT_FINAL_COMPROMISE"
+      }
+    },
+    {
+      "component_id": "seven-agent-finalization-inputs",
+      "role": "orchestrator",
+      "kind": "finalization-input-contract",
+      "enforcement_point": "preview-release-task-graph",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/seven-agent-finalization-inputs.py",
+        "marker": "CHACHA_DEV_FINALIZATION_INPUT_BUNDLE"
+      }
+    },
+    {
+      "component_id": "automatic-seven-agent-finalizer",
+      "role": "orchestrator",
+      "kind": "automatic-release-finalization",
+      "enforcement_point": "project-control-preview-release",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/project-control.py",
+        "marker": "automatic_finalization_eligible"
+      }
+    },
+    {
+      "component_id": "autonomous-golden-path-controller",
+      "role": "orchestrator",
+      "kind": "full-autonomous-lifecycle",
+      "enforcement_point": "idea-to-release-project-control",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomous-golden-path-controller.py",
+        "marker": "CHACHA_DEV_V638_FULL_AUTONOMOUS_GOLDEN_PATH"
+      }
+    },
+    {
+      "component_id": "golden-path-materializer",
+      "role": "project-factory",
+      "kind": "canonical-materializer",
+      "enforcement_point": "v638-canonical-build",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/golden-path-materializer.py",
+        "marker": "CHACHA_DEV_V638_CANONICAL_MATERIALIZATION"
+      }
+    },
+    {
+      "component_id": "project-control-protected-approval",
+      "role": "orchestrator",
+      "kind": "human-approval-transaction",
+      "enforcement_point": "production-release-human-boundary",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/project-control.py",
+        "marker": "record_approval_operation"
+      }
+    },
+    {
+      "component_id": "human-interface-gateway",
+      "role": "human-interface-adapter",
+      "kind": "interface",
+      "enforcement_point": "human-interface-gateway.central-orchestrator-boundary",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/human-interface-gateway.py",
+        "marker": "interface_direct_technical_decision"
+      }
+    },
+    {
+      "component_id": "central-interface-controller",
+      "role": "central-interface-controller",
+      "kind": "controller",
+      "enforcement_point": "human-interface-gateway+direct-operator-service.central-controller",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/central-interface-controller.py",
+        "marker": "def governed_argv(argv: list[str]) -> list[str]:",
+        "checks": [
+          {
+            "file": "dev-hub/bin/central-interface-controller.py",
+            "marker": "governed_project_control = repo_root / \"dev-hub/bin/governed-project-control.py\""
+          },
+          {
+            "file": "dev-hub/bin/central-interface-controller-core.py",
+            "marker": "RECEIPT_SCHEMA=\"chacha.dev/central-interface-receipt/v1\""
+          },
+          {
+            "file": "dev-hub/bin/central-interface-controller-core.py",
+            "marker": "def handle_instruction(a)->dict[str,Any]:"
+          }
+        ]
+      }
+    },
+    {
+      "component_id": "direct-operator-service",
+      "role": "direct-operator-interface",
+      "kind": "interface",
+      "enforcement_point": "tailscale-identity+central-interface-controller-boundary",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/direct-operator-service.py",
+        "marker": "TAILSCALE_IDENTITY_REQUIRED"
+      }
+    },
+    {
+      "component_id": "functional-translator-satellite",
+      "role": "functional-translator",
+      "kind": "satellite-agent",
+      "enforcement_point": "direct-operator-service+central-orchestrator-independent-recompile",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/functional-translator-agent.py",
+        "marker": "translator_execution_authority"
+      }
+    },
+    {
+      "component_id": "platform-component-pilot-runner",
+      "role": "platform-component-pilot-runner",
+      "kind": "controller",
+      "enforcement_point": "platform-component-pilot-runner.guardian-pre-post",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/platform-component-pilot-runner.py",
+        "marker": "PLATFORM_COMPONENT_PILOT_GUARDIAN_PRE_POST"
+      }
+    },
+    {
+      "component_id": "platform-component-promotion-gate",
+      "role": "platform-component-promotion-gate",
+      "kind": "release-gate",
+      "enforcement_point": "platform-component-promotion-gate.project-control-approval-check",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/platform-component-promotion-gate.py",
+        "marker": "SCHEMA=\"chacha.dev/platform-component-promotion-gate/v1\""
+      }
+    },
+    {
+      "component_id": "platform-component-controlled-apply-planner",
+      "role": "platform-component-controlled-apply-planner",
+      "kind": "controller",
+      "enforcement_point": "platform-component-controlled-apply-planner.plan-only",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/platform-component-controlled-apply-planner.py",
+        "marker": "READY_FOR_CENTRAL_ORCHESTRATOR_APPLY"
+      }
+    },
+    {
+      "component_id": "platform-component-source-integration-executor",
+      "role": "platform-component-source-integration-executor",
+      "kind": "controller",
+      "enforcement_point": "platform-component-source-integration-executor.guardian-pre-post",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/platform-component-source-integration-executor.py",
+        "marker": "PLATFORM_COMPONENT_SOURCE_INTEGRATION_GUARDIAN_PRE_POST"
+      }
+    },
+    {
+      "component_id": "platform-component-adapter-binding-gate",
+      "role": "platform-component-adapter-binding-gate",
+      "kind": "release-gate",
+      "enforcement_point": "platform-component-adapter-binding-gate.proposal-only",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/platform-component-adapter-binding-gate.py",
+        "marker": "BINDING_PROPOSAL_READY_AWAIT_PROTECTED_REGISTRATION"
+      }
+    },
+    {
+      "component_id": "platform-component-adapter-registry-writer",
+      "role": "platform-component-adapter-registry-writer",
+      "kind": "controller",
+      "enforcement_point": "platform-component-adapter-registry-writer.contract-bound-additive-write",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/platform-component-adapter-registry-writer.py",
+        "marker": "REGISTRATION_CONTRACT_REPLAY_BLOCKED"
+      }
+    },
+    {
+      "component_id": "progress-state-controller",
+      "role": "progress-state-controller",
+      "kind": "controller",
+      "enforcement_point": "direct-operator-service.progress-reporting",
+      "criticality": "HIGH",
+      "proof": {
+        "file": "dev-hub/bin/progress_state_controller.py",
+        "marker": "SCHEMA=\"chacha.dev/platform-progress/v1\""
+      }
+    },
+    {
+      "component_id": "live-ui-publisher",
+      "role": "live-ui-publisher",
+      "kind": "controller",
+      "enforcement_point": "live-ui-publisher.exact-sha-atomic-switch",
+      "criticality": "HIGH",
+      "proof": {
+        "file": "dev-hub/bin/live_ui_publisher.py",
+        "marker": "LIVE_UI_EXACT_SHA_GATES_MISSING"
+      }
+    },
+    {
+      "component_id": "native-update-publisher",
+      "role": "native-update-publisher",
+      "kind": "controller",
+      "enforcement_point": "native-update-publisher.pinned-signer-exact-sha",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/native_update_publisher.py",
+        "marker": "NATIVE_UPDATE_SIGNING_CERT_MISMATCH"
+      }
+    },
+    {
+      "component_id": "android-release-signer",
+      "role": "android-release-signer",
+      "kind": "signing-controller",
+      "enforcement_point": "android-release-signer.exact-sha-vps-only",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/android_release_signer.py",
+        "marker": "ANDROID_SIGNER_EXACT_SHA_GATES_MISSING"
+      }
+    },
+    {
+      "component_id": "object-factory",
+      "role": "object-factory",
+      "kind": "factory",
+      "enforcement_point": "project-planner.object-factory-handoff",
+      "criticality": "HIGH",
+      "proof": {
+        "file": "dev-hub/bin/object-factory.py",
+        "marker": "SCHEMA=\"chacha.dev/object-factory-plan/v1\""
+      }
+    },
+    {
+      "component_id": "governed-platform-promotion",
+      "role": "governed-platform-promotion",
+      "kind": "controller",
+      "enforcement_point": "single-writer-lease+approved-platform-promotion-transaction",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/governed-platform-promotion.py",
+        "marker": "lease-acquire"
+      }
+    },
+    {
+      "component_id": "guardian-action-state-reconciler",
+      "role": "guardian-action-state-reconciler",
+      "kind": "controller",
+      "enforcement_point": "external-guardian-signed-action-lease-reconciliation",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/guardian-action-state-reconciler.py",
+        "marker": "CHACHA_DEV_GUARDIAN_ACTION_STATE_RECONCILER=PASS"
+      }
+    }
+  ],
+  "safety_exemptions": [
+    {
+      "component_id": "emergency-control-bridge",
+      "reason": "OUT_OF_BAND_STOP_PATH_MUST_NOT_DEPEND_ON_GUARDIAN_AVAILABILITY"
+    }
+  ],
+  "automatic_external_spend_eur": 0,
+  "d1_write_budget": {
+    "coverage_heartbeat_interval_seconds": 300,
+    "expected_max_component_heartbeat_writes_per_day": 16128,
+    "calculation": "56 components * 12 heartbeats/hour * 24 hours",
+    "ci_sync_mode": "DIGEST_AWARE_DELTA",
+    "automatic_paid_upgrade": false,
+    "automatic_external_spend_eur": 0
+  },
+  "components": [
+    {
+      "component_id": "autonomy-roadmap-evolution-router",
+      "role": "autonomy-roadmap-evolution-router",
+      "kind": "controller",
+      "enforcement_point": "agent-evolution-daily-cycle:roadmap-gap-routing",
+      "criticality": "CRITICAL",
+      "proof": {
+        "file": "dev-hub/bin/autonomy_roadmap_evolution_router.py",
+        "marker": "HUMAN_BOUNDARY"
+      }
+    }
+  ]
+}

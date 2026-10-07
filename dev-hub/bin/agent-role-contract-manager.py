@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+from canonical_route_runtime import resolve_path as canonical_route_path, resolve_value as canonical_route_value
 import argparse,json,subprocess,tempfile,time
 from pathlib import Path
 from typing import Any
 
 REPO_ROOT=Path(__file__).resolve().parents[2]
-DEFAULT_POLICY=REPO_ROOT/"dev-hub/config/guardian-runtime-policy.v1.json"
-DEFAULT_CLIENT=REPO_ROOT/"dev-hub/bin/guardian-client.py"
+DEFAULT_POLICY=canonical_route_path("intendant.authority", "guardian_policy")
+DEFAULT_CLIENT=canonical_route_path("intendant.authority", "guardian_client")
 DEFAULT_MATERIALIZATION_POLICY=REPO_ROOT/"dev-hub/config/canonical-component-registry.v1.json"
 DEFAULT_MATERIALIZATION_GATE=REPO_ROOT/"dev-hub/bin/universal-materialization-gate.py"
 DEFAULT_DYNAMIC_REGISTRY=Path("/opt/chacha-dev/runtime/canonical-registry/dynamic-components.json")

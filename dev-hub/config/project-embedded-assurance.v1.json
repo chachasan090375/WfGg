@@ -185,16 +185,16 @@
     }
   },
   "central_authority": {
-    "guardian_url": "https://chacha-dev-guardian.chachasan090375.workers.dev",
-    "sentinel_url": "https://chacha-dev-sentinel.chachasan090375.workers.dev",
+    "guardian_url": "chacha-route://guardian.authority",
+    "sentinel_url": "chacha-route://sentinel.authority",
     "assurance_exchange_remains_correlation_plane": true,
-    "exchange_url": "https://chacha-dev-assurance-exchange.chachasan090375.workers.dev",
+    "exchange_url": "chacha-route://assurance.exchange",
     "curator_status": "ACTIVE",
     "bastion_status": "ACTIVE",
     "intendant_status": "ACTIVE",
-    "curator_url": "https://chacha-dev-curator.chachasan090375.workers.dev",
-    "bastion_url": "https://chacha-dev-bastion.chachasan090375.workers.dev",
-    "intendant_url": "https://chacha-dev-intendant.chachasan090375.workers.dev"
+    "curator_url": "chacha-route://curator.authority",
+    "bastion_url": "chacha-route://bastion.authority",
+    "intendant_url": "chacha-route://intendant.authority"
   },
   "remediation": {
     "local_agents_may_apply_fix": false,

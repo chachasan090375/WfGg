@@ -71,7 +71,7 @@ PY
 stage source-preflight
 if [ -n "$SOURCE_ROOT" ]; then SRC="$(readlink -f "$SOURCE_ROOT")";[ -d "$SRC/dev-hub" ] || exit 2
 else
-  curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$WORK/repo.tar.gz"
+  curl -fsSL "chacha-route://provider.codeload_github_com" -o "$WORK/repo.tar.gz"
   mkdir -p "$WORK/src";tar -xzf "$WORK/repo.tar.gz" -C "$WORK/src" --strip-components=1;SRC="$WORK/src"
 fi
 for p in dev-hub/bin/agent_fleet_observatory.py dev-hub/bin/agent_evolution_controller.py dev-hub/bin/agent_evolution_profile.py dev-hub/bin/component_evolution_governance.py dev-hub/bin/autonomous-project-orchestrator.py dev-hub/config/agent-fleet-observatory.v1.json dev-hub/tests/test_v659_production_evidence_operational_maturity.py; do

@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 SOURCE_REVISION="6cc1c934ce18d37f698fcac36dc6e57136a03be7"
-RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${SOURCE_REVISION}"
+RAW="chacha-route://provider.raw_githubusercontent_com"
 PORTABLE_SHA="db0da08a11c2b2cbdddb5f1ac6b89aba228acac624815079e48e2fd13148eec3"
 
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
@@ -69,7 +69,7 @@ test "$COLLECTOR_BEFORE" = "active"
 test -n "$PID_BEFORE"
 test "$PID_BEFORE" != "0"
 
-ssh -n -o BatchMode=yes -o ConnectTimeout=12 chachanas   'test -d /share/CACHEDEV1_DATA/ChaCha-DEV-HUB && echo NAS_AUTO_WATCH_LINK=PASS'
+ssh -n -o BatchMode=yes -o ConnectTimeout=12 chachanas   'test -d chacha-route://knowledge.authoritative && echo NAS_AUTO_WATCH_LINK=PASS'
 test -x /opt/chacha-dev/adapters/nas-ssh/current/nas-ssh-adapter
 
 curl -fsSL "$RAW/dev-hub/adapters/storage-governor-adapter.py"   -o "$GOV_RELEASE/storage-governor-adapter"

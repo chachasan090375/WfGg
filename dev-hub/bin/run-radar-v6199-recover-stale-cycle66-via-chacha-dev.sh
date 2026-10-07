@@ -6,11 +6,11 @@ PROJECT="wfgg-radar"
 EXPECTED_CONNECTOR="5058159307ccb99e8e631fe71014608934b8575e69d5599e4388550306baab7f"
 EXPECTED_NATIVE="274d040f5294cb09422e5d55cc4b5335ac7739924c33dcb67b3f279645814900"
 COLLECTOR_DB="${WFGG_COLLECTOR_DB:-/opt/wfgg-collector/data/collector.db}"
-COLLECTOR_URL="${WFGG_COLLECTOR_URL:-http://127.0.0.1:8790}"
+COLLECTOR_URL="${WFGG_COLLECTOR_URL:-chacha-route://internal.127.0.0.1_8790}"
 TARGET_CYCLE_ID=66
 TARGET_QUERY="@federated:8125"
 STALE_MIN_SECONDS=900
-RAW_ARCHIVE="https://codeload.github.com/chachasan090375/WfGg/tar.gz/${REV}"
+RAW_ARCHIVE="chacha-route://provider.codeload_github_com"
 RUNTIME="/opt/chacha-dev/runtime"
 WORK_ROOT="$RUNTIME/tmp"
 mkdir -p "$WORK_ROOT"

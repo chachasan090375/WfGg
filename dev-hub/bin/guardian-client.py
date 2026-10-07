@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+from canonical_route_runtime import resolve_path as canonical_route_path, resolve_value as canonical_route_value
 import sys
 sys.dont_write_bytecode=True
 import argparse,base64,hashlib,json,subprocess,tempfile,time,urllib.error,urllib.parse,urllib.request
@@ -8,7 +9,7 @@ from typing import Any
 import d1_quota_circuit as d1qc
 import sovereign_state_authority as ssa
 
-DEFAULT_POLICY=Path("/opt/chacha-dev/platform/current/dev-hub/config/guardian-runtime-policy.v1.json")
+DEFAULT_POLICY=canonical_route_path("intendant.authority", "guardian_policy")
 MAX_RESPONSE=2*1024*1024
 
 def now_iso()->str:

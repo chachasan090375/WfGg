@@ -1,0 +1,42 @@
+{
+  "schema": "chacha.dev/canonical-routing-invariant/v1",
+  "state": "CANDIDATE",
+  "rules": {
+    "operational_addresses_outside_registry": "FORBIDDEN",
+    "operational_ports_outside_registry": "FORBIDDEN",
+    "operational_storage_paths_outside_registry": "FORBIDDEN",
+    "consumer_route_resolution": "CAPABILITY_ONLY",
+    "unknown_route": "FAIL_CLOSED",
+    "sovereign_authority_without_local_primary": "BLOCK",
+    "implicit_external_fallback": "FORBIDDEN",
+    "promotion_with_illegal_hardcode": "BLOCK",
+    "promotion_with_unclassified_route": "BLOCK",
+    "promotion_with_incomplete_required_sovereign_coverage": "BLOCK",
+    "all_generated_operational_routes_require_materialization_gate": "BLOCK_IF_NOT_PROVEN",
+    "generated_route_not_present_in_registry": "BLOCK",
+    "generated_route_with_ambiguous_registry_mapping": "BLOCK",
+    "promotion_requires_universal_materialization_gate": "BLOCK_IF_NOT_PASS",
+    "sovereign_service_inventory_source": "CANONICAL_COMPONENT_REGISTRY_CAPABILITIES_ONLY",
+    "parallel_fixed_sovereign_service_catalog": "FORBIDDEN",
+    "required_brain_authority_without_local_primary": "BLOCK",
+    "future_component_operational_route_ownership": "FORBIDDEN",
+    "future_component_birth_requires_canonical_route_registration": "REQUIRED"
+  },
+  "exceptions": {
+    "historical_evidence": true,
+    "changelog": true,
+    "test_fixtures": true,
+    "external_protocol_literals_when_non_operational": true
+  },
+  "materialization_resolution": {
+    "authority": "config/canonical-route-registry.v1.json#materialization_bindings",
+    "resolver": "bin/canonical-materialization-resolver.py",
+    "anti_residue_gate": "bin/canonical-materialization-gate.py",
+    "consumer_contract": "LOGICAL_ROUTE_AND_ARGUMENT_KEYS_ONLY",
+    "birth_contract": "ALL_NEW_COMPONENTS_MUST_RESOLVE_FROM_CANONICAL_REGISTRY",
+    "activation_policy": "BLOCK_WHEN_OPERATIONAL_LITERAL_REMAINS",
+    "network_endpoint_policy": "DYNAMIC_DISCOVERY_ONLY",
+    "version_specific_runtime_logic": false,
+    "universal_materialization_gate_required": true
+  }
+}

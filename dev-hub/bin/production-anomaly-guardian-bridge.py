@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+from canonical_route_runtime import resolve_path as canonical_route_path, resolve_value as canonical_route_value
 import argparse,json,os,shutil,subprocess,time
 from pathlib import Path
 from typing import Any
 
 DEFAULT_QUEUE=Path("/opt/chacha-dev/runtime/learning/anomaly-queue")
 DEFAULT_DONE=Path("/opt/chacha-dev/runtime/learning/anomaly-processed")
-DEFAULT_CLIENT=Path("/opt/chacha-dev/platform/current/dev-hub/bin/guardian-client.py")
-DEFAULT_POLICY=Path("/opt/chacha-dev/platform/current/dev-hub/config/guardian-runtime-policy.v1.json")
+DEFAULT_CLIENT=canonical_route_path("intendant.authority", "guardian_client")
+DEFAULT_POLICY=canonical_route_path("intendant.authority", "guardian_policy")
 
 def now_iso():return time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime())
 def load(p:Path)->dict[str,Any]:

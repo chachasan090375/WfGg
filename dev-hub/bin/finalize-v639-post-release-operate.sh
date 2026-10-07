@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 REV="${CHACHA_DEV_V639_REV:-}"
 PROJECT="v639-real-production-pilot-wfgg-20260923"
-TARGET_URL="https://wfgg.pages.dev"
+TARGET_URL="chacha-route://project.wfgg_pages_dev"
 ROOT="/opt/chacha-dev/platform/current"
 PC="$ROOT/dev-hub/bin/project-control.py"
 PC_POLICY="$ROOT/dev-hub/config/project-control.v1.json"
@@ -55,7 +55,7 @@ ledger=json.load(open(sys.argv[3],encoding="utf-8"))
 assert bundle["schema"]=="chacha.dev/v639-real-production-pilot-evidence/v1",bundle
 assert bundle["target"]["project"]=="wfgg",bundle
 assert bundle["target"]["branch"]=="main",bundle
-assert bundle["target"]["url"]=="https://wfgg.pages.dev",bundle
+assert bundle["target"]["url"]=="chacha-route://project.wfgg_pages_dev",bundle
 assert bundle["content_noop_verified"] is True,bundle
 assert bundle["rollback_target_captured"] is True,bundle
 assert bundle["rollback_executed"] is False,bundle

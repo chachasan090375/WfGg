@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 SOURCE_REVISION="a51bed6da147a99450d9795cb3129436abbcd634"
-RAW="https://raw.githubusercontent.com/chachasan090375/WfGg/${SOURCE_REVISION}"
+RAW="chacha-route://provider.raw_githubusercontent_com"
 BASE="/opt/chacha-dev/adapters/storage-governor"
 EVIDENCE_DIR="/opt/chacha-dev/evidence"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"

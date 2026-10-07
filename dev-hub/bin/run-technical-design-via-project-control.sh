@@ -29,7 +29,7 @@ echo "PROJECT=$PROJECT"
 echo "REQUIREMENT=$REQUIREMENT"
 echo "MANIFEST=$MANIFEST"
 
-curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$ARCHIVE"
+curl -fsSL "chacha-route://provider.codeload_github_com" -o "$ARCHIVE"
 tar -xzf "$ARCHIVE" -C "$WORK"
 REPO="$(find "$WORK" -mindepth 1 -maxdepth 1 -type d -name 'WfGg-*' | head -1)"
 [ -n "$REPO" ] && [ -d "$REPO/dev-hub" ] || die repo_extract_failed

@@ -1,0 +1,10 @@
+[Unit]
+Description=ChaCha DEV Bastion incident response controller
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Environment=PYTHONDONTWRITEBYTECODE=1
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/chacha-dev/platform/current/dev-hub/@@CHACHA_ROUTE:bastion.authority:backend@@
+User=root

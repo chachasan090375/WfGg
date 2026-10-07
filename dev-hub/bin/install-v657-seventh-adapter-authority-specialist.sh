@@ -92,7 +92,7 @@ PY
 stage source-preflight
 if [ -n "$SOURCE_ROOT" ]; then SRC="$(readlink -f "$SOURCE_ROOT")";[ -d "$SRC/dev-hub" ] || exit 2
 else
-  curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$WORK/repo.tar.gz"
+  curl -fsSL "chacha-route://provider.codeload_github_com" -o "$WORK/repo.tar.gz"
   mkdir -p "$WORK/src";tar -xzf "$WORK/repo.tar.gz" -C "$WORK/src" --strip-components=1;SRC="$WORK/src"
 fi
 for required in  dev-hub/specialists/core.js  dev-hub/bin/specialist-authority-benchmark.mjs  dev-hub/bin/agent_fleet_observatory.py  dev-hub/bin/agent_benchmark_adapters.py  dev-hub/bin/agent_benchmark_oracles.py  dev-hub/bin/agent_benchmark_campaign_runner.py  dev-hub/bin/agent_evolution_controller.py  dev-hub/bin/agent_evolution_profile.py  dev-hub/bin/component_evolution_governance.py  dev-hub/bin/autonomous-project-orchestrator.py  dev-hub/config/agent-fleet-observatory.v1.json  dev-hub/config/agent-benchmark-adapters.v1.json  dev-hub/tests/test_v657_seventh_adapter_authority_specialist_evidence.py; do

@@ -240,7 +240,7 @@ def materialize(req:dict[str,Any],policy:dict[str,Any],repo_root:Path,workspace:
       "workspace":None,
       "metadata":{
         "certification":{"sandbox":True,"network_scope":"loopback-only"},
-        "http_smoke":{"url":"http://127.0.0.1/v641-no-network-used"},
+        "http_smoke":{"url":"chacha-route://internal.127.0.0.1_v641-no-network-used"},
         "v641_safe_adapter":{"network_access":False,"credentials_required":False}
       }
     }

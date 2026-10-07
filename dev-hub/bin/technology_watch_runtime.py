@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+from canonical_route_runtime import resolve_path as canonical_route_path, resolve_value as canonical_route_value
 import sys
 sys.dont_write_bytecode=True
 
@@ -270,8 +271,8 @@ def _filter_snapshot(snapshot: dict[str, Any], capabilities: list[str]) -> list[
 def _guardian_observe_consult(repo_root: Path, feed: dict[str, Any], phase: str, action_id: str) -> None:
     if not Path("/opt/chacha-dev/runtime").exists():
         return
-    client=repo_root/"dev-hub/bin/guardian-client.py"
-    policy=repo_root/"dev-hub/config/guardian-runtime-policy.v1.json"
+    client=canonical_route_path("intendant.authority", "guardian_client")
+    policy=canonical_route_path("intendant.authority", "guardian_policy")
     if not client.is_file() or not policy.is_file():
         raise RuntimeError("TECHNOLOGY_WATCH_GUARDIAN_UNAVAILABLE:CLIENT_OR_POLICY_MISSING")
     event_context=grr.inject_context(

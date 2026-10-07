@@ -23,7 +23,7 @@ done
 
 mkdir -p "$WORK/src"
 echo "CHACHA_DEV_V639_STAGE=fetch-pinned-source"
-curl -fsSL "https://codeload.github.com/$REPO/tar.gz/$REV" -o "$WORK/source.tar.gz"
+curl -fsSL "chacha-route://provider.codeload_github_com" -o "$WORK/source.tar.gz"
 tar -xzf "$WORK/source.tar.gz" -C "$WORK/src" --strip-components=1
 SRC="$WORK/src"
 

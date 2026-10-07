@@ -130,7 +130,7 @@ def main() -> int:
     with Server(('127.0.0.1', 0), Handler) as server:
         threading.Thread(target=server.serve_forever, daemon=True).start()
         port = server.server_address[1]
-        allowed_origin = f'http://127.0.0.1:{port}'
+        allowed_origin = f'chacha-route://internal.127.0.0.1:{port}'
         request = envelope(allowed_origin + '/')
         results: list[tuple[Path, dict]] = []
         for index in (1, 2, 3):

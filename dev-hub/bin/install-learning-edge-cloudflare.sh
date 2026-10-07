@@ -12,16 +12,16 @@ printf '%s' "$REV" | grep -Eq '^[0-9a-f]{40}$' || { echo "CHACHA_DEV_V68_EDGE_IN
 for cmd in curl apt-get python3 install systemctl; do command -v "$cmd" >/dev/null || { echo "CHACHA_DEV_V68_EDGE_INSTALL=BLOCKED reason=missing_command:$cmd"; exit 2; }; done
 
 WORK="$(mktemp -d /tmp/chacha-v68-edge.XXXXXX)";trap 'rm -rf "$WORK" 2>/dev/null || true' EXIT
-curl -fsSL "https://codeload.github.com/chachasan090375/WfGg/tar.gz/$REV" -o "$WORK/repo.tar.gz"
+curl -fsSL "chacha-route://provider.codeload_github_com" -o "$WORK/repo.tar.gz"
 tar -xzf "$WORK/repo.tar.gz" -C "$WORK"
 SRC="$(find "$WORK" -mindepth 1 -maxdepth 1 -type d -name 'WfGg-*' | head -1)"
 [ -d "$SRC/dev-hub" ] || { echo "CHACHA_DEV_V68_EDGE_INSTALL=BLOCKED reason=archive_invalid"; exit 2; }
 
 if ! command -v cloudflared >/dev/null 2>&1; then
-  mkdir -p --mode=0755 /usr/share/keyrings
-  curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg -o /usr/share/keyrings/cloudflare-main.gpg
-  chmod 0644 /usr/share/keyrings/cloudflare-main.gpg
-  echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main' >/etc/apt/sources.list.d/cloudflared.list
+  mkdir -p --mode=0755 /usrchacha-route://storage.share_keyrings
+  curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg -o /usrchacha-route://storage.share_keyrings_cloudflare_main.gpg
+  chmod 0644 /usrchacha-route://storage.share_keyrings_cloudflare_main.gpg
+  echo 'deb [signed-by=/usrchacha-route://storage.share_keyrings_cloudflare_main.gpg] https://pkg.cloudflare.com/cloudflared any main' >/etc/apt/sources.list.d/cloudflared.list
   apt-get update
   DEBIAN_FRONTEND=noninteractive apt-get install -y cloudflared
 fi
@@ -56,7 +56,7 @@ systemctl restart "$SERVICE"
 
 READY=0
 for _ in {1..240}; do
-  if systemctl is-active --quiet "$SERVICE" && curl -fsS http://127.0.0.1:20042/ready >/dev/null 2>&1; then READY=1;break;fi
+  if systemctl is-active --quiet "$SERVICE" && curl -fsS chacha-route://internal.127.0.0.1_20042_ready >/dev/null 2>&1; then READY=1;break;fi
   sleep .25
 done
 if [ "$READY" != 1 ]; then
