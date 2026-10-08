@@ -1,0 +1,70 @@
+{
+  "schema": "chacha.machine-fabric/security-policy/v1",
+  "state": "CANDIDATE_NOT_RUNTIME_ACTIVE",
+
+  "transport": {
+    "private_mesh_required": true,
+    "technology": "tailscale-wireguard",
+    "public_ingress_required": false,
+    "direct_node_to_node_preferred": true
+  },
+
+  "node_identity": {
+    "algorithm": "Ed25519",
+    "unique_private_key_per_node": true,
+    "shared_private_keys_forbidden": true,
+    "private_key_export_forbidden": true,
+    "rotation_required": true,
+    "revocation_required": true
+  },
+
+  "command_envelope": {
+    "signature_algorithm": "Ed25519",
+    "signature_required": true,
+    "nonce_required": true,
+    "minimum_nonce_bits": 128,
+    "expiry_required": true,
+    "replay_cache_required": true,
+    "local_signature_verification_required": true
+  },
+
+  "payload_security": {
+    "application_encryption_algorithm": "age-X25519",
+    "mandatory_for": [
+      "CONFIDENTIAL",
+      "RESTRICTED"
+    ],
+    "transport_encryption_alone_sufficient_for": [
+      "INTERNAL"
+    ]
+  },
+
+  "transfer_integrity": {
+    "digest_algorithm": "SHA-256",
+    "source_digest_required": true,
+    "destination_digest_required": true,
+    "digests_must_match_before_success": true
+  },
+
+  "secret_handling": {
+    "raw_secret_in_mcp_forbidden": true,
+    "secret_reference_only_in_control_plane": true,
+    "private_keys_in_repository_forbidden": true,
+    "private_keys_in_receipts_forbidden": true,
+    "private_keys_in_logs_forbidden": true
+  },
+
+  "local_authorization": {
+    "node_agent_must_recheck_policy": true,
+    "node_agent_may_refuse_control_plane_order": true,
+    "guardian_authorization_not_sufficient_alone": true,
+    "arbitrary_shell": false
+  },
+
+  "control_plane": {
+    "remote_mcp_first_route": true,
+    "guardian_required": true,
+    "sentinelle_required_for_promotion": true,
+    "stop_required": true
+  }
+}

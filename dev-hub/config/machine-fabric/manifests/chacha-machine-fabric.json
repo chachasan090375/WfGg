@@ -1,0 +1,20 @@
+{
+  "schema": "chacha.dev/materialization-manifest/v1",
+  "component_id": "chacha-machine-fabric",
+  "project_id": "chacha-machine-fabric",
+  "scope": "PROJECT",
+  "ttl_seconds": 3600,
+  "governance_class": "RUNTIME_INFRASTRUCTURE",
+  "owner_foundry": "branch-foundry",
+  "purpose": "General governed multi-machine infrastructure",
+  "materialization_gate_required": true,
+  "production_activation_authorized": false,
+  "automatic_external_spend_eur": 0,
+  "birth_contract": {
+    "owner_foundry": "branch-foundry",
+    "automatic_external_spend_eur": 0
+  },
+  "machine_fabric": {
+    "kind": "GENERAL_MACHINE_FABRIC"
+  }
+}

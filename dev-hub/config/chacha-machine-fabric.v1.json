@@ -2,7 +2,7 @@
   "schema": "chacha.machine-fabric/v1",
   "state": "CANDIDATE_NOT_ACTIVE",
   "name": "ChaCha Machine Fabric",
-  "version": "0.4",
+  "version": "0.5",
   "purpose": "General governed communication and orchestration fabric for ChaCha machines and projects.",
   "governance": {
     "remote_mcp_first_route": true,
@@ -11,8 +11,8 @@
     "stop_required": true,
     "arbitrary_shell": false,
     "automatic_external_spend_eur": 0,
-    "ccr_registration": "PENDING",
-    "universal_materialization_gate": "PENDING"
+    "ccr_registration": "CCR_POLICY_CHECK_PASS",
+    "universal_materialization_gate": "CHECK_PASS"
   },
   "network": {
     "control_transport": "tailscale",
@@ -154,5 +154,28 @@
       "risk": "MUTATING",
       "execution": "GUARDIAN_GATED"
     }
+  },
+  "materialization": {
+    "gate": "dev-hub/bin/universal-materialization-gate.py",
+    "policy": "dev-hub/config/canonical-component-registry.v1.json",
+    "operator_directives": "dev-hub/config/operator-directives.v1.json",
+    "scope": "PROJECT",
+    "qualification_ttl_seconds": 3600,
+    "production_dynamic_registry": "/opt/chacha-dev/runtime/canonical-registry/dynamic-components.json",
+    "registration_performed": false,
+    "activation_authorized": false,
+    "production_dynamic_registry_mutated": false
+  },
+  "security": {
+    "policy": "dev-hub/config/machine-fabric/security/security-policy.v1.json",
+    "state": "REQUIRED_BUILD_CONTRACT_NOT_RUNTIME_ACTIVE",
+    "transport": "TAILSCALE_WIREGUARD",
+    "node_identity": "ED25519_UNIQUE_PER_NODE",
+    "signed_jobs": "ED25519_NONCE_EXPIRY",
+    "payload_encryption": "AGE_X25519_FOR_CONFIDENTIAL_AND_RESTRICTED",
+    "transfer_integrity": "SHA256_SOURCE_DESTINATION_REQUIRED",
+    "raw_secrets_in_mcp": "FORBIDDEN",
+    "local_node_veto": "REQUIRED",
+    "key_rotation_revocation": "REQUIRED"
   }
 }
