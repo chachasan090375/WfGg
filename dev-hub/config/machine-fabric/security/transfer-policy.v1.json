@@ -1,0 +1,23 @@
+{
+  "schema": "chacha.machine-fabric/transfer-policy/v1",
+  "state": "CANDIDATE_NOT_DEPLOYED",
+  "transport": "TAILSCALE_DIRECT_NODE_TO_NODE",
+  "controller_payload_relay": false,
+  "digest": "SHA-256",
+  "source_digest_required": true,
+  "destination_digest_required": true,
+  "digest_match_required": true,
+  "sensitive_encryption": {
+    "required": true,
+    "algorithm": "age-X25519",
+    "classifications": [
+      "CONFIDENTIAL",
+      "RESTRICTED"
+    ]
+  },
+  "temporary_destination_required": true,
+  "atomic_finalize_required": true,
+  "partial_transfer_must_not_replace_destination": true,
+  "signed_job_required": true,
+  "signed_receipt_required": true
+}

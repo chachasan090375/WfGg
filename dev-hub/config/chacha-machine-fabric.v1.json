@@ -2,7 +2,7 @@
   "schema": "chacha.machine-fabric/v1",
   "state": "CANDIDATE_NOT_ACTIVE",
   "name": "ChaCha Machine Fabric",
-  "version": "0.6",
+  "version": "0.7",
   "purpose": "General governed communication and orchestration fabric for ChaCha machines and projects.",
   "governance": {
     "remote_mcp_first_route": true,
@@ -179,6 +179,8 @@
     "key_rotation_revocation": "REQUIRED",
     "runtime_crypto_active": false,
     "node_agents_deployed": false,
-    "reference_enforcement": "PASS"
+    "reference_enforcement": "PASS",
+    "encrypted_transfer_reference": "PASS",
+    "transfer_integrity_reference": "PASS"
   }
 }
