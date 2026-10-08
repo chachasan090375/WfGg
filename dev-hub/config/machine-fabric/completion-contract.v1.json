@@ -1,0 +1,30 @@
+{
+  "schema": "chacha.dev/machine-fabric-completion-contract/v1",
+  "version": "0.8",
+  "state": "V0.8_MATERIALIZED_PENDING_ACTIVATION",
+  "previous_state": "V0.8_PARTIAL",
+  "required_nodes": [
+    "chachavps",
+    "chachatel",
+    "chachanas",
+    "chachamac"
+  ],
+  "requirements": {
+    "identity": "READY",
+    "agent": "MATERIALIZED",
+    "signed_local_job": "PASS",
+    "service_active": false,
+    "materialization_gate_required": true,
+    "umg_status": "REGISTERED_PENDING_ACTIVATION",
+    "production_activation_authorized": false
+  },
+  "governance": {
+    "activation_is_separate_transition": true,
+    "automatic_activation_authorized": false,
+    "production_change_authorized": false,
+    "service_start_authorized": false,
+    "qualification_replay_required": false,
+    "node_job_replay_required": false,
+    "automatic_external_spend_eur": 0
+  }
+}
