@@ -1,0 +1,13 @@
+{
+  "schema": "chacha.machine-fabric/node-agent-policy/v1",
+  "state": "CANDIDATE_NOT_DEPLOYED",
+  "signature": "Ed25519",
+  "nonce_required": true,
+  "expiry_required": true,
+  "max_job_ttl_seconds": 600,
+  "digest": "SHA-256",
+  "sensitive_encryption": "age-X25519",
+  "raw_secrets_in_mcp": false,
+  "local_node_veto": true,
+  "arbitrary_shell": false
+}
