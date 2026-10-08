@@ -1,0 +1,158 @@
+{
+  "schema": "chacha.machine-fabric/v1",
+  "state": "CANDIDATE_NOT_ACTIVE",
+  "name": "ChaCha Machine Fabric",
+  "version": "0.4",
+  "purpose": "General governed communication and orchestration fabric for ChaCha machines and projects.",
+  "governance": {
+    "remote_mcp_first_route": true,
+    "guardian_required": true,
+    "sentinelle_required_for_promotion": true,
+    "stop_required": true,
+    "arbitrary_shell": false,
+    "automatic_external_spend_eur": 0,
+    "ccr_registration": "PENDING",
+    "universal_materialization_gate": "PENDING"
+  },
+  "network": {
+    "control_transport": "tailscale",
+    "public_ingress_required": false,
+    "data_plane": "DIRECT_NODE_TO_NODE_WHEN_POSSIBLE"
+  },
+  "nodes": {
+    "chachavps": {
+      "display_name": "ChaChaVPS",
+      "os_family": "linux",
+      "tailscale_name": "chachavps",
+      "observed_ipv4": "100.67.99.19",
+      "roles": [
+        "controller",
+        "router",
+        "governance",
+        "runtime"
+      ],
+      "capabilities": [
+        "system.identity",
+        "system.uptime",
+        "system.resources",
+        "git.status",
+        "git.head",
+        "git.tree",
+        "service.status"
+      ]
+    },
+    "chachamac": {
+      "display_name": "ChaChaMac",
+      "os_family": "macos",
+      "tailscale_name": "cedrics-macbook-pro",
+      "observed_ipv4": "100.90.15.24",
+      "roles": [
+        "workstation",
+        "development",
+        "build",
+        "interactive"
+      ],
+      "capabilities": [
+        "system.identity",
+        "system.uptime",
+        "system.resources",
+        "git.status",
+        "git.head",
+        "git.tree",
+        "service.status",
+        "package.status",
+        "filesystem",
+        "transfer"
+      ]
+    },
+    "chachanas": {
+      "display_name": "ChaChaNAS",
+      "os_family": "qnap-linux",
+      "tailscale_name": "chachanas",
+      "observed_ipv4": "100.70.206.103",
+      "roles": [
+        "storage",
+        "archive",
+        "backup",
+        "persistent-memory"
+      ],
+      "capabilities": [
+        "system.identity",
+        "system.uptime",
+        "system.resources",
+        "storage.status",
+        "filesystem",
+        "transfer",
+        "backup"
+      ]
+    },
+    "chachatel": {
+      "display_name": "ChaChaTel",
+      "os_family": "android-termux",
+      "tailscale_name": "z-flip7-de-cdric",
+      "observed_ipv4": "100.76.11.102",
+      "roles": [
+        "mobile",
+        "emergency-access",
+        "lightweight-control"
+      ],
+      "capabilities": [
+        "system.identity",
+        "system.uptime",
+        "system.resources",
+        "filesystem",
+        "transfer"
+      ]
+    }
+  },
+  "capability_contracts": {
+    "system.identity": {
+      "risk": "READ_ONLY",
+      "execution": "NAMED_OPERATION_ONLY"
+    },
+    "system.uptime": {
+      "risk": "READ_ONLY",
+      "execution": "NAMED_OPERATION_ONLY"
+    },
+    "system.resources": {
+      "risk": "READ_ONLY",
+      "execution": "NAMED_OPERATION_ONLY"
+    },
+    "git.status": {
+      "risk": "READ_ONLY",
+      "execution": "NAMED_OPERATION_ONLY"
+    },
+    "git.head": {
+      "risk": "READ_ONLY",
+      "execution": "NAMED_OPERATION_ONLY"
+    },
+    "git.tree": {
+      "risk": "READ_ONLY",
+      "execution": "NAMED_OPERATION_ONLY"
+    },
+    "service.status": {
+      "risk": "READ_ONLY",
+      "execution": "OS_ADAPTER"
+    },
+    "package.status": {
+      "risk": "READ_ONLY",
+      "execution": "OS_ADAPTER"
+    },
+    "storage.status": {
+      "risk": "READ_ONLY",
+      "execution": "OS_ADAPTER"
+    },
+    "filesystem": {
+      "risk": "SCOPED",
+      "execution": "ALLOWLISTED_PATHS_ONLY"
+    },
+    "transfer": {
+      "risk": "SCOPED",
+      "execution": "DIRECT_NODE_TO_NODE"
+    },
+    "backup": {
+      "risk": "MUTATING",
+      "execution": "GUARDIAN_GATED"
+    }
+  }
+}
