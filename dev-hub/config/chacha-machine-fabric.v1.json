@@ -182,5 +182,14 @@
     "reference_enforcement": "PASS",
     "encrypted_transfer_reference": "PASS",
     "transfer_integrity_reference": "PASS"
+  },
+  "node_materialization": {
+    "phase": "V0.8_PARTIAL",
+    "chachavps": {
+      "identity": "READY",
+      "agent": "MATERIALIZED",
+      "signed_local_job": "PASS",
+      "service_active": false
+    }
   }
 }
