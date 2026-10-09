@@ -2,6 +2,8 @@ name: ChaCha DEV platform qualification
 
 on:
   push:
+    branches-ignore:
+      - "chacha/**"
     paths:
       - 'dev-hub/**'
       - '.github/workflows/dev-hub-platform-qualification.yml'

@@ -1,0 +1,23 @@
+name: ChaCha DEV candidate qualification only
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  candidate-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify governance invariants
+        run: |
+          python3 dev-hub/tests/test_guardian_reference_invariant.py
+          python3 dev-hub/tests/test_capability_reuse_umg.py
+          python3 dev-hub/tests/test_umg_activation_proof.py
