@@ -80,6 +80,19 @@ def role_contract_index(repo:Path)->dict[str,dict[str,Any]]:
             out[cid.split(":",1)[1]]=row
     return out
 
+def validate_guardian_event_references(value: Any) -> None:
+    """Enforce canonical-role versus dynamic-subject separation."""
+    if isinstance(value, dict):
+        ref = value.get("subject_contract_id")
+        if isinstance(ref, str) and ref.strip().startswith("role:"):
+            raise ValueError("CANONICAL_ROLE_IN_DYNAMIC_SUBJECT_REFERENCE")
+        for child in value.values():
+            validate_guardian_event_references(child)
+    elif isinstance(value, list):
+        for child in value:
+            validate_guardian_event_references(child)
+
+
 def common_birth(name:str,row:dict[str,Any],policy:dict[str,Any],role_contract:dict[str,Any]|None,
                  directives:dict[str,Any])->dict[str,Any]:
     gclass=str(row.get("governance_class") or "")

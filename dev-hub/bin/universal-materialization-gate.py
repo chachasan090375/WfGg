@@ -109,6 +109,8 @@ def validate(view:dict[str,Any],manifest:dict[str,Any],policy:dict[str,Any],dire
         if scope!="PROJECT": raise ValueError("PROJECT_CAPSULE_SCOPE_MUST_BE_PROJECT")
         if int(manifest.get("ttl_seconds") or view["nested"].get("ttl_seconds") or 0)<=0:
             raise ValueError("PROJECT_CAPSULE_TTL_REQUIRED")
+    from canonical_component_registry import validate_guardian_event_references
+    validate_guardian_event_references(manifest)
     birth=complete_birth_contract(view,manifest,policy,directives)
     return {"required":True,"status":"PASS","birth_contract":birth}
 
