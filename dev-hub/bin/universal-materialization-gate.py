@@ -154,6 +154,21 @@ def transition(dynamic_path:Path,cid:str,state_name:str)->dict[str,Any]:
     current=str(row.get("status") or "")
     if current not in allowed.get(state_name,set()) and current!=state_name:
         raise ValueError("DYNAMIC_COMPONENT_INVALID_TRANSITION:"+current+":"+state_name)
+    if state_name=="ACTIVE":
+        birth=row.get("birth_contract")
+        controls=birth.get("controls") if isinstance(birth,dict) else None
+        valid=(
+            isinstance(birth,dict)
+            and birth.get("complete") is True
+            and isinstance(controls,dict)
+            and bool(controls)
+            and all(
+                isinstance(c,dict) and c.get("status")=="PASS"
+                for c in controls.values()
+            )
+        )
+        if not valid:
+            raise ValueError("ACTIVATION_UMG_BIRTH_CONTRACT_NOT_VERIFIED:"+cid)
     row["status"]=state_name
     row[state_name.casefold()+"_at"]=now_iso()
     history_row={"event":state_name,"component_id":cid,"at":now_iso(),"scope":row.get("scope"),"project_id":row.get("project_id")}
