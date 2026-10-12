@@ -1,6 +1,8 @@
 name: ChaCha DEV candidate qualification only
 
 on:
+  push:
+    branches: [chacha/ci-separation-20261009]
   workflow_dispatch:
 
 permissions:
@@ -9,6 +11,9 @@ permissions:
 jobs:
   candidate-regression:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYTHONPATH: dev-hub/bin
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,3 +29,6 @@ jobs:
           python3 dev-hub/tests/test_platform_safety_failures.py
           python3 dev-hub/tests/test_platform_safety_process_integration.py
           python3 dev-hub/tests/test_guardian_stop_latch_reconciliation.py
+          python3 dev-hub/tests/test_v616_guardian_action_leases.py
+          python3 dev-hub/tests/test_v809_guardian_run_propagation.py
+          python3 dev-hub/tests/test_v810_guardian_run_propagation_hotfix.py

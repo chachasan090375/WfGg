@@ -79,7 +79,7 @@ jobs:
           fi
 
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && !startsWith(github.ref, 'refs/heads/chacha/')
         with:
           name: chacha-dev-sentinel-technical-audit-${{ github.sha }}
           path: /tmp/sentinel-technical-audit.json
@@ -104,7 +104,8 @@ jobs:
           PY
 
       - name: Persist and verify exact-revision Sentinel attestation
-        if: success() && github.event_name != 'pull_request'
+        # Candidate branches retain the audit gate, without production persistence.
+        if: success() && github.event_name != 'pull_request' && !startsWith(github.ref, 'refs/heads/chacha/')
         env:
           CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

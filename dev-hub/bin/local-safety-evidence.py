@@ -8,6 +8,7 @@ import json
 import os
 import subprocess
 import sys
+sys.dont_write_bytecode=True
 import tempfile
 import types
 import uuid

@@ -12,7 +12,8 @@ Base : ea50e45460236b011fda824fc561c2ebe8601234.
 | PASS accompagné d’une demande de remédiation ou de STOP bloque | Refus explicite de remediation_required et stop_recommended ; réponse JSON non objet enregistrée comme indisponible | ProcessIntegrationTests |
 | Échec du Conseil ne revendique pas une décision finale | REPORT_DECISION sur outcome non SUCCESS | GuardianEventTests |
 | Inventaire critique incomplet ne permet pas de lever un latch | Refus des réponses de 100 éléments ou plus et des éléments malformés ; comportement fail-closed existant | test_guardian_stop_latch_reconciliation.py |
-| Pas de déploiement automatique | Tests ajoutés au workflow candidate-qualification-only, déclenché manuellement | Revue du workflow |
+| Qualification sans écriture de production | Workflow candidate-qualification-only sur push de la branche candidate ou déclenchement manuel ; audit Sentinelle conservé mais publication D1 et stockage d’artefact exclus des branches chacha/ | Revue des workflows |
+| Collecte de preuves compatible avec une release immuable | Bytecode désactivé avant les imports locaux du collecteur | test_release_runtime_immutability.py |
 
 ## Limites et décisions
 
