@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -38,7 +38,10 @@ jobs:
           set -euo pipefail
           BASE=""
           BEFORE="${{ github.event.before }}"
-          if [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+          if [ "$GITHUB_REF" = "refs/heads/chacha/ci-separation-20261009" ]; then
+            BASE="ea50e45460236b011fda824fc561c2ebe8601234"
+            git cat-file -e "$BASE^{commit}"
+          elif [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
             BASE="$BEFORE"
           elif git rev-parse HEAD^ >/dev/null 2>&1; then
             BASE="$(git rev-parse HEAD^)"
