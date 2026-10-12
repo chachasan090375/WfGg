@@ -117,6 +117,44 @@ def test_policy_and_systemd_are_zero_spend_and_bounded():
     assert "OnUnitActiveSec=180s" in timer
 
 
+def test_saturated_inventory_never_clears_latch():
+    for key in ("alerts:OPEN", "remediations:OPEN", "remediations:DELIVERED"):
+        with tempfile.TemporaryDirectory() as raw:
+            td=Path(raw);s=clean_scenario();s[key]=[{"severity":"INFO"} for _ in range(100)]
+            policy,config,client,latch=fixture(td,s,{
+                "schema":mod.LATCH_SCHEMA,"active":True,"reason":"EXTERNAL_GUARDIAN_CRITICAL_ALERT"})
+            _,out=mod.reconcile(policy,config,client,False)
+            assert out["status"]=="DEFERRED" and out["action"]=="FAIL_CLOSED_ACTIVE",out
+            assert "INVENTORY_INCOMPLETE" in out["blockers"][0],out
+            assert json.loads(latch.read_text())["active"] is True
+
+
+def test_saturated_dry_run_preserves_existing_latch():
+    with tempfile.TemporaryDirectory() as raw:
+        td=Path(raw);s=clean_scenario();s["alerts:OPEN"]=[{} for _ in range(100)]
+        original={"schema":mod.LATCH_SCHEMA,"active":False,"reason":"fixture"}
+        policy,config,client,latch=fixture(td,s,original)
+        _,out=mod.reconcile(policy,config,client,True)
+        assert out["action"]=="DRY_RUN_FAIL_CLOSED",out
+        assert json.loads(latch.read_text())==original
+
+
+def test_malformed_item_is_not_silently_discarded():
+    with tempfile.TemporaryDirectory() as raw:
+        td=Path(raw);s=clean_scenario();s["alerts:OPEN"]=[None]
+        policy,config,client,latch=fixture(td,s,None)
+        _,out=mod.reconcile(policy,config,client,False)
+        assert out["status"]=="DEFERRED" and json.loads(latch.read_text())["active"] is True
+
+
+def test_missing_severity_never_becomes_clean_inventory():
+    with tempfile.TemporaryDirectory() as raw:
+        td=Path(raw);s=clean_scenario();s["alerts:OPEN"]=[{"alert_id":"a1"}]
+        policy,config,client,latch=fixture(td,s,None)
+        _,out=mod.reconcile(policy,config,client,False)
+        assert out["status"]=="DEFERRED" and json.loads(latch.read_text())["active"] is True
+
+
 if __name__ == "__main__":
     tests=[(n,v) for n,v in sorted(globals().items()) if n.startswith("test_") and callable(v)]
     for name,fn in tests:

@@ -51,7 +51,15 @@ def call_client(client: Path, policy: Path, kind: str, status: str) -> list[dict
     x = json.loads(p.stdout)
     if not isinstance(x, dict) or not isinstance(x.get("items"), list):
         raise RuntimeError(f"GUARDIAN_{kind.upper()}_{status}_INVALID")
-    return [r for r in x["items"] if isinstance(r, dict)]
+    if len(x["items"]) >= 100:
+        raise RuntimeError(f"GUARDIAN_{kind.upper()}_{status}_INVENTORY_INCOMPLETE")
+    if any(not isinstance(item, dict) for item in x["items"]):
+        raise RuntimeError(f"GUARDIAN_{kind.upper()}_{status}_INVALID_ITEM")
+    identity = "alert_id" if kind == "alerts" else "directive_id"
+    if any(not item.get(identity) or item.get("severity") not in {"INFO", "WARNING", "BLOCK", "CRITICAL"}
+           for item in x["items"]):
+        raise RuntimeError(f"GUARDIAN_{kind.upper()}_{status}_INVALID_ITEM")
+    return x["items"]
 
 
 def snapshot(client: Path, policy: Path) -> dict[str, Any]:

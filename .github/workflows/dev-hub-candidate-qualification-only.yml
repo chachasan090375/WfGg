@@ -21,3 +21,6 @@ jobs:
           python3 dev-hub/tests/test_guardian_reference_invariant.py
           python3 dev-hub/tests/test_capability_reuse_umg.py
           python3 dev-hub/tests/test_umg_activation_proof.py
+          python3 dev-hub/tests/test_platform_safety_failures.py
+          python3 dev-hub/tests/test_platform_safety_process_integration.py
+          python3 dev-hub/tests/test_guardian_stop_latch_reconciliation.py

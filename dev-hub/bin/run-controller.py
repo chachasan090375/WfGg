@@ -445,12 +445,8 @@ def record_task_learning(task_rec:dict[str,Any],envelope:dict[str,Any])->dict[st
     return learning
 
 def emergency_stop_active() -> bool:
-    path = Path("/opt/chacha-dev/runtime/control/emergency-stop.json")
-    try:
-        value = json.loads(path.read_text(encoding="utf-8"))
-        return bool(value.get("active"))
-    except Exception:
-        return False
+    from stop_state import blocks_execution
+    return blocks_execution()
 
 
 def guardian_gate(

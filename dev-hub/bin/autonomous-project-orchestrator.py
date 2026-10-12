@@ -12,6 +12,7 @@ import subprocess
 import sys
 import uuid
 from pathlib import Path
+from stop_state import blocks_execution
 
 import guardian_remediation_runtime as grr
 import assurance_exchange_runtime as aer
@@ -122,7 +123,7 @@ def _council_guardian_evidence(output_path:Path|None):
     })
     return evidence
 
-def guardian_stage(script:Path,args,phase:str,action_id:str):
+def guardian_stage(script:Path,args,phase:str,action_id:str,execution_result=None):
     if not _GUARDIAN_CONTEXT.get("enabled"): return {"status":"NON_RUNTIME_TEST_BYPASS"}
     client=Path(_GUARDIAN_CONTEXT["client"]);policy=Path(_GUARDIAN_CONTEXT["policy"])
     if not client.is_file() or not policy.is_file():
@@ -137,10 +138,12 @@ def guardian_stage(script:Path,args,phase:str,action_id:str):
             council_preview=load(out) if out and out.exists() else {}
         except Exception:
             council_preview={}
-        if bool(council_preview.get("dispatch_allowed")):
+        if bool(council_preview.get("dispatch_allowed")) and (execution_result is None or execution_result.get("execution_status")=="SUCCESS"):
             action="FINAL_ARCHITECTURE_DECISION"
         else:
             action="REPORT_DECISION"
+    if execution_result is not None:
+        evidence.update(execution_result)
     event_context=grr.inject_context(
       {"resource_class":"light","human_approval_required":False,"storage_preflight_required":False,"deadline_seconds":180},
       actor="central-orchestrator",subject_role=role,project_id="platform-bootstrap",
@@ -166,15 +169,23 @@ def guardian_stage(script:Path,args,phase:str,action_id:str):
     ep=event_dir/(event["event_id"]+".json");save(ep,event)
     p=subprocess.run([sys.executable,str(client),"--policy",str(policy),"check","--event",str(ep)],
                      stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=25)
-    try:verdict=json.loads(p.stdout.strip())
+    try:
+        verdict=json.loads(p.stdout.strip())
+        if not isinstance(verdict,dict):
+            raise ValueError("GUARDIAN_RESPONSE_NOT_OBJECT")
     except Exception:
         verdict={"status":"UNAVAILABLE","reason":"INVALID_GUARDIAN_RESPONSE"}
+    verdict["client_returncode"]=p.returncode
     save(event_dir/(event["event_id"]+".verdict.json"),verdict)
     state=str(verdict.get("verdict") or verdict.get("status") or "UNAVAILABLE")
     if state in {"BLOCK","CRITICAL"}:
         raise RuntimeError("GUARDIAN_STAGE_BLOCK:"+script.name+":"+str(verdict.get("reason_codes") or []))
+    if p.returncode!=0:
+        raise RuntimeError("GUARDIAN_STAGE_UNAVAILABLE:"+script.name+":CLIENT_EXIT_STATUS:"+str(p.returncode))
     if state not in {"PASS","WARNING"}:
         raise RuntimeError("GUARDIAN_STAGE_UNAVAILABLE:"+script.name+":"+str(verdict.get("reason") or state))
+    if verdict.get("remediation_required") is True or verdict.get("stop_recommended") is True:
+        raise RuntimeError("GUARDIAN_REMEDIATION_OR_STOP_REQUIRED:"+script.name)
     return verdict
 
 def _stage_observation_payload(script:Path,args,action_id:str,role:str,returncode:int,runtime_revision:str):
@@ -208,8 +219,28 @@ def run(script,args):
     guardian_stage(Path(script),args,"PRE_ACTION",action_id)
     child_env=dict(os.environ)
     child_env["CHACHA_GUARDIAN_RUN_ID"]=str(_GUARDIAN_CONTEXT.get("run_id") or "")
-    p=subprocess.run([sys.executable,str(script),*map(str,args)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
-                     text=True,check=False,timeout=120,env=child_env)
+    p=None
+    execution_error=None
+    try:
+        p=subprocess.run([sys.executable,str(script),*map(str,args)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                         text=True,check=False,timeout=120,env=child_env)
+    except Exception as exc:
+        execution_error=exc
+    finally:
+        outcome={"execution_attempted":True,
+                 "execution_status":"TIMEOUT" if isinstance(execution_error,subprocess.TimeoutExpired) else
+                                    "ERROR" if execution_error is not None else
+                                    "SUCCESS" if p is not None and p.returncode==0 else "FAILED",
+                 "execution_returncode":p.returncode if p is not None else None,
+                 "execution_error":type(execution_error).__name__ if execution_error else None}
+        try:
+            guardian_stage(Path(script),args,"POST_ACTION",action_id,execution_result=outcome)
+        except Exception as post_error:
+            raise RuntimeError("GUARDIAN_POST_ACTION_UNCONFIRMED:"+Path(script).name+
+                               ":execution="+str(outcome["execution_status"])+
+                               ":post="+type(post_error).__name__) from (execution_error or post_error)
+    if execution_error is not None:
+        raise execution_error
     role=_STAGE_ROLE.get(Path(script).name,"orchestrator")
     _observe_stage(Path(script),args,action_id,role,p.returncode)
     lower=role.lower()
@@ -228,7 +259,6 @@ def run(script,args):
         pass
     if p.returncode!=0:
         raise RuntimeError(f"{script.name}: {p.stderr.strip()} {p.stdout.strip()}")
-    guardian_stage(Path(script),args,"POST_ACTION",action_id)
     return p.stdout
 
 def merge_domain(base,overlay,out):
@@ -362,11 +392,7 @@ def capability_gaps(preplan,contract,capability_registry,semantics_path,project_
     })
 
 def emergency_stop_active(path=Path("/opt/chacha-dev/runtime/control/emergency-stop.json")):
-    try:
-        x=json.loads(path.read_text(encoding="utf-8"))
-        return bool(x.get("active"))
-    except Exception:
-        return False
+    return blocks_execution(path)
 
 def bastion_survival_active(path=Path("/opt/chacha-dev/runtime/control/survival-mode.json")):
     try:

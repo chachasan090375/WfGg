@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import importlib.util,json,re
+import ast,importlib.util,json,re
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -38,8 +38,13 @@ assert "async scheduled(" in worker
 
 orchestrator=text(BIN/"autonomous-project-orchestrator.py")
 assert '"action_id":action_id' in orchestrator
-assert 'guardian_stage(Path(script),args,"PRE_ACTION",action_id)' in orchestrator
-assert 'guardian_stage(Path(script),args,"POST_ACTION",action_id)' in orchestrator
+hooks=[node for node in ast.walk(ast.parse(orchestrator))
+       if isinstance(node,ast.Call) and isinstance(node.func,ast.Name)
+       and node.func.id=="guardian_stage" and len(node.args)==4]
+for phase in ("PRE_ACTION","POST_ACTION"):
+    assert any(isinstance(node.args[2],ast.Constant) and node.args[2].value==phase
+               and isinstance(node.args[3],ast.Name) and node.args[3].id=="action_id"
+               for node in hooks),phase
 assert "GUARDIAN_STAGE_UNAVAILABLE" in orchestrator
 
 runctl=text(BIN/"run-controller.py")
