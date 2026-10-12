@@ -33,6 +33,7 @@ from typing import Any
 import guardian_remediation_runtime as grr
 import universal_learning_runtime as ulr
 import agent_observation_bus as aob
+from guardian_response import response_blockers
 
 PLAN_SCHEMA = "chacha.dev/execution-plan/v1"
 GRAPH_SCHEMA = "chacha.dev/task-graph/v1"
@@ -463,10 +464,10 @@ def guardian_gate(
     if not cfg or cfg.get("enabled") is not True:
         return [], {"status": "DISABLED"}
 
-    # CI/unit environments do not have the ChaCha DEV runtime tree. The real VPS does.
+    # An enabled authority cannot become a fixture just because its state is missing.
     runtime_root = Path(str(cfg.get("runtime_root") or "/opt/chacha-dev/runtime"))
     if not runtime_root.exists():
-        return [], {"status": "NON_RUNTIME_TEST_BYPASS"}
+        return ["GUARDIAN_RUNTIME_UNAVAILABLE_FAIL_CLOSED"], {"status": "UNAVAILABLE", "reason": "GUARDIAN_RUNTIME_MISSING"}
 
     client = release_local_path(cfg.get("client"), "dev-hub/bin/guardian-client.py")
     guardian_policy = release_local_path(cfg.get("policy"), "dev-hub/config/guardian-runtime-policy.v1.json")
@@ -566,6 +567,8 @@ def guardian_gate(
 
     try:
         outcome = json.loads(proc.stdout.strip())
+        if not isinstance(outcome, dict):
+            raise ValueError("GUARDIAN_RESPONSE_NOT_OBJECT")
     except Exception:
         outcome = {
             "schema": "chacha.dev/guardian-local-verdict/v1",
@@ -573,15 +576,9 @@ def guardian_gate(
             "reason": "GUARDIAN_RESPONSE_INVALID",
             "stderr": proc.stderr[-500:],
         }
+    outcome["client_returncode"] = proc.returncode
     save(response_path, outcome)
-    verdict = str(outcome.get("verdict") or outcome.get("status") or "UNAVAILABLE")
-    if verdict == "CRITICAL":
-        return ["GUARDIAN_CRITICAL:" + ",".join(outcome.get("reason_codes") or [])], outcome
-    if verdict == "BLOCK":
-        return ["GUARDIAN_BLOCK:" + ",".join(outcome.get("reason_codes") or [])], outcome
-    if verdict in {"PASS", "WARNING"}:
-        return [], outcome
-    return ["GUARDIAN_UNAVAILABLE_FAIL_CLOSED"], outcome
+    return response_blockers(outcome, proc.returncode), outcome
 
 
 def acquire_lock(project: str, policy: dict[str, Any]) -> tuple[Path, int]:
@@ -918,8 +915,10 @@ def main() -> None:
                 protocol_error: str | None = None
                 if failure_class is None:
                     parsed, protocol_error = parse_adapter_result(stdout, envelope, expected_adapter)
-                    if parsed is None:
-                        failure_class = protocol_error if exit_code == 0 else f"adapter-exit:{exit_code}"
+                    if exit_code != 0:
+                        failure_class = f"adapter-exit:{exit_code}"
+                    elif parsed is None:
+                        failure_class = protocol_error
 
                 if parsed is not None and failure_class is None:
                     result_status = str(parsed.get("status"))
@@ -928,27 +927,9 @@ def main() -> None:
                     result_path = results_dir / f"{basename}.task-result.json"
                     save(result_path, parsed)
                     task_rec["task_result"] = str(result_path)
-                    post_blockers, guardian_post = guardian_gate(
-                        envelope, ledger, policy, binding_errors, guardian_dir, basename,
-                        "POST_ACTION", result_status=result_status
-                    )
-                    task_rec["guardian_post"] = guardian_post
-                    if post_blockers:
-                        semantic_success = False
-                        task_rec["blockers"] = sorted(set((task_rec.get("blockers") or []) + post_blockers))
-                        task_rec["failure_class"] = "guardian-post-block"
-                    else:
-                        task_rec["failure_class"] = None if semantic_success else f"adapter-result:{result_status}"
-                    task_rec["status"] = "SUCCEEDED" if semantic_success else "BLOCKED" if semantic_blocked and not post_blockers else "FAILED"
+                    task_rec["failure_class"] = None if semantic_success else f"adapter-result:{result_status}"
+                    task_rec["status"] = "SUCCEEDED" if semantic_success else "BLOCKED" if semantic_blocked else "FAILED"
                     task_rec["finished_at"] = now_iso()
-                    if semantic_success:
-                        record["summary"]["succeeded"] += 1
-                    elif semantic_blocked and not post_blockers:
-                        record["summary"]["blocked"] += 1
-                        abort_remaining = True
-                    else:
-                        record["summary"]["failed"] += 1
-                        abort_remaining = True
                 else:
                     if failure_class == "timeout":
                         task_rec["status"] = "TIMED_OUT"
@@ -969,21 +950,35 @@ def main() -> None:
                     result_path = results_dir / f"{basename}.task-result.json"
                     save(result_path, failure_result)
                     task_rec["task_result"] = str(result_path)
-                    _, guardian_post = guardian_gate(
-                        envelope, ledger, policy, binding_errors, guardian_dir, basename,
-                        "POST_ACTION", result_status="FAILED"
-                    )
-                    task_rec["guardian_post"] = guardian_post
-                    record["summary"]["failed"] += 1
-                    abort_remaining = True
             except Exception as exc:
                 task_rec["status"] = "FAILED"
                 task_rec["failure_class"] = f"controller-exception:{type(exc).__name__}:{exc}"
                 task_rec["finished_at"] = now_iso()
-                record["summary"]["failed"] += 1
-                abort_remaining = True
             finally:
-                release_lock(lock_path, lock_fd)
+                # Every accepted PRE receives one terminal report, including
+                # exceptions before dispatch. Post refusal cannot leave success.
+                terminal_status = "OK" if task_rec["status"] == "SUCCEEDED" else "BLOCKED" if task_rec["status"] == "BLOCKED" else "FAILED"
+                try:
+                    post_blockers, guardian_post = guardian_gate(
+                        envelope, ledger, policy, binding_errors, guardian_dir, basename,
+                        "POST_ACTION", result_status=terminal_status
+                    )
+                    task_rec["guardian_post"] = guardian_post
+                except Exception as exc:
+                    post_blockers = ["GUARDIAN_POST_ACTION_UNCONFIRMED"]
+                    task_rec["guardian_post"] = {"status": "UNAVAILABLE", "reason": type(exc).__name__}
+                finally:
+                    release_lock(lock_path, lock_fd)
+                if post_blockers:
+                    task_rec["blockers"] = sorted(set(task_rec["blockers"] + post_blockers))
+                    if task_rec["status"] in {"SUCCEEDED", "BLOCKED"}:
+                        task_rec["status"] = "FAILED"
+                        task_rec["failure_class"] = "guardian-post-block"
+                    task_rec["finished_at"] = now_iso()
+            summary_key = "succeeded" if task_rec["status"] == "SUCCEEDED" else "blocked" if task_rec["status"] == "BLOCKED" else "failed"
+            record["summary"][summary_key] += 1
+            if summary_key != "succeeded":
+                abort_remaining = True
             task_rec["learning_delta"]=record_task_learning(task_rec,envelope)
             wave_record["tasks"].append(task_rec)
         record["waves"].append(wave_record)

@@ -28,6 +28,7 @@ jobs:
           python3 dev-hub/tests/test_umg_activation_proof.py
           python3 dev-hub/tests/test_platform_safety_failures.py
           python3 dev-hub/tests/test_platform_safety_process_integration.py
+          python3 dev-hub/tests/test_functional_execution_safety.py
           python3 dev-hub/tests/test_guardian_stop_latch_reconciliation.py
           python3 dev-hub/tests/test_v616_guardian_action_leases.py
           python3 dev-hub/tests/test_v809_guardian_run_propagation.py

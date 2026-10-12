@@ -15,6 +15,7 @@ from unittest.mock import Mock, patch
 BIN=Path(__file__).resolve().parents[1]/'bin'
 sys.path.insert(0,str(BIN))
 from stop_state import inspect_stop, blocks_execution
+from guardian_response import response_blockers
 
 def functions(name, selected, scope):
     tree=ast.parse((BIN/name).read_text())
@@ -124,7 +125,7 @@ class GuardianEventTests(unittest.TestCase):
             t=Path(td);client=t/'client.py';policy=t/'policy.json';output=t/'council.json'
             client.write_text('import json\nprint(json.dumps({"verdict":"PASS"}))\n')
             policy.write_text('{}');output.write_text('{"dispatch_allowed":true,"decisions":[]}')
-            scope={'Path':Path,'sys':sys,'subprocess':subprocess,'json':json,'uuid':uuid,
+            scope={'Path':Path,'sys':sys,'subprocess':subprocess,'json':json,'uuid':uuid,'response_blockers':response_blockers,
                    '_GUARDIAN_CONTEXT':{'enabled':True,'client':client,'policy':policy,'event_dir':t/'events','run_id':'fixture'},
                    '_STAGE_ROLE':{'architecture-decision-council.py':'architecture-decision-council'},
                    'emergency_stop_active':lambda:False,

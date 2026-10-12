@@ -29,7 +29,8 @@ def load_module(path, name):
 
 def source_binding(repo):
     names=['dev-hub/bin/stop_state.py','dev-hub/bin/autonomous-project-orchestrator.py',
-           'dev-hub/bin/run-controller.py','dev-hub/bin/guardian-stop-latch-reconciler.py']
+           'dev-hub/bin/run-controller.py','dev-hub/bin/guardian-stop-latch-reconciler.py',
+           'dev-hub/bin/guardian_response.py']
     hashes={name:hashlib.sha256((repo/name).read_bytes()).hexdigest() for name in names}
     revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()
     modified=bool(subprocess.check_output(['git','status','--porcelain'],cwd=repo,text=True).strip())

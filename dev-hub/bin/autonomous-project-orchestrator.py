@@ -13,6 +13,7 @@ import sys
 import uuid
 from pathlib import Path
 from stop_state import blocks_execution
+from guardian_response import response_blockers
 
 import guardian_remediation_runtime as grr
 import assurance_exchange_runtime as aer
@@ -180,12 +181,11 @@ def guardian_stage(script:Path,args,phase:str,action_id:str,execution_result=Non
     state=str(verdict.get("verdict") or verdict.get("status") or "UNAVAILABLE")
     if state in {"BLOCK","CRITICAL"}:
         raise RuntimeError("GUARDIAN_STAGE_BLOCK:"+script.name+":"+str(verdict.get("reason_codes") or []))
-    if p.returncode!=0:
-        raise RuntimeError("GUARDIAN_STAGE_UNAVAILABLE:"+script.name+":CLIENT_EXIT_STATUS:"+str(p.returncode))
-    if state not in {"PASS","WARNING"}:
-        raise RuntimeError("GUARDIAN_STAGE_UNAVAILABLE:"+script.name+":"+str(verdict.get("reason") or state))
-    if verdict.get("remediation_required") is True or verdict.get("stop_recommended") is True:
+    blockers=response_blockers(verdict,p.returncode)
+    if "GUARDIAN_REMEDIATION_OR_STOP_REQUIRED" in blockers:
         raise RuntimeError("GUARDIAN_REMEDIATION_OR_STOP_REQUIRED:"+script.name)
+    if blockers:
+        raise RuntimeError("GUARDIAN_STAGE_UNAVAILABLE:"+script.name+":"+",".join(blockers))
     return verdict
 
 def _stage_observation_payload(script:Path,args,action_id:str,role:str,returncode:int,runtime_revision:str):

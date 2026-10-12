@@ -11,7 +11,8 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
 FILES=['dev-hub/bin/stop_state.py','dev-hub/bin/autonomous-project-orchestrator.py',
-       'dev-hub/bin/run-controller.py','dev-hub/bin/guardian-stop-latch-reconciler.py']
+       'dev-hub/bin/run-controller.py','dev-hub/bin/guardian-stop-latch-reconciler.py',
+       'dev-hub/bin/guardian_response.py']
 
 def binding():
     return {'source_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),

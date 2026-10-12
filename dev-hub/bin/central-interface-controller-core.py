@@ -409,6 +409,12 @@ def domain_scheduler_run_controller(a,project:str,prior:dict[str,Any],df:dict[st
     if not graph.is_file():
         return make_receipt("CONTINUE",project,"BRAIN_RECEIPT_INVALID","AWAIT_NEW_INSTRUCTION",refs,{"reason":"DOMAIN_EXECUTION_GRAPH_MISSING"})
     graph_payload=load(graph)
+    registry_source=Path(str(readiness.get("capability_registry") or df.get("capability_registry") or (a.repo_root/"dev-hub/config/capability-registry.v1.json")))
+    expected_digests=[x for x in [readiness.get("capability_registry_digest"),df.get("capability_registry_digest"),graph_payload.get("capability_registry_digest")] if x]
+    if not registry_source.is_file() or any(x!=file_digest(registry_source) for x in expected_digests):
+        return make_receipt("CONTINUE",project,"BLOCKED","CAPABILITY_REGISTRY_REVALIDATION_REQUIRED",refs,
+                            {"reason":"EFFECTIVE_CAPABILITY_REGISTRY_MISSING_OR_CHANGED","capability_registry":str(registry_source),"run_controller_started":False})
+    refs.append(str(registry_source)+"#"+file_digest(registry_source))
     execution_project=str(graph_payload.get("project") or project)
     handoff=a.output_dir/"domain-execution-handoff";handoff.mkdir(parents=True,exist_ok=True)
     materialization_path=handoff/"workspace-materialization.json"
@@ -448,7 +454,7 @@ def domain_scheduler_run_controller(a,project:str,prior:dict[str,Any],df:dict[st
     sched=subprocess.run([
         sys.executable,str(scheduler),
         "--graph",str(graph),
-        "--registry",str(a.repo_root/"dev-hub/config/capability-registry.v1.json"),
+        "--registry",str(registry_source),
         "--health",str(health),
         "--policy",str(a.repo_root/"dev-hub/config/execution-scheduler.v1.json"),
         "--agent-contracts",str(agent_contracts),

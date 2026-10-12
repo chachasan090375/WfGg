@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,json
+import argparse,hashlib,json
 from datetime import datetime,timezone
 from pathlib import Path
 from typing import Any
@@ -145,7 +145,13 @@ def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path,healt
     adapter_source=adapters_path if adapters_path is not None else repo_root/"dev-hub/config/provider-adapters.v1.json"
     adapters=load(adapter_source)
     probes=load(repo_root/"dev-hub/config/provider-health-probes.v1.json")
-    registry=load(repo_root/"dev-hub/config/capability-registry.v1.json")
+    plan=load(planning_dir/"final-plan.json") if (planning_dir/"final-plan.json").is_file() else {}
+    registry_source=Path(str(plan.get("active_capability_registry") or (repo_root/"dev-hub/config/capability-registry.v1.json")))
+    if not registry_source.is_absolute():registry_source=planning_dir/registry_source
+    registry=load(registry_source)
+    registry_digest="sha256:"+hashlib.sha256(registry_source.read_bytes()).hexdigest()
+    if graph.get("capability_registry_digest") and graph["capability_registry_digest"]!=registry_digest:
+        raise SystemExit("CAPABILITY_REGISTRY_CHANGED_SINCE_FACTORY")
     economics_policy_path=repo_root/"dev-hub/config/adapter-auto-remediation.v1.json"
     economics_policy=load(economics_policy_path) if economics_policy_path.is_file() else {"profiles":{}}
     economics_profiles=economics_policy.get("profiles") or {}
@@ -291,6 +297,8 @@ def evaluate(repo_root:Path,planning_dir:Path,factory_dir:Path,output:Path,healt
       "health_probe_required":sorted(all_probe),
       "provider_health_snapshot":str(health_path) if health_path is not None else None,
       "provider_adapter_registry":str(adapter_source),
+      "capability_registry":str(registry_source),
+      "capability_registry_digest":registry_digest,
       "provider_execution_started":False,
       "adapter_invocation_started":False,
       "production_permissions_allowed":False,

@@ -72,7 +72,12 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
     semantics=load(repo_root/"dev-hub/config/capability-semantics.v1.json")
     toolchain_semantics_path=repo_root/"dev-hub/config/domain-toolchain-semantics.v1.json"
     toolchain_semantics=load(toolchain_semantics_path) if toolchain_semantics_path.is_file() else {"encapsulated_provider_tools":{}}
-    capability_registry=load(repo_root/"dev-hub/config/capability-registry.v1.json")
+    registry_source=Path(str(plan.get("active_capability_registry") or (repo_root/"dev-hub/config/capability-registry.v1.json")))
+    if not registry_source.is_absolute():registry_source=planning/registry_source
+    capability_registry=load(registry_source)
+    if capability_registry.get("schema")!="chacha.dev/capability-registry/v1":
+        raise SystemExit("CAPABILITY_REGISTRY_SCHEMA_INVALID")
+    registry_digest="sha256:"+hashlib.sha256(registry_source.read_bytes()).hexdigest()
     capability_permissions=load(repo_root/"dev-hub/config/domain-capability-permissions.v1.json")
 
     errors=[]
@@ -263,6 +268,8 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
       "project":project_id,
       "transition":"DOMAIN_FACTORIES->DOMAIN_EXECUTION",
       "tasks":tasks,
+      "capability_registry":str(registry_source),
+      "capability_registry_digest":registry_digest,
       "guardian_binding":None,
       "internal_work_items":internal_work_items,
       "summary":{
@@ -300,6 +307,8 @@ def build(repo_root:Path,planning:Path,output_dir:Path)->dict[str,Any]:
       "next_stage":"PROVIDER_HEALTH_REQUIRED" if status=="READY" else "DOMAIN_FACTORY_REPAIR_REQUIRED",
       "architecture_council_dispatch_allowed":council.get("dispatch_allowed") is True,
       "planning_dir":str(planning),
+      "capability_registry":str(registry_source),
+      "capability_registry_digest":registry_digest,
       "agent_topology":str(planning/"agent-topology.json"),
       "contract_reconciliation":str(output_dir/"contract-reconciliation.json"),
       "domain_execution_graph":str(output_dir/"domain-execution-graph.json"),

@@ -6,6 +6,8 @@ import argparse,json,os,subprocess,sys,tempfile,uuid
 from pathlib import Path
 from typing import Any
 import technology_watch_runtime as tw
+from guardian_response import response_blockers
+from stop_state import blocks_execution
 
 MANDATORY=("technology-watch-pre","central-memory-assimilation","component-confidence","central-memory-recall","architecture-memory","architecture-portfolio","reuse-memory","branch-foundry","agent-foundry","capability-foundry","constraint-policy","technology-watch-final")
 
@@ -72,9 +74,12 @@ def architecture_memory_package(candidate:dict[str,Any],domain:str,caps:list[str
     return None
 
 
-def guardian_subcomponent(root:Path,subject_role:str,task_kind:str,phase:str,action_id:str,output:Path|None=None)->None:
+def guardian_subcomponent(root:Path,subject_role:str,task_kind:str,phase:str,action_id:str,output:Path|None=None,execution_result:dict[str,Any]|None=None)->None:
     if not Path("/opt/chacha-dev/runtime").exists():
         return
+    stop_active=blocks_execution()
+    if phase=="PRE_ACTION" and stop_active:
+        raise RuntimeError("GUARDIAN_SUBCOMPONENT_BLOCK:STOP_ACTIVE_OR_UNKNOWN")
     client=root/"dev-hub/bin/guardian-client.py"
     policy=root/"dev-hub/config/guardian-runtime-policy.v1.json"
     if not client.is_file() or not policy.is_file():
@@ -92,7 +97,9 @@ def guardian_subcomponent(root:Path,subject_role:str,task_kind:str,phase:str,act
       "project_id":"platform-bootstrap",
       "run_id":os.environ.get("CHACHA_GUARDIAN_RUN_ID") or None,
       "adapters":[],
-      "evidence":{"emergency_stop_active":False,"output_exists":bool(output and output.exists())},
+      "evidence":{"emergency_stop_active":stop_active,
+                  "output_exists":bool(phase=="POST_ACTION" and execution_result and execution_result.get("execution_status")=="SUCCESS" and output and output.exists()),
+                  **(execution_result or {})},
       "context":{"resource_class":"light","human_approval_required":False,
                  "storage_preflight_required":False,"deadline_seconds":90}
     }
@@ -103,11 +110,9 @@ def guardian_subcomponent(root:Path,subject_role:str,task_kind:str,phase:str,act
                          stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=25)
     try:v=json.loads(p.stdout.strip())
     except Exception:v={"status":"UNAVAILABLE"}
-    state=str(v.get("verdict") or v.get("status") or "UNAVAILABLE")
-    if state in {"BLOCK","CRITICAL"}:
-        raise RuntimeError("GUARDIAN_SUBCOMPONENT_BLOCK:"+subject_role+":"+str(v.get("reason_codes") or []))
-    if state not in {"PASS","WARNING"}:
-        raise RuntimeError("GUARDIAN_SUBCOMPONENT_UNAVAILABLE:"+subject_role)
+    blockers=response_blockers(v,p.returncode)
+    if blockers:
+        raise RuntimeError("GUARDIAN_SUBCOMPONENT_BLOCK:"+subject_role+":"+",".join(blockers))
 
 
 def run_architecture_portfolio(root:Path,preplan:Path,branch_topology:Path,agent_topology:Path,
@@ -121,12 +126,25 @@ def run_architecture_portfolio(root:Path,preplan:Path,branch_topology:Path,agent
         cmd+=["--comparative-pilot-result",str(comparative_pilot_result)]
     action_id="portfolio-"+uuid.uuid4().hex
     guardian_subcomponent(root,"architecture-portfolio-optimizer","architecture-portfolio-optimizer","PRE_ACTION",action_id,output)
-    p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=45)
-    if p.returncode!=0:
-        return {"schema":"chacha.dev/architecture-portfolio-optimizer/v1","decision_ready":False,
-                "mode":"BLOCKED","reason":"PORTFOLIO_OPTIMIZER_FAILED","error":(p.stderr or p.stdout)[-700:]}
-    guardian_subcomponent(root,"architecture-portfolio-optimizer","architecture-portfolio-optimizer","POST_ACTION",action_id,output)
-    return json.loads(output.read_text(encoding="utf-8"))
+    execution_error=None
+    execution_result={"execution_status":"ERROR","execution_attempted":False,"execution_returncode":None}
+    try:
+        execution_result["execution_attempted"]=True
+        p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False,timeout=45)
+        execution_result.update(execution_status="SUCCESS" if p.returncode==0 else "FAILED",execution_returncode=p.returncode)
+        if p.returncode!=0:
+            return {"schema":"chacha.dev/architecture-portfolio-optimizer/v1","decision_ready":False,
+                    "mode":"BLOCKED","reason":"PORTFOLIO_OPTIMIZER_FAILED","error":(p.stderr or p.stdout)[-700:]}
+        return json.loads(output.read_text(encoding="utf-8"))
+    except BaseException as exc:
+        execution_error=exc
+        execution_result["execution_status"]="TIMEOUT" if isinstance(exc,subprocess.TimeoutExpired) else "ERROR"
+        raise
+    finally:
+        try:
+            guardian_subcomponent(root,"architecture-portfolio-optimizer","architecture-portfolio-optimizer","POST_ACTION",action_id,output,execution_result=execution_result)
+        except Exception as post_error:
+            raise RuntimeError("GUARDIAN_POST_ACTION_UNCONFIRMED:architecture-portfolio-optimizer") from (execution_error or post_error)
 
 
 def by_package(topology:dict[str,Any])->dict[str,dict[str,Any]]:
