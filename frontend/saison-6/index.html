@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#090b15">
+  <meta name="description" content="WfGg — Classement officiel archivé des membres de l'alliance pour la saison 6 de Last War. Résultats, podium, statistiques et classement complet.">
+  <meta property="og:title" content="WfGg | Résultats de la Saison 6">
+  <meta property="og:description" content="66 combattants. 3 fronts. Un classement. Découvrez les résultats de la saison 6 de l'alliance WfGg.">
+  <meta property="og:type" content="website">
+  <title>WfGg — Résultats de la Saison 6 | Last War</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="background-noise" aria-hidden="true"></div>
+  <canvas id="embers" aria-hidden="true"></canvas>
+  <a class="skip-link" href="#classement">Aller au classement</a>
+  <header class="site-header">
+    <div class="shell nav-wrap">
+      <a class="brand" href="https://wfgg.pages.dev/" aria-label="Retour au portail WfGg"><span class="brand-emblem">W</span><span class="brand-word">Wf<span>G</span>g</span><span class="brand-divider"></span><span class="brand-caption">ALLIANCE ARCHIVES</span></a>
+      <div class="header-actions"><span class="live-dot"></span><span>SAISON <strong>06</strong></span><a class="portal-link" href="https://wfgg.pages.dev/">PORTAIL <span aria-hidden="true">↗</span></a></div>
+    </div>
+  </header>
+  <main>
+    <section class="hero" aria-label="Résultats saison 6">
+      <div class="hero-illustration" aria-hidden="true">
+        <svg class="battle-art" viewBox="0 0 1440 730" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#222344"/><stop offset=".51" stop-color="#3a2446"/><stop offset="1" stop-color="#10111e"/></linearGradient>
+            <radialGradient id="blast"><stop stop-color="#f7a459" stop-opacity=".72"/><stop offset=".28" stop-color="#ed626d" stop-opacity=".36"/><stop offset="1" stop-color="#a74fe7" stop-opacity="0"/></radialGradient>
+            <linearGradient id="land" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#252636"/><stop offset="1" stop-color="#070911"/></linearGradient>
+            <linearGradient id="tank" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#333950"/><stop offset="1" stop-color="#090c17"/></linearGradient>
+          </defs>
+          <rect width="1440" height="730" fill="url(#sky)"/>
+          <circle cx="1120" cy="380" r="365" fill="url(#blast)"/>
+          <circle cx="1104" cy="288" r="136" fill="#d48f95" opacity=".16"/>
+          <circle cx="1104" cy="288" r="104" fill="#7e7894" opacity=".18"/>
+          <g fill="#0d1020" opacity=".42"><path d="M0 435L60 420 96 372 131 432 180 420 207 313 238 320 242 404 288 397 310 338 349 341 361 423 403 403 440 430 492 350 519 348 541 404 584 420 620 405 653 432 703 391 743 430 795 409 830 356 855 358 890 419 950 388 1028 421 1084 395 1144 412 1200 390 1243 419 1305 386 1364 409 1440 376V730H0Z"/></g>
+          <g fill="#0c0d1a" opacity=".7"><path d="M0 515L44 495 80 511 118 449 159 478 204 448 227 480 276 445 312 465 361 432 378 450 402 466 430 444 459 452 489 436 527 452 566 423 592 439 610 480 635 465 666 483 705 440 743 452 771 442 806 477 837 461 869 482 905 455 951 487 1004 450 1064 466 1120 439 1152 451 1206 430 1260 469 1329 445 1373 469 1440 433V730H0Z"/></g>
+          <g stroke="#e18184" stroke-width="2" opacity=".4" fill="none"><path d="M500 330l160 -40"/><path d="M900 347l80 -18"/><path d="M1250 450l160 -60"/></g>
+          <g fill="#111421"><path d="M670 450h76v-150h24v150h20v-84h48v84h12v-118h54v118h20v-66h70v66h70v95H670Z"/><path d="M748 300l12 -56 12 56Z"/><path d="M841 363l25 -56 24 56Z"/></g>
+          <path d="M0 544Q180 516 314 545T632 537 962 529 1248 554 1440 530V730H0Z" fill="url(#land)"/>
+          <g transform="translate(880 470)"><ellipse cx="152" cy="126" rx="256" ry="38" fill="#050711" opacity=".45"/><path d="M-11 82L40 46 122 37 154 6 213 8 229 37 288 45 324 81 313 110 8 110Z" fill="url(#tank)" stroke="#4e5572" stroke-width="3"/><path d="M115 37L171 -7 216 -7 234 32Z" fill="#171b2c" stroke="#4c5269" stroke-width="3"/><path d="M208 3L382 -16 388 -7 218 17Z" fill="#252c40"/><path d="M24 95H306L285 127H49Z" fill="#090c17" stroke="#5b5b70" stroke-width="3"/><g fill="#171a28" stroke="#555669" stroke-width="2"><circle cx="76" cy="112" r="20"/><circle cx="135" cy="112" r="20"/><circle cx="194" cy="112" r="20"/><circle cx="252" cy="112" r="20"/></g><path d="M300 68l26 8-12 14-20-4Z" fill="#f8a777"/></g>
+          <g transform="translate(270 535) scale(.6)"><path d="M-80 25L-18 1 90 0 120 -32 175 -30 194 0 241 14 264 42 243 67H-80Z" fill="#161a29" stroke="#4d4f67" stroke-width="4"/><path d="M102 0L139 -65 177 -64 194 2Z" fill="#20243b"/><path d="M168 -42L345 -74 348 -63 190 -23Z" fill="#34344b"/><path d="M-53 51H232L219 81H-27Z" fill="#090b15"/><g fill="#2d3040"><circle cx="0" cy="65" r="23"/><circle cx="68" cy="65" r="23"/><circle cx="136" cy="65" r="23"/><circle cx="202" cy="65" r="23"/></g></g>
+          <g fill="#121425"><path d="M128 581l26 -66 12 -2 20 68Zm160 -4l20 -54 13 -3 14 57Zm410 3l17 -65 18 7 13 58Z"/></g>
+          <path d="M0 605Q260 576 445 606T820 602 1140 605 1440 590V730H0Z" fill="#080b15" opacity=".78"/>
+          <g opacity=".45" stroke="#b98aff" fill="none"><circle cx="1194" cy="209" r="166" stroke-dasharray="3 15"/><circle cx="1194" cy="209" r="122" stroke-dasharray="1 12"/><path d="M1028 209h332M1194 43v332" opacity=".5"/></g>
+        </svg>
+        <div class="hero-veil"></div>
+        <div class="scanlines"></div>
+      </div>
+      <div class="shell hero-content">
+        <div class="eyebrow"><span class="eyebrow-line"></span> LAST WAR · ARCHIVES DE L'ALLIANCE <span class="season-num">/ 006</span></div>
+        <div class="hero-title-wrap"><div class="hero-side-label">SURVIVANTS // CLASSEMENT</div><h1>LES LÉGENDES<br><span>DE LA <em>SAISON 6</em></span></h1></div>
+        <p class="hero-lead">Trois fronts. Soixante-six combattants. Une saison qui a marqué l'histoire de <strong>WfGg</strong>. Découvrez ceux qui ont tenu la ligne.</p>
+        <div class="hero-meta"><span><i class="meta-icon">◈</i> SAISON 06</span><span><i class="meta-icon">⌁</i> 14 OCTOBRE 2026</span><span><i class="meta-icon">◎</i> ALLIANCE WFGG</span></div>
+        <a href="#podium" class="hero-cta">DÉCOUVRIR LE PALMARÈS <span>↘</span></a>
+      </div>
+      <div class="hero-bottom shell"><div class="serial">WFGG // S06 // ARCHIVE 001</div><div class="scroll-cue">DÉFILER POUR EXPLORER <span>↓</span></div></div>
+    </section>
+
+    <section class="stats shell reveal" aria-label="Chiffres-clés de la saison 6">
+      <div class="stat"><span class="stat-icon">01 // EFFECTIF</span><div class="stat-value" data-count="66">66</div><span class="stat-label">membres classés</span></div>
+      <div class="stat"><span class="stat-icon">02 // COMBAT</span><div class="stat-value" data-count="3">03</div><span class="stat-label">fronts évalués</span></div>
+      <div class="stat"><span class="stat-icon">03 // CAPTURER</span><div class="stat-value" data-count="45">45</div><span class="stat-label">participants</span></div>
+      <div class="stat"><span class="stat-icon">04 // VAINCRE</span><div class="stat-value" data-count="59">59</div><span class="stat-label">participants</span></div>
+    </section>
+
+    <section class="section-podium shell" id="podium">
+      <div class="section-intro reveal"><span class="kicker">01 / LE PALMARÈS</span><h2>LES NOMS <em>À RETENIR.</em></h2><p>Les meilleurs totaux de positions de la saison 6. Le classement respecte les égalités : trois combattants partagent la deuxième place.</p></div>
+      <div id="podiumCards" class="podium-grid" aria-label="Podium de la saison 6"><div class="loading-text">Chargement des résultats…</div></div>
+      <div class="legend-strip reveal"><span class="legend-icon">✦</span><p><strong>Règle du palmarès</strong> · Plus le total de rangs est faible, meilleure est la position générale. Les égalités sont conservées.</p></div>
+    </section>
+
+    <section class="analysis-band" id="analyse"><div class="shell analysis-layout">
+      <div class="analysis-copy reveal"><span class="kicker">02 / DÉCRYPTAGE</span><h2>UNE SAISON.<br><em>TROIS FRONTS.</em></h2><p>La performance ne se résume pas à une victoire. Mérite de guerre, Capturer et Vaincre composent ensemble le score final.</p>
+        <div class="participation"><div><span class="p-label">MÉRITE DE GUERRE</span><strong>66 / 66</strong><div class="track"><span style="width:100%"></span></div></div><div><span class="p-label">CAPTURER</span><strong>45 / 66</strong><div class="track"><span style="width:68.18%"></span></div></div><div><span class="p-label">VAINCRE</span><strong>59 / 66</strong><div class="track"><span style="width:89.39%"></span></div></div></div>
+      </div>
+      <div class="chart-card reveal"><div class="chart-head"><span>TOP 10</span><span>INDICE DE PERFORMANCE</span></div><div class="chart-note">Un total plus faible correspond à un meilleur classement.</div><div id="topChart" class="top-chart"><div class="loading-text">Chargement du graphique…</div></div><div class="chart-footer"><span>WFGG TACTICAL INTELLIGENCE</span><span>SEASON 06</span></div></div>
+    </div></section>
+
+    <section class="ranking-section shell" id="classement">
+      <div class="section-intro reveal"><span class="kicker">03 / ARCHIVES COMPLÈTES</span><h2>TOUS LES <em>COMBATTANTS.</em></h2><p>Les 66 membres présents dans l'alliance à la clôture de ce relevé. Recherchez un nom et explorez les rangs par front.</p></div>
+      <div class="ranking-panel reveal">
+        <div class="panel-top"><span class="panel-title"><span class="blink-dot"></span> REGISTRE DES COMBATTANTS</span><span class="panel-code">DATASET : WFGG_S06_2026</span></div>
+        <div class="filters"><div class="tab-group" role="group" aria-label="Choisir un classement"><button class="tab active" type="button" data-sort="total" aria-pressed="true">GÉNÉRAL</button><button class="tab" type="button" data-sort="war" aria-pressed="false">MÉRITE DE GUERRE</button><button class="tab" type="button" data-sort="capture" aria-pressed="false">CAPTURER</button><button class="tab" type="button" data-sort="kill" aria-pressed="false">VAINCRE</button></div>
+          <label class="search-box"><span aria-hidden="true">⌕</span><input type="search" id="search" placeholder="Rechercher un joueur…" autocomplete="off" aria-label="Rechercher un joueur"></label>
+        </div>
+        <div class="table-surface"><table><thead><tr><th scope="col">RANG <span id="rankSortInfo">GÉN.</span></th><th scope="col">COMBATTANT</th><th scope="col" class="grade-col">GRADE</th><th scope="col">MÉRITE</th><th scope="col">CAPTURER</th><th scope="col">VAINCRE</th><th scope="col">TOTAL</th></tr></thead><tbody id="rankingBody"></tbody></table></div>
+        <div class="panel-bottom"><span id="resultCount" aria-live="polite">66 COMBATTANTS AFFICHÉS</span><button type="button" id="downloadCsv" class="download-btn">EXPORTER LE CLASSEMENT <span>↓</span></button></div>
+      </div>
+    </section>
+
+    <section class="method-section shell reveal" id="methode"><div class="method-number">04 / MÉTHODOLOGIE</div><div class="method-content"><h2>LA RÈGLE <em>DU CLASSEMENT.</em></h2><p>Seuls les membres présents dans l'alliance au moment du relevé sont pris en compte. Les positions sont recalculées entre ces membres uniquement, puis additionnées sur les trois catégories.</p><div class="method-grid"><div><span>01</span><strong>PARTICIPATION</strong><p>Les participants obtiennent leur place parmi les membres WfGg de la catégorie.</p></div><div><span>02</span><strong>ABSENCE</strong><p>Un absent reçoit le rang situé juste après le dernier participant, à égalité avec les autres absents.</p></div><div><span>03</span><strong>CLASSEMENT FINAL</strong><p>Rang Mérite + rang Capturer + rang Vaincre. Plus le total est petit, meilleur est le classement.</p></div></div><p class="method-footnote">Rangs attribués aux absents : Capturer = 46, Vaincre = 60. Aucun absent en Mérite de guerre. Relevé figé au 14 octobre 2026, Saison 6.</p></div></section>
+  </main>
+  <footer class="footer"><div class="shell footer-inner"><div class="footer-brand"><span class="footer-w">W</span><div><strong>WfGg</strong><span>ENSEMBLE, JUSQU'AU DERNIER FRONT.</span></div></div><div class="footer-right">LAST WAR · RÉSULTATS SAISON 6<br>ARCHIVE DU 14.10.2026 · <a href="https://wfgg.pages.dev/">PORTAIL WFGG ↗</a></div></div></footer>
+</body>
+</html>
